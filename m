@@ -1,55 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793789914;
-	b=1MBTMPt5w3QoNyE6kwYV8n8Lh0PYRgFye+9SobhpokkFKYd415E9zxGD1Rrg14nw9UFB
-	 d8oWxL8mFJLLa/jMNSGalLFKCEVCn3GUP9aoX5aM1JFnsbM+0nd5j7KoQeDYkYBQm3C66
-	 6NVntal75yGwoHOrQc3dtFVGVLyIkfkJ+h2vunT5ePSrnDsZ4q753/LCVuZh+739g+C08
-	 VFuGIpxxj5JRxh0qySEM8H2Eqy5Kjw48klLBxIM8uXk4tS2HZALTtrjqD5evYLg5m7D6i
-	 jP09S4pc2IJ0ArYyqjLMo3gqX/Nn2q5ajkcD0hhDwdN3kD1E0btVLK0pQI31R2iDqeA==
+	t=1793790147;
+	b=gshP1D1FMjglxPcURSvu1aCz3vxc1rFt5ebfIECyGtYGa6KqQ1ePXksACJtBg3eA7v/I
+	 PHMHJ9ruZqbqrRW+6LRymVrW6GxVaPW3abEGUYXobZ6r9DMRRTptl0OCtXbyks8GLsvUk
+	 UrP+nRN+kWlbgs85pjeoR4d1VgxsTFIEIn9Rc5o/9y6oTIVl0VrquWpXn4E7fEhGS4qAJ
+	 VZE7xEw6gXrVvxK1BUHaS/TQMH0DxLSMF/v6L6r2Mu9l3akgg6jKubLT8VFV26Ns17hRS
+	 9CJqY2ML3/n619thyN1+xFnaXyqt1Zo94DS5SUK56H/G9Rp4X8BoHw5+/0h0nW1Th1w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793789914;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793790147;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=UYMZYA16pBJWYaNihgVXIF9xjzU0+2ohahxkf0gwfVc=;
-	b=f+odEFr/jri0Wjc93B2AYQTAsAMhYawiEVXOdSVc3wCCnjIFUYvB2Krg0z5H1WAdxaRq
-	 XsGBSK4WqZZpbjKroRo9qcdhbwk9taUVzcnG69O5dISDsGn0JL4rzNVN1qzz1LJO+QRvt
-	 x8Wp/MtAX9Kpahssc4g6na2bOt8MpvKFQReYb2l5t4bzePgM0eF4Xy47+eU1at4n4iP7n
-	 ogQ3cQ6gyCBWAs/cmgZKZOU9aO/js7szCRgcwwcghYZestel0hYGspK1YRHs7rovVgQyV
-	 UalFbDyd0xynjrSGH2TbSmy61EOtEIicfq1wT4OzBxbQJOBH9F2tD+bbVcYpUPgq85Q==
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=7VuWj7zEvZVZovhUG6+Wn2YICpsQy6MzIBw8j4mBmkc=;
+	b=N4qKn91ISZrdL/8gBSneEnwYrLuIg0l1RSm8LTGiZp62AZ9I7DS0KUrFavNAE9z4Ofcj
+	 3cg/cEhWzarJ2sLvVVjKSgRrV1lmhgKInQb1AgpFBeYHkF8dmeoLpXOeOgosHOgi9Vid8
+	 Ko9VoMclYD6Fc7Hx74c5kq/5y6Dj+YUogPewXNWdUyf4Mhc80v1AvhO+gQ1hu32DzW1oX
+	 dM8YcAOv8i0aCVlcE6HupxFSeIC5ijQR9iMxrdDIrZHt6YYmyVO//hzLHI6hU44ZS4kt7
+	 IAHPZm5n9A4mILIdx9K22ZEN5O1Mf5qw3VY2p4aJgF7IaECApMp1DnrcdMU1eLBG+9w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AJVeFQnb;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TYavcA3i;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51A69606A31B;
-	Wed,  4 Nov 2026 10:58:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581ED606A335;
+	Wed,  4 Nov 2026 11:02:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AJVeFQnb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626021F000C1;
-	Wed,  4 Nov 2026 10:58:32 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TYavcA3i
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D778B1F00919;
+	Wed,  4 Nov 2026 11:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793789914;
-	bh=UYMZYA16pBJWYaNihgVXIF9xjzU0+2ohahxkf0gwfVc=;
+	s=k20260515; t=1793790146;
+	bh=7VuWj7zEvZVZovhUG6+Wn2YICpsQy6MzIBw8j4mBmkc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AJVeFQnb6VpMx40meUsvImeqFm1Ho0oI2xBeCY2Vz0GN/UolsUN+T7DAr0lEVoJY+
-	 u7R9TGhgk/uITOn9aBD5Q9RSTzV6OVQ3cNn7qrk0mmniV/2Lycp/7XX77G9Gk00445
-	 tNojgdaSBrRrZzp5/EIoJb+Npm+1VC0lP75BK2PMlGQxxrCwwMy1c4EzeP4zFwPRdN
-	 Fo6X2gStnKUsBvj/JdLT4srE+fW00YDc+qFvgSOzosomKInJVKUvd/nVpBneg7NYnP
-	 Ri6Sjue8N7LMkf5EWuuG1AkFicMniK+6HxjZnyjSnai3FJxYAiJ5P8gtgn1eAXrdIy
-	 OspWeFijkhAVg==
-Date: Wed, 4 Nov 2026 10:58:29 +0000
+	b=TYavcA3iWsNqIn2LSq2HAm/CowvFmf2BrmpRhdBUaFJu1pUOCNnlAR8n0xS2n/JMd
+	 pxm7pGu3WlBksxD8jLb8TcgR69x+mgMsM1QieFse5cQKNK0QWQCbVhmkNxkFcV3L/l
+	 OFJB1eg5Ri6Llp9lqbP+/FLgArUD7xM1Ue0tlvxoh011C5VUPWKPgQIEzXfH6dEhdt
+	 DwIbk2Jujduo9GEV8XkWgl52gzviiL8DMgrPjNnbJWYYuUs8Bylxi8WtTsKvAiwG9K
+	 NLkCpLES7XMD7/cLq2nbr/UZk7n9KJabkz6H5UYKlJxdBUGG/iGuhUB5mYow1URnWi
+	 dyjWrmmBcwoXA==
+Date: Wed, 4 Nov 2026 11:02:21 +0000
 From: Lee Jones <lee@kernel.org>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: dmitry.torokhov@gmail.com, jic23@kernel.org,
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+	Ion Agorria <ion@agorria.com>,
+	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+	Florian Krischer <florian.krischer@fkr.dev>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org, mfd@lists.linux.dev,
-	linux-iio@vger.kernel.org, stable@vger.kernel.org,
-	Marc Zyngier <maz@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>
-Subject: Re: [PATCH] mfd: mxs-lradc: Pass mapped IRQs to child devices
-Message-ID: <20261104105829.GI792264@google.com>
-References: <20261018022400.599028-1-festevam@gmail.com>
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH v12 5/7] leds: Add driver for ASUS Transformer LEDs
+Message-ID: <20261104110221.GK792264@google.com>
+References: <20261019100406.103687-1-clamor95@gmail.com>
+ <20261019100406.103687-6-clamor95@gmail.com>
+ <179249575817.1833288.1089755405582445022@kernel.org>
+ <CAPVz0n0=6Z7E9iSc84xL6Jt=Xi=a=qmSwVsT5g-LMZ+mENFkzg@mail.gmail.com>
+ <20261104082839.GD792264@google.com>
+ <CAPVz0n2aCy9Kx5kK1EZD3qxN=KCSf=cB7ZnP1SedrrJc13sh2g@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,157 +70,228 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261018022400.599028-1-festevam@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPVz0n2aCy9Kx5kK1EZD3qxN=KCSf=cB7ZnP1SedrrJc13sh2g@mail.gmail.com>
 
-On Sat, 17 Oct 2026, Fabio Estevam wrote:
+On Wed, 04 Nov 2026, Svyatoslav Ryhel wrote:
 
-> The MFD resource tables store indices into the parent DT interrupts
-> property. Since the MFD core is given neither an IRQ domain nor a base,
-> however, it exposes those indices to child devices as though they were
-> Linux IRQ numbers.
+> ср, 4 лист. 2026 р. о 10:28 Lee Jones <lee@kernel.org> пише:
+> >
+> > On Tue, 03 Nov 2026, Svyatoslav Ryhel wrote:
+> >
+> > > вт, 3 лист. 2026 р. о 16:03 Lee Jones <lee@kernel.org> пише:
+> > > >
+> > > > On Mon, 19 Oct 2026, Svyatoslav Ryhel wrote:
+> > > > > From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> > > > >
+> > > > > ASUS Transformer tablets have a green and an amber LED on both the Pad
+> > > > > and the Dock. If both LEDs are enabled simultaneously, the emitted light
+> > > > > will be yellow.
+> > > > >
+> > > > > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > > > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> > > > > ---
+> > > > >  drivers/leds/Kconfig                    |  11 +++
+> > > > >  drivers/leds/Makefile                   |   1 +
+> > > > >  drivers/leds/leds-asus-transformer-ec.c | 125 ++++++++++++++++++++++++
+> > > > >  3 files changed, 137 insertions(+)
+> > > > >  create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+> > > > >
+> > > > > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> > > > > index 7ec2c8d785426..788e689fe875c 100644
+> > > > > --- a/drivers/leds/Kconfig
+> > > > > +++ b/drivers/leds/Kconfig
+> > > > > @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
+> > > > >         To compile this driver as a module, choose M here: the module
+> > > > >         will be called leds-as3668.
+> > > > >
+> > > > > +config LEDS_ASUS_TRANSFORMER_EC
+> > > > > +     tristate "LED Support for Asus Transformer charging LED"
+> > > > > +     depends on LEDS_CLASS
+> > > > > +     depends on MFD_ASUS_TRANSFORMER_EC
+> > > > > +     help
+> > > > > +       This option enables support for charging indicator on
+> > > > > +       Asus Transformer's Pad and its Dock.
+> > > > > +
+> > > > > +       To compile this driver as a module, choose M here: the module
+> > > > > +       will be called leds-asus-transformer-ec.
+> > > > > +
+> > > > >  config LEDS_AW200XX
+> > > > >       tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
+> > > > >       depends on LEDS_CLASS
+> > > > > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> > > > > index 4d4b089156e24..3da746279bb81 100644
+> > > > > --- a/drivers/leds/Makefile
+> > > > > +++ b/drivers/leds/Makefile
+> > > > > @@ -15,6 +15,7 @@ obj-$(CONFIG_LEDS_ADP5520)          += leds-adp5520.o
+> > > > >  obj-$(CONFIG_LEDS_AN30259A)          += leds-an30259a.o
+> > > > >  obj-$(CONFIG_LEDS_APU)                       += leds-apu.o
+> > > > >  obj-$(CONFIG_LEDS_ARIEL)             += leds-ariel.o
+> > > > > +obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)       += leds-asus-transformer-ec.o
+> > > > >  obj-$(CONFIG_LEDS_OSRAM_AMS_AS3668)  += leds-as3668.o
+> > > > >  obj-$(CONFIG_LEDS_AW200XX)           += leds-aw200xx.o
+> > > > >  obj-$(CONFIG_LEDS_AW2013)            += leds-aw2013.o
+> > > > > diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
+> > > > > new file mode 100644
+> > > > > index 0000000000000..1b129247ea6c6
+> > > > > --- /dev/null
+> > > > > +++ b/drivers/leds/leds-asus-transformer-ec.c
+> > > > > @@ -0,0 +1,125 @@
+> > > > > +// SPDX-License-Identifier: GPL-2.0-only
+> > > > > +
+> > > > > +#include <linux/err.h>
+> > > > > +#include <linux/leds.h>
+> > > > > +#include <linux/mfd/asus-transformer-ec.h>
+> > > > > +#include <linux/module.h>
+> > > > > +#include <linux/platform_device.h>
+> > > > > +#include <linux/slab.h>
+> > > > > +
+> > > > > +enum {
+> > > > > +     ASUSEC_LED_AMBER,
+> > > > > +     ASUSEC_LED_GREEN,
+> > > > > +     ASUSEC_LED_MAX
+> > > > > +};
+> > > > > +
+> > > > > +struct asus_ec_led_config {
+> > > > > +     const char *name;
+> > > > > +     unsigned int color;
+> > > > > +     u64 ctrl_bit;
+> > > > > +};
+> > > > > +
+> > > > > +struct asus_ec_led {
+> > > > > +     struct asus_ec_leds_data *ddata;
+> > > >
+> > > >
+> > > > Why do we need 'struct ' at all?
+> > > >
+> > > > If we put 'const struct asusec_core *ec;' directly into 'struct
+> > > > asus_ec_led', we can drop the outer wrapper struct and the back-pointer
+> > > > completely.
+> > > >
+> > >
+> > > You propose to allocate asus_ec_led for each led in a loop? I have not
+> > > seen this done by other leds. The asus_ec_leds_data is driver ddata,
+> > > asus_ec_led is each led individual structure.
+> >
+> > For your whole 2 LEDs, yes, I think that will be better.
+> >
+> > > > > +     struct led_classdev cdev;
+> > > > > +     u64 ctrl_bit;
+> > > > > +};
+> > > > > +
+> > > > > +struct asus_ec_leds_data {
+> > > > > +     const struct asusec_core *ec;
+> > > > > +     struct asus_ec_led leds[ASUSEC_LED_MAX];
+> > > > > +};
+> > > > > +
+> > > > > +static const struct asus_ec_led_config asus_ec_leds[] = {
+> > > > > +     [ASUSEC_LED_AMBER] = {
+> > > > > +             .name = "amber",
+> > > > > +             .color = LED_COLOR_ID_AMBER,
+> > > > > +             .ctrl_bit = ASUSEC_CTL_LED_AMBER,
+> > > > > +     },
+> > > > > +     [ASUSEC_LED_GREEN] = {
+> > > > > +             .name = "green",
+> > > > > +             .color = LED_COLOR_ID_GREEN,
+> > > > > +             .ctrl_bit = ASUSEC_CTL_LED_GREEN,
+> > > > > +     },
+> > > > > +};
+> > > > > +
+> > > > > +static enum led_brightness asus_ec_led_get_brightness(struct led_classdev *cdev)
+> > > > > +{
+> > > > > +     struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
+> > > > > +     const struct asusec_core *ec = led->ddata->ec;
+> > > > > +     u64 ctl;
+> > > > > +     int ret;
+> > > > > +
+> > > > > +     ret = asus_dockram_access_ctl(ec->dockram, &ctl, 0, 0);
+> > > >
+> > > > As requested on v6 and v8, why are we still using this bespoke accessor instead
+> > > > of Regmap?
+> > >
+> > > https://lore.kernel.org/lkml/CAPVz0n0imF_ESoGMJSrEX7NOnBShFj8wehDtQKXZV_DMcGqq=A@mail.gmail.com/
+> >
+> > Sorry, I've slept since then, and subsequently forgotten this
+> > conversation.  You can drop this request.
+> >
+> > > > > +     if (ret)
+> > > > > +             return LED_OFF;
+> > > > > +
+> > > > > +     return ctl & led->ctrl_bit ? LED_ON : LED_OFF;
+> > > > > +}
+> > > > > +
+> > > > > +static int asus_ec_led_set_brightness(struct led_classdev *cdev,
+> > > > > +                                   enum led_brightness brightness)
+> > > > > +{
+> > > > > +     struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
+> > > > > +     const struct asusec_core *ec = led->ddata->ec;
+> > > > > +
+> > > > > +     if (brightness)
+> > > > > +             return asus_dockram_access_ctl(ec->dockram, NULL,
+> > > > > +                                            led->ctrl_bit, led->ctrl_bit);
+> > > >
+> > > > Use 100-chars throughout to prevent early wrapping.
+> > > >
+> > > > > +     return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, 0);
+> > > > > +}
+> > > > > +
+> > > > > +static int asus_ec_led_probe(struct platform_device *pdev)
+> > > > > +{
+> > > > > +     const struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
+> > > > > +     struct asus_ec_leds_data *ddata;
+> > > > > +     struct device *dev = &pdev->dev;
+> > > > > +     int ret;
+> > > > > +
+> > > > > +     ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
+> > > > > +     if (!ddata)
+> > > > > +             return -ENOMEM;
+> > > > > +
+> > > > > +     platform_set_drvdata(pdev, ddata);
+> > > >
+> > > > What consumes this?
+> > >
+> > > Seems to be an overlook, must have forgotten to remove it during 12
+> > > iterations over last 10 month
+> >
+> > No problem, it happens.
+> >
+> > > > > +     ddata->ec = ec;
+> > > > > +
+> > > > > +     for (int i = 0; i < ASUSEC_LED_MAX; i++) {
+> > > >
+> > > > `i` isn't just a random iterator here - maybe call it `led`?
+> > > >
+> > >
+> > > This is just a disposable iterator.
+> >
+> > It's a disposable iterator that is clearly a `led`.
+> >
+> > Thus my request for and improvement in the nomenclature remains valid.
+> >
+> > > v7 seem fine https://lore.kernel.org/lkml/20260702162425.GD2108533@google.com/
+> > > v9 as well https://lore.kernel.org/lkml/20260702162425.GD2108533@google.com/
+> >
+> > These are the same link.
+> >
 > 
-> The touchscreen interrupt is at DT index 0 on both supported SoCs.
-> platform_get_irq_byname() therefore rejects its child resource with:
+> Ooops, v7 https://lore.kernel.org/lkml/20260527144619.GA671544@google.com/
 > 
->  0 is an invalid IRQ number
+> > > Yet again complains and nits
+> >
+> > That my job.  You're welcome.  =;-)
+> >
+> > Sometimes new things are found on re-review.
+> >
+> > Apologies for the disappointment.
+> >
 > 
-> On current kernels it also returns -EINVAL, preventing the touchscreen
-> driver from probing.
-> 
-> The child drivers try to map their resource values afterwards with
-> irq_of_parse_and_map(), but the touchscreen driver never reaches that
-> call for index 0. More generally, translating the parent firmware's IRQ
-> indices does not belong in the child drivers, where platform IRQ
-> resources are expected to contain mapped Linux IRQs already.
-> 
-> Have the MFD parent copy each resource template and resolve its IRQ
-> indices with platform_get_irq() before registering the child. The child
-> drivers can then request the mapped IRQs directly. Use per-device copies
-> so later instances and reprobes still start with the DT indices.
-> 
-> Apply the same fix to the ADC child, which uses the same IRQ mapping
-> scheme.
-> 
-> Tested on an i.MX28 EVK. The mxs-lradc-ts driver now probes
-> successfully, and its interrupt counters increase when the screen is
-> touched.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
-> Closes: https://lore.kernel.org/linux-input/CAOMZO5CgTzo6GuXptD4mFTN=UsJJqpkixDW1Q64gqZGrij8+uQ@mail.gmail.com/
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> ---
-> This is a long-standing bug that I reported in 2020:
-> https://lore.kernel.org/linux-input/CAOMZO5CgTzo6GuXptD4mFTN=UsJJqpkixDW1Q64gqZGrij8+uQ@mail.gmail.com/
-> 
-> This patch touches MFD, IIO, and Input. Since the IRQ mapping is moved
-> into the MFD parent, I suggest merging it through the MFD tree, with
-> acks from the IIO and Input maintainers.
-> 
-> The full backtrace:
-> 
-> [   10.540505] WARNING: drivers/base/platform.c:492 at __platform_get_irq_byname+0xb4/0xcc, CPU#0: swapper/0/1
-> [   10.555516] 0 is an invalid IRQ number
-> [   10.559627] Modules linked in:
-> [   10.562849] CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.3.0-rc7-next-20261016-00003-g36062817a968 #17 VOLUNTARY
-> [   10.573732] Hardware name: Freescale MXS (Device Tree)
-> [   10.578934] Call trace:
-> [   10.578992]  unwind_backtrace from show_stack+0x10/0x14
-> [   10.586955]  show_stack from dump_stack_lvl+0x48/0x64
-> [   10.592170]  dump_stack_lvl from __warn+0x8c/0x190
-> [   10.597114]  __warn from warn_slowpath_fmt+0x94/0xcc
-> [   10.602232]  warn_slowpath_fmt from __platform_get_irq_byname+0xb4/0xcc
-> [   10.609027]  __platform_get_irq_byname from platform_get_irq_byname+0x10/0x30
-> [   10.616337]  platform_get_irq_byname from mxs_lradc_ts_probe+0x18c/0x378
-> [   10.623247]  mxs_lradc_ts_probe from platform_probe+0x58/0x90
-> [   10.629174]  platform_probe from really_probe+0xc4/0x2cc
-> [   10.634649]  really_probe from __driver_probe_device+0xa0/0x1e0
-> [   10.640721]  __driver_probe_device from driver_probe_device+0x30/0xc0
-> [   10.647315]  driver_probe_device from __driver_attach+0x94/0x158
-> [   10.653466]  __driver_attach from bus_for_each_dev+0x7c/0xd0
-> [   10.659280]  bus_for_each_dev from bus_add_driver+0x158/0x1fc
-> [   10.665169]  bus_add_driver from driver_register+0x7c/0x114
-> [   10.670901]  driver_register from do_one_initcall+0x60/0x294
-> [   10.676721]  do_one_initcall from kernel_init_freeable+0x19c/0x24c
-> [   10.683073]  kernel_init_freeable from kernel_init+0x14/0x10c
-> [   10.688997]  kernel_init from ret_from_fork+0x14/0x38
-> [   10.694200] Exception stack(0xc8819fb0 to 0xc8819ff8)
-> [   10.699335] 9fa0:                                     00000000 00000000 00000000 00000000
-> [   10.707591] 9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-> [   10.715843] 9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-> [   10.723117] irq event stamp: 146363
-> [   10.726729] hardirqs last  enabled at (146367): [<c00adbd8>] __nbcon_atomic_flush_pending_con+0x120/0x1c0
-> [   10.736770] hardirqs last disabled at (146372): [<c0008f38>] __irq_svc+0x58/0xb0
-> [   10.744618] softirqs last  enabled at (146362): [<c0032c20>] __irq_exit_rcu+0x148/0x1d4
-> [   10.753153] softirqs last disabled at (146385): [<c0032c20>] __irq_exit_rcu+0x148/0x1d4
-> [   10.761603] ---[ end trace 0000000000000000 ]---
-> [   10.766374] mxs-lradc-ts mxs-lradc-ts: error -EINVAL: IRQ mxs-lradc-touchscreen not found
-> [   10.766456] mxs-lradc-ts mxs-lradc-ts: probe with driver mxs-lradc-ts failed with error -22
-> 
->  drivers/iio/adc/mxs-lradc-adc.c          |  7 +---
->  drivers/input/touchscreen/mxs-lradc-ts.c |  7 +---
->  drivers/mfd/mxs-lradc.c                  | 47 +++++++++++++++++++-----
->  3 files changed, 42 insertions(+), 19 deletions(-)
+> I will incorporate all your requests, but please, may you apply/check
+> v13 a bit quicker. That would be awesome.
 
-Nightmare!  Right, let's make a decision to stop kicking the can down
-the road with these hacks on hacks, and fix it properly please.
+Sure.  =:-)
 
-While your patch fixes the immediate symptom, keeping DT indices inside
-static 'struct resource' templates and kmemdup'ing/mutating them at
-probe time is really just building a hack on top of a hack.  This stops
-now.
-
-Background:
-
-The existing IRQ handling in this driver is a bit of a historical comedy
-of errors:
-
-1. The MFD driver stuffs raw DT 'interrupts' indices (0..12) into
-   DEFINE_RES_IRQ_NAMED(), which is meant for either Linux virqs or
-   hwirq offsets into an MFD irq_domain.
-
-2. It registers the child devices with neither an irq_domain nor an
-   irq_base, exposing those raw DT indices as if they were mapped
-   Linux IRQ numbers, which understandably blew up once IRQ 0
-   started being rejected by platform_get_irq_byname():
-
-     a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")).
-
-3. Both the MFD parent and the child drivers duplicate the exact same
-   lists of IRQ name strings, only for the children to loop over them
-   calling platform_get_irq_byname() to fish the raw DT index back
-   out, pass it to irq_of_parse_and_map() on the parent's of_node
-   and then register the exact same IRQ handler for every single one
-   of them.
-
-4. To top it off, the YAML DT binding added last year (009528b5aa13)
-   doesn't even match the driver's IRQ index order, since it lists
-   the touchscreen IRQ at index 6/10 instead of index 0.
-
-Solution:
-
-When the parent platform_device is created from DT, the OF core has
-already parsed and mapped all of the interrupts into the parent's
-resources.  Neither child driver actually distinguishes between its
-individual IRQs (they just loop over them and register the same handler
-for each) and both children already access the parent's ddata.
-
-Instead of jumping through all of these resource hoops, let's:
-
- - Drop all of the static IRQ resource tables and the duplicated
-   irq_names[] string arrays across all three drivers.
-
- - Collapse mx23_cells and mx28_cells into a single 'static const struct
-   mfd_cell' array (passing the MEM resource via the mem_base argument
-   of devm_mfd_add_devices() rather than overwriting RES_MEM manually).
-
- - Resolve the IRQs in mxs_lradc_probe() via platform_get_irq() and
-   store them in 'struct mxs_lradc' (similar to stm32-timers.c) for the
-   children to request directly.
-
-If this all seems like too much, let me know and I'll spin-up an RFC for
-you to test.
-
--- Lee Jones
+-- 
+Lee Jones

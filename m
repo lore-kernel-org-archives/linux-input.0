@@ -1,67 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.238.236.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793806647;
-	b=oehWV+BYx4fiZRizKg6nqkEtt9X7XCbZjDCIKkJLsx/e5i09j9ZaVXRG3mPh2hmIbg+s
-	 g+alsdt8g+YW7jdahDfcB8zfPu4Z3T6nRXLPQWe+36M64Xe6v7cOU4CL8KFu2IjOSrhFI
-	 5gzfaBVgXkUOsqnd3ijxu2Tf0u0Vq+Gu8DgObmSiJzBF2szxR+QdH/5RGg+QLmHKjcePS
-	 vJmUyKqs+2zT6bdq705QEYFh21TSdZnufn05zMef6R0bTvqCGyz4WEQRsP40qq0tcLUYB
-	 4vyoxZbTNqtPmPcqIdfEfkITyx2sHd37F45IPBch4TjP3gzGzNH3JXoFthbSWJekcwA==
+	t=1793808221;
+	b=RB7sdfBVU+lhNUmU6g64vuUFZYkVMaRUSHOoU+ZGhP9lqaB5Bxv8MK1SDFZK/7kXUccC
+	 +5/oeHjYPWwPI1k4weGUM2PiSe3uYUZXDRfgmDe7bhzEa+WDvunKRYR9mpPHIbMtePTTJ
+	 7rQQKT9jy6bfgatBwZFDkA+bwho8UQqxKLIm2UNnWFy1mZPCnqPuUW9/xchCAMyDn/eOR
+	 Hi/Ak6eMJYbRhWTmXjxcsgb4Xrt9cmqSWfTB8Gdre+fMPQcOSZNC3fSP389O7s/JcV8yp
+	 2njl+TuQM0TCtTW+LRM9l4cGSLs83wVovU+HNFLW0EwpbQUTefRVkpFsyQ5QZZEZJig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793806647;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Scanned-By;
-	bh=6gr+1hN5mr88TUb6c1EFHl/+fcbV3ZF/wh6O3QIfUwQ=;
-	b=1ft+bNIQA/IYPnC6U6gmRdq/3soI9TgciKQ4f6cHOAEv85bOUQ1dqAuIDDrd47DxnICN
-	 K0PvmNAk2Mc96fSlj6B+LHw9K3pqEtrIn8TEggPt4mPSzl/NY/C60s7Xh5Xc25vZLIJch
-	 gvKE4LX3akQm6BMeUC6zsDmanlyh1mQc/Q6tp1RgN5ktinGfy127Ywoh8wiGRtoO0y1bB
-	 TKYlvbKj3M4hP5TjNRGRNm9Np95sN3I23eteUouv/ZLyu9DaDmLLkNYq0RbUTf53i+oEq
-	 LF+9O1T9e3jMhRcWRW1vrj4o2rX3+jaDshNWqeBNq4zQnE5srVorYbugv8TS3eD+M8w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793808221;
+	h=DMARC-Filter:DKIM-Signature:From:To:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=wkqpLMb20RzQErK2xs2bAHys9BIwofJK0FKv2jVLD5I=;
+	b=LvS0UB3OlF0mt31+TGSMcn1M1HSULk8MjxxIPkv7g9ybZzcFmpF1djYK6h351sOp9KEK
+	 AYJsIGewuQr9tx1XPeohMZn9regAMxP37Q9eslfqgtgVx5rf5zMj5qByOiay5uibilVyM
+	 iM1qUb9Tskqoq5AzsKHl9+xW3d/iFTSak0vHY2doiLmDudjCll6UUYF0cYfQ2pxqIszAh
+	 wJofymcyuRPLF/ZODvOlkbvvb4EIbUPFoB5XHRYesTpODiV4DYnp8YEXUF7XEamEDgEs7
+	 u9LbH8eQdhx5m9JfJRHisNXwx5g/Kbt13oOIh++6kt41D5mKpc1vWr8X66AhZeDOtsw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W0wn3z2B;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dmarc=pass header.from=kemnade.info;
+	spf=pass smtp.mailfrom=kemnade.info;
+	dkim=pass header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b="8wKVX/DC";
+	arc=none smtp.remote-ip=178.238.236.174
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17A6660A5BFD
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 15:37:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17A6660A5BFD
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEEA7606A31B;
+	Wed,  4 Nov 2026 16:03:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BEEA7606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W0wn3z2B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793806645;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6gr+1hN5mr88TUb6c1EFHl/+fcbV3ZF/wh6O3QIfUwQ=;
-	b=W0wn3z2BOvAbc0oeEJkHqkX2S0LSRx/eThaPn5jZL1pRaps1oGZSQqY6VV+fQdBfLFPZxh
-	qhNosmDxIFHbiZQ2ryCWQe/4RkRbU1JeGmz9ZD85jnkwSTr3S9pn78Al9r3hp5Zdk1vyYk
-	oGdHsjsGl+7qXQtH71WBwZ1CVIOwChc=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-498-khiY1PBXPvuBLjBHwqeKGA-1; Wed,
- 04 Nov 2026 10:37:19 -0500
-X-MC-Unique: khiY1PBXPvuBLjBHwqeKGA-1
-X-Mimecast-MFC-AGG-ID: khiY1PBXPvuBLjBHwqeKGA_1793806624
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8F010180059B;
-	Wed,  4 Nov 2026 15:37:02 +0000 (UTC)
-Received: from [100.91.101.41] (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D01FD1955F06;
-	Wed,  4 Nov 2026 15:36:38 +0000 (UTC)
-Message-ID: <8f74bba9-6484-4faf-a409-ce31cb42a63c@redhat.com>
-Date: Wed, 4 Nov 2026 16:36:37 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=8wKVX/DC
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Subject:To:From:Reply-To:Cc:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=wkqpLMb20RzQErK2xs2bAHys9BIwofJK0FKv2jVLD5I=; t=1793808220; x=1795017820; 
+	b=8wKVX/DCDZ2g1+KirpCwbk53rXi25MtD4rbkTEDhMghfetHJzEn/VZLR0bFV431/+IuAIZWY8+P
+	hPAMrLwzmYXOWpavuSbcy9mJpo9iRtqrE58H1V28Et8CnkAvOYbQeWNKcnSiRmMLIvh4lSm24wN2H
+	pFSyvt6sKKsVsKtnOnSXOrBijbLATv+X6b7IwQsED87J+jo1SJenK03BUuVUEUCqzoSR/SLmRxZWc
+	CqfiOAo4j/D47Zou0FB4cIV6SXrsEAG69Fz5nvIM0E0nGOIUcyHFtB9aFkDe9dqsqKyr0rz9no1z5
+	Fp513lP2pq0Xylwr4joFCVToNI92ODRgN8VA==;
+From: Andreas Kemnade <andreas@kemnade.info>
+To: dmitry.torokhov@gmail.com,
+	andreas@kemnade.info,
+	bartosz.golaszewski@oss.qualcomm.com,
+	marco.crivellari@suse.com,
+	arnd@arndb.de,
+	tony@atomide.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	brgl@kernel.org
+Subject: [PATCH] Input: gpio-keys - do not BUG() on requested wakeirqs
+Date: Wed,  4 Nov 2026 17:03:05 +0100
+Message-ID: <20261104160305.2501369-1-andreas@kemnade.info>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -71,83 +64,30 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
-To: "Rob Herring (Arm)" <robh@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Vadim Fedorenko <vadim.fedorenko@linux.dev>,
- Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
- Jiri Pirko <jiri@resnulli.us>, Benson Leung <bleung@chromium.org>,
- Guenter Roeck <groeck@chromium.org>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
- David Lechner <dlechner@baylibre.com>, =?UTF-8?Q?Nuno_S=C3=A1?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Olivier Moysan <olivier.moysan@foss.st.com>,
- Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Thierry Reding <thierry.reding@kernel.org>,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>,
- Srinivas Kandagatla <srini@kernel.org>,
- Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, Ulf Hansson <ulfh@kernel.org>,
- Hans Ulli Kroll <ulli.kroll@googlemail.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Ray Jui <rjui@broadcom.com>,
- Scott Branden <sbranden@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
- Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Chunyan Zhang <zhang.lyra@gmail.com>,
- Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
- Shawn Guo <shawnguo@kernel.org>, Chanh Nguyen
- <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>,
- Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>,
- Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Ray Jui
- <ray.jui@broadcom.com>, Scott Branden <scott.branden@broadcom.com>,
- Krzysztof Kozlowski <krzk@kernel.org>, dri-devel@lists.freedesktop.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, chrome-platform@lists.linux.dev,
- linux-gpio@vger.kernel.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
- linux-sound@vger.kernel.org, linux-input@vger.kernel.org,
- linux-tegra@vger.kernel.org, mfd@lists.linux.dev,
- linux-arm-msm@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
-References: <20261102135330.2493332-1-robh@kernel.org>
-Content-Language: en-US
-From: Ivan Vecera <ivecera@redhat.com>
-In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Transfer-Encoding: 8bit
 
-On 11/2/26 14:53, Rob Herring (Arm) wrote:
-> Unit-addresses by default (and most commonly) are hexadecimal. There's a
-> number of cases using decimal patterns. Fix all of them, limiting the
-> pattern to match the 'reg' limits if there are any.
-> 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->   .../bindings/display/xylon,logicvc-display.yaml      |  2 +-
->   .../devicetree/bindings/dpll/dpll-device.yaml        |  2 +-
+Having the IRQ handler called when enabled IRQs arrive should be considered
+as a feature not as a bug. So do not BUG() there when this happens.
 
-Reviewed-by: Ivan Vecera <ivecera@redhat.com>
+Fixes: 3717194f24922 ("Input: gpio-keys - add system suspend support for dedicated wakeirqs")
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+ drivers/input/keyboard/gpio_keys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index fbc31c5db3db..f1c31c5366f0 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -412,7 +412,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ {
+ 	struct gpio_button_data *bdata = dev_id;
+ 
+-	BUG_ON(irq != bdata->irq);
++	BUG_ON((irq != bdata->irq) && (irq != bdata->wakeirq));
+ 
+ 	if (bdata->button->wakeup) {
+ 		const struct gpio_keys_button *button = bdata->button;
+-- 
+2.47.3
 

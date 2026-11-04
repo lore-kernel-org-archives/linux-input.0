@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793819820;
-	b=vSjsG8U6sqXrNArx+izivr7UKWuxrC5qFRL4RUVoMbHWeIOpS9be6VDUHDU17pjQepGc
-	 6IzJg3o/k4t8AqIgT4yv7ynSX+EWRzYOeeuQb4Yr9jaKOWPWBeyKxoej/KXz13nAd7z55
-	 3a09Hnlhos7tif03HainiCzAWAz0REHvzrxZc3oAPfphM8AJc/atV7UVuEJCcrf5fnjTl
-	 nZBXF6khTq0nJWjCUU+HYAIqz4AVy8uvXKIJCv+a3kcxe0DFXodW/6h8dNQt9ETBgAiuJ
-	 VITGhYoGgr0E26y1w7hXb24XjjDoMl6DDfpfUxo+4McpmabPpisgGpkLfmYczuy1BVA==
+	t=1793819863;
+	b=FHkC2W2J8lj0k1NlUMn2qSOiZvB9PcxjW7uhIQkucxEN3BGyEUdG4pkIRDQG1JcnQnOe
+	 8S5Q1srgkta3QNgxtBwkXavm1kcojdRdSRlp3BUD7D6kqOhAy7fpjW14wLp3xLfBpTgIo
+	 6CGG4cXtxYWSo/CK+dR3yibi9pWlTTY62SMGDu0JK8/Cg30vfT9d7RwQjksvFMtFcIq0j
+	 dDKajssf7UaDPmouAI9u4gnydYXXLxgeTHIqDHXM8wxkZu9TM+lvsBVZi6Q3ZSt3CJYqQ
+	 AvvyaoCxnpy7B6P09ohAXeUuzXxJS3YcPKCdX3+p3AvREMyppXtvqIgOLfoob0w06zg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793819820;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793819863;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=Cbujoj2vf5W42joV5o7W0AvKkij9cCOpaGGghku9+G8=;
-	b=xEOV+MXl6cw+l2q8ztcDZugn9vZSUb6rtwCLDUbSnxC3w1JJUFqprPWY+A67oKf6vnxL
-	 Hn5ZgtJMJeaqsnhmJRuJlnaorQwa7Klskw0HOFgTINMo9XkFD3vvO2TaFbnTaOIjwRxtj
-	 Lht08vv/agvJQxTGjE+NyVVQFv5oYc4HXxLAV5hInPjXlShSu8FvYeIZnQz58aj/Aw0YS
-	 HU1FnGFQ7GArMxh9D5NvVXLYFwbIRv+M8+1hzEt7COntvm1Dec1k2Pf9vvnTSNVzfKY3b
-	 nbG0AQkPmtyKRmIMdzvQogwzRnjr+WIILyqYndN3OCZMU4gsrwzBgD96/5jrl3G8RnA==
+	bh=7dKsu59FtDy8aNyG4WRUkN7aPYhsNBybpSNJpPGyZ1Y=;
+	b=bBMhSArOp+yNGAbH779cUKVRahCZzdq7oDNNiNoioyvWuycTpcY8GLMRMCfN7Kh13c0G
+	 zQiCNuBU2ChbZf8CUmvDe46KzyOyfkiv8Swp2+3J/4P8i81c+g3ja9n4KAF965S/pO7S/
+	 G2KxItTQbZvvdc0VNnz/PjlNd2JpUnZcNMp6gwK3yg62RwLaLHK3KOxHmQC1EttOHZ4JQ
+	 2VRMWxqmOGTo7+Aqt4fh38IgBqwYgaRqzLpmtY3JDitPI9eZpQ6IUlCUeL1KfaiBjW1Pp
+	 lNNkdHfphJz6QLH6dtRLv+x0J/11flEj/KKBTMjY9c6YrO9pr5uB17Ewnqf34FnKwFw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=omO9IGCx;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I09Dgc3W;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CB71606D803;
-	Wed,  4 Nov 2026 19:16:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1948A606EE82;
+	Wed,  4 Nov 2026 19:17:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=omO9IGCx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F441F00A02;
-	Wed,  4 Nov 2026 19:16:46 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I09Dgc3W
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF121F00A02;
+	Wed,  4 Nov 2026 19:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793819819;
-	bh=Cbujoj2vf5W42joV5o7W0AvKkij9cCOpaGGghku9+G8=;
+	s=k20260515; t=1793819862;
+	bh=7dKsu59FtDy8aNyG4WRUkN7aPYhsNBybpSNJpPGyZ1Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=omO9IGCxRyG7KD0kOxfDpDxNQyYIzODWVtRjkLnN3/zFnPKj34X5crXOKucSFkfWr
-	 K2vwmPWEfSCfTc7KrJwcOMFunLOjtXDVztdyYUmknteKFz3PelPVAL1UgBnI+tAbd4
-	 XF5ErKRbX8bdCtSjgX0zvSFTT6L0PDEOQbHUmwQkI114XRdB8cIfxqGscpwpemafw3
-	 K7MJZBUNHbtj7OSLbkije9HCjsdQTGe+6yASXSAIELhzrF5YD6mcuYVUBb8Sm2r2MZ
-	 MV/cCX6mrHLPa/XrLIYAdVEN9IQTdCweH82A0WOCV2qCcCupff8Ero6Vt+lk3uRxZE
-	 xip5YgJ7X0fVA==
+	b=I09Dgc3WahkVUkdHZb1ultk0YMkOb02PK1qI6zEJbOi7/+V3zq8fq+cWRfZX05NQG
+	 2lA2rqFRv/45g4bPULWMQHffdRExyDxzArc/hYgSBx4eO5MffKe3yy8p97CR46mmmZ
+	 9dDXzJEWztjf6EaVEqFVKoidDZJ+7rTAReCBc9+dsxygtzA4VX74eEUMjD1bcfkFu3
+	 QYaB8uEysRHzykLP06EUs/1ZqunIBWNogzs/SWlT+hZAEg08JSMeZHXTmY93feNFRf
+	 2ZEizdSTdr3U+mIMp0z1pvTgsP0C80x+AxPAiukAaNUo0JSRGMr1Yf0WgHtW4okH6U
+	 zKMPB78QEQ4oA==
 From: Christian Brauner <brauner@kernel.org>
 To: linux-fsdevel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -99,11 +99,10 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	linux-modules@vger.kernel.org,
 	linux-debuggers@vger.kernel.org,
 	"Christian Brauner (Amutable)" <brauner@kernel.org>,
-	Chuck Lever <cel@kernel.org>,
-	stable@vger.kernel.org
-Subject: [PATCH RESEND v2 03/51] ALSA: cs46xx: hand the region to the region proc files
-Date: Wed,  4 Nov 2026 20:16:45 +0100
-Message-ID: <20261104-work-procfs-bugfixes-v2-3-021c84d852e0@kernel.org>
+	Chuck Lever <cel@kernel.org>
+Subject: [PATCH RESEND v2 06/51] powerpc/pseries: put the node that the ofdt property commands look up
+Date: Wed,  4 Nov 2026 20:17:28 +0100
+Message-ID: <20261104-work-procfs-bugfixes-v2-6-021c84d852e0@kernel.org>
 In-Reply-To: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -117,36 +116,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1215; i=brauner@kernel.org; h=from:subject:message-id; bh=Z6ZRkJrhuCU4H5MdQ4cObdjJffW/paOotMbfYVXoKlo=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9bjy38dymo9fKTmUGbmnq3vJ19u55ybMf3qtLXF/lV 3V+wtzWzx2lLAxiXAyyYoosDu0m4XLLeSo2G2VqwMxhZQIZwsDFKQAT+VXCyPDsb6PwnbR1njvC l2SKvFp3T79ebMkTpTsZWRmxsjzl6xoZ/qmcK6g8/p/jzJXZ7Ak/uerEBKe8Z+6ItmpmfjKzNzX 8DSMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1735; i=brauner@kernel.org; h=from:subject:message-id; bh=9GgvRCMv4/Dc1Z942cy3A7/ul6cTW5I084eAKnASIT8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9bry04VhwqY6ktsHfDTVnr+b4bPJgfc+0lt/P01dek tuWdbdCRykLgxgXg6yYIotDu0m43HKeis1GmRowc1iZQIYwcHEKwERavjAy7FnwPn/GgnMaE2ec 2t9e+OuRtkX+5sUTRSbzyRQ8OMAzexYjw5M736flveC7KnfK7e6vd6+v/AiwDEi4qz5l7VpJx5c MnYwA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
 
-snd_cs46xx_proc_init() stores the chip in the private data of the five
-region entries, but snd_cs46xx_io_read() reads that back as the region,
-so a read of /proc/asound/cardN/CS46xx_BA0 and friends copies from
-whatever sits at the region's offset in struct snd_cs46xx instead of
-the mapped registers. Store the region.
+parse_node() looks the node up with of_find_node_by_phandle(), which
+returns it with a reference, and do_add_property(),
+do_remove_property() and do_update_property() never put that
+reference. Every property command written to /proc/powerpc/ofdt leaks
+one. Put it when the command is done.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
+Fixes: 610d91511f99 ("[PATCH] powerpc: Add support for changing properties from userspace")
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- sound/pci/cs46xx/cs46xx_lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/reconfig.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
-index 797a5f09cade..efc7df444cb5 100644
---- a/sound/pci/cs46xx/cs46xx_lib.c
-+++ b/sound/pci/cs46xx/cs46xx_lib.c
-@@ -2764,7 +2764,7 @@ static int snd_cs46xx_proc_init(struct snd_card *card, struct snd_cs46xx *chip)
- 		struct snd_cs46xx_region *region = &chip->region.idx[idx];
- 		if (! snd_card_proc_new(card, region->name, &entry)) {
- 			entry->content = SNDRV_INFO_CONTENT_DATA;
--			entry->private_data = chip;
-+			entry->private_data = region;
- 			entry->c.ops = &snd_cs46xx_proc_io_ops;
- 			entry->size = region->size;
- 			entry->mode = S_IFREG | 0400;
+diff --git a/arch/powerpc/platforms/pseries/reconfig.c b/arch/powerpc/platforms/pseries/reconfig.c
+index 18e3f1a036e3..5a0c9c0b6253 100644
+--- a/arch/powerpc/platforms/pseries/reconfig.c
++++ b/arch/powerpc/platforms/pseries/reconfig.c
+@@ -271,8 +271,8 @@ static char *parse_node(char *buf, size_t bufsize, struct device_node **npp)
+ 
+ static int do_add_property(char *buf, size_t bufsize)
+ {
++	struct device_node *np __free(device_node) = NULL;
+ 	struct property *prop = NULL;
+-	struct device_node *np;
+ 	unsigned char *value;
+ 	char *name, *end;
+ 	int length;
+@@ -296,7 +296,7 @@ static int do_add_property(char *buf, size_t bufsize)
+ 
+ static int do_remove_property(char *buf, size_t bufsize)
+ {
+-	struct device_node *np;
++	struct device_node *np __free(device_node) = NULL;
+ 	char *tmp;
+ 	buf = parse_node(buf, bufsize, &np);
+ 
+@@ -315,7 +315,7 @@ static int do_remove_property(char *buf, size_t bufsize)
+ 
+ static int do_update_property(char *buf, size_t bufsize)
+ {
+-	struct device_node *np;
++	struct device_node *np __free(device_node) = NULL;
+ 	unsigned char *value;
+ 	char *name, *end, *next_prop;
+ 	int length;
 
 -- 
 2.53.0

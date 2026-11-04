@@ -1,94 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793773506;
-	b=ibc0f1hUiulvJyVOLGRLn3m2A+J2UDHqGsSNIsc4KwnHKnhC4MkI0Yldjc71DmvXlnl4
-	 POAh42LTZH/X3oxQ15WMEl4JfOHbXSqxG6zs7NWJxlfjsPpYC38+7C5aVv9Ne3dXMOir7
-	 03MI4Lpl55GUvvYxLjx9UdD2g4wWUPon2soL6Ozd3fznLmgYQA06RfrQrKVbQq63l9VBD
-	 uuGbDdSSlKyNSC/uydMlNQtqK8j7BH6NUOTQMBQFrXrTPCUL/HcYvnosiVoXM8QmhW9AT
-	 uXVAEAFqDEtIYFngQKQNzDzyWoZn63kTWgo0oNNRVWzsgXHjEdgd66jGGLjHHkDW9aw==
+	t=1793773538;
+	b=ipjaJMycHHi2/EOLNd/YFJZutOlTRkGaPSKX5Jxo+YhRnMIBS6lmxKzvHUaq3uFi8SN9
+	 xSUzLggfbkQSVRiT1GKI+s5pyubx/Ir6R3t0GH08rzQU9eatGbFEW//TZIf3F++mA40c3
+	 B43QeRFIXdfw/hm3ISk6xgf4w9M510eNVhP7GWTzBOB6hUZ1GXN6XMGGGHN5xUjggE7LP
+	 KVJB9rudgoFXpnV+oloa3+sWM9vM1ypmGX2myPGxt7eH7SiAJOuEGVqFfkl5KYarrekQ9
+	 oiqueiuIuQSUrtW+7QrK37VqmnFsTtEpbBeUhdzkSVLmB3OHVccUeWp0w9c2QC6ieQg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793773506;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793773538;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=6aqflyyGibB6JpqtJHNzZdrDhDz9SBMlPar0zuxq8rw=;
-	b=m4fKZDRhpCQppAJu5OMoCH0jHsQ09kBdC6yvC33lzfJUUFmizVBABz4xX57iSFiObmEx
-	 ntymzU2NlkaYw6IDjlZNs6n7QbU0E6fQDqdI2HMVVsTWThD9ACaOAKL5AN45Rj7iKSOmI
-	 EvVbGIbib7qTBahb6X/Gt2iWHkBLWaxlYyEywdzVCk8FXHbywXJoLb3l5MK+RTTc03Y6J
-	 2XIS1tEg/jr2wMn5bUbfzhtJQmaEesTwQd6GyL8z6+t4E0vKYMfT1LNsiPMNXLRIs2i0e
-	 rNlKb9OnO31Kp8qkgg4u88kgz584yruHDEz/8PXPuEtvGRYTeYQv9tnZngvtftTqkIQ==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=6Bro8ntEtQu6vWViYeKCn76sAWO+684KhhtMVx+kfV0=;
+	b=aD6XTnHss8hwqYJiuiO9GenGwINzJfHZDct2blFPy9IB5p5jfspgUQiGOGD4p46RjASz
+	 MzpwAO7wem7rUxjVYKPg2ATafDWwsSrA4w4Bqb/NY1i54iuAzPZ7I75DMjZAOuGJNUqbm
+	 8cGtCFXze69uhpjcqoLJgOH7RuKlvOpadKcSjHo/9Kur0kkvLsnGBZRYVuRCC6eghgDaF
+	 K4uJ4a0/5ewtfQwDH6kRu1a0wKUl5a19pwPiXtNov6nIJhVt72dWOtr9zhfkftm7tS9lG
+	 SBZA4j9ZI8RiXeW9CiCHWmqUnvpgiqq17s0O1uZlH5/RIBD+24kKL8D11ggNfBZzhFA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S+2n7Ak7;
-	arc=none smtp.remote-ip=74.125.82.181
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TQal1hNR;
+	arc=none smtp.remote-ip=209.85.216.41
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A83A7606A326
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 06:25:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A83A7606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710EF606A326
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 06:25:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 710EF606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S+2n7Ak7
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-3535bf8b3e0so496034eec.0
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 22:25:05 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TQal1hNR
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-3b07db03f41so248642a91.2
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 22:25:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793773505; x=1794378305; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6aqflyyGibB6JpqtJHNzZdrDhDz9SBMlPar0zuxq8rw=;
-        b=S+2n7Ak7tV2EJGZD2ZPpD4lN8xiJfS5kAxeubkDJcpbqw0AFxfAIHpdR5fzsjv0cs+
-         i7CUhFQj9ik/a1NcJEP7H7+kR850mD41LPurwO/jH89nmuJG7G70LvXom89npCcGEVSh
-         OmqyEQlukw+KPed/wEqrj81aVM4OJ395XPiAEPbGdHJ+lkBD0hRXCJRYqH768oXOG0GC
-         RTAuwLizS6+M6y7QISup/pRQqhcoY94bFwFqK/Bi88ygcaaBhs6W7YTmGK+O7TXVkX5s
-         59g8jINCi9yykjdI/DwtgU3LbHPEyEuwGY9w4ZDOVb3VyLTr04NmyIGZ/ykzQBSKBV+r
-         MYYA==
+        d=gmail.com; s=20260707; t=1793773538; x=1794378338; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=6Bro8ntEtQu6vWViYeKCn76sAWO+684KhhtMVx+kfV0=;
+        b=TQal1hNR+hyBkIra71sM3lO9IN4+z7XvE72XGbDcv0VAhbjZQJI+mpfau6p7BL5FtZ
+         iDl09A8oHw7o/mnCJjKjeiYCmTW8NHeqVrCkok0tgaCQhK5pOqYP2rdNsXSlU+bgqhUg
+         wtXejGlXwXTOczlx5jxBwLGc5F4IYouER+eAKEIKZ6B4nqtTOD+GgdkLmsGzW2cr3WP2
+         ZN610PP6yl80b1fwwbYWEw7JisvMp+Mn6opAI0G552JPaoTbhyhx7xNUmKko/zMpgBNQ
+         uHTXbBizaFPzIaYThNLuvjjt34lKp4N2qe6/dWhcaiPYsTrKWd+F687ys+Rf+DHfezFF
+         Hs1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793773505; x=1794378305;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6aqflyyGibB6JpqtJHNzZdrDhDz9SBMlPar0zuxq8rw=;
-        b=gNfHmjI4j+gNUZBb0ZCPiTJ4dwUyxxpcnSfYlBNaAiy6OtBaBa/GhUJ/k8lPs6sqRH
-         22nVBe1v0lSMkRpVf9SdVQ/eVtmIJYVvbOW67d/2VNBNhAOcARFcKQUVR67xm+9ctuvS
-         faMeraI6lhLO0XylA1D7QuDHCEysygs1yEiGhKn3lznKyP4SeJhdolIuIcD4BtonOstn
-         DYasCFx8Iw8CN3+PGUyVUJcxB4izbsT2gI4vweZ9S2V/emK93UtGZUAGRfo8yjnfuw19
-         OGI7cWEykL9BJi6pY9aW8eMGaremL5QxgcfPUmUhzHSIin1PbCHtzn6kA+rKxWKUTFnv
-         y/IQ==
-X-Gm-Message-State: APuU4Z8u3+eRY+jmyHiQ6TKpcAgZhx185YEfV5Ne36/e2lp99r2baSsg
-	PtN3vhQJICh0zYWBUxIhuFUKIL5u9d++RMvjb0VI9QlTWVpzUly3TyO7
-X-Gm-Gg: AYBFou39iCLTAx/6xNK7vZH0XMqofsIvKCiIQKDCKqtjIGa4v536BM/andjNpHO9h/V
-	msMXcr9vDRNaShIe10Ip5abfCpo8rfQ43z+Y2G8Iie4Zj842uJGHSXhz00cFdOneNPE7edhxmvN
-	gDG/lFp53n8N9QEVOiyDl9SPY8cdONsuSQG+e0yrY6UQsmh94xqMEC6ikx0OXfgeC6DOT9N8tv3
-	cthLdfF7HD0zhEbo+/cJ+NLlF2e5UpUeVny67+aqHdChPlmQlstn1y2v4YrbcODUzCD2Qpl8oW0
-	LvxngeE6nIWhFgviIhPs7G9GbFhD9JYI6XzM0Z7AJNK0k0W41qOuohEmRQ1YTusiEp/LFeuwBjy
-	Sz7geYoDnlm+hsfEsirIbSrc7ZNMXpd6m5GrAtNv3ES20y0fa/D9BY5to1x2lVMn3MXZVD0t2SJ
-	gWQQlz+2QeaR+jAVcvKNewZb+WRi8lGcE1pp12EOe2V+fW+Nzj5gRxZoKytu8OFsn8SWRumYo/v
-	3lFZYNXksY88Utk2HADDtxzXQ2wr167IL8eLUv1+hjPXHlhzvHEpjistE8zneS2XEwxYHnwEYJ2
-	5NppJeIK7QA8r+LeBOIfUWUdJX1ciYkdvsD5B0drECRqRU7ouz23+B8eABXzGkZqZ3CuOh9IaIq
-	Qvd0w
-X-Received: by 2002:a05:7022:5e09:b0:1a4:3169:cb with SMTP id a92af1059eb24-1ac5cfe5610mr20134833c88.17.1793773504605;
-        Tue, 03 Nov 2026 22:25:04 -0800 (PST)
-Received: from homik.search.charter.net ([2603:8002:ad40:56f0:37bc:b892:b6fa:fd6e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca39b8eb3sm5615163eec.27.2026.11.03.22.25.03
+        d=1e100.net; s=20260707; t=1793773538; x=1794378338;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=6Bro8ntEtQu6vWViYeKCn76sAWO+684KhhtMVx+kfV0=;
+        b=wcjP9ZVq/j5VpLUCXwjYAi6xE8Q31RrHkXPtY1OuY4bUqWfVp5+AWlc9JYcs+mVs+E
+         VdskEZYHRkxAw07xE49qJrGbYmiwn02K3MbBCQfupmOs12zLCL/Zn+EHT4PCVb/3LIzE
+         MPNcJ+vU5jAwb3XfUAye0B8Cd+0gH29AuQOdxTASCSHuEmeuVWVOTEFGcJzkUoMjhake
+         J5nV6dYXA4BfAs2jpujXnrLswXsUpnq0KHZAdWFif10PJS6c7WrjO/fJAIuYU9VAuaDz
+         1tgirUlb/QC/mntIIrh4N8HSIbg1+Bfh6e/y8BiBFlZZc3NtAWCUOxGpFAhTqxhaGGho
+         8iJA==
+X-Gm-Message-State: APuU4Z9SinGMem8vsIET/3wms+zOctkoI63pG+OqECKQCFbUTDuJw9q1
+	KzM8fjq9Vr/YqXvjOi4kc4Hgy6miM829SzzNZw+9jgKpDyksXWBMCjCQ
+X-Gm-Gg: AYBFou1grp2CWYIN+mvJmKCp9YJ5YR8Ox6u32zlbt/vRwOSXKhpkmUiizjRhYF12SQt
+	1xW/sRtAFGdV4mACfMseuMCpz1U18tggh7mQTEJ+e0iCjtxeG48QhxRSRJ+sXXdxK0JpvdYeMk5
+	Fbaslgqvo5WL5pFxCEcVLuGiQkCt4zPmE4gV5z/JrRTfmJci41mxpGB7K73Bxvj0xAxfxu0SROD
+	jLT0589nYWjvzGltTawoc4ou/lNV4Wi8hdRMWgslFU66q/U2HtgN3AKuVcAGss3fgCEferBDmj+
+	Bic5genK0UxjoCMCvvQ7QOlCfzGE7Pdk2hlM/nylzVsi5KCPlTAzkzWxsptXlhb35vygMy6m2OV
+	FvIl40Ek8sTfekuoPR+Hx8uYCzOx5AN8VijRl5oqQ/su9AFfdhNyu9WFIA6MWGcsyPLyaQ46jei
+	mfL8sPDnt0DpbU2Fgnp/Kiw9AQDbmWk2wsrZPnPX6o7DV/QPkh6CI4GXjBSnxuj4YRoLxjFkDXL
+	bVtBxpjxtTL3d+nNfPStaOzCAoU9/QqOwWn9ogh2hI0vELhYiU7KmE+PujdLFsrka1FksVCZJOI
+	YOANyWBMN+eE4AptHTgBKB8sUzk4+C1lQt1WHGhIpj9K5pidkAff4ixcExA687i5dM0DMc2Uj0X
+	PTxK1svIeIdMYjg==
+X-Received: by 2002:a17:90b:4a8f:b0:3ab:413:49b6 with SMTP id 98e67ed59e1d1-3ae89787ee3mr12721065a91.41.1793773537530;
+        Tue, 03 Nov 2026 22:25:37 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:88b4:22ec:d621:c1b])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b0944ea360sm2741863a91.14.2026.11.03.22.25.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 22:25:03 -0800 (PST)
-From: Mariia Nikitash <nikitash.mariiaw@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-hardening@vger.kernel.org,
-	kees@kernel.org,
-	justinstitt@google.com,
-	morbo@google.com,
-	Mariia Nikitash <nikitash.mariiaw@gmail.com>
-Subject: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
-Date: Tue,  3 Nov 2026 22:23:18 -0800
-Message-ID: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Tue, 03 Nov 2026 22:25:36 -0800 (PST)
+Date: Tue, 3 Nov 2026 22:25:33 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Guanglei Zhu <zhugl3@xiaopeng.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	liuc63@xiaopeng.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: lpc32xx-keys - reject matrices bigger than the
+ hardware has
+Message-ID: <aurPvymSFACa_kXH@google.com>
+References: <auos7TgVNv7EWnbj@google.com>
+ <20261104030709.791761-1-zhugl3@xiaopeng.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,36 +98,67 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261104030709.791761-1-zhugl3@xiaopeng.com>
 
-In preparation for removing the deprecated strlcat() API[1], use
-strscpy() to initialize the mouse device name.
+On Wed, Nov 04, 2026 at 11:07:09AM +0800, Guanglei Zhu wrote:
+> The scanner state array holds the last state of eight matrix
+> columns, and the interrupt handler walks the matrix size that the
+> device tree declared:
+> 
+> 	u8 lastkeystates[8];
+> 	...
+> 	for (i = 0; i < kscandat->matrix_sz; i++)
+> 		lpc32xx_mod_states(kscandat, i);
+> 
+> The probe path only checks that rows and columns match; the
+> hardware supports square matrices from 1x1 up to 8x8, but nothing
+> stops a device tree from declaring more, which makes the state
+> array index run past the field into the rest of the driver data -
+> including the keymap pointer the same code dereferences.
+> 
+> Reject matrices larger than the hardware supports.
+> 
+> Fixes: 69690bec400e ("Input: add support for key scan interface of the LPC32xx SoC")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
+> ---
+> v2: use LPC32XX_MAX_MATRIX_SIZE for the state array and the new
+>     check instead of a literal 8, per review.
+> 
+>  drivers/input/keyboard/lpc32xx-keys.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
+> index 2392e7e..429a3eb 100644
+> --- a/drivers/input/keyboard/lpc32xx-keys.c
+> +++ b/drivers/input/keyboard/lpc32xx-keys.c
+> @@ -65,7 +65,7 @@ struct lpc32xx_kscan_drv {
+>  	unsigned int row_shift;
+>  	unsigned short *keymap;	/* Pointer to key map for the scan matrix */
+>  
+> -	u8 lastkeystates[8];
+> +	u8 lastkeystates[LPC32XX_MAX_MATRIX_SIZE];
 
-The destination is zero-initialized, and the constant string fits
-within the buffer. Since the return value is unused, this preserves
-the existing behavior.
+Compiling this would be helpful...
 
-Link: https://github.com/KSPP/linux/issues/370 [1]
-Signed-off-by: Mariia Nikitash <nikitash.mariiaw@gmail.com>
----
- drivers/input/mouse/vsxxxaa.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>  };
+>  
+>  static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int col)
+> @@ -141,6 +141,12 @@ static int lpc32xx_parse_dt(struct device *dev,
+>  		dev_err(dev, "rows and columns must be equal!\n");
+>  		return -EINVAL;
+>  	}
+> +	if (rows > LPC32XX_MAX_MATRIX_SIZE) {
+> +		dev_err(dev, "rows and columns must be at most %d!\n",
+> +			LPC32XX_MAX_MATRIX_SIZE);
+> +		return -EINVAL;
+> +	}
+> +
+>  
+>  	kscandat->matrix_sz = rows;
+>  	kscandat->row_shift = get_count_order(columns);
 
-diff --git a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxxxaa.c
-index 042a17fe81db..b3a0d7ff5738 100644
---- a/drivers/input/mouse/vsxxxaa.c
-+++ b/drivers/input/mouse/vsxxxaa.c
-@@ -463,8 +463,8 @@ static int vsxxxaa_connect(struct serio *serio, struct serio_driver *drv)
- 
- 	mouse->dev = input_dev;
- 	mouse->serio = serio;
--	strlcat(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
--		 sizeof(mouse->name));
-+	strscpy(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
-+		sizeof(mouse->name));
- 	snprintf(mouse->phys, sizeof(mouse->phys), "%s/input0", serio->phys);
- 
- 	input_dev->name = mouse->name;
 -- 
-2.43.0
-
+Dmitry

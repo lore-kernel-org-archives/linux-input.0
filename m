@@ -1,94 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793759194;
-	b=dmF/K25ajZdw0Gj3KFTWr63IV3vQj4fD7RLriHIPOXsPHoh00xB0ziNUej+OLM8N00xv
-	 Gu9c/fMwvH2JfZD0K+MDX1BV1dar2ZHoOeQm/cLG5G2m4MHj0yC/jsV22mVSSo6NmX6yT
-	 Klusg/UgG5SexGAtzQKplukn8r/zWjgT4VexYAO9/K6+pnv+oC2erZXuD7wmiaBOkU17i
-	 So3n7QH1Gpnho5I9GFalFpq/4b1hVAWjeovyd56Zh6Tvzm1cOW8KbwURe1xUxJ7SjBSoP
-	 K1QcqgoGxOw3RgEOKi0l/Xezhqg+lru42/8+MpobTD6W2EyP9WU/dQhjk+2MZQLQrSQ==
+	t=1793761635;
+	b=fRSx4V1NPgsUoBVY0dKdEorfMclqaQR8cose+Ew/B2cSFn91gPNt+YAshu6BehpOHUiD
+	 2kRHCagDvpEdN17mCdRNw2MAtPDYnVjyy8v4qAUoE7c6DqJITmfYX4YdjAi0M73STPlWo
+	 6iX1Ilbs4GRutO+DtFe5E9KbzVQphpRqD3DCP13YaWtoKetPHyRX2BzgfGnYsdILGGh3u
+	 6ihJhjSyT7SQjXr9C/ZXCKudY30aUoTalBjoBa4HNcHeQUoPWGW8L3HWNAIucjWNl9M0h
+	 YYyoQ8dLHB5V81t4CL3UvQP8dAciiVpmbxkc2W/02rYcG66WgZhwgNw3wKBylaDkE4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793759194;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=zf8chmK4lYlJ/gNkcnvQsrfL5BsaQxeLGVbue6it71g=;
-	b=P46ZrOnT8o40TfgdxMHYe0nFCvbCF9qLRo04vQJbn3AAk7yNBLed/H6gY0/7RSIlDF5U
-	 ItdxA16H2z6ZkeIvqlZZfu3wrnU0UTyR2vMZYDFq0C6RmsTYfluqoA1AJL2+xZQXj2MBi
-	 1Hvdg1rOsxmfnwcsjVksu83wJPm6TtVYS+oequFd75YvzyZU5w1w9YF386YfGzv4QGp+f
-	 mbCBum+kwWOBakOQbNc5poOoZ0/mhJWwI2Hm/3FyhF7tnkb1UkBkCiaJMFih1QQVO2d+S
-	 4GL+iWORlLft8v1u4iV7SLE2dVyituC3kbOtRB24qC1zH5mcJWZIBZa08+w/hJH+CxQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793761635;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=j3izDy+wlx7B4MatbnUDUZaqK8p7FJvpC5JJ5DPcwX4=;
+	b=Vn0b2Rq+zrpQg1FTP9YH8WwpIq4c8x2DGCNrz5TIrXp/r0unIdqD4T8FdYVr0KxJkApI
+	 V4IxQYVMTHK8XEyQRfxO7+G1F8BsRm2JpyP0D8rupVzZJjD7hIpMcNGnrTjDwc2KjPX/z
+	 Lj7KDB6ie2DU5iC6fHU7TL6nxyOLCFxhQmpdiPxNTCuERfa8lP074zcjlegljxSRrhVQv
+	 i8vR2faojf6UgROjTUrh4Bgif+H6cnu7cp28dWvXzHajgcBXTGgXQM2X5AUEKXhy+Tbdy
+	 cSLD+M6TYZ94z+jKq/G10yP3RMoB8zOfc+wC+vClPk7nUcK3WItg4WCPJ991yv5ibCA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GdmC8yqS;
-	arc=none smtp.remote-ip=74.125.82.179
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=nK1HxMMr;
+	arc=none smtp.remote-ip=115.124.28.173
+Received: from out28-173.mail.aliyun.com (out28-173.mail.aliyun.com [115.124.28.173])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5961D606A31B
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 02:26:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5961D606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB64D606A32C;
+	Wed,  4 Nov 2026 03:07:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB64D606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GdmC8yqS
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-36a0f27c9f4so339497eec.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 18:26:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793759193; x=1794363993; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=zf8chmK4lYlJ/gNkcnvQsrfL5BsaQxeLGVbue6it71g=;
-        b=GdmC8yqSzAfFyseLZkRaMIA67KXc6CcQ2kk97I0FutswHdfmKvOEVcRaKrlIGGqS9r
-         JjiEkO5zGhAGm0zYWviqNrnlXYVQ7aqPqAwJiS/rE9kglVBVz+eWpiMVCRWYbhxrCrFu
-         vWEkO0yCNt4xi9tF4aDZMVxpNmmB0QJKERu9H7wu0PUhhlJWyndSnGrqH9v65qCl21DE
-         Gz9+68YWYIGV2s6pQ/x7M5P5M8qo1Wo5XQz0r0XE5WoMotCCJOoeNLtvUDynT+6h66Eo
-         q/9LsiszrGwUaixfx8P7CizSxTEMveDmK+MXN4sVqVGaT7nuC5QYSTtM1/hgihe9lQxe
-         ibCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793759193; x=1794363993;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=zf8chmK4lYlJ/gNkcnvQsrfL5BsaQxeLGVbue6it71g=;
-        b=kbnAaJK4XXcYTWTToJR7PxFxaBHwBlQhXzEqeL5sSymt4LLulamqdagQ+VykBWGNtu
-         4NlUFxr9HUvkQlYU3ZphamX//Xm505i5U4k6+7YPeNb48/hc3boQyLZOjEnfCTkrJq5p
-         qSUu4bZg/fYeUp0dGc0VIt6JbVi1G9ru4KLHlmZA33cNV7I0abHXRyAO85xEuA5X3eqA
-         fvL5kn9SeotAiYZ9VSp3Kqs0TqJnRbQMbt/4bJ6WGEpN6WInTYXQnxkc0sGZyvsXW33k
-         GL7174CnHVrS2vAGtNKkIUJ64Pfb9+6cBskHnCFRAyhXN8X0ag/98xiBlgzYiNk2+Uj5
-         L8cA==
-X-Forwarded-Encrypted: i=1; AKwUvBy+LFKh19wxTZbz4shtUDm9yXs2R9LpxggiqhFCaVTQjKuqFruJIWy7ZnTWZ/Ow0Lk7ecxQ/R2VT4jVnQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9OtdUPXMD6Mmo0Zf7XEQ1p36gxmA7anTfqYE/KFMtvKTV+abem
-	LgR9HfpePUqrI+QJKRxWBLy9lKXTYERR/9yqaK38myeumLQDU+eWWkIb
-X-Gm-Gg: AYBFou31cnFw0eMlYjjZpS3+M2TKou2Ps3BE7CxTgie7nDJyXy5d8/nij/8wDhkLKV8
-	2euWsbMFI6LVDKH3NRXP5I0tujSchvTIkgL8vIDiE450VTcI7hy0m+YfVNAF9HujFjmQOMVcXjm
-	R04dzYsSV02OFleVLH8nob/UOEoC3ZvBPWO3jOqNHeY58yZdM+HTb6U8PrVmZoVRvuVcqRuhogU
-	TyYunjuwm1zz4bZUG6SiBMrtkzNx6tWoPp7lLlP2v49dvIl15MmE+8RRX8zE0GztaT0ddspfWeY
-	pZCSWNJ0z5LUGb5dvm0NnJnlcWBoCfORH8K5oqr7nxgTcSkCr+RXgCk082p/3JcLw3VaRtt6xZU
-	T4mXmtwP5lK8d55e1i9zBmyKKzKpnB0RH70t2J5GVuAXYLFLrjxL/P1nqwcwABR84CpBL2AelPt
-	xfNcVbLaekpsjBwP2xDUcChHPQ4likwSAHYR+5k4Va06fAhLTYEwaOiCR9GrSAw8f+WO5cxFkuh
-	oCjSun9GUD5/U1uOEc/6WDoKvxPqVVZs2SAoR3mhKGI7OwNOXHsT1tdNoIAYTZajGMbNcw8XLIT
-	zCQcROLIAkCifyxGLR2Dmnc+kLY7t8AzRwSdd0fGOYKpnE8rEMobtBcIQ5EdMsgZI9ae
-X-Received: by 2002:a05:693c:4142:20b0:36a:6106:4f63 with SMTP id 5a478bee46e88-36a6106506dmr15884374eec.16.1793759193308;
-        Tue, 03 Nov 2026 18:26:33 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:88b4:22ec:d621:c1b])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca3981ff0sm2818065eec.24.2026.11.03.18.26.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 18:26:32 -0800 (PST)
-Date: Tue, 3 Nov 2026 18:26:29 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
-	kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH] HID: wacom: Access shared touch input by
- rcu_dereference()
-Message-ID: <auqXxlGTgwoAqmdL@google.com>
-References: <20261104010108.21895-1-ping.cheng@wacom.com>
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=nK1HxMMr
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1793761630; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=j3izDy+wlx7B4MatbnUDUZaqK8p7FJvpC5JJ5DPcwX4=;
+	b=nK1HxMMrwghqZaog48ZG/CdDGZTWlM/q+nAZ78cCpNAq0z2JM4McXkM9yreVe/QCzZHxx8/5crGP2X13DSQ9Won4/HWyHRRNPmbMlW8fOSz8tm/oSZ4iSvP20cCFH3BWZzTWZyoFQ6Wtgxhpi/91ySu1s31YSA8SwLwfE9YCouk=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.09883974|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00112347-0.000455029-0.998421;FP=17804760286958916722|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034184;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jwITYAQ_1793761629;
+Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jwITYAQ_1793761629 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Wed, 04 Nov 2026 11:07:10 +0800
+From: Guanglei Zhu <zhugl3@xiaopeng.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	liuc63@xiaopeng.com,
+	stable@vger.kernel.org
+Subject: [PATCH v2] Input: lpc32xx-keys - reject matrices bigger than the hardware has
+Date: Wed,  4 Nov 2026 11:07:09 +0800
+Message-ID: <20261104030709.791761-1-zhugl3@xiaopeng.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <auos7TgVNv7EWnbj@google.com>
+References: <auos7TgVNv7EWnbj@google.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,24 +63,61 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261104010108.21895-1-ping.cheng@wacom.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 03, 2026 at 06:01:08PM -0700, Ping Cheng wrote:
-> Allow the __rcu-annotated wacom_wac->shared->touch_input to be accessed
-> inside an RCU read-side critical section by using rcu_dereference().
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202610180015.KsRqmoTE-lkp@intel.com/
-> Fixes: 9183319a5ba4 ("Input: wacom - Setup SW_MUTE_DEVICE according to the order of input registration")
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+The scanner state array holds the last state of eight matrix
+columns, and the interrupt handler walks the matrix size that the
+device tree declared:
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+	u8 lastkeystates[8];
+	...
+	for (i = 0; i < kscandat->matrix_sz; i++)
+		lpc32xx_mod_states(kscandat, i);
 
-Thanks.
+The probe path only checks that rows and columns match; the
+hardware supports square matrices from 1x1 up to 8x8, but nothing
+stops a device tree from declaring more, which makes the state
+array index run past the field into the rest of the driver data -
+including the keymap pointer the same code dereferences.
 
+Reject matrices larger than the hardware supports.
+
+Fixes: 69690bec400e ("Input: add support for key scan interface of the LPC32xx SoC")
+Cc: stable@vger.kernel.org
+Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
+---
+v2: use LPC32XX_MAX_MATRIX_SIZE for the state array and the new
+    check instead of a literal 8, per review.
+
+ drivers/input/keyboard/lpc32xx-keys.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
+index 2392e7e..429a3eb 100644
+--- a/drivers/input/keyboard/lpc32xx-keys.c
++++ b/drivers/input/keyboard/lpc32xx-keys.c
+@@ -65,7 +65,7 @@ struct lpc32xx_kscan_drv {
+ 	unsigned int row_shift;
+ 	unsigned short *keymap;	/* Pointer to key map for the scan matrix */
+ 
+-	u8 lastkeystates[8];
++	u8 lastkeystates[LPC32XX_MAX_MATRIX_SIZE];
+ };
+ 
+ static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int col)
+@@ -141,6 +141,12 @@ static int lpc32xx_parse_dt(struct device *dev,
+ 		dev_err(dev, "rows and columns must be equal!\n");
+ 		return -EINVAL;
+ 	}
++	if (rows > LPC32XX_MAX_MATRIX_SIZE) {
++		dev_err(dev, "rows and columns must be at most %d!\n",
++			LPC32XX_MAX_MATRIX_SIZE);
++		return -EINVAL;
++	}
++
+ 
+ 	kscandat->matrix_sz = rows;
+ 	kscandat->row_shift = get_count_order(columns);
 -- 
-Dmitry
+2.43.0
+

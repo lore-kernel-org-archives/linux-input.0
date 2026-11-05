@@ -1,88 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793893982;
-	b=X7/iLyQIsr10wZZbdo+/pdLeQjAUum1Dz4zUL15gHbfhJiJKZqbNyAAqQsHvlp6pHI6C
-	 wd3unoAdDYVORWmVKO0cpbcGKL3ACgpEovxQsPr/NvUKyD4tJxDuhSoXL3Q/zZuVDkHLS
-	 J+ci8puR2z3tKwvnHuMX9PSeHT2MNvoHyC4Bg8qNxSVvQtXyQsCh8xWzufXlqLxf1M5+r
-	 qBgVreQEB2EX+egV1pIduuSvOCbSIhX++RSCi5hTJFgsQSdmC6wr1AVVwMz+DKg7jrEMX
-	 /RePeCNYhaj8xzu5CwbGMKbeu+Fln91pBiM6ju8m25Ff/S3L5nvsItAa0Sn5NVy9VCQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793893982;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=IbxArz+p2PBxyIB5HgAHxTAmoW2b3BXbPcRB8H/60bo=;
-	b=J/o45LBnXlZOpWD+aqg/L1B4BpuPM9n9StXSWz2GjIA4Y0V5G9NMUv75xZDB9ihMagVW
-	 DQju7hUt/MLe4fBVlTCxaWSdqbezcuY5Gf60PI/+wsWv60JsOsXE7mt35+1ETH6cP5rT5
-	 IZe1wBIaBOWKoKdWlfjKFzuFijGXwfws8cUIBWIMQWUgpPo0dhnA7jNMm+2b9yQdVpvb4
-	 x90vRaLtZIrwmALr/qpFgfsmNHtIYzmonMNALUB7hgXAwELCyPxOgcFhMvQ5FzQH4dTOT
-	 unLoQ4H821WjsOthYAY0CDAxXwQOKmhC54CTPE4dfEecARdy+FKGmpQa6aiu4WRHrrw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jy6poVAU;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793894018;
+	b=O7bFg6/noVEvTclnr2185Xs05Oifnril5t96BIpocBuXi8Aa/m7q3OMcJgoma23Wgl/n
+	 eCktkpOWN+REdLZUkx99npZjcmPUAkcRvq5U2W37Hu6WjOYdI4+BlSoHDyaJvMAIiNQsc
+	 /aaIaqjJWP7EvuFbgjvUpQjfHV4sTgmmP7u3sz6nm7CVU3hBRdZh3rjbiP7CzDcP7VY+8
+	 iHr6gi7pUPlO417n5iICSSl7fRY7ltohwiHXPmtIjYJBFtdefVCNv9hyK+El/U20ehr9Z
+	 Ce6x8HEZrvw4yhK3TP9cE3EAyTgd3VSqYjW59i/Vsaa7d2beit9qGoK1w5ld/kTY97g==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793894018;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=NpiuQc88QJ0I27SQ8ytpfc2Od32zRylhCgjrQ3y3TY8=;
+	b=glgy0HfXQseAh++pMQehMR+ebMdhNex8rm4Ut9vv9DASArLELoyiCCeOv2MA7hoi6+5a
+	 YbNo1UIvYjj0EbFfma1fXX/KorgZX2/B7cVyT34/QQ8gCHxCD9BKiNbII2DhHQneHovRn
+	 S0AY8utEmnFjoKWKwivwMYOnWK9OxnKxXXYoAVRgZfmOt6piWem3A9togIUgTXtlh/XRK
+	 YAnhF1ZOspjrUcfr8qrgOg41KFR0d+tnBEu88F7sZsXLbe63TDAyNC0pOg60ZOEdsGs8O
+	 zuBq9+qIxKY8Wp2Ym8XIMCQ8wUmNHNtHvy6YullHmD28tJ5R2Cq3BQ0IhS53CewVzAw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="guxQ/B+Q";
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18ACE606A331;
-	Thu,  5 Nov 2026 15:53:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E848606A331
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 15:53:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jy6poVAU
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=90.182.112.124
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793893981;
-	b=crpUabKqGgsLEzJrVAcdhGvOhkuSVtBIn8ZD2hifuc8o+76CpQF0y0Bcos02SBR8M1dN
-	 i9OYA9jJI0CYy5snldDIrvQ9q+TJrzOVBExm65XqSurpTRJPDwcOQkumVNVAwSTExo9Uq
-	 EXMLjANtvfNfRJ4epAA3GOVOlImDoRh/GqGCC2ot6itT95XoBJuG+o8NX+NbowrVbkmm7
-	 HAk7fIobS6EZgxDSR7cx0vBFtxwUvJsKwmlp8TfUW8b16thouPx2uttfzVRtnAv79YddF
-	 hRhJBqWGuwDe1T9VG+YpqbTaS6LXjraF5nvXQtKdWJjEKb0RtkyMrP5hBAc1ekIqSFQ==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793893981;
-	h=DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:In-Reply-To:
-	 References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=IbxArz+p2PBxyIB5HgAHxTAmoW2b3BXbPcRB8H/60bo=;
-	b=VkkqbTOtO6HbBYZojC26k8SyRzUS3SQFteViYRNHLZvuHTcFil7IXabEa0T5oqmYkq3k
-	 6/yWpOjIwuAdIbxnrAQcUoc59BSYC3wTmRGlAkPtqgLUd460upIzimIeFzEDKXTNPhTDJ
-	 7FaOEmhavZUOKonynXVVRYPhtQK4lik3GQqKaDv4wRBKWyUfxBl1qlviQMGV3W3o1LPA6
-	 UEmAOUqCQzkgXdBekiHE7/HNKt5CSY1cHZlP1NuW+0Kqte0f0Vv+ne4OHAZbHIDtIwyQF
-	 C9RBImBm7smZlZKUkYfSckZY2FcDbtpZn3JxhdctKlnZx9Uvw3VFFkqYJLJoLOqrjGQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=90.182.112.124
-Received: from localhost (90-182-112-124.rcp.o2.cz [90.182.112.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPSA id CC3E31F00919;
-	Thu,  5 Nov 2026 15:52:58 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=guxQ/B+Q
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D8D1F000C1;
+	Thu,  5 Nov 2026 15:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793893981;
-	bh=IbxArz+p2PBxyIB5HgAHxTAmoW2b3BXbPcRB8H/60bo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Jy6poVAUxowppKkSYkwE6stFHCTqB5UnLuQVd/ZA/pYv2A9CcyemEmtsda08vNoXi
-	 y+gbWoo5q7rz2u+cJVmTrY/WATCRs3wDuciE84xYbMMgKsgNoXkQcSJK36XVlHEaZ9
-	 I3tAXmLJHYde77I6d+iMEsK1QbaDBZjOO++3QDKCCIDKbf2Q/zVOUxjpF4K9YcWmzW
-	 0zeGPw/cl9W+AGcRQvWDK7uXKAxsTJiSrl8gO+YuXmPYKm2OvK1ZW1I+hi+JbrFULI
-	 ZKtsAspyXzjFHxeWelHEPPPGo67GQWt6gu6c0OwrGQWFprvdluG/GHPSG3Y4OO0cEG
-	 cYtdZqMyieYPg==
-Date: Thu, 5 Nov 2026 16:52:54 +0100
-From: Joshua Crofts <crofts@kernel.org>
-To: Sanjay Chitroda via B4 Relay
- <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Cc: sanjayembeddedse@gmail.com, Jiri Kosina <jikos@kernel.org>, Jonathan
- Cameron <jic23@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, David Lechner
- <dlechner@baylibre.com>, Nuno =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] iio: Remove redundant probe error messages for HID
- device drivers
-Message-ID: <20261105165254.00000896@kernel.org>
-In-Reply-To: <20261105144036.00002e1e@kernel.org>
-References: <20261105-19-oct-hid-iio-unified-print-framework-v1-0-0b360d9552d9@gmail.com>
-	<20261105-19-oct-hid-iio-unified-print-framework-v1-1-0b360d9552d9@gmail.com>
-	<20261105144036.00002e1e@kernel.org>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
+	s=k20260515; t=1793894017;
+	bh=NpiuQc88QJ0I27SQ8ytpfc2Od32zRylhCgjrQ3y3TY8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=guxQ/B+QvvJqijnSnudqcXZSeZ47YmCvBx96488UpWH5/tiuaCFV3U1tCpv1QgG/M
+	 2EDtKrgjCmLpRcvj2CgPLvWFU1SA7crYMpyTc/cr/njMnnifAMONidoGbPUbumErIK
+	 fyv9rNKlOLpmjZDo0cFefmy4+dr0u1li1bswGTbT6vEOpevEvLwZya4KFTqEphzShO
+	 Au4TCIFK85so7sZczuy2HHLys1A0rJHRDEYVo/t2lsWlfzu+8d5TrxYq/RTrt76uRw
+	 xYbql4dG5IzaFASmeCWOITOnXrJ0aqdtsf+/v3rFlbpNqh292sCrXD1YCvtH54I/Tw
+	 C5sH/9XDOo3yg==
+Message-ID: <sashiko-outbox-199362@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: lpc32xx-keys - reject matrices bigger than
+ the hardware has
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Guanglei Zhu" <zhugl3@xiaopeng.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261104030709.791761-1-zhugl3@xiaopeng.com>
+References: <auos7TgVNv7EWnbj@google.com>
+ <20261104030709.791761-1-zhugl3@xiaopeng.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 15:53:37 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -91,32 +60,54 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Thu, 5 Nov 2026 14:40:36 +0100
-Joshua Crofts <crofts@kernel.org> wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Input: lpc32xx-keys: undeclared LPC32XX_MAX_MATRIX_SIZE in lpc32xx_=
+parse_dt()
+--
 
-> On Thu, 05 Nov 2026 18:11:43 +0530
-> Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org> wrote:
-> 
-> ...
-> 
-> > @@ -377,20 +377,16 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
-> >  
-> >  	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-> >  					    &accel_state->common_attributes);
-> > -	if (ret < 0) {
-> > -		dev_err(&pdev->dev, "trigger setup failed\n");
-> > +	if (ret < 0)
-> 
-> You could also remove the comparison and just change the checks to `if (ret)`,
-> as devm_hid_sensor_setup_trigger() always returns zero on success.
+commit ae2a42c5ed13c05919e7d77f5f4978ad957e69a7
+Author: Guanglei Zhu <zhugl3@xiaopeng.com>
 
-I suppose you could also add a precursor patch that changes `return ret` to
-`return 0` in devm_hid_sensor_setup_trigger() on success.
+Input: lpc32xx-keys - reject matrices bigger than the hardware has
 
--- 
-Kind regards,
-Joshua Crofts
+This commit adds an upper-bound check in lpc32xx_parse_dt() to reject device
+tree keypad matrices larger than LPC32XX_MAX_MATRIX_SIZE, preventing
+out-of-bounds accesses to the lastkeystates array.
+
+> diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboa=
+rd/lpc32xx-keys.c
+> index 285d5c32fe70f..b7cd968311cd2 100644
+> --- a/drivers/input/keyboard/lpc32xx-keys.c
+> +++ b/drivers/input/keyboard/lpc32xx-keys.c
+> @@ -65,7 +65,7 @@ struct lpc32xx_kscan_drv {
+>  	unsigned int row_shift;
+>  	unsigned short *keymap;	/* Pointer to key map for the scan matrix */
+> =20
+> -	u8 lastkeystates[8];
+> +	u8 lastkeystates[LPC32XX_MAX_MATRIX_SIZE];
+>  };
+> =20
+>  static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int c=
+ol)
+> @@ -141,6 +141,12 @@ static int lpc32xx_parse_dt(struct device *dev,
+>  		dev_err(dev, "rows and columns must be equal!\n");
+>  		return -EINVAL;
+>  	}
+> +	if (rows > LPC32XX_MAX_MATRIX_SIZE) {
+> +		dev_err(dev, "rows and columns must be at most %d!\n",
+> +			LPC32XX_MAX_MATRIX_SIZE);
+> +		return -EINVAL;
+> +	}
+
+[Severity: Low]
+Does this break the build when CONFIG_KEYBOARD_LPC32XX is enabled? Both
+struct lpc32xx_kscan_drv and lpc32xx_parse_dt() in
+drivers/input/keyboard/lpc32xx-keys.c reference LPC32XX_MAX_MATRIX_SIZE,
+which is not defined anywhere in the file or included headers. Was a
+#define LPC32XX_MAX_MATRIX_SIZE 8 macro definition omitted from the patch?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104030709.7917=
+61-1-zhugl3@xiaopeng.com?part=3D1

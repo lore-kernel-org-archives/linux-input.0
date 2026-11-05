@@ -1,54 +1,129 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793879404;
-	b=2GVasFjSL9efANEyO9jvx5bl1zYhOmExFayhV31P3FG/0XAvTIHyLEOP3ebx8UXbVLQ5
-	 Ycha9QLP0PUAZiRfvv2Y+XUFZiAyKON6dF0YuFwsN4KksittOJ5XdOAf6yMZEnJJIKsl2
-	 lolDJ4qQxwFR7UyzWcrBdRou7pQeMYSlV8ezduCP/7gik3/8/FMhFuhc/rf9zbDusA/3V
-	 SxlRm2c1qnratSU443uazQX0kIB0ceomIpbU/gzvLPdIETD1fo2WPoTyZ6SkgZVwR/DQ7
-	 1KvCv9N0RJGxRoNbjtrQzud7ORfBgSIfBq5wyD51j9YLtQb07b+sr3FjseOyC7qWCIg==
+	t=1793879572;
+	b=4JqbkshOdncYKl7cacrPwgBzufqc12Lk44fjHRichx049fAY1qLVLqUahSdWsiZ/fZW+
+	 mZhMN9kLdJjwd//Er1PVbCnKNr016ivN5TqHWZF8H7YVb+N69KjEqy4rAKjAmh5iuId6i
+	 bD2koLosDH/qm0AkvByIVKFfvSrLxRfUDT5/7h6CxsiR/4VX5VMZ7VZVhEgx7Jm1Lzkab
+	 658b/sfqZXz035pepENL+wCnv25c0l0rC38Xz749610RbE71Fzj8089HNIFCjjCXpHrMv
+	 PTLodlButNJH3Gfc7hcMGiEZ0Q4jMaNZbLMM0kGtmw5HtQYxYtZOktYSD/Abh82bI3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793879404;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=oDKfQDAIoGUbqzr7+NW0qlqn3XhkGoaI8l2e454ELsg=;
-	b=JNNQYO+jo3FacfOF0NVhXSaqKKQHS1KFy40k7LFwfkpSHKP2ryxumHcaWAqJmbWu7n+a
-	 /ooqRNEgIY3uKnUUbwhEXI1rRZfhLTs6xvFVZIN30mPTXR4rWVXA2CcB2E4rM+1ukHP6B
-	 5HZ98e5AYoCG5SIcGsmd4KZkDVLpjwdZYxfucc+GsOcL/QKhJjNpox4l07gZjNW1RoCef
-	 Ro6QGZV0Aamt1TH+MajjRPtv1wEguMQgjGWQ27B9rybKP7OXVlUtGBEosDBUp9UmBM9b9
-	 mBpdCkK6FNV2xTGmloMYna22Y927xtYzeZpO8OjWWyl1zqoZvsNHl7ie0T7B8i70xTQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793879572;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-Spamd-Result:X-Rspamd-Server:X-Rspamd-Action:
+	 X-Spam-Flag:X-Spam-Score:X-Spam-Level:X-Rspamd-Queue-Id;
+	bh=XTBVvV1llMrY8oPUgGAOljMGttnFmdc1n4iSvCofGvk=;
+	b=bpbI65RtQw/CHNKvst6gx6u/5xAlZclCad2cXmhfIa/E+iVhCEUm2lbB24CpWi8HydGk
+	 zpvZAayd2Gzyi2D6O43V46cg7aMZEb8zkgacd4ZLyEnIkjd1VH1OqfvDmIJaCSwy7q5u1
+	 XvU7HPN7h967dINDKt6quRu8OE1TKeW06LoK0ARMXfCg+fsyfA+6akgehaJOoXTfjzgH4
+	 za5UaBzPrWA5Sg+eRfKMXz+03xHoqGoQzBvM+ChP2PSjEuNsnv5lgkj69oVAWdPyYLA3b
+	 pO2QGSet2rsG1pQ+q52POQpu9XfAMQ26CKnqH6LvblzpUD2UYd2xFpml7i3TT5pe1yQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MTaO8neH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=suse.cz;
+	spf=pass smtp.mailfrom=suse.cz;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=IlDc2Fvh;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=vvDSWJYG;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=IlDc2Fvh;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=vvDSWJYG;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DEC5606D819;
-	Thu,  5 Nov 2026 11:50:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15BC0606A33C;
+	Thu,  5 Nov 2026 11:52:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 15BC0606A33C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MTaO8neH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C997F1F00A20;
-	Thu,  5 Nov 2026 11:50:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793879403;
-	bh=oDKfQDAIoGUbqzr7+NW0qlqn3XhkGoaI8l2e454ELsg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=MTaO8neHaewLBM/bDyKXSqHYZNXi63YLUP1tARtL9v7p35p4N4rT+Tj3p52qK6g95
-	 hzAuCkpEpDggwkgzCAddPGZp2APD0vjNcP8no8G1SZzjJVblpMSw30JJhtbA933v+G
-	 15roy3x4+JxFE967FILojGjNP/UXNfIkr5l0kmMyrLs36M7WR5X+LtORotz8ShSrcE
-	 6/U2vUZ5XoToEVKzPFjfDUyUsPwHD3uhCeFYdZgR4yzRCMmi3qx8Ypg/WJD5pmgCYz
-	 LZBbgpVRjrwS/7eWQpPbRCETxYTT7k+SO+aLdWq/mPpy5gLVsXERE4BPhULSSpQXBb
-	 CDiWvU4LPSDTw==
-Date: Thu, 5 Nov 2026 12:49:59 +0100
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Mariia Nikitash <nikitash.mariiaw@gmail.com>, 
-	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, kees@kernel.org, justinstitt@google.com, morbo@google.com
-Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
-Message-ID: <auxrRmyg50gvP1HE@devuan>
-References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
- <20261105112813.13210334@pumpkin>
+	dkim=pass (1024-bit key, unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=IlDc2Fvh;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=vvDSWJYG;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=IlDc2Fvh;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=vvDSWJYG
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 090681F785;
+	Thu,  5 Nov 2026 11:52:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1793879570; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XTBVvV1llMrY8oPUgGAOljMGttnFmdc1n4iSvCofGvk=;
+	b=IlDc2FvhESlDd8QXX4z/a9lq2dVMhaxW+HuiTJo6x+4vVVqrVz8k3f/Wr+Mze0vHlceBFP
+	JaL/+k/+YFdhkL/6vCq7Bg2Jyl3kffnaUQoNLw7CYQNpyydj2pmW97ukL1Mouho+skqqWs
+	9mNCq/qpRDGAphiHFTSprMwCLm6e0Vk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1793879570;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XTBVvV1llMrY8oPUgGAOljMGttnFmdc1n4iSvCofGvk=;
+	b=vvDSWJYGu2lVXhJVWrbpDbn5nEUGh3VUqLxrYRbdmdLlIIqOha94poMzPs0o88aMpXXTQC
+	GveF9mKsY1fCOgBQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=IlDc2Fvh;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=vvDSWJYG
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1793879570; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XTBVvV1llMrY8oPUgGAOljMGttnFmdc1n4iSvCofGvk=;
+	b=IlDc2FvhESlDd8QXX4z/a9lq2dVMhaxW+HuiTJo6x+4vVVqrVz8k3f/Wr+Mze0vHlceBFP
+	JaL/+k/+YFdhkL/6vCq7Bg2Jyl3kffnaUQoNLw7CYQNpyydj2pmW97ukL1Mouho+skqqWs
+	9mNCq/qpRDGAphiHFTSprMwCLm6e0Vk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1793879570;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XTBVvV1llMrY8oPUgGAOljMGttnFmdc1n4iSvCofGvk=;
+	b=vvDSWJYGu2lVXhJVWrbpDbn5nEUGh3VUqLxrYRbdmdLlIIqOha94poMzPs0o88aMpXXTQC
+	GveF9mKsY1fCOgBQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CB5FC134F4;
+	Thu,  5 Nov 2026 11:52:49 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id FWlQIxFu7GoAAwAAD6G6ig
+	(envelope-from <jack@suse.cz>); Thu, 05 Nov 2026 11:52:49 +0000
+Received: by quack.suse.cz (Postfix, from userid 1000)
+	id 45F61B6C1; Thu, 05 Nov 2026 12:52:41 +0100 (CET)
+Date: Thu, 5 Nov 2026 12:52:41 +0100
+From: Jan Kara <jack@suse.cz>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
+	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	netdev@vger.kernel.org, ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+	coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, 
+	Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH RFC 18/38] proc: don't WARN about a name that is already
+ registered
+Message-ID: <qaqawx4ajooiiqzu3ngxc46khpnq74u6sl5tz6az4uyssxzly4@346lsx342het>
+References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
+ <20261102-work-procfs-bugfixes-v1-18-59422ed3e465@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,141 +133,113 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="r3dy3xcwqerpul3i"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261105112813.13210334@pumpkin>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-18-59422ed3e465@kernel.org>
+X-Spamd-Result: default: False [-11.51 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_TLS_LAST(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_THREE(0.00)[3];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	R_RATELIMIT(0.00)[to_ip_from(RLpnapcpkwxdkc5mopt1ezhhna)];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[60];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.cz:dkim,suse.com:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -11.51
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 090681F785
 
+On Mon 02-11-26 15:21:33, Christian Brauner wrote:
+> proc_register() WARNs when the directory already has an entry of the
+> same name and fails the registration. Callers that pick their names
+> themselves should never get there but some take names from userspace.
+> pktgen creates a file for each device a writer of "add_device" adds,
+> named after the device. A device can have any name, including "pgctrl"
+> or "kpktgend_0", the names of pktgen's own files:
+> 
+>   ip link set lo name pgctrl
+>   ip link set pgctrl up
+>   echo "add_device pgctrl" > /proc/net/pktgen/kpktgend_0
+> 
+>   proc_dir_entry 'pktgen/pgctrl' already registered
+>   WARNING: fs/proc/generic.c:404 at proc_register+0x555/0x8b0, CPU#0: bash/241
+>   Call Trace:
+>    proc_create_data+0x9f/0xf0
+>    pktgen_thread_write+0xd9b/0x1780
+>    proc_reg_write+0x1c2/0x3c0
+>    vfs_write+0x1cd/0xfa0
+> 
+> The files of a network namespace belong to the root of its user
+> namespace and none of this requires a capability. So once pktgen is
+> loaded an unprivileged user can taint the kernel, or crash it with
+> panic_on_warn, from namespaces of its own. pktgen itself copes with
+> the failed registration just fine.
+> 
+> So go back to what proc_register() did before commit 6c2f91e077f1
+> ("proc: use WARN() rather than printk+backtrace") and what
+> sysfs_warn_dup() does for sysfs: report the name with pr_warn() and
+> dump the stack. While at it, do that after dropping proc_subdir_lock
+> instead of printing a backtrace while holding the lock that every
+> lookup and readdir in procfs needs.
+> 
+> Reported-by: Chris Mason <mason@kernel.org>
+> Fixes: 6c2f91e077f1 ("proc: use WARN() rather than printk+backtrace")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
---r3dy3xcwqerpul3i
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Mariia Nikitash <nikitash.mariiaw@gmail.com>, 
-	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, kees@kernel.org, justinstitt@google.com, morbo@google.com
-Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
-Message-ID: <auxrRmyg50gvP1HE@devuan>
-References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
- <20261105112813.13210334@pumpkin>
-MIME-Version: 1.0
-In-Reply-To: <20261105112813.13210334@pumpkin>
+Makes sense. Feel free to add:
 
-Hi David,
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-> Date: 2026-11-05 11:28:13+0000
-> From: David Laight <david.laight.linux@gmail.com>
->
-> On Tue,  3 Nov 2026 22:23:18 -0800
-> Mariia Nikitash <nikitash.mariiaw@gmail.com> wrote:
->=20
-> > In preparation for removing the deprecated strlcat() API[1], use
-> > strscpy() to initialize the mouse device name.
-> >=20
-> > The destination is zero-initialized, and the constant string fits
-> > within the buffer. Since the return value is unused, this preserves
-> > the existing behavior.
-> >=20
-> > Link: https://github.com/KSPP/linux/issues/370 [1]
-> > Signed-off-by: Mariia Nikitash <nikitash.mariiaw@gmail.com>
-> > ---
-> >  drivers/input/mouse/vsxxxaa.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxxxa=
-a.c
-> > index 042a17fe81db..b3a0d7ff5738 100644
-> > --- a/drivers/input/mouse/vsxxxaa.c
-> > +++ b/drivers/input/mouse/vsxxxaa.c
-> > @@ -463,8 +463,8 @@ static int vsxxxaa_connect(struct serio *serio, str=
-uct serio_driver *drv)
-> > =20
-> >  	mouse->dev =3D input_dev;
-> >  	mouse->serio =3D serio;
-> > -	strlcat(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
-> > -		 sizeof(mouse->name));
-> > +	strscpy(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
-> > +		sizeof(mouse->name));
->=20
-> You might as well use the 2 argument form.
-> Moreover, if you use strcpy() you'll get a compile-time error if the
-> string doesn't fit.
-> strscpy() will truncate and return an errors.
->=20
-> The other question is whether mouse->name even has to be char[].
->=20
-> Personally I think that while there are issues with strlcat()
-> (mostly to do with its return value), and that there are often
-> much better (and faster - so sprintf is out) ways of getting
-> the same result, the deprecation really needs to propose a
-> sensible alternative (not inlined strlen() + strscpy()).
+								Honza
 
-One alternative would be to add strscat(), with the obvious internal
-strlen(3).  This would be a drop-in replacement, and wouldn't have the
-issues of strlcat(3) --mainly, the DoS vulnerability which is
-consequence of the return value, and also the more difficult error
-handling of doing '>=3Dsizeof(...)' than '<0'--.
-
-There's an implementation of strscat() in shadow-utils, where we call it
-strtcat() --because what it does is Truncating the string, so a T feels
-more appropriate--:
-<https://github.com/shadow-maint/shadow/blob/214a2e6e0a5f81fa281b272be7cf9e=
-9d3aff8f34/lib/string/strcpy/strtcat.h#L28>
-
-Another alternative which would avoid the internal strlen(3) call, and
-thus would be faster, would be to add a stpecpy() function, similar to
-stpcpy(3), but which would take a pointer one-past-the-last element in
-the buffer, to perform truncation.  This is fundamentally Plan9's
-strecpy(2), except that Plan9's API has a bug.
-
-There's an implementation of stpecpy() in shadow-utils:
-<https://github.com/shadow-maint/shadow/blob/214a2e6e0a5f81fa281b272be7cf9e=
-9d3aff8f34/lib/string/strcpy/stpecpy.h#L28>
-
-We've been using stpecpy() quite extensively in shadow-utils, and it's
-a great API.  Of course, there's also the decades-long experience in
-Plan9, which apart from their bug --which I found, by comparing their
-implementation to mine--, shows that it's a quite useful API.
-
-And stpecpy() produces the simplest code of all truncating functions.
-
-
-Have a lovely day!
-Alex
-
-> This case is, of course one of the 'better ways' cases.
->=20
-> David
->=20
-> >  	snprintf(mouse->phys, sizeof(mouse->phys), "%s/input0", serio->phys);
-> > =20
-> >  	input_dev->name =3D mouse->name;
->=20
->=20
-
---=20
-<https://www.alejandro-colomar.es>
-
---r3dy3xcwqerpul3i
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmrsbWIACgkQ64mZXMKQ
-wqkq9Q//UW6QwkSie8ECdEChrKHPAnBCwiZw1qTwxY4XWzrHHNlPa0FYuC31kBbq
-+qWM8MEQ+eolkMZxZibf9GRvHUJVyi4dR6uiLURvNRJ9PzSPqRftGrnFkFFMEge0
-wqsXrJIFqW90ZaJINRVKtfqApEDIABnD9TWgA5ldyOgAvH8Qctw6rVWIchV0fg9u
-y8HoYY0oeRWdXS4Xi1JjF3t2YbxcaNkgRvFe4IyOehrzITZVVw6V73KXJ7tk75qn
-Zt4rM8Ge66zdPBJe3vyNG+o3Cd1+5jDVklD2fSYmQ7+cQickIJNAjf906GbBaZGH
-URb5e3imbM/UXt2VpD6+sRjLtmo3SOKa3SnIvJnfUCs4RYYRd9G5N61aBsj8Lsm4
-aGShVCJ7ruXIZgUHh4LarOWVfvZtBTirc0sYgg4s9OsV6yxtmI4MkzmvF5NH/XRD
-qXVbWM/fWNgFL/7VBaoTMCQ13/3iDj321nTfbG76l+B1mkhyxdEe7nXtNXArTi4y
-bsL+nFoc7trM7DBPBpr7TzOuLcg3eJhynRW9UU/vF+p3WZyLnHrl6Bhfsbomwo/+
-k3IxB5EDufvzia2R5NXYd+tV6BUDnU/Gw1vxJZQyGagG3GCUBIyuwMoqoTR14taB
-1CTBz9raaaEZLYFVLA6nnWXjGSYpCqtzKoOiipAIbc3kEc0qCSY=
-=CGAl
------END PGP SIGNATURE-----
-
---r3dy3xcwqerpul3i--
+> ---
+>  fs/proc/generic.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+> index c560c96a64eb..ef804cd3ec45 100644
+> --- a/fs/proc/generic.c
+> +++ b/fs/proc/generic.c
+> @@ -401,9 +401,10 @@ struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
+>  	write_lock(&proc_subdir_lock);
+>  	dp->parent = dir;
+>  	if (pde_subdir_insert(dir, dp) == false) {
+> -		WARN(1, "proc_dir_entry '%s/%s' already registered\n",
+> -		     dir->name, dp->name);
+>  		write_unlock(&proc_subdir_lock);
+> +		pr_warn("proc_dir_entry '%s/%s' already registered\n",
+> +			dir->name, dp->name);
+> +		dump_stack();
+>  		goto out_free_inum;
+>  	}
+>  	write_unlock(&proc_subdir_lock);
+> 
+> -- 
+> 2.53.0
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR

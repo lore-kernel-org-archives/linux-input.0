@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907348;
-	b=cO6Y2A1Fz1hdZ1ap3g2S0S5fmPUdlh2K7VmL41oiCRPZeR+C8zVX0TXkmTiGUnZ8iYna
-	 XF6gc1ZHH1RLQ56ffBSshjhTBSw6adf9DycIeSJtMkBPZ4v0mpf335/eeKB4LsSHBIspL
-	 M/8T4Ctvi6s0AxbFZ/WGxRaTyOgEKLy9jYTqMyYk93iSn8R4Ha3ZsxjqY0R1IakjYdk+G
-	 NUvaiUQsYFX6IeBS63s6VRYEv8kAXpjuL/xuDxLxmLEHLbEnK99PkWoJaKD69x2KOXbKW
-	 TpBZORLz7/u2QtYtW7e4JBHfxynNGIDq9FosC1DyQ/sHG9Aud/XNhyYEgorCYxy8qYg==
+	t=1793907357;
+	b=mwXLupQynTBfftl+8TbNBXkCJY2nBhuYHS2gzyLqAG8f1WVgT2CYtdPITd/WBGqfZ/4U
+	 YIntsaoMFY5JuMOUIA64Q+N02NAu5ZpGUWG1+tzfW5GzW/n472kyV7hjVZ8R7Itft2uUG
+	 fVJMv/yjkCAGRkkXWc+Uq1Our37yW03BXbyrOnqg3ZKj2xLZqRPJ4t8CfDN5ntfjmlMfv
+	 XR/izJJt91sHkctF+b75ovogBAsw/VIilglf58W1kKy/DaYXekIgysFDB30VaGhszLIG8
+	 B0tDB65flTxIYBIavAn1WQVXoPAJOZNBRFR62DV09psN4zWo93xtxm/wKuzCg9SbGOg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907348;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907357;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1MugNV8TCf3DcwhciMioHkCDdfBEvJqmJegZE7T3Anc=;
-	b=InNX0+epFldCpEeGNpurNV1NXTAAgoLkEF6Wga0NjjcyHMFiCHKE9E8JTVFOHn3U4Ki/
-	 qSoB6JlI49gwS1dNIZ/DgXjIUnwNPoEF1DzMWpcx7OnGQhYZxbYVHiesp+T8S4fJ3osoP
-	 oaWrE40xiqxCwJtCLzHN1XujqHib3h7pzOFZ/BgQaQiuaTG5T8dG/R1HKrhUVmAz3eulM
-	 pdLtpwfUULN0jJyLJlHdY3f5b4J9/3qm5P7tWsHLYJNlnwvtjPwlS0qsvq4xRZHJLXAjc
-	 Tdt++riBVcqVsMiqU2jeUDmCn9bnfy8Hk0Yl6rbaHZWfl9CJnL9KSDMDLbH0mn9ZoRQ==
+	bh=oYzAsF0I+e0CW5z5u7FoosueNiGCXkY4vYyESz+rdRw=;
+	b=huqZLj6+DLoKYR3vR20QqWEUP/Jkbi3CyDKHeWNrtUbuGrTMU6gTIr7M6u+CT4I1iajd
+	 zVbW1Bl2nhrvpGtQc8Hhk7sOVNvRsQkh/J0yVvpiAOZbbRE4Uu8Bys60jZVZAVsDaRAmB
+	 TdaQxZ1jEjm+XZqZnfS4I7rSu9M8pJJr9p/op/aQOHWOKxahzbwmBtVM4xys1iuWUIuDL
+	 koDwnr9onu5b8/0g/cQf2tFik07/k50ExctfsOZ7SUe+0lYsI4TIdxniHGc6LueUVqIyb
+	 71EJO91zJcKzYUsxRG2+zXFxQLNibwdJfZUyZFq9rTA1hwXTDRMHaGTmqrWfPYgfPag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JxUDwRLS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MNcTfu51;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D60607956B;
-	Thu,  5 Nov 2026 19:35:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985A5606F967;
+	Thu,  5 Nov 2026 19:35:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JxUDwRLS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6371F0089E;
-	Thu,  5 Nov 2026 19:35:46 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MNcTfu51
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAAA1F0089E;
+	Thu,  5 Nov 2026 19:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907348;
-	bh=1MugNV8TCf3DcwhciMioHkCDdfBEvJqmJegZE7T3Anc=;
+	s=k20260515; t=1793907357;
+	bh=oYzAsF0I+e0CW5z5u7FoosueNiGCXkY4vYyESz+rdRw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JxUDwRLS659AKy9L6EF/sMAUNJPV9IWLdEGgYT37J3Q3xoM9Rgl+/f5tJog9D28GT
-	 YMaZHCMQxAz8Q/YhL7D2HkKgLdWMS13ODeIvOVS2cO3Xyt1UiWgXthVq8iKNCfiwYC
-	 CBZKMuWNvUYO3GRSHNobx37W6/E4wT6vFZKwM2U+b9rd+Q0o+xU/Q/0vCpfhxieJT7
-	 F6OAqSTAk8K2MFcN+drjgRiXeceRcYXDu/MhOHTrRoTOf/Jcy6qlsQJs6CLNabmhUG
-	 q0HrKvIx+/XHSn3ssmSRL1+tCAkBs5GI7/FQwPFk1on24fvEEyzBWmsp3oEib+CbCf
-	 nnIC8BG7tI46Q==
-Message-ID: <sashiko-outbox-199946@kernel.org>
+	b=MNcTfu51HAjp9arjwyGN1MZppN/dC3Ih6DC5avMnmUZvCl1H8KMvBU/ZZwYPTddlq
+	 8PnPW4CSFGBN1dDKTDcBXSBShP3a2WX5Pp6p0nXP7btknLRFB9PL8Ncjca4QfFR7o6
+	 oieIQ42NP3xLduOm0i3X+wXP5Uc/isojnKGZtzQxRcqeCltZdRDFH+n0KxLYl41RIP
+	 ATkNXn2O63ucMGLH8txRIYQC8ZLHJgxM0FFautSGCwD/y0R1M9Jy2DlUyf0qiqgXBM
+	 VIcI6Y0C/5lhKqfM+6+0N06nY7P1BiHq8y1ifirsgXbr9GMfqL0sos0ji0uQdTtER0
+	 P0SLP3MDfXv8g==
+Message-ID: <sashiko-outbox-199950@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 16/23] proc: let procfs copy out reads that
- don't go through seq_file
+Subject: Re: [PATCH RESEND v2 20/23] selftests/proc: check that a mapped
+ entry can be removed
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -57,12 +57,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-core-v2-16-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-20-76ace653a773@kernel.org>
 References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org>
- <20261104-work-procfs-core-v2-16-76ace653a773@kernel.org>
+ <20261104-work-procfs-core-v2-20-76ace653a773@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:35:45 +0000
+Date: Thu, 05 Nov 2026 19:35:54 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -72,69 +72,116 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Low] proc: define and initialize __free(kvfree) variable buf in pde_read=
-_buf()
+- [Medium] selftests/proc: 32-bit off_t truncation in proc-remove-mapped mm=
+ap()
+- [Low] selftests/proc: unused len parameter in mem_bar() in proc-remove-ma=
+pped
 --
 
-commit 19cf278eb9fee57b90ee19764f6b076d9cab553d
+commit df303f424b9a370ffbd0eec6c07ff2a99d0ee4ea
 Author: Christian Brauner <brauner@kernel.org>
 
-proc: let procfs copy out reads that don't go through seq_file
+selftests/proc: check that a mapped entry can be removed
 
-This commit adds ->proc_read_buf() and PROC_ENTRY_FULL_READS to proc_ops so
-that non-seq_file procfs entries can fill a kernel buffer while pinned and
-let procfs copy it to userspace after unpinning the entry.
+This commit adds a procfs selftest that maps a PCI device memory BAR via
+/proc/bus/pci and removes the PCI device through sysfs to verify that remov=
+ing
+a mapped procfs entry does not block and leaves the file returning -EIO on
+subsequent reads.
 
-> diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-> index df1caa0f238df..caa47933c233d 100644
-> --- a/fs/proc/inode.c
-> +++ b/fs/proc/inode.c
+> diff --git a/tools/testing/selftests/proc/proc-remove-mapped.c b/tools/te=
+sting/selftests/proc/proc-remove-mapped.c
+> new file mode 100644
+> index 0000000000000..92860fb2a8f40
+> --- /dev/null
+> +++ b/tools/testing/selftests/proc/proc-remove-mapped.c
+
 [ ... ]
-> @@ -377,11 +379,67 @@ static loff_t proc_reg_llseek(struct file *file, lo=
-ff_t offset, int whence)
->  	return rv;
->  }
-> =20
-> +/*
-> + * The entry fills a kernel buffer and procfs copies that to userspace a=
-fter
-> + * unpinning the entry. A reader that faults on its buffer then doesn't =
-hold
-> + * up remove_proc_entry().
-> + */
-> +static ssize_t pde_read_buf(struct proc_dir_entry *pde, struct kiocb *io=
-cb,
-> +			    struct iov_iter *iter)
+
+> +/* the first memory BAR of @dev */
+> +static int mem_bar(const char *dev, unsigned long long *start,
+> +		   unsigned long long *len)
 > +{
-> +	struct file *file =3D iocb->ki_filp;
-> +	char *buf __free(kvfree) =3D NULL;
-> +	ssize_t rv, done =3D 0;
-> +	size_t len, count;
-> +	loff_t pos;
+> +	unsigned long long s, e, flags;
+> +	char path[PATH_MAX];
+> +	int ret =3D -ENODEV;
+> +	FILE *f;
 > +
-> +	if (!iov_iter_count(iter))
-> +		return 0;
-> +	/* neither the allocation nor the entry can honor IOCB_NOWAIT */
-> +	if ((iocb->ki_flags & IOCB_NOWAIT) && !(file->f_flags & O_NONBLOCK))
-> +		return -EAGAIN;
-> +	len =3D min_t(size_t, iov_iter_count(iter), pde->read_size);
-> +	buf =3D kvmalloc(len, GFP_KERNEL);
+> +	snprintf(path, sizeof(path), SYSFS_DEVICES "%s/resource", dev);
+> +	f =3D fopen(path, "r");
+> +	if (!f)
+> +		return -errno;
+> +	while (fscanf(f, "%llx %llx %llx", &s, &e, &flags) =3D=3D 3) {
+> +		if ((flags & IORESOURCE_MEM) && e >=3D s) {
+> +			*start =3D s;
+> +			*len =3D e - s + 1;
+> +			ret =3D 0;
+> +			break;
+> +		}
+> +	}
+> +	fclose(f);
+> +	return ret;
+> +}
+
+[ ... ]
+
+> +TEST_F(pci, remove_while_mapped)
+> +{
+> +	long psz =3D sysconf(_SC_PAGESIZE);
+> +	unsigned long long start =3D 0, len =3D 0;
+> +	char path[PATH_MAX];
+> +	volatile unsigned int *p;
+> +	unsigned int v;
+> +	int fd;
+> +
+> +	if (mem_bar(self->dev, &start, &len))
+> +		SKIP(return, "%s has no memory BAR", self->dev);
 
 [Severity: Low]
-As reported by Sashiko on RFC [1], this isn't a bug, but in pde_read_buf()
-in fs/proc/inode.c, buf is declared with __free(kvfree) =3D NULL at the top
-of the function before the early returns and then assigned later at the
-kvmalloc() call. Could buf be defined and initialized in a single statement
-at the allocation site:
+This isn't a bug, but is the len parameter in mem_bar() needed? mem_bar()
+writes *len =3D e - s + 1 and remove_while_mapped() passes &len, but len is
+never read afterward because mmap() maps a single page of size psz.
 
-	char *buf __free(kvfree) =3D kvmalloc(len, GFP_KERNEL);
+> +
+> +	fd =3D open(self->path, O_RDONLY | O_CLOEXEC);
+> +	ASSERT_GE(fd, 0);
+> +	if (ioctl(fd, PCIIOC_MMAP_IS_MEM)) {
+> +		/* no PCI mmap on this architecture, or locked down */
+> +		if (errno =3D=3D EINVAL || errno =3D=3D EPERM) {
+> +			close(fd);
+> +			SKIP(return, "PCIIOC_MMAP_IS_MEM: %s", strerror(errno));
+> +		}
+> +		ASSERT_TRUE(false) {
+> +			TH_LOG("PCIIOC_MMAP_IS_MEM: %s", strerror(errno));
+> +		}
+> +	}
+> +	p =3D mmap(NULL, psz, PROT_READ, MAP_SHARED, fd, start);
+> +	if (p =3D=3D MAP_FAILED)
+> +		SKIP(return, "mmap: %s", strerror(errno));
 
-to follow the cleanup.h conventions?
+[Severity: Medium]
+On 32-bit architectures, will passing start to mmap() in remove_while_mappe=
+d()
+truncate or sign-extend PCI BAR addresses at or above 0x80000000?
 
-[1] https://lore.kernel.org/r/sashiko-outbox-195540@kernel.org
+Neither proc-remove-mapped.c nor tools/testing/selftests/proc/Makefile defi=
+nes
+_FILE_OFFSET_BITS to 64, so off_t is a 32-bit signed integer on 32-bit buil=
+ds.
+When mem_bar() parses a BAR physical address >=3D 0x80000000 into unsigned =
+long
+long start, converting start to a 32-bit signed off_t in mmap() either
+truncates bits above 32 or produces a negative offset (which fails with EIN=
+VAL
+in musl, or sign-extends the page offset passed to mmap2 in glibc so
+pci_mmap_fits() in proc_bus_pci_mmap() fails with ENODEV and causes the test
+to skip).
+
+Should proc-remove-mapped.c define _FILE_OFFSET_BITS 64 before including the
+system headers?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-core-v2-0-76ace653a773@kernel.org?part=3D16
+s-core-v2-0-76ace653a773@kernel.org?part=3D20

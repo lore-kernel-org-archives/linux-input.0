@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793863639;
-	b=biHctMYEYMUa9boQ6IdO4kLjk1A1hMWU9Rdj9TTYH8HkmVxwz/emO1SKLwji4p5nhBBv
-	 MYlx4qaq+ZK65iUsyIXJ608nsP3I/ARDuwpXVrtWTGU2Iysryt5t29SlgJb7DHy1/TyX7
-	 t+IU6JVjo31wsU0LBArkzzVLu/HMrx3Pn8bgAyyhlo6nfwvVyYBZtVY0BoX5sTh0shApw
-	 a3mm+4oXrB0R8rX8jBHNdicSU1jSJJp01er1TuaWDpmltq8VmK/qfinPy1CMrlLorI+rE
-	 XgHy/dl2hxwNry9prYrIXkgYYvrDTyBzmsvS0lnojWfk2YOr0XUarZ8zLOxfmr5pz/Q==
+	t=1793866172;
+	b=0FMa/TzsIr9Zwv/vEpK1IQUUkIvDVIlSPam/RQE4z6JjiOMwUtkSildUTii+Gi9bE8pC
+	 eUoNMkfh6cLAkMcNmPr4WyuuG8vK4cJ5z8I6ukyMSmubavZ9IwFscTKn7x/Chm28Oi51u
+	 c6EefZ2gTeCNv77E6ZvRT+mO6EzCb8i3ftiqTnmxgu4W1W1Ge4Ihrt/98HKkkdQDTl6W7
+	 5gqlYtYMCnGmvDCxzOHt4cc+hMWf76pmItcPKHty3x3UocZysT3+YE9il5+EyAXFTzdUV
+	 MB1fahQXb9NNXpm7RNHpKC8Ki8av7bolerqpdG9sFOlCLEoVVbq3IoIeVhnjOC4JNaA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793863639;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793866172;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=KpjQzYHtWDGBnZmNqdBh6R7M2XsM2YwTNNTkLJaA5FI=;
-	b=BOL/916bsfVyd6/x3EMdjZb4NmYg0Pc0G3TVzeRK616HApZLYhrto8oZqIylQQ1du+M9
-	 jR5oHvD/i9Nvz2ouMSQHXMtbYZ3pFZ1ThtH0CYjn4ytw7nYAwUPksuwGnFUdofD7LIMvW
-	 rcBb+OP8Z0h8w5k20wJ2CGXj+Qz6Tph6YIJW8jwDZVF90mhtV7lK1FwB2FUr464vV7gil
-	 2RbHp8X+2RrYluAB/WHoWTGjU8dcHSzY7NpvL7CUL68ZW/yMQr867lZh2oEk6vQjsjA7E
-	 aZn/q8iqlrTuO6H2iL4YX6f/jFce3rMjLs47q96dW590h7p8z8XTNKBZ74xmSC/pGPQ==
+	bh=R2dfgUSfGvKDjLQlx0gUL2MoOwECt6lNi/6KeCAWzMY=;
+	b=ceeAQWUjRpYO+5H8EzHKKGFzuPD8wlsuq3+yWiAgytG3IrzEcOhVZvQAWo7xJAn4GkA9
+	 KD/OU5zOJe12SBanAo6ScBWwSnvAqb+oRk8gOAbjQakJPnZOeQLjKZakgDWpCtYpnHyFC
+	 QUMXTha2BBRrZ+TzDuE6U2j9Dm5V1jhT9Q/AZPdnnaaJ7P2pGyg0/2RZrACCzr5OC+udQ
+	 2ylb+G/KHSnNiKn431ey2kq+Ir+biPk7kIa6n9nnhSX6Yiq4ulbxxm0wODk2GDHn6nK+g
+	 OQLuoId7Mox8U9/qNGavp0J4GjKNENJpmrs+knSgAWlz/Gwr/LWRgeURjBzl6GB5RUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2jnLjEj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUol7Wth;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74496606A31B;
-	Thu,  5 Nov 2026 07:27:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD370606A339;
+	Thu,  5 Nov 2026 08:09:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2jnLjEj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB5C1F00A02;
-	Thu,  5 Nov 2026 07:27:13 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUol7Wth
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CBB1F00919;
+	Thu,  5 Nov 2026 08:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793863639;
-	bh=KpjQzYHtWDGBnZmNqdBh6R7M2XsM2YwTNNTkLJaA5FI=;
+	s=k20260515; t=1793866171;
+	bh=R2dfgUSfGvKDjLQlx0gUL2MoOwECt6lNi/6KeCAWzMY=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=j2jnLjEjkWl2LhZJHOLAS/6VC9piRAm1loijPru7Bs+FP2PxCwGOsHajpjJl6YWac
-	 NFs3HqoZQVoO6umVEGAIKxHWgdp+xIRB8Marti9qql4EMJH2SPm1PpAIfzL+SaoikY
-	 rlQqtpU0Ut9oCGA/eoSPq8PqBQY8YtYpGG7DEn8BWLt9iAEYvNSl+1k08fP9EY7Hng
-	 dCEzRdOUn5SPRooTaieHD2YBgK4Y/v7iI4TcueFfJTtTipjnQdDpTmbtcWl1e+Zup4
-	 uKGpngabZLOnzm5IMIuI9uHHOyQaKB1mtaIZZyP1Y4ota4gk6h4CmYHl6Zq+YqbxHw
-	 SHHfem8z3w7ag==
-Message-ID: <1a83f9a4-73c8-4a13-bd53-2e779f6ade22@kernel.org>
-Date: Thu, 5 Nov 2026 08:27:11 +0100
+	b=OUol7Wth9XsYmxV8LxuJKOhicul9055AZbLBcAIvPqKqrf1MdlRygxx2jokqLhPUq
+	 LX97q8X0DOdhJaBw/ZJ72Kj2fE28BCn9xOmhu6hcUDL2VuPjMyN7YhaPkgckyrkIuJ
+	 p65X7UFLUFldmk17xlijqYcbrEh8H2nvDB30BybBtVQLY/e0SAKFT4q36P0l8aryPZ
+	 En2khHQcTEjHtHNRhf15snwgmmZJxiDkqzx+Z5wE862yzxAuc3OYTJmkwS/jTj0MOs
+	 mc3m4YaUVqXzqNbV8li9zXtIOzhCMBH3IQqQtwPG26HwXBOpk3v84DxK8v01kia4hu
+	 BG+hhEqTceHfg==
+Message-ID: <e390de9a-b7ac-4fb9-8a0d-f6a4935dd665@kernel.org>
+Date: Thu, 5 Nov 2026 09:09:00 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -52,26 +52,68 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND v7 1/2] dt-bindings: input: Add Qualcomm SPMI PMIC
- haptics
-To: Fenglin Wu <fenglin.wu@oss.qualcomm.com>,
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Rob Herring (Arm)" <robh@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- David Collins <david.collins@oss.qualcomm.com>,
- Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
- Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, linux-input@vger.kernel.org,
+ <conor+dt@kernel.org>, Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+ Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+ Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
+ Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
+ David Lechner <dlechner@baylibre.com>, =?UTF-8?Q?Nuno_S=C3=A1?=
+ <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Olivier Moysan <olivier.moysan@foss.st.com>,
+ Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
+ Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>,
+ Srinivas Kandagatla <srini@kernel.org>,
+ Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, Ulf Hansson <ulfh@kernel.org>,
+ Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>, Ray Jui <rjui@broadcom.com>,
+ Scott Branden <sbranden@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>,
+ Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+ Shawn Guo <shawnguo@kernel.org>, Chanh Nguyen
+ <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>,
+ Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>,
+ Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+ Thierry Reding <thierry.reding@gmail.com>, Ray Jui <ray.jui@broadcom.com>,
+ Scott Branden <scott.branden@broadcom.com>, dri-devel@lists.freedesktop.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- David Heidelberg <david@ixit.cz>
-References: <20261103-qcom-spmi-haptics-v7-0-418de67ef84a@oss.qualcomm.com>
- <20261103-qcom-spmi-haptics-v7-1-418de67ef84a@oss.qualcomm.com>
- <20261104-myrtle-kelpie-of-chemistry-de43cf@quoll>
- <6964d550-2ddd-463a-a142-9e8f72588803@oss.qualcomm.com>
- <4edbe80d-f1f0-4e85-9973-86da7649e9bf@oss.qualcomm.com>
+ netdev@vger.kernel.org, chrome-platform@lists.linux.dev,
+ linux-gpio@vger.kernel.org, imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-sound@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-tegra@vger.kernel.org, mfd@lists.linux.dev,
+ linux-arm-msm@vger.kernel.org, linux-mmc@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
+References: <20261102135330.2493332-1-robh@kernel.org>
+ <20261104-vigorous-flat-dingo-3e5bd2@quoll>
+ <auuWVGsyb3RrOIfh@ashevche-desk.local>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -117,38 +159,34 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <4edbe80d-f1f0-4e85-9973-86da7649e9bf@oss.qualcomm.com>
+In-Reply-To: <auuWVGsyb3RrOIfh@ashevche-desk.local>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 05/11/2026 01:48, Fenglin Wu wrote:
-> 
-> 
-> On 11/4/2026 4:44 PM, Krzysztof Kozlowski wrote:
->> On 04/11/2026 09:29, Krzysztof Kozlowski wrote:
->>> On Tue, Nov 03, 2026 at 08:51:17PM -0800, Fenglin Wu wrote:
->>>> Add binding document for the haptics module inside Qualcomm PMIC
->>>> PMIH0108.
->>>>
->>>
->>> Why are you ending this? On what sort of ancient, downstream fork are
+On 04/11/2026 21:32, Andy Shevchenko wrote:
+>>>      patternProperties:
+>>> -      "^layer@[0-9]+$":
+>>> +      "^layer@[0-9a-f]+$":
 >>
->> s/ending/sending/
+>> These two lines are looking good.
 >>
->>> you working?
->>>
->>>
->>> NAK
->> Best regards,
->> Krzysztof
+>> Andy, it's okay if I give Rb tag?
 > 
-> What's the concern on sending them? I don't understand.
+> Yes, again a pointer to 34d1e754155b ("dt-bindings: iio: drop unneeded quotes").
+> 
+>> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> 
+> I expect to see
+> 
+>  Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com> # xylon
+> 
+> or something that matches the piece you reviewed.
 
-That they are based on 4 months old tree? Or half year old? Or longer?
-Try yourself. Does this apply?
+As pointed out in other thread (the SPI), only a few people use that
+syntax. Also look here:
 
-No. And if you tried to work on recent tree, you would understand why I
-am asking.
+https://lore.kernel.org/all/CAAfSe-uD=s0RpuqQ_h+_fErcEC+G=N_LA6e=p_sXJ=iG7jMc3Q@mail.gmail.com/
+
 
 Best regards,
 Krzysztof

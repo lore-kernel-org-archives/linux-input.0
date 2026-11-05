@@ -1,60 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=84.247.164.36
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793884133;
-	b=nfhdRusYzjOpD1sBEr2ZvJ+7LfWE8xlQm4g6/UBpzBapiGPh7N/icSxpCb4tZwFPDNsw
-	 cjQaLgX5POZUqUJow8tBj4/YY9zt0RWiee9do2Wb2zvYlPeFPeTkurRF0KwKS3NGTiBSJ
-	 TWA8A6T+WN3k0wMGpq96oFmxNL8etquABdE88B+JjTxz5agbnvn6Vwby+JPELAJo5ILlD
-	 5uBJ0SyOV9n/npMI/+/+CwCBw/8Y3hsBdb8zOyh6YUcytWrJ6Gzay2g7zdOg992oiNBHp
-	 2g409OvzGkqgFQajTySIwgmH4TdyB1WRUtR1lNYtUxlEkBiXZQd6iqlqWYSlkzJeo2g==
+	t=1793884221;
+	b=UPLg6g2ltIMiRpvhfztZYE18Mxc5D46qrv6HuY5GJTKOshS9lKgU6hXHU8mcFjIKRo+Z
+	 JTl1HYH/DO2k5fseJXrCxqLwscHbJSOLbVYaoqMCZhUf1Tp55fZSlZFnhNc/tPOItJu0Q
+	 kjvzr0m2TeORMNIJaNlIDukHiMhzWudVyrm7SAYiKVR2oYN68H7lWeDEHc5vFmpkdRk/e
+	 DLQiOVWJm9Ua7gc/xmkaPKOPqJOuEvtFzDQ3iW1bglkWfJBCn2qBfhwSyDO23FW3cN6G5
+	 tlRR8M8Yf9sayXjD2oB9JAVVQ5/QlhYQCdjmopLG32UcFwJFK6QiK1uJw+aLgcM7j0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793884133;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
-	 Message-ID:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:Content-Type:X-Last-TLS-Session-Version;
-	bh=+3Gb1cybkRKoeLL2kGZWTIitMvdzJGlJP6G6wh553rY=;
-	b=KuIDnQFZ16AJLLJpl6TCxt2ED2DHO48HWZZrP90r1bdlkw+PVWwChxPeuEQr792Q4Ymk
-	 ekyWe4jdYehsUdykQxdT1HtaUvCabBJZX5X9pBriKMi8kq8qZWusbr/C2te8Ukppz9CMX
-	 6j5Lh4D1P+Jar1swg+OZ2FF2L0K0PpJDAYW3vdHqovu64Rmsv97G4yGnXkE42h75qBo+N
-	 pUC59A5nO44uk1/sYHnl+ZSeRv5HjGeW5NHtsAFXDFf/hYpU3NhDxQ6BGYUtTarrrizIU
-	 Dxl0ZBv3TEp2P6xh8CPp26DhSxBxu2nelCcz5bip++mm7j+EEGCe4LpsLFmH/722XhQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793884221;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=Fvb4JO7ZDYHlLGwkUVgcr7dfex0gx0tUQH0jioa0NDA=;
+	b=poz81lvvCUMh/D3nOwnDcivO6bf5Ar7gh+UXsmmErYLpMp3LAFONvrIKpYABL9Yaf/Aj
+	 argVOX7ZZuvJiHQeStNdPGeDO2utjaGO/mVRi77EePooDPHyGGpy8+ZrdUeTSxNSVrjdL
+	 ozdfxG0JQRTZ8U4WYGRQSU+Ove136c5/Zg6wRHfo7Rtb9kpOjW6udLdEs57czT0WgxJIv
+	 GMfZJPp2uxb44NJmYjojRHb0kOSOD152KKmlPZyalKVrCT7deZVmAS+veaWo2auN6Znya
+	 4Ca6NFSKKZYdZTUR6T5q9fjM8UvzW2macqf4fLwyrkY+W9a+he2vRHVNzxjRzK+9pgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=koesling.info;
-	spf=none smtp.mailfrom=koesling.info;
-	dkim=pass header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=LQWI2NqQ;
-	arc=none smtp.remote-ip=84.247.164.36
-Received: from mail.koesling.network (mail.koesling.network [84.247.164.36])
+	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=dPTZXbna;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C98C8606A338;
-	Thu,  5 Nov 2026 13:08:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C98C8606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D452606A32D;
+	Thu,  5 Nov 2026 13:10:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=LQWI2NqQ
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B65601320F85;
-	Thu, 05 Nov 2026 14:08:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
-	s=dkim; t=1793884123;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=+3Gb1cybkRKoeLL2kGZWTIitMvdzJGlJP6G6wh553rY=;
-	b=LQWI2NqQIReu4FdhsO+Szn2fvUqPFXXl661BptJlohyhlnpD/Nt3WxwWDT2XD7j9qw8FuJ
-	bmVMe1ApXM/5Jz3LgSgnOII2ak+8XxtqlGuWLP5KkTk8o/VnOqTd8wN6fX0GDlUet651yW
-	awVctEyMfsXOVN3caSN/9iJu/0NDwQ1ZPyeQTyAQZ1VtqftlTo4jCLkyT9qVjC9EJqd2pT
-	GO3I1bkwzdxaghejudVlmbPTyOKdZLDcw1wLUdZ5OQyuN8Dx2x54pyjX9S3gHFVqaY0WiA
-	EmDLpnsv8ZQnRLw3fhLSBMzNfAVKrKOYueno71t4COJ5XNhUHlzR9Wc8wIPaIQ==
-From: Nikolas Koesling <nikolas@koesling.info>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Aryan Sinha <sinha.aryan03@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Aryan Sinha <sinha.aryan03@gmail.com>
-Subject: Re: [PATCH] HID: pulsar: print the battery error with %pe
-Date: Thu, 05 Nov 2026 14:08:37 +0100
-Message-ID: <ldaTdNN0R-CJNS6mWTaQdg@koesling.info>
-In-Reply-To: <20261104150055.33028-1-sinha.aryan03@gmail.com>
-References: <20261104150055.33028-1-sinha.aryan03@gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=dPTZXbna
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200571F000C1;
+	Thu,  5 Nov 2026 13:10:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1793884219;
+	bh=Fvb4JO7ZDYHlLGwkUVgcr7dfex0gx0tUQH0jioa0NDA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=dPTZXbnaU0ZHJ8FXpQSQDG9e4qeWzONxeoXKumor/CArasmlPPtNdWtmhxu7uzEck
+	 P1eEVY+hTIjDdP1uoDY8SaA9+TzLagQcJY2fIYcdYnBWSsIF+ScTQhOg6vLFtQOCdW
+	 fUjFfWCK7KWSrfvRHCvIG9d6xYwqBgHyE1Nr1kEA=
+Date: Thu, 5 Nov 2026 08:10:14 -0500
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH 10/17] driver core: Expose device trust authorization
+ through sysfs
+Message-ID: <2026110514-bunkhouse-handset-6a3a@gregkh>
+References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
+ <20261105-device-trust-core-v1-10-1e536825b4eb@nvidia.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,21 +84,94 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261105-device-trust-core-v1-10-1e536825b4eb@nvidia.com>
 
-Hi Aryan,
+On Thu, Nov 05, 2026 at 01:42:23PM +0200, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
+> 
+> An initrd must authorize a disabled device after attestation even if a
+> built-in driver already attempted to probe it.
+> 
+> Expose requested trust_policy and read-only active trust. Allow explicit
+> disabled policy to advance once to adversary or full, fixing that decision
+> immediately. Reject later policy changes, including for a device claimed
+> before registration, while allowing same-value writes on live devices.
+> Keep initial unrestricted selection separate from explicit authorization
+> and bind-time commitment. Serialize writes with probing under the device
+> lock. Include the attributes in device ownership changes.
+> 
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> ---
+>  Documentation/ABI/testing/sysfs-devices-trust |  51 +++++++++++++
+>  MAINTAINERS                                   |   1 +
+>  drivers/base/base.h                           |   6 ++
+>  drivers/base/core.c                           |  15 +++-
+>  drivers/base/trust.c                          | 102 ++++++++++++++++++++++++++
+>  5 files changed, 174 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-devices-trust b/Documentation/ABI/testing/sysfs-devices-trust
+> new file mode 100644
+> index 0000000000000..97e07a174769c
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-devices-trust
+> @@ -0,0 +1,51 @@
+> +What:		/sys/devices/.../trust
+> +Date:		September 2026
+> +Contact:	driver-core@lists.linux.dev
+> +Description:
+> +		(RO) The active trust level for the device. The values are
+> +		"disabled", "adversary", and "full". Driver core resolves
+> +		the level before DMA configuration and probe, and retains it
+> +		through removal and DMA cleanup. Outside a bind transaction
+> +		the level is "disabled". This does not imply that policy is
+> +		writable or that the device has never operated.
+> +
+> +What:		/sys/devices/.../trust_policy
+> +Date:		September 2026
+> +Contact:	driver-core@lists.linux.dev
+> +Description:
+> +		(RW) The requested trust policy for the device. The initial
+> +		value may be selected by the bus before the device is
+> +		registered; otherwise it is "default". The policy is resolved
+> +		to an active trust level before the device is probed.
+> +
+> +		The values are "default", "disabled", "adversary", and
+> +		"full". "default" lets the bus select the active trust level.
+> +		"disabled" prevents a functional driver from binding.
+> +		"adversary" requests operation with the restrictions that the
+> +		bus and DMA layers can enforce for a potentially malicious
+> +		device; it does not isolate DMA by itself. "full" requests
+> +		normal operation.
+> +
+> +		Before an operating level is committed, policy may change
+> +		freely until "disabled" is selected. Explicit "disabled"
+> +		blocks binding while allowing a later write of "adversary" or
+> +		"full". Repeated rejected probes preserve this opportunity.
+> +		Authorization immediately fixes the requested policy.
+> +		Returning to "default" or "disabled", or selecting another
+> +		mode, fails.
+> +
+> +		Successful resolution to an allowed level commits policy
+> +		and operating level before driver or DMA setup. Both remain
+> +		fixed for the device object's lifetime, including through
+> +		failed or deferred probes, unbind, reset, and driver reload.
+> +		Later binds must resolve to the same level, including when
+> +		the policy is "default". A resolver error or disabled result
+> +		before commitment leaves the policy's writability unchanged.
 
-thanks for the patch, the change itself looks good.
-However, it only converts one of the error prints in the driver. The remaining
-ones still print the plain errno with %d. they can use %pe with ERR_PTR(ret)
-as well.
-Could you send a v2 that converts all of them, so the driver reports errors
-consistently?
+I understand you are aproaching this from a PCI point-of-view, but many
+busses do not care or have DMA at all, and need to actually talk to the
+device before being able to even "add" it to the kernel.  So you are
+making a driver core-specific policy based on mentioning DMA here, when
+really that should only be a bus-specific thing, right?  Some busses
+might require DMA to happen (i.e. USB needs their host controllers to
+use DMA to even talk to the device at all).
 
-Thanks,
-Nikolas
+So can this be written to be more vague and generic and then put the
+specifics in the bus-specific portion?
 
+thanks,
 
-
+greg k-h

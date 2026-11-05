@@ -1,89 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793852820;
-	b=Z5Ix9GCwrcMbFz4oVOqH7A+1uC6RbFuCfceoy4tMRqHnOzzBqzXcG66UIGNtPoeKLU90
-	 RfHXlNPRNxhwftKSno0Mz10yvpVSXQMlVPbEYykemS90faKNY7KeAbJGPbSlHcTbPMphE
-	 6ILazuzcNZnYPAHjxlCQhnnD0Nlbpu8V4wc5Nthqv8vUvXIkkwkZ+AlQfZGlAZmPij3YS
-	 BfLYt2fR98nCSzVk3I1lxamQsdqnpG8h2q4cCsk6eol+dO/tR0RbxcQ1BsFrNMnmsgjj0
-	 ri5KVXN9rw6q+a4mNwYy5VExwxAWYb3ke45UXgycfRxZ2+3yQxz0TnsvoNDUnbJnD5A==
+	t=1793853146;
+	b=v2wqRmLZLH4sQ71DYPVpEeizTsOGKObfMVRGVvwH7fBvjb9wb70UAcEx2U0lBSBTUSSU
+	 o8GhV+ClPC7/6C2DTMIw9rkjK9T5U745nTFspSJCsTRnJHhXgOh4vSBKMUj9TxThLXnx3
+	 oinzxzculD/PFOj/8YQH8pDWF8mFfXJQEx0PJ1xwaTn3q9t8v3DrD0futzAPhCvvX6mrn
+	 qYQGn3+zzKC8356uG3ItyZ91aN+PTf7t1A3f9oFVPCLCCLr9omDqPbpcCk7e13YD0KQ8o
+	 J71iijqOUjuvdnNUBCofVfhNKQsBDYNxhwqaqSkGdOxFd9s7xksSIpS/KDawrIQ+DOQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793852820;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=6Dx9GlhWSYYSjKrkLodD2g0q9NIvhIS/VlB9UxsGFr0=;
-	b=j9U7BzylDnmgujGkVaASjwi2evsG9/j/bQHM5T2lhAb/2ZYK3tkq66Jn3cocvDrjUgmv
-	 L7ClnGXBiHyEZSTkDYaZpv+S/NtEZWZFrAfnumqS4vkch7dodZu3ybGlTapkxniUylrlP
-	 oOv0TA99oM46jzKJZRnyzCBYTKif4AFiIBnqNERvAyfm1DwfPfiPPWq1+l0vylH6LAnnX
-	 W8kgPMB08a1TfaM28ptZNLcWzcBLQ0seDZkrHzXPl08THI/cyseuYdsGU2JLji56t75Gd
-	 Q2y1aIJnRrnxlkrTtt0/jaqvdb0s5keaNPGgOG4mz9lrWJbsC/7TbrSnHBGKg5zXhCg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793853146;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=rlElVctePMUaBfo4QJsUtsig92pZ0/DoTD6PbQyU4Hc=;
+	b=lmIspsgtvbXgpIalnDlE3W/j0BD9m6EGHzyy1pzK6zPYT0C2CkHMMJ57knfkD1+IxzQW
+	 XrY4K0AdbeuUu9WEJH4J4AMvbm+XuXxhg4lr8GJKm9jpIKLcUD11kPlUmxMMbwTYuVm9Q
+	 BqvLPSvBVhD80BlTX+GWQ6qHDO9Q1RWR7CZfGGsmNR1ZgIt//FVNAr6RuQ5rz5lvyF/3W
+	 qXF32xDrzrFfZI9hOXMGTJXxX56M/p3v824f0znJS5w9CU0T00puLDB8J0fns7QaPiZcW
+	 Je9IjyophVz2TfaqjlnENMwDukLZW2Yqf7dBgqLikT1n148yQvvfqOakp7OYwO+3etg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mHAH4Mpa;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KHtpNAph;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CBEE606A329
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 04:27:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5CBEE606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669C1606A328
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 04:32:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mHAH4Mpa
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36cad25b8b0so2195741eec.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 20:27:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793852819; x=1794457619; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6Dx9GlhWSYYSjKrkLodD2g0q9NIvhIS/VlB9UxsGFr0=;
-        b=mHAH4Mpad64UJiZp5ruoCr59wzblMsRYZTtIuYxJvK2sy90W600cldVglwDrg5IuXe
-         DhdGmi3PraSVBjy8GTEHDNTMSktut754GjoIvoGR2QOerY9k9bG5QdXtsIEwY5e8nTfb
-         ETXdl1fQ+tILXuBOa/qzy/Ve0ZIIAzb3ioZ+AwWMD+n50KYSxr+xyxo+9mxR0trd541m
-         oVe2U3Sk8+KRG8nccZxt/Q8mvO81BoJQWksoG7g47ctyiyGntGURexdOHql6IGD8K2lT
-         CiqaAIBu9tt05b/81TVS1gnILr6lfRm5giaqVJvIaWPPmE/ogtze4qVn+wf9lTutoQM7
-         BayQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793852819; x=1794457619;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6Dx9GlhWSYYSjKrkLodD2g0q9NIvhIS/VlB9UxsGFr0=;
-        b=ruJOebI5WTx/XylvZTJx/G49N97W+6PJtZlQGWneypEe8o9quYAKDjTYdLlwHdY960
-         WpvmCpHVt5XlFeMX+wW5kL5ggtD/zoVmZTHrW9DxX0LSI/2rFBWJ59OdkrjcYRzU/mxl
-         aTsSjqsmeH3QttOzIfNUK6tvGshvdUb91gLrp/+Tv0OBJPKIG+30AivV3IpeLVsbo+Ul
-         a1ArGCFVdVAfGLbySS6I6TIC8cQquTZVoMSGBOTU35ucOz+LE8V7M97sV6p0BDu0cXc7
-         CYOoK3Fts/U1nYlR2yRkOhQLj7gXavBjMwamaVkYl9N2GUij9ibis0dH8HKnuuoLOZhr
-         D6ig==
-X-Gm-Message-State: APuU4Z81lSo6bY1dQyx7cJEPXTcJk14UNkrm7xa0K3WpXdMP80iYtZ9r
-	rv2Sci+JnJDG9Z/fAUryOcHAynRZZMzGFY7oqe170lfTTxcyxYJ1Toke
-X-Gm-Gg: AYBFou1Zr1Kkr0CC22kjXsfw+RscNkFmyYmdANhRiKtGzz0illXjklzMZyo4Fwr9+AH
-	wbHhbs6tetgPqomJV3Q3GMp0e1vZ02ORVQwCfGKF+TJ6eh/Wq35aOlpdP61Aw2+XbeYRlMVWg8N
-	HCvcRlzU9DwTYpJp9V+sGM1lP66QCzdbJfhbopKuwUjGsItdkSAZc0mpVvPYt1hTpE7p4f5yS77
-	OCFMeVqbd2oMXTNjIAFRb4/L6HfT9hjNp+R1i6Hw8gyBpOVyVbMcLf/8ENS/prs5ASoYcs6QzJE
-	kS4OHM+WOMyqqjuWXyikZqxM3wrFgYDaWyEYxun9E+V4QagoGWxqus7I09wjlp3GAq9ZNPbn5vL
-	sKVZCOvqmlOlomsZ8D4tT9q5Ul4XeHYhzHDPSjNIQYaE6fjttDI0o7l5GqeZkrjYLWU63A2c8CK
-	HiFGUvEwh7N7P4Aq0HTDD/NnYVyOdRUdQIaod+2Awuakk36f7giIs59aT/jpOz0B3Ws+SAHujsS
-	NdKJ06zyMgGSwx9GYMx5ORNqfdv7UYzaYyrNtLGkkNnLZq7sTedQy87tekpduTb2hT1WwxvG5ZO
-	9JbwCFa9rTD8owTPpgHiMU3R2EevemYNXsn3DDbGxJ3p+UG93jn2JAH4OMm8xe/VK+no
-X-Received: by 2002:a05:693c:894f:20b0:369:d992:e3 with SMTP id 5a478bee46e88-36a4242b2ebmr25756867eec.32.1793852819028;
-        Wed, 04 Nov 2026 20:26:59 -0800 (PST)
-Received: from localhost ([2409:40c4:1ac:755d:6be:3eb8:a598:dec5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca38fe477sm11383276eec.17.2026.11.04.20.26.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 20:26:58 -0800 (PST)
-From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-Subject: [PATCH] Input: synaptics - make InterTouch quirks table driven
-Date: Thu,  5 Nov 2026 09:56:14 +0530
-Message-ID: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KHtpNAph
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B021F000C1;
+	Thu,  5 Nov 2026 04:32:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793853146;
+	bh=rlElVctePMUaBfo4QJsUtsig92pZ0/DoTD6PbQyU4Hc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KHtpNAphfA0BZnjJBmuw8Dfle9Wfrj/8r/Un7jHMOHyldXAFVO0NESq12QtY+rcP+
+	 AClQjMntsec6bSabp/Zr9CZ21tpF31PKcbDl61ZwTld0YUqZnKHi7rE236s5rN8ieM
+	 UUoly98m8Vz6pit41fIYgtiV9kIBllZ/hUCp3vfPzt+Io7y3c1EOJ+ym8SIh37YRE8
+	 5fFQ0cDFYtBAKm1gARdUxKNl2T1jECWBDup18prmOhFDMt90KVxdbB+v0Yt+tzO9mf
+	 7lAXo/JvzAvz59R7thVqfmANBuv5if2iwzBV2Vbbdzzw/Y9Ydqllfe0gxh8Curnn4l
+	 GgKvqRxYeOiUQ==
+Message-ID: <sashiko-outbox-198552@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: synaptics - make InterTouch quirks table driven
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Lovekesh Solanki" <lovekeshsolanki00@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
+References: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 04:32:25 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -92,92 +58,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Move the device specific InterTouch quirk into a dedicated table to
-simplify exempting more devices in future.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Input: synaptics - unused synaptics_intertouch_blocklist when SMBUS=
+ disabled
+--
 
-Signed-off-by: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
----
- drivers/input/mouse/synaptics.c | 50 ++++++++++++++++++++++++++++++---
- 1 file changed, 46 insertions(+), 4 deletions(-)
+commit aa71c39dd9b45d27ea00e706a72ba8889d1bd158
+Author: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 1ed9261bff2b..748ade2004c3 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -213,6 +213,23 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
- };
- 
-+struct synaptics_intertouch_quirk {
-+	u32 board_id;
-+	const char *pnp_id;
-+};
-+
-+/*
-+ * List of devices with broken board revisions.
-+ */
-+static const struct synaptics_intertouch_quirk
-+synaptics_intertouch_blocklist[] = {
-+	{
-+		/* ThinkPad T440p */
-+		.board_id = 2722,
-+		.pnp_id = "LEN0036",
-+	},
-+};
-+
- /*
-  * Send a command to the synaptics touchpad by special commands
-  */
-@@ -1814,6 +1831,33 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
- 				  leave_breadcrumbs);
- }
- 
-+/*
-+ * synaptics_intertouch_disabled - check if InterTouch should be disabled
-+ * for a given touchpad based on its board revision.
-+ *
-+ * Returns true if the touchpad's board ID and PNP ID match a known broken
-+ * entry in the synaptics_intertouch_blocklist table.
-+ */
-+static bool synaptics_intertouch_disabled(struct psmouse *psmouse,
-+					  const struct synaptics_device_info *info)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(synaptics_intertouch_blocklist); i++) {
-+		const struct synaptics_intertouch_quirk *quirk =
-+			&synaptics_intertouch_blocklist[i];
-+
-+		if (info->board_id == quirk->board_id &&
-+		    psmouse_matches_pnp_id(psmouse,
-+					   (const char * const []) {
-+						   quirk->pnp_id, NULL
-+					   }))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- /*
-  * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-  * and decides to instantiate a SMBus InterTouch device.
-@@ -1840,10 +1884,8 @@ static int synaptics_setup_intertouch(struct psmouse *psmouse,
- 			return -ENXIO;
- 		}
- 
--		/* Disable intertouch on known-broken T440p board revisions */
--		if (info->board_id == 2722 &&
--		    psmouse_matches_pnp_id(psmouse,
--					   (const char * const []){"LEN0036", NULL})) {
-+		/* Disable intertouch on known-broken board revisions */
-+		if (synaptics_intertouch_disabled(psmouse, info)) {
- 			psmouse_info(psmouse,
- 				     "Disabling intertouch for board id %u\n",
- 				     info->board_id);
--- 
-2.56.0
+Input: synaptics - make InterTouch quirks table driven
 
+This commit moves the ThinkPad T440p InterTouch quirk check out of
+synaptics_setup_intertouch() into a dedicated synaptics_intertouch_blocklist
+table and helper function synaptics_intertouch_disabled().
+
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synapt=
+ics.c
+> index b007e642ea765..d366fd3398c69 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -214,6 +214,23 @@ static const char * const forcepad_pnp_ids[] =3D {
+>  	NULL
+>  };
+> =20
+> +struct synaptics_intertouch_quirk {
+> +	u32 board_id;
+> +	const char *pnp_id;
+> +};
+> +
+> +/*
+> + * List of devices with broken board revisions.
+> + */
+> +static const struct synaptics_intertouch_quirk
+> +synaptics_intertouch_blocklist[] =3D {
+> +	{
+> +		/* ThinkPad T440p */
+> +		.board_id =3D 2722,
+> +		.pnp_id =3D "LEN0036",
+> +	},
+> +};
+
+[Severity: Low]
+Will defining synaptics_intertouch_blocklist[] outside of
+CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS trigger an unused-const-variable warning w=
+hen
+CONFIG_MOUSE_PS2_SYNAPTICS is enabled and CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS =
+is
+disabled?
+
+Here synaptics_intertouch_blocklist[] is placed under:
+
+#if defined(CONFIG_MOUSE_PS2_SYNAPTICS) || \
+    defined(CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS)
+
+However, its only caller, synaptics_intertouch_disabled(), is inside the
+#ifdef CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS block (similar to how smbus_pnp_ids=
+[]
+needed to be guarded by CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS in commit
+496b7d2e5b93).
+
+Should struct synaptics_intertouch_quirk and synaptics_intertouch_blocklist=
+[]
+be guarded by #ifdef CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS or moved down next to
+synaptics_intertouch_disabled()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105042614.6883=
+12-1-lovekeshsolanki00@gmail.com?part=3D1

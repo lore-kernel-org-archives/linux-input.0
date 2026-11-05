@@ -1,63 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793877706;
-	b=lJ975fGEbJHQCQ0+Ad4o/asix81C/0Wji4fAP95rTaFF8GmAtiiuE++i3g3slZ4PABg+
-	 A3yalkp45JX+Q3KBWg1ZsJBxF5SDr12rElZ/ILY7G/x4uqRXAaoi8gIyIYpvmZMwLq6JB
-	 JnaO9v4CRXM3neZ+/4sJPy/Ua0R1Dih+BvC4cajI1lzKGN0QnB0bBy8/BaZhDf0RwBFJw
-	 apTFJe2nawfw/CK6xJFiJgQCjq+VmlEvI77tLo6jdhCyECqC4nhD9JtAXUeGEGli810R9
-	 /sKEqUF4ll74sor+Z4be1N5y9l5iuMQlzem3S0zlWsIDCAs1yfmSb0hA3zm7MGHmGzw==
+	t=1793878097;
+	b=K3TY+Ilaz5RlyjNHxtzJ3q86hcVnnT2IM1d0mmeEHe+C4zA4mWI/NPRqNdtL3/UwS/3t
+	 Q7Sxc0VRkWw09oy9fMwBRmQbABuX2dLIA8HGxdsdzh1bK2cXvgJsPa0EPM+OYZdCuKOlK
+	 cs+zZPg3Txr/NEk+7Kd9sQjc9U0Ukz0Q85Yn6qXumXR1CV8HIqbtx28bB5jYSQrQlE0rC
+	 foIeqIJtnVAk7vFeWFshPyxKnoxB5sqeLsfImaXc8pZ4BqCkoQzEN0Rd4hihx+I54LtIt
+	 iBocZomZhbleiy9RSFXuGtnOMk86HBXsvXdCPKRhTPptMPZz5gaM4oBB71vV0hgPx5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793877706;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=MHdqHAA/2dqHJJZoi1LltUcmTq5osveA5RSMvjFd9mQ=;
-	b=Mbb9vvle4GgiYkqho3q4jRvT7JCQrp7lWMrhxdTM/j8FRXOCYFZmjqAdx3/aE2RN22SA
-	 Jtqx1vsRQfIMDqZwN5iNpIkqSPiMHfIvsHelgLG4EN/DmG1got7Y2PkTr/IWVBKTQSTJl
-	 Va9GTHniCkl0hppE5OoYO91qicgTk+skbMaOgRLT3nv5f777rB7L1tn4NIDnBcXa6jRoL
-	 q5u5KL5wdho2OFqcfYY5ZvcRla8Vu7cZ3s+aL23yBs25wyWqK3Zv77WNUo97KJtLnHXCi
-	 NKgBqUzMZFcXexLZ7Lyts1qnwrIHLZVnpB5B5abcsgZTOL9NPHlh8ZXformzQ0c43hQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793878097;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=XIvvCs+k7eLYLtLSx2FRqYXI7MEHUp/Na9v+SW9QvaM=;
+	b=pAb9jhJgmF2SqajHthqfl7ktXM5SaEVoa9YPSBVmsiGN7xUhXdpTI0ytuqZExgsZN/3w
+	 ERaHj6WTP/WcYKLBPD+t6EQZ+/LdWNHMQoawkoALJc+K6a0fPnXRoJ5AUDB3MJkOsv3qJ
+	 BV2i+Z/19UPwUonfqAKnZ0rOmjfvMjOAOorLa7D/odmnK4UtBO5xyhDhyeuCMFCDl/9Py
+	 Rm82QjvGM2ZbwSyQzOZy1lZ3mM3eZFfCpZKrfwojZ9DcsNN+lbAk5Siw2jtEfMcUpkjyk
+	 cVmixOBR9FkX1/s3Sg6sYTOzgBXI0TuQUJ6EXyyrzjmM0DqvgVq1KR4M49pdxyuOv8A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DSfMXnBZ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="xhGPxa/r";
+	arc=none smtp.remote-ip=209.85.221.53
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98521606A31B;
-	Thu,  5 Nov 2026 11:21:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 254EC606A32D
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 11:28:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 254EC606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DSfMXnBZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AED81F000C1;
-	Thu,  5 Nov 2026 11:21:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793877706;
-	bh=MHdqHAA/2dqHJJZoi1LltUcmTq5osveA5RSMvjFd9mQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=DSfMXnBZN6Z/mUHNWRm07w3iIh9jIOOmyNwdh7U2xlDX+dxtSg7Sh4IY4u5bMiOEU
-	 5YoSuShqYC/UqrdrgHY3r77kJIlx38ZhFWBjPFxZCdPyY7xzwN9OckNGv+BicYTGUh
-	 lkzxC41HtPbpUyGkLjf0yXpD7ObWI9V2USOSRsFfA3bOJ63XCiePk5tnGC83cjF+3h
-	 9cZa2va5GUTkcONiExKfUHdC5JyKuFkLEotkaukgGmhhZ/lWNJ8l3LK/W1hYZMYnbs
-	 4WNbbVzHCyn941YKKZsuQWbCeXzwOs5odV64Lum/Z5IAIlbe1aYZpzQMhPpxy0CC3x
-	 IrJLhhcxto5sg==
-Date: Thu, 5 Nov 2026 11:21:40 +0000
-From: Lee Jones <lee@kernel.org>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>,
-	Griffin Kroah-Hartman <griffin@kroah.com>,
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	Florian Krischer <florian.krischer@fkr.dev>,
-	Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, mfd@lists.linux.dev,
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v13 0/7] mfd: Add support for Asus Transformer embedded
- controller
-Message-ID: <20261105112140.GI1650678@google.com>
-References: <20261104122606.215629-1-clamor95@gmail.com>
- <179387759097.2453405.11589718445889906023.b4-ty@b4>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xhGPxa/r
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-490a0e72588so739719f8f.3
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 03:28:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793878095; x=1794482895; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=XIvvCs+k7eLYLtLSx2FRqYXI7MEHUp/Na9v+SW9QvaM=;
+        b=xhGPxa/rgYkWlxNrvyrwQEkX6SzKw0FYWANtKQnChjWff3XwBBq3mGwV5BQErdoyek
+         mPuRE+JIKIEQtG5UVyRs89ovm3SCV9fvObum9cS6jw3bmURv9nKALqe+uwI3/oHxs5gJ
+         yWGOSI/cqyTNlsqGfHQqUW55btccS5uqIHBJHfRTYDBTzTTknIpTMyGTx7hvYxVQS5X9
+         +Tt3oRfWlpgEfLP1vXhYzoukbzBiypRrLZbhUSH0eN4/hOLA3uXjMoq9fu1kj5oDfB/J
+         qejJ8Oo5lNpID6G0YuAX+Y9Pk1Il63eLoEn7pgv/ZeEF1AlO4qLd1Xxv3DwmyWF8/qaz
+         dWSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793878095; x=1794482895;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=XIvvCs+k7eLYLtLSx2FRqYXI7MEHUp/Na9v+SW9QvaM=;
+        b=PydO7+bFKRVS+sQVkC1Cnp81ZbSEIKAyiY/4pwX/3blS5AzyOzVdQzdFlOSnQon1ZX
+         lyj/CI+N7qxS4vp/1ZLuKxXRkVo6dpSLPvAb7MiY6Z5TUcjrJI/KP7kanCAWOA/IJTTL
+         HFl6gGCHEYMhxFzeoyMnIRNoYkP3mdwrC8Cow4UL8RJQ93A1ROiC8xTrcR1iCm2xoBD0
+         LPEo7T3dVGMyPocIDXw4QgT2ClfXK6RJitYx8xjDXAj6+f7hCtJtUhEUeaseOakFOKLJ
+         X0r1D1W0ab443BfhRKUMxEXtqmg9B3Z+ELFMpUzug4HN12So8a+HsJFovbqIPrSvQbwR
+         jXCQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzJoEy6C/ppSag+lNkavYlg4BVIQybmSPvnMTXV7Zbiuspmp8oxCRoLHyIbzPAymcNJfquA7NfMbMefCw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z98f/Fj8GabJAdIlP1js5H3RZ8l89bGsGRdQL86O0qvBLIT9yxD
+	Ziay8n7ZHOw+E9BKGVE2/oRUDPZLV5pVYmha2jbwa0rETK6eF7VDF+MA
+X-Gm-Gg: AYBFou2jfrq+O2Fy7Q2rNZ+DPXiGkwikZgkfuNssZaB0kmhg+tcGGMCT7YGyB9xadd6
+	0y5TCOjXcEblv++ee297orCDryjrISXHJxUJRAyB8scMsl0A/hy1O8f60CXhRXhkCnFGyuqIrlq
+	/GZL2tJ91s8htHF1Vd7VHadFVOM+JA8QGXWkXgslGB3EzRQkS0PGvjmEL0gc2rQRCEUJGNcsv/d
+	IRdpGUpnqF7gSsrhhURm1uzNR58qtOi4Xb87BVDrSpDMHquIIvk0ddiyTO3LxR4ksDu94dIW0Xs
+	pWVA6mHqASaL+Lw+YcuiqTzV7IsxKbJudDlkOFu9trG2lREFsObjkT99q2XsIqH7OEKz8wCr9QC
+	MU+gIeeC+0K7AvtmCWZC8aTCD4jb2pzLrV/rSGrS6nBdFY+oHmgzJlba1RAAWnwy4ZHOrF1U9KN
+	bI/KIAGC4TKYkQpIa+6HpBodWD3Mb7laWmD26Lq3pxEg05Vrv29xTNlQVkBwfZnxGsr5X6hzJa+
+	bpfAc4YWeCRH32IrIB3EJFYXZWerqVfMFuCbiIZ6nFyWaONiceHzw5OjdAgdwWZIvgEfeN8YynP
+	6lyP4VVRlzocxa1J4MiEvDRzrjZz5zAVoqMxyqZEBVNOQeBeGNHWVlpvHqc4v82/
+X-Received: by 2002:a05:6000:4310:b0:492:149f:67ae with SMTP id ffacd0b85a97d-492149f6981mr789005f8f.32.1793878095471;
+        Thu, 05 Nov 2026 03:28:15 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48fecac2772sm9135636f8f.18.2026.11.05.03.28.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2026 03:28:15 -0800 (PST)
+Date: Thu, 5 Nov 2026 11:28:13 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+ kees@kernel.org, justinstitt@google.com, morbo@google.com
+Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
+Message-ID: <20261105112813.13210334@pumpkin>
+In-Reply-To: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
+References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -67,36 +99,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <179387759097.2453405.11589718445889906023.b4-ty@b4>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 05 Nov 2026, Lee Jones wrote:
+On Tue,  3 Nov 2026 22:23:18 -0800
+Mariia Nikitash <nikitash.mariiaw@gmail.com> wrote:
 
-> On Wed, 04 Nov 2026 14:25:59 +0200, Svyatoslav Ryhel wrote:
-> > Add support for embedded controller used in Asus Transformers for
-> > managing power and input functions.
+> In preparation for removing the deprecated strlcat() API[1], use
+> strscpy() to initialize the mouse device name.
 > 
-> Applied, thanks!
+> The destination is zero-initialized, and the constant string fits
+> within the buffer. Since the return value is unused, this preserves
+> the existing behavior.
 > 
-> [1/7] dt-bindings: embedded-controller: document ASUS Transformer EC
->       commit: 2880926d48fe884042a1b7b64b431f9ee9531806
-> [2/7] mfd: Add driver for ASUS Transformer embedded controller
->       commit: ccb21236e307ff60ce6b96d2f9925abf0274ce8e
-> [3/7] input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
->       commit: 3fefdd9a8931eb3b8cade87193c81293256031f0
-> [4/7] input: keyboard: Add driver for ASUS Transformer dock multimedia keys
->       commit: 4ace8a63a1612f8142cfdf5d6d4b8e1be37cce3b
-> [5/7] leds: Add driver for ASUS Transformer LEDs
->       commit: 04819cdb3912f31586516ef6fc007daa3d976234
-> [6/7] power: supply: Add driver for ASUS Transformer battery
->       commit: cd72536270e725b4f1d56df6287c4c34efe953a8
-> [7/7] power: supply: Add charger driver for Asus Transformers
->       commit: db6674a08304d03a194f5e09b7543323462b3516
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+> Signed-off-by: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+> ---
+>  drivers/input/mouse/vsxxxaa.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxxxaa.c
+> index 042a17fe81db..b3a0d7ff5738 100644
+> --- a/drivers/input/mouse/vsxxxaa.c
+> +++ b/drivers/input/mouse/vsxxxaa.c
+> @@ -463,8 +463,8 @@ static int vsxxxaa_connect(struct serio *serio, struct serio_driver *drv)
+>  
+>  	mouse->dev = input_dev;
+>  	mouse->serio = serio;
+> -	strlcat(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
+> -		 sizeof(mouse->name));
+> +	strscpy(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
+> +		sizeof(mouse->name));
 
-Now in soak.  If successful, I'll follow-up with a PR shortly.
+You might as well use the 2 argument form.
+Moreover, if you use strcpy() you'll get a compile-time error if the
+string doesn't fit.
+strscpy() will truncate and return an errors.
 
-Note to self: ib-mfd-input-leds-power-7.5
+The other question is whether mouse->name even has to be char[].
 
--- 
-Lee Jones
+Personally I think that while there are issues with strlcat()
+(mostly to do with its return value), and that there are often
+much better (and faster - so sprintf is out) ways of getting
+the same result, the deprecation really needs to propose a
+sensible alternative (not inlined strlen() + strscpy()).
+
+This case is, of course one of the 'better ways' cases.
+
+David
+
+>  	snprintf(mouse->phys, sizeof(mouse->phys), "%s/input0", serio->phys);
+>  
+>  	input_dev->name = mouse->name;
+

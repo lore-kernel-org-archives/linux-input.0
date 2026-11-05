@@ -1,116 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907923;
-	b=uiSxz1T4ORE5E0OEA6PGEsjt8xTGbGFoqrft5D0Cgy++L0o2T7ZTczrwHNqV2QkSVZk6
-	 5GJJFCs2qUdASb94hMgXDSSa1ZIK7Kt7V2t2vXpamEj23qFgTHgdd8I1tIhGB6pXK+Fvw
-	 nEJCcofGTb2TflX5NvENvgIBnNlJgZEblsl6eI3T4V4AbKdCj3MB5NDMsbMJYTbdGHtqf
-	 Pv0KwuzqSK/V5gC6UyY1PzbVyAt+sk1TYgFR8KnMXkn9Sbpio13ujJZi8xeVJ04rqooT1
-	 NNHbrkTJWf63ajnyzH0ntMvDZHI5rqMMnp+svZoSyccHLsbtZFOhpeOvGICeHdx0t/g==
+	t=1793908162;
+	b=o0e/ogAqaJPu5btk7m0fUdWCo0JJYQpgq4mxpbQReg0KIzMh5Ql0EIbwt3gLswSxHIBc
+	 yunWTd8xs0Ofw/K6Q8VVVxakyeitRzqq1AGfc4BIyHV0TTDI/qakJFEPGFEFZq0Z1Mp5V
+	 /oGmqEexgSSwiMuGa7rBj8/HdclLVHSif23D0/+IBAJpijIbEJz4XTiWYPu8/LUlDTSMZ
+	 5E6/XdXM9cNDB2F+qXwTJ2S68DhFMlnThgt4Q4PnxDsqzI67IHAFG1YINB8rg8KYlmuSS
+	 xu4X1VUP+Zn20C+8iO62pFDNgHyEUh4T0YFB/v0NsWGDs+zD33J60OCCanEozb4OmyQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907923;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=bt6uMG9PgUYc/XVv1n4ledEppWz4qm8tk4GY6vs/fFQ=;
-	b=ZXeS1YrOcynuZuzKLVvEHE4DDg+UQ3z6AyNDQO/13VzsgEpVwzwOB80CdTmlCjohNNs+
-	 yeXcQ9uNYNVIFwI0fqd34eI4YG+GsXDJfHpqG29W2KPR2JZ28UWEedxBv+sxSdClelqk0
-	 aSldHjwiKOKTmol0KA3EjIQN9ZZBrk/32XiqF4UnN9l9CJ6mlcxzFgi5odQPrwGs/Npfx
-	 WqziiPKvuMPG1EJ6YiX9iEYWtMhSXZzuAU/1Of3cEYfoQikRAw1Vj5hy9JlxdTqPSxnFq
-	 jvGkgNNHycN9P0mHfBxH6telqdvzAtkaMj6KKCo8Oe9POO5Mh2NTbhA4fxwEF4n6tvQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793908162;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=SQGcFgpv842CZc+i4ADTXEHohf225g6/ddUxNX/0YAI=;
+	b=I38fx+R2mPXhLAKPdAvFU/j0aJeTpZfXDiqURUA25mKneil5TBTVZFpXX5HzW7rmbDnT
+	 wmFDr+Ukr6SmNRr3iIjaHA5Dr3qhUBD3h0QvoBea0IoUenxqbHm5h5k4RhadWwxFN3Nhj
+	 b8nmbFzEZtc3oHd2sEK6nweouhUJYHP54dEDUL+CRhZFYKS5ItJPGoVsU4FNdHoojXeKA
+	 HNCNSHtzwEwxl1uFchpBndSKPvejuEBdRk+JY/RqzQDBYgAmZq8ICxnAO5DL5BBOsX6VE
+	 BWPnco5vMZFgH5s3R30Ox7AED3Lzn2sHqLMQt2DOevcWRB4sIPkmSzrypdIx4T0hI+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RrX5BTtZ;
-	arc=none smtp.remote-ip=209.85.128.53
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cZhHfqlp;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80AE16079565
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 19:45:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 80AE16079565
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B0A606D510;
+	Thu,  5 Nov 2026 19:49:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RrX5BTtZ
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a20a37703bso17628945e9.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 11:45:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793907922; x=1794512722; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=bt6uMG9PgUYc/XVv1n4ledEppWz4qm8tk4GY6vs/fFQ=;
-        b=RrX5BTtZ25KAkyVDqIgIjSieI0yowwfSr8T6mwymv0DBFz5APBPsQ60BLti2G0x05q
-         6boqmc8T+fJnxWSpzn8kJusKUm60NFwdJju/vVYZ3iqkbGQzDtfFvv/qi3tNuErvjFQe
-         11nINNWnhw0ATZ5Z0jI9ua9qp/9M4BXOQh8gsE8HOJjK9+JEh2ZyMaKOxeec2cZVtpKK
-         k8HMWcB67/FgMv553KebZ8rp0aOtZ37D8ZbsTaxepxk5+SsWn0SA5ZeuI9H04WfA/VaL
-         WJq5E68OZ+r+EbYxT3Ff7TSgkCiF45epeHQoZdEWx7D/vK7+0qaxziCcKWwcGhlSdQT+
-         Ybnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793907922; x=1794512722;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=bt6uMG9PgUYc/XVv1n4ledEppWz4qm8tk4GY6vs/fFQ=;
-        b=Vtuc1xtGwR+ApNEcNAIdUnh1T2HqYU96dpnTd6WEdPIXyHX9A/QgEKL4JXqKpmWAQC
-         jAImZ8hx3/HP6ND6qf6IivUTx9slnpABNOkCkuByT2DeihRrBOMwPbNou9sPLihDvkj1
-         7+hZgsMKSf+ixBg3EyNRs0z8pfx8gz+axMUlhOxWxdmRJIYEahtpn+zwrQL9jMcdVMpG
-         JBulz89NmPhjiiKccUI9Rf90JCoJQc0nUgMKpFjiEVlJ7p4uP5/gMwJnLs6xkmvv57Ww
-         hhOeQcdZyePFXKgSkrw9j/8qYW4tKiXYjdnidkUyE2ajVSdqc5d8RSM69Xe7FMr0eBFs
-         fODw==
-X-Forwarded-Encrypted: i=1; AKwUvBxAE463hm5tIndm/KiaEtEbvsOfxRaBepn/0eaG0clQH83oDKlucfL6LaKkWZheBleIfkyKyj+352twLQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/80gcFjVsQK4yNT8hCg9zyGfKVKGQRFFmir8kuBJQZCNr2bbmW
-	0uQWHHxFxJw83SKiDyg1+FIijIg8TBxzObehqpnqkhKN7g+D8XZvxH+g
-X-Gm-Gg: AYBFou3GRbhcSIHnVF8IJR30kMmi4z7sVQ2/En6QYWJE7Bvkxjzhl0aA8ntGlODy/2c
-	Oh8cz2yjmJpjwqSt0PHULBOcNunBqDnSxuhZGRCtj1rjWuJQUdhCHQ8dIk0tmM7ZDByr279J2UB
-	DbV5xlde1wC9xBvA4Hbg6Jhe4ho8ls36FDX8YMyfhuYngD60ki+WA2wPiu8+cM77L8vPLtobJ46
-	fqkkCRsnHGU6J+cedIqS7u/tbIBnmzYdkx9pi6yEpnzZ9SblBmblbMruRJ9rMk+C5y3qPWKhRhP
-	f+KP/mXBWDul1Lf9gVXlIMChSh6zsZoWXO7gj4BPPEzDin9YEwZkMwWouAoOQ575/BOxq9ku1Or
-	JLME780HMJkDo7dqDK8K/DJo/GDZZN2tX21geijyQAjqKPjZAGFUqUVth4d88VEeF82ppc6B/3u
-	pwQrCWDrNO+GbGbKuunRpOF28HaNfgL45RFd85z5sIs5t3ryb67Txce/VoH768H5Kwkicl6yLCX
-	3Vw8NBSUL2bPvDdB0nQ2UC1QocTHqyBgsYXAuXMht6bwLuAqgnkchUrWf13dlNBqf10aRa0NSFb
-	Qx913Rf3nLmP9VLBKdgtHxun
-X-Received: by 2002:a05:600c:5285:b0:4a1:fc98:1cb1 with SMTP id 5b1f17b1804b1-4b6db4a9a2emr3123275e9.2.1793907921887;
-        Thu, 05 Nov 2026 11:45:21 -0800 (PST)
-Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b6df5eaabbsm4204265e9.2.2026.11.05.11.45.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 11:45:21 -0800 (PST)
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-To: linux-mediatek@lists.infradead.org
-Cc: Fabien Parent <parent.f@gmail.com>,
-	Val Packett <val@packett.cool>,
-	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Akari Tsuyukusa <akkun11.open@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	mfd@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: [PATCH v12 2/8] dt-bindings: input: mtk-pmic-keys: Add MT6392 PMIC keys
-Date: Thu,  5 Nov 2026 20:41:33 +0100
-Message-ID: <20261105194426.1113050-3-l.scorcia@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261105194426.1113050-1-l.scorcia@gmail.com>
-References: <20261105194426.1113050-1-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cZhHfqlp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 189221F008A3;
+	Thu,  5 Nov 2026 19:49:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793908161;
+	bh=SQGcFgpv842CZc+i4ADTXEHohf225g6/ddUxNX/0YAI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=cZhHfqlpVCMazdNLMYZou11HSNj+bC6q9k18GNJM/OWusa7I3cE38ZSDuLk7G2DA1
+	 Jl3LWLfce8r1+I7/kaXnW4DM1El/rS4EDvcWvFSU9gRYnhweCDoHGXs46gI+xBDByX
+	 bgwM+wgE3oMtnlEF7gWtZvRxJuCjnhN3KkQNB8x40+mSR/kNNPCHzW3fXCtyFHFFLX
+	 FHCIUG4SqoA/t9wvId31tRsBFDoxQSd/YXuLLYEqclnuoDPsXk/7YqV8Md9LhmYBjk
+	 /UvD2lsmagU5/J9f/mcGTlhm7gntE6pKkE9kjzxwlbL4fMuUu9RbvUKnSlvFWCI5Yp
+	 a0z1KaHv2TqyQ==
+Message-ID: <sashiko-outbox-199993@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RESEND v2 07/26] md: let procfs own the wait queue of
+ /proc/mdstat
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
+ Bacik" <josef@toxicpanda.com>, "Chris Mason" <mason@kernel.org>, "Jeff
+ Layton" <jlayton@kernel.org>, NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>, "Thomas
+ Gleixner" <tglx@kernel.org>, "Al Viro" <viro@zeniv.linux.org.uk>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>, "Greg
+ Kroah-Hartman" <gregkh@suse.de>, "Joel Granados" <joel.granados@kernel.org>, "Kees
+ Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
+ Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, "Chuck
+ Lever" <cel@kernel.org>, tytso@mit.edu, dmitry.torokhov@gmail.com, "Petr
+ Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261104-work-procfs-drivers-v2-7-245e54e87116@kernel.org>
+References: <20261104-work-procfs-drivers-v2-0-245e54e87116@kernel.org>
+ <20261104-work-procfs-drivers-v2-7-245e54e87116@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 19:49:18 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -119,35 +71,167 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Fabien Parent <parent.f@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] md: use-after-free on md_misc_wq in md_seq_show() during md_exit()
+- [High] md: use-after-free on mdstat_entry in md_new_event() during md_exi=
+t()
+--
 
-Add the binding documentation of mtk-pmic-keys for the MT6392 PMIC.
+commit d5381c9dd419c5377924fd70f1baf55ca30c4844
+Author: Christian Brauner <brauner@kernel.org>
 
-Signed-off-by: Fabien Parent <parent.f@gmail.com>
-Signed-off-by: Val Packett <val@packett.cool>
-Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
----
- Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml | 1 +
- 1 file changed, 1 insertion(+)
+md: let procfs own the wait queue of /proc/mdstat
 
-diff --git a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-index 140a862ecfbe..ff720588128b 100644
---- a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-+++ b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-@@ -31,6 +31,7 @@ properties:
-           - mediatek,mt6357-keys
-           - mediatek,mt6358-keys
-           - mediatek,mt6359-keys
-+          - mediatek,mt6392-keys
-           - mediatek,mt6397-keys
-       - items:
-           - enum:
--- 
-2.43.0
+This commit replaces the module-owned md_event_waiters wait queue with
+proc_poll_notify() on the /proc/mdstat proc_dir_entry, removing the
+md_unloading flag and wait loop on module exit. It also moves the removal
+of /proc/mdstat in md_exit() to after destroy_workqueue(md_misc_wq) so
+that late md_new_event() calls do not dereference a removed proc entry.
 
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 64abf1743e41d..7560dcf0f5c87 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+
+[ ... ]
+
+> @@ -11074,25 +11069,12 @@ void md_autostart_arrays(int part)
+>  static __exit void md_exit(void)
+>  {
+>  	struct mddev *mddev;
+> -	int delay =3D 1;
+> =20
+>  	unregister_blkdev(MD_MAJOR,"md");
+>  	unregister_blkdev(mdp_major, "mdp");
+>  	unregister_reboot_notifier(&md_notifier);
+>  	unregister_sysctl_table(raid_table_header);
+> =20
+> -	/* We cannot unload the modules while some process is
+> -	 * waiting for us in select() or poll() - wake them up
+> -	 */
+> -	md_unloading =3D 1;
+> -	while (waitqueue_active(&md_event_waiters)) {
+> -		/* not safe to leave yet */
+> -		wake_up(&md_event_waiters);
+> -		msleep(delay);
+> -		delay +=3D delay;
+> -	}
+> -	remove_proc_entry("mdstat", NULL);
+
+[Severity: High]
+If remove_proc_entry("mdstat", NULL) is moved after the all_mddevs
+teardown loop and destroy_workqueue(md_misc_wq), can a concurrent reader
+of /proc/mdstat trigger a use-after-free on md_misc_wq and leak the mddev?
+
+Previously, calling remove_proc_entry("mdstat", NULL) before iterating
+over all_mddevs waited in proc_entry_rundown() for all active seq_file
+readers in md_seq_show() to complete before mddev teardown started.
+Reading /proc/mdstat pins the proc_dir_entry rather than holding a module
+reference on md_mod.
+
+In drivers/md/md.c:md_seq_show(), a reader takes a reference on
+mddev->active and drops all_mddevs_lock while formatting output:
+
+drivers/md/md.c:md_seq_show() {
+	...
+	mddev =3D list_entry(v, struct mddev, all_mddevs);
+	if (!mddev_get(mddev))
+		return 0;
+
+	spin_unlock(&all_mddevs_lock);
+	...
+	spin_lock(&all_mddevs_lock);
+	mddev_put_locked(mddev);
+	return 0;
+}
+
+If md_exit() runs while md_seq_show() is between mddev_get() and
+mddev_put_locked() on an inactive array:
+
+1. md_exit() calls mddev_get(mddev) (incrementing mddev->active from 1 to
+   2), drops all_mddevs_lock, calls export_array(mddev) (which also
+   mutates mddev->disks, mddev->raid_disks, and mddev->major_version
+   without holding mddev->lock while md_seq_show() reads them), clears
+   mddev->ctime =3D 0 and mddev->hold_active =3D 0, and calls
+   mddev_put_locked(mddev).
+
+2. Because md_seq_show() still holds its reference,
+   atomic_dec_and_test(&mddev->active) in md_exit() drops mddev->active
+   from 2 to 1 and returns false, so __mddev_put() is not called and
+   mddev->del_work is not queued on md_misc_wq.
+
+3. md_exit() then calls destroy_workqueue(md_misc_wq) and blocks in
+   remove_proc_entry("mdstat", NULL) waiting for md_seq_show() to finish.
+
+4. When md_seq_show() finishes and calls mddev_put_locked(mddev),
+   mddev->active drops from 1 to 0 and __mddev_put() queues
+   mddev->del_work onto the already-destroyed md_misc_wq workqueue:
+
+drivers/md/md.c:__mddev_put() {
+	...
+	set_bit(MD_DELETED, &mddev->flags);
+	queue_work(md_misc_wq, &mddev->del_work);
+}
+
+> @@ -11112,6 +11094,11 @@ static __exit void md_exit(void)
+>  	spin_unlock(&all_mddevs_lock);
+> =20
+>  	destroy_workqueue(md_misc_wq);
+> +	/*
+> +	 * Only now can nothing reach md_new_event() anymore, which wakes the
+> +	 * pollers of /proc/mdstat through its entry.
+> +	 */
+> +	remove_proc_entry("mdstat", NULL);
+
+[Severity: High]
+Does destroy_workqueue(md_misc_wq) guarantee that an in-flight sysfs store
+on an inactive array has finished before remove_proc_entry("mdstat", NULL)
+frees mdstat_entry?
+
+In drivers/md/md.c:md_attr_store(), the caller holds a reference on
+mddev->active across entry->store() (where md_new_event() is called) and
+only drops it afterward:
+
+drivers/md/md.c:md_attr_store() {
+	...
+	spin_lock(&all_mddevs_lock);
+	if (!mddev_get(mddev)) {
+		spin_unlock(&all_mddevs_lock);
+		if (kn)
+			sysfs_unbreak_active_protection(kn);
+		return -EBUSY;
+	}
+	spin_unlock(&all_mddevs_lock);
+	rv =3D entry->store(mddev, page, length);
+
+	if (kn)
+		sysfs_unbreak_active_protection(kn);
+	mddev_put(mddev);
+	return rv;
+}
+
+If md_attr_store() acquires mddev->active before md_exit() reaches
+mddev_put_locked(mddev) (for example, while md_exit() drops
+all_mddevs_lock around export_array(mddev)), md_exit()'s call to
+mddev_put_locked(mddev) only decrements mddev->active from 2 to 1 and does
+not queue mddev->del_work onto md_misc_wq.
+
+Similarly, if the inactive array had bound rdevs, export_array() moves
+them to mddev->deleting via md_kick_rdev_from_array() without draining
+mddev->deleting or dropping rdev->kobj, which holds a parent reference on
+mddev->kobj; if rdev_attr_store() is in flight, kobject_put(&mddev->kobj)
+in mddev_delayed_delete() returns without waiting for rdev_attr_store() to
+finish.
+
+In either case, destroy_workqueue(md_misc_wq) returns while the sysfs
+store is still running, remove_proc_entry("mdstat", NULL) frees
+mdstat_entry, and the in-flight store can then call
+md_new_event()->proc_poll_notify(mdstat_entry) on the freed mdstat_entry
+(followed by md_attr_store() calling mddev_put(mddev) and queuing
+mddev->del_work onto the destroyed md_misc_wq).
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
+s-drivers-v2-0-245e54e87116@kernel.org?part=3D7

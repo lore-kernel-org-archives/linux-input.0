@@ -1,148 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.15
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793870017;
-	b=b/crtCc+FoCP4aTzfoZEtghaMSjd4VRAOJOuJBo9c0fwWlr1UMyFZLjBG7TTrQ4pOm6k
-	 2J1IxvTb6m75hItnbF9vs143Uudww3wiJCP1p1g/ijZSqY3KA1p7YcBH3Ate5kCzavuOk
-	 lfh+JHulDAWUPcsXQRwgWQDi3ySN4hEl0qHqbV6Sk9pmrEgb+EY8Bq2nJ+XY+BaIhPmnn
-	 qaeKuFPcqrB+BxJ4RBayExTc2m9fOSktQLyIS0IHanTzs1vPDoD6vxU326Jj4+aNiWN7/
-	 fDM8+EAL1vmx4BkSlNanZIdN8YXqVPkIy21bddInDPFJviipmEfH+97KAQ/vHlfjxbw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793870017;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=0dcn9KBmcJzqAJpqRsW5Hqpu3HAEMph5/rktghtkFts=;
-	b=KUeUFT0EYH5ok6h3SilnjlqGz9DNEcqlOhk88czBAFF61W7eNzAl1HPVUA6OxPZBn1zS
-	 9MTgsh7vDBRoxf/Ke5OQSm8+WGph9z4fmNFmtrcJqOejjKXY0ONLGa8YmyE5TSZEt/b26
-	 +VcCUwi965wTZjdbfZu87CXVLDaKZgpRR6KEO3+EdCP3Tu89DMhRIf0qRORFLGFA5J2iA
-	 gWXiMSQoaDEyYt+Tja9rstDjnk8Q7J6uAy1ObHaVu6gNjxJszUAEEZHfMxCcQZZg6DKiD
-	 eN2Q93IicOYY7zcg+lpp9WT511OLQmIqJaeCmdvn4R/TKnBgq5WEhRCBMfVAQ69vTrg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lxtG33HQ;
-	arc=none smtp.remote-ip=192.198.163.15
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.50
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793871768;
+	b=FjmHeo6CgpbDrsFmaIPjVdgxkntWD84Q+P8K8xB8bNBdirJ4tO6h/feU47DUf2e/SfdP
+	 thIQO6Cj6L/mEy8y7PpgofRmHipxQUz+JZoL5dN7R32NpS3OZYy/Q4L5kaNQj6HdbS5pq
+	 aUHG0W9XcpJ547tWRN0AmQASK6qug1oIx/qgX7YUT+ileW7aEw2zZmZWqBa25gIYKp8bG
+	 JXW6osRRJmNjKeBJyHMuctoI7TSBH1K1rzRTSyo5fcafy/cSCGtoauYd47SE2JTNwAhmJ
+	 e7wSR7oWmRRO7EyFY6aQe8Pu+lYs2SbLLOTiDqT3kR6ufQ1nv4hwH9j8cBtBLsfE9yw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793871768;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=9KVyqZjLxhSDOn37BJsTtiq5i2CumiInDbFkl3r3JTg=;
+	b=b3yoB6/yvPASwUd6Hc3CoMjtI5EVrDW1mfI/6DjSsiEVjUk/mZ7MtqPEVFMpCWBWtTAj
+	 hYZh/QoMziuFuoGu51eZ9wf7X0B8CTj1a7aMSGNQrZXpwBLZhuoeItQsnQiGQ+XwstHPV
+	 1fae47pGKKM9NhbEAjNLcbK8Aqqw/HDSVzVt52HvHnAT70ieWTaDcbENTE6/7X1/kDRZ4
+	 r/4UAqOX2FkXokKiMfaSHSQ8ZHL0XykSNObaCQogpvD+CnRxHZKn3iHRQC/x8rA+Q5dJA
+	 QkT3LvhwCIvCtmoWfUQlT6rU6VM6ME2hnhJgRqdEYT0Lew6xCqC7Geb8jtAtIkYqAUA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lBCZOVag;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.50
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27D5B606A326;
-	Thu,  5 Nov 2026 09:13:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 27D5B606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DC10606A32C
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 09:42:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2DC10606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lxtG33HQ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793870018; x=1825406018;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=2W6MRtupdrj020Uh4UEb5zyJkRA2+AjPQ8ugIRouE4A=;
-  b=lxtG33HQrgNuuQe0k8D4J2vK5NAhwyNjAcnfGaXuOiDz8EoPZvRkfbIs
-   QlPNP+dlydhxC3bM/WsURI9SKVMGBoF4LU6tebFMgY9jQFroWZcC1nPTY
-   oarnc9WrLwVkEfZoKXto2QWMdXP9qMrOEidUkAgobnaMXWpAzZvOKgqTn
-   cSlcxo4Fu4Aot8lFM4QF+WQmKvirkD8+IdXqweC66N8f8CSajAFZHqBPq
-   JmzxWMjSnFWDAok8c3W3lK9c67evGqaEWK1B567laWGSbw0atxaEuXhYk
-   1UKftSPK9DcKb5QHEhQr7PRjxza/CyUi9vPKO/0Q41CsNvclhAjMajrea
-   g==;
-X-CSE-ConnectionGUID: e9N8yMDQSeGfg2uI3uaBYw==
-X-CSE-MsgGUID: nO29XHZyRQO8bPGsNCscGw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11956"; a="2643775"
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="2643775"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 01:13:36 -0800
-X-CSE-ConnectionGUID: WHi44R+6TY6k/cxMKjfsGQ==
-X-CSE-MsgGUID: sZYNWWPRQpShUCMMaIX5GQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="7295989"
-Received: from amilburn-desk.amilburn-desk (HELO localhost) ([10.245.244.144])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 01:13:18 -0800
-Date: Thu, 5 Nov 2026 11:13:16 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: "Rob Herring (Arm)" <robh@kernel.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-	Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
-	Benson Leung <bleung@chromium.org>,
-	Guenter Roeck <groeck@chromium.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Olivier Moysan <olivier.moysan@foss.st.com>,
-	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-	Lee Jones <lee@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
-	Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>,
-	Ulf Hansson <ulfh@kernel.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Vinod Koul <vkoul@kernel.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Chanh Nguyen <chanh@os.amperecomputing.com>,
-	Alistair Francis <alistair@alistair23.me>,
-	Julius Werner <jwerner@chromium.org>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Ray Jui <ray.jui@broadcom.com>,
-	Scott Branden <scott.branden@broadcom.com>,
-	dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	chrome-platform@lists.linux.dev, linux-gpio@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-sound@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-tegra@vger.kernel.org, mfd@lists.linux.dev,
-	linux-arm-msm@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
-Message-ID: <auxIrJ0q9kxEI6-U@ashevche-desk.local>
-References: <20261102135330.2493332-1-robh@kernel.org>
- <20261104-vigorous-flat-dingo-3e5bd2@quoll>
- <auuWVGsyb3RrOIfh@ashevche-desk.local>
- <e390de9a-b7ac-4fb9-8a0d-f6a4935dd665@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lBCZOVag
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-6b5669a5100so1887317a12.1
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 01:42:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793871766; cv=none;
+        d=google.com; s=arc-20260327;
+        b=RkEd1FfEpi5Hokt3+ylnVt9UsWPE8Gk6bHdEDRpjGA+kufr07FNARmevnZuiyjPII3
+         NUS+nxhAyT+PoRcE5cN5vdyGQ9sLcV8hQGSyIUzTaCSuUb5Ed5oFPPqJit40o8BaCxUz
+         HeJZLaZM/4/ZtOzofbFSV2cy2++RSYLCUEaKKmfuEbRkY3FGuAWryKonlvWndsyD0ZGF
+         JTVtN+VbBWSs7F9kttd+gHX2kf8GDIQoKoPXgZbUqndafxnRvH1zw7wXEAIdjXn9f2Uf
+         vKhadQWFL11PSGoH4+d8zdAHfC8MM7jGNBfLPFihXNlAHArpbSoPiA08EgL4E72fhHmb
+         TkDw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=9KVyqZjLxhSDOn37BJsTtiq5i2CumiInDbFkl3r3JTg=;
+        fh=6+tYHKksBJpyPHjJxNDMe0gdY0hebY1D8i2OlJdoEQI=;
+        b=ZWK4QTKmyoDRled/mJ2MrEv8BAC/IKit3v67JMDDDlh09XacwJLewEE71Tr8Y05k5C
+         hbBzRFhOsB3LPcBe1TSAb1oHl2QV34IUr9JSGf7uY4vYxs6FxRJa7Tr5JZNJpJwPPOoZ
+         fFQTS0fXjYbvgmbdPzSc2KT9rKcGVn4AtqX7e4KscQD9v0aLVX82Wdt13n5a8uNLujxD
+         SJ9jpmKfY1INn5Z57O4Ps8eJ4Q3A/RWxLEKE+lcYhRg7W+Vncn64Bne+lTya72bl38XW
+         uePu6Sqaocd6JtdfRfg9Cw8+tPBy3COtg8/HCwp2xz1tSKdNN5i+ZGsLhhFN8ydLUBJ3
+         s+YA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793871766; x=1794476566; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9KVyqZjLxhSDOn37BJsTtiq5i2CumiInDbFkl3r3JTg=;
+        b=lBCZOVagTQVLd9KXSuiTDMdDSUssX6sHOvFz6jllJYqirrCE9hPUTo49xM4gJtulHD
+         mbB90BoJR+kAHY5NgspfzKWw2JtqDRvz3eqaznwFv3AmMzGIX8fp8vhmJSQ0mwgwjguK
+         pT2aWtLj5fBJ9jcZbx+nC1NK4eQOvNHWxie867CTF/vf5DFavxvesOEdTQSHjvJofvqW
+         wGHKGvjhrHgi62Vy+rz7cAxQP1+FsgnMIG5U7uhcDf9ppFWsbDTtAU5ysfnZYVzCix4q
+         cw5IbWu3uYh8SbdQ59hSYfZqX6k7oxzo6nXPyNkUXO15cChw3EeKoUbntDa2K+ueweim
+         kH1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793871766; x=1794476566;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=9KVyqZjLxhSDOn37BJsTtiq5i2CumiInDbFkl3r3JTg=;
+        b=OKc9HMLXf3sHQopAyUI6jWVqDKiUpWhG6pGBQSrx0Yy5dC8iqZEEWICkZJyJs7QxzD
+         9SDQnN5ncqQoXNyEMcc3vfPkhJqAXDMpefvbw0LqsBhno1IVHAdZek6QLbcdvHmQLbys
+         icgK+NeiluE2GpaUHdRM7B/1NHhAy6lTgT9HxOWBw6jgKmO2kRs6go+di1O6KlKn6Omt
+         ZOjF4/gqyskK1UzqcrUH/Nf3PSu4m/EyLHznsLMpd5k9qAHs0Hmv87rP18keARBjp0NB
+         /NkzvxH4GgEo0X0tqsqEuSs6vM4UfnrSCGUya5ztV77XNY74yraqBlsPvz+JZxxAKMC2
+         Cs5Q==
+X-Forwarded-Encrypted: i=1; AKwUvByA2I9ZDJmyyj6lWbbgUTXk6elI05WiuFSR7CrVX13roAzlF2fZ+3Mb56pTR75Ih7Expyd0U7UpGG4Rig==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9IaypGCNK1yv6bCnBmOnRmuUeHfaKLJSH6MSwxuES0pk2pMTyR
+	9Hs/FsA9dnVPnPwlGtPbalMfa0gYh08Cja6H/9IL589o7pRrY3R40IY/Y7hEj1PWX625PI8BjyO
+	0X0OSvYGUvUueDtZ1I4H8J/lrQ1rbq8Q=
+X-Gm-Gg: AYBFou2S3qhyw3sI1itElb0OUEF4Oe79K/PceeEesOCMNI5n/MB3MENoVjO3xv0NJc/
+	rCAVCzUvFdnacMPhwFKrYfExZ5IFnUG9E99ebAp59MB/diRM8a2OwzAp/URf+fHk3EE1zZHEb5c
+	X7awnobki0yjBxHGfjR2/uLmsXBBM0qq9Od/vd/5gXQqNPpi8Y0nPz8eIAwnkAzoi0bsYqYDGoy
+	j2vCFicfPoKzqnVxP/Mt/B3IDufek81PwdmIFy57y50AWuLKh9WkIQd4saGrk+o9qJGHEofylH6
+	jVG8vBsBGMJQ8+coa1+629i+EYTfj0MBiq+V60JkAX5KpwIMX2vuHFmmoyQElLvfLZHElJYGOq/
+	tjal8TVGIXzW9VQtaTaS4izUGGOy5yXHEOyo=
+X-Received: by 2002:aa7:c2c9:0:b0:6aa:a33a:2762 with SMTP id
+ 4fb4d7f45d1cf-6b4d3377817mr10254827a12.2.1793871766289; Thu, 05 Nov 2026
+ 01:42:46 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -152,44 +103,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e390de9a-b7ac-4fb9-8a0d-f6a4935dd665@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+References: <20261021105109.199886-1-l.scorcia@gmail.com> <20261021105109.199886-5-l.scorcia@gmail.com>
+ <179310028255.2808517.13933580516140278450@kernel.org>
+In-Reply-To: <179310028255.2808517.13933580516140278450@kernel.org>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Thu, 5 Nov 2026 10:42:35 +0100
+X-Gm-Features: AclHuK8keS0URREeVHi2bDcMrIMTrg9GDE11ruNkJWdKZdjkdmjRgehGKxzojT4
+Message-ID: <CAORyz2Lv9fBrKZOQ7kFBE+u-nJ-dFpRm_3G0JTS=bHtEL6n_GQ@mail.gmail.com>
+Subject: Re: [PATCH v11 4/9] mfd: mt6397: Use MFD_CELL_* to describe sub-devices
+To: Lee Jones <lee@kernel.org>
+Cc: linux-mediatek@lists.infradead.org, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>, 
+	Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Nov 05, 2026 at 09:09:00AM +0100, Krzysztof Kozlowski wrote:
-> On 04/11/2026 21:32, Andy Shevchenko wrote:
-> >>>      patternProperties:
-> >>> -      "^layer@[0-9]+$":
-> >>> +      "^layer@[0-9a-f]+$":
-> >>
-> >> These two lines are looking good.
-> >>
-> >> Andy, it's okay if I give Rb tag?
-> > 
-> > Yes, again a pointer to 34d1e754155b ("dt-bindings: iio: drop unneeded quotes").
-> > 
-> >> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> > 
-> > I expect to see
-> > 
-> >  Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com> # xylon
-> > 
-> > or something that matches the piece you reviewed.
-> 
-> As pointed out in other thread (the SPI), only a few people use that
-> syntax.
+> > +     MFD_CELL_OF("mt6323-pwrc", mt6323_pwrc_resources, NULL, 0, 0,
+>
+> Nit: This is non-blocking, but if you have to respin, please use the
+> 100-char limit to keep these on single lines where possible. Same for
+> all the others below.
 
-So we need to teach them.
-
-> Also look here:
-> https://lore.kernel.org/all/CAAfSe-uD=s0RpuqQ_h+_fErcEC+G=N_LA6e=p_sXJ=iG7jMc3Q@mail.gmail.com/
-
-Yeah, I answered there.
-
+Ack. I will rebase this patch over current 7.4-rc1, adjust the line
+width and send it independently of the addition of mt6392.
+Thank you
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+Luca Leonardo Scorcia
+l.scorcia@gmail.com

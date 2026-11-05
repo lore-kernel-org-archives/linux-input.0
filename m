@@ -1,71 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.251.234.56
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906397;
-	b=SXWZ+cGNsdMy5PXEhnrQD5xwQlNRWzbIdLdzgCcsDT/giDuqpplIeHf+9128bBWMAQyx
-	 nLhhE4W4pWSRhWNfsEpmE/+nFF1hT+B7bMmvUl+kJxV8lQmsejnp+kRV7gH0/hlHl1mis
-	 ZljzQO3FN0qioqit0w/4qHauWIsM4XPAJ82f+sq7be8YnoY3HWxylozmOvMejdacQGAfc
-	 t7McMFYTJUpyp0smm66lLIQG5uIsb/aXM4LxS4uF/0UlSsggV2e0a72pw3cDUS4hkLd3u
-	 A64zomFaoHdQnnPS8kjl3ycG1rPJGqBpgWPqxSSEwzonU96QtxDseWCCfwkbytiyPnw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906397;
-	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:In-Reply-To:References:
-	 X-Mailer:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:
-	 MIME-Version:Content-Type:Feedback-ID:X-SES-Outgoing;
-	bh=vB0d6DmohhVJAem08KYrjHoymUOj9sWWuweWNR1UKLI=;
-	b=2joSUbU0NDQQqoVT1lTh6tKr2VPp24GtvE0qc+QDSJF4wkUn88DAs6McDvqhBowyFvDf
-	 M8cNTUquBNSUJnrf4dnPsGttkSU5hNnhGJy8eyXx/nn2pVKoctBEprutvscVOBevQ8A5z
-	 km9+3HOWohCZfxISh1w6lLUUurCz1y0yPzKfjzVaPxDOLYfRFQ8VBXLhDpzXJK5bhnfov
-	 wa9Pzft2PkINZvfiLKAc4L4EGuQ++52qMJJ8IYd/mXNogrvnNq8gzOFsy2whnY4v5Jk9D
-	 DcvWowIXoY9gQINFs1L2okAbw4GF7zBNyxAV6hJYIzm6mg6s30Bqsj8fIVzC7tdq1WQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=fqwqf.xyz;
-	spf=pass smtp.mailfrom=send.fqwqf.xyz;
-	dkim=pass header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b="qGfmCv8/";
-	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=hH5ybj0K;
-	arc=none smtp.remote-ip=23.251.234.56
-Received: from e234-56.smtp-out.ap-northeast-1.amazonses.com (e234-56.smtp-out.ap-northeast-1.amazonses.com [23.251.234.56])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.180
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793906418;
+	b=i9YAvQ6PeMI16VtEO1ql9IxtbVviKYXGa0c7dvSg6kDeEMX6yyCT9tJLDWY3LXuZ2iGn
+	 qQVJTucRq9hzgLND/5G0nQ1OxbxynRi61vj5yk8D+Lnwfu1gpP6R6dhdopIZ9MnZODhJ1
+	 ugBglDhnORC22M3S30BUaOnH2WQL4a/MVG+WokAM+eJHEOqjtWWSswCtl0GbrF4L9kmfE
+	 gSkpMRnkzELeaQDnC1aC/Du7nnhOXEqDUJ97QXimDIhS4uBxADo8zTfhV+26nRI5psqtt
+	 h3o9osAL8fLLXVUlkScjGbZgwSUSlJKH3+WdcAf+WhhAFlq5EwGSepxC1bVyXpw/WoQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906418;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=Pp/TG21mhE7k1t/eWybpON9LpBrMSOVs3egyXyjekZI=;
+	b=B7v9ygqm2jrwgjr8x+qVDi2yivLFXP5o144YDVJlnxlf0C6LgwmT6fkOe4IM5eJGPozA
+	 6DD3hKe0ynNsy5pEHY4fkkoCb+1ftZjxgJEKeYDZBGxGZTKBztpivnZaHg/eFR5KSdY/u
+	 b/VdsBv05fa0bV6fQdbzWZCh4zxGd5J6RE2YAEWlkRHm5RaSjgyw2O456VTd6JTG/nCKn
+	 62/oIiugYbVkAJgfnIdolVteHUYIZIY01fTWwO6I6SdfTi4aatakUWxYuofUElmsUznvM
+	 adcpRP2SL/zkfvuqI+UCLMOPb0Z4Ye2A2cASu78XhL3s47GCLIlnlQxBGa5uWV9SzPA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=goxBSdge;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.180
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37DE5606A32E;
-	Thu,  5 Nov 2026 19:19:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 37DE5606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C067606A328
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 19:20:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C067606A328
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b=qGfmCv8/;
-	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=hH5ybj0K
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1793906396;
-	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=yjQSNr6bjN4bHRD2IZ60o3J6FxseY+q4irgzvY4ZTwU=;
-	b=qGfmCv8/vET87ssChBFNsDidGVWbBHOwae0BOQ9aLz9uE/+Uetz+onKk0AoU7029
-	ZrqIuaS5pbqviQ0TwnCYhUjQbm5xGo8yX4IcAAc/+bj0WlORYVJiliuvaozly5FXK/d
-	zAKHSIEKCY8CtQDFb9aVudluG1C2PAyRkZP7zvaY=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1793906396;
-	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=yjQSNr6bjN4bHRD2IZ60o3J6FxseY+q4irgzvY4ZTwU=;
-	b=hH5ybj0K95yVSoOibYhSRDuaZwoUb4PqjsP56It0m5ChJcw4LyN9UZkHMEjk8zXf
-	NPHXvvhOlD2ZArjjAsk6qESp0zAgVCrkqhLDYHY1iN24eBdlp6+oVl9g0A1eUIeQ3cT
-	gcZMoHSiel6Z4sdyHrO36KTcBpN4d4ZSySkD9aOc=
-In-Reply-To:
- <010601a1334094a9-1f793e14-c414-4780-98ff-f5acdac353a2-000000@ap-northeast-1.amazonses.com>
-References:
- <010601a1334094a9-1f793e14-c414-4780-98ff-f5acdac353a2-000000@ap-northeast-1.amazonses.com>
-X-Mailer: git-send-email 2.53.0
-From: Jizhou Tong <fqwqf@fqwqf.xyz>
-To: Jingyuan Liang <jingyliang@chromium.org>
-Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	daleyo@gmail.com, broonie@kernel.org, u.kleine-koenig@baylibre.com, 
-	linux-spi@vger.kernel.org, devicetree@vger.kernel.org, 
-	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org
-Subject: [RFC PATCH v3 0/5] HID: spi-hid: add quad-SPI support for
- Romulus13
-Message-ID: <010601a1ad274a9c-ca2fc8f5-d3fb-435d-8572-c0d3eb701649-000000@ap-northeast-1.amazonses.com>
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 5 Nov 2026 19:19:55 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=goxBSdge
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93e55db58cfso236245285a.1
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 11:20:17 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793906417; cv=none;
+        d=google.com; s=arc-20260327;
+        b=KZQKrmZeuRP3SdTTCYDbdyq9imyOyaBiq6pSaDLziMBjAcfBsIkx+6GyffLSK/BGd0
+         gcigKJ98mNNFSs/lvJDnendw2CRjNqdIBW9TiuNJJ3hUdQpEnMHG4tT61lmBz+mc7t1n
+         /FDTTM5ExqioTqkFdysd9lYsQSXHbjXTF81PL8gL4hw7sMtCmQ3kHJAqeVC9xlTGOoB/
+         c4RXbAftZ28Is+0v/84Py5KxyiE/lxCGgORCYxNr853MOFFNM1AOplXEGmILi9LiExfU
+         D3HEsNfke6bxgXUxRk4G7ei/bgu7h9x/XwE0YQ8smSLWYBATeHe42ED4WejTLgu6su3r
+         5cCg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Pp/TG21mhE7k1t/eWybpON9LpBrMSOVs3egyXyjekZI=;
+        fh=lDOjw1taoUVt0rYH/y9MiOFngVjQA0MuBEQ/0ruVtmg=;
+        b=hhllQSWbxpW2ODwsCSDB3kvdeD+eyNizhDKsO73+xUuMOEGWtdxA/5Pa3TSJLHNuby
+         e5AQee1wHPsL/UDUaRgZvoxaJFV+GsfMjMIzpC6pBHSVRQKHfh7sV01cOnb0vlEJf2sl
+         MJffjHnY+bnAc53pKYqOpu1aam+bvodE/58tNUMe8JDMFnAfpILzeyuZZKXQX78aQwOG
+         yoanw1xJgjHnQNeCHG0JSbmUyMIwhlGRxnZh14TvZQxpP1vBPUlJGIrOQp1yecYhD6q2
+         f2woDz5yn1nICvxSq5/AfvqCJjhd0KItZnzywGb6O4WzK1nMUqiIsW5MvRZDR8be0Dwn
+         TDcw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793906417; x=1794511217; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Pp/TG21mhE7k1t/eWybpON9LpBrMSOVs3egyXyjekZI=;
+        b=goxBSdgeBbdHj66o9Nu3RNovXtI7CJhsb0Rr7p21S9IEWF5RADy2eV4UGrMXXidFAl
+         cTO0oAVzKBF5fO9sS/GOG37u8hhgHva6nZ/mle/Tp3bNfFyFKTXYJRAtKuu76p953xid
+         afvRQG/ybr6Ut8n2erud5xXY/aDItoKUKt6VGisPWURfTnLLI1F9adpLJGkPPQQMKa2X
+         3ygmX5UszfB7oFk/DshDKWoLiKPhzINYoTv7p/1tfte7N6+0mVfMFUUBEkGXI5WX1y1F
+         TaRwiDOCSfgP1UpHoUWjnfCzogY3bzcRPH7XygMsHTMFXkryttjpg7un4zngWdx12xFL
+         huPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793906417; x=1794511217;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Pp/TG21mhE7k1t/eWybpON9LpBrMSOVs3egyXyjekZI=;
+        b=ZJOQ23yVe1DMAWV0OtrAC8toBPB3p5sCSREzcGaRN0hFrOoiDIDbvHUD4N39Tk1gfr
+         QkNNqqRYXRh/pgQAcFIdyvTkqLdfxgVw3myqA+9Pqnam6wkPLJE1nwMlyUKcBIrnMe8Q
+         oSPv0sMrKf5Y0r0fAbWb9pU/fyWiswb0n9+hmNBbiajejQnqhv08dUfwsQW/TlNnjg61
+         Z1cjHFO0+O/Pc0j5vfcBphRd+uZkHRdMUFbX0A0TnizF5Ce5OaSywyzJznUv41NUs7LL
+         FvLLgG1I6Lxz1g2PCO6SPRlt4p+zsBX++8AWzw3w99Czflkp3/+M0Q2KzaH0sDQOBxkS
+         PmlA==
+X-Forwarded-Encrypted: i=1; AKwUvBwtUU0iL3Rdr6RSHmFExUAx9PPUJy+dC/KXg+3wI0AUEatK+c/+alu0PglkEEXVUNtmoWuCWuxPhgoMAw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z86AzkPtLVr7qBJO7cFg70iQiyvWaNvcK3lOnwVeQW/2ZE1QgLd
+	277XC/uK1lPhm440fpJUYNFSKxHqVqi7UJS8BlvftpDsX8g1ncFk+rlG8rky2b2I1U6Y+OnMbZg
+	/ErLGAoXmlMmVzk0EfsrQKXaWaQ0c5QA=
+X-Gm-Gg: AYBFou2R+IXn4Rrnt1nHoiHBjrdej39pAQeMATk8yzJIpUPGZ5/4zhXIwcBSZpuWcRv
+	h39T57I72LN1230ES09LVU7dKEeQ/GF7z2B7Aq9VyZ3mi0lq6ymR6afrav/NsVv8CP1JyStk8cI
+	bGo/DgN7aBlPRgxYANUsmmiQM1adwPHMV419bIBCnVyMn11G1HjP/bIwKnxlSFYLXb14L2N8Xjd
+	EkSWFmovDuxfU1rWmH+1L9xUFKQA89orR4xqpJacPrfoADvdi+h+IcmMyj0PL+hSByTJaKN48fU
+	bw8Q2CVaAnkgr7QQ1HahXY7n49FNS/nPLIRFSo0j9Mc0FTWA5YanaH3fXtTSJz3RtEx/z5HNeN0
+	SAz2VaUOw5Ukqq4NnUoD/YmlslpGq6wpES+SI
+X-Received: by 2002:a05:620a:4015:b0:93c:c2c2:40eb with SMTP id
+ af79cd13be357-945f35e6c2bmr5090185a.66.1793906416804; Thu, 05 Nov 2026
+ 11:20:16 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -75,98 +104,163 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.11.05-23.251.234.56
+References: <20260915111448.2726869-1-qwe.aldo@gmail.com> <20260915145229.3036596-1-qwe.aldo@gmail.com>
+In-Reply-To: <20260915145229.3036596-1-qwe.aldo@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Thu, 5 Nov 2026 11:20:05 -0800
+X-Gm-Features: AclHuK-4ryZB_pVHQTvIJoueiQY69x_P5hoZ4Ix7YJII7Qwx1mdwYxlfMzqsWMk
+Message-ID: <CANRwn3RYhEu0g9Lx+Vg=Uy8V7BWWz-jWV9d7UVuyRK-MGdbHOA@mail.gmail.com>
+Subject: Re: [PATCH v3] HID: wacom: avoid overflows in sequence number tracking
+To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Jingyuan, Dale,
+On Tue, Sep 15, 2026 at 9:17=E2=80=AFAM Aldo Ariel Panzardo <qwe.aldo@gmail=
+.com> wrote:
+>
+> The dropped-packet calculation derives the sequence range in signed int
+> arithmetic. A sequence field whose logical range spans all 32-bit values
+> makes the range calculation wrap to zero, so the following modulo trigger=
+s
+> a divide exception.
+>
+> Normalize the maximum and current value according to the HID parser's
+> signedness rule, and keep the sequence state and arithmetic in s64. Use
+> div64_s64() for the remainder to avoid __moddi3 link failures on 32-bit
+> architectures. This also avoids overflowing value + 1 at the logical
+> maximum.
+>
+> Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 1=
+6-bit")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+> ---
 
-This RFC adds quad-SPI support for the Surface Laptop 7=
- 13.8-inch
-(Romulus13) touchpad to Jingyuan's v7 driver [1], on top of the =
-two reset
-GPIO error fixes sent separately.
+Generally speaking, I feel like NAK-ing this patch as it currently is.
+I'm happy to take a patch that specifically addresses the divide
+exception, without expanding the size of sequence_number (mostly
+because that particular part is a bit unnecessary with our hardware
+unlikely to ever spend more than 32 bits on a sequence number). It
+should be possible to introduce a helper function that calculates the
+value with a branch rather than explicit division, e.g. something
+like:
 
-It adds aligned transport =
-buffers, spi-mem 1-4-4 transfers, bounded input
-fragment assembly, and =
-Romulus match data. After a device reset, Romulus
-recreates the HID device =
-so iptsd reapplies the touchpad mode without
-restarting iptsd. Single-lane =
-devices retain their ordinary SPI transfers.
+int wrapped_dist(int after, int before, int min, int max) {
+        if (after >=3D before) {
+               return after - before;
+        }
+       else {
+              return (max - before) + (after - min) + 1;
+       }
+}
 
-Following Conor's review [2],=
- the compatible and quad-width constraints
-now extend hid-over-spi.yaml. =
-There is no separate Romulus binding or
-redundant declaration of the =
-globally allowed pinctrl properties.
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-The final driver source matches the =
-SPI-HID source in my tested downstream
-SL7 kernel. Touchpad input and =
-suspend/resume work there with the downstream
-Qualcomm GENI/GPI QSPI =
-controller and board changes. Those dependencies
-are being prepared =
-separately from this HID transport RFC.
-
-The core, ACPI and OF modules =
-build with W=3D1 against the prepared SL7
-kernel build. Software tests =
-cover header and fragment bounds, DMA buffer
-alignment and allocation =
-failures, SPI/QSPI transfer phases, reset errors,
-and resume/re-probe =
-ordering. The common binding passes schema validation
-and compiled positive/negative examples, including both IRQ spellings.
-
-Changes since v2:
-- Rebase onto v7's compatible data, descriptor and PM =
-handling.
-- Drop the readiness/error-counter ABI; keep v7's removal of =
-counters.
-- Extend the common binding and remove redundant pinctrl =
-declarations.
-- Keep quad-only output framing checks out of the single-lane=
- path.
-
-[1] https://lore.kernel.org/all/20261024-send-upstream-v7-0-abad131=
-74b43@chromium.org/
-[2] https://lore.kernel.org/all/20261028-punctured-flag=
-pole-c7ec4cfc4609@spud/
-
-Jizhou Tong (5):
-  HID: spi-hid: isolate DMA =
-transfers from protocol buffers
-  HID: spi-hid: add spi-mem quad-SPI =
-transfers
-  HID: spi-hid: assemble bounded fragmented input reports
-  dt-bindings: input: hid-over-spi: add the Surface Laptop 7 touchpad
-  HID: spi-hid: support the Romulus13 QSPI touchpad
-
- .../bindings/input/hid-over-spi.yaml          |  40 ++++
- drivers/hid/spi-hid/Kconfig                   |   2 +-
- drivers/hid/spi-hid/spi-hid-acpi.c            |  26 +--
- drivers/hid/spi-hid/spi-hid-core.c            | 183 +++++++++++++++---
- drivers/hid/spi-hid/spi-hid-core.h            |   8 +
- drivers/hid/spi-hid/spi-hid-of.c              |  44 +++--
- drivers/hid/spi-hid/spi-hid.h                 |   8 +-
- 7 files changed, 249 insertions(+), 62 deletions(-)
-
-
-base-commit: ee9c669f9bf5fd2c24206746ded9382fe810df89
-prerequisite-patch-id: b401890d766019f0677a572f18bb389cd8827721
-prerequisite-patch-id: beaf91cb29f3a735559a3251092ac0ac17810b10
-prerequisite-patch-id: e7eba48cebafeee52eae204c950d7c4f8386f0bd
-prerequisite-patch-id: 41ca1ba441d0246d5bf6a4befb26b1c65a596b95
-prerequisite-patch-id: 84023dc857708fbb763a889ac060acc7d4387264
-prerequisite-patch-id: f9b381e783ceb6b608c27e3b6299c591ac9be769
-prerequisite-patch-id: ae5c9959b2923b37a5a650f04e93c662b9e10592
-prerequisite-patch-id: 44a8965a58c0bfb0d5cf758790f407d136451956
-prerequisite-patch-id: 207558a5e93c1074b4dc1b568d70d62a9ffe542b
-prerequisite-patch-id: 59919db0f4e3fbaa1908a0b311fcd53837c5aac3
-prerequisite-patch-id: b3706d31329e8a5829627fd0eb795c24aeb389cd
-prerequisite-patch-id: 24df0c559e4b401af9acd4bc7bad99dd4b4724d4
-prerequisite-patch-id: 3163173e775b674a9f6b8b5f683e0a522e2ea4a0
+>
+> Changes in v3:
+>   - Replace raw s64 modulo with div64_s64()-based remainder to avoid
+>     __moddi3 link failure on 32-bit architectures (i386, arm32).
+>     Reported by Sashiko AI review.
+>
+> Changes in v2:
+>   - Normalize logical_maximum/value as unsigned when logical_minimum >=3D=
+ 0,
+>     matching HID parser signedness. Store sequence state as s64.
+>     Fixes unsigned 0..UINT32_MAX range that broke v1.
+>
+>  drivers/hid/wacom_wac.c | 33 ++++++++++++++++++++++++---------
+>  drivers/hid/wacom_wac.h |  2 +-
+>  2 files changed, 25 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea856..af94f59a5d 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -7,6 +7,7 @@
+>  #include "wacom.h"
+>  #include <linux/input/mt.h>
+>  #include <linux/jiffies.h>
+> +#include <linux/math64.h>
+>
+>  /* resolution for penabled devices */
+>  #define WACOM_PL_RES           20
+> @@ -2527,18 +2528,33 @@ static void wacom_wac_pen_event(struct hid_device=
+ *hdev, struct hid_field *field
+>         case WACOM_HID_WD_BARRELSWITCH3:
+>                 wacom_wac->hid_data.barrelswitch3 =3D value;
+>                 return;
+> -       case WACOM_HID_WD_SEQUENCENUMBER:
+> -               if (wacom_wac->hid_data.sequence_number !=3D value &&
+> +       case WACOM_HID_WD_SEQUENCENUMBER: {
+> +               s64 sequence_minimum =3D field->logical_minimum;
+> +               s64 sequence_maximum =3D sequence_minimum < 0 ?
+> +                       (s64)field->logical_maximum :
+> +                       (s64)(u32)field->logical_maximum;
+> +               s64 sequence_value =3D sequence_minimum < 0 ?
+> +                       (s64)value : (s64)(u32)value;
+> +
+> +               if (wacom_wac->hid_data.sequence_number !=3D sequence_val=
+ue &&
+>                     wacom_wac->hid_data.sequence_number >=3D 0) {
+> -                       int sequence_size =3D field->logical_maximum - fi=
+eld->logical_minimum + 1;
+> -                       int drop_count =3D (value - wacom_wac->hid_data.s=
+equence_number) % sequence_size;
+> -                       hid_warn(hdev, "Dropped %d packets", drop_count);
+> +                       s64 sequence_size =3D sequence_maximum -
+> +                                           sequence_minimum + 1;
+> +                       s64 drop_count =3D sequence_value -
+> +                                        wacom_wac->hid_data.sequence_num=
+ber;
+> +
+> +                       drop_count -=3D div64_s64(drop_count, sequence_si=
+ze) *
+> +                                     sequence_size;
+> +                       if (drop_count < 0)
+> +                               drop_count +=3D sequence_size;
+> +                       hid_warn(hdev, "Dropped %lld packets",
+> +                                (long long)drop_count);
+>                 }
+> -               wacom_wac->hid_data.sequence_number =3D value + 1;
+> -               if (wacom_wac->hid_data.sequence_number > field->logical_=
+maximum)
+> -                       wacom_wac->hid_data.sequence_number =3D field->lo=
+gical_minimum;
+> +               if (sequence_value >=3D sequence_maximum)
+> +                       wacom_wac->hid_data.sequence_number =3D sequence_=
+minimum;
+> +               else
+> +                       wacom_wac->hid_data.sequence_number =3D sequence_=
+value + 1;
+>                 return;
+>         }
+> +       }
+>
+>         /* send pen events only when touch is up or forced out
+>          * or touch arbitration is off
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 126bec6e5c..74e7c5a04a 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -324,7 +324,7 @@ struct hid_data {
+>         int bat_connected;
+>         int ps_connected;
+>         bool pad_input_event_flag;
+> -       int sequence_number;
+> +       s64 sequence_number;
+>         ktime_t time_delayed;
+>  };
+>
+> --
+> 2.43.0
+>

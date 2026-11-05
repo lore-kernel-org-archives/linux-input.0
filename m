@@ -1,113 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.10
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793922886;
-	b=xRfaTKNTzdeiw0brDrV4kIY/Scx3sW/co1pYZ2qt6CJPZJd+VYhCz8UXhu0xTo2G5kEF
-	 pn9O0ArD6pDFoEY8pt+08ynFft3iEpU5O4Bicf1dEe2MQ5ETetgSoiCwLiNQJgwsxgnUT
-	 R1dJ0hLRVn0ZgeMwgqWxUMbqyyi+PUClLKi8GWvw5P2hoC147qFHEFQG9p0uiIAy/h6fg
-	 4UGBZ4ASe7AVMvcav1ACutYDh4hrqsPKcdTqLNsST7l6s0fMFxVKgwSLjpvwVQ9lVbAKc
-	 EllIKaNpfbOVu7wjpvljMEnYmFgJGRU1O99uKBlmccV26KeKvdzcbctGgX7udNNqDAg==
+	t=1793922989;
+	b=WPEpk6TtfkW7YNpuRZZOMacIgRVnF7HGNdGdIHP/3RsFmIMX3UkRvxUQ6y7dqmfOruEg
+	 OXtR7qDgw2X95ECq0/wRHKziIbI5fwC0ZSzlWBSY3GhoeRC+Mdi+1eFrcW7eKNMzSuBxa
+	 I6nOzfC266hLjuZRR8fmiKOaN3UbNqwq86k3wCQ5ZsKA0l1A7czjQQJfyU4MUY5z2gFip
+	 uWBG4PG9gaA+M3UjA7PQdLhSo4aunWhjBCbJwmcID1HL1wya3Hl3eRn/lpQvs2yBsBWrO
+	 oyYhACNIZmBfjKYlWImPUKEoPIUxQ/5dxrOQ+Skfu6ryRcrUkTIx+kohPAff2H7PDbQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793922886;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=gVqx0nYfuSEJ0GdcgxyreyG7706GoUCJZ8KOhEimfQ8=;
-	b=kiURqWKNTY014rda+hu7KNWfA6v9/Oc6IAymL1I903ELxHtoDX+8pwdkNGzsaGJCrii2
-	 VsDRMsyUatG/IzDPE+sUtlH5OhFXISJVfUdSROwN1lfVAY03CJ8NwBuDJ88aHwQ8EhYAv
-	 dYaKJQY3BRV+mxuhWFTeu3jp1C/Uh8A69vBcF6tTT18X0DHfUVrySlF9MUzsBdQAPv5Ra
-	 euKh6ps/rnX+hmOEuh6YD1+ZqmlmwFYRBz67CVtKuvD7d4aQn20WzfxSxGxTxha+PlKC+
-	 x/SupEjrEqbIuVTm3RTGa4vyJOCMZmZaYCRvhPKXiCoq3eq+ELZAXN4/UIaXdDbKygQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793922989;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=Xeo8mejeTn2es9Yu6qh9AX3+Oz1tjzirKy+z9YOighI=;
+	b=XrYwNZWYF53kZI4EoH8+RkQVWXGpJ4aGl4lGEqyto66me6SuQ791LfvWgHSOVCEY0JR3
+	 EXrAoG/b/gzmWMBOv9mwp4um7+DkzeMGZRkdqf4CFKzAmDaEa7JpqyqK/DWT5y8uAIIp0
+	 QZoxELnFTJ8X21SMf90mZI8D+HgOHmftNT2+yx7r+We7R+DefRmseiUrIBQ8BNWRl+urE
+	 /Ef4F/B/J2WWbubrD7evDJb9pJ2EApeFyqQFXaBR64eIOtQHtloLm6Sbr/Yef2nDeEFE7
+	 aISt1N+VKT6yzRVfvLaOderVT17AMS7bXaIt0kiNH7UsMqldUNUlNLJ+Ji2erD+fG2w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=PZgyvCP+;
-	arc=none smtp.remote-ip=35.89.44.37
-Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=liQzJoL5;
+	arc=none smtp.remote-ip=192.198.163.10
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD84606A333
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 23:54:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BD84606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52E26606A31B;
+	Thu,  5 Nov 2026 23:56:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52E26606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=PZgyvCP+
-Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
-	by cmsmtp with ESMTPS
-	id P1kqxdfDCVK9UP7I5xTiMp; Thu, 05 Nov 2026 23:54:45 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id P7I5xSmnJuJrPP7I5xyUPh; Thu, 05 Nov 2026 23:54:45 +0000
-X-Authority-Analysis: v=2.4 cv=WLZ/XmsR c=1 sm=1 tr=0 ts=6aed1745
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=OuZLqq7tAAAA:8
- a=EUspDBNiAAAA:8 a=pYUB3rPNxVkG2UVf4jEA:9 a=CjuIK1q_8ugA:10
- a=AKGiAy9iJ-JzxKVHQNES:22 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=gVqx0nYfuSEJ0GdcgxyreyG7706GoUCJZ8KOhEimfQ8=; b=PZgyvCP+eIup2LALOsc1El6qhX
-	BpiSGOeVoHC2LKTSnFsH2qjCv++Q57E0cKLuYoRslbciG/VerYtXhrcuLu1iQUDlnCkWjaWtbDrrx
-	RCgrwwIlXJaHXe7c/G/u3uP2rz3Xx7V7sH+/rzip2tA/90KtrTMgb2+8oF5wQHF8TDcMFbmaaaLd7
-	JZsTVXOKJ9j2MpzTZU3R8RXdjeRZ1t7tEnvvh8cFihXHNVBUmVxxLkmzUsFkM2I9ijxyWf8HoN/AX
-	H1EfrwSIpaqSRJ3fSTLcklPmkgRjlPgCM5N5R9J+ALX+ConkfP2eURYPl5qimFEBtAKnTcwZdPc5R
-	9AwVujhg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:60104 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xP7Hz-000000019Yr-1Hb2;
-	Fri, 06 Nov 2026 05:24:39 +0530
-Date: Thu, 5 Nov 2026 15:54:37 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rajendra Nayak <quic_rjendra@quicinc.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Jassi Brar <jassisinghbrar@gmail.com>,
-	Abel Vesa <abelvesa@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Krishna Manikandan <quic_mkrishn@quicinc.com>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
-	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-	linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v8 03/11] dt-bindings: watchdog: qcom-wdt: Document
- MSM8952 watchdog
-Message-ID: <f6bee82d-3e64-4e93-90f0-9470a166626f@roeck-us.net>
-References: <20261105-msm8952-initial-support-v8-0-311ae8e8f14b@mainlining.org>
- <20261105-msm8952-initial-support-v8-3-311ae8e8f14b@mainlining.org>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=liQzJoL5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793922989; x=1825458989;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=Xeo8mejeTn2es9Yu6qh9AX3+Oz1tjzirKy+z9YOighI=;
+  b=liQzJoL5XVS+2BO6K5HmwvT1vm9gRhgdqOCYBSDkfYw0Wb4+rRpnyUGK
+   G7cPwdlFyijhqTCojVCk5m74DfhZ+NG1Uf9YA54SxzT+erYL5nMXO2oV0
+   ovVAnzwbuTlaAHeHJrG64SMuwzvPJs6y0mFWJl/xxer1InBA/fF/dqIh4
+   EBRkKcAcsjZhbDxPZ0+0kSUrfVKmYR94BuK4gRDsfgsB5ntI8trk+2vAV
+   aiR92r02WiLD8zqNNM3CdwTqQMtp9dYWFQjlrx3YCvhAQiN/Vug+P4yr9
+   2vL9h0yi2WVeFJ5SQVrGI4xs8r0IOGlbgSaWFIlfeJ7YM0DEyNiDSkwu+
+   Q==;
+X-CSE-ConnectionGUID: FZGZ4KDIRxKEqjP1oemK6w==
+X-CSE-MsgGUID: zEu0f/XHS3mbRO84t4sLUA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11957"; a="2631822"
+X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
+   d="scan'208";a="2631822"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 15:56:28 -0800
+X-CSE-ConnectionGUID: +9owbXuAQwqBtrnAaS0iTw==
+X-CSE-MsgGUID: L8tGT14dSKyEBfO+y+pRuQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
+   d="scan'208";a="6973326"
+Received: from spandruv-mobl5.amr.corp.intel.com (HELO [10.124.220.35]) ([10.124.220.35])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 15:56:26 -0800
+Message-ID: <53c382715b89d26f77f495f79036d31850bf453d.camel@linux.intel.com>
+Subject: Re: [PATCH v2] iio: hid-sensors: fix fractional part for unit
+ exponents -7 and -8
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: =?UTF-8?Q?=D0=A1=D0=B5=D0=BC=D1=91=D0=BD_?=
+ =?UTF-8?Q?=D0=9C=D0=B0=D1=80=D1=8C=D1=8F=D1=81=D0=B8=D0=BD?=
+	 <simeon@maryasin.name>
+Cc: jikos@kernel.org, jic23@kernel.org, bentiss@kernel.org, 
+	linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date: Thu, 05 Nov 2026 15:56:26 -0800
+In-Reply-To: <CAM2dg7dnvj7X3Fo9r_=Pn=EHxUwyFEwQN6XdLLPmOAdaY76JfQ@mail.gmail.com>
+References: <20261104165319.1890851-1-srinivas.pandruvada@linux.intel.com>
+	 <CAM2dg7dnvj7X3Fo9r_=Pn=EHxUwyFEwQN6XdLLPmOAdaY76JfQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -117,39 +87,103 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261105-msm8952-initial-support-v8-3-311ae8e8f14b@mainlining.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xP7Hz-000000019Yr-1Hb2
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:60104
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 2
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfA6nNosbkGeMCQ8bcM1mdIXDtruIcUIKrjC3XA/bT+eSJXO7W4MIPsclZd2mZL+SjEGbFdkB8PjdBT+jQwwijDE/p353hIsIca0bDVYbLeXUIYTnhOAD
- bps4Jitj0hALPC1dd2EHoEIv+TFVDHLNsWQFmXA/V3sdU9CFXzdanbYEAx1vqSy+rnURz4JbsfyjDzjbyqvJNRgTRULJp99OQS3/ptLl15XLs2cJebRWJqsy
 
-On Thu, Nov 05, 2026 at 01:54:07PM +0300, Muzaffer Kadir wrote:
-> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-> 
-> Document the watchdog found on MSM8952.
-> 
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
-
-Applied.
+On Thu, 2026-11-05 at 22:26 +0300, =D0=A1=D0=B5=D0=BC=D1=91=D0=BD =D0=9C=D0=
+=B0=D1=80=D1=8C=D1=8F=D1=81=D0=B8=D0=BD wrote:
+> Tested-by: Semyon Maryasin <simeon@maryasin.name>
+>=20
+> Here is what I observe with this patch:
+> 1. Enable sensor and run xxd /dev/HID-SENSOR-2000e1.3.auto
+> 2. In the second terminal, do rmmod intel_ishtp_hid
+> 3. Observed result: xxd stops with "xxd: No such device"
+> 4. At the same time, in kernel logs I see the following:
+>=20
+> =D0=BD=D0=BE=D1=8F 05 22:19:16 dook kernel: hid-sensor-hub 001F:8087:0AC2=
+.0005:
+> timeout waiting for response from ISHTP device
+> =D0=BD=D0=BE=D1=8F 05 22:19:19 dook kernel: hid-sensor-hub 001F:8087:0AC2=
+.0005:
+> timeout waiting for response from ISHTP device
+> =D0=BD=D0=BE=D1=8F 05 22:19:22 dook kernel: hid-sensor-hub 001F:8087:0AC2=
+.0006:
+> timeout waiting for response from ISHTP device
+> =D0=BD=D0=BE=D1=8F 05 22:19:25 dook kernel: hid-sensor-hub 001F:8087:0AC2=
+.0006:
+> timeout waiting for response from ISHTP device
+>=20
+> No system crash, so I suppose this is okay?
+>=20
+That is fine.
 
 Thanks,
-Guenter
+Srinivas
+
+
+> After subsequent modprobe the sensor initializes and works properly.
+> No kernel crash with this patch.
+>=20
+> =D1=81=D1=80, 4 =D0=BD=D0=BE=D1=8F=D0=B1. 2026=E2=80=AF=D0=B3. =D0=B2 19:=
+53, Srinivas Pandruvada
+> <srinivas.pandruvada@linux.intel.com>:
+> >=20
+> > split_micro_fraction() scales the remainder to micro units by
+> > multiplying it by 10^(6 - exp). The unit exponent of a HID field
+> > goes
+> > down to -8, so exp can be 7 or 8 here. Then the argument of
+> > int_pow()
+> > is negative, which the unsigned parameter turns into a huge power
+> > of
+> > ten: 0 modulo 2^64. As a result, the fractional part of a value
+> > read
+> > from the hysteresis attributes is always reported as 0.
+> >=20
+> > Divide by 10^(exp - 6) in these two cases. This matches the reverse
+> > conversion in convert_to_vtf_format().
+> >=20
+> > Fixes: 73c6768b710a ("iio: hid-sensors: Common attribute and
+> > trigger")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Srinivas Pandruvada
+> > <srinivas.pandruvada@linux.intel.com>
+> > ---
+> > v2:
+> > - Fix __udivdi3 link error on 32-bit by using a 32-bit divisor
+> > - Address Andy's comment:
+> > Keep no % divisor in a temporary variable next to no / divisor
+> >=20
+> > =C2=A0drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 7 ++++++=
+-
+> > =C2=A01 file changed, 6 insertions(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > index 9e7c26e37880..d44091faf122 100644
+> > --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > @@ -96,9 +96,14 @@ static void simple_div(int dividend, int
+> > divisor, int *whole, int *micro_frac)
+> > =C2=A0static void split_micro_fraction(unsigned int no, int exp, int
+> > *val1, int *val2)
+> > =C2=A0{
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int divisor =3D int_pow(10, =
+exp);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 unsigned int rem;
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 *val1 =3D no / divisor;
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 *val2 =3D no % divisor * int_pow(=
+10, 6 - exp);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 rem =3D no % divisor;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (exp > 6)
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 *val2 =3D rem / (unsigned int)int_pow(10, exp - 6);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 else
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 *val2 =3D rem * int_pow(10, 6 - exp);
+> > =C2=A0}
+> >=20
+> > =C2=A0/*
+> > --
+> > 2.56.0
+> >=20
+> >=20
+>=20

@@ -1,54 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.251.234.61
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.251.234.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906581;
-	b=UvYKCypA5NJYgbk94LypyXP4oZ31355vVF2O9GRoGFTXu2qOJ19CySIOkE8j2kTPuntj
-	 bMJu3hL5h9l9+0XXxxeMca//W6vlnzX3Owumi1q+lRKbxL36n9PexO5B4S6P14pHNO1iO
-	 /tcPc9N0AZI0RbmrYV66c7ROLFuA2HxjOvfTN5GZp/ekcZECpdBz3CLX4bGXRNc1vPuLU
-	 mm+NaVwOagFRd6n0FJ30e7C18MXdtgRt3o9tEoi/fS0Dyt0HhSw3FEKb34nNBOsZMYwW0
-	 xniEeCfLLPzXsYbuGLt8ejAt1QW1vrxEpNgNCVeWcS4oNdLOOUX54sF4QVXjTELO3Ew==
+	t=1793906588;
+	b=3qurWzT92ipqNiHIRwFMr3LdgBMykEjLEEpJK/qDHCsiG1OLx+6sWFW+hq3Kd9BdCOnk
+	 EzPndxwa3WVHX7V8p83BBruIp26JEp7O3S7F8OKpcapMdNGS73Q5dUeHMGby3BLALFlb/
+	 m+cBWJmYiWG4fr+UMyiJiqD3c7l3uhazc7Hj6nOVTtwe7rBGBXpXnvGYuhewIYCLxBTLK
+	 skTJsZUswO5V5s3wEB/K0ulNWH9hEQnyN6UqPQo4pJns+asxwOnLyAR3cmE4zALeP5tVu
+	 pGz1Mg1ZoHzrjLv6R93Qh4W1L43a6VOATQrVNZ+MkzcLBG78CD5YYjONYzfpESGx+eg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906581;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906588;
 	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:In-Reply-To:References:
 	 X-Mailer:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:
 	 MIME-Version:Content-Type:Feedback-ID:X-SES-Outgoing;
-	bh=+w3Y46USZtRfwboP4/3DVltXYLuzKi3FoL8Kojm7yhE=;
-	b=n/Mx2zyOVYhrZMQuOkdtLp0oLuST4S/xKaybu0hPZsLcgYNw0jSHvvNSchxOGRfVoCQM
-	 Y0Sg9QeabHfoLnAO09EJxTRxfWdiVg7++3PpymmYn2hYrXolo/khZo7RXe9WGlbw/LE10
-	 BTsefXrhBrLFnfPOhRzoakencY1vF3akonJ2Ny7Jftj6o37Jb+9NaMc5BcGIWelrPqmKZ
-	 DGS222ptJwY1Kp8uoDqMpDZyoV4RxCC6mrD4zD7xsSOFVJwd/KqN5bX4rRArkEMulxyD3
-	 hsSAw5vjytvXm1gb+Hf2CBPeSOrb9L761b5icEm3jvEtlnUsj12Fl8ehAIZBvSbU5cg==
+	bh=piwa6L0y3OSJqwaqWxC6psUp+eJFvc86Wh3hKMCc9ig=;
+	b=V64qDz7z/5tCMNqtNtFggDe6SxAj5UwFuae43J1yWQv+08vvn9hG1ADLNREGcanaoBbG
+	 +0hA4EAQ2oLzxx2SBtrX6Ha7IQtuaXh5EAjbHP/JtRca3bQgRgC03nd1C1iEhPT0SETQz
+	 mE5uGiVqxdv+CxA9nZyQbf3iTvVJYHTNcuG2AItA/RklHKKQRb9xCKe3LgxzTxVCB9esn
+	 i5351Fpfgv1nyWx6gUxRaOx26+ShWuFa8pNUOhr20oPGLBpvx7mw4Eq2CIfU6RVzGwGwi
+	 yaYM7h4HPBGjHM00ZKQQCcjjZobulRgzU0h831B29e8NZIz0Au2O3wFlp6aHYgVcz5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=fqwqf.xyz;
 	spf=pass smtp.mailfrom=send.fqwqf.xyz;
-	dkim=pass header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b=gWkgIfZy;
-	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=P8H8WUK4;
-	arc=none smtp.remote-ip=23.251.234.61
-Received: from e234-61.smtp-out.ap-northeast-1.amazonses.com (e234-61.smtp-out.ap-northeast-1.amazonses.com [23.251.234.61])
+	dkim=pass header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b=kx6mBgeF;
+	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=YoGKIHA2;
+	arc=none smtp.remote-ip=23.251.234.53
+Received: from e234-53.smtp-out.ap-northeast-1.amazonses.com (e234-53.smtp-out.ap-northeast-1.amazonses.com [23.251.234.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B17D606A328;
-	Thu,  5 Nov 2026 19:23:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0B17D606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DB77606D803;
+	Thu,  5 Nov 2026 19:23:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5DB77606D803
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b=gWkgIfZy;
-	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=P8H8WUK4
+	dkim=pass (1024-bit key, unprotected) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.a=rsa-sha256 header.s=resend header.b=kx6mBgeF;
+	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=YoGKIHA2
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1793906579;
+	d=fqwqf.xyz; t=1793906587;
 	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=MdQK0pW3gP+DwQZEbpy5aPlyghAfhAtGTFcivjaQOfA=;
-	b=gWkgIfZyHp5kblZaTTRC/Z+kmknnWkmCYIkAyW/5VFVVJkeEnnp50M1SG1bL+Mew
-	Q26jur/QdMrbdjHTxqt3NckFcStvhLeRW2vxAW0siIKQL0ur9z1KHEEWvc5FLsL4NRN
-	IWaXhhGB6d5v5ST8y+N6EvDsc8bPbVi4koyx/pP4=
+	bh=+j2pIrvxTXrtSZxTBa01KQx90R5D0RGa2Yjt5+TzjRI=;
+	b=kx6mBgeFqHyoeMXjacjRGLYHCfRZNxVbEjc6ISHMeUa8Hoq759g3u8iR0edkySxx
+	IIBlveWt8OyGEmzwUZu4WOMdkh3Xq+lp5G4bMc9i0tlUWv7HYCM06UwiMRviVGonLrO
+	GGkd+mtd1Zimdlr1DZXhHDzDqbDensBxwOVIdnRU=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1793906579;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1793906587;
 	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=MdQK0pW3gP+DwQZEbpy5aPlyghAfhAtGTFcivjaQOfA=;
-	b=P8H8WUK4J3WG7qBEXgMx11FKKQJmMQ2TQ6yXEif1yTG0KK5Nqq35eed02tPqH7Cz
-	0w5vPhBKA/B0QOFR/kpeiIeVZjhOHx+OifvVLujhwYabazWKulF+Zg1CeiXPLx4zVe1
-	KlBDI//zGQPUnd98FuZFKNKHPTzERs/ofLYGvdnE=
+	bh=+j2pIrvxTXrtSZxTBa01KQx90R5D0RGa2Yjt5+TzjRI=;
+	b=YoGKIHA2FazVGut9hqDW2kUbBiLWHrLiyCUvKsmWUtP7bKCCLdi+egqtso6pP9rL
+	htMxAePU7S7zvgz0gRQL9xqNU0POAL/WWYlQ1wc88m6wxDW8Tg9zHvhl1dEH0gXvRR/
+	nDc+tR4qeXFpCwuI6aoDZyxqEigXxziPGcoV7KG0=
 In-Reply-To:
  <010601a1ad274a9c-ca2fc8f5-d3fb-435d-8572-c0d3eb701649-000000@ap-northeast-1.amazonses.com>
 References:
@@ -61,11 +61,11 @@ Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com,
 	daleyo@gmail.com, broonie@kernel.org, u.kleine-koenig@baylibre.com, 
 	linux-spi@vger.kernel.org, devicetree@vger.kernel.org, 
 	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org
-Subject: [RFC PATCH v3 1/5] HID: spi-hid: isolate DMA transfers from
- protocol buffers
-Message-ID: <010601a1ad2a17c0-5662bcf3-7e66-41d1-9c33-1edff447995e-000000@ap-northeast-1.amazonses.com>
+Subject: [RFC PATCH v3 5/5] HID: spi-hid: support the Romulus13 QSPI
+ touchpad
+Message-ID: <010601a1ad2a352e-cafc6394-e047-4904-943f-c7511283da48-000000@ap-northeast-1.amazonses.com>
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 5 Nov 2026 19:22:59 +0000
+Date: Thu, 5 Nov 2026 19:23:06 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -77,139 +77,158 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.11.05-23.251.234.61
+X-SES-Outgoing: 2026.11.05-23.251.234.53
 
-SPI controllers may DMA-map the transfer buffers. Pointers into the
-packed protocol buffers do not guarantee DMA alignment or isolation from
-adjacent data during cache maintenance.
+Add the Romulus13 touchpad's protocol identifiers and power timing to
+the per-compatible data.
 
-Allocate a separate transfer =
-buffer with explicitly aligned TX and RX
-regions, and copy protocol data =
-into and out of it under io_lock. Keep
-the original allocation pointer for =
-managed ownership and publish the
-new capacity only after allocation =
-succeeds.
+A reset loses its touchpad mode even when the =
+descriptor CRC is unchanged.
+Recreate the HID device after reset so hidraw =
+clients such as iptsd reopen
+it and reapply the mode without restarting the=
+ service.
+
+Wait for the reset response before scheduling the refresh worker=
+ and
+delay READY until the replacement HID device has been parsed. Preserve
+the existing timeout recovery, locking and reset-attempt handling.
 
 Signed-off-by: Jizhou Tong <fqwqf@fqwqf.xyz>
 ---
- drivers/hid/spi-hid/spi-hid-core.c | 33 ++++++++++++++++++++++++------
- drivers/hid/spi-hid/spi-hid-core.h |  3 +++
- 2 files changed, 30 =
-insertions(+), 6 deletions(-)
+ drivers/hid/spi-hid/spi-h=
+id-core.c | 15 ++++++++++-----
+ drivers/hid/spi-hid/spi-hid-of.c   | 15 =
++++++++++++++++
+ drivers/hid/spi-hid/spi-hid.h      |  2 ++
+ 3 files changed, 27 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/spi-hid/spi-hid-cor=
-e.c b/drivers/hid/spi-hid/spi-hid-core.c
-index f2b2106600..db04322517 =
-100644
---- a/drivers/hid/spi-hid/spi-hid-core.c
-+++ =
-b/drivers/hid/spi-hid/spi-hid-core.c
-@@ -193,14 +193,19 @@ static void =
-spi_hid_populate_output_header(u8 *buf,
- static int =
-spi_hid_input_sync(struct spi_hid *shid, void *buf, u16 length,
- 			      bool is_header)
+diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi-h=
+id-core.c
+index ef5fb11f23..901c8d9ace 100644
+--- a/drivers/hid/spi-hid/spi=
+-hid-core.c
++++ b/drivers/hid/spi-hid/spi-hid-core.c
+@@ -280,8 +280,8 @@ static const char *spi_hid_power_mode_string(enum =
+hidspi_power_state power_state
+=20
+ /*
+  * Wait for the device descriptor =
+response after reset; the device then takes
+- * requests. Set READY here: =
+the report descriptor check that normally sets it
+- * needs power_lock, =
+which callers hold.
++ * requests. Set READY here for devices that reuse =
+their HID instance. Devices
++ * that rebind after reset become ready when =
+the new HID instance is parsed.
+  */
+ static int spi_hid_wait_for_reset(str=
+uct spi_hid *shid)
  {
-+	u8 *rx =3D shid->xfer_buf + =
-ARCH_DMA_MINALIGN;
- 	int error;
-=20
--	shid->input_transfer[0].tx_buf =3D =
-is_header ?
--					 shid->read_approval_header :
--					 =
-shid->read_approval_body;
-+	if (length > shid->xfer_size - =
-ARCH_DMA_MINALIGN)
-+		return -EMSGSIZE;
-+
-+	memcpy(shid->xfer_buf, =
-is_header ? shid->read_approval_header :
-+					 shid->read_approval_body,
-+	       SPI_HID_READ_APPROVAL_LEN);
-+	shid->input_transfer[0].tx_buf =3D =
-shid->xfer_buf;
- 	shid->input_transfer[0].len =3D SPI_HID_READ_APPROVAL_LEN=
-;
-=20
--	shid->input_transfer[1].rx_buf =3D buf;
-+	shid->input_transfer[1].=
-rx_buf =3D rx;
- 	shid->input_transfer[1].len =3D length;
-=20
- 	spi_message_init_with_transfers(&shid->input_message,
-@@ -217,12 +222,17 @@ static int spi_hid_input_sync(struct spi_hid *shid, =
-void *buf, u16 length,
- 		return error;
+@@ -294,7 +294,8 @@ static int =
+spi_hid_wait_for_reset(struct spi_hid *shid)
+ 		return -ETIMEDOUT;
  	}
 =20
-+	memcpy(buf, rx, length);
+-	set_bit(SPI_HID_READY, &shid->flags);
++	if (!shid->conf->rebind_after_res=
+et)
++		set_bit(SPI_HID_READY, &shid->flags);
  	return 0;
  }
 =20
- static int spi_hid_output(struct spi_hid *shid, const =
-void *buf, u16 length)
- {
--	return spi_write(shid->spi, buf, length);
-+	if (length > shid->xfer_size)
-+		return -EMSGSIZE;
+@@ -422,6 +423,9 @@ static int spi_hid_resume(struct spi_hid *shid)
+ 			schedule_work(&shid->reset_work);
+ 			return -ETIMEDOUT;
+ 		}
++		/* Refresh recreates the HID device after a successful handshake. */
++		if (was_reset && shid->conf->rebind_after_reset)
++			return 0;
+ 		/* HID requests would fail while the device is not ready. */
+ 		if (!test_bit(SPI_HID_READY, &shid->flags))
+ 			return 0;
+@@ -910,8 +914,9 @@ static void spi_hid_refresh_device(struct spi_hid =
+*shid)
+ 				     (size_t)error);
+ 	}
+=20
+-	/* Same report descriptor, so no=
+ need to create a new hid device. */
+-	if (new_crc32 =3D=3D =
+shid->report_descriptor_crc32) {
++	/* Some devices lose userspace-selected =
+modes even with the same CRC. */
++	if (new_crc32 =3D=3D =
+shid->report_descriptor_crc32 &&
++	    !shid->conf->rebind_after_reset) {
+ 		shid->reset_attempts =3D 0;
+ 		set_bit(SPI_HID_READY, &shid->flags);
+ 		return;
+diff --git a/drivers/hid/spi-hid/spi-hid-of.c =
+b/drivers/hid/spi-hid/spi-hid-of.c
+index 5148b6b1dd..7d3ce1fd89 100644
+--- a/drivers/hid/spi-hid/spi-hid-of.c
++++ b/drivers/hid/spi-hid/spi-hid-of=
+.c
+@@ -62,6 +62,19 @@ static const struct spi_hid_of_data microsoft_g6_data=
+ =3D {
+ 	.minimal_reset_delay_ms =3D 100,
+ };
+=20
++static const struct =
+spi_hid_of_data romulus13_data =3D {
++	.conf =3D {
++		.=
+input_report_header_address =3D 0x1000,
++		.input_report_body_address =3D =
+0x1004,
++		.output_report_address =3D 0x2000,
++		.read_opcode =3D 0xeb,
++		.write_opcode =3D 0xe2,
++		.rebind_after_reset =3D true,
++	},
++	.post_power_on_delay_ms =3D 1000,
++	.minimal_reset_delay_ms =3D 300,
++};
 +
-+	memcpy(shid->xfer_buf, buf, length);
-+	return spi_write(shid->spi, =
-shid->xfer_buf, length);
+ static int spi_hid_of_populate_config(struct spi_hid_of_config *conf,
+ 				      struct device *dev)
+ {
+@@ -176,12 +189,14 @@ static int =
+spi_hid_of_probe(struct spi_mem *mem)
  }
 =20
- static const char *spi_hid_power_mode_stri=
-ng(enum hidspi_power_state power_state)
-@@ -1203,6 +1213,7 @@ static int =
-spi_hid_alloc_buffers(struct spi_hid *shid, size_t report_size)
- 	int inbufsize =3D round_up(sizeof(shid->input->header) +
- 				 sizeof(shid->input->body) + report_size, 4);
- 	int outbufsize =3D =
-round_up(sizeof(shid->output->header) + report_size, 4);
-+	size_t xfer_size;
- 	void *tmp;
+ static const struct =
+of_device_id spi_hid_of_match[] =3D {
++	{ .compatible =3D "microsoft,=
+romulus13-touchpad", .data =3D &romulus13_data },
+ 	{ .compatible =3D =
+"microsoft,g6-touch-digitizer", .data =3D &microsoft_g6_data },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, spi_hid_of_match);
 =20
- 	tmp =3D devm_krealloc(dev, =
-shid->output, outbufsize, GFP_KERNEL | __GFP_ZERO);
-@@ -1220,8 +1231,18 @@ static int spi_hid_alloc_buffers(struct spi_hid =
-*shid, size_t report_size)
- 		return -ENOMEM;
- 	shid->response =3D tmp;
+ static const struct =
+spi_device_id spi_hid_of_id_table[] =3D {
++	{ .name =3D =
+"romulus13-touchpad", .driver_data =3D (kernel_ulong_t)&romulus13_data },
+ 	{ .name =3D "g6-touch-digitizer", .driver_data =3D =
+(kernel_ulong_t)&microsoft_g6_data },
+ 	{ }
+ };
+diff --git =
+a/drivers/hid/spi-hid/spi-hid.h b/drivers/hid/spi-hid/spi-hid.h
+index e87d1cf05e..2b2f62c837 100644
+--- a/drivers/hid/spi-hid/spi-hid.h
++++ b/drivers/hid/spi-hid/spi-hid.h
+@@ -17,6 +17,8 @@ struct spi_hid_conf {
+ 	u32 output_report_address;
+ 	u8 read_opcode;
+ 	u8 write_opcode;
++	/* Reconnect hidraw clients when reset loses device-specific state. */
++	bool rebind_after_reset;
+ };
 =20
--	if (!shid->output || !shid->input || !shid->response)
-+	/* io_lock serializes the separate, DMA-aligned TX and RX regions. */
-+	xfer_size =3D ALIGN(max(inbufsize, outbufsize), ARCH_DMA_MINALIGN) +
-+		    ARCH_DMA_MINALIGN;
-+	/* Keep ownership separate from the explicitly =
-aligned DMA view. */
-+	tmp =3D devm_krealloc(dev, shid->xfer_alloc,
-+			    xfer_size + ARCH_DMA_MINALIGN - 1,
-+			    GFP_KERNEL | =
-__GFP_ZERO);
-+	if (!tmp)
- 		return -ENOMEM;
-+	shid->xfer_alloc =3D tmp;
-+	shid->xfer_buf =3D PTR_ALIGN(tmp, ARCH_DMA_MINALIGN);
-+	shid->xfer_size =3D xfer_size;
-=20
- 	shid->bufsize =3D report_size;
-=20
-diff --git a/drivers/hid/spi-hid/spi-hid-core.h b/drivers/hid/spi-hid/spi-h=
-id-core.h
-index 28e9880ad4..3419472844 100644
---- a/drivers/hid/spi-hid/spi=
--hid-core.h
-+++ b/drivers/hid/spi-hid/spi-hid-core.h
-@@ -44,6 +44,9 @@ struct spi_hid_device_descriptor {
-=20
- /* Driver context */
- struct spi_hid {
-+	void *xfer_alloc;
-+	u8 *xfer_buf;
-+	size_t xfer_size;
- 	struct spi_device	*spi;	/* spi device. */
- 	struct hid_device	*hid;	/* pointer to corresponding HID dev. */
-=20
+ /**

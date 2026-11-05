@@ -1,82 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793872639;
-	b=cECelNd73zDzgxsBjeRG6i8/e1oqbNMviJKlWZRCH+1QOVXZNf16Aeec/xK1MpExfJdQ
-	 qgmsizQ7gGtgTe3INHNFTlq4yLpt9X9ZI3Ff7nmBvAxzt+zcJ32UbMNz6QMszdB+hujdr
-	 ND0qf+f8zdbJH5/SCV+pJP22Gaobu3gOwjheK1olczPEgl/3uBl+m6ibi/Wk5moTCpsaq
-	 cdjv41osRW2/dJWBgIwVYRju4VhFUykL7X/fVoTk+12weGLp/FQM+KyuU8TxaQN2by9K0
-	 rarj1sxTQcmMzAWQw4SnZy9UulCAWxhncrnbvy4pmn6dKP6mPm70XuXZD5amC61U2cg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793872639;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=zznxmV7bl7CPlqJg9FJ1mO6UvyKXvVTzktwHEOuILeA=;
-	b=BBoIR1sF2nHgHb8/fhK7z5nRCYgjIHv4R4H2PkOk4UCcweE8DIvdbJfKtjj/B3B6y8NY
-	 2mkbAO03c2uTlSYbmac+zAGtpxV1bB0eJvCsQS11CyCIZ1rWfpTD+k6W9wpqQoKlCEXo2
-	 O231upLJt48isyvafufeSxy3eKqOGbSjgbtoz3ljSH9eMaPTtGpoT0KnwDC2weV2830He
-	 TqTsx2Mn7+Go4KpThGZEdn1usmypU8k229n/ucMyw4yQMzPTjr0QN/5yZjf8NDkYH/h2A
-	 7xBFwHhtLFh/8L5vtit4ZaVTDKPMMwcvmyeV3siHY+bTtab+kHsEaIUffxHLjhJhcgA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KmqDX68j;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.46
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793872843;
+	b=nbCnRmvrBVwHwoZ2hwnW3ADDIQCFuj9wlRcT17pPHhnFPm9jnD3BBykJjUYURiFCPBJ+
+	 nlKKeSUH/DmNU3bsqXfJjYimh9fdA2/4RUEx44XW6TGcO2zdUEIUpHj571omxHqvCcFWB
+	 Y99CL9mcctAcmaLtDLaffSRTlk2Q3oDGCeH9mjq6EOQTCCGjUHL8FzVPIDxPXtPozM8Ik
+	 dhriXgl1XSCCq6fSeNlhVqM9hx9xVi3nSvzj52rHH4q7Du2wL3i0nvtzMhFz+tlhfxbkd
+	 WKxGBRf7tc/WMkLYacKZqtkR8196gT9qnG8/h44Q3NpjrbdBmoczxOBC/3HpSRhDZCQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793872843;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
+	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type;
+	bh=n+1lmuZTLENNkpqKh8T8PUriZ63OKZ7RGcjsYNzzAGM=;
+	b=IMKrtyQbyIDfwVcbLIqaKonBWdndgeErJ8euFCcullLpMcc3DuJpu8f7BiSJfphWDVAY
+	 UmC1M2DVNaK6WNXZRAOS1ULICMGug6DhTajLIe6mEjtMmzaNWGZatq4a+QGLrJNR0MfoH
+	 XGAfr14yWjA7gXQjeRpYJX7u6jUL3G7Iy6Boj04NzRD8OZ/j3Y9IaKOqCGOLcspI8X5MX
+	 QJrrt78VB9e5ARScwV4u5PQZFd8oQW/J0KEMRW8Fg2y96f5I043JN4hixY1qfowpvJOzs
+	 XmS+cGxb93qOyDaXihmMixHQEYDPOnzq7e9rQbKO6qeORGatm82l9UWUxWGLOSWDCbg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=linux-m68k.org;
+	spf=pass smtp.mailfrom=gmail.com;
+	arc=none smtp.remote-ip=209.85.219.46
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664ED606A330;
-	Thu,  5 Nov 2026 09:57:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KmqDX68j
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=90.182.112.124
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793872639;
-	b=lLYtc7kpfF2DFajYp5XZlXb5K3owqxzbtK7sjFlSdCtLR4Xswbi2P+xs5n8Q8E95fmJN
-	 JFE94Df3wm8nqbVI87WBed4IU6hybBWzc3acip+p4wUfphky0rIW73h88usJZPOSuaJAR
-	 jFQoTrFuJbBkMqvELvNGU4l0pDxzvKvILN44eE+rTf8QRzcWScsiTBmlp+4wy49UWE8nv
-	 CIN81DVdeuL/h35XcsU7j3JQlCosg7FaJq1dRSBgXmCP7iKj8mMGx5xw1OgD4zDgdOYwA
-	 EzXvojWRoqN0c4fpeNkkw+i/1GOgrR6lLLykRbGvLKsXbkScnSne4PmAce2ByvOQXpg==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793872639;
-	h=DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:In-Reply-To:
-	 References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=zznxmV7bl7CPlqJg9FJ1mO6UvyKXvVTzktwHEOuILeA=;
-	b=nvSKmIOrZe/eJwu4MPJnwV4F/6fUd4swhK5JSMPvPUI5iykl+0frqu+JK1MwxgVkAv3L
-	 W8U+Z+07JKHgyqtAQeo/np46QxpBXHlUMQk2rNKFhubGx2oj12L7MrKF3ilR9Qs/Xdl8r
-	 c5WCYw/ohwHhI5q/a3jBuEGV83e3ZiPc3lE7p0jyVFtfK6+XsJwYtsOIZkejqKcCiwez6
-	 /OrvFRow/tKIlVF96rbIIraSP+4HmedW5wgD0D8C1BcnevcwFNOl2E2WFZZqrtcf2VdPK
-	 YGQvj9AuAOQjiELMqpSZ8eVMMUtTXoI2OFy3kjEWTrS4WmdIIfVSqJ+5tBgywoPoRaQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=90.182.112.124
-Received: from localhost (90-182-112-124.rcp.o2.cz [90.182.112.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPSA id 953B21F00919;
-	Thu,  5 Nov 2026 09:57:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793872638;
-	bh=zznxmV7bl7CPlqJg9FJ1mO6UvyKXvVTzktwHEOuILeA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=KmqDX68jv1ipBcIgXiYww16jeOCajaTDH34454igGL+gG06uSMkTtKqPzLSFhan3R
-	 70+j4Px7zuT7DHHuL4tjOaAAIIR1jC2yz/oTBU+SHofKKZWBvkvHi6xxRtBVZsV8oh
-	 CeWwmrFVWpSA55nS+humpY7MRZ6m9NxGwcgbnNWifChCet6VEfo44DQOJAt2kR+nWP
-	 LKW5FfqFpfD68ckWHaKg/7RcEz2pRhQr0y9Lt5g0AzC1NAWc1YXm3E6xLb4uzZNjf7
-	 hmEztQTOoV2EPZmHP+KJUHAQw746vQxKYb/M4n+GuH8FJz0qu0q46xjXh6RZ2FBLuj
-	 pv3nahzSXG9Jg==
-Date: Thu, 5 Nov 2026 10:57:14 +0100
-From: Joshua Crofts <crofts@kernel.org>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: jikos@kernel.org, jic23@kernel.org, bentiss@kernel.org,
- linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org, simeon@maryasin.name, lixu.zhang@intel.com
-Subject: Re: [PATCH v2 2/7] HID: sensor: custom: Set owner for misc device
-Message-ID: <20261105105714.0000307e@kernel.org>
-In-Reply-To: <20261104201403.2039921-3-srinivas.pandruvada@linux.intel.com>
-References: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
-	<20261104201403.2039921-3-srinivas.pandruvada@linux.intel.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8395606A333
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 10:00:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8395606A333
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-91c1f548f87so26523916d6.2
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:00:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793872841; x=1794477641;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=n+1lmuZTLENNkpqKh8T8PUriZ63OKZ7RGcjsYNzzAGM=;
+        b=XqpfWGFaTnr0RsHhUkJVW7g4tmMjiH0IUVetXA3BPa1KaAa0UL/h6TtoX7qJAooEn2
+         RE7l/rieSbPtBcFAap3aUQsTE+QIDYG3N1EAsrY/f10sajE/A7OOR8H0YKpRPQqyVte7
+         9kAmi9F4MP7W5tm2LRuPMLrsjoU8TyK6B9jNISe455id2SzZH/Zo9AGZIgHMnPEnrZhS
+         dnFGnUc1+EQpYP6/8WRSoAmDbISDqoZSHBeAqHB26PTAj1SJ+r8ZRDG7Bt7CgKu2GzX+
+         I1MyBkgGeCJf1Eapu/15B7k3ojNH3UtGj/P9PcINR2V17zeU6VwJEyrHup0L2fDCWc6/
+         zQMg==
+X-Forwarded-Encrypted: i=1; AKwUvBxhfswrn4RJThyzZYEWd/XmAjULejln9lorEjYakS03it5iQB5sYJOkGe/qPBqtG/wFK+0cBE9GdrDizQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8vOGVq7tI29L1K/uCX5QUMS9xyqWp6zaeDzanR3eCKSRS2pITi
+	1DKy/d8lcPxUczNbb8fq2eEw7X7Xqt3I+vGjsBGwcSHQBLWtTUn9xFOZC5/ByirYqOA=
+X-Gm-Gg: AYBFou231lpAmMeNc5nrT2EzXdgLoId41c8qGdA1DkljJC3SN8e/0Xg2oOF790rJpTm
+	gELe4WbP3aNFmlVq8ydJC6RgSW0pTgu6/FvoQ3USkpaQHmG4N9Z987I6VGK6UIFx2DVhaXbl2VE
+	YPldsztMdedVKJY1xdWxMdRRalF9tVKuHG7Eu/RpKupRkrX9lmSFDQ/7Nb857t1wEOOD47dQ8dB
+	8mV9h7JqKsciIMnzwxQ7iTkiKKaGZwg6tpsQvR7Ba6o8PDMRwa07yg5ABJws3LuIPxV1dMEUsXO
+	GJ2usv8Alis1c8u3+eMhysCfm42uaBhEc8rw/jAq0SKorwyIpzABeK/Xk4M1B8xhNOIhAMZXw9E
+	mtVBTEe2FKEWgBchGP48ZFVa+MuceB+sC6M2zi+/OoAGcrfk84XD2tAeHlcCQoAIFJszJKdeeC+
+	SniVDc0X12WuIBwhXeruT8tjdOSzXTNyBWI4KbnvkmAhE+ppnMx0MU+HMxbfJ+hLQ9HP7ElX01+
+	AjmlRvp7fip939NmIUGEP/i8o3GOJPIkEPFFQx3r/Hh3DgppS8BxXDw0Mx/aXltbRmVSAwpH+lA
+	/n8qurYH9DQRUH4XV8lwFDlGEjGyCxJob0HmY65aO9K9lnMmDmomDnOMo35/rqyakR8=
+X-Received: by 2002:a05:6214:e88:b0:91e:938c:1615 with SMTP id 6a1803df08f44-91e938c1b02mr37769236d6.40.1793872841397;
+        Thu, 05 Nov 2026 02:00:41 -0800 (PST)
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com. [209.85.219.51])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7dfb3aadsm43195736d6.8.2026.11.05.02.00.39
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Nov 2026 02:00:39 -0800 (PST)
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-91c6ce60697so22208276d6.3
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:00:39 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvByXq5miYJAwMiPoxzKPHcS5wfjDt2OMwDePace318fICrrpgCI2KM9CLVEFydd6eTD3bjGIg/N38V/8Zw==@vger.kernel.org
+X-Received: by 2002:a05:6102:6449:b0:7cb:bc5e:7dad with SMTP id
+ ada2fe7eead31-7d072baa450mr7614890137.10.1793872492413; Thu, 05 Nov 2026
+ 01:54:52 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -86,42 +80,60 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <20261104-work-procfs-arch-v2-0-2aeb952c9597@kernel.org> <20261104-work-procfs-arch-v2-4-2aeb952c9597@kernel.org>
+In-Reply-To: <20261104-work-procfs-arch-v2-4-2aeb952c9597@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 5 Nov 2026 10:54:40 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUNBs_NyhFpXonirMXkYptUWsAizMvVpGHUDLzto1LGJg@mail.gmail.com>
+X-Gm-Features: AclHuK_RsrcE7hVRjmpZezBV5tMd490Mza2XAQiqUTgUNqAiHAzRP5z7NIbtMh8
+Message-ID: <CAMuHMdUNBs_NyhFpXonirMXkYptUWsAizMvVpGHUDLzto1LGJg@mail.gmail.com>
+Subject: Re: [PATCH RESEND v2 04/23] m68k/bootinfo: let procfs copy out reads
+ of /proc/bootinfo
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, 
+	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, 
+	Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, 
+	kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
+	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, 
+	samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed,  4 Nov 2026 12:13:58 -0800
-Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
+On Wed, 4 Nov 2026 at 20:36, Christian Brauner <brauner@kernel.org> wrote:
+> Implement ->proc_read_buf() so procfs copies what is read to userspace
+> after it unpinned the entry.
+>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-> Set .owner in the misc-device file operations so open file descriptors
-> keep the module loaded until their release callbacks have completed.
->=20
-> Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
-> Reported-by: =D0=A1=D0=B5=D0=BC=D1=91=D0=BD =D0=9C=D0=B0=D1=80=D1=8C=D1=
-=8F=D1=81=D0=B8=D0=BD <simeon@maryasin.name>
-> Closes: https://lore.kernel.org/all/CAM2dg7ewfVJSP4rFyhkCB1Rmd1+X56sAg=3D=
-eUdbPthG2xrLqwQQ@mail.gmail.com/
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> ---
->  drivers/hid/hid-sensor-custom.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-cus=
-tom.c
-> index c2b425afd951..72e5639cb1d9 100644
-> --- a/drivers/hid/hid-sensor-custom.c
-> +++ b/drivers/hid/hid-sensor-custom.c
-> @@ -719,6 +719,7 @@ static __poll_t hid_sensor_custom_poll(struct file *f=
-ile,
->  }
-> =20
->  static const struct file_operations hid_sensor_custom_fops =3D {
-> +	.owner =3D THIS_MODULE,
->  	.open =3D  hid_sensor_custom_open,
->  	.read =3D  hid_sensor_custom_read,
->  	.release =3D hid_sensor_custom_release,
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Reviewed-by: Joshua Crofts <crofts@kernel.org>
+Gr{oetje,eeting}s,
 
---=20
-Kind regards,
-Joshua Crofts
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

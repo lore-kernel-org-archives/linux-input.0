@@ -1,95 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793897187;
-	b=adV9ke7NDKrAGY0wdlpoAGUT6dIuHrJKm8LOsH0+U3b0ivfmFIjPeeojpl89zqhjNHTM
-	 Z66h7Q5txB3G47Oh/LDDJGKJZH6OTqN/FumBuNauZZlL9CFDjrWlTxWYpyrF1zc/Z1eLp
-	 q609P2jAydafjaYVaKro4D+0uirYNOf2ZPiiQdQ6B+znhMX5YlNpTWR+/s4Grunx6+KZM
-	 r22/Pu7U66+l1+7fPgIAIMtDtfk5BOIuEDzIYEB3ToseeK8AXCkkyI0e598zY4EqGHVHv
-	 G1Ezu19R2OFqyUylX0CuaFde5LVnFgiQ+OFXHGiY+0CXb6lFiJqxXEqUTPKrkzepMVg==
+	t=1793898085;
+	b=Rz+tCizqXyq+9C6cQWU2xu7DD75ujbiWLc8CT4Xo46gFXo4C16ZpeeDnxSWZO+1Vrxbm
+	 6A4zykqny2X6ui8fdIZX7QIFNo82/VqVtdnC97hD58vDCxaTOE8743kZj/w81hETGR8fo
+	 RQ/1WYxX9rkxNLV6HAFvHrwg059oJsfFQv9kazWZOxcF6Y3dTm1PD2v/a/Q9TEZIKtfk4
+	 NQ6DaJJ+iTsiHFR8tlMdpwfUf38jMKx+e6uQmGWWI++YDCWsdmPFoEa5+XjR3+Dx6wwX5
+	 yGfaZlHwnMO6Maaor4aGQ0hclIUfHtDgSWpYadZQsrVieypvk9eUUcIOXQTtqI6pzGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793897187;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793898085;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=UephkWnsxE2cWbdnAcjd07eNbKg68ODRUaQObxWfBXI=;
-	b=jQD+Ajlb/oqiKF+EEfPBa1mXzmPbnOfYUUFq+26VKnR3EN09PpXzii2lw8muzaoFtNrN
-	 9YYIR+Au5hlLQ6+vtlkZw2LM6qYXo7UhbCNQ4kAkEa/iPmpOypm26MTXO1J43FErWv7qK
-	 9vdr/S9any/hvp9bcS+mlFHcgc8B0rbjHj86AaRyh1PZXPVGuFvk/7AkgjAqYZGutNv8V
-	 SfyPkggfqJFq1vtD1+3WI2Wh4sUzZDwouDq71VxwocV0wzN5y3S26B02p2ia2GvEeIIAd
-	 WL0BL7KC1yfurziGCH2v1vqggaufX4gCrbsvSK/CWmb6G3xf1tEEkuZfh99ULSZ3Cbg==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=1Bj0+K8jV5yl/+WlXVdM+whsRRuk81dsUqfDRXtanZc=;
+	b=ObIuMdg3+9fsARUCpuABX9HIsyUdsXBgves04eyxWA+WpPGos9GG5vUjtC5Kg4g98Apq
+	 oEdiuiFABypVyjSRefuEF6agh9+kEQ7X+ZfzSgYPDFPyWDWwmeyVUwv+clFtjvA3UvG2K
+	 u1zBSZFwOq7iEHhh0pPbOkjdZVNNRJ8QRtdpjZH/VYmL7EPU2+Fc8MBkNEB1J0LEg11Gu
+	 aZO8UJ585KztD2L+wwW8m9t802zmQjjWVpSwLsfp9EFMxoCmIputZOmRT1mH96qRUrjIX
+	 JXTgSqIjDl3Ibv7X9ZWAfTGdoBcQKhJEm8bFU3nN0ZYv/pWQCOE3dLJ4GO7+gcifZlA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DAT3jIBB;
-	arc=none smtp.remote-ip=74.125.82.48
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+	dmarc=pass header.from=grsecurity.net;
+	spf=pass smtp.mailfrom=opensrcsec.com;
+	dkim=pass header.d=grsecurity.net header.i=@grsecurity.net header.a=rsa-sha256 header.s=grsec header.b=lu7Fu7ru;
+	arc=none smtp.remote-ip=209.85.221.51
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E66B606A326
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 16:46:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E66B606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05610606D82C
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 17:01:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 05610606D82C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grsecurity.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensrcsec.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DAT3jIBB
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1ae18eb9ad0so2464888c88.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 08:46:26 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=grsecurity.net header.i=@grsecurity.net header.a=rsa-sha256 header.s=grsec header.b=lu7Fu7ru
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-490c1d337d8so1129218f8f.2
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 09:01:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793897186; x=1794501986; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=UephkWnsxE2cWbdnAcjd07eNbKg68ODRUaQObxWfBXI=;
-        b=DAT3jIBBkvNW/TMlLUjOwalpPJ39DN//fNGPXUoo1TJ2h7XXmxbcIR390H1qNU3e8n
-         nEv8qPHmAayMiF1xjnCFpp1LZgPfvfQ9kMMXEC3Gla9aWSXKmiEDhbFdcmjer03dVf8O
-         TtNLR25KpRuhJLgYKKA0APgjARtn+ClddowT6lsPlSjjIrH8p4v4kXSlgm1fAjpyAMYi
-         F6HirblkwzkTmR2t987KC+OtDjT1X+KmVBct6JEqYsf8YOPpP3hRrmd+RWuWcgu7fn6Y
-         xf1jkAA+KdIcrYU7pX4Dm07mAA5CNNptK/dzuFMB6Tx59eQ6gmz/lHv2pA2xechYJVJO
-         6XKg==
+        d=grsecurity.net; s=grsec; t=1793898083; x=1794502883; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1Bj0+K8jV5yl/+WlXVdM+whsRRuk81dsUqfDRXtanZc=;
+        b=lu7Fu7ruhWk17tVwfHYq+9Cf6MZ+ltAqQ1RSTydkOwv3SypLfT5YWqU9zFrisGAA+i
+         OfMDYAd8/AB8TcQ86vZpeTqs4/HmTYNLfULPSIK6KBD2RwvcR+HpwQ957XxcWgkPO0Pj
+         7eCpjcNBTxpmFxmcplaLHFrS1dOLi4aowGrydTFin7RbBrS3SPECyvqfVwJcgBBi3chm
+         6SnnE/LADV4UziNg3T9+3jOhHTcJSzEowOSyLYQwhP5Y94JvpypyRiLVthpLL6pAanxB
+         ra0vhxSivqKBO33DCa3jSTMRvZxLfpMLqrg7AQUfSdrHleLLmmgqqhukfYDn2Mq8fF53
+         sTEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793897186; x=1794501986;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=UephkWnsxE2cWbdnAcjd07eNbKg68ODRUaQObxWfBXI=;
-        b=r8rNRmV662kk5L8L4Pkl5kX3Q2WvIwBau0CYd2upKPqXqoo6ix/ntY0ZZEGQYBLQLI
-         RNH/zn1Q4N79KZD2GU2OUYssgJcSKmfni6LtoOKZemAY3GQOVXoI6o71kc56OuYckBxL
-         yTtPkiqfF1wKEDBLimMPXTMlwWX6VSPPRaVN2wb6paYkcQUN+kaO2kwEznEOQJLvXYYU
-         v0WCrHlEt4mUVApl86fj0Szmnuo9ZecCNKZ8saJtVWLh6l5qMM64eVRXRBPNg6IOPfVq
-         DWRgkZMP+qqSyzE1aiKg/TQLMr+2t1b72+U5i9d1KOFlRHwwn13dTd1LFUhzB6BVU0Wz
-         nLwQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxcpkmJ4+Fl606MCk0BQuG0QBJAzDeDZT9nRtSlCXiacISRTRsHyh8fML9irx/sOphAAyw1ehsax1u+Hg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8xqQYJD4xZPbJL/bBbGjTSR1Tl+tUc5dOVSnb9fhCfnK4onI58
-	uELu2ESfqLtVfIYqrDfP4ucfYGwM61FwSCr/8RLdSrvLQuSiqtbjA7Vk
-X-Gm-Gg: AYBFou3JS7U/42spW2IoNArm0/3Oy1oqI1GzUPwkSBv5WL7CYo/38nINSL6fJ0tbNPf
-	jLgu3hNLSeXwZz4F90RLbSpkf8qrN7xeIAQFD/y/OXrPioZS2rA/LXNWBEOdTZEZPBNV41WYNBQ
-	Ki8IntQ+I41CaqjqzPuKRdDbf0Jj6pSfJjn9SnkdnlCddwzvQiFVvnElddc9DHyhPCyDvAXwA7V
-	l76tQkRotG/kiZ7q1VuexKUCmbTucw62/JEDzSa5GHuH2IRjGZ/N6BrKayui1NRNQ8RLz35zKj3
-	EJEQHx6igSxzgP64y9lqI+VKJ4hkUYg9/JMDe8busnmwOsd108QL1W5W4uVj5rmVt2A1CmyrBg9
-	UIEsUHEv0bq8SCX+xLK6lr3Umvs6OlhcSxh/8QPJu4Bc9VaAM5Y41aTuZUGTg27MYl8FL6tnoOU
-	j95PXRjfG/JjlkgIRjI90fjdIg0ogdFvQ05N7b8q4OUPr5zWmlZbEIhaLOkfEgQrjgr8IUt9ZY4
-	ntyYphFZvvCRMw6ghIuE5tgsio3GY+IIMtZKabVB1TE1fLqyzJJJsul2OD61t5YAaDBUxfz1m86
-	/Jx7WZaWCLdF3Vl+YpF53J6WMggqgxZ+pZgFguOK47lpOKq8Vz51PMaGCkcyaS7ThGSyzA==
-X-Received: by 2002:a05:7022:108c:b0:163:c5eb:d42f with SMTP id a92af1059eb24-1ac574551afmr25949024c88.5.1793897185745;
-        Thu, 05 Nov 2026 08:46:25 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:c8f4:b7d9:252f:4483])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b25100667esm9417659c88.19.2026.11.05.08.46.24
+        d=1e100.net; s=20260707; t=1793898083; x=1794502883;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1Bj0+K8jV5yl/+WlXVdM+whsRRuk81dsUqfDRXtanZc=;
+        b=hXBy4XujJzQ3SXNe+vOMOUJ4ArYJoDTeCTbDcqcngY1bdD4Dpbx9jE5CYs43TDfbsB
+         +NS1BJKBMTKm41iPDsm37Tlv9wdQlyLz3F6e+icbNChpw8G3HwHJUifiG+s7hueF4NBX
+         YqLBZc16JDbnxHg1j7aDlA8YGe/+a2ttWA+JeCWkzQrSmXehzU4WHsoiw3KRtArenMiC
+         JJ536IQhGqRceLS2TsgKIDvdjkBEKf3mlND2V5Hdmj7QcmgAdp9kJtsGi6qgDDeRtB/M
+         /DypERpB6pW8y/lBLt90sXE8FtMcmbMvTmPhp9VzJMsE1JwGwBTdOUbW1XNC1dtjMZab
+         C7Pw==
+X-Gm-Message-State: APuU4Z9H9hI3YKZMGsh6AUHBXvVZg4UUPD/K/BlaMYryqoUQmwlAcrNp
+	9DoQNKVxWIuHH20z7hg2bG5SlODLRiuDHaycBPrkkXG3yjVOaXT5vU1x3iWOVuodCQs=
+X-Gm-Gg: AYBFou0J2Wkbxn6AZhcrVh/RtAzoGuS3Eev1lbdorqp7nLWddP2Qxvogd7LBq8PjrPp
+	PAmrH9F7OnQS90jJ1HMDOFTTzMPly9eokUeu5LMvSjRd2zJVd/e+W359I+LxStZlWhDEPvUd2X9
+	xlE2GQChDCxlUcOwOwT61PnTvE8N/UHocH35pEy1eTavkU7c9ngHaELCc701Uro5CF1BZer7xc9
+	QqkBLCCBJE1tdp2zw6gTn5t6x5bJImwMxAeKmAKKrWJaPG76c6Fah7Xn680dikGkvw/uTKTopHM
+	NYm2aR5yDkOc23XlRPrVQeDzfQ585MwwKQdZO4SZWdlcpZMZxoe3w5WPnrSDNd1cJt9ZOo5IQiQ
+	X62zxWkkZeqIMjGNEx5EJUzUDKuxxPwQQKTiqTVeeOGNFSorKK1y1CzmTdkP5jAkPiBa2B2oo6E
+	tCKlZBnc4Aaiw/IRjrr361jgIKOCQIoZy/WOY4BO6zkvMHcVCwNxad7FFIoL1LzQLJ1dQGE27d+
+	XJ4LH2Ut195etmoUI14pF8cqnoWxknu2O4CU1nUwKpRHGjrD40UopCNDKri5yWRuMz37wNePSyz
+	Z/9+4EhSllgbnEaWVLWYIrF+WExZLdoUKiFWgwWCf9tJ/J7F5fNd2O90GYC0kLmYuO9VKzhdNsv
+	/W8YbRUpabhzsdBnuz+guTpp6
+X-Received: by 2002:a05:6000:26cb:b0:491:e062:383d with SMTP id ffacd0b85a97d-4928030bd26mr175146f8f.57.1793898083236;
+        Thu, 05 Nov 2026 09:01:23 -0800 (PST)
+Received: from bell.fritz.box (p200300faaf11b90088550f04e79781cf.dip0.t-ipconnect.de. [2003:fa:af11:b900:8855:f04:e797:81cf])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48fec8d88e1sm11033465f8f.15.2026.11.05.09.01.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 08:46:25 -0800 (PST)
-Date: Thu, 5 Nov 2026 08:46:22 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andreas Kemnade <andreas@kemnade.info>
-Cc: bartosz.golaszewski@oss.qualcomm.com, marco.crivellari@suse.com, 
-	arnd@arndb.de, tony@atomide.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, brgl@kernel.org
-Subject: Re: [PATCH] Input: gpio-keys - do not BUG() on requested wakeirqs
-Message-ID: <auyyyQN6_GIqeDox@google.com>
-References: <20261104160305.2501369-1-andreas@kemnade.info>
- <f5c1435fbfa7568a107c864781897d6e@gmail.com>
- <20261105071952.33c39dd8@kemnade.info>
+        Thu, 05 Nov 2026 09:01:21 -0800 (PST)
+From: Mathias Krause <minipli@grsecurity.net>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mathias Krause <minipli@grsecurity.net>
+Subject: [PATCH] HID: Intel-thc-hid: Fix REGMAP dependency
+Date: Thu,  5 Nov 2026 18:01:16 +0100
+Message-ID: <20261105170116.3193223-1-minipli@grsecurity.net>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,53 +97,31 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261105071952.33c39dd8@kemnade.info>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 05, 2026 at 07:19:52AM +0100, Andreas Kemnade wrote:
-> On Wed, 04 Nov 2026 14:28:15 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > Hi Andreas,
-> > 
-> > On Wed, Nov 04, 2026 at 05:03:05PM +0100, Andreas Kemnade wrote:
-> > > Having the IRQ handler called when enabled IRQs arrive should be considered
-> > > as a feature not as a bug. So do not BUG() there when this happens.
-> > >
-> > > Fixes: 3717194f24922 ("Input: gpio-keys - add system suspend support for dedicated wakeirqs")
-> > > Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-> > > ---
-> > >  drivers/input/keyboard/gpio_keys.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> > > index fbc31c5db3db..f1c31c5366f0 100644
-> > > --- a/drivers/input/keyboard/gpio_keys.c
-> > > +++ b/drivers/input/keyboard/gpio_keys.c
-> > > @@ -412,7 +412,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
-> > >  {
-> > >  	struct gpio_button_data *bdata = dev_id;
-> > >  
-> > > -	BUG_ON(irq != bdata->irq);
-> > > +	BUG_ON((irq != bdata->irq) && (irq != bdata->wakeirq));
-> > >  
-> > >  	if (bdata->button->wakeup) {
-> > >  		const struct gpio_keys_button *button = bdata->button;  
-> > 
-> > Doesn't gpio_keys_irq_isr() have the same issue when a wakeirq is
-> > configured for an interrupt-only button?
-> > 
-> yes, it has.
-> 
-> > Also, neither gpio_keys_gpio_isr() nor gpio_keys_irq_isr() uses the irq
-> > argument for anything else, so instead of expanding the condition, could
-> > we simply drop the BUG_ON() from both handlers?
-> >
-> Sure, was just unsure about the intention of escalating things so much here.
-> I think we should trust the interrupt system a bit.
+intel-thc-{dev,dma}.c make use of the regmap API and related data
+structures, breaking the build if CONFIG_REGMAP isn't set.
 
-Will you be sending a new patch?
+Fix that by forcibly enabling REGMAP when this driver gets build.
 
+Fixes: 1b2d05384c29 ("HID: intel-thc-hid: Add basic THC driver skeleton")
+Signed-off-by: Mathias Krause <minipli@grsecurity.net>
+---
+ drivers/hid/intel-thc-hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/intel-thc-hid/Kconfig b/drivers/hid/intel-thc-hid/Kconfig
+index 9d74e53b8c62..57a1e51cb512 100644
+--- a/drivers/hid/intel-thc-hid/Kconfig
++++ b/drivers/hid/intel-thc-hid/Kconfig
+@@ -8,6 +8,7 @@ config INTEL_THC_HID
+ 	tristate "Intel Touch Host Controller"
+ 	depends on ACPI
+ 	select SGL_ALLOC
++	select REGMAP
+ 	help
+ 	  THC (Touch Host Controller) is the name of the IP block in PCH that
+ 	  interfaces with Touch Devices (ex: touchscreen, touchpad etc.). It
 -- 
-Dmitry
+2.47.3
+

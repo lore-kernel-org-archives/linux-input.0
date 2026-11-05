@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793882517;
-	b=X1OWEA6tV9pBQnz0E4fw2b9G+EwUtBOlbeefYV+jLPH6O58+Q0c7EeZ1hFbyP2csyD8Y
-	 Fx5tphBD74un9j6oEvzQGGCm6tbx1l2MUX7k1gE3rBqoPVX60KpigiK6gVtjcoasuRjww
-	 wAdnin6HipShGy6zFhOeI6lZuFztugUtiwOqq+HbIta2Kr1CfW9h1cXaIEDFnyrUunAt5
-	 bs0JPFmGThZgWR5VOp35F3z4h0F4U3rNg9IQGezpLaCECrc8d7Dmnn5nveje4hPWBqvH+
-	 fRsqwSXlnxf0zo/FO4QGPDsAqRRf29Pv19V1Ova3BfPsiY6vfx0bJQcqVnzS6QbxnoQ==
+	t=1793882518;
+	b=ntuvKeIEN/lm7ZBb6YB5QIfGDWHYU3SweHxCnJplK3IQ/2wkZCXSmR4yIN9mIXAu2kvD
+	 HKbcBKiWZhCCV3GRnPXsjeUoaewG9u2WgS4AcY4MC7PIK0IGB/Wdi2171UYnhOG+qYMVg
+	 I4R6KKo30pkiizCsmpavrRcRWdhSTDRJ3aRMLaY6cynZKvHVwPuNGjB64JJUr671RFYzm
+	 Ksi3AJOzVgXBd8JP1t+A9t3Ioh/2SdC9ijB83JNn2aaxiRLpLg1T3RphKGtM9SZO7R+wF
+	 R6IdlMaGlwIPV9bGi19u4W9yZsJbzBeXrLTmbHOVG0pkWhqNHRa7X5QsKfUx+M7GQRA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793882517;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=l/qbbO7JmGydwZC1EcnpWSgjOEhb2nm2cY0ukEZi4I8=;
-	b=tXoM23TkYxdvtRH4M+HUsYsuBKOO5oTEhGTk5v/cQYNErZbL7RgG2FKsX45f2UFC0Ue2
-	 AB7FnOMeIrEg1fxsUUFRuCAPe+vQ2H79ckynEUXj5FVNxP6/rHtZ9HkJ1D7eDzVXEz42L
-	 unyDb23kwKDnNkbFLT8d/mMc3Tg9tRt2g3uUWdR76sFvoS3Ja9ceETr6j5rCrFFO+UWLD
-	 u3f4r4FjKaWAd+oxikZnR+fM5gLeEOyiidm5+MtVEVUfKzCzCNCZVNlgQwUyhG8F/498b
-	 1/0IcA6XHoNpUG8juVoIsPRrTXTlGQiNlZ7U8Iy/ZOqSu8WpkyotQ9jYlGnCiiin4zA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793882518;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=+cm8daYwaAL+mvyVox3IdUIAQY4lAmU7yF+ul0AFfds=;
+	b=jptG3HOub+TwKh0NtaQejLPARkXQnqB/gRzNyDFIHW9fn/NglaubGMYmeVH2H0vQZN4t
+	 SiVIPcdgePqT5UTxa0ea1m+FDo9gakU/pm/PYRg2eSQi8vD26/T77FMRRQJ1pr8N1MYPs
+	 mDriqi7YyXnFd4s/jVkKp23T4akvJFJHR5NAockPJL25HMeJ+ed1t9vFkzqzbmdW5NGs4
+	 w1C9cP8zvG416T4BoDP7N5w5vB3u4Y9eeJkE6PLXZPdZODOB2NON9czu1OIawnep3GCnu
+	 7vETurTnjZLaYxtdQ/98oxxbWEx2SdTND++birESGDWftNduqZemWRU5omlJ5Vpt8oQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G2eGCuSS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hf1ocso8;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38477606A31B;
-	Thu,  5 Nov 2026 12:41:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C976606A33E;
+	Thu,  5 Nov 2026 12:41:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G2eGCuSS
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hf1ocso8
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793882516;
-	b=E9/cZc2eX8yLZ9VM2sn9ufaEwnDv82PmEiy94MK61oyAw+HGvUuFtQIGwFv0C//EeB7Z
-	 J8CG7ripLiMaVu3I/ftTgAly9OAG8haJWYSOdj1asuhndiVAwuz5VYP86wgrN41SOrLW7
-	 iiiPV4Va04O3pUA0+V1BGtwNiGq+DHcoTqUNMgTNIijFwGM55zz+rxPXPk4mX8xgLNXq3
-	 zp1sPQtxxfTtQmp1AU1ikdTYWtEfpDrVymJs4opu6xqX05kVwwEG9dsb0KVJcyYUhpvvc
-	 ugN0uv+aKRa/asOF6yTxmp6LWkAxnmttq6J9nuyki/FBa75uxt2H3EcvwsqgqRqsyFA==
+	t=1793882518;
+	b=Nc1Cq4c17vhrpcgU06YYJi7R0Gumbp3ZcWMs5FTri+PCAwptAlwK9/ZjPKlLcRpFr7SY
+	 xy2JLFvjbipNJ2lfe+omLneWS2JbHKvZVymSmI8Lkg2vG6W8RP54wxLk8Du+d9dT50pSr
+	 uBIg/+jFDoIpJhf5TfgU203sHV1sRAVgozBXdCtg4FKs/C7Hx0RuoRHjgREJZ8smJnp//
+	 mxSPugKMJrC5DwtvNlNHHWW3FLU9X5XdBJpWuOGaHI6U+BdTnsRzLBxkAIF7YrzxRQzvK
+	 ZGkja76yGAELujisYcVROc5+TURvMHKnkOQOSooSLdRoExd+giFJFlKJrsCkKDlF6Gg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793882516;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=l/qbbO7JmGydwZC1EcnpWSgjOEhb2nm2cY0ukEZi4I8=;
-	b=LUTy9mcN+9b9ZN7ma4kIW4hhK5XOgAuEFK3jGOmzb++HIo1Ycw52R3WEObuhSRy8aANm
-	 bUtHV1z9LHnKLEEvezDU9PjRq0gzO2GpzmbTAQ4f4tZF2jGqncy64FMIgYQmsjjATQG1i
-	 smcSDIgCvrEj9aWdXizGIRZwLWArVx2H1obJVRlr+1XUsW6lb1adAaTYJcWCWcOXZMa2i
-	 esrRaJYg6rUVm7GdeC42kCMwZS8O3PdiKQgBKJhn3iW5YJVl37Qkf2mVfRg0qpI6vVqfc
-	 6JJJh2/ADtO+d/oklFm3BZA7p/6mqNKKH9w0YqbBf8sSlKNHLkFoyIAI2YAKbwO0qGg==
+	c=relaxed/relaxed; t=1793882518;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=+cm8daYwaAL+mvyVox3IdUIAQY4lAmU7yF+ul0AFfds=;
+	b=U7tXRk4Cv0X2d8zBITyefLVRqkTO8vFDwYGHd966LMGUYHh9N3x+DPdIMpLNUSMurmHM
+	 oz2OmczSSRT/FZRbwItmoAbbzobQfk32v+dYfGJUGsLdcbchS/efgJV6D18QoOAy6DaWw
+	 JUWhACySQ70rZsmkWEzU9dp/lvZWDhnTu501VXelUHkgTxj6Js8Pky9RFm1UmOZscDlvD
+	 GlfoeJbqFXWAaEuGNhiEFSW2EQYjrBqS711ipVbnyEhfKGS7htCOQmMZ6zPLSPSqsDofQ
+	 9XqaGon0YrxLL/zN2ukW4kNNKWH4ulsh8wta6CLqWuH+Ydlw0cpTTjn1ouTGR1M5qeQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 2695E1F00919;
-	Thu,  5 Nov 2026 12:41:56 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 6BCF11F00A17;
+	Thu,  5 Nov 2026 12:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793882516;
-	bh=l/qbbO7JmGydwZC1EcnpWSgjOEhb2nm2cY0ukEZi4I8=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=G2eGCuSSoMqhnYP4NobzghmClj/6dT1afWN6FB6Bnld6HkffYZ9u3BqWXmtIHMIvz
-	 acHY0yrF2JExqJdvGQ1l5scxHWjC+E/wnkLvqfcN3MN2Er7lmWvs9oq7HP1jOi1R0X
-	 ZLGl/peDHYslR48F16Y9O+s366DCRhA79ogR9rMq5E9EOqgPWbgsRxr0XTvM1hhXAj
-	 vVVjvLu3ISOdEQYd47W5/+l2IigrGCc5G/hj1LjJvEqRNcTLhQ6DNKOoUW8XtRjC3n
-	 iXwpZy1kktF7esawCL4H1iu04BB72eQox8FSs02fJ+OniTPQPkEBIdwhmZjrpTNyp3
-	 lQ5pvOSalljiA==
+	s=k20260515; t=1793882518;
+	bh=+cm8daYwaAL+mvyVox3IdUIAQY4lAmU7yF+ul0AFfds=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=Hf1ocso8Wy3K9vbnCQgrfMTrREW0Ypr8WOCSFVE7136/0PFIJbQRl2zWCkBBg4OKu
+	 kwjuu0t80wxUoQ7AcrTO/i0U/Gu7qn/BkkAeOxIVB+nD8ltimCJAuXs/rTDjQuZ18K
+	 95ZgKYPkIQ3AxogFXlZRx9YPystZvKNc4lqQLgfqcnCyjJmBmEdYPs+RsmQSTxSd8k
+	 mb6lI+wMBsxtQL/8ZmeiyExekgn3bWIPYCmdzrgS2/i1f0mjoVVpHsMYpN67KBkqwz
+	 YrRUKi4/41QbdTohnPKVHxVuxkDNQb3AUN47n2raIAjbYpwbKeKoHxxypafvOlW10r
+	 L8R5dDoC8TGAw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 770084724A;
+	by lkml.kernel.org (Postfix) with ESMTP id C5DF74725A;
 	Thu,  5 Nov 2026 12:41:55 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Subject: [PATCH 0/5] HID: iio: Unify probe-path logging
-Date: Thu, 05 Nov 2026 18:11:42 +0530
-Message-Id: <20261105-19-oct-hid-iio-unified-print-framework-v1-0-0b360d9552d9@gmail.com>
+Date: Thu, 05 Nov 2026 18:11:47 +0530
+Subject: [PATCH 5/5] iio: add probe error messages to hid humidity and
+ temperature drivers
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,11 +84,9 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAIZ57GoC/yXNwQrCMBCE4Vcpe3ahacWoryIearKxo5iUTapC6
- bsbFebyXf5ZKItCMh2bhVSeyEixwmwacuMQr8Lw1dS13c605sB1yRUe4RlIPEcEiOdJEQsHHR7
- ySnrn3u2t3VoTnO2pxiaVgPfv6HT+O8+Xm7jyrdO6fgBS4dcKigAAAA==
-X-Change-ID: 20261019-19-oct-hid-iio-unified-print-framework-3c877471fc73
+Message-Id: <20261105-19-oct-hid-iio-unified-print-framework-v1-5-0b360d9552d9@gmail.com>
+References: <20261105-19-oct-hid-iio-unified-print-framework-v1-0-0b360d9552d9@gmail.com>
+In-Reply-To: <20261105-19-oct-hid-iio-unified-print-framework-v1-0-0b360d9552d9@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
  David Lechner <dlechner@baylibre.com>, 
@@ -97,80 +95,82 @@ To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793882513; l=3071;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793882514; l=2747;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=KUIwC7C4lmG/Hcha3xTeg2sd4BInW8QwNzzTWWfozpA=;
- b=w1TLm6HD6ssb/ttsKDr0UeUvh0swdJPOkFXTyVI2ZLAV41S+CqJuxk6MtDwqzKZG+O5ehR8/N
- NSmC4YFukw9DwdCxexByvcrQrLOiZWCVnbHoEbzQt2xCk9y5Xr1G5CM
+ bh=pqrTibW6X6wmyhSq73zPndRC7AMaVbRCIIh1jJudpww=;
+ b=xYz2qJEQp8CP8Zje+A07HfMJ0cMKw5+tDlmZT9RtOt5bBGiufccWgXnBDojMFKZkqDortjY2G
+ j52vb/dhz9DCJMh8byOnnUxjcB7/fHNLDV0Intqf4nrdzU8JNS04hA/
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
  with auth_id=848
 X-Original-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 Reply-To: sanjayembeddedse@gmail.com
+Content-Transfer-Encoding: 7bit
 
-This series provides consistent support for logs in probe() path for
-HID IIO drivers with suggestion and input from Jonathan.
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-This is followup series on top of multiple sub-series submitted for HID
-IIO device drivers which included fixes, devm support, cleanup and using
-preferred kernel coding style. This series adopts a common logging
-approach throughout the HID IIO device drivers in probe path.
+hid_sensor_parse_common_attributes() and the driver-specific
+*_parse_report() helpers may fail during probe without emitting any
+diagnostic information. Add error messages for these failure paths so
+that probe failures can be more easily identified from kernel logs,
+while preserving the original error codes.
 
-The result is more consistent error reporting and improved
-maintainability across the HID IIO subsystem for following drivers:
-find drivers/iio/ -name "*hid*.c"
-drivers/iio/orientation/hid-sensor-rotation.c
-drivers/iio/orientation/hid-sensor-incl-3d.c
-drivers/iio/gyro/hid-sensor-gyro-3d.c
-drivers/iio/pressure/hid-sensor-press.c
-drivers/iio/temperature/hid-sensor-temperature.c
-drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-drivers/iio/humidity/hid-sensor-humidity.c
-drivers/iio/light/hid-sensor-prox.c
-drivers/iio/light/hid-sensor-als.c
-drivers/iio/magnetometer/hid-sensor-magn-3d.c
-drivers/iio/position/hid-sensor-custom-intel-hinge.c
-drivers/iio/accel/hid-sensor-accel-3d.c
-
-Additionally, I have kept changes specific to logical diff instead of
-driver specific and covered all HID IIO device drivers.
-
-Testing:
-  - Compiled with W=1 for each patch in series
-PS:
-- Sashiko reported an issue in a different driver and noted that it is not
-  introduced by this series. I have taken this feedback into account and
-  will address the actual issue in a separate series focus on that driver.
+This also improves consistency with other HID IIO drivers that provide
+probe-time diagnostics.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
-Sanjay Chitroda (5):
-      iio: Remove redundant probe error messages for HID device drivers
-      iio: Remove redundant devm_kmemdup() allocation failure messages
-      iio: magnetometer: hid-sensor-magn-3d: drop redundant probe error messages
-      iio: Use dev_err_probe() in HID IIO device drivers
-      iio: add probe error messages to hid humidity and temperature drivers
+ drivers/iio/humidity/hid-sensor-humidity.c       | 4 ++--
+ drivers/iio/temperature/hid-sensor-temperature.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
- drivers/iio/accel/hid-sensor-accel-3d.c            | 27 +++++---------
- drivers/iio/gyro/hid-sensor-gyro-3d.c              | 24 ++++---------
- drivers/iio/humidity/hid-sensor-humidity.c         |  4 +--
- drivers/iio/light/hid-sensor-als.c                 | 20 ++++-------
- drivers/iio/light/hid-sensor-prox.c                | 20 ++++-------
- drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 41 ++++++----------------
- drivers/iio/orientation/hid-sensor-incl-3d.c       | 24 ++++---------
- drivers/iio/orientation/hid-sensor-rotation.c      | 20 ++++-------
- .../iio/position/hid-sensor-custom-intel-hinge.c   | 20 ++++-------
- drivers/iio/pressure/hid-sensor-press.c            | 24 ++++---------
- drivers/iio/temperature/hid-sensor-temperature.c   |  4 +--
- 11 files changed, 69 insertions(+), 159 deletions(-)
----
-base-commit: 20ce8ef9c9e04cd6c5ae0422e251a9b5936c6b7c
-change-id: 20261019-19-oct-hid-iio-unified-print-framework-3c877471fc73
+diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
+index 12c88efe66be..ed7997056f69 100644
+--- a/drivers/iio/humidity/hid-sensor-humidity.c
++++ b/drivers/iio/humidity/hid-sensor-humidity.c
+@@ -214,7 +214,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
+ 					humidity_sensitivity_addresses,
+ 					ARRAY_SIZE(humidity_sensitivity_addresses));
+ 	if (ret)
+-		return ret;
++		return dev_err_probe(dev, ret, "failed to setup common attributes\n");
+ 
+ 	humid_chans = devm_kmemdup(&pdev->dev, humidity_channels,
+ 				   sizeof(humidity_channels), GFP_KERNEL);
+@@ -224,7 +224,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
+ 	ret = humidity_parse_report(pdev, hsdev, humid_chans,
+ 				    HID_USAGE_SENSOR_HUMIDITY, humid_st);
+ 	if (ret)
+-		return ret;
++		return dev_err_probe(dev, ret, "failed to setup attributes\n");
+ 
+ 	indio_dev->channels = humid_chans;
+ 	indio_dev->num_channels = ARRAY_SIZE(humidity_channels);
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index ac5a287d1de3..2dcf8cb375b1 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -211,7 +211,7 @@ static int hid_temperature_probe(struct platform_device *pdev)
+ 					temperature_sensitivity_addresses,
+ 					ARRAY_SIZE(temperature_sensitivity_addresses));
+ 	if (ret)
+-		return ret;
++		return dev_err_probe(dev, ret, "failed to setup common attributes\n");
+ 
+ 	temp_chans = devm_kmemdup(&pdev->dev, temperature_channels,
+ 				  sizeof(temperature_channels), GFP_KERNEL);
+@@ -221,7 +221,7 @@ static int hid_temperature_probe(struct platform_device *pdev)
+ 	ret = temperature_parse_report(pdev, hsdev, temp_chans,
+ 				       HID_USAGE_SENSOR_TEMPERATURE, temp_st);
+ 	if (ret)
+-		return ret;
++		return dev_err_probe(dev, ret, "failed to setup attributes\n");
+ 
+ 	indio_dev->channels = temp_chans;
+ 	indio_dev->num_channels = ARRAY_SIZE(temperature_channels);
 
-Best regards,
---  
-Sanjay Chitroda <sanjayembeddedse@gmail.com>
+-- 
+2.34.1
 
 

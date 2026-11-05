@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793876105;
-	b=nvqLKPJ8ZojcSkrgfYlvbvPT+P5lEfRaW+m2V3dN1M4DrUB/tRNHD2f3urg7SOVPJOB3
-	 JSMtOAbJNJDro6g6EUmkX2yVy/bXc8A9bjWKlJbPqW6WEQjN6eXjLOSnxxa+0yyo9bs/7
-	 Mnqqr3g+T6e7f5guxgqH2oa2bQuyBODS8kjSVAjPbWzkJstI71W8UUshWHGm3VdeQxPtn
-	 jutDKOiiwMKi2T5DGF+aGI62Q8ONcfO/57qCYsuJ1Ncmi7nffex8T6L2v3umPhb+c3WTS
-	 KiCNyyzsIX1kworpp3E1yf7cFSymOq6DbtrWoEgE3zk4wr111069INv5TgPOgcRuYzA==
+	t=1793876106;
+	b=WmjcqveZ0gyhj3w/XoS3QvXKJHpGdTVD437kSrg6IoL5UlnaMSdcK8cOSrx8kWRvd3CJ
+	 3RVg4yrjOJ4c1l/XTsN4nuGbR1KZk7GYfVbykvsGFncOY+wvgpeXZ0jfmZv6r2gmXuspb
+	 HjA8SBjwTcyYhMzNzT3SdT2BYluCDQ5FXgtVWN342PyAgTw0ZFi5UK1PO79ch9h6zkRDO
+	 VKdLcyWMaCdkjghJwhIDH2NJFdKuNTogNpBiBeruCQ6U+vERkMn8VAD+2AodghWO6qhbx
+	 aHMYVdS4WctULEBknBoQ1D2PjeCg8D3+XYPD6hBNAeSICPOFHMedVmOmrjFHBMSDB6A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793876105;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793876106;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=vrbFmRHg0Vwaa7wvCtJ83s9ZBgrN+iwSbrevpGKdNvE=;
-	b=eArZhpftv9sZzUFPBMG4oBX0Dy+7xwoJdQAenRlhp3ukHGujxIb9eWmLD5lTYYTSbYXk
-	 1WTHl8fMmYSKs5i2nnA3k9iHvKI5lKj5kGfXtmEbIInIUE8GLtlQ48XFU4bwlynJEbs9J
-	 vm7ZVoXo0puXRYHhg9gEPGoCO0wz28GrFGeAV2jW9sh7YyVcBSTdA3HNme7VoTdEt3/gb
-	 U5hDVhBqjbJqFyIofltfYisTcfcHRtqPaC3BiU4PdZiprBjsNDXrCtIEcErZN5tUZPJy0
-	 aIonF5B8SQmCHdknef09CwbugxJ/PFzpvsC6+IZNjqxP8OMGKUvhLah+JCzlKATiC+w==
+	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
+	b=Ohnq5QRP5/UAAnOy9I0pEmukAbgWhPPLP8UNc+krLe47Ab0jocO868N08Ekbl4ZKhS9A
+	 zwQ7DGgtRJ40Ckoi2Pz7Vi/oUeZyUFPakXFEv1TK5Fiys/1P+7EoDMfimu7+4+CNBydWX
+	 RaATQ/p3YNWEEJGuitHo+bGOltRwJlEe9eG8lx8ZCUjrifWSfDW3TBlP8eqketsklESPV
+	 BJWMuseR6Z7mYiNWBPcTRu6VEby/MAF64WIqBOIGxdCYd3PwaZOJPRH5C/MLMHA2EUxFm
+	 rfWRz12WGGASy0021MFYQgsO1Qzmg8jRzXkFgqB6DEjbeGWxafzphPjsWtqYG1vv+UQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CbXuMzoe;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Sv/SRLpo";
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933B1606A329;
-	Thu,  5 Nov 2026 10:55:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE981606D80A;
+	Thu,  5 Nov 2026 10:55:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CbXuMzoe
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sv/SRLpo
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793876104;
-	b=gu9rYsh6ltFvfJ9kIOQaXz5TfHoAokbA7Z3+j8j1+anAj0LkmKzBW64jTKkpWzuFXeIH
-	 alRR0prrODdBAmGi56FORllVYmac6EunxH8hiuoDTrSH43hSypI0RyN3tGAmlnfakx0+C
-	 Weu8owrJgFVt/pJ6vfQ/UocnQyJqTrTkUiWDUBzqdyb3PNAXhE1IA4RH7JAJz4hlomRy7
-	 TJ5x6JWlUVhyxup5s2tN3Io14lhubAtAE1MGGakVQeiBrOWE6FBl3MmMa2bHbchfiWZkf
-	 38lm8S5RhZT1HXbycntsxrgLf3Pn3UrssdfFmZP/jqm/mqwXjvyDxjceUqFFirffHrA==
+	t=1793876105;
+	b=EOh3wAvCERrs4H6v1IuC+Vxz1cWjT9rou/xl2ARbZTGZ8SEPJR/KEfWHKYiDfgFRYtzo
+	 yeGNc5mDjb++0M6/zrUb+n9b5JeVUCi0chS7bF7H0CXxk7Orhjj0GEiilz+NzmCyOYSoV
+	 h1XXrivGnbFzv5SNwJpmCzUK1JSYy7Rg7zwNovO9tOZIDXoYxLBNPtf9xUotrV5Hmorky
+	 XwVHPOwKRwGV7+zTSm5QqlGZVK6ZHTbRdMOMnuqao+aS5+Qkh0O088Y+kftroV7d/CAtH
+	 vUSQCrYgoxj9bqJSZ7O5WbCapgvJvrxdICFXQAj0OiGbhnBIB3O/yJWiOGW5PGZqtNA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793876104;
+	c=relaxed/relaxed; t=1793876105;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=vrbFmRHg0Vwaa7wvCtJ83s9ZBgrN+iwSbrevpGKdNvE=;
-	b=Gk7N+ifED987xcgbZALAXQcc5YCeSH5j9S/+/GTAr/+0HVoQdr9iE3Z2SBSjNDxl/7NS
-	 sTdqR5qmsRmit3snDhFiHSfDlS/wV4uCUYUGvhr31AGaboLsm7x4mFINC/pHZA0PeFLJG
-	 G4qJB9lPsLtmvxr1sGsLbuwFBlNm/I6IbJtDMOj2de/bxDecaQFCNNK32Cak2PM98HGv+
-	 +W4aaQcuKS9X4pL/usM7s08e3C4w13BWOJmAtwG3Qs0jnNOjLnqBN9Ru2nq4vGMhQnyBR
-	 cbEsNF00qF90hAPEFXaG7XscLgb3HsX/CPAuUbz2+heHkGWbFo/ApGy321JZpEzsw8g==
+	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
+	b=UZnSs5HeJd7HiHEF0XZva2OoZNPHmpinAefXtAQ8RsXI60s5FfZLmBeAh/r9Zy87tb/N
+	 5HOWD9WEyNFIFbc18zRqdGs/xsgV+VomfKHgteFyQTBQrReS9nTsBc/j2h6KVwzaonIJc
+	 4JMe62zaaKtDmp12Fc4T4FXEpRzU0/zkifP/9zZtyudDSqfd13mck2nu/SxXhpkiJI9Cd
+	 N8lErXEKb7h7cTI/+s21Va+qXS5F9z11hrre4GSTPn4WDtwfdM5VRQo6WSsJhcmapoD29
+	 TEpFGOwnsmZCPI0imq7qND7AN7aZj5o3HR15kL6T3jE7xJjMSbyONyI+rsEUi8J6Qbw==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 820111F00A18;
-	Thu,  5 Nov 2026 10:55:03 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id B50231F00A1D;
+	Thu,  5 Nov 2026 10:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793876104;
-	bh=vrbFmRHg0Vwaa7wvCtJ83s9ZBgrN+iwSbrevpGKdNvE=;
+	s=k20260515; t=1793876105;
+	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=CbXuMzoe5qU+uDFNip+1wLfiN8y70+UZhIAbf4BG2nkWV3I+9szWEz0mtsLevKdkG
-	 FyclFAcx7YjmAbaGaznHYS9d0NI8NHm9PvqA7A7wItZ/iOLpy5VMreSbqBDtPjR/zA
-	 3mm2X6TNug8j2K/DwsAvhKAgmEatuEf1Of4B+61k0GYxt6FAHN6VwX6BWpOY0H92dq
-	 7BCuwGnV+G4lHmsLD8kdZyrw5ijAaVB1lzNZedw7UfnUwQsuOh8ZWX3P/8yu9JbRv9
-	 eL4lnHTxoAyCehkIUpDrpVh05w1ALx3bOeXIzaTkErJCtcONuRO1SJCiWCqohmioZf
-	 ykVVLIpTzXGMQ==
+	b=Sv/SRLpo8Wq3sUkgCyP3AD5FhnpKUwQ4wCyaf1VHZ6M7JHJN8Ku1eHmTKNDBbid1L
+	 NsKVqgViGd+VR26gJs8nP2Ye4LO9DWzjoqFvhNSiHlXgmnmx6xd4674k1hkf5qCwWz
+	 TK2XczPFLHcLUbg6pPUMSzEQnbrW9MhrPmCO73t2nvih3JlqFhiOy/T5mgE3v7iWmz
+	 /f3r8Z82lqAahBeXQdUoLn9Qpmy9nBfHnEB8JFTQN5xZ8mKdGoFwIxqEWu9jGEE54K
+	 FflwEGcvQ8cDgYnjQByTMbQ/GNpwASvyG2UVOufD6oOuHPb5VaGPg2VsfyxVEqX0rb
+	 j+jCsif+u4tFA==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 0EB22471DE;
+	by lkml.kernel.org (Postfix) with ESMTP id 4A79A471EC;
 	Thu,  5 Nov 2026 10:55:03 +0000 (UTC)
 From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Thu, 05 Nov 2026 13:54:06 +0300
-Subject: [PATCH v8 02/11] dt-bindings: iommu: qcom,iommu: Add MSM8952 IOMMU
- to SMMUv2 compatibles
+Date: Thu, 05 Nov 2026 13:54:10 +0300
+Subject: [PATCH v8 06/11] dt-bindings: clock: qcom,a53pll: Add MSM8952
+ compatible
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +84,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261105-msm8952-initial-support-v8-2-311ae8e8f14b@mainlining.org>
+Message-Id: <20261105-msm8952-initial-support-v8-6-311ae8e8f14b@mainlining.org>
 References: <20261105-msm8952-initial-support-v8-0-311ae8e8f14b@mainlining.org>
 In-Reply-To: <20261105-msm8952-initial-support-v8-0-311ae8e8f14b@mainlining.org>
 To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -122,11 +122,11 @@ Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
  Muzaffer Kadir <muzafferkadir@mainlining.org>, 
  Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793876100; l=969;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793876100; l=1455;
  i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=kpqMYq4BzsuyLclvUfDPu/lZin8icjEat8+zs0C5qZw=;
- b=9WSZMwhPlP7hXbdYUrdG/vxs8AJkxR/4Y4m+tW62ZnC+XgNTxbi3GIJZbQk1BhG/fe7KSFTLw
- l+RMCYRa2YmAT8BGxEcSw8QXMEyotCg21ySNJU5Y3cqphbNMnGQWJMH
+ bh=XCIEEjoD19j/AIKNwqTlsBvKPtPEgIUzUJWdLdc8miQ=;
+ b=FuyTp0ZryxCxUbbN5sUnAwICtuCjnzrSqGz1rYWnJrBRAY0QIV3MR6pCxjCuhss75PaF5PkMP
+ dfVIdPtvZD0DRyUrvt24f70eV179MSe+yXgyl6n9Lx4TjwxGi+O/JR9
 X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
  pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
 X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
@@ -137,28 +137,50 @@ Content-Transfer-Encoding: 7bit
 
 From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Add MSM8952 compatible string with "qcom,msm-iommu-v2" as fallback
-for the MSM8952 IOMMU which is compatible with Qualcomm's secure
-fw "SMMU v2" implementation.
+Document the a53pll found on MSM8952.
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- Documentation/devicetree/bindings/iommu/qcom,iommu.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/clock/qcom,a53pll.yaml     | 25 +++++++++++++---------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/iommu/qcom,iommu.yaml b/Documentation/devicetree/bindings/iommu/qcom,iommu.yaml
-index 93a489025317..9952b9da9a6a 100644
---- a/Documentation/devicetree/bindings/iommu/qcom,iommu.yaml
-+++ b/Documentation/devicetree/bindings/iommu/qcom,iommu.yaml
-@@ -27,6 +27,7 @@ properties:
-           - const: qcom,msm-iommu-v1
-       - items:
-           - enum:
-+              - qcom,msm8952-iommu
-               - qcom,msm8953-iommu
-               - qcom,msm8976-iommu
-           - const: qcom,msm-iommu-v2
+diff --git a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
+index 1eec77e75a0a..4abfaa24bc71 100644
+--- a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
++++ b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
+@@ -15,16 +15,21 @@ description:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - qcom,ipq5018-a53pll
+-      - qcom,ipq5210-a53pll
+-      - qcom,ipq5332-a53pll
+-      - qcom,ipq6018-a53pll
+-      - qcom,ipq8074-a53pll
+-      - qcom,ipq9574-a73pll
+-      - qcom,msm8226-a7pll
+-      - qcom,msm8916-a53pll
+-      - qcom,msm8939-a53pll
++    oneOf:
++      - enum:
++          - qcom,ipq5018-a53pll
++          - qcom,ipq5210-a53pll
++          - qcom,ipq5332-a53pll
++          - qcom,ipq6018-a53pll
++          - qcom,ipq8074-a53pll
++          - qcom,ipq9574-a73pll
++          - qcom,msm8226-a7pll
++          - qcom,msm8916-a53pll
++          - qcom,msm8939-a53pll
++      - items:
++          - enum:
++              - qcom,msm8952-a53pll
++          - const: qcom,msm8939-a53pll
+ 
+   reg:
+     maxItems: 1
 
 -- 
 2.56.0

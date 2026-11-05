@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906999;
-	b=lHOLVfZCB7D65PZkgx8qdHau17NN2njtd3a40USRoP0ux6/BeefjxZ4uo80bmCPFWmlU
-	 LWIXQ0uKOWe6qxQ2yXvCoqjhpboq84+4wBfAEfOVOAFJ94k9zAvkd5PD96PRa5zwfBEbr
-	 +xrpdvwZBZndYAARV8MUZCEbsKsHOhsw9w242hd+VH22WQvDLvmDbHC3bklINkfqGa9py
-	 PJgkz/0GtL6nyCm9m3p3rscqcQfnn5TNZY569lil6pUKNx4VC9fsTTYPinPuPs48zBm5G
-	 9C9XuecSXh6rZwhP3ly4m4+xmGl2BrLdau7kNM6nXJpEeclQMKmNa2rTjrC3qZCZxKQ==
+	t=1793907023;
+	b=lEiMLapjeyPdZoZMyzSRsDq8xtOIJXdmbr05INQo2NdZh2su1/e4Q6HJNPMabpBHmawy
+	 U6p93joza+mbpq432ClhXuGTMpsSqInf0hG1vsccse+dFm60SFSCy4ZT27vtlhIyW60x4
+	 y6aRKKohJucnoOGZizxPGjE79bbr9QWdstZ+QvI1ayMuaBfCGMmULywxkNgWobIPDTIu9
+	 lCKnFKyRSLjghEHd5Y65kFIaXNJr1QTs9JuM2sklt6ng90dr4uu1ZKj9GETIHXFAP+6Mm
+	 vl//f7V51EyA5Mt02mHEmauGZgAjEVWTQOUBDo/Tjm3qc4qqPsqaywwcxEdxD8F4GSg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906999;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907023;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Mq2TZRho3g/6dJEkd3aM2nJWP3IUjUSQ0d76Sv96NJo=;
-	b=s6AFSHI2087qD4uO9J3BalYOfaYW6SI1N3L1xL8Ncb2bp8jZtpCcwan/rCeLiocywfHY
-	 Hjnlns+UCHB25q0Z/n4FmBd4hdbM3MpRmzdwauZuaY0i3VK2RCwzeFRvUKjkvC7PcgAxw
-	 SZz2SgyaPRwZ5MBL/VvX6jCiefZw/rcmHLMn8SWw2oCdKFg1SpSdEVBW1NpRknQnmuJUl
-	 LwjkOjfOfXn1KPbOH852GkYTl6VNvOZHiQ5dBLX9htFFJ9jG+bOUsSEAKYmPcrC+hPu4k
-	 JSQ7LRwiZQ9bxhikWNiT6/8aoJY/ijHmoDjiv11V553XUMdAKEjUbGLHWixVZDl/bhw==
+	bh=fWBORYPn6/i1UGDhFg9BaDP0viM8Zy1xYrqG6aqMLCs=;
+	b=gp/mR5wPmMCmaDXsnIzaRa1+ds6LQo/MtKwUJ2MhE8MoRccyeyzL1cHkisIdyhzinHzw
+	 xvrQXVURa9r6F6up9itrCmcJPEo5Ezkmy+nS10D0gY+ufiP2PIQBePmwcHOPZyuQwEkJE
+	 GsmK2zjOlhaXiqdBbpORAaGehbPcQ09HxzMwGgMfZC6934jG+n8zs28rpoozl7FjOd746
+	 eRraw8giqqTa2luBHeoQi7dnDpnEzHVIygny7ntJAdccPjzXY/zQcyxaDVZDPypHliNJx
+	 a2B+v6u5VYwgvZUlvigMpxa4N8VZlbNd8ongCz/DJfTw9472+VzzSTZZHYeBnwa1j8A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WjJEPh8p;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cC58zNRz;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D1C2606D81F;
-	Thu,  5 Nov 2026 19:29:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C465606B074;
+	Thu,  5 Nov 2026 19:30:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WjJEPh8p
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBACC1F000C1;
-	Thu,  5 Nov 2026 19:29:51 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cC58zNRz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F20631F000C1;
+	Thu,  5 Nov 2026 19:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793906994;
-	bh=Mq2TZRho3g/6dJEkd3aM2nJWP3IUjUSQ0d76Sv96NJo=;
+	s=k20260515; t=1793907023;
+	bh=fWBORYPn6/i1UGDhFg9BaDP0viM8Zy1xYrqG6aqMLCs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WjJEPh8pDtseuVUQk4qwZA9aci3gac063ZokyebNlvHp2beWZHvvSUeYQeiXMVXvr
-	 gorR7o8d0SaoLeOi9bKNyUy3h6vHu09hw27HReSQrpP5tbdq5gCz3B6gixX9La77ez
-	 A3GDPdSDz2e83FWBMhFysd0uKqafdxTW2wlSO3wrIC47SZJJWU00KVW3tU8R/XZoDc
-	 l2HWNRW/SEC3nlzdu96mPwurJuhISd5di7F3WA+6g/riaXNTCLrXNXhDRDwZUn89Ok
-	 0Dcu6L25OUIAO131EMpgW4+6XspNy4+EDu3YAgYrAOfY0ko3kC83F2cPBr48QIfDJY
-	 xKWD9ZPaIbjkw==
-Message-ID: <sashiko-outbox-199895@kernel.org>
+	b=cC58zNRzclL+bqWmFXm5jJss9grSFRNwu88igA3PKBCqEyRDhY2ITvGQVUDEPAijP
+	 jc6EoImewJYAZeqNGxexTBcbXnIYrSP7cSjUbXV1pz/HzU27Iu4eyLpGA/mmB75GEJ
+	 Mn/pLMLT3OA10M3sQou5NayTSnUUzk77VngzaE9sBLAsEd3IdtCBVhgIPLYs3hgSxI
+	 s4cHJ5Csz2wq2CZzuXzn0ag28Cn7YJO/RX2qYjDwC/dec6cnK4P2MZKghUHrp1JdY2
+	 VH7rOBjE/sAe72AY4GXbLOvjFtttoNkBV+HgMrjt5Pyq1LLAAfjEG7EQr2rtiIdsRA
+	 yRfo09CVnuQmQ==
+Message-ID: <sashiko-outbox-199908@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 32/51] proc: resume readdir after the last
- name it returned
+Subject: Re: [PATCH RESEND v2 45/51] selftests/proc: check a sysctl listing
+ while entries come and go
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -57,12 +57,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-32-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-45-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-32-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-45-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:29:51 +0000
+Date: Thu, 05 Nov 2026 19:30:20 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,107 +74,181 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] proc: proc_readdir_de() returns 1 at EOF, breaking old_readdir()
+- [Low] selftests/proc: duplicate readdir churn test in proc-sysctl-readdir=
+-churn.c
 --
 
-commit 6510b1c4f87c45306294a13ba8447b50990db356
+commit 89d111e3f559a343f6b04af3c2c0857d3d1f5a29
 Author: Christian Brauner <brauner@kernel.org>
 
-proc: resume readdir after the last name it returned
+selftests/proc: check a sysctl listing while entries come and go
 
-This commit records the name of the last emitted directory entry in a
-cursor stored in file->private_data so that subsequent readdir calls can
-resume after that entry by name rather than by numeric index. It also
-continues after an entry's name if the entry is removed while being
-emitted, and returns 1 when no entries remain at the start of
-proc_readdir_de().
+This commit adds a selftest in proc-sysctl-readdir-churn.c to verify that a
+multi-call getdents64() listing of /proc/sys/net/ipv4/conf does not repeat =
+or
+skip entries when a network device is registered or unregistered in between
+calls.
 
-> diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-> index 9e59796349e15..588999058e66d 100644
-> --- a/fs/proc/generic.c
-> +++ b/fs/proc/generic.c
-
+> diff --git a/tools/testing/selftests/proc/proc-sysctl-readdir-churn.c b/t=
+ools/testing/selftests/proc/proc-sysctl-readdir-churn.c
+> new file mode 100644
+> index 0000000000000..b2ad097b464aa
+> --- /dev/null
+> +++ b/tools/testing/selftests/proc/proc-sysctl-readdir-churn.c
+> @@ -0,0 +1,152 @@
 [ ... ]
-
-> @@ -290,23 +346,26 @@ struct dentry *proc_lookup(struct inode *dir, struc=
-t dentry *dentry,
->  int proc_readdir_de(struct file *file, struct dir_context *ctx,
->  		    struct proc_dir_entry *de)
->  {
-> +	struct proc_dir_cursor *cursor =3D file->private_data;
-> +	struct proc_dir_entry *dir =3D de;
->  	int i;
-> =20
->  	if (!dir_emit_dots(file, ctx))
->  		return 0;
-> =20
-> -	i =3D ctx->pos - 2;
->  	read_lock(&proc_subdir_lock);
-> -	de =3D pde_subdir_first(de);
-> -	for (;;) {
-> -		if (!de) {
-> -			read_unlock(&proc_subdir_lock);
-> -			return 0;
-> -		}
-> -		if (!i)
-> -			break;
-> -		de =3D pde_subdir_next(de);
-> -		i--;
-> +	if (cursor && cursor->pos =3D=3D ctx->pos) {
-> +		/* Resume after the last entry emitted, wherever it is now. */
-> +		de =3D pde_subdir_after(dir, cursor->name, cursor->len);
-> +	} else {
-> +		/* Moved by a seek, count from the start like always. */
-> +		de =3D pde_subdir_first(dir);
-> +		for (i =3D ctx->pos - 2; de && i; i--)
-> +			de =3D pde_subdir_next(de);
+> +#define CONF_DIR	"/proc/sys/net/ipv4/conf"
+> +#define TUN_NAME	"a0"		/* sorts before "all" */
+> +#define TUN_PATH	CONF_DIR "/" TUN_NAME
+> +#define SMALL_BUF	80		/* ".", ".." and one short name */
+> +#define NAMES		64
+> +
+> +static int tun_open(const char *name)
+> +{
+> +	struct ifreq ifr =3D {};
+> +	int fd;
+> +
+> +	fd =3D open("/dev/net/tun", O_RDWR | O_CLOEXEC);
+> +	if (fd < 0)
+> +		return -1;
+> +	strncpy(ifr.ifr_name, name, IFNAMSIZ - 1);
+> +	ifr.ifr_flags =3D IFF_TUN | IFF_NO_PI;
+> +	if (ioctl(fd, TUNSETIFF, &ifr)) {
+> +		close(fd);
+> +		return -1;
 > +	}
-> +	if (!de) {
-> +		read_unlock(&proc_subdir_lock);
-> +		return 1;
->  	}
+> +	return fd;
+> +}
+> +
+> +/* one getdents64() into @buf, the names appended to @names */
+> +static int list(int fd, char *buf, size_t size, char names[][NAME_MAX + =
+1],
+> +		int *n)
+> +{
+> +	long ret, off;
+> +	int got =3D 0;
+> +
+> +	ret =3D syscall(__NR_getdents64, fd, buf, size);
+> +	if (ret < 0)
+> +		return -errno;
+> +	for (off =3D 0; off < ret;) {
+> +		struct dirent64 *d =3D (void *)(buf + off);
+> +
+> +		if (*n < NAMES)
+> +			strcpy(names[(*n)++], d->d_name);
+> +		got++;
+> +		off +=3D d->d_reclen;
+> +	}
+> +	return got;
+> +}
+> +
+> +static int count(char names[][NAME_MAX + 1], int n, const char *name)
+> +{
+> +	int i, c =3D 0;
+> +
+> +	for (i =3D 0; i < n; i++)
+> +		if (!strcmp(names[i], name))
+> +			c++;
+> +	return c;
+> +}
+> +
+> +FIXTURE(sysctl_readdir) {
+> +	int dir;
+> +	int n;
+> +	char names[NAMES][NAME_MAX + 1];
+> +	char buf[65536];
+> +};
+> +
+> +FIXTURE_SETUP(sysctl_readdir)
+> +{
+> +	int tun;
+> +
+> +	if (unshare(CLONE_NEWNET))
+> +		SKIP(return, "unshare(CLONE_NEWNET): %s", strerror(errno));
+> +	tun =3D open("/dev/net/tun", O_RDWR | O_CLOEXEC);
+> +	if (tun < 0)
+> +		SKIP(return, "/dev/net/tun: %s", strerror(errno));
+> +	close(tun);
+> +	self->dir =3D open(CONF_DIR, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+> +	if (self->dir < 0)
+> +		SKIP(return, CONF_DIR ": %s", strerror(errno));
+> +	self->n =3D 0;
+> +}
+> +
+> +FIXTURE_TEARDOWN(sysctl_readdir)
+> +{
+> +	close(self->dir);
+> +}
+> +
+> +/* a device registered in front of the position doesn't repeat an entry =
+*/
+> +TEST_F(sysctl_readdir, register_in_front)
+> +{
+> +	int tun;
+> +
+> +	/* ".", ".." and "all", "default" doesn't fit */
+> +	ASSERT_EQ(list(self->dir, self->buf, SMALL_BUF, self->names, &self->n),=
+ 3);
+> +	ASSERT_EQ(count(self->names, self->n, "all"), 1);
+> +
+> +	tun =3D tun_open(TUN_NAME);
+> +	ASSERT_GE(tun, 0);
+> +	ASSERT_EQ(access(TUN_PATH, F_OK), 0);
+> +
+> +	while (list(self->dir, self->buf, sizeof(self->buf), self->names,
+> +		    &self->n) > 0)
+> +		;
+> +	EXPECT_EQ(count(self->names, self->n, "all"), 1);
+> +	EXPECT_EQ(count(self->names, self->n, "default"), 1);
+> +	EXPECT_EQ(count(self->names, self->n, "lo"), 1);
+> +	close(tun);
+> +}
+> +
+> +/* a device unregistered in front of the position doesn't skip an entry =
+*/
+> +TEST_F(sysctl_readdir, unregister_in_front)
+> +{
+> +	int tun;
+> +
+> +	tun =3D tun_open(TUN_NAME);
+> +	ASSERT_GE(tun, 0);
+> +	ASSERT_EQ(access(TUN_PATH, F_OK), 0);
+> +
+> +	/* ".", ".." and the device, "all" doesn't fit */
+> +	ASSERT_EQ(list(self->dir, self->buf, SMALL_BUF, self->names, &self->n),=
+ 3);
+> +	ASSERT_EQ(count(self->names, self->n, TUN_NAME), 1);
+> +
+> +	/* closing the device unregisters its sysctls under RTNL */
+> +	close(tun);
+> +	ASSERT_EQ(access(TUN_PATH, F_OK), -1);
+> +
+> +	while (list(self->dir, self->buf, sizeof(self->buf), self->names,
+> +		    &self->n) > 0)
+> +		;
+> +	EXPECT_EQ(count(self->names, self->n, "all"), 1);
+> +	EXPECT_EQ(count(self->names, self->n, "default"), 1);
+> +	EXPECT_EQ(count(self->names, self->n, "lo"), 1);
+> +}
 
-[Severity: High]
-Does returning 1 here when !de cause old_readdir() and compat_old_readdir()
-to return 1 instead of 0 at end-of-directory on non-root /proc directories?
+[Severity: Low]
+As reported by Sashiko on RFC [1], this isn't a bug, but tun_open(),
+list(), count(), the fixture state in FIXTURE(sysctl_readdir),
+FIXTURE_SETUP(sysctl_readdir), FIXTURE_TEARDOWN(sysctl_readdir), and the
+register_in_front and unregister_in_front test cases in
+tools/testing/selftests/proc/proc-sysctl-readdir-churn.c duplicate the
+helpers, FIXTURE(proc_readdir), and the add_in_front and remove_in_front
+test cases in tools/testing/selftests/proc/proc-readdir-churn.c, differing
+only in the target directory (/proc/sys/net/ipv4/conf vs
+/proc/net/dev_snmp6) and expected entries.
 
-While proc_root_readdir() checks for a positive return value from
-proc_readdir_de() to advance to the PID entries, proc_readdir() (for
-proc_dir_operations) and proc_tgid_net_readdir() (for proc_net_operations)
-return the result of proc_readdir_de() directly as their .iterate_shared
-return value:
+Should these sysctl cases be added to
+tools/testing/selftests/proc/proc-readdir-churn.c (for example using
+FIXTURE_VARIANT() and FIXTURE_VARIANT_ADD()) rather than introducing a
+separate standalone test file?
 
-fs/proc/generic.c:proc_readdir() {
-	...
-	return proc_readdir_de(file, ctx, PDE(inode));
-}
-
-fs/proc/proc_net.c:proc_tgid_net_readdir() {
-	...
-	ret =3D proc_readdir_de(file, ctx, net->proc_net);
-	put_net(net);
-	return ret;
-}
-
-Previously, proc_readdir_de() only returned 1 after completing the do-while
-loop (where dir_emit() had succeeded at least once and set buf.result =3D 1
-in fillonedir()), and returned 0 when !de at the start of the call.
-
-In fs/readdir.c, old_readdir() and compat_old_readdir() do:
-
-	error =3D iterate_dir(fd_file(f), &buf.ctx);
-	if (buf.result)
-		error =3D buf.result;
-
-	return error;
-
-When old_readdir() or compat_old_readdir() is called at EOF (ctx->pos >=3D 2
-and !de), dir_emit_dots() returns true without invoking ctx->actor, so
-buf.result remains 0 and iterate_dir() returns 1 from proc_readdir_de().
-Wouldn't old_readdir() and compat_old_readdir() then return 1 to userspace
-without writing to the dirent buffer or advancing file->f_pos, causing
-callers to read uninitialized or stale dirent memory in an infinite loop?
+[1] https://lore.kernel.org/r/sashiko-outbox-195504@kernel.org
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D32
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D45

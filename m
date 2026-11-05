@@ -1,76 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.161.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793872945;
-	b=rlN1O+JQtrHdeXBpm/c8vQNzJSNPhvSr8CS7MMU5xiqPCoXPnVrOiE6RskUFGVCeQaF3
-	 vJk3NAnzm+ORlYyNHlnEVPrSipzDc+cIAwwrY+pHwGzcaumJ29yDX6Ypnu5H2dlt3gyVU
-	 A6yjzwrVlb3zZa35H7t+AullPGMYBbVTjct/uffFNd6e88BO8mQyTCSLJIqTKQpnVrevq
-	 XPtxV9Y36LKGMlRGk/X45jRPXzb0LW45E8Z1l0haHOkZWTrjlI1B1mLagGNLopN1sohv2
-	 ZYG26dNC0xtA+vGwKqFzoG7W+qVA4Nm38bVYWHJjKjz5yOoLH4+brPQdADVfgfjxr0Q==
+	t=1793873624;
+	b=X9Ao+/Cy86qFxCfrz6eVnD5UdzREPyTHhEBCp1jlUl0Ac/XpDeNINyfQfuyDNkBKutmw
+	 eG1WZYnErHsHbUtBE/r4M054ZLPOHkFB0AHyfd+axcMw1AYOYmphiGS/JbrgtoHy5/pp9
+	 624O6pNK4vPl0v2BDMMGAwnv8bLCsBRhS70cQl+Df5DTYe0neu6RUQzWr589yudr/wZNs
+	 DoSRUv6SCztwd6ItrmDL4ZxyFZ9FoF/xARxeANuwphpzDxL79Bik5oBaxsPW+jKjV5YEw
+	 ykyBYthjAcGcE+fXwenmqtyizh8eRyGfdKrBXbs1R9K8U1tvWC0/Q8mVc3sH5dyezDw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793872945;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793873624;
 	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
 	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type;
-	bh=+mKdlgKO27T7zaM0EZirUNSUHhSIV/TKUV4SSUSBbFc=;
-	b=ljCBvM+13UwciKRyRTiUBi/tokjh6GLCiGlIk2hOEXsOC10V4mszF0vL8H0nmRGiesOY
-	 DS2IdcHCtRAMFAMT0l67ArVQ8peU/zcenultkqvaESEyAi6hEdtzggR000UjLJbgCcgGv
-	 V4Mr9bApK9sICU0PCDiv1myVU7zNDBp4/pDl0+HooqKSefR2A1G66ygmAgVZDWTNBvBwb
-	 ZWoBkN9YbkUb0lYm09UcCF7I487nkXJ93A9uaNyfTBP9xLyJTjNrUJeds9ezl/VkUcyBH
-	 hbNO3p3J88y9ooZTksIeKK1l50pkniEFvr+h32v9w+gS9RSjBieowPtnOikUSOb7tlw==
+	bh=HRfPjQi/EPajP85bp44Mrjs4W2fVG4O74jaEjdHYdtc=;
+	b=0D3ubOlpJD4Yyv2M77cmI08cULh9lipDgKECg2lKj2YeUz3ZAtZfKhVxGwrmENA2bFC8
+	 HCcP/QHAYYeL3wBYKxydF3oRK51r8s5kNvuqo9aKG8HwPFLGgRJ5oZmVpbHReyefp9C/B
+	 TV8nfALmgrKM78d6mYR8qDOld4TWL16WcHbE2/zaa/RdahnQ/OJFNrb4dqbusOKasF/U0
+	 sMPgS+S/yUuuyd9rKyoNi+6t1tUt5O4o0ky4JCWWPeKjJGeLktTa4zmV8euLYMwWW0nci
+	 TcR/NkJ3x57D7qu3ED6ABl9EO/X4RVTF4jKcK9/DvL0wFFaH3ImpC8s2VGLRsOXIgcQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=linux-m68k.org;
 	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=209.85.161.42
-Received: from mail-oo1-f42.google.com (mail-oo1-f42.google.com [209.85.161.42])
+	arc=none smtp.remote-ip=209.85.222.180
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D3F6606A328
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 10:02:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D3F6606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECB79606A328
+	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 10:13:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ECB79606A328
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-oo1-f42.google.com with SMTP id 006d021491bc7-6b19e291cc6so1477344eaf.2
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:02:25 -0800 (PST)
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93e503815adso152271485a.1
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:13:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793872944; x=1794477744;
+        d=1e100.net; s=20260707; t=1793873623; x=1794478423;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=+mKdlgKO27T7zaM0EZirUNSUHhSIV/TKUV4SSUSBbFc=;
-        b=wwRMFbBDQhrFZ91LKZHP+25TLikDDRbbR7+kHkDKIqchlY0mtLBBws49YubUedtfNC
-         2DNZ0tmxNfCNso6WFwn242xAGZGN3KKGXPmCL2LbGvtljRuoOwfLcdfnp8iFXXmT7wQ9
-         rvTDa8Xt9Ol/BGgRzIkrPU+Fn25rLtreu+lk9Hr0bxlz6iuTsbfksJjK2IfQMTDviZ7E
-         IxssoaXbnqc0l91Hcxt0EO3WutSrFzQ6YFN0rCCRMutFcLCsO5GnZIZZJf/PbEBc35ev
-         DQIJ5An2dL5basGEOETv2K9La4XpfqyUKtm142aoWMDCKC7lDNQVUFEf8v1tn+mjtXTC
-         4TPQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz1PcInX87+aiUe8iyoJIrYfoBdZIYzcym5C19pO6LFwNR4pGtE2po57Q1HKDEjHyhI566cwnDxsxJYFA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/FoAX50vJIgWkwuAjCXM96zUhNhWHjy4yeNjpS/pfBtuTeeIhH
-	sQZ8F30IcdBzxm/o4gDxHolUw9vN1OR15N8trjUCo6rW4bIZwQ83ohYuUwc6FZN+EMo=
-X-Gm-Gg: AYBFou1t7piXptNkX4d2uh5gQYANnOoCdDaw4SA2n8C9CLF5zVtFUq/cGyquBGTsrZn
-	f8tZDLECnb6d0wJRXI2HWGvoQn7cXmU4JUo5EKu9zFn4ZEmnGq5pCPAknjLSAs5Dw7wcX7DPVHL
-	wiOF0nI7NH/cBQIKdO3sw4VzZp6wTpQoRhUg5YHDnM2AIZDa66PwUO2flveuzoRiVAHgixjjHot
-	CKm/zrsp+6bEYBIdViGQ7xoc+gjlXZlGWaYgi2Qw1LRQSGfN8l88gSRSnV9XdcNjqtJ45waiIf7
-	6/pmyLSXLkZsnbAAuNmRQSswrC8eGJC/9AeskQXU3jyC0rGvGCmxQdOrRTIBkyYEd+Kl1vAddeO
-	HClKxuY04TbT6YVatymG0oqNxZ8cGV6p84pCs7tlASy/oJKw8tgMLCV2GFa+K4s/5PDdFvMltVT
-	ZyNsl59YizMcdHd6hjKK0VHdHXHua1whyJl6sMKDFUznwJRi6lDGXw2b99mcfPk0aI6b5sgbEdZ
-	IxXg4UzPtrs+DxF+1J1ZaAlTg6BgtZ+JynLy/qRQykskE7yxyOIMNmnZ5VqGD8h79YTwr3YuYid
-	Pjrc347xfKSa0s9RsrMR046M0nuTCF4orj7e7ZsmMWB4uRUWFq3kHo4Vb26hu1sNpQ==
-X-Received: by 2002:a05:6820:3415:10b0:716:d376:1676 with SMTP id 006d021491bc7-716d3761f49mr739373eaf.87.1793872944108;
-        Thu, 05 Nov 2026 02:02:24 -0800 (PST)
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com. [209.85.210.41])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-716c0cdb22dsm3695859eaf.0.2026.11.05.02.02.23
+        bh=HRfPjQi/EPajP85bp44Mrjs4W2fVG4O74jaEjdHYdtc=;
+        b=Q/OyuXhqsvmVWfkOArk2ucHCf0sjlW8IN/m7A4/ktgecCkMY8t9bYmO/+ASkvIvsAy
+         er+sYIauTAiziDvO1kKpyOAOnP1DdDvxxlhBxK1tc/Eanpjiu6SDLz+YTs4zcvdKCCac
+         XkZF9ZFgtxgHETYoPOF1m5xQq/i3vrXCsoGccWtIqMjKi1i5pCXYEnj8cJOlt12i59f6
+         +d1XpkedJ9pDO8ehPDbB+rJvEsmn/OD47Fb5R2hhVn7q0Yam4W0qQyyU1HBDpQPGjwU+
+         TNBoMTeXZn4JmuS2oV5Bp3ieaSGeO5QsatITkrZUfuJWQ7ZlKRbog25eSmwueJJ8TNeh
+         YZgA==
+X-Forwarded-Encrypted: i=1; AKwUvByhUy0S6Q/C9AC0A4IhODnK3kVCRhh5Fg9VQVbq/DZeDftkkqN03/p+yKmM+wN9ohdvDe8+hufG3ZDtzg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/MXtJa2owCgOB29q6qa4eWB787UKTrcqMRvVioRsnhPv7MFrz4
+	i57JzBRZPdgZ3yEbtqCExDoDZX/9iqCXox7HOZt93xIapD/ki9RwGPNYsx2MmQ8RMrw=
+X-Gm-Gg: AYBFou2AAl/WXYpP71u4IixqWE4OKvyW2CeFZT45HwmGgH43C7Lc6wJKm5KqDsWEShY
+	ly53BWEsVPesu0dgVWWVyigkMiNf8yZcQhtjVphUc9NqXkJLUsr7Wh493hYx7aiFv7ruxvt8WiP
+	w8JyelkAQNep5+g/5Om9qf9kxuLyV+zaQw1P2t60Og5fUhKn9HD45uAtLLqGNHD+wEQU+xqkVFc
+	3hNcJ9bQ2kdDVsIMcliJr2YrtWgZtYPnakS8tGX43FzkX3EvdVzsuJ4JRu/8y86ORcaEbwjAqtL
+	1tQpzw6pkVa4qWCFawy9WAn6r1JtkQxs1FzKx+TxWa61wAH2+AkhHwbfOtDDglJcBynYDQsepS5
+	1b+oddInLePTFpeuF77zCSnsBU4dPkiVBNWyM/cTHcLeEISj4l+lNTIDPQWGxZnKN0WaaMQ4V9Q
+	Rp9Oy3wvFfcLN2G3w/pGyC5s6S50BSFGlZGMxa8o2FFp1lY08TqRB/418xbZDM1zm2Lj3XsUO1J
+	72u3Qa8nGombohzX5Fl9AP2XuWiYxOrsosnquch0nqFsHXkCSl89SWsXnT1pSOW/cl5gqp6XYmf
+	5qAbU3XF9e5YU8yg5QzkuBrycGPJCuiHEsaBwR5jw8+Syczw0c186b2/wM+ay/sNlz4aDw==
+X-Received: by 2002:a05:620a:1a27:b0:944:192:85ef with SMTP id af79cd13be357-9442171b0aamr3473450785a.22.1793873622957;
+        Thu, 05 Nov 2026 02:13:42 -0800 (PST)
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com. [209.85.160.170])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91e7dad29a5sm43762766d6.3.2026.11.05.02.13.42
         for <linux-input@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Nov 2026 02:02:23 -0800 (PST)
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-83bbcfba0ffso1148384a34.0
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:02:23 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvByA5lwTVAiBTEhAXincSViz2cA43L677v5UcrDywZeh1lnKCDolxhIEHJ9eqNVNtKOwQGXcO94h1EA7tg==@vger.kernel.org
-X-Received: by 2002:a05:6102:950:b0:7b3:8f0a:f76c with SMTP id
- ada2fe7eead31-7d072bb3726mr8218716137.13.1793872596997; Thu, 05 Nov 2026
- 01:56:36 -0800 (PST)
+        Thu, 05 Nov 2026 02:13:42 -0800 (PST)
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-5363316fa0cso18965741cf.3
+        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 02:13:42 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBwMHtRclJ0xKO6K0Yfed4EXup6A3c7wNHgq3c4xNAxOAe0hTIr31LjJoydE1p+3Gtl2tOaAdleLB8i1PQ==@vger.kernel.org
+X-Received: by 2002:a05:6102:374c:b0:7cc:1a41:20e8 with SMTP id
+ ada2fe7eead31-7d07227a940mr8060714137.5.1793873263361; Thu, 05 Nov 2026
+ 02:07:43 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -80,14 +80,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261104-work-procfs-cleanup-v2-0-1e6687e226b1@kernel.org> <20261104-work-procfs-cleanup-v2-5-1e6687e226b1@kernel.org>
-In-Reply-To: <20261104-work-procfs-cleanup-v2-5-1e6687e226b1@kernel.org>
+References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org> <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 5 Nov 2026 10:56:26 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWkL=-oCgLA3HB0_Js_TdJ+P9FDBPF-u2z7uHrL+m7g-g@mail.gmail.com>
-X-Gm-Features: AclHuK_YSG69l_UQ8CXymziWm2hhXR-Ce9gvdG6ZGXmuBEE26IV_RBgt33sxH_I
-Message-ID: <CAMuHMdWkL=-oCgLA3HB0_Js_TdJ+P9FDBPF-u2z7uHrL+m7g-g@mail.gmail.com>
-Subject: Re: [PATCH RESEND v2 5/6] proc: drop the _buf suffix from the new methods
+Date: Thu, 5 Nov 2026 11:07:32 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
+X-Gm-Features: AclHuK9naqg5CZQ7lhJVrMhg9TNH44f-SpA5WbUGCGBsAlcoOw2midTd7doJSmk
+Message-ID: <CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
+Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
+ pinning the entry
 To: Christian Brauner <brauner@kernel.org>
 Cc: linux-fsdevel@vger.kernel.org, 
 	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, 
@@ -117,30 +118,81 @@ Cc: linux-fsdevel@vger.kernel.org,
 	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 4 Nov 2026 at 22:16, Christian Brauner <brauner@kernel.org> wrote:
-> The _buf suffix told them apart from ->proc_write(), ->proc_read() and
-> ->proc_ioctl(), which copied to and from userspace themselves. Those
-> are gone now. So drop the suffix. ->proc_write(), ->proc_read() and
-> ->proc_ioctl() are the methods that work on procfs' buffers from now
-> on, which is what kernfs calls its read and write as well.
+Hi Christian,
+
+On Wed, 4 Nov 2026 at 20:32, Christian Brauner <brauner@kernel.org> wrote:
+> proc_reg_write() pins the entry and calls ->proc_write() which copies
+> from userspace itself. A page fault in that copy can take as long as
+> the writer wants, just like the copy to userspace of a read, and
+> remove_proc_entry() waits for it.
 >
-> Done with sed. The flags and helpers in fs/proc that go with them are
-> renamed to match.
+> So do what kernfs does for writes as well. An entry that implements
+> ->proc_write_buf() gets a NUL-terminated kernel copy of what was
+> written. procfs makes that copy before it pins the entry. The copy is
+> capped at ->proc_write_size bytes, or at PAGE_SIZE - 1 like
+> proc_simple_write() if the entry doesn't care. Larger writes fail with
+> -EINVAL. The proc_ops go away with the entry, so procfs remembers the
+> limit in the entry when it is registered, like the size of the seq_file
+> state, instead of pinning the entry just to look up a number.
 >
-> No functional changes.
+> Entries that take binary data in pieces, like the PCI config space,
+> ALSA's data entries or a firmware image, can ask for
+> PROC_ENTRY_SHORT_WRITES instead. procfs then copies in the first
+> ->proc_write_size bytes and the write comes up short.
+>
+> ->proc_write_buf() gets the position like ->proc_write() so entries
+> that write at an offset keep working.
+>
+> Note that procfs copies in the whole write before the entry looks at any
+> of it. So a write that is too large or whose buffer can't be read fails
+> before the entry's own checks run, permission checks included, even
+> where the entry only ever looked at the first few bytes.
+>
+> An entry that implements ->proc_write_buf() and still has a
+> ->proc_write() fails to register.
+>
+> No users yet.
 >
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
->  arch/m68k/kernel/bootinfo_proc.c                   |  2 +-
->  drivers/zorro/proc.c                               |  2 +-
+Thanks for your patch!
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k/zorro
+> --- a/include/linux/proc_fs.h
+> +++ b/include/linux/proc_fs.h
+> @@ -67,6 +74,16 @@ struct proc_ops {
+>         const struct seq_operations *proc_seq_ops;
+>         int     (*proc_show)(struct seq_file *, void *);
+>         unsigned int proc_state_size;
+> +       /*
+> +        * procfs copies what is written into a kernel buffer and calls
+> +        * ->proc_write_buf() with it. The buffer is NUL-terminated and holds
+> +        * at most ->proc_write_size bytes, PAGE_SIZE - 1 if that's 0. Larger
+> +        * writes fail with -EINVAL unless the entry asks for
+> +        * PROC_ENTRY_SHORT_WRITES. The position is NULL for a stream, like
+> +        * for ->write().
+> +        */
+> +       ssize_t (*proc_write_buf)(struct file *, char *, size_t, loff_t *);
+
+"const char *"?
+
+Seems like you have to drop several const attributes during the
+conversion from "const char __user *buf" to "char *buf".
+
+While at it, I think it would be good to use this conversion as an
+opportunity to replace "char *" by "void *", which will probably let
+you drop several casts from users.
+
+> +       unsigned int proc_write_size;
+>  } __randomize_layout;
+>
+>  /* definitions for hide_pid field */
+>
 
 Gr{oetje,eeting}s,
 
                         Geert
 
--- 
+--
 Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
 In personal conversations with technical people, I call myself a hacker. But

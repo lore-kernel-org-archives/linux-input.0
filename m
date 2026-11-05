@@ -1,91 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793900594;
-	b=tXoN4QDPd6V80gqE3B6g9KU4XjlbVkkKughKQbg9c8PJf7CgTilwyui3wUcEn7c8cdxj
-	 Tdf4OL2pxugVHuUeRElImhLwzH/+zp2zuSU8SZibJIIDANFqayjtirCKo6WmJZM5nmL1f
-	 9xv6JdbSgr0pOOEQsG/sQPRWvef9hJLpcSwQM0hKjOswIdZQvDgg+mDVsuPL4aIwYYPS+
-	 kIYtNvLte7SxE16MTbQMDveUa8Z0Kv1LExCmRsvF3xYFz/hqhP0nSbzWwuQboj/0BWRAH
-	 qEKyhmCvBA2IJJI217bXm+rztT9HNpQGli8SKCYKvTcGYo/89CyFrtg8R4eK/X6TzdQ==
+	t=1793903188;
+	b=cFM0+pzysVFTp+ZQ5cSZTjmmpwFyMz3EpbFRkvFuDpyCin/F5No5Ml/nEDhIeer/MV6J
+	 po2TvQq+RHCW+nZEBYxCUfbbkyEF8xpaWCPnAV0MxID6+fBFZg6d6QnC5qDrPLg0vpLeX
+	 Mli8SmHCE66PPt1WLy/wBeAc+srP2oURiQBTYhS0pUeuqczi/V0IlhguDu2DE390Tl4DA
+	 XMcmHnKdBW8VvT6FJD0GbEEXs2jhBAmHlKpb+dhJ7bT6dv7X1JHpy9ZFgmhDM6+mrBZYO
+	 lQpYA6SifEHIy4IoCYtqCHDxq0mSEVzcadB7DYdPxkIuBKR1z5VkbuWyAuO2ZDOXhww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793900594;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=FXWweisIimkht5Pq5NCBqOipAtAwASQ/Tc1CwWiphJw=;
-	b=SzrjIdr163gQYDlxV9ddGuMoqsVjNRx4KOL/q8VOQm5InfYE4nhVpr7lqGbShZr7shKH
-	 tvhR2vZNhSV9QXW7IIjEBaGgDXvDhReSJoncl/1qcJNdbazysj61AH3v9EQcVY9lgCYcf
-	 PrCKSbtyARV3GQpok8MknSeIwJ8FSmcpJm+F+kLr2Rxmc1kapWBsNczaH8szvlNb2+t3M
-	 pYR4B4uxTr57tIfQJtGDCHJumA/a395lwW6LcwSmK1SKOv4ncqvZ0nJpyR2XHq6IYfUYi
-	 +aUDwzoyEaZ+VKVlMCiL41FdBtJVUD8YEII/d5cot5sKloPJx0kcOqroBOuBHRs1hCg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793903188;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=/R0hL4pC4E1+M4yPEUjAb9DEswCGIx3z9hc5cmLnrn8=;
+	b=RYbn3/hxRfDGlhYufbFPel9k+IJBb/WkzM6TuPi74pX12Y/kSUV5CDcdqK8c3kzBx71Z
+	 TYIrcpzOQpzdxPcOSpEHVq16URrYuDRVOGWqeSEv3NQEmKnzU9iTCqMmkzWkofnbCB/5+
+	 AJTrFn+5nOXPdEo1aenNb7O/W7T5Gt6MvndMHAZvsFBvVXta3q4sNDnNX2QyqSMCKpFwR
+	 dpPyPm6M7QaH6/RP/veODloWicMlvhHqzrJw9CIBj7UkrzxafIgFw4qoXaI4P6GT1rLbo
+	 aP0irO+QEPK2WP/WDHgYoGn308x6xFAFKODSynwujMSV+1Yr7vIzAXeoQQzL2lreKuQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=i0NF8kYm;
-	arc=none smtp.remote-ip=209.85.221.43
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="WSADaA2/";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7323E606D804
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2026 17:43:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7323E606D804
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D977D606A31B;
+	Thu,  5 Nov 2026 18:26:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=i0NF8kYm
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-4923176309dso306708f8f.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 09:43:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793900593; x=1794505393; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FXWweisIimkht5Pq5NCBqOipAtAwASQ/Tc1CwWiphJw=;
-        b=i0NF8kYmW+NC59nd7JBd2hvyXiK7YUHTymxBhFwVITBVi82siH751HKJQ63B9EMo2a
-         Vlufiopi83PN9Y88qA4VYJvwH8xVq+hI+f+gFytpAN+TCVzud5oV/P52bFAOsLf6GEQi
-         AcAzAG8DuaoB58/3eFs599caSDacHSgqsi2CVkkb1uqqHcX1TSNPrA0PYMGooaP1clwk
-         yUh6ziJpVsus3nTtnfpRYbLISSvS+pmu1YKqR8wniQNRu8wjaLjDiqDGWHuM1BDrqZgH
-         rOUeobOLLnOynx4fhLH1kmY1lTg2eWCjK9Awn/izbEaIuzvyFpNA+u36HDZzI+VP2hiP
-         gcnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793900593; x=1794505393;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FXWweisIimkht5Pq5NCBqOipAtAwASQ/Tc1CwWiphJw=;
-        b=UZGDJomn6MvKIU7t3dOG8jJ6HwB6PcfAef68MtoYFkL7mL/4sRtQ5DWTVjtkSrpVnD
-         RbwK0edYcZ4pfIcK3CjOJiDsEDIGtQKth6PsRfv+TLT5qUUSCEqbZMsaqtebmvJh0UNO
-         /L2OBIDnQLODuUvM8ot2jzXX01X8gYZEr0Eqw7Xm3Ao2oaU3y+cGynGH2HLgiGPEmiy6
-         u/UKalun/u4O+6tbP3OyFQ7c9EJu8QQ2jDQzwcMnNQQTGTOHmAzqWHeGkSrQ5dpROUsX
-         BrKA8UQVDHxCF96GsGbnqeeCslXGdXIJoSW65j7TVv5Xi4UqpsnjTjAsCMSmH0OlQMs+
-         bN6w==
-X-Forwarded-Encrypted: i=1; AKwUvBx1TS4Hd5d73kzUlhFTOWz0bvuNUe8R0s0sF7UgO8QeeBDPZznNYcCkJExmtbhP7Dpbj0VxVUjCKv3Oqw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+ATi51A0XKq4ht5G/CT57EGIy5rWZcJn1+5wHDXF+8/mgMn3Cu
-	Swr97854JT0Cc6vIWDRzlfL57FYyVL8q1aMNJLKbUpdItfaTvPRgxqGwySh0zggM
-X-Gm-Gg: AYBFou10j5AUzr0bHR+SMyzb/K2l4/l1hzsHdJYsXMy57lkvvR8+N5nHjOFc3l/rL6g
-	dhGcnBG4rDQX8DEHzMeEI5Ni6VKLtNi4xOEDUS8Btg+gZRvPDFZLZ2/pOA7VA6FIVtsDMLAnIYt
-	NDgykf8bJxJwihTAB4TC9EikXGOHDbTFBtOOtv85dV7hfKv7sSNT3Ragz8tc6AwRA4vSyRlJOkn
-	SlGUSREHO6pAAP7MKSvEMv72F1rYOMaIhEb+HDtkfXSY0hBpWjHFWUVYrBVWBnqRA2lvjV0Eig8
-	EOzgWYpBrONzFMpOfJsLfZPMsun1J8H3zaFpzieKbPJJK2YDNzQeTAZqlwT9Z6I3+FX9KvXX3je
-	rXJOqctVLaTFBq+lyfdcpN06FnzD/jXqmZuIYapC9xsxblBYb8RdA6FATkUcosW8mK3E4mDAsCn
-	sjg7kJjMbex8KbLas8zL5q1iJfztK1TXcOKGymoZNZA0Xnn3x3Ml5l91k9KLP65VzXArUQjfVtS
-	cOZmfVDsGWPySpJzaTSHLbGsIYwp906pqo6uT3aTSiSREc1uznlFm6Fl159fQruxJedQy1UfOei
-	ho28/jRafSx26mOuGlM16z9FMyURspLJYqwse8iFLyZc1w==
-X-Received: by 2002:a05:6000:22ca:b0:48d:f3a5:4563 with SMTP id ffacd0b85a97d-49274bc839emr695784f8f.20.1793900592571;
-        Thu, 05 Nov 2026 09:43:12 -0800 (PST)
-Received: from cachyos-x8664.hgw.local ([2a00:1d34:861b:8500:1b0d:8ca0:906:12b1])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48fed553441sm10182903f8f.43.2026.11.05.09.43.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 09:43:12 -0800 (PST)
-From: Muhammed Sariyildiz <asiyee994@gmail.com>
-To: jikos@kernel.org
-Cc: bentiss@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: multitouch: Preserve class quirks when inverting orientation
-Date: Thu,  5 Nov 2026 20:42:52 +0300
-Message-ID: <20261105174252.36714-1-asiyee994@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WSADaA2/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59AEC1F000C1;
+	Thu,  5 Nov 2026 18:26:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793903187;
+	bh=/R0hL4pC4E1+M4yPEUjAb9DEswCGIx3z9hc5cmLnrn8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WSADaA2/B0njymg1oF8Zt+aQWjkjZp7YNB/CPyp9J98Lqyl4v6ZjN9fdw7/g/aDHs
+	 chIL9JCou1TsxyZomGHv2ZBjLQZ9Z1DMWTUjRpmHis5a1j1jVyAEUyc+4ePcQsFPhd
+	 OPBs016zO1yFXnt4RNHofu1Kp5EDvzii20mg9cT1xiXd9rLrrVGa/442/RYi2She4m
+	 EYJhTmYBt2Rvig1iLH8Imhje9jvJRWYRfaZbM8Jt178SF2ils406aYXkle+Zdk/FLn
+	 gDUCaggZAfj1BLbk+EODCjDPXj1SZjVg3T1elHfRmQ6s3AYErm9i4G5kIxtD/aXjgb
+	 Fehrul5E5Cuyg==
+Date: Thu, 5 Nov 2026 20:26:22 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, "Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev
+Subject: Re: [PATCH 17/17] PCI: Replace untrusted state with device trust
+Message-ID: <20261105182622.GD8298@unreal>
+References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
+ <20261105-device-trust-core-v1-17-1e536825b4eb@nvidia.com>
+ <2026110526-aerobics-correct-4c06@gregkh>
+ <20261105131856.GA8298@unreal>
+ <20261105140352.GF3889730@ziepe.ca>
+ <2026110558-tartar-juicy-036a@gregkh>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,34 +90,70 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2026110558-tartar-juicy-036a@gregkh>
 
-When exactly one coordinate axis is inverted, mt_probe() replaces the
-device class quirks with MT_QUIRK_ORIENTATION_INVERT. This drops all
-quirks selected for the device class. Applications created later
-inherit the truncated quirk mask, which can break device-specific
-contact handling.
+On Thu, Nov 05, 2026 at 10:43:00AM -0500, Greg Kroah-Hartman wrote:
+> On Thu, Nov 05, 2026 at 10:03:52AM -0400, Jason Gunthorpe wrote:
+> > On Thu, Nov 05, 2026 at 03:18:56PM +0200, Leon Romanovsky wrote:
+> > > On Thu, Nov 05, 2026 at 08:12:51AM -0500, Greg Kroah-Hartman wrote:
+> > > > On Thu, Nov 05, 2026 at 01:42:30PM +0200, Leon Romanovsky wrote:
+> > > > > From: Leon Romanovsky <leonro@nvidia.com>
+> > > > > 
+> > > > > Convert the PCI specific untrusted to use the common device trust
+> > > > > level. Adversarial means the same thing untrusted does.
+> > > > 
+> > > > What about for USB?  Will that "move" to use this common trust level?
+> > > > If not, I don't think it's very "common" :)
+> > > 
+> > > It supposed to work for all buses out-of-the box, at least this is the
+> > > intention.
+> > 
+> > You mean DISABLED/FULL should work with this patch series on USB
+> > right? Meaning the core code will not bind a USB driver when DISABLED?
+> > 
+> > I was wondering if some of the broader things we are doing on PCIe
+> > also apply to USB, like device authentication. I don't know alot about
+> > USB, but I got AI to help me find some relavent spec information.
+> > 
+> >  https://usb.org/authentication
+> > 
+> > This looks like the parallel to PCIe SPDM device authentication. I
+> > would expect it to work broadly the same way as PCIe if anyone wanted
+> > to implement it:
+> 
+> No real need to as no one actually made a USB device with that spec :)
+> 
+> There was some patches on the linux-usb list 6 months or so ago to try
+> to implement it, but it stalled due to there not even be any devices to
+> test it for.
+> 
+> > 1) USB discovery discovers authentication support and creates an
+> >    attestation subsystem device for it
+> > 2) The struct device starts up with trust = DISABLED
+> > 3) Userspace runs the crypto flow through attestation subsystem. This
+> >    is extremely similar looking to PCIe SPDM:
+> >     1. GET_DIGESTS -> device returns a hash for each certificate chain
+> >        slot it has.
+> >     2. GET_CERTIFICATE -> device returns its certificate chain, read
+> >        in pieces.
+> >     3. CHALLENGE (nonce) -> device returns CHALLENGE_AUTH: the chain
+> >        hash, a salt, a hash of its descriptors, and a signature over the
+> >        challenge and the response.
+> > 4) Userspace inspects the above and approves the device
+> > 5) trust = FULL, driver is probed.
+> > 
+> > But I supposed Greg is asking about /sys/bus/usb/devices/DEVICE/authorized ..
+> 
+> Yes, that is exactly what I am asking about.
 
-Add the orientation quirk instead of replacing the existing mask.
+I used AI assistance to create the conversion, which produced two patches.
+The first exports `device_trust_set_policy()` to support
+`/sys/,,,/authorized` and `/sys/.../interface_authorized_default`.
+The second adds calls to the `device_trust_*()` functions.
 
-Signed-off-by: Muhammed Sariyildiz <asiyee994@gmail.com>
----
- drivers/hid/hid-multitouch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+https://git.kernel.org/pub/scm/linux/kernel/git/leon/linux-rdma.git/commit/?h=device-trust-core-v2&id=98f5d11580d736a7878323dfb7238cd08c6c76af
+https://git.kernel.org/pub/scm/linux/kernel/git/leon/linux-rdma.git/commit/?h=device-trust-core-v2&id=f10f8e448540982699438dce369fef6cbfabcba5
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 4e19a0c..94e83fc 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2155,7 +2155,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (hdev->quirks & (HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT) &&
- 	    !((hdev->quirks & HID_QUIRK_X_INVERT)
- 	      && (hdev->quirks & HID_QUIRK_Y_INVERT)))
--		td->mtclass.quirks = MT_QUIRK_ORIENTATION_INVERT;
-+		td->mtclass.quirks |= MT_QUIRK_ORIENTATION_INVERT;
- 
- 	/* This allows the driver to correctly support devices
- 	 * that emit events over several HID messages.
--- 
-2.47.3
-
+Thanks

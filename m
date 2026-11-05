@@ -1,80 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793890215;
-	b=KnbfAx+c848JKjlkgKj9tu0gZ7pw1YMCKq0/C7Y1NbIccCZBzXT/j1ghC063QH8BULy7
-	 GBbZ2rdY2cmE7kYCrbNlTtcuJaCi63KZYTUecNASO3NTiMztcZwdYFnp2gG6a+e1oAlLj
-	 Nuui/ozSq9r/fbRP8/sblPAMp1sYtw7rAzmdoj5QG0fWxr6HKCVu0OyaJfNoTAzaxe9fV
-	 cp+WIyZytQuXeOwxaYsof0zJu0y469KB0uC8LpTYgi5GJCGJ77jWd5dXI5+o+9y09iT2F
-	 D+3WB6TbeSdBfmJOYLyCQ13bp80KdJenqqhg7Ce+T/gtaN9BtJfDC7OfE2+C9aP5mVA==
+	t=1793890253;
+	b=YaP/OSMxw07/YYvPoYskwYy09LKQ+VkcUBLm2sap8KhPagUvcASBwGAX5CbBS/8pMgo1
+	 EXBu8vTh9DPwep2IzHBCjQrOpkgahLn2J4tNgR2LLMprj2nwONX4qgOZiWt50L2E09syZ
+	 ewlTL8xmv6WuiMCCXkdgxqLU4UnH1Xkq/Wh88r8BPsVsSe3iD2OngAMCyKGEdENFN4Jmg
+	 GZ/UH5JF2eSLs66f4T6QopIiAXHkVdCYyKxBgn2NecUCxjKv0srd67uzcqLF39hfsywVA
+	 n4/7uY8b6Vbvrpc2ayupyCf2Xky22AYx6/mQbeOXOckX3dySoQGRv4o/V2dCLXKIbdw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793890215;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=b2crl1kVB09+F59TlrEUv7P01dSBP3Uf/xIwzH7wMCc=;
-	b=vT6jXnJaRVTNg8Eu3C3l0wWFsuXjlpcgI0TQRsSVHNJaZ+kXYRO1JdSQV6/S6V9u7QkM
-	 X5UAaR/bsyhRmquZ9zKrV/OC4TPpdvai31FIE0K3ZjcxVWr/z7Q2eYvxY9Q2MmLx2WUsk
-	 mIGgJ8iU4zHGBy5VJQyZSNq5YbDFhmR6HYiuRMV/uwSsuANarrWOJ5xAgBVzwEjIaiDgc
-	 Ik1IWuz3kTSpO0lW0m6Vr+tVZiQJOHhv46RMp4lPp+0g5B4Oxa4B/UdD/tN6mcZffu9u7
-	 4aRXlAL98nDWwk7cyX2Aw/JllCS4yAy2/R7jWd/p74VuuEtZFh8QigSnvwWBeWSG39w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793890253;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=0QVs4UmW82faR41mfhaV+h9cFqICsfNx9N9UbV3NoAI=;
+	b=ra2CnasgvyUHBmR29AY4TKSkNzceAQhFfsISJ61slGBQ8mb7Mz6zDsV0Cd7Im6D/b9a1
+	 YMclkrH4N5DgFwgdSbLePiFf8QL/LexwFaxBAi+ZA5/EUrxAMtzMTDVvbpyb8BPCGTLDz
+	 0HKCPXcfwKxgtXotgDJ7mpxj7L0QBB782vG5G23qYmdEMwFfNQHNugIpBvAzOed3RtCBG
+	 WQYVkmbCJdavs0dIbd8edC/VPoczBZmJhtPsVZfDX7bG6C3gqFxQ7etazzG4oeQoTWWs/
+	 90lphiPYNDCTzo2VSB3rwmAAhs5bZgT4xK7Nfqto2dhQlG1mVi/l9f/a+cszECBNAlg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=IyXJrk6W;
-	arc=none smtp.remote-ip=198.175.65.12
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=lunn.ch;
+	spf=pass smtp.mailfrom=lunn.ch;
+	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=DNoY4vhi;
+	arc=none smtp.remote-ip=156.67.10.101
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46C20606A329;
-	Thu,  5 Nov 2026 14:50:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 46C20606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCCD1606A31B;
+	Thu,  5 Nov 2026 14:50:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CCCD1606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=IyXJrk6W
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793890214; x=1825426214;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=n9n7IjbZl9ZQnOs7J/aNx4lKInGmgZYASnXAQCl7QHY=;
-  b=IyXJrk6WnfzpPAKbLyRImaW7zSH5cPAqQWFoDoJySTzxSwD5SlPeJAXQ
-   TJ+/vMsFPOfoGgc80t1/Q1XbirxydpaLTWMFQCx5pcPHDaSk8BhZ8ZLbV
-   w6QYaJN9LIY5D5ZdP+ltPBItwjDuqO+oGzOZ5zcwmJt8jHmPcmwH0x4rA
-   gxQqOqqThYwBBhyNqi7OcOHpSN/OnkP/AM3P+3xIGASoe0XMTSPATr2IS
-   85JuCORsGvN3xgHOuyX+shqt5VLxaXG0y9W7sLhlcU3cVrzWyZ9tBDS4T
-   9l3JGXguqHwzQZwVjns1uuMwYvmN8hRVqvPXCKl2WxCMp7QFzAj5LrcNh
-   w==;
-X-CSE-ConnectionGUID: DduQdqJoRqCK5OvVbPpDQg==
-X-CSE-MsgGUID: 8XxZihLvTdaoUFm9bl5vNA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11957"; a="2556688"
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="2556688"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 06:50:14 -0800
-X-CSE-ConnectionGUID: JkPnTE3XTFiHxOj97f85iA==
-X-CSE-MsgGUID: SttL37Z+QyyqYRlYmUfUzw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="7342497"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 05 Nov 2026 06:50:13 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xOyn3-00000000mLX-3e4V;
-	Thu, 05 Nov 2026 14:50:09 +0000
-Date: Thu, 5 Nov 2026 22:49:35 +0800
-From: kernel test robot <lkp@intel.com>
-To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>,
-	dmitry.torokhov@gmail.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - make InterTouch quirks table driven
-Message-ID: <202611052257.XSUus1c3-lkp@intel.com>
-References: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=DNoY4vhi
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=0QVs4UmW82faR41mfhaV+h9cFqICsfNx9N9UbV3NoAI=; b=DNoY4vhiJHpefpc0K6k4ZEejnE
+	z7BMrzdQ39NWlIM0NCy3i0azEyJUm7qdCzDTWvFOnHtGFFojpS2FV6+ZhBEddcut8CT3kNR7w9vtJ
+	EbHP1y7vEIfqNZfBSV2OfralcPASt52j8xroqTNGzcNbawSyJl9tZWOJnJhANmXQBWjA=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xOynT-00Eacz-Jh; Thu, 05 Nov 2026 15:50:35 +0100
+Date: Thu, 5 Nov 2026 15:50:35 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH 03/17] net: phy: Attach generic PHY drivers through the
+ driver core
+Message-ID: <9866a873-e71d-48cd-9153-be1bfce51eda@lunn.ch>
+References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
+ <20261105-device-trust-core-v1-3-1e536825b4eb@nvidia.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -86,55 +94,24 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
+In-Reply-To: <20261105-device-trust-core-v1-3-1e536825b4eb@nvidia.com>
 
-Hi Lovekesh,
+On Thu, Nov 05, 2026 at 01:42:16PM +0200, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
+> 
+> The generic PHY fallback probes directly before publishing its binding,
+> bypassing driver-core admission and supplier checks.
+> 
+> Attach through the driver core so admission precedes functional setup.
+> Callers hold RTNL, which a concurrent bind of a specific driver may wait
+> for with the device lock held, so for this flow let's add
+> device_driver_try_attach() so the attachment never waits for that lock.
 
-kernel test robot noticed the following build warnings:
+FYI: This code is fragile, and causes issues. I will need to stare
+long and hard at it before accepting it. So i'm unlikely to do that
+until the basic idea is accepted.
 
-[auto build test WARNING on dtor-input/next]
-[also build test WARNING on dtor-input/for-linus hid/for-next linus/master v7.3 next-20261030]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+I also wounder how a PHY is a threat. What is your threat model for an
+Ethernet PHY?
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Lovekesh-Solanki/Input-synaptics-make-InterTouch-quirks-table-driven/20261105-095614
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-patch link:    https://lore.kernel.org/r/20261105042614.688312-1-lovekeshsolanki00%40gmail.com
-patch subject: [PATCH] Input: synaptics - make InterTouch quirks table driven
-config: um-defconfig (https://download.01.org/0day-ci/archive/20261105/202611052257.XSUus1c3-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 812626a41399a1d464a0d69627ab45c83b8ebfb9)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261105/202611052257.XSUus1c3-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202611052257.XSUus1c3-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/input/mouse/synaptics.c:226:1: warning: unused variable 'synaptics_intertouch_blocklist' [-Wunused-const-variable]
-     226 | synaptics_intertouch_blocklist[] = {
-         | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   1 warning generated.
-
-
-vim +/synaptics_intertouch_blocklist +226 drivers/input/mouse/synaptics.c
-
-   221	
-   222	/*
-   223	 * List of devices with broken board revisions.
-   224	 */
-   225	static const struct synaptics_intertouch_quirk
- > 226	synaptics_intertouch_blocklist[] = {
-   227		{
-   228			/* ThinkPad T440p */
-   229			.board_id = 2722,
-   230			.pnp_id = "LEN0036",
-   231		},
-   232	};
-   233	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+      Andrew

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793878962;
-	b=wT/XadydeQeBuFy7DsD0UiYk3ADtVruFucXZiTw6VfhKGJQc4b8RhxTetjPod8inJKx3
-	 NWljKmjdq4aAIuog0RcsVVb9fyaX6/kJha+rNFZ58j6Tz+vfT6dZ27JlGkqhHltY2cCRa
-	 KHV0hc+vsIJ/brgRIRZXV49BxwXbwZvtpt7uY+oWRy9X5oXG+IF1rRoSXn27F5h79gyhm
-	 oBPpv2tHMv/65ZtR04lyf6sBubcpBhs0LiXLhmHDxSkvIkFCL5L9RRKN82aOpIR0OXSo3
-	 Z4YJDbmp8CaP8RZB3RY6JXsYeTZi4epCLA5pj1cKswX0j3NNnYPVunio6Qg7S5o1hDQ==
+	t=1793878977;
+	b=u01Ky0WJrd7RieMb1IgZk+dAPmqPUStOtLerhuK2qwwpm0Uhnqe9uuQIvbKaswqUSYh+
+	 25JrEn1m2an9xf51FytUGwrrGrPWyORLC8L1FZTeB1ADKvt0TaU0+ikCE/WB2HZDGpukq
+	 ok1A9DAkyzaCNvRl3HMUTmYV/SAUGv+EUVukpECqKGurPyfHiIwkG2gUxJUvhO1Z/vCmg
+	 9pDmZO/Dh8ukHEJoc7S1BpqLfcSglyJ2OEVRHPSpXJVuyjPgSfIFzsRviVSw9oXBmTTDv
+	 JDL65CbawsNzwFSbtw9X/heZT0vhmDojl5a6CiPX5bBp0Qk8eIilK4k4ZdmIVCVbeJQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793878962;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793878977;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=q/Qxk6NeWhoD49CZMGNhUQK3Ye1Uhy5tudrbI2veMqg=;
-	b=yb/G7HuF7PCveQrq8XpHxXMQP5cLmcZM+Q3BnW7nJRmA4zqX5m4dcTxPMTlQGlU5HYSV
-	 es5zV4yyq74IaL2xbFJQVFQf4xKMsJk/npuFmFjXyd3006lSFBvWe+ciKblzLJdK1UUC3
-	 XX9SXL01B0jHXHIHUuOrfTjD9xMo+q6Cvui1fLaho2K/WXV53sbCz/1Yi3vrm3v2liPVC
-	 bReLypLFxz+79BjztdX1ur4Tn8diBK5c2OqVvgf0VoSekFbGoZGYr13I5kkmEJ/pduYoZ
-	 dAoEZqGM9qHjdvY6ov+eMRzezNgpryq0lw/aSbD9b4b6AN+TD8wQKFBdkbNWwE4WMtw==
+	bh=Y/diz28OtqaYX4DdZb+JhCSN/xAyOePemSvH2IVI+oI=;
+	b=dGyOQHr94Mdi2Qm7LFsvZhDEtuNo98cH4R00nA3PzCzEfgFEUIfNgYuARY8Im4fp/ToH
+	 QheJKeMOA0IDLk/lXG9U+e0DaumMIChA4M2jTVymDVIFjIzNKlR9ez8CC1UISq3QT8hb0
+	 21DQauUUz00cVvVbuzFPZTIs4C41h5wD0pBn80UrGKG8sl3m+8oTnIrNYjeIrY4RNaW5u
+	 TFxj0IzfrKpnihV0uWW7v2xFQ5f6I2kzQYM1xDsi3wpaB8O3AW8Do7xyyMFcRIonFWpwa
+	 3GlU3j8HDvasRYrbyODMlm925Qg2+ak8qJak60fkDk1D0UM7HQF4TLkFFXaHt2j4FJQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UW7yjrIx;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbL5QjYs;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D1E606A337;
-	Thu,  5 Nov 2026 11:42:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A884C606D830;
+	Thu,  5 Nov 2026 11:42:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UW7yjrIx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E152E1F000C1;
-	Thu,  5 Nov 2026 11:42:40 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbL5QjYs
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425D71F00A15;
+	Thu,  5 Nov 2026 11:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793878961;
-	bh=q/Qxk6NeWhoD49CZMGNhUQK3Ye1Uhy5tudrbI2veMqg=;
+	s=k20260515; t=1793878976;
+	bh=Y/diz28OtqaYX4DdZb+JhCSN/xAyOePemSvH2IVI+oI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=UW7yjrIxoMuhKqJCMOf168PwSNa9h/+jej36Fcd/LWKz5NuA9QtRSYRCMSNZd7xvT
-	 jjcrXib9VxfxHay7RdARYM8NeU7zB0bpwGwwYgzD0CvNPnXv/GLWtp2jAQT48bHD7c
-	 tyeFBzdliTt5BAw3wlKkrQR+vugiNfVUR38D88DQyDcjJfsvxOt8nVfm/MhstM8+TS
-	 AK53IyoMUg23I94IuY9b8bE+ecVbmF/PCb3YYyz3iMsn0TvN96HrYZhD0ZXbDQn4U8
-	 ZQ+r3uBNwMmpMzz06/7ItmYDusnSaVPAiPDlo7jBWoXZuaJurDJCWMhQghPLntFzVc
-	 IF5WqejG+eXSg==
+	b=WbL5QjYsFkg65r1u2G3TgevctJY75JgPBr4BQeGQMD/7QzqtkIWrbIB8hZGRT0mfw
+	 /kfVAiYZJu8K/qqQnLel87sKZgqwTFBI5uhJnqJsg9HJGz2xXyCHHqsy5pMzCyYUOA
+	 nXRvT8P29UgyOeBEE0eY6Km0xdBtugwoUUqc1uyUwYj3cCGJwZYddOkcTeqNb6ZzV9
+	 748SmpPnmX+lnfiPSSwGHW6o11kAwCvZmoBqacXlE0V8Fms7gCltsiTTiyrfi4tIEh
+	 fF/Q8HZs6P/tuorrRu9e7N/eT7XRGR92gPVL1D6yFrgwtW2RGnfWcWaNT4pU7Pwsd9
+	 LqiLwc4CO4n9g==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -82,9 +82,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-pci@vger.kernel.org,
 	iommu@lists.linux.dev,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH 02/17] Input: serio - attach manual drivers through the driver core
-Date: Thu,  5 Nov 2026 13:42:15 +0200
-Message-ID: <20261105-device-trust-core-v1-2-1e536825b4eb@nvidia.com>
+Subject: [PATCH 06/17] PNP: Attach card devices through the driver core
+Date: Thu,  5 Nov 2026 13:42:19 +0200
+Message-ID: <20261105-device-trust-core-v1-6-1e536825b4eb@nvidia.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
 References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
@@ -103,54 +103,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-Manual serio binding connects a driver before driver core can admit the
-device. A rejected binding therefore arrives after functional setup.
+Card device requests probe the selected link driver before driver core can
+perform admission and setup.
 
-Keep the port ID check and use device_driver_attach() for the existing bus
-probe path. Driver core then serializes admission and handles probe failure
-before publishing the binding.
+Use device_driver_attach() for the normal binding transaction. Keep the
+card link owned by the enclosing card probe until the device is bound, so
+probe cleanup and debug removal cannot free a link still in use by that
+transaction.
 
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/input/serio/serio.c | 24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ drivers/pnp/card.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 54dd26249b027..604440244c1ca 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -81,28 +81,10 @@ static int serio_match_port(const struct serio_device_id *ids, struct serio *ser
+diff --git a/drivers/pnp/card.c b/drivers/pnp/card.c
+index df5e3d3cbf6c0..9aaaa03d5ffa9 100644
+--- a/drivers/pnp/card.c
++++ b/drivers/pnp/card.c
+@@ -52,13 +52,17 @@ static const struct pnp_card_device_id *match_card(struct pnp_card_driver *drv,
  
- static int serio_bind_driver(struct serio *serio, struct serio_driver *drv)
+ static void card_remove(struct pnp_dev *dev)
  {
--	int error;
--
--	if (serio_match_port(drv->id_table, serio)) {
--
--		serio->dev.driver = &drv->driver;
--		if (serio_connect_driver(serio, drv)) {
--			serio->dev.driver = NULL;
--			return -ENODEV;
--		}
-+	if (!serio_match_port(drv->id_table, serio))
-+		return 0;
- 
--		error = device_bind_driver(&serio->dev);
--		if (error) {
--			dev_warn(&serio->dev,
--				 "device_bind_driver() failed for %s (%s) and %s, error: %d\n",
--				 serio->phys, serio->name,
--				 drv->description, error);
--			serio_disconnect_driver(serio);
--			serio->dev.driver = NULL;
--			return error;
--		}
--	}
--	return 0;
-+	return device_driver_attach(&drv->driver, &serio->dev);
+-	dev->card_link = NULL;
++	if (device_is_bound(&dev->dev))
++		dev->card_link = NULL;
  }
  
- static void serio_find_driver(struct serio *serio)
+ static void card_remove_first(struct pnp_dev *dev)
+ {
+ 	struct pnp_card_driver *drv = to_pnp_card_driver(dev->driver);
+ 
++	/* The card probe still owns its link until this device is bound. */
++	if (!device_is_bound(&dev->dev))
++		return;
+ 	if (!dev->card || !drv)
+ 		return;
+ 	if (drv->remove)
+@@ -331,16 +335,12 @@ struct pnp_dev *pnp_request_card_device(struct pnp_card_link *clink,
+ 
+ found:
+ 	dev->card_link = clink;
+-	dev->dev.driver = &drv->link.driver;
+-	if (pnp_bus_type.probe(&dev->dev))
+-		goto err_out;
+-	if (device_bind_driver(&dev->dev))
++	if (device_driver_attach(&drv->link.driver, &dev->dev))
+ 		goto err_out;
+ 
+ 	return dev;
+ 
+ err_out:
+-	dev->dev.driver = NULL;
+ 	dev->card_link = NULL;
+ 	return NULL;
+ }
 
 -- 
 2.56.0

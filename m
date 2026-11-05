@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907345;
-	b=5hHMucWssVAYVNV6zALyjnTRRj8/HAO18owKDXF2KrRBloiSMs9UcvT8oPlSKN9c2R0a
-	 ONBatJepbmmc8SKUWGuzPnL45halhZYg12Fe2YW79xEqBF63CC6iPPYIDPS+R1XSAgiGp
-	 Zl8SjpYpGjv+v3qR+0Tsc+6U49W8dJslmV55qYyMAmfCcd78+RfozWNv5yVnRdnzv2vrz
-	 yGYlNa3MdcBo+ALrw0KEz+8j0g1/kjXjLE53nsUO07gaaNlbf1Aexr67EtPtzLL8wXBur
-	 gikiUEzwdbMO69W3aV4G6kIC8TtEeUwZz52LhtxGI6gbqnE3uSrKIRdjbcqe+f3UqpQ==
+	t=1793907333;
+	b=sCK3nKT0Ey8gk6lvehcZtvYKy1VGBwajlQJVorCknVbuYgiBeom4EeofDn5xAEml959F
+	 Bobd+KOuwQYE1K8n4KgVr5YDsog8ZA05elcbf9VdAa36yBvZa+1v5Sh1/n+XJ7or6lztu
+	 8MV9m5a7CoB2wKbcC6dWGEy208fYGA2vcxkbtFOhGGvYctQQ8veV8Bz1OdjM5y7S7uS5a
+	 xCU6QZ3P2QJUJ5sBG27a26E1aw4aTcCf1BLmRPiWfgf/XSbV56oH98NRiZjWcrH6gRYHv
+	 GNUF9nfwswZWgsKNnxB7bbhZtfxtyVha3k9qQ/Ve5RqU51WkaweWObA7x90Ilm6WQGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907345;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907333;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=alsXUfuEo/F1zePFVRl45Ndme/OflhiQcp41SPItDb0=;
-	b=Ey6hVcbp7BFwAOJhn4jNKvkoWI7Afq+2zwIzIXpIi/alSUo1mMj9e/L5/b8ULBw4tffS
-	 lLUQQ2DUqqAwmFI0I/ZwgVdvk3L1elzAKyXYfBDHyrrXqXvrG6mAYTObxp5iYmf9nLyLg
-	 6j7Hrlz45Ny3qsZmph9z3WhAWbb8hJTXAy1rwzWFIl4dB/PR/68ciaOhPWrpMmrITkUit
-	 wa74kjP8b+QKSXrzJvFcpq21RUMUy5aulG43zDpxG1WTtZxlUJm2e4DWHfhbqOVkObdH2
-	 xFAD0YvIfryO22v3JZqQM/akIUVxvMlYd+nhsjiRV/kJJ0KL3BspzH9+1W18lKqt38A==
+	bh=QnupmpJjcDSUenY+8iHhV2pDdP26FR+grPEd9BKN+Wg=;
+	b=q0CFr9e3yjrR+hBl85q4vz+VGFuIeCmjctU+w5NWWjyjcBCvqCwcKMMYM3mRVb0rgi4H
+	 4JTejoHR1PRriwdUmHH1w/LFgFSqqQJPqNWnHC9NuDL+zyOKRLUlqVTSCnmNPHVOqShpF
+	 0ajDoT9griB1NG/rYbhLej9YEEdStS6QuSntYg6JjqmMxfmbkZ5pOn+FIhc1YHDPqP8TK
+	 cwiaqY5nWgYujr9Kb6gzThGXKEqlxiauCEAgJ573KbCMVJ1pnipgnT423IIOLcKnzjYe6
+	 AWYjlh4BRqprH4OnPc0u9ZgvNyBgKi8OJT7PvDFKtgiY3rFdLO29md8lYbYV8nBYDWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="dW/11WUL";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=icO3rWLw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2365B6077B6B;
-	Thu,  5 Nov 2026 19:35:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 080AF6077B4F;
+	Thu,  5 Nov 2026 19:35:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dW/11WUL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6CEB1F0089E;
-	Thu,  5 Nov 2026 19:35:41 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=icO3rWLw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E09C1F008A1;
+	Thu,  5 Nov 2026 19:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907343;
-	bh=alsXUfuEo/F1zePFVRl45Ndme/OflhiQcp41SPItDb0=;
+	s=k20260515; t=1793907331;
+	bh=QnupmpJjcDSUenY+8iHhV2pDdP26FR+grPEd9BKN+Wg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dW/11WULePWBsogqlKJCGC7JYPbCbnYXRV+C/X7JOVxLXj5zOAba52zQpFTgNc3SU
-	 VqxLxyGyN/7wF0BTtfNixYDyxmB3E86QX9Ux9RGZ1zXR/EzZ2ZJyrhkPfunyxJJIZl
-	 un+xpBbQSiFaF0jJ6u/VW8rXe40ajptsRa6PjrbVxC7gTAonFrr3x4gk/kvpjOE5P1
-	 HarizfUM9JcPoR6EP40r+AaFcc6yhKBRuZw/KiwaBzFcWGsYWpC0CK/E6jNjHZpgDM
-	 EXhNA7+mREaW+iD5ECYOta1cjbh7H74x/1uUayMthsMGSyY9SbGLuxXinygzr+5A4r
-	 a3NkeRuyCBiAg==
-Message-ID: <sashiko-outbox-199944@kernel.org>
+	b=icO3rWLw6nKGObCQJgYMxAh2P6PTRzIdDeuA404d8zGUUVnEp22awIUt/ONskepjG
+	 FQyNYgueaW+0iYJhp0FqJ+XOW2y+yurI0uUuh+dfsOclM2Nh3qdwIC3ytuTEQmNhzr
+	 MTetr7AbbAQJrQhhBXugv5fx//leXY88njWHb3TZ3743y/bVbrU4sQkjQK81piouKz
+	 MGYh6ZeJ6sFNsrOgjNWWNWno+Xud511eRRatEpGCbh1xHAr4ri1vGAQGPMtUR0YyMD
+	 sstDXtwDG9/n6Jsu5U178yWJP4hODLvoqYoWfkpM7RkF01wue3ewhl7sYNSjaz7bA6
+	 sSwHZw/oTnT7A==
+Message-ID: <sashiko-outbox-199938@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
- pinning the entry
+Subject: Re: [PATCH RESEND v2 08/23] proc: let procfs own the seq_file of
+ proc_create_seq() and friends
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -57,12 +57,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-8-76ace653a773@kernel.org>
 References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org>
- <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
+ <20261104-work-procfs-core-v2-8-76ace653a773@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:35:41 +0000
+Date: Thu, 05 Nov 2026 19:35:29 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,65 +74,74 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] proc: split __free(kvfree) declaration and initialization in pde_wr=
-ite_buf()
+- [Low] proc: unused-but-set variable p in seq_open_net() when CONFIG_NET_N=
+S=3Dn
 --
 
-commit e52627c4b4d80d32822781f143a8c1245bd64a2c
+commit 4dea51dab83a49a4131e34ad5f96bc9822052389
 Author: Christian Brauner <brauner@kernel.org>
 
-proc: let procfs copy in writes before pinning the entry
+proc: let procfs own the seq_file of proc_create_seq() and friends
 
-This commit introduces a ->proc_write_buf() callback in struct proc_ops so
-that procfs can copy write data from userspace into a NUL-terminated kernel
-buffer before pinning the proc_dir_entry. This prevents userspace page
-faults during write copies from blocking remove_proc_entry().
+This commit updates proc_create_seq_private(), proc_create_single_data(), a=
+nd
+their network namespace variants so that procfs owns the seq_file directly =
+via
+PROC_ENTRY_proc_seq_ops and PROC_ENTRY_proc_show. For the network namespace
+variants, ->proc_open() and ->proc_release() are simplified to only manage =
+the
+network namespace reference.
 
-> diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-> index d51ab7548b117..df1caa0f238df 100644
-> --- a/fs/proc/inode.c
-> +++ b/fs/proc/inode.c
-> @@ -417,11 +417,44 @@ static ssize_t pde_write(struct proc_dir_entry *pde=
-, struct file *file, const ch
->  	return -EIO;
+> diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
+> index df5484813d5dd..9973f846c4674 100644
+> --- a/fs/proc/proc_net.c
+> +++ b/fs/proc/proc_net.c
+> @@ -37,13 +37,13 @@ static struct net *get_proc_net(const struct inode *i=
+node)
+>  	return maybe_get_net(PDE_NET(PDE(inode)));
 >  }
 > =20
-> +/*
-> + * procfs copies in what is written before it pins the entry. A writer t=
-hat
-> + * faults on its buffer then doesn't hold up remove_proc_entry().
-> + */
-> +static ssize_t pde_write_buf(struct proc_dir_entry *pde, struct file *fi=
-le,
-> +			     const char __user *ubuf, size_t count, loff_t *ppos)
-> +{
-> +	char *buf __free(kvfree) =3D NULL;
-> +	size_t size;
-> +	ssize_t rv;
-> +
-> +	size =3D pde->write_size;
-> +	if (count > size) {
-> +		if (!pde_has_short_writes(pde))
-> +			return -EINVAL;
-> +		count =3D size;
-> +	}
-> +	buf =3D kvmalloc(count + 1, GFP_KERNEL);
+> +/* procfs opened the seq_file and allocated its state, see pde_seq_start=
+() */
+>  static int seq_open_net(struct inode *inode, struct file *file)
+>  {
+> -	unsigned int state_size =3D PDE(inode)->state_size;
+> -	struct seq_net_private *p;
+> +	struct seq_net_private *p =3D ((struct seq_file *)file->private_data)->=
+private;
+>  	struct net *net;
+> =20
+> -	WARN_ON_ONCE(state_size < sizeof(*p));
+> +	WARN_ON_ONCE(PDE(inode)->state_size < sizeof(*p));
+> =20
+>  	if (file->f_mode & FMODE_WRITE && !PDE(inode)->write)
+>  		return -EACCES;
+> @@ -51,12 +51,6 @@ static int seq_open_net(struct inode *inode, struct fi=
+le *file)
+>  	net =3D get_proc_net(inode);
+>  	if (!net)
+>  		return -ENXIO;
+> -
+> -	p =3D __seq_open_private(file, PDE(inode)->seq_ops, state_size);
+> -	if (!p) {
+> -		put_net(net);
+> -		return -ENOMEM;
+> -	}
+>  #ifdef CONFIG_NET_NS
+>  	p->net =3D net;
+>  	netns_tracker_alloc(net, &p->ns_tracker, GFP_KERNEL);
 
 [Severity: Low]
-As reported by Sashiko on RFC [1], this isn't a bug, but in pde_write_buf()
-(called from proc_reg_write()), buf is declared with __free(kvfree) =3D NULL
-at the top of the function and assigned later with kvmalloc() after the
-count > size check.
+When CONFIG_NET_NS is disabled, does initializing p unconditionally in
+seq_open_net() trigger a -Wunused-but-set-variable warning?
 
-Per the Cleanup API conventions in include/linux/cleanup.h, should buf be
-defined and initialized in a single statement at the allocation site:
-
-	char *buf __free(kvfree) =3D kvmalloc(count + 1, GFP_KERNEL);
-
-after validating count?
-
-[1] https://lore.kernel.org/r/sashiko-outbox-195538@kernel.org
+Previously, p was assigned via __seq_open_private() and checked with if (!p)
+outside the #ifdef CONFIG_NET_NS block. With that check removed, the only
+remaining reference outside #ifdef CONFIG_NET_NS is sizeof(*p) in
+WARN_ON_ONCE(), which is an unevaluated context and does not read the value=
+ of
+p.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-core-v2-0-76ace653a773@kernel.org?part=3D14
+s-core-v2-0-76ace653a773@kernel.org?part=3D8

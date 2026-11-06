@@ -1,61 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.221
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.97
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793946763;
-	b=VftFaA4JowtP56XbclKIgrMc5ghtv14tLWwDLLlAo5DxUCY1Gp7RMhtWTmHq55j4inoC
-	 TaXh0omprcP6zuCZZA90B5Iiy7XdgdyXmPj36pv8onJhl5Pmlma2INGYtjoWtRuIOfb54
-	 xwnnmszomi1oYM8zPcdzKLj5NouECKhT1i+Ea0zAVn8f8C37SiUcRBvyAJW6kypSAwV7f
-	 3412aixkuHhmBZ6Sb5xdC0545bJunUH0duWNnJy90VQNI94FtVHAACrPSZV0rUqTZoM06
-	 jvSgz3PnOTVhJp9TceF3opqmSCLieguhncMPHiEy22OE1E6BmK7dRdSG/maIorM0InA==
+	t=1793951499;
+	b=QMVuXbPpXyoEK3aHmsOT2eZyVBQPSb2Rjt1RS4M5ChMoNSKav2ajIWdcjui7t7hKZ1kL
+	 sU+JhIjtkoegtOBiSQzVgLHLdkp9+MfFNCL7eaFcmEBSkz65R+wN9kmuZ4i0PKwCpURVv
+	 9ia3Z/K5KisT0Q+K2Q25EL9HhKWxSWORrLTHT0I4mU0QKWo2w64JNkv9B6o0+pUpxYlSi
+	 C8EvvTSOH5LmtoYj8o29Pm6hnu6R0iJA2AF2FrKeCAYpTymKqPwVjvV2KT4HxQ99Eubz2
+	 SzKXS2jh7KpMqRSfZUqI0p2zYYmnkAwq+qjlQ2wnFVGJjtyyRNKgM8l4KJ8VxzZcCrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793946763;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793951499;
 	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
-	 Subject:Date:Message-ID:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=/wPKfZLdL/IZzj15ecN1qG972aE0esZBki0eol8syMY=;
-	b=Gwta0bjhaZ4hqkC88SjPUMIpcmCFcxjl8muScx9HMWfSgZ+7kp9/NGPnHSZzC5cuWSHu
-	 Nwr020+BusjU0iYIopbDjQSuAKy7yQiEYdsE0nuJ9vdTttkAKgcDV8C9BBJj8ClPiaFYr
-	 dnnQ3BJEhqg5ko+CmO9oJjb8ZGMq2vwbpRad6hG0YkRTElZvSUvkfS+0OoznrSiWX/DbO
-	 YlmQIMp9DFi/8wuNvG2uaT5SB/xFMBhoiK0gEhLC5jHJLeny/y1t6mHUFPgiHe9g5Ib0w
-	 h3sh7YOROZAc+VvodmPnW6TDOJrJB6WAWMvJqRMVdvcDYfmIrAFXUOYucWMzsutuYBw==
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=X3nxSXG+H2J8k8t3k6poogjxQFJaTHXAguqehE2TWiY=;
+	b=W4cQHTbnMn0NwDBruLxGkAt3JN9MZpev8qUFxYsTW0lX/lBet741qs6GuwNG3rL+ZwLS
+	 ns0XluXDb8ZpXVG6bRX/odgSlJ8OZs0TFpoz3W3MPsCwCiCIcKkKZGbeYk2FFkwLZcY8+
+	 6AxYHrPXvaE8hushfAQ/yci5GioU8W2bxXk0WUEP/bntw9mpUGe8gZB0EYr9oGQYeXUxv
+	 yT5t0NgGwYhOzr+mgn8rTeAg6SsJSmYtT5jrGdf5YD021lXtxeXJNq9a9B0z3TDD+vAPD
+	 YQjXeweja2MllTmNXxAl37aMhv/PXBvbOSV/JboTBR9pR2+aYbhzsKFdG1p3jAheetg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=xiaopeng.com;
 	spf=pass smtp.mailfrom=xiaopeng.com;
-	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=vNV9pC+v;
-	arc=none smtp.remote-ip=115.124.28.221
-Received: from out28-221.mail.aliyun.com (out28-221.mail.aliyun.com [115.124.28.221])
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=EdBOOO5d;
+	arc=none smtp.remote-ip=115.124.28.97
+Received: from out28-97.mail.aliyun.com (out28-97.mail.aliyun.com [115.124.28.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FF43606A326;
-	Fri,  6 Nov 2026 06:32:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6FF43606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576A7606A326;
+	Fri,  6 Nov 2026 07:51:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 576A7606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=vNV9pC+v
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=EdBOOO5d
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=xiaopeng.com; s=default;
-	t=1793946757; h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version;
-	bh=/wPKfZLdL/IZzj15ecN1qG972aE0esZBki0eol8syMY=;
-	b=vNV9pC+v6DTaQuE2r7ikzm3Y2cTrTEpLjzfK0B2GWesdu+IGZgg8nomyxIQQxkjCOi3lw59tvBIjzsWs6OEn1Z2Fqj6oT9bfbgajB2emYlJLxLhvrp7Pa0uLo8ep5nojffpzE/hsUKwMEkZWPeIeoGOLi69ADa5B6zq6Kdu/L6k=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.2764088|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00278728-0.000457728-0.996755;FP=2717549084337474812|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033025068124;MF=guozh23@xiaopeng.com;NM=1;PH=DS;RN=6;RT=6;SR=0;TI=SMTPD_---.jy6SOB6_1793946756;
-Received: from 127.0.0.1(mailfrom:guozh23@xiaopeng.com fp:SMTPD_---.jy6SOB6_1793946756 cluster:ay29)
+	t=1793951489; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=X3nxSXG+H2J8k8t3k6poogjxQFJaTHXAguqehE2TWiY=;
+	b=EdBOOO5d/HlK/xdK+U63qbsCipbHTOjNjstrXi49twguHyNCSFWfk4udWTjT++l+gs7f4/JjR6BY1sbl1pNhGqsabFd7UqgnLXopyDkZIJKCx6lqYgei7RSKnt1Kbx0fYVrLo9zU5ulAIWNisZgvIILVcRMU1/NTFOLmymFqTVY=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.07707597|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.003847-0.000952075-0.995201;FP=12758894924369871956|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034254;MF=liuc63@xiaopeng.com;NM=1;PH=DS;RN=15;RT=15;SR=0;TI=SMTPD_---.jy77D-U_1793951487;
+Received: from localhost(mailfrom:liuc63@xiaopeng.com fp:SMTPD_---.jy77D-U_1793951487 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Fri, 06 Nov 2026 14:32:36 +0800
-From: Guo Zihao <guozh23@xiaopeng.com>
+          Fri, 06 Nov 2026 15:51:28 +0800
+From: Liu Chao <liuc63@xiaopeng.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Markus Armbruster <armbru@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-Subject:
- Re: [PATCH v2] Input: xen-kbdfront - bound the backend-supplied keycode
-Date: Fri, 06 Nov 2026 14:32:36 +0800
-Message-ID: <179394675606.2415331.18232448967087865312@xiaopeng.com>
-In-Reply-To: <au1xwKh4LVxHyUMW@google.com>
-References: <20261106014957.4130059-1-guozh23@xiaopeng.com>
- <20261106020217.48481-1-guozh23@xiaopeng.com> <au1xwKh4LVxHyUMW@google.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Cc: Markus Schneider-Pargmann <msp@baylibre.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Juergen Borleis <jbe@pengutronix.de>,
+	Denis Carikli <denis@eukrea.com>,
+	Lee Jones <lee@kernel.org>,
+	fangxy@xiaopeng.com,
+	linux-input@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: mx25-tcq - clamp the FIFO sample count to the buffer size
+Date: Fri,  6 Nov 2026 15:51:27 +0800
+Message-ID: <20261106075127.3105907-1-liuc63@xiaopeng.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -65,45 +71,35 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+MX25_ADCQ_SR_FDN() reports up to 31 pending samples.  The IRQ thread
+aligns the count down to a multiple of the sample count but never
+bounds it by the size of sample_buf, so a FIFO backlog larger than
+TSC_MAX_SAMPLES overruns the stack buffer.
 
-The threat model is a compromised backend: the xenbus device model gives
-the backend write access to the shared ring page for the entire lifetime
-of the frontend, and the guest has no way to distinguish well-formed
-input from forged input once the peer on the other end is malicious.
+Clamp the count before the alignment so that the result stays a
+multiple of sample_count.
 
-Two scenarios where that peer is not fully trusted:
+Fixes: 4f7ed234f2a5 ("Input: touchscreen: Add imx25 TCQ driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Liu Chao <liuc63@xiaopeng.com>
+---
+ drivers/input/touchscreen/fsl-imx25-tcq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-- Multi-tenant hosts. The backend lives in dom0, so a kernel compromise
-  of the host should not immediately translate into kernel memory
-  corruption inside the guests. Frontends are the last line of defence
-  there: every frontend that consumes ring data without validation hands
-  the attacker a structured memory-corruption primitive in the guest,
-  which is a meaningful step beyond "the host can already do anything".
+diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
+index ff270b3b8572..fa8d8b736723 100644
+--- a/drivers/input/touchscreen/fsl-imx25-tcq.c
++++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
+@@ -319,6 +319,7 @@ static irqreturn_t mx25_tcq_irq_thread(int irq, void *dev_id)
+ 	 */
+ 	regmap_read(priv->regs, MX25_ADCQ_SR, &stats);
+ 	samples = MX25_ADCQ_SR_FDN(stats);
++	samples = min_t(unsigned int, samples, TSC_MAX_SAMPLES);
+ 	samples -= samples % priv->sample_count;
+ 
+ 	if (!samples)
+-- 
+2.50.1
 
-- Driver domain disaggregation. Backends can also run in unprivileged
-  driver domains, where compromising the backend is much cheaper than
-  compromising dom0.
-
-This is the same model under which mainline keeps accepting frontend
-hardening, for example:
-
-  9b4cf60c6b73 ("9p/xen: validate the response size from the backend")
-  d33846c8dcc0 ("xen/pvcalls: bound backend response req_id before indexing r=
-sp[]")
-  992df081bc88 ("xen/scsifront: check for a NULL shadow entry on a backend re=
-sponse")
-  808e530654a5 ("misc: nsm: bound the device-reported response length")
-  e3046eeada29 ("hwrng: virtio: clamp device-reported used.len at copy_data()=
-")
-
-and the READ_ONCE() snapshot in v2 follows the same convention as
-8135cf8b0927 ("xen/pciback: Save xen_pci_op commands before processing it").
-
-The keycode here is the kbdfront instance of that pattern: a plain u32
-read from the shared page and used as a bitmap index, with nothing
-between the fetch and the use.
-
-Thanks,
-Guo Zihao

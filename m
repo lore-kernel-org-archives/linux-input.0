@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793965420;
-	b=suM3J8lmT6YjeHTxH28oj15gVmdvFIvv+SGKiupA0V/NN0An62YNZhIVJnmYvkLdfPHB
-	 +hVoURNBkDa1UPlITQ+zExy3dhXIX7lfJgKDMvgw/QR+67UzPbKMNLB9gvXYT6fZyfHri
-	 jB8b0d8a+iuXyVmj7mRL/6mYCK3qib6oVET5K0ifKXDrQ+tE9nIiwtK7memfNYB8nq37f
-	 l2YmXVXspTqtQNVxohbYbZEPp5LChq+Demf5lErggyO68ol4JavekrVrQe7oa9D8GQFjb
-	 ghAAW3qBzlPgYh5Gnv0qbEnzATS9xH8DffsebXVIsgh537AHc+FOh5qxQZsjX5zkJKA==
+	t=1793965422;
+	b=1HFj5x+TlFx+EdVfffazGFD7Zm4XKoaRYVqYQGXL2BMCJw9RBUWBR4+Uwo+2ysqPOpPL
+	 2oCbwRhxRuG5qSmQ9eNPOWzcAUWywLBwgn1tPK6fxgpMtiRWU3uYcPAV77KusYy2oU+T9
+	 Astr61zT6xpjWWwPSa+T4V4EYfZfT2CX+QVtMryWjCDx6rVoj84bJ89sdd+6vq1HdJFTX
+	 jM0AsNdsPQ3+qFwjczIBCxj1QSb6RPj1P8eYXphmt4MsuTU6SpeslfbK4k2xrbbnIaE5K
+	 LFdt4uBkysPfPNaQu9wy7IzthfysTfgaeYf+eukvlaC9txbwARZ8jNhGRVhoZjfvRiA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793965420;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793965422;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZKH8wWMW7zIzX4zFr56DLMh6DAtpnwAJ45KtfWhxc8o=;
-	b=A8m0+gKr0rcYQzfOdvbFyEbN/4p5mDsEHkS6gBVz+Om3ng7zgJ3uliBat1RYQipHvNKR
-	 Mw7QhmhOFDblLsShM2OhgTGAc9VTwn8lVYi8Dmn1Kn6qRN+Wbngr9+ls464uKGdBVbYpu
-	 o6HZbdYo7mWA0U0tt43JEqpkJq48WJH7KlkHNHqqCYzcgj/POPw/pIIFmseU2NP1Jzwdp
-	 4i6Ie9stRpQmujAV3B8SQapEw2SmWk6mZFi406JnMnk5URsgm6ptmkAg2EQ+tgMHXb1Px
-	 q/lE8rzz7UVVoCxGhu6QyO7WM+yNnbEInQT1xQB7vCm9dbBS5VK06AZ3aPH5muLFCXg==
+	bh=AvkeeGcDpLrFgc1vdUUjvfYaU6P4zvT3uKo4WSR7PqY=;
+	b=iICF2DtfPYTkM9BMO+Owkxgfdi0YsTj/edTD6NoK+O6SXwgd8G0KhlMeXJCcYXEYjRZv
+	 JfkrkHTLX57TGkrAGJbL9pS1L4h307G5tpTf3/YIHzXGS4TRPOSx0kR2ntKvXHRAY0rkY
+	 CGMkNCEuVi0YbWOVn51qKl+mPL7mqpw6T06f2/APvDKww68/Dz3CeZJMTb66CCubtFaMm
+	 kx4Xn1EQc5Ms8o3psgMen22rnd7FY6v1G2IpWenBR3X4ESJwJo5q4UR1ZlTW7vRstcGxu
+	 5PfmfORlDlUqGnmBxtUM+Xa4OlcqpA1uQt+WNxEer6vdwPAzILTQeec04Q+1qs/wvAw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TRfK4RKe;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HtUZE9g0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A432606C7EF;
-	Fri,  6 Nov 2026 11:43:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C37606D80C;
+	Fri,  6 Nov 2026 11:43:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TRfK4RKe
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D13511F008A1;
-	Fri,  6 Nov 2026 11:43:39 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HtUZE9g0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BEE21F008A1;
+	Fri,  6 Nov 2026 11:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793965420;
-	bh=ZKH8wWMW7zIzX4zFr56DLMh6DAtpnwAJ45KtfWhxc8o=;
+	s=k20260515; t=1793965421;
+	bh=AvkeeGcDpLrFgc1vdUUjvfYaU6P4zvT3uKo4WSR7PqY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TRfK4RKent/43BxbnG/cEaCZzxA6sEUQjK/xaAWesCWAWrjkr/JdTT0ZN/t8Ubfbg
-	 a+mxV37rhwaOZTzW+3fZ8js0Upu4Zjrz6LhHosMPYEyN8Quvemv9Y9UDuTGqMMjY5y
-	 U8UecOWO8wughqCyUK0Prbu5LSyLjiencqOwVpirJnZu1iYIyTxIrx1DE3FQ8yoTYO
-	 2TtSCZhWm3XOF9JKxNsvcXwPkZpFxH30/HXm7YLrBY6zNDol8ZIEgzOJdsMcWKxKcU
-	 Wyv+Npeqwk6GFxxhLmJ31HvxtT5mra2zFvsQt4pljawXPT6D03jFYI0FtKLPqzQTbD
-	 aWlkPfpe3kTBQ==
-Message-ID: <sashiko-outbox-201336@kernel.org>
+	b=HtUZE9g0GLLiD1HSxtYAAuUZ8ZgJdRqL0Ni2vSelZGABLRPnJh6D6F6EosITQMcSw
+	 1ebPr2u4ffBWVlXo4Z/ok6VgrrD1EXL2RX04RWAol7Oe40u6zXTm9ZqVoB7XSPxdQ+
+	 hDOVaQu2ivKSnvA2HniHKPYvkXsQ7SACevQoqDfweSAKWU+qj2YNpeTZ3dq0ty665J
+	 BkfLVqdMqFugCCUpDnvXXdoivvmprgBj/OWCqMpfa1bKnOFK5VfdpnOFG5b0BmwHxh
+	 PRBeYEmgz15y0U7sjCMdiWrZmM3venkS0+qSfy4lAnQkpFh4MoUhXljfVCZOXHh6qQ
+	 4ud66pdfOT3rw==
+Message-ID: <sashiko-outbox-201338@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 03/17] net: phy: Attach generic PHY drivers through the
- driver core
+Subject: Re: [PATCH 05/17] USB: Lock registered interfaces during manual
+ driver binding
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261105-device-trust-core-v1-3-1e536825b4eb@nvidia.com>
+In-Reply-To: <20261105-device-trust-core-v1-5-1e536825b4eb@nvidia.com>
 References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
- <20261105-device-trust-core-v1-3-1e536825b4eb@nvidia.com>
+ <20261105-device-trust-core-v1-5-1e536825b4eb@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 11:43:39 +0000
+Date: Fri, 06 Nov 2026 11:43:40 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,267 +63,285 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 4 potential
 issues to consider:
-- [High] net: phy: -EBUSY conflation and phydev->irq race in
-  phy_attach_direct()
-- [High] net: phy: unlocked d->driver check in phy_attach_direct()
-  bypasses trylock
-- [High] net: phy: pinctrl_bind_pins() fails with -EINVAL on fixed-link
-  PHYs
-- [Medium] net: phy: phy_attach_direct() leaks -EPROBE_DEFER to
-  non-probe callers
+- [High] USB: unlocked dev->driver and state updates in
+  usb_driver_claim_interface()
+- [High] usb: core: unreleased pre-claim in usb_set_configuration() when
+  unbound
+- [High] usb: core: skipped refused-claim cleanup in
+  usb_set_configuration()
+- [High] usb: incomplete unbind of multi-interface drivers in
+  usb_driver_release_refused_claim()
 --
 
-commit 041c1bf498be3c0bd71084280b91acccb80528b3
+commit f8b8b26e3d94c65587df2d54f58d12342c54f09a
 Author: Leon Romanovsky <leon@kernel.org>
 
-net: phy: Attach generic PHY drivers through the driver core
+USB: Lock registered interfaces during manual driver binding
 
-This commit introduces device_driver_try_attach() in the driver core and
-updates phy_attach_direct() to attach the generic PHY fallback drivers
-through the driver core rather than calling probe() and device_bind_driver()
-directly.
+This commit acquires the target USB interface device lock around
+device_bind_driver() in usb_driver_claim_interface(), updates
+btusb_mtk_claim_iso_intf() to acquire the USB device lock instead of the
+interface lock, and adds usb_driver_release_refused_claim() to clean up
+pre-claimed interfaces when binding is refused during usb_set_configuration=
+().
 
-> diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-> index 5d4508bcfbe99..8cc0de755bd08 100644
-> --- a/drivers/net/phy/phy_device.c
-> +++ b/drivers/net/phy/phy_device.c
-> @@ -1912,7 +1912,9 @@ int phy_attach_direct(struct net_device *dev, struc=
-t phy_device *phydev,
->  	struct device *d =3D &phydev->mdio.dev;
->  	struct module *ndev_owner =3D NULL;
->  	struct module *drv_owner;
-> +	struct device_driver *drv;
->  	int irq =3D phydev->irq;
-> +	bool bind_genphy;
->  	int err;
-> =20
->  	/* For Ethernet device drivers that register their own MDIO bus, we
-> @@ -1939,16 +1941,16 @@ int phy_attach_direct(struct net_device *dev, str=
-uct phy_device *phydev,
->  	/* Assume that if there is no driver, that it doesn't
->  	 * exist, and we should use the genphy driver.
+> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> index d3a61ebc6afb0..262502642ca98 100644
+> --- a/drivers/usb/core/driver.c
+> +++ b/drivers/usb/core/driver.c
+> @@ -584,8 +584,11 @@ int usb_driver_claim_interface(struct usb_driver *dr=
+iver,
+>  	/* if interface was already added, bind now; else let
+>  	 * the future device_add() bind it, bypassing probe()
 >  	 */
-> -	if (!d->driver) {
-> +	drv =3D d->driver;
-> +	bind_genphy =3D !drv;
-> +	if (bind_genphy) {
->  		if (phydev->is_c45)
-> -			d->driver =3D &genphy_c45_driver.mdiodrv.driver;
-> +			drv =3D &genphy_c45_driver.mdiodrv.driver;
->  		else
-> -			d->driver =3D &genphy_driver.mdiodrv.driver;
-> -
-> -		phydev->is_genphy_driven =3D 1;
-> +			drv =3D &genphy_driver.mdiodrv.driver;
->  	}
-
-[Severity: High]
-Does checking d->driver without holding device_lock(d) or checking
-device_is_bound(d) bypass device_driver_try_attach() when a specific PHY
-driver is concurrently probing?
-
-In drivers/base/dd.c, really_probe() sets dev->driver at the very start of
-probing via device_set_driver(), before running pinctrl_bind_pins(),
-driver_sysfs_add(), and call_driver_probe() -> phy_probe():
-
-drivers/base/dd.c:really_probe() {
-    re_probe:
-        device_set_driver(dev, drv);
-
-        /* If using pinctrl, bind pins now before probing */
-        ret =3D pinctrl_bind_pins(dev);
-        ...
-        ret =3D call_driver_probe(dev, drv);
-}
-
-Because d->driver is already non-NULL throughout the entire execution of
-really_probe() and phy_probe() (including when phy_probe() ->
-phy_setup_ports() -> phy_sfp_add_upstream() -> sfp_bus_add_upstream()
-blocks waiting for RTNL with device_lock(d) held), a concurrent call to
-phy_attach_direct() under RTNL sees drv !=3D NULL, sets bind_genphy to fals=
-e,
-and skips device_driver_try_attach() altogether.
-
-When that happens, phy_attach_direct() races with the in-progress probe (or
-an in-progress unbind in __device_release_driver()):
-
-1. If the concurrent thread is in really_probe() after device_set_driver()
-   but before phy_probe() assigns phydev->drv =3D phydrv, or in
-   __device_release_driver() after phy_remove() clears phydev->drv =3D NULL
-   before device_unbind_cleanup() clears d->driver, phy_attach_direct()
-   passes a NULL phydev->drv to phy_drv_supports_irq(phydev->drv) and
-   dereferences NULL.
-
-2. If phy_probe() is blocked waiting for RTNL in sfp_bus_add_upstream(),
-   phy_attach_direct() runs phy_init_hw() and phy_resume() on a half-probed
-   PHY before phy_probe() has finished setting up SFP ports,
-   phy_advertise_supported(), EEE, pause bits, LEDs, or phydev->state =3D
-   PHY_READY. Once RTNL is released, phy_probe() overwrites
-   phydev->advertising and resets phydev->state to PHY_READY.
-
-3. If the concurrent really_probe() or phy_probe() later fails, it asserts
-   hardware reset via phy_device_reset(phydev, 1) and runs
-   device_unbind_cleanup() -> devres_release_all(), freeing devm-allocated
-   phydev->priv while the net_device remains attached to phydev.
-
-Conversely, if d->driver is NULL when read into drv, and a concurrent
-specific-driver probe finishes and releases device_lock(d) before
-device_driver_try_attach(drv, d) runs, __driver_probe_device() sees
-dev->driver !=3D NULL and returns -EBUSY, causing phy_attach_direct() to fa=
-il
-with -EPROBE_DEFER instead of using the newly bound specific driver.
-
+> -	if (device_is_registered(dev))
+> +	if (device_is_registered(dev)) {
+> +		device_lock(dev);
+>  		retval =3D device_bind_driver(dev);
+> +		device_unlock(dev);
+> +	}
 > =20
-> -	drv_owner =3D d->driver->owner;
-> +	drv_owner =3D drv->owner;
->  	if (!try_module_get(drv_owner)) {
->  		phydev_err(phydev, "failed to get the device driver module\n");
->  		err =3D -EIO;
-> @@ -1956,11 +1958,20 @@ int phy_attach_direct(struct net_device *dev, str=
-uct phy_device *phydev,
->  	}
->  	phydev->drv_owner =3D drv_owner;
+>  	if (retval) {
+>  		dev->driver =3D NULL;
+
+[Severity: High]
+When usb_driver_claim_interface() is called on an already-registered
+interface, the caller holds the parent USB device lock (udev->dev.mutex)
+rather than the target interface lock (dev->mutex). Here device_lock(dev)
+only wraps device_bind_driver(dev), while dev->driver, driver_data,
+iface->needs_binding, and iface->condition are still written before
+device_lock(dev) is acquired and rolled back after device_unlock(dev) is
+released:
+
+drivers/usb/core/driver.c:usb_driver_claim_interface() {
+	...
+	dev->driver =3D &driver->driver;
+	usb_set_intfdata(iface, data);
+	iface->needs_binding =3D 0;
+
+	iface->condition =3D USB_INTERFACE_BOUND;
+	...
+	if (device_is_registered(dev)) {
+		device_lock(dev);
+		retval =3D device_bind_driver(dev);
+		device_unlock(dev);
+	}
+
+	if (retval) {
+		dev->driver =3D NULL;
+		usb_set_intfdata(iface, NULL);
+		iface->needs_remote_wakeup =3D 0;
+		iface->condition =3D USB_INTERFACE_UNBOUND;
+	...
+}
+
+Because several driver-core and USB sysfs paths synchronize access to a
+registered interface using only device_lock(dev) without holding the parent
+USB device lock, can those unlocked state mutations still race?
+
+For example, if device_bind_driver(dev) fails and drops device_unlock(dev),
+drivers/usb/core/sysfs.c:supports_autosuspend_show() can acquire
+device_lock_interruptible(dev) before dev->driver is cleared:
+
+drivers/usb/core/sysfs.c:supports_autosuspend_show() {
+	s =3D device_lock_interruptible(dev);
+	if (s < 0)
+		return -EINTR;
+	/* Devices will be autosuspended even when an interface isn't claimed */
+	s =3D (!dev->driver || to_usb_driver(dev->driver)->supports_autosuspend);
+	device_unlock(dev);
+}
+
+If supports_autosuspend_show() sees dev->driver !=3D NULL in the first check
+while usb_driver_claim_interface() concurrently writes dev->driver =3D NULL,
+to_usb_driver(dev->driver)->supports_autosuspend will dereference NULL.
+
+Similarly, under only device_lock(dev), device_trust_set_policy() in
+drivers/base/trust.c can observe the transient non-NULL dev->driver before
+device_bind_driver() or before the error rollback and fail with -EBUSY,
+drivers/base/dd.c:__driver_attach() can observe the transient dev->driver a=
+nd
+skip probing, and drivers/usb/core/message.c:usb_authorize_interface() can
+write intf->authorized concurrently with the unlocked writes to
+iface->needs_binding and iface->needs_remote_wakeup in the same bitfield
+word.
+
+Should device_lock(dev) be held across the entire state transition and error
+rollback in usb_driver_claim_interface()?
+
+> @@ -649,6 +652,26 @@ void usb_driver_release_interface(struct usb_driver =
+*driver,
+>  }
+>  EXPORT_SYMBOL_GPL(usb_driver_release_interface);
 > =20
-> -	if (phydev->is_genphy_driven) {
-> -		err =3D d->driver->probe(d);
-> -		if (err >=3D 0)
-> -			err =3D device_bind_driver(d);
-> -
-> +	if (bind_genphy) {
-> +		/*
-> +		 * RTNL is held, and a concurrent bind of a specific driver may
-> +		 * wait for it with the device lock held. Never wait for that
-> +		 * lock, and let the caller retry.
-> +		 */
-> +		err =3D device_driver_try_attach(drv, d);
+> +/*
+> + * The driver core refused to bind an interface that a sibling claimed b=
+efore
+> + * it was registered, and dropped the claim. Let the claimant release the
+> + * interface instead of operating it with a bound interface but no drive=
+r.
+> + */
+> +void usb_driver_release_refused_claim(struct usb_interface *iface,
+> +				      struct device_driver *claimant)
+> +{
+> +	struct device *dev =3D &iface->dev;
+> +
+> +	device_lock(dev);
+> +	if (!dev->driver && iface->condition =3D=3D USB_INTERFACE_BOUND) {
+> +		dev->driver =3D claimant;
+> +		usb_unbind_interface(dev);
+> +		dev_set_drvdata(dev, NULL);
+> +		dev->driver =3D NULL;
+> +	}
+> +	device_unlock(dev);
+> +}
 
 [Severity: High]
-What happens on Device Tree platforms with fixed-link PHYs when
-device_driver_try_attach() routes generic PHY attachment through
-really_probe() -> pinctrl_bind_pins()?
+When a driver probes interface 0 during usb_set_configuration() and claims =
+an
+unregistered secondary interface via usb_driver_claim_interface(), calling
+usb_unbind_interface() only on the refused secondary interface here invokes
+driver->disconnect(iface) on that secondary interface and then re-enables i=
+ts
+endpoints via usb_enable_interface(udev, intf, false).
 
-When a MAC driver registers a fixed-link PHY via
-of_phy_register_fixed_link(np) or of_phy_get_and_connect(),
-fixed_phy_register() in drivers/net/phy/fixed_phy.c assigns the MAC
-controller's DT node to phy->mdio.dev.of_node without setting
-dev_set_of_node_reused(&phy->mdio.dev):
+However, many multi-interface USB drivers treat disconnect() on a secondary
+interface as a no-op and only tear down state when disconnect() is called on
+the primary control interface. For example, in sound/usb/card.c:
 
-drivers/net/phy/fixed_phy.c:fixed_phy_register() {
-    of_node_get(np);
-    phy->mdio.dev.of_node =3D np;
-    phy->is_pseudo_fixed_link =3D true;
+sound/usb/card.c:usb_audio_disconnect() {
+	struct snd_usb_audio *chip =3D usb_get_intfdata(intf);
+	struct snd_card *card;
+
+	if (chip =3D=3D USB_AUDIO_IFACE_UNUSED)
+		return;
+	...
 }
 
-Because a fixed PHY has phy_id =3D=3D 0, it does not match any driver during
-phy_device_register() and always attaches to genphy_driver in
-phy_attach_direct(). Previously, phy_attach_direct() called
-d->driver->probe(d) and device_bind_driver(d), bypassing really_probe() and
-pinctrl_bind_pins().
+And in drivers/media/usb/uvc/uvc_driver.c:
 
-With device_driver_try_attach() calling __driver_probe_device() ->
-really_probe() -> pinctrl_bind_pins(d), dev_of_node_reused(d) is false in
-drivers/base/pinctrl.c:pinctrl_bind_pins(), so pinctrl attempts to claim the
-MAC's pinctrl-0 pins a second time under the fixed PHY device. When the MAC
-device has already claimed its pins, pin_request() in
-drivers/pinctrl/pinmux.c rejects the duplicate mux claim with -EINVAL, which
-pinctrl_bind_pins() propagates, causing phy_attach_direct() to fail with
--EINVAL on fixed-link interfaces whose MAC node defines pinctrl-0.
+drivers/media/usb/uvc/uvc_driver.c:uvc_disconnect() {
+	struct uvc_device *dev =3D usb_get_intfdata(intf);
 
-> +		if (err =3D=3D -EBUSY) {
-> +			/* Another bind owns the PHY, so nothing was probed here. */
-> +			irq =3D phydev->irq;
-> +			err =3D -EPROBE_DEFER;
-> +		} else if (err =3D=3D -EAGAIN) {
-> +			err =3D -EPROBE_DEFER;
-> +		}
->  		if (err)
->  			goto error_module_put;
->  	}
+	usb_set_intfdata(intf, NULL);
 
-[Severity: Medium]
-Can returning -EPROBE_DEFER from phy_attach_direct() leak to userspace or
-cause permanent probe failures for callers that do not handle deferral?
+	if (intf->cur_altsetting->desc.bInterfaceSubClass =3D=3D
+	    UVC_SC_VIDEOSTREAMING)
+		return;
+	...
+}
 
-Most Ethernet drivers that call phy_attach_direct() with RTNL held (via
-phylink_of_phy_connect(), phylink_fwnode_phy_connect(),
-phylink_connect_phy(), phy_connect(), or phy_connect_direct()) do so from
-their net_device_ops->ndo_open() callback during __dev_open() (triggered by
-SIOCSIFFLAGS or RTM_NEWLINK), rather than from a driver-core probe callback.
-__dev_open() does not retry on -EPROBE_DEFER; it aborts opening the interfa=
-ce
-and returns -EPROBE_DEFER (-517) directly to userspace.
+Drivers such as ims_pcu_disconnect(), ati_remote2_disconnect(),
+line6_disconnect(), and uea_disconnect() similarly return early when
+disconnect() is called on a secondary interface.
 
-Additionally, drivers that attach PHYs during .probe() via of_phy_connect()
-in drivers/net/mdio/of_mdio.c only receive NULL when phy_connect_direct()
-returns an error, losing the -EPROBE_DEFER errno. And because
-__device_driver_attach() calls __driver_probe_device() instead of
-driver_probe_device(), a supplier deferral (-EPROBE_DEFER converted to
--EAGAIN) does not add &phydev->mdio.dev to deferred_probe_pending_list.
+If device_bind_driver() refuses the secondary interface during device_add(),
+won't unbinding only iface leave the claimant bound to the primary interface
+and actively using the unbound secondary interface (whose endpoints were ju=
+st
+re-enabled by usb_unbind_interface() and whose dev->driver is now NULL)?
 
-> @@ -2071,8 +2082,6 @@ int phy_attach_direct(struct net_device *dev, struc=
-t phy_device *phydev,
->  	module_put(phydev->drv_owner);
->  	phydev->drv_owner =3D NULL;
->  	phydev->irq =3D irq;
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index a738d03c23eac..d35a7710c8ef4 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -2264,6 +2264,7 @@ int usb_set_configuration(struct usb_device *dev, i=
+nt configuration)
+>  	 */
+>  	for (i =3D 0; i < nintf; ++i) {
+>  		struct usb_interface *intf =3D cp->interface[i];
+> +		struct device_driver *claimant;
+> =20
+>  		if (intf->dev.of_node &&
+>  		    !of_device_is_available(intf->dev.of_node)) {
+> @@ -2277,7 +2278,14 @@ int usb_set_configuration(struct usb_device *dev, =
+int configuration)
+>  			dev_name(&intf->dev), configuration,
+>  			intf->cur_altsetting->desc.bInterfaceNumber);
+>  		device_enable_async_suspend(&intf->dev);
+> +		claimant =3D intf->dev.driver;
+> +		if (claimant && !try_module_get(claimant->owner))
+> +			claimant =3D NULL;
+>  		ret =3D device_add(&intf->dev);
+> +		if (!ret && claimant && !intf->dev.driver)
+> +			usb_driver_release_refused_claim(intf, claimant);
+> +		if (claimant)
+> +			module_put(claimant->owner);
 
 [Severity: High]
-Could conflating all -EBUSY returns from device_driver_try_attach() with
-lock contention corrupt phydev->irq in phy_attach_direct()?
+What happens if a pre-claimed interface is passed to device_add(&intf->dev),
+but device_bind_driver(&intf->dev) never completes for reasons other than
+__device_attach() clearing intf->dev.driver on a0 return?
 
-In drivers/base/dd.c, __device_driver_attach() can return -EBUSY in four
-different cases, not only when __device_driver_trylock() fails before
-probing (which also makes the kernel-doc comment on
-device_driver_try_attach() inaccurate):
+First, if /sys/bus/usb/drivers_autoprobe is set to 0 before
+bus_probe_device() -> device_initial_probe() runs inside device_add(),
+device_initial_probe() skips __device_attach(). In that case, device_add()
+returns 0 with intf->dev.driver still set to claimant, even though
+device_bind_driver() and driver_bound() were never called
+(!device_is_bound(&intf->dev)). Because intf->dev.driver is non-NULL,
+usb_driver_release_refused_claim() is not called, the claimant continues
+operating the interface without going through device_bind_driver() admissio=
+n,
+and later unbinding the interface via usb_driver_release_interface() or
+device_del() -> __device_release_driver() calls
+klist_remove(&dev->p->knode_driver) on an unattached knode, dereferencing
+NULL in klist_put().
 
-1. __device_driver_trylock() fails because device_lock(dev) or
-   device_lock(dev->parent) is contended.
-2. __driver_probe_device() returns -EBUSY because dev->driver is already
-   set.
-3. really_probe() fails with -EBUSY when !list_empty(&dev->devres_head).
-4. call_driver_probe() -> phy_probe() fails with -EBUSY (for example,
-   phy_setup_ports() -> of_phy_ports() -> phy_add_port() returning -EBUSY,
-   or an MDIO read in genphy_read_abilities(),
-   genphy_c45_pma_read_abilities(), or genphy_c45_read_eee_adv() returning
-   -EBUSY), because really_probe() negates negative probe errors to +EBUSY
-   and __device_driver_attach() negates ret > 0 back to -EBUSY:
+Second, if device_add(&intf->dev) fails with a negative ret (for example, at
+DPMError in drivers/base/core.c:device_add(), which calls
+device_set_driver(dev, NULL), or earlier before DPMError), the !ret check
+skips usb_driver_release_refused_claim(). That leaves cp->interface[i] in
+dev->actconfig with intf->condition =3D=3D USB_INTERFACE_BOUND and
+intf->dev.driver =3D=3D NULL (or an unbound driver), so usb_autosuspend_dev=
+ice()
+at the end of usb_set_configuration() -> usb_suspend_both() ->
+usb_suspend_interface() sees intf->condition !=3D USB_INTERFACE_UNBOUND and
+dereferences NULL at to_usb_driver(intf->dev.driver)->suspend:
 
-drivers/base/dd.c:__device_driver_attach() {
-    ret =3D __driver_probe_device(drv, dev);
-    __device_driver_unlock(dev, dev->parent);
+drivers/usb/core/driver.c:usb_suspend_interface() {
+	if (udev->state =3D=3D USB_STATE_NOTATTACHED ||
+			intf->condition =3D=3D USB_INTERFACE_UNBOUND)
+		goto done;
+	driver =3D to_usb_driver(intf->dev.driver);
 
-    /* also return probe errors as normal negative errnos */
-    if (ret > 0)
-        ret =3D -ret;
+	/* at this time we know the driver supports suspend */
+	status =3D driver->suspend(intf, msg);
 }
 
-When phy_probe() runs for genphy_driver or genphy_c45_driver and then fails
-with -EBUSY, phy_probe() has already overwritten phydev->irq with PHY_POLL:
+Should usb_set_configuration() and usb_driver_release_refused_claim() check
+whether the pre-claimed interface actually finished binding via
+!device_is_bound(&intf->dev) regardless of whether ret is non-zero or
+intf->dev.driver is still set?
 
-drivers/net/phy/phy_device.c:phy_probe() {
-    if (!phy_drv_supports_irq(phydrv) && phy_interrupt_is_valid(phydev))
-        phydev->irq =3D PHY_POLL;
-}
+[Severity: High]
+In addition, is it safe to set claimant =3D NULL when
+try_module_get(claimant->owner) returns false here?
 
-In phy_attach_direct(), the err =3D=3D -EBUSY branch assumes nothing was pr=
-obed,
-reads irq =3D phydev->irq (which is now PHY_POLL), converts the error to
--EPROBE_DEFER, and writes phydev->irq =3D irq (PHY_POLL) at error_module_pu=
-t,
-permanently losing the PHY's original hardware interrupt number.
+The driver core does not hold a module reference on drv->owner when an
+earlier sibling interface probes a modular USB driver during
+usb_set_configuration(). If a concurrent rmmod (delete_module) begins on
+claimant->owner while usb_set_configuration() holds device_lock(&dev->dev),
+try_stop_module() transitions the module to MODULE_STATE_GOING and the
+module's exit path blocks in usb_deregister() -> driver_unregister() ->
+driver_detach() waiting to acquire the parent USB device lock
+device_lock(&dev->dev).
 
-Conversely, when device_driver_try_attach() returns -EBUSY because another
-thread holds device_lock(d) inside phy_probe(), phy_attach_direct() reads
-irq =3D phydev->irq and writes phydev->irq =3D irq at error_module_put with=
-out
-holding device_lock(d). If irq =3D phydev->irq is read before the concurrent
-phy_probe() sets phydev->irq =3D PHY_POLL, and phydev->irq =3D irq is writt=
-en at
-error_module_put after phy_probe() sets PHY_POLL, phy_attach_direct()
-overwrites the concurrent driver's PHY_POLL setting with the stale IRQ
-number. Similarly, if device_driver_try_attach() fails with -EAGAIN before
-phy_probe() runs, error_module_put writes phydev->irq =3D irq after
-__device_driver_unlock() has already released device_lock(d).
+Because MODULE_STATE_GOING is already set, try_module_get(claimant->owner)
+returns false and sets claimant =3D NULL even though claimant cannot disapp=
+ear
+while device_lock(&dev->dev) is held. If device_add(&intf->dev) then fails =
+to
+bind the pre-claimed interface and clears intf->dev.driver =3D NULL,
+usb_driver_release_refused_claim() is skipped because claimant is NULL.
+
+Neither driver_detach() (since intf was never added to
+claimant->p->klist_devices) nor a subsequent usb_driver_release_interface()
+call from the sibling interface's disconnect callback (which returns early
+when !dev->driver) will reset intf->condition, leaving intf->condition =3D=
+=3D
+USB_INTERFACE_BOUND with intf->dev.driver =3D=3D NULL and causing
+usb_suspend_interface() to dereference a NULL driver pointer.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-device-tru=
-st-core-v1-0-1e536825b4eb@nvidia.com?part=3D3
+st-core-v1-0-1e536825b4eb@nvidia.com?part=3D5

@@ -1,95 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.221
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793946078;
-	b=lvzcc5nw+UHcoeFDecAPId6RpNdNWK3LPV08XLl2+bQ6uLrQd+SJy7b9NnFqHDvPRd+s
-	 5CSN0nQi81T4Xs5ggfAlr6SYgn/ZThJXtz4q2Jh/Cc5fxm+i61sLxp6M+9399NiQg6dIP
-	 WNK+DT6LBC4jBN63HErHem4pMiqs9533Or9g4gqGl+ay2Jn6N4EQYtuB75QG9Rzl45YuT
-	 Fi1pAU9LCtioqNis1/ktLFofSalaeRNidvemEcoWPKizz63YO4qOD3XMCfcxDfFGrHpgL
-	 lA+VBl6nkyKf5PpLU82qLfmQXtdDLUI10OKKS9g20Xy+XE/1e9GUCKsHzhpd5txekSw==
+	t=1793946763;
+	b=VftFaA4JowtP56XbclKIgrMc5ghtv14tLWwDLLlAo5DxUCY1Gp7RMhtWTmHq55j4inoC
+	 TaXh0omprcP6zuCZZA90B5Iiy7XdgdyXmPj36pv8onJhl5Pmlma2INGYtjoWtRuIOfb54
+	 xwnnmszomi1oYM8zPcdzKLj5NouECKhT1i+Ea0zAVn8f8C37SiUcRBvyAJW6kypSAwV7f
+	 3412aixkuHhmBZ6Sb5xdC0545bJunUH0duWNnJy90VQNI94FtVHAACrPSZV0rUqTZoM06
+	 jvSgz3PnOTVhJp9TceF3opqmSCLieguhncMPHiEy22OE1E6BmK7dRdSG/maIorM0InA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793946078;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=YvrHetLWEaprA/YnNV90q7vlMXrIcclPCKoaaWze1Ho=;
-	b=UM3bu0G+kMrwSZppB8gRyRACixLqIDx87izxu6zNAQokyCnPcQrBX5M1smPHjA3CGuFn
-	 WsJ2NyKzFbSEjypQ8j+rJl9ltBInB6N8b3huq6+gkD4P39DHIrFyWK7CJ7+VBrRt6Oyix
-	 SazCwpJ5ooR5/7OcjixS+GFJ5EQFYcon7M6pr4hNoUrKVtaIFrCjifcWH45n8bJOtzqRD
-	 pQIhNndpBpMPRkLI6qkVH9TE5PxMupl//yHDXY3jBUZkMMLhlf7brRiqD4WfLadj8yOL3
-	 Qm8U2Ho+WDLW5g7E8trcZzkKGzKR4//Y6DPK6s4NrH3ynZqRMv8x1u/8UlhwWCO6qtg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793946763;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=/wPKfZLdL/IZzj15ecN1qG972aE0esZBki0eol8syMY=;
+	b=Gwta0bjhaZ4hqkC88SjPUMIpcmCFcxjl8muScx9HMWfSgZ+7kp9/NGPnHSZzC5cuWSHu
+	 Nwr020+BusjU0iYIopbDjQSuAKy7yQiEYdsE0nuJ9vdTttkAKgcDV8C9BBJj8ClPiaFYr
+	 dnnQ3BJEhqg5ko+CmO9oJjb8ZGMq2vwbpRad6hG0YkRTElZvSUvkfS+0OoznrSiWX/DbO
+	 YlmQIMp9DFi/8wuNvG2uaT5SB/xFMBhoiK0gEhLC5jHJLeny/y1t6mHUFPgiHe9g5Ib0w
+	 h3sh7YOROZAc+VvodmPnW6TDOJrJB6WAWMvJqRMVdvcDYfmIrAFXUOYucWMzsutuYBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ztXfG5sF;
-	arc=none smtp.remote-ip=74.125.82.41
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=vNV9pC+v;
+	arc=none smtp.remote-ip=115.124.28.221
+Received: from out28-221.mail.aliyun.com (out28-221.mail.aliyun.com [115.124.28.221])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE2D606A32E
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 06:21:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5FE2D606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FF43606A326;
+	Fri,  6 Nov 2026 06:32:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6FF43606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ztXfG5sF
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-15dd124bbe7so733255c88.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2026 22:21:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793946077; x=1794550877; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=YvrHetLWEaprA/YnNV90q7vlMXrIcclPCKoaaWze1Ho=;
-        b=ztXfG5sFYa1gDCb5MK7O5ODxZx8Ot7aqD6aVXhfrBu1YthxQeyeDTOngXQIekaFBk2
-         ud2CFY8feYyphEMjTtSfr5ChFcnFoKwKgJOJ9IoHUMUu5y+fD4XMihHQPZARom98ADxw
-         zof0ZO5DASe8RYakHHC0FZ99P7i8m23AzoMze8ud9Vc0QIt+kn3ovw/5/C0fovLF0BzX
-         PWvrTGTy3oX+hw5ty9SNeDqCsElSTc80bTsnvR5gmjbCfYHPOKkrLBzQe4wh/3ThKtNr
-         qd6oDnC6A1XwFDS5/i/eo5CZLm/rM8ORB3ZPnpnl7UbIEEgHhAqUb1rRy66BlXXkxbSZ
-         BhBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793946077; x=1794550877;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YvrHetLWEaprA/YnNV90q7vlMXrIcclPCKoaaWze1Ho=;
-        b=Mu1N4cAoRu76RV1CI++iqJeZIcUwegaPx24CHA0VVrt8MeOcncsU9ks7dDwSHlQ+dW
-         Lx8DQ4hGiy3gT2LZtvAQcrsOMK6yTeWJlbmIFEAbMWdv0sF0bbfJXJ5ipcSDn6F1hPWM
-         Odz9bkjoYLpKaNjU0Nedt+Recr5lWGkjbsnmDVBxMs4f1SMw0z+yb9u8I6lKbtVNPJ2x
-         CytWvZbw40PT3uuWfoAJ3FTzTUc/yKCPs2jK5SP7PdcJZcIKMqjcJlRHlOnulsc9RVAm
-         dhwY92oAOHU+y4OoPDXG+R/snN/59OBisQ0VWlRgj6SbTXy9Rv5IuXR+Trgh96dg/SO1
-         PWwA==
-X-Forwarded-Encrypted: i=1; AKwUvBwgFL53ih+Lq3E7DwUjTfuVjeH7yAAY17My4slHk2zywSdl19T1o3n1i07iazVfsA+IOmiTDouPVPHt8w==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9rajT5NICrltjFgi57oeTXb4z55fazFU65xeOIABcBx8RoFbx2
-	audd92xXA0jWg0rlkfsdiBye+P3hqu5ikU4mwXcZ3tN4Q5QaVFUIsylh
-X-Gm-Gg: AYBFou1rDeEfr4uzoiYoQ0I/cuckrv9sDplpyX9bKlAu0HM3bzdihLee7kuPmWDl4Cn
-	5uMNQjieCondMA7OExe6SnHkaPylvPnCTGQTQLRmx+eaPp8lYPFhy+7ATZHktTIX3NaagLU6Ztg
-	K3mHret9Zk5/y2qhRYVZzlBah3RejnRF4AmsXYBIojxm7QzOb2SQnFVAwyLMZlaeskj5NlhZgnB
-	M5s2ir0rHnOtKJVd26g80VaFYaUJVcZuYAkREtW1IYVhJ+yn/4zQoFPEror80WvtckPKpelNh63
-	JefkQ3YzJIzF2Zj+NUTVLArp4AcTPjqvdBCPs3m0Kb7WYU1iFT+rbwlcWTmSB4GPIYZLQxomVXa
-	mt1RrGdFximVLGFVw+0RAyGWxiPAVPAoK4nI/bMq5Bfkr9lYkml/+ecuHWVB896YfdLyLmtUoUA
-	jW6lxGnp2dBan7kMD7XQ3NF8AMG/b0UOUHlSDMKkCp+eBMn+fz36ns5Guv3T3j/j6jzcDVXPMPl
-	cshzdnARrWkNd9LLAvzB2u+XoXAnbfwf+gkLHn2GdAgTT4vDNxdVVLM6bTeUj9KwOAVH+QVt4g5
-	yMD1KbKeMAyZCVZpEzQVBdNQ5y5ZTvywaym2gGtqWctM+7eTW6egfWqBDIzjCZbVXvu5
-X-Received: by 2002:a05:7022:1582:b0:19b:1202:77f8 with SMTP id a92af1059eb24-1b25d3497e3mr2346370c88.32.1793946077182;
-        Thu, 05 Nov 2026 22:21:17 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:64e:8358:c9cb:c17b])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b25e4df114sm2890595c88.18.2026.11.05.22.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 22:21:16 -0800 (PST)
-Date: Thu, 5 Nov 2026 22:21:13 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Guo Zihao <guozh23@xiaopeng.com>
-Cc: Markus Armbruster <armbru@redhat.com>, 
-	Thomas Gleixner <tglx@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] Input: xen-kbdfront - bound the backend-supplied
- keycode
-Message-ID: <au1xwKh4LVxHyUMW@google.com>
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=vNV9pC+v
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1793946757; h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version;
+	bh=/wPKfZLdL/IZzj15ecN1qG972aE0esZBki0eol8syMY=;
+	b=vNV9pC+v6DTaQuE2r7ikzm3Y2cTrTEpLjzfK0B2GWesdu+IGZgg8nomyxIQQxkjCOi3lw59tvBIjzsWs6OEn1Z2Fqj6oT9bfbgajB2emYlJLxLhvrp7Pa0uLo8ep5nojffpzE/hsUKwMEkZWPeIeoGOLi69ADa5B6zq6Kdu/L6k=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.2764088|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00278728-0.000457728-0.996755;FP=2717549084337474812|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033025068124;MF=guozh23@xiaopeng.com;NM=1;PH=DS;RN=6;RT=6;SR=0;TI=SMTPD_---.jy6SOB6_1793946756;
+Received: from 127.0.0.1(mailfrom:guozh23@xiaopeng.com fp:SMTPD_---.jy6SOB6_1793946756 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Fri, 06 Nov 2026 14:32:36 +0800
+From: Guo Zihao <guozh23@xiaopeng.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Markus Armbruster <armbru@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Subject:
+ Re: [PATCH v2] Input: xen-kbdfront - bound the backend-supplied keycode
+Date: Fri, 06 Nov 2026 14:32:36 +0800
+Message-ID: <179394675606.2415331.18232448967087865312@xiaopeng.com>
+In-Reply-To: <au1xwKh4LVxHyUMW@google.com>
 References: <20261106014957.4130059-1-guozh23@xiaopeng.com>
- <20261106020217.48481-1-guozh23@xiaopeng.com>
+ <20261106020217.48481-1-guozh23@xiaopeng.com> <au1xwKh4LVxHyUMW@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,46 +65,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261106020217.48481-1-guozh23@xiaopeng.com>
 
-On Fri, Nov 06, 2026 at 10:02:17AM +0800, Guo Zihao wrote:
-> Keycodes arrive from the shared ring the backend writes:
-> 
-> 	if (test_bit(key->keycode, info->ptr->keybit)) {
-> 		dev = info->ptr;
-> 	} else if (test_bit(key->keycode, info->kbd->keybit)) {
-> 		...
-> 	} else {
-> 		pr_warn("unhandled keycode 0x%x\n", key->keycode);
-> 		return;
-> 	}
-> 
-> The keycode is a plain u32 from the ring page, while the keybit
-> bitmaps it is tested against are sized for the KEY_CNT keycode bits
-> declared to the input core. A backend that sends a keycode at or
-> above KEY_CNT makes test_bit() read past the bitmap to decide which
-> device gets the event, and no keycode at or above KEY_MAX is a valid
-> EV_KEY code in the first place.
-> 
-> Since the event sits in memory the backend keeps writing access to,
-> the keycode must also be fetched exactly once: re-reading key->keycode
-> after the bounds check would let a concurrent backend write feed an
-> unchecked value to test_bit() and input_event(). Snapshot the keycode
-> into a local variable with READ_ONCE() before validating it, and use
-> the snapshot (as well as the already snapshotted pressed value)
-> throughout.
-> 
-> Ignore keycodes the bitmaps cannot hold.
-> 
-> Fixes: 4ee36dc08e5c ("xen pvfb: Para-virtual framebuffer, keyboard and pointer driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guo Zihao <guozh23@xiaopeng.com>
+Hi Dmitry,
 
-Please explain your threat model.
+The threat model is a compromised backend: the xenbus device model gives
+the backend write access to the shared ring page for the entire lifetime
+of the frontend, and the guest has no way to distinguish well-formed
+input from forged input once the peer on the other end is malicious.
 
-Thanks.
+Two scenarios where that peer is not fully trusted:
 
--- 
-Dmitry
+- Multi-tenant hosts. The backend lives in dom0, so a kernel compromise
+  of the host should not immediately translate into kernel memory
+  corruption inside the guests. Frontends are the last line of defence
+  there: every frontend that consumes ring data without validation hands
+  the attacker a structured memory-corruption primitive in the guest,
+  which is a meaningful step beyond "the host can already do anything".
+
+- Driver domain disaggregation. Backends can also run in unprivileged
+  driver domains, where compromising the backend is much cheaper than
+  compromising dom0.
+
+This is the same model under which mainline keeps accepting frontend
+hardening, for example:
+
+  9b4cf60c6b73 ("9p/xen: validate the response size from the backend")
+  d33846c8dcc0 ("xen/pvcalls: bound backend response req_id before indexing r=
+sp[]")
+  992df081bc88 ("xen/scsifront: check for a NULL shadow entry on a backend re=
+sponse")
+  808e530654a5 ("misc: nsm: bound the device-reported response length")
+  e3046eeada29 ("hwrng: virtio: clamp device-reported used.len at copy_data()=
+")
+
+and the READ_ONCE() snapshot in v2 follows the same convention as
+8135cf8b0927 ("xen/pciback: Save xen_pci_op commands before processing it").
+
+The keycode here is the kbdfront instance of that pattern: a plain u32
+read from the shared page and used as a bitmap index, with nothing
+between the fetch and the use.
+
+Thanks,
+Guo Zihao

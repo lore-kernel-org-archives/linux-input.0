@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793976373;
-	b=y8VyVVTkgm+U7VBPuXdKqMDOZ7xyt23qKdBQOOHU+Ps7Td3/h4XwMNVaOYcp478lH0DQ
-	 DSmofjaC/82Pvo/U8AJq/N7tBR+x9wi0l4GSTwqDYzTobXPMZDGdW5DZtHkbQHvHISbuy
-	 NtbmD2vHSoWK3WvOeNPpDZD1+tIgN/pyvDVn+sM3X9v1yp6m4H1O4IVZOXcHfx+XB8tTF
-	 qqL3N/OIfxWp99iUZjS+nstCoN/Vacw/R/oDLse5LLXOwkPa5W0dva7aRyymFEsF5UMzN
-	 MrR7Y0Zz4aly6BntHYCMktk7JBvrgjI1Q3MPiqGAJr1CEkOdjrIcMbLqm4knJkUFIyA==
+	t=1793976683;
+	b=Hu+RcJG4WW9YDHOVnBC2o4+D4MacX4q1hOBaFIHxWyBXPMPLygADdMYkcWpn6t7ky70z
+	 dibWrYELu9j5rkxLhB+cAhvUvQiAWYkEmgNfBL3MdtYlGUfCNKaRZezG4z933fVDwNwow
+	 PsqwWNBFqj5LCfC+tnk/M5P1B1p3dVXjVDuVWHSsgCCqF/TMBngxci5AbafA1r7sf/fwD
+	 m2SVkz0UrVZbEbqyOHsoLw/CPQKYl0PT3C1FBUHvuMRqXDud5pZ6bnioxvE1Lw+AH6XbZ
+	 pSY1v0AOGubnGxJ6T/IEoSzMA4cf4nzx81wGEnEUHtcO20NFuRz56uTnoLDdhYe4uAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793976373;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793976683;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=thwgJWKxJb2iKxHm16F1Un53WxbapXefJ54vaAgPNJk=;
-	b=v/E2WM5AYJ0NrSPa6l5sSzMJG7pJlFZccGXxHRITSGOE+ZXi1rrGV6CJzNm+uOg5BBXB
-	 p2mG6aJIpWxI/bY7Ccc0LIh1YRcJG3qyZMA2PyrMQFzsrOEom2WqkOLGNwbxxdxTROFGY
-	 40j9NFZv4RZPwdm97jdbxUPtOHqalayWjJ/puZpAG02uoOYcqLZa0d3lGwNqfyA2vl7P+
-	 jHwlsUkXpHSFJV2e18RLeJNhUXMIqIAjqNY97H0B/SfDXEmQgEyJUZDTW/fB5fOsjB1L6
-	 6qtSC3sM2IVe2DpHFyqYE2dQdnj87JVXWmJqWaXIOeOKgcGUz1SFuah9M3w0OjhpILA==
+	bh=6Ol7Jy5h8yev4a5ZRKOAGeQBnJuHKDip9z6Pa5bOqlE=;
+	b=mQXzeBeCqjpCt46jH0yyLVvEvXM0IGp4J6lytlo6iL8VgHUu0sAmuygtCvd5IqELGsYy
+	 vOJoe2Ffs5P5EKulPvmivgKXK+p7/N8ewEAlvUv8IvoxYJdKGk7GMELyZEvkF5HV64N9Z
+	 /qki1VY2FcxRZFZPHnQqg8RUj1CoAggqTLKzXREo2VPAGmxhY0h9haDpq4b6fqmlm0iH3
+	 a3UZ5yof2yw8ioHQQhO4JnZGmiuIzPEm5v6z2kEAdiWmIY5pe9geF0khIonQyE3g+Y9C7
+	 Jfb2m+8mAnkhyyHfSd+54V1tTymg288y80Hrs57AgQUvu5GRF9GIM5RIB+SnxQpqSgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsDNsPJ9;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dn4uwNeM;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E37AE606A32D
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:46:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABC8606A32C
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:51:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsDNsPJ9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 360EB1F0089F;
-	Fri,  6 Nov 2026 14:46:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dn4uwNeM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640F11F0089F;
+	Fri,  6 Nov 2026 14:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793976372;
-	bh=thwgJWKxJb2iKxHm16F1Un53WxbapXefJ54vaAgPNJk=;
+	s=k20260515; t=1793976682;
+	bh=6Ol7Jy5h8yev4a5ZRKOAGeQBnJuHKDip9z6Pa5bOqlE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hsDNsPJ9xw4gVdDwqDo63IM/HXIgjbKTtOLSaKeEZDM+TEMJGEkS7O5ZraIOuDX5E
-	 d7DlLlJGesd7U/ox7N/pc0RJhB6Z0a16p46hf/cyOKntb+2XXxRDWwE2lhpn5Ls87h
-	 ZrqQ1Z+Rosb1d/i/nCP8lB63h0Q3M76bpAjWbBjcvXg8QN67JB9uPGt6fqOi0AGJX7
-	 uLeuvzJxRoetrceGLrJCxHaJPBwhkZWXJlLEo8FaMogrI9DLT3yVMzS/EorcPt69Jo
-	 wo2RX/z9DnqbB7+Ta73LVEk4I8Psd6/tW2OXjHgMQmZtght+Hjwo9yOPFOh5n5uirC
-	 G9A2Xnd0H3L4Q==
-Message-ID: <sashiko-outbox-201604@kernel.org>
+	b=dn4uwNeMHDVYlVnH+yyGkhdOnfUdzH4O69Q3bm2StthZq8y1cZ8kXzJXbVnPgkqdb
+	 yRp1K7l2hRXigudLTgp1wJ52pnGtBJJw31V9sX9oaB/hkxLi03FnDoJKA4O9eZgQEn
+	 yAljAvz3vWRcpGqSyKNPsLiL87UbW0F+6Vgy1qKAq7yYLjy1W9y/kURc8I3oj/44aZ
+	 9ZfkU6mJ8tehUImhFHnqcO8LFOsJMUG2pZgiT2ZXzblE6vuFZFrjMd3Xum43gg0Tmd
+	 /NFXGvQgpIWslitvHXbVd4k46ZpDn2T8BXHHfdp1ShNLjjkRiZZ0G7fOXcWdPIeVtd
+	 op1156If5SgRA==
+Message-ID: <sashiko-outbox-201618@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v14 12/18] HID: asus: add support for btn remapping
+Subject: Re: [PATCH v14 01/18] HID: asus: size feature reports from the HID
+ report descriptor
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261106142334.1881-13-denis.benato@linux.dev>
+In-Reply-To: <20261106142334.1881-2-denis.benato@linux.dev>
 References: <20261106142334.1881-1-denis.benato@linux.dev>
- <20261106142334.1881-13-denis.benato@linux.dev>
+ <20261106142334.1881-2-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 14:46:11 +0000
+Date: Fri, 06 Nov 2026 14:51:21 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,124 +63,94 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] HID: asus: mixed cleanup helpers and goto in
-  button_remap_store()
+- [Medium] HID: asus: report type mismatch in asus_has_report_id() and
+  asus_report_len()
 --
 
-commit 0fe51bd4cd86b318227ccb9c127184422216243c
+commit a49f4ba7e2479238fb06ec5527d0ef52ccd84b83
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for btn remapping
+HID: asus: size feature reports from the HID report descriptor
 
-This commit adds sysfs attributes and firmware command support for button
-and macro remapping on ASUS ROG Ally handheld devices.
+This commit derives feature report transfer lengths from the device's HID
+report descriptor via asus_report_len() instead of using hardcoded report
+sizes.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index c0c337a5fcba9..cb6c55e75e6ee 100644
+> index f6aa1be09ad53..46643022b68d0 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-
 [ ... ]
-
-> +static ssize_t button_remap_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t count)
+> +static size_t asus_report_len(struct hid_device *hdev, u8 report_id)
 > +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct button_remap_attr *btn_attr =3D to_button_remap_attr(attr);
-> +	enum ally_button_id button_id =3D btn_attr->button_id;
-> +	const struct btn_code_map *old_code, *code;
-> +	const struct btn_code_map **target_map;
-> +	struct ally_button_mapping *mode_map;
-> +	enum btn_pair_index pair_idx;
-> +	struct button_pair_map *pair;
-> +	struct button_map *btn_map;
-> +	bool is_first;
-> +	int ret, i;
+> +	struct hid_report *report;
 > +
-> +	code =3D find_button_by_name(buf);
-> +	if (!code)
-> +		return -EINVAL;
+> +	report =3D asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
 > +
-> +	ret =3D get_button_pair_info(button_id, &pair_idx, &is_first);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	guard(mutex)(&ally_prefs.lock);
-> +
-> +	/*
-> +	 * Validate the remap target while holding the lock: the
-> +	 * gamepad mode can change concurrently, and the check must
-> +	 * be done against the very mode the mapping is written to.
-> +	 */
-> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
-> +				   btn_attr->is_macro))
-> +		return -EINVAL;
-> +
-> +	/* Access the mapping for current gamepad mode */
-> +	pair =3D &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
-> +	btn_map =3D is_first ? &pair->first : &pair->second;
-> +
-> +	target_map =3D btn_attr->is_macro ? &btn_map->macro : &btn_map->remap;
-> +	old_code =3D *target_map;
-> +	*target_map =3D code;
-> +
-> +	/* Update pair index */
-> +	pair->pair_index =3D pair_idx;
-> +
-> +	/*
-> +	 * Send mapping to device with the caveat that first
-> +	 * generation devices require individual button pair updates.
-> +	 */
-> +	if (ally_prefs.is_ally_x) {
-> +		ret =3D ally_set_button_mapping(hdev, pair);
-> +		if (ret < 0)
-> +			goto err_restore;
-> +	} else {
-> +		mode_map =3D &ally_prefs.button_mappings;
-> +		for (i =3D 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
-> +			mode_map->button_pairs[i].pair_index =3D i + 1;
-> +			ret =3D ally_set_button_mapping(hdev,
-> +						      &mode_map->button_pairs[i]);
-> +			if (ret < 0) {
-> +				/*
-> +				 * Pairs are pushed one at a time. This pair
-> +				 * already reached the hardware when a later
-> +				 * pair is the one that failed.
-> +				 */
-> +				if (i > pair_idx - 1)
-> +					goto err_restore_hw;
-> +				goto err_restore;
-> +			}
-> +		}
-> +	}
-> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
-> +		     btn_attr->is_macro ? "macro" : "remap");
-> +	return count;
-> +
-> +err_restore_hw:
-> +	*target_map =3D old_code;
-> +
-> +	/* Try to recover the mapping presented to the user. */
-> +	ally_set_button_mapping(hdev, pair);
-> +	goto err_out;
-> +
-> +err_restore:
-> +	*target_map =3D old_code;
-> +
-> +err_out:
-> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
-> +	return ret;
+> +	return report ? hid_report_len(report) : 0;
 > +}
+[ ... ]
+> @@ -604,8 +687,13 @@ static int asus_kbd_init(struct hid_device *hdev, u8=
+ report_id)
+>  	 */
+>  	const u8 buf[] =3D { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
+>  		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
+> +	size_t hw_len =3D asus_report_len(hdev, report_id);
+> +	size_t cmp_len;
+>  	int ret;
+> =20
+> +	if (!hw_len)
+> +		return -EINVAL;
+[ ... ]
+> @@ -958,17 +1054,12 @@ static void validate_mcu_fw_version(struct hid_dev=
+ice *hdev, int idProduct)
+> =20
+>  static bool asus_has_report_id(struct hid_device *hdev, u16 report_id)
+>  {
+> -	struct hid_report *report;
+> -	int t;
+> +	if (report_id >=3D HID_MAX_IDS)
+> +		return false;
+> =20
+> -	for (t =3D HID_INPUT_REPORT; t <=3D HID_FEATURE_REPORT; t++) {
+> -		list_for_each_entry(report, &hdev->report_enum[t].report_list, list) {
+> -			if (report->id =3D=3D report_id)
+> -				return true;
+> -		}
+> -	}
+> -
+> -	return false;
+> +	return asus_find_report(hdev, HID_INPUT_REPORT, report_id) ||
+> +	       asus_find_report(hdev, HID_OUTPUT_REPORT, report_id) ||
+> +	       asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
+>  }
 
-[Severity: Low]
-This isn't a bug, but button_remap_store() mixes guard(mutex) with
-goto-based error handling (err_restore_hw, err_restore, err_out).
-Likewise, ally_create_button_attributes() below mixes __free(kfree) on
-entries with goto ally_btn_err_cleanup.  The cleanup.h convention is to
-avoid mixing scope-based cleanup helpers and goto unwinding within the
-same function.
+[Severity: Medium]
+Should asus_has_report_id() and asus_report_len() check the same report
+types?
+
+asus_has_report_id() matches HID_INPUT_REPORT, HID_OUTPUT_REPORT, and
+HID_FEATURE_REPORT, and its callers gate feature-report operations such as
+asus_initialize_reports() -> asus_kbd_init():
+
+drivers/hid/hid-asus.c:asus_initialize_reports() {
+	for (int r =3D 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+			ret =3D asus_kbd_init(hdev, asus_report_id_init[r]);
+			if (ret < 0)
+				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+					 asus_report_id_init[r], ret);
+		}
+	}
+}
+
+However, asus_report_len() only checks HID_FEATURE_REPORT and returns 0
+otherwise.  On devices whose descriptor declares report 0x5a only as an
+input report (such as keyboards using QUIRK_G752_KEYBOARD, where the fixed
+descriptor in asus_report_fixup() only defines an Input item for report
+0x5a), asus_has_report_id() returns true while asus_kbd_init() now fails
+with -EINVAL and logs a warning on probe and reset_resume.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106142334.1881=
--1-denis.benato@linux.dev?part=3D12
+-1-denis.benato@linux.dev?part=3D1

@@ -1,95 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793989195;
-	b=xRE7W7Wh/IQY4gI7NU+7c35dHb3qCvuXT1KGp+zoeBpHaFSPiJ0gs5l4CnMT2tfYzyrF
-	 9xAtC3pkVNEXats3Mx03l7ea88q1N4NPoKI4KVfNudsCanKUE5EiA/OKKbn2SviRseVtV
-	 ueVvv5ooHlVjBsiw18dwxEyt/0GrH3mAP8NFzcSadURcSYXQJKGvUU6G0J4aHP/J9B81K
-	 4xAzEoF1Ht302gMwmpEGA3WtQ0ws0FuaBCAi/KrygC/HmgF09PQgppui1NlEa3JmMybwF
-	 zKoNq2lpIlnofFnukSIDRbu8kgcEoYy9PJi42zHZutS+6VA22HRyCcGjMQnXlsC4VkA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793989195;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.169
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793990788;
+	b=lLYgJJZd//yjsHdiVOqvjdKILjn1aLIrVjP1/sm8VznfH/xgwJrcnueufuaWQ5sXdga1
+	 FRJcVeJViwbAjuplX6WxAv2WuZIdPsICqIMcl7CV/9kLkRBhXPKuF4uJlmwF9xlM4loSs
+	 PNvaSh6L85IuakIpf6cTysoXpnp8KtzYWIA1b52CXBCXKQPJOI4Um4qrFBVfmFcrXZy64
+	 AOO+MqkHcwJN8B/mE+pQA9TNV/Fg1nu/gyQWzLffl9cXPDIdLxRbqUGwBow8qm9/WWpMi
+	 tTB/tdlaMz/SlWxr7NYaady1byGMO7YItSHAHp6Sf9PS+O72hsUt+yXMQle5BTHLB0A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793990788;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=ePH+hik62Fy6F4AAmE1n6DWeBVlZXhgjc9v7cFTm+1I=;
-	b=w/7S1YKw3hq7ioMFW9X7s0idWDWZxnqBMXACuWzXT7V5MHFLnUQ8qiEr6EpSBIe3IKrT
-	 ps0u18paxeD9BwKS4r+nmA6EM9JEsPo7D1GhmMc7dQFNAZXRQH5VPopEJBeETLZr+VGAo
-	 OylDhegyXLeZ2xocgscq58c4yXsXFuGk/4yuqa54MGBXgog5pmAREVslx/vamn7Iedq5U
-	 Cc93G/FjGvkkQgU8ypAhEKoub1mgoHMOcK0z9p3+aeyUalQF4h85pHa2prv8Sy/VH/Vpl
-	 YfI3okQupiQpmJypzDfkXd5Ku+hfuE5e8DDHPSGsc5L7FS9u5PElZlTJBy1yuyuCtAQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=oEn7bwxlp6JtTrktDXtiT+wX7H9tzS76+9SrUUaKcg0=;
+	b=3vCPEis1ZZ23sbIryKUeHTlj5vIoAp42xZoDJyQQaLFZo7NDYQXFx0dU73Ud1DKXQV/E
+	 dZ+sbjoplKWHrJi7RIQKornUwKyRH7QcZrP6QvURDrrx2+ryV0SSz1TUcNFWp3kZTZbUA
+	 CnEcUTiPrVN6FzWqSy4O1RSKopuw9dWtUv7fgloM6zbIucdRQRnEFK9PpNZG3a3XqvDQd
+	 9q0QEOeUe1r2dvdA1TdR3H7d0Yl4Im20dp2b3GTELfPMcNnbDoVFalzMJrUFthfx5BPhI
+	 r31QV6SzppZsvGW49EgN2veEvUE/fwEN9ZnieDit7QEDZV/ZGR++is8HCm/5MgmMHSQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=X7lR27Rb;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Z9HC86ZS;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.169
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47743606A330
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 18:19:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47743606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8507A606A32D
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 18:46:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8507A606A32D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=X7lR27Rb
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-370a1bc464cso550359eec.1
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 10:19:55 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Z9HC86ZS
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-93f2f2edb19so93082285a.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 10:46:27 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793990786; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Qsy4cwuOeSQaVSHPIYT9lfgbDdtAzxawxB7v6W8wFJhgXU7WqSDwPcK6ryMXiLzW8k
+         VAFXAxMIHRh3fH7XJnHrq6L8ZtWJDjq/Kan09djFEA50DU13y6/SF6CCZ+hm8Ro8NW8h
+         kEjb6SZkStbyOKZyzJaW4jWXsHL8qDWr0/OFH8gJPZdZA/kIcGN0vzMjuePs477cZH0P
+         tznFwkOXYWhqVYeRkFh6yY3p4+twVgQdNXEDIiBe49+viMSKFP+0ZdILUrW2pu66u4t4
+         Ra1MtitVQz6WeBHDQQ3IiPIGGupGXJBbIxn+b3LFe0eVF046H+V4cg+QUPHs8rly6C6j
+         Ud0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=oEn7bwxlp6JtTrktDXtiT+wX7H9tzS76+9SrUUaKcg0=;
+        fh=/JfsvhwdD2em8mSGYsCjC59MjWbTNFNTnTYg5SCbVYE=;
+        b=gK2ez9B+5vdJhW60/N2qkCd+vSk6VwgCIqgMrgqZ0IrXBEXrIU06CAr2im+V12R76U
+         orF8pHW1AOfB3oMFRlLZLYNx0N6PFnvL8nVuyoDzMoCWKR2L7wLufwzz6p1I+BVpK0r7
+         zVJvUAjAbUYqQLMA71plqpn03GlRHDAeki+1PbJT7L9tVfUQEyyI+VZxC6mhnYe5dRLl
+         LA4Ep8cJuVdyxSib/698Skp1eLxsm3Hhp98NRL/pMRsnPLYvrHrSWmaPklufZUB6zH7h
+         Yn8RtaSYF76kCOEl7Y3/VGbbFvQ+B2brJ1uhoY7gXKYUubW119rSiJ/lydCrM1+Lr6TM
+         9bfQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793989194; x=1794593994; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ePH+hik62Fy6F4AAmE1n6DWeBVlZXhgjc9v7cFTm+1I=;
-        b=X7lR27RbrxzayAIqAKtxrfjf53P0bbpYAmfW+QVcAshLVcuM4RBj69px8H/k8CSjsm
-         Hi41EFcJE3XccnMUwcmsv/Qq5V/R2F1dc3X2FynpaQXVSAHmwOitYgskIterANLTBb1G
-         cZq2+ewPwPG3aZmQstNuutoWF2nCQfBUUYAK2aVBYT7eNrsjOdpm3EHebbwkOShfxHBn
-         VA2W3Xx5NYz8untfcuBIhr7eM5pkbpaeaXOxljElRXWT17TfMmLtbfUW1dW5H99cKb3J
-         yfwGvemvWV1RDWr6Jli0dtYrVq6PyzIk8i96SzMf3hZOPp58V3Vdxck7Y6ZCaOA3Lrmv
-         ulBA==
+        d=gmail.com; s=20260707; t=1793990786; x=1794595586; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=oEn7bwxlp6JtTrktDXtiT+wX7H9tzS76+9SrUUaKcg0=;
+        b=Z9HC86ZSkUDNPhx/CjWi/SScFfOIPSHSo7vMWUh+XGsATmPW8BWEkCM6bOCgqO0Are
+         20V/CwD73gFN96nZWlmqysgtlzg+CXzInQPANKnmNePAw2GtNLcDs57tXNMHpd95fp4K
+         m5pRi6yR71ZCllopH7Ng9CmRbPV0moMMBHJ3IgZrdANixqOan7PwN+ZUAYblo01OJz/D
+         mrnxC/fS0LoYFk0xfk8L5+mFtw8CSkAJi36Nr/tAeEtHUIaHNZA/EKAYiXYe2yn97+vP
+         vY53r76H67QgodzNEezlF9MB/G0k/L8R1rgP+HWHFLFuJsYq4T4nDQNrbBQXwxpN0NTc
+         +qdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793989194; x=1794593994;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ePH+hik62Fy6F4AAmE1n6DWeBVlZXhgjc9v7cFTm+1I=;
-        b=kWqn0mTIJ9zq65NU5M4ZtqK3Il0ufesVD5FIDz6531V+4jaf7FclV7439WFjt2NcQx
-         hvf942mWuLSrGtGvHuOMC2/foh9cuBdvUrk3QJPVqIKNx+Jur1WpSG41zyASJ8ImWmUh
-         8/etiXEhJzorqGc5bGT2s849+KBQlS5fz2zXHlm9qWHs5yh8d+NakFFQn3ICSxLa0NVY
-         vO4E5p4c9T4LTn95b8SGmaNL4BoiVyy43Mn3oznW7oIkwstn3a3y7Rqs12jYvz9EtX+j
-         qgz1Iyf4BnETmn7wURnZ+CVeZ1JYiW7r/Z23PjBN9Rc+rBE/GS0lp1iPGUNQpS92ASJv
-         1nnQ==
-X-Gm-Message-State: APuU4Z/Hx9M16u152joD4NKfHsZK8UYUGSHKshyYnaeM6669lDR0AWfv
-	l/dHdVHMn4yDSW01kM6m46jjBxcYrujIqYJzlA+vxYIeyGyDFy/+xiu8
-X-Gm-Gg: AYBFou08eZafZo7TUbuTDTBglw2zJn2VAou1xxCfANS2IuSacCfF9C0rq+HxfBPdLJO
-	mikOp3zGNE1jvAFa087FvLW5v1CbI4XAaCnozFW0xtHSTuHml3XgqlbE4bPc9spRjZHmbX+xWJy
-	unRRgQc5StXjxmL4psD5sSNGDUtneQ7lsxxv5psj1rN9PincOXO6ku+cPPF7/QFyVJ6qENvb9eQ
-	wQoBrENYmCPDUqndyI2EuAyQBCgxISGLYyhUNbMUzZ63AGfPP0xT4yqziEoLVMIUlRjY5cX90PD
-	sV/NNZNCKf3jIKngL54qxQ7rmAONNVmKnQ/YVGOHHDVckwKuruaQ7cIUVZ/jMMdYYofofbHXSsD
-	zgYaTOq1i1EhhDWGHex9NfRdN3yRGoPkTyDf5wau4NOvmFGF7H9LrIOrYRhVQFDzVlR1lgpElAG
-	ZtwNXzhNGWfLMMMkPWryii0nGXWPA1AVCZvJg3Qe3RKSqtrsQSIo/J5w0RjZzBpm3IaNfDWBLag
-	YCHiWwX1KLZElGNb0XrQN3rlBUlwxk9t2BEweqO7eU0jLCLAqmFQGCzoG2Uta/yiwqrZmbuCroS
-	oEfFRnr0f2JZWhjT8vovWVqO2vbZZBWbkhRSxcl3405wBYMY/dqb9V65S1qUVJmilvlX+3pgxye
-	x5A1NX8XQrR4ZDHmVRbv1V0n+/YdT3uX4LtdeXkdTmB+bgYLTGERf6JMj8uX6LmQPjiCCWBr7ef
-	KUt60D8huqaXDBASJVI1BvrxcolYXWvmTw3AByrH0EATPohkS0gg==
-X-Received: by 2002:a05:693c:2a0b:b0:36d:d7ec:5e3d with SMTP id 5a478bee46e88-36f772f8940mr4302147eec.21.1793989194075;
-        Fri, 06 Nov 2026 10:19:54 -0800 (PST)
-Received: from zbook-HP-ZBook-Firefly-14-inch-G8-Mobile-Workstation-PC.. ([49.207.55.157])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36faa6a649csm8241901eec.26.2026.11.06.10.19.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 10:19:53 -0800 (PST)
-From: Payal Lenka <payalm.lenka@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	chenchangcheng@kylinos.cn,
-	Payal Lenka <payalm.lenka@gmail.com>,
-	syzbot+f8fb5598924c7e645553@syzkaller.appspotmail.com
-Subject: [PATCH] HID: corsair: cancel the LED work again after unregistering the LED
-Date: Fri,  6 Nov 2026 23:49:44 +0530
-Message-ID: <20261106181944.2535082-1-payalm.lenka@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20260707; t=1793990786; x=1794595586;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oEn7bwxlp6JtTrktDXtiT+wX7H9tzS76+9SrUUaKcg0=;
+        b=ihD8wbmYw6y2RMVFIsabFxSMc3iIGG3zUPCoNzUjXh3I6DRRnssatMYkLakjTpkJT8
+         dYdDEgPYtmdTJI/Ym2ox8KPlpA2Zah5yLPSPwxJ4wdR/wwEPDWOUgbZwW1lNoRbg80Aq
+         YLZ1qAz/yU650p/8CmRs7XLx2owrMU3wJvuoAAiX1dVBunQ0Ov+KLHwS8Qx0mJEqzeiw
+         YYc7Gr5nbAkGrGm4QTh4i+Lw+SzUDnQwpzrr0bsnUVMesFG/ByLw2R2HJzIpSg0beqNf
+         ohReHpFHSg4R31F2mBzk9JLK594nhwbCqk2DrTgiAD3pzFn80tbEdZnMeXXEFtCc5kz5
+         kJBw==
+X-Forwarded-Encrypted: i=1; AKwUvByxKIbHJscxt5n/Eb3FNd/57r1mzvI8riDZB3FwIF13YhJzxA7p5KRgYmXJLBVR9068uZUhiBScusKjNg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/qb8d9/YZ8CFyfYKcSgXRFlFe1TI08+0hHcFQ8u8gGLZDr+73g
+	McLzf4HtvA1GsMDJVzKlhPJZw21n+F0DR9lgzW2ndhy9OAIJHU8dwk/0HBrusNm6umkCkVK5mO0
+	/+FVey1s31cZWD+bYpnlbNglF95LlK90=
+X-Gm-Gg: AYBFou3xGM3hksDYNiSDs9VDAO92xJcD3AviRqEKBlnBgmfSxwFd/TGn8aEkWD6XLQh
+	vEb8W6MHckcvUYDBIcgk462rWTVHXQYgUAp/jaYoMxC/n+eNFzUQlR50/cGVUBpksJ1TiKx5u0W
+	3zDapVbGKd/bB5e3kJThUd+FuzCbLwt1EV9DQhWaG1OapQnHHX2YZXGDCYhCf5WeboTafAh8U8F
+	i/ak6dsV3lG5IbPLK28iusHdCeUh/ofEc5gJTfS1aCqmtdniVENbi1Bb8alcfUhi4TLzyU/IkeF
+	LOgcRcK+w9REzjJw+D948pyq/U+vl2z1TYazORO4KgMTokCxjRZXCFpOKRsjezjRk02E0S6WC8q
+	tYt9WsTHAPt3dyzf3uKrUTlH7eZT9/R3NXy5L
+X-Received: by 2002:a05:620a:2b93:b0:942:a42a:78a2 with SMTP id
+ af79cd13be357-945f34ead3bmr431647685a.31.1793990786229; Fri, 06 Nov 2026
+ 10:46:26 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,73 +104,111 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CANRwn3RYhEu0g9Lx+Vg=Uy8V7BWWz-jWV9d7UVuyRK-MGdbHOA@mail.gmail.com>
+ <20261106120405.169399-1-qwe.aldo@gmail.com>
+In-Reply-To: <20261106120405.169399-1-qwe.aldo@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Fri, 6 Nov 2026 10:46:14 -0800
+X-Gm-Features: AclHuK_mPu4CGKBJY9JOjjdbWKDK_1Mvm3MPelFofXSeQQja0gast3M1vggbj_s
+Message-ID: <CANRwn3TtcDdy4wgHCRfzecAoB6m3Jat0kNOd-AYPskg1OA9+Bg@mail.gmail.com>
+Subject: Re: [PATCH v4] HID: wacom: avoid divide exception in dropped-packet calculation
+To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Commit eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering
-LED to fix use-after-free") cancels the LED work before calling
-led_classdev_unregister(). But unless LED_RETAIN_AT_SHUTDOWN is set,
-led_classdev_unregister() turns the LED off, and k90_brightness_set()
-then queues the work again. The k90_led holding that work is freed right
-after, with the work still queued. The removed flag does not help, as
-the worker would read it from the freed memory.
+On Fri, Nov 6, 2026 at 4:04=E2=80=AFAM Aldo Ariel Panzardo <qwe.aldo@gmail.=
+com> wrote:
+>
+> The dropped-packet calculation uses a modulo against sequence_size
+> (logical_maximum - logical_minimum + 1).  When a HID descriptor
+> declares a sequence field whose logical range spans all 32-bit
+> values, sequence_size wraps to zero and the modulo triggers a
+> divide exception.
+>
+> Replace the division-based calculation with a branch that computes
+> the forward distance through the sequence range directly, as
+> suggested by Jason Gerecke.  This keeps the existing int types and
+> avoids the divide-by-zero without any 64-bit arithmetic.
+>
+> Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 1=
+6-bit")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-This is caught by debugobjects when a device is disconnected:
+Much happier with this version! Thanks!!
 
-  ODEBUG: free active (active state 0) object: 0000000097898442
-    object type: work_struct hint: k90_record_led_work+0x0/0x1e0
-  WARNING: lib/debugobjects.c:629 at debug_print_object+0x189/0x2a0
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Cancel the work a second time after unregistering the LED, in both
-k90_cleanup_backlight() and k90_cleanup_macro_functions(). The first
-cancel stays, as it keeps a running worker from using led->cdev.dev while
-the LED is unregistered.
-
-The root cause analysis and this patch were prepared with the help of the
-Claude Opus 5.5 coding assistant.
-
-Fixes: eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering LED to fix use-after-free")
-Reported-by: syzbot+f8fb5598924c7e645553@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=f8fb5598924c7e645553
-Cc: stable@vger.kernel.org
-Signed-off-by: Payal Lenka <payalm.lenka@gmail.com>
+Jason (she/they)
 ---
-Tested in QEMU (x86_64, KASAN, DEBUG_OBJECTS_WORK and DEBUG_OBJECTS_FREE)
-with a C reproducer from the syzbot report, 120 seconds per run:
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-  no fix:                     warnings for both work items
-  this patch:                 no warnings over 124 disconnects
-  only the backlight cancel:  warnings for k90_record_led_work
-  only the record LED cancel: warnings for k90_backlight_work
-
-The reproducer does not exercise the race fixed by eb51c9f8cb4f, so that
-is not tested here; the first cancel is kept for it. Not tested on real
-K90 hardware.
-
- drivers/hid/hid-corsair.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-index 278c6efb5..7e5ff3d52 100644
---- a/drivers/hid/hid-corsair.c
-+++ b/drivers/hid/hid-corsair.c
-@@ -526,6 +526,8 @@ static void k90_cleanup_backlight(struct hid_device *dev)
- 		drvdata->backlight->removed = true;
- 		cancel_work_sync(&drvdata->backlight->work);
- 		led_classdev_unregister(&drvdata->backlight->cdev);
-+		/* Unregistering turns the LED off, which queues the work again */
-+		cancel_work_sync(&drvdata->backlight->work);
- 		kfree(drvdata->backlight->cdev.name);
- 		kfree(drvdata->backlight);
- 	}
-@@ -542,6 +544,8 @@ static void k90_cleanup_macro_functions(struct hid_device *dev)
- 		k90->record_led.removed = true;
- 		cancel_work_sync(&k90->record_led.work);
- 		led_classdev_unregister(&k90->record_led.cdev);
-+		/* Unregistering turns the LED off, which queues the work again */
-+		cancel_work_sync(&k90->record_led.work);
- 		kfree(k90->record_led.cdev.name);
- 
- 		kfree(k90);
--- 
-2.43.0
-
+> ---
+>
+> Changes in v4:
+> - Replace s64 arithmetic with a branch-based helper that computes
+>   the forward wrapped distance directly, as suggested by Jason Gerecke.
+>   Keeps sequence_number as int; no type changes needed.
+>
+> Changes in v3:
+> - Replace raw s64 modulo with div64_s64()-based remainder to avoid
+>   __moddi3 link failure on 32-bit architectures (i386, arm32).
+>
+> Changes in v2:
+> - Normalize logical_maximum/value as unsigned when logical_minimum >=3D 0=
+,
+>   matching HID parser signedness. Store sequence state as s64.
+>
+>  drivers/hid/wacom_wac.c | 14 ++++++++++++--
+>  1 file changed, 12 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 361738b..1d3ae94 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2426,6 +2426,13 @@ static void wacom_wac_pen_usage_mapping(struct hid=
+_device *hdev,
+>         }
+>  }
+>
+> +static int wacom_hid_wrapped_dist(int after, int before, int min, int ma=
+x)
+> +{
+> +       if (after >=3D before)
+> +               return after - before;
+> +       return (max - before) + (after - min) + 1;
+> +}
+> +
+>  static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_fiel=
+d *field,
+>                 struct hid_usage *usage, __s32 value)
+>  {
+> @@ -2551,8 +2558,11 @@ static void wacom_wac_pen_event(struct hid_device =
+*hdev, struct hid_field *field
+>         case WACOM_HID_WD_SEQUENCENUMBER:
+>                 if (wacom_wac->hid_data.sequence_number !=3D value &&
+>                     wacom_wac->hid_data.sequence_number >=3D 0) {
+> -                       int sequence_size =3D field->logical_maximum - fi=
+eld->logical_minimum + 1;
+> -                       int drop_count =3D (value - wacom_wac->hid_data.s=
+equence_number) % sequence_size;
+> +                       int drop_count =3D wacom_hid_wrapped_dist(
+> +                               value,
+> +                               wacom_wac->hid_data.sequence_number,
+> +                               field->logical_minimum,
+> +                               field->logical_maximum);
+>                         hid_warn(hdev, "Dropped %d packets", drop_count);
+>                 }
+>                 wacom_wac->hid_data.sequence_number =3D value + 1;
+> --
+> 2.53.0
+>

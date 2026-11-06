@@ -1,57 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793994133;
-	b=RIGVpgdIf13qK3pBzxRlYXzJIjipKybXqt2qChjmTGCSbP0+8xsayjY8HR78n2g77KVY
-	 KJIvplpNiBBrVejfWQeUmI8TDR8W5pLZ4Uvk7f7Zvj4AJluPEklYWqIcQqVehKP8sTwzt
-	 4BV1kkLmprytRqwnRh2VrLLYoYIRKTKQasDI3+rmnRRKpsiA1Mo763SRfVDyIyNql+qQ4
-	 3YWwELVmRPeehobfcvr//p8GVbW3K+dj3eHaXPthAwNCe3+VJWjYCqpDP6Y5CUZ+QAGig
-	 FmawU2KwiEYqbvGS2v2RCvUTvmdq0lTHUB9e7m9mhTbZbuK3DxG0GmhC4lR45JzgVOw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793994133;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=wQ9DYvZgYtqUFzrW2/aQJksI3VXGFMiBaA2vaFHa9SI=;
-	b=VxEFKdBf+g2EG7wNEeevSJ2QRKYkRx9YuhL9jUv5J2mjmHCGEQJybqkcCxePhXrB4HqQ
-	 U8DijPrDjxZyqa19+wEV2o4GiqdZXnGkVehkELPTRrPwfgjryxdIJ5F4SviLQ3KIftLN8
-	 8NVYgNzr//puLOq0KaoTzMwW1KdENAIi0y09pVddIXmHD+0EOfUQsEoTsuzVlHGSk/6Zd
-	 T9PSEBgMXqS0pQarndIAUmDgmTxzcDhoYOc/tFlCSvQJPMc7lmz7rxiwPC5mYRA8bQq9u
-	 cCqtHWdS+OYPAVA++yRAaTfYD5TMDNzJEFb0rZ8nN0IdkK7MG+EUAkSZ/UNKg4pXMsQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="L/FrxuXc";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793994542;
+	b=Y6S7JQvrnU/raHyQiGeXJln7ga8aE3xaoVIzMgnZEQG9/sRETTknzXU57Ma+JKnjOWT2
+	 Bd+VD8DxtTr+rsN9OMdVvrkaz9qvZtTQvNNK9wHHy0B84WxD6sgqgjSRGsQfuJqE0P1Ox
+	 wPMjulvCDbtcE/meNEDqDe/9qzAYjXCEAH/TVBGNrQkUWw+O5JYIvoN8OD+9+7HCYUvip
+	 SZxSM0s9bUeYm11WuyM46ME37y5+qSXdQgUSduu7x+LE+sf6cP0pWIQL7/zti0m8PBDMg
+	 PvipSIXM6amvUZN0TqLuNTuYkmErMshCTW82pffyg54t5YZVRZcu/VWe3ltbQn+pmrg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793994542;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
+	b=m3Wm9he6T+14Qr5DQLFXqBeroG/37cNyFE+JfuPM6aBNE0RUE0QeM2lcGf9oTMM8o9mL
+	 hvUPjb5DGmX/UtVEsb+FDBu5ev70IjmR3ObyjEwcbRr2MfJRECBDjuCvO+yRVt7ckl51R
+	 ixQJfBnTYfjcieB8d1oTg1ILQx5LxSdFbmklm9frxS0ZURGRQ/rXWImUaUnv71nhG19x9
+	 Ouysw51k9smCrtg+/My08o230nJWeEKw8YgtbV9T2RYqZwjGrS3SFHL27M8XABMvFj4nZ
+	 UEh3de7QFciAp5lPABWgEfF28nCj/n0clf+bsFiJTVVFDCruRlUyZ1kvspZP6WuGtxw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wyPperED;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD8F1606A326
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 19:42:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 208D5606A329
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 19:49:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 208D5606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L/FrxuXc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DDF1F0089F;
-	Fri,  6 Nov 2026 19:42:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793994132;
-	bh=wQ9DYvZgYtqUFzrW2/aQJksI3VXGFMiBaA2vaFHa9SI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L/FrxuXcG8Xzpd48Et2vRsAw4ScYnRRDGSEjLmLwxUxOJ8sUFxSClH176inQDCX+/
-	 gBVEYfIEoiloYbj/gfL9yBcilsfIDqAx8WQ+eabXA3id6uBfevLPl00uXGK9pPazuy
-	 aR8sIhKei3xdThhGXvIp+i5066KcZvxkidQHBYZ5Wg97COA/9k+HKBDyDkdUoZkVUs
-	 VrFLxZ/1N8vkcgOr7uOc8rkPZJkxxVKY61cVHdmb9M/54OsCFFpbcVLoHiTrzZmyo0
-	 p1y8zK4qgLvBg3xSuModxB62POHqldH9YXW1p0t0fD8d9CN4gPSWuPaMOMadD/4GTR
-	 RLm4VG6EHvfrg==
-Message-ID: <sashiko-outbox-202161@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] input: joystick: stinger: port Gravis Stinger
- driver to safe Rust
-Reply-To: sashiko-reviews@lists.linux.dev
-To: clicedvly768 <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261106191714.334055-4-harepro29@gmail.com>
-References: <20261106191714.334055-1-harepro29@gmail.com>
- <20261106191714.334055-4-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 19:42:11 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wyPperED
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-5430f70c827so11691551cf.2
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 11:49:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793994541; cv=none;
+        d=google.com; s=arc-20260327;
+        b=BvUE8A/TqJbKCgYJ9JB7fa2ZL6bsi9XIwN3y7E74/Q8JuDBDGeZB1MBRSBaZ18uaRK
+         8Wez0lp3EbNpcsOqTOQINR1C1gKdUDVSvZjXLqbNMXdGzdofWxRocHNZyaxXbWugQJ7o
+         xHWCQxftcY0gdrG2iixFVah6oVHQf9ltIy6jtlFEju1mTNjeOJ2zVje6EfeNxnviO0PT
+         OqjPhE7ES6M18aMW16mOfaf0QU1wp9y+1aiT8lE+I/sU8Kvee539vPqizRRgdH7S65Y+
+         6DgFOkXXDQg2SWsZQva+E/jkiL9a7AslZDC4EpChiYmjOuXtxPbrUuQmvpvLspGw8Mf1
+         SN6w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
+        fh=D2Xw1g8bXNa2jJnfZpErSqmGeOtH9OjV2XWSSMyh0Aw=;
+        b=ZQXYK/5Xq9tSpy0GrdOu7iWNdEe6dxx0jDXq7fEV8s5JQSRQN3WGuLqpbq7A0/R+Bv
+         KeGuM6Wr0vXo1AZLMcaMcCOpVcEktxWEeEVU0g2Pkomv54T9Rjj1V/TTE4Hlt0/uhx1M
+         YnNSTcD1a5cEDmFU+3IPg15Eb4lKPIaNa0kgtEcj4IBrUui6YUFZpWBJuseGu8r0q+DG
+         z4Nz1Acdhs4vFy89eKjNW3GSkUk81nOd7/8Khy1QuuJgWdRFQFscMgmkK4EfSBwbsDT2
+         SNzmWYHwT3vn3F3vAaH74j5U1N5jhmJUMI/JcCt3skk2LAlwGOY1z3TfB4JT0x6vfcW0
+         xrpA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793994541; x=1794599341; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
+        b=wyPperEDJFDS5ADQ8nuKsgHhpHE7PYSaU768vbWgKoHreydewdmho6uuzVeAienWkS
+         /Yn0kyQMk0a2dfdx3CpmgxlEM7P3KliO1+hXpHPemuBw6uZthvK0K6E0NpGJdf2oQ0yT
+         KVlxRUguqQtWBosSe2XX0crKRy0NPNvCnLgsPQWrURCxCYt4d8CgzO/lxjKESf8aIyWU
+         9wJpLYrsCvMmYtIiOe7Rr+McCyHoIap5CjwpiRI/CbZTj6gt8vpNPj3kMgRQjtz+BWu/
+         MtazFNqZ6mzCTGo+5m9IOYWmvtE55hAlfN8JXQ27ZUQHn9D1jXPpRDmPGctgcnW2+D3w
+         2xgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793994541; x=1794599341;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
+        b=YAOX5PsPk3FoGbbVZy5hwlIRMFi6lz76PodTy1VpAlir+Shr2FQGdNMLSAzHNkpYQJ
+         UnRogbGQMIcNJLklRSqb1cHaK4W3MdLz39pBZTjaL/dtZ6uSKKNd68Ad0yk7pQ4QjyJa
+         4R1EZLnbytI/cGdX74pCSwdTvshy8bEEb6yuXQGVwrMUD2RxxMeMK3lpqjWtv1/In1kn
+         6+9XEzc46LoRqdE6MSWcFRgNY+hMTfMByqa7JyZcGKRI3iB+pZRPm6gbSTX2TQZY+DUq
+         Ti8geFvRtd9Lho7kyp+OCzKq8CgkkM7dGu7PWa7hmnkB5d4FZ2p3BPqa/g2cvtr9Lhzy
+         7MdQ==
+X-Forwarded-Encrypted: i=1; AKwUvBy1qTv+sCBHaT2s/et4BYI3YBt54tEBrD9p38bbX/gaCfp43Q5KFJFtjQVPv5V7jqLN5fEApEgMjpP8+Q==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/yUq3Uw/sl0wYj9gqFq4nIur3hz7GZrq8hRQpIibgHToY4s3/g
+	LSRhsTMdmSSEnQq685ki8OcYtyb3ZJBuTZ01wa6Q9v1EaAmR2Xa7sM1nL8XmrURafLj6aRRUsHF
+	5IHDgtU/HGwuPkFQT40gFm6T6ynNvi/gHM5N6
+X-Gm-Gg: AYBFou2cxZAIUNMttex9/v1FSOBo3gfNmqO94hKTzeNTL4/9FWGIfHWz69S7X/XQ49V
+	E0moi7ZPDbo7DUEdsUpap1J+Lzb9tVFxrTArQ7iMK6BzgTICjvI5+8+DCjUOTil4EgAwoGAOXRR
+	fbDOhoIDH/favoDPOmLh6Bw5o1ao7bBJmZqzDbZhekA4ZQZ/W60P8D5I4j7P8FIe2KfFAmUI7sy
+	2yO0aOVUl8cJ8SZRzEGwXpYz/1rlf3tZLwlhtyRogukoY4l37qxDSwKP3FMof1VWMBEENQ5qw1j
+	XXJwRf+55Zm0GXxQI3fXQ0Fox6GrkZlGU0doLG0BHb0ZyIQ13Pp7jwomPtS6+lW9wTRvBBNJ11H
+	WLEmcke9qABi7ppj4eAg9SBnmmTQwf8Q5RmdW
+X-Received: by 2002:a05:622a:5b08:b0:536:64c9:b1af with SMTP id
+ d75a77b69052e-54e1329ad88mr53720801cf.24.1793994540966; Fri, 06 Nov 2026
+ 11:49:00 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,318 +103,137 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20260915041248.2432629-1-qwe.aldo@gmail.com> <20260915042546.2454238-1-qwe.aldo@gmail.com>
+In-Reply-To: <20260915042546.2454238-1-qwe.aldo@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Fri, 6 Nov 2026 11:48:49 -0800
+X-Gm-Features: AclHuK9iaJcHe9K1bRdtuipGjw8e3uQB2h1pAJywOj53Kvv9pWIoHDLbZ4NPWUE
+Message-ID: <CANRwn3Tt0VguzG=_azEZAP8vfxr0BbyWj=Nu-R3a0TA1nNGqog@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: validate battery range before scaling
+To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 10 potential
-issues to consider:
-- [High] Input: stinger - built-in Rust input/serio fails link when
-  INPUT/SERIO=3Dm/n
-- [Medium] Input: stinger - depends on RUST drops non-Rust support and
-  breaks defconfig
-- [Medium] Input: stinger - missing MODULE_DEVICE_TABLE breaks module
-  autoloading
-- [Medium] Input: stinger - missing input_dev parent in connect() breaks
-  sysfs hierarchy
-- [Medium] Input: stinger - connect() registers input_dev before
-  serio_open()
-- [Medium] Input: stinger - driver registration uses helper THIS_MODULE
-  instead of owner
-- [Medium] rust: input: unsound set_phys() and set_abs_params() on
-  AllocatedDevice
-- [Medium] rust: serio: missing sentinel guarantee on Driver::ID_TABLE
-  slice
-- [Medium] rust: serio: missing Opaque wrapper for serio_driver in
-  Registration
-- [Low] rust: serio: negated to_errno() in
-  Registration::connect_callback()
---
+On Mon, Sep 14, 2026 at 9:28=E2=80=AFPM Aldo Ariel Panzardo <qwe.aldo@gmail=
+.com> wrote:
+>
+> Battery events divide by the difference between the logical maximum
+> and minimum without validating the range.  A malformed HID descriptor
+> with equal limits can therefore trigger a divide-by-zero exception.
+>
+> Move percentage conversion to a helper that widens the arithmetic,
+> rejects non-positive ranges, and accounts for a nonzero logical
+> minimum.  Clamp the result to [0, 100] instead of rejecting
+> out-of-range values, so that real hardware whose ADC occasionally
+> reports slightly beyond its declared limits still registers its
+> battery and updates capacity normally.
+>
+> Fixes: 37d160193834 ("HID: wacom: generic: Scale battery capacity measure=
+ments to percentages")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-commit c0702275451987ccba043dca381ae440cb19b04d
-Author: clicedvly768 <harepro29@gmail.com>
+I realize this is *very* late, but (similar to the just-reviewed
+sequence number patch) I'd like to request a version of this patch
+that only addresses the divide-by-zero without introducing variable
+widening. It is unlikely that the range of battery values would ever
+exceed anything more than a very small fraction of __s32 so the
+widening (and associated requirement to use div64_s64) feels very
+unnecessary. Checking `if (range <=3D 0)` on an __s32 range should be
+sufficient to catch overflowing and empty ranges. I think the
+introduction of clamping is pretty reasonable as well and should be
+kept in the v3.
 
-input: joystick: stinger: port Gravis Stinger driver to safe Rust
+Again, apologies for the delay---hopefully we'll (finally) get this merged =
+soon!
 
-This commit replaces the C Gravis Stinger serial gamepad driver
-(drivers/input/joystick/stinger.c) with a Rust implementation
-(drivers/input/joystick/stinger.rs) and makes CONFIG_JOYSTICK_STINGER
-depend on CONFIG_RUST.
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kcon=
-fig
-> index 7755e5b454d2c..e672a3bc6dccf 100644
-> --- a/drivers/input/joystick/Kconfig
-> +++ b/drivers/input/joystick/Kconfig
-> @@ -188,6 +188,7 @@ config JOYSTICK_SPACEBALL
->  	  module will be called spaceball.
-> =20
->  config JOYSTICK_STINGER
-> +	depends on RUST
->  	tristate "Gravis Stinger gamepad"
->  	select SERIO
->  	help
-
-[Severity: Medium]
-Does adding depends on RUST directly to JOYSTICK_STINGER while deleting
-drivers/input/joystick/stinger.c cause a hardware support regression on
-non-Rust configurations and architectures without HAVE_RUST?
-
-For example, arch/powerpc/configs/ppc6xx_defconfig enables
-CONFIG_JOYSTICK_STINGER=3Dm without CONFIG_RUST, so the driver is silently
-dropped from that defconfig. Documentation/input/joydev/joystick.rst also
-still states that the device is supported by the stinger.c module.
-
-[Severity: High]
-Can enabling CONFIG_RUST=3Dy with CONFIG_INPUT=3Dm or CONFIG_SERIO=3Dm (suc=
-h as
-CONFIG_JOYSTICK_STINGER=3Dm, which only selects SERIO under if INPUT) break
-the vmlinux link?
-
-CONFIG_RUST is a bool option, so rust/kernel.o and rust/helpers/helpers.o
-are always linked into vmlinux, and both unconditionally compile the input
-and serio abstractions and C helpers without guarding on CONFIG_INPUT=3Dy or
-CONFIG_SERIO=3Dy. When CONFIG_INPUT or CONFIG_SERIO is modular or disabled,
-built-in code in rust/kernel/input.rs and rust/helpers/{input,serio}.c
-references input_allocate_device(), input_register_device(), input_event(),
-__serio_register_driver(), and serio_unregister_driver(), which are either
-in loadable modules or not built at all.
-
-[ ... ]
-
-> diff --git a/drivers/input/joystick/stinger.rs b/drivers/input/joystick/s=
-tinger.rs
-> new file mode 100644
-> index 0000000000000..daa1994636315
-> --- /dev/null
-> +++ b/drivers/input/joystick/stinger.rs
-
-[ ... ]
-
-> +impl serio::Driver for StingerDriver {
-> +    type Data =3D KBox<Stinger>;
+> ---
+>
+> Changes in v2:
+>   - Clamp the computed percentage to [0, 100] instead of returning
+>     false, so that slightly out-of-range ADC values do not prevent
+>     battery registration (WACOM_QUIRK_BATTERY) or silently drop
+>     updates.  Reported by Sashiko AI review.
+>
+>  drivers/hid/wacom_wac.c | 23 +++++++++++++++++++++--
+>  1 file changed, 21 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea85..XXXXXXX 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -7,6 +7,7 @@
+>  #include "wacom.h"
+>  #include <linux/input/mt.h>
+>  #include <linux/jiffies.h>
+> +#include <linux/math64.h>
+>
+>  /* resolution for penabled devices */
+>  #define WACOM_PL_RES           20
+> @@ -1937,6 +1938,22 @@ static void wacom_wac_battery_usage_mapping(struct=
+ hid_device *hdev,
+>         return;
+>  }
+>
+> +static __s32 wacom_wac_battery_percentage(struct hid_field *field, __s32=
+ value)
+> +{
+> +       s64 range =3D (s64)field->logical_maximum - field->logical_minimu=
+m;
+> +       s64 result;
 > +
-> +    const ID_TABLE: &'static [serio::DeviceId] =3D &[
-> +        serio::DeviceId::new(
-> +            bindings::SERIO_RS232 as u8,
-> +            bindings::SERIO_ANY as u8,
-> +            bindings::SERIO_ANY as u8,
-> +            bindings::SERIO_STINGER as u8,
-> +        ),
-> +        serio::DeviceId::new(0, 0, 0, 0),
-> +    ];
-
-[Severity: Medium]
-Does dropping MODULE_DEVICE_TABLE(serio, stinger_serio_ids) without a
-replacement module_device_table! or module alias entry break automatic
-module loading when CONFIG_JOYSTICK_STINGER=3Dm?
-
-Without the exported device table symbol, modpost no longer emits
-MODULE_ALIAS("serio:ty02pr1Eid*ex*") into stinger.ko, so udev/kmod cannot
-autoload the module when serio_uevent() reports a matching serio port.
-
-[Severity: Medium]
-Can a safe implementation of serio::Driver omit the trailing zero entry in
-ID_TABLE and cause an out-of-bounds read in serio_match_port()?
-
-In rust/kernel/serio.rs, Driver::ID_TABLE is typed as a plain slice
-&'static [DeviceId] rather than a compile-time zero-terminated array, and
-Registration::new() passes T::ID_TABLE.as_ptr() directly to the C serio
-core:
-
-rust/kernel/serio.rs:Registration::new() {
-    let drv =3D bindings::serio_driver {
-        description: name.as_char_ptr().cast(),
-        id_table: T::ID_TABLE.as_ptr().cast::<bindings::serio_device_id>(),
-}
-
-Because serio_match_port() walks ids++ until both ids->type and ids->proto
-are zero, any safe serio::Driver that omits the sentinel entry triggers an
-out-of-bounds read past the slice.
-
+> +       if (range <=3D 0)
+> +               return 0;
 > +
-> +    fn connect(dev: &mut serio::Device) -> Result<Self::Data> {
-> +        let mut input_alloc =3D AllocatedDevice::new()?;
+> +       result =3D div64_s64(((s64)value - field->logical_minimum) * 100,
+> +                          range);
 > +
-> +        input_alloc.set_name(DRIVER_DESC);
-> +        input_alloc.set_phys(dev.phys().as_ptr());
-> +        input_alloc.set_id(bus::RS232, bindings::SERIO_STINGER as u16, 0=
-x0001, 0x0100);
-
-[Severity: Medium]
-Does StingerDriver::connect() register the input device with a NULL parent
-instead of &serio->dev?
-
-The C driver set input_dev->dev.parent =3D &serio->dev before calling
-input_register_device(), whereas AllocatedDevice::new() wraps
-input_allocate_device() without setting dev.parent. Registering with a NULL
-parent places the device under /sys/devices/virtual/input/ instead of under
-the serio port in sysfs, which breaks udev parent matching (such as ID_PATH
-and seat assignment) and suspend/resume ordering.
-
-[Severity: Medium]
-Are AllocatedDevice::set_phys() and AllocatedDevice::set_abs_params() sound
-as safe functions in rust/kernel/input.rs?
-
-rust/kernel/input.rs:AllocatedDevice {
-    pub fn set_phys(&mut self, phys: *const u8) {
-        // SAFETY: `self.ptr` is valid.
-        unsafe {
-            (*self.ptr.as_ptr()).phys =3D phys.cast();
-        }
-    }
-    ...
-    pub fn set_abs_params(&mut self, axis: u32, min: i32, max: i32, fuzz: i=
-32, flat: i32) {
-        // SAFETY: `self.ptr` is valid.
-        unsafe {
-            bindings::input_set_abs_params(self.ptr.as_ptr(), axis, min, ma=
-x, fuzz, flat);
-        }
-    }
-}
-
-set_phys() accepts an arbitrary raw pointer from safe code without any
-validity, lifetime, or NUL-termination guarantee, even though the input core
-dereferences dev->phys as a C string in input_dev_uevent(), sysfs, procfs,
-and EVIOCGPHYS for the lifetime of the device. set_abs_params() passes an
-unvalidated axis index to input_set_abs_params(), which executes
-__set_bit(axis, dev->absbit) and indexes dev->absinfo[axis] without checking
-that axis < ABS_CNT, allowing out-of-bounds writes from safe Rust.
-
-> +
-> +        // Configure supported buttons
-> +        for btn in [
-> +            bindings::BTN_A,
-> +            bindings::BTN_B,
-> +            bindings::BTN_C,
-> +            bindings::BTN_X,
-> +            bindings::BTN_Y,
-> +            bindings::BTN_Z,
-> +            bindings::BTN_TL,
-> +            bindings::BTN_TR,
-> +            bindings::BTN_START,
-> +            bindings::BTN_SELECT,
-> +        ] {
-> +            input_alloc.set_capability(event_type::KEY, btn);
-> +        }
-> +
-> +        // Configure 2-axis joystick with flat margin of 4
-> +        input_alloc.set_capability(event_type::ABS, bindings::ABS_X);
-> +        input_alloc.set_capability(event_type::ABS, bindings::ABS_Y);
-> +        input_alloc.set_abs_params(bindings::ABS_X, -64, 64, 0, 4);
-> +        input_alloc.set_abs_params(bindings::ABS_Y, -64, 64, 0, 4);
-> +
-> +        let registered =3D input_alloc.register()?;
-> +
-> +        let stinger =3D KBox::new(
-> +            Stinger {
-> +                input: registered,
-> +                idx: 0,
-> +                data: [0; STINGER_MAX_LENGTH],
-> +            },
-> +            GFP_KERNEL,
-> +        )?;
-> +
-> +        Ok(stinger)
-> +    }
-
-[Severity: Medium]
-Does StingerDriver::connect() publish the input device before the serio
-port is opened?
-
-In the C driver, stinger_connect() set the serio drvdata and called
-serio_open() before calling input_register_device(). Here,
-input_alloc.register() exposes the device to the input core and userspace
-before KBox::new() allocates Stinger and before
-Registration::connect_callback() calls serio_set_drvdata() and
-serio_open():
-
-rust/kernel/serio.rs:Registration::connect_callback() {
-    let data =3D match T::connect(&mut dev) {
-        Ok(d) =3D> d,
-        Err(e) =3D> return e.to_errno(),
-    };
-
-    let raw_data =3D data.into_foreign();
-    unsafe {
-        bindings::serio_set_drvdata(serio, raw_data.cast());
-    }
-    let ret =3D unsafe { bindings::serio_open(serio, drv) };
-}
-
-Userspace can therefore open the input node before the underlying serio port
-is opened, and a failure in KBox::new() or serio_open() registers and
-immediately unregisters the input device, emitting spurious uevents.
-
-[Severity: Low]
-In Registration::connect_callback() in rust/kernel/serio.rs, does the null
-check return a positive value instead of a negative errno?
-
-rust/kernel/serio.rs:Registration::connect_callback() {
-    let Some(serio_nn) =3D NonNull::new(serio) else {
-        return -(crate::error::code::EINVAL.to_errno());
-    };
-}
-
-Error::to_errno() already returns a negative errno (-22), so negating it
-returns +22 instead of -EINVAL.
-
-[ ... ]
-
-> +struct StingerModule {
-> +    _reg: serio::Registration<StingerDriver>,
+> +       return clamp_val(result, 0, 100);
 > +}
-
-[Severity: Medium]
-Does dropping serio::Registration<T> violate Rust aliasing rules on
-bindings::serio_driver?
-
-rust/kernel/serio.rs:Registration {
-    drv: Pin<KBox<bindings::serio_driver>>,
-    _p: PhantomData<T>,
-}
-
-rust/kernel/serio.rs:Registration::drop() {
-    unsafe {
-        bindings::serio_unregister_driver(self.drv.as_mut().get_mut());
-    }
-}
-
-Once serio_register_driver() publishes the driver, the C serio core and
-sysfs attributes (such as bind_mode_store(), which writes
-serio_drv->manual_bind without locking) hold pointers to the struct and may
-read or mutate it concurrently. Storing bindings::serio_driver without
-kernel::types::Opaque and calling self.drv.as_mut().get_mut() in drop()
-creates an exclusive &mut reference while C still has active aliases.
-
 > +
-> +impl kernel::Module for StingerModule {
-> +    fn init(_module: &'static ThisModule) -> Result<Self> {
-> +        let reg =3D serio::Registration::<StingerDriver>::new(DRIVER_NAM=
-E)?;
-> +        pr_info!("Gravis Stinger safe Rust driver initialized\n");
-> +        Ok(Self { _reg: reg })
-> +    }
-> +}
-
-[Severity: Medium]
-Does serio::Registration::new() register the driver with the helper
-translation unit's THIS_MODULE and KBUILD_MODNAME instead of the driver
-module's owner and name?
-
-StingerModule::init() ignores _module, and Registration::new() calls
-rust_helper_serio_register_driver():
-
-rust/helpers/serio.c:rust_helper_serio_register_driver() {
-	return __serio_register_driver(drv, THIS_MODULE, KBUILD_MODNAME);
-}
-
-Because rust/helpers/serio.c is compiled into the built-in helpers object
-rather than into stinger.ko, THIS_MODULE is NULL and KBUILD_MODNAME is
-"helpers". When CONFIG_JOYSTICK_STINGER=3Dm, drv->driver.owner is NULL and
-drv->driver.mod_name is "helpers", so the driver core cannot pin the module
-reference count and /sys/bus/serio/drivers/stinger/module linkage is
-broken. Registration::new() should accept &'static ThisModule and pass
-module.as_ptr() and module name to __serio_register_driver().
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106191714.3340=
-55-1-harepro29@gmail.com?part=3D3
+>  static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_=
+field *field,
+>                 struct hid_usage *usage, __s32 value)
+>  {
+> @@ -1950,7 +1967,8 @@ static void wacom_wac_battery_event(struct hid_devi=
+ce *hdev, struct hid_field *f
+>                         wacom_wac->hid_data.bat_status =3D POWER_SUPPLY_S=
+TATUS_UNKNOWN;
+>                 }
+>                 else {
+> -                       value =3D value * 100 / (field->logical_maximum -=
+ field->logical_minimum);
+> +                       value =3D wacom_wac_battery_percentage(field, val=
+ue);
+>                         wacom_wac->hid_data.battery_capacity =3D value;
+>                         wacom_wac->hid_data.bat_connected =3D 1;
+>                         wacom_wac->hid_data.bat_status =3D WACOM_POWER_SU=
+PPLY_STATUS_AUTO;
+> @@ -1958,7 +1976,8 @@ static void wacom_wac_battery_event(struct hid_devi=
+ce *hdev, struct hid_field *f
+>                 wacom_wac->features.quirks |=3D WACOM_QUIRK_BATTERY;
+>                 break;
+>         case WACOM_HID_WD_BATTERY_LEVEL:
+> -               value =3D value * 100 / (field->logical_maximum - field->=
+logical_minimum);
+> +               value =3D wacom_wac_battery_percentage(field, value);
+>                 wacom_wac->hid_data.battery_capacity =3D value;
+>                 wacom_wac->hid_data.bat_connected =3D 1;
+>                 wacom_wac->hid_data.bat_status =3D WACOM_POWER_SUPPLY_STA=
+TUS_AUTO;
+> --
+> 2.43.0
+>

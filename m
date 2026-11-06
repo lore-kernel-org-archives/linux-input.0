@@ -1,56 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793993756;
-	b=xJ51/OSCdHbFdFCw+eruWMpyIwu/zQitUg1DWxcUrd8LKGqIw1QmTcB19WN+JtmL5lE7
-	 FM2NVSk4f3bi267viWSbDvF4SANp+H67LqAhgg/lzOKqxHbRif3f6J/vBTlcxaIC4WrH/
-	 24obL36pNcYXFGma/DU+b/stmR046yv7uakd/M9XUaLl1s9IUTEVMiMg5yHaPHrbQU+hx
-	 aB/84T29KK2V2/IWgVPmb7biZosrFS4iMa1RmGSRtlHdEqO3MUvwWVj7pFTvjY5rD7xd0
-	 B7Hs5qzuoo3kyNBGTG/u8DGkl9B4DvkcPE0QRR6pER0G43vdWYYztu627YUkbLCDQKg==
+	t=1793994058;
+	b=C4sw0fVZIOey5BLi5mR2gSKX1fOgYixFGBjnu10JvlsnwXoOwPZxrUbO53Kp4Eync1WF
+	 I3wL8o7T5TLK4gpy2qZgrgZ3QbBabq/udmWIzEE6tKl44G8YnYblsvKumkUUjeZP9lk42
+	 zssFGDI6+ZZDR78DVl/GRjEHjVkBR/6mLFOIlv/hsQ0aT2mc8uStpcRc6GCZnepZdgZth
+	 MxaiM7gB4/iMecz5ci+9Wl5z3YDdEftYU77shTQzNQVgMzYYNnM0GKnNDCpFYCDpHeBvq
+	 EHhShhd9LLD8K9ZlCfeJlvdtpn35JCyyvJIDEooBZBbZgmRHE06ii9gdI1Q3OhF5ugQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793993756;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=D/dJh5QgfytodgdhBEPP21h5wgOBhHMT/zHyjBq9BjA=;
-	b=G+JHhG8pYy8FhvVQ9mVgD+LLiQeVDQBLwj88xeFcgYxJk1r6y07CFbc/YdTCB69V/IvD
-	 HZWP7b/SAiM6rJJbsVqsuW+W0CURvaisERVqfNYVALG2se3tF7Fmr3SVTUMxVBdF1SZ7W
-	 SgRmAC0Q1lpk8I7UDdnlkXME1kUHwK5695dhNFFsTnwkmKGWmEnbZEumpUVwt12C/++jL
-	 qH8P68/NeLWy7xo9fkfFgVf8JQY8OVBR1ZMQdhl24VB4EX0NAYXbHXR4WjwtYo2voZ07x
-	 EwW05C6MpfPpDqLUWeeMrymzy/bhpDZk36c7U7mod4IIzdL3nJIRt42/3OBWPTtnA0A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793994058;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:User-Agent:Content-Type:Content-Transfer-Encoding:
+	 MIME-Version;
+	bh=lItl7Ks3Ko4mpofEkC41Hng8AAxtpjFcDg8vOTtiDX0=;
+	b=k8CiHtJ3hp/ocmbKoF6lKECm5CsDrkCms+lAg3DBanEa05SubYk4o3jZIG9EGIz7sovL
+	 FybS4eUMgTgHLkEWUdp87nkcLyd0HX2x/IK7kWd08jexXmxkyNjI5Th+Dut7VskBgquTG
+	 1w616yCEynoulkYwsKT4JyBHjOO60hW27iQSXii2ie+JqFTkELG6M5iRzJhAllhHFJl8P
+	 taPAGoKEMw/3Bhm+4dodgI3nLZqvCB8Y/Q/4fGj3k5IOA9mtO/A68+Nn3UVtNZBWDHCEu
+	 fpMXMaHFRNkdcp6nHYOlTsYyDwcNyALNot3d86qHOLw5/wpRJrYGsaUcIHsAxg0weuw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VZ80JHJa;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lYGwVGrP;
+	arc=none smtp.remote-ip=74.125.82.46
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69150606A326
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 19:35:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BE56606A32C
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 19:40:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5BE56606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VZ80JHJa
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36E01F0089F;
-	Fri,  6 Nov 2026 19:35:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793993756;
-	bh=D/dJh5QgfytodgdhBEPP21h5wgOBhHMT/zHyjBq9BjA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VZ80JHJaJetjV+S8vSoduYiOiirkBq02+s1mGaTMBFyPk0iQTIOnuVlojjbbr8sWK
-	 5d7UXBlSZwxcdbRSwDm/q15rkiuVqzV7i85dYJ3rr2O3iOLqIxjMY5d5+JhI65R1Ei
-	 zXAlaAgPH3duEauJ8owHLcHjIAnKfcDgOyK3/Ez++iDfIIzLMuod6iGSzdvVW9gZGK
-	 Xv9x9zY0V7EAhIPRVQQS67Puq1RQC93Y7zmb0iCS9ZOglx2H05uTBt45bH2HvV/BwK
-	 CPEYmIX+Op3LS5KwE13Mlx6bXw2851qyUZJpXLCXqcwKZmAjlaNsVYr+v9EE7EKoWL
-	 v00UDrFNzzrcg==
-Message-ID: <sashiko-outbox-202155@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] rust: serio: add serio bus abstractions
-Reply-To: sashiko-reviews@lists.linux.dev
-To: clicedvly768 <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261106191714.334055-3-harepro29@gmail.com>
-References: <20261106191714.334055-1-harepro29@gmail.com>
- <20261106191714.334055-3-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lYGwVGrP
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-14fc585291cso942008c88.1
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 11:40:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793994057; x=1794598857; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:user-agent
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lItl7Ks3Ko4mpofEkC41Hng8AAxtpjFcDg8vOTtiDX0=;
+        b=lYGwVGrPHdswComoR/WYOn83ZRLgSC0gUdMbJ7VvvuwEopi+l/+AhzGKpBvOdnU5I3
+         ZFZ+vJrdP8s6i1IZDNYvc5FfKe5snxeA6ZJu+FvJ5EO79lfjcBxZO0Vnn8E4xk+xTNdV
+         4Ca5sXwz06lkq0t1kiHi5HzP3lHgKi0Fvi6ejn6ryyNB4NoynkOGSiTzH1N60VF1xqdm
+         LB/hYxIjaC57x3UMCOBsTOwxwC70fZiwv7x8jyBVt07yLLyNMMhTqFY4r2GHmGGwa4GZ
+         chSPW+hZyrzFtb60FUQDGO/rntRxB/IDcIhlJGk0/kGw9sJLO0SKUOFQIA25P2nhHCUC
+         mGwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793994057; x=1794598857;
+        h=mime-version:content-transfer-encoding:content-type:user-agent
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=lItl7Ks3Ko4mpofEkC41Hng8AAxtpjFcDg8vOTtiDX0=;
+        b=zJk92oISerwBAIxEv5ZI964s2gaskHjIp3HVcxyO8LhStl5sLyrbUv9n8korsHXLeS
+         Nim2IOKbBP/EhWmZQNfFCk+5IhPFpzgvRW8Crz5SDjgeUnK0s5w4mmzIG4Q31Vt9Sjdc
+         sy+CBAef4dn6pYlv13WnN/+MnVJrTTzxaoEPU0AUytR24/+G213axwxmdaLrw0LoHn6g
+         r4iY/UgcID3uZmwAy/yKnR+jVA1iDH4YcRiitgIhYDQ7wH5RyIfXR45SYkdOUdXos0/X
+         5A4k9F26140GNSW7rC2WigwH4Uga8rtPowWUw0Y3126XxfzQy9Gn9At+Tdn7/4oU86kA
+         0/Qw==
+X-Gm-Message-State: APuU4Z8k914TIU2o7r2k0EDdYUtdOuxf1HvdBmvPyERBpKxKOpFdiiRF
+	B91VfA3MeZ0TM4ohiY94SkuNdIbswcZ965oYDNGMc7uwJJH3Bw3hZOPS
+X-Gm-Gg: AYBFou0pvt0pPEaP84rlTJp/GB6QsTRPH+6Q9B2KSUm6PVG4N7EVzC2V7ash7DBuJt+
+	fAnN+WJZ5KScsVkbLQTXnPGhbH5VJjUKMe7AAWS7mnt2c0G8QOd2d9pUydhMyxBN9amOjvl5evZ
+	DeByJgjJZtD5ZY9nlF0ts6Y7N11mtklvYacYpksZ7478Fr1sK+/en+PuE+Mw6EARwnSh22gwWVW
+	QDrNTqibzT3gCSWrZlENgFr0pgHkmZB1hd+GGDUYIISezNtKXgyni6+NmqC2NGIunNXNVQ54nyr
+	WX2prow0vZNbMCIi1CgxCL21vyopCcWkMgRKAB4dFpw18qGW8D91QwsfhVFdWaj4J+au3czhpET
+	tIyUUqaQV6IOpOiTlH/UhaxBXeUXef5wtdt9dusqRCOuunQr2h4lLcoxMRrolS7miRpw9P9/DkK
+	8NZWWdTJz8R0Z0yW2BCTsu+j4Liuxy6E9EMJ4RposXW7qRy1LslbOK6nKU+154RA/PtUB+6/Wzw
+	BBOzRmvUuu/1cobLcZAZdX5hpd5QeCssZGH9jlb/g0O7GF6MPkI4reRcHACMYBgSRI9+BsIsFnA
+	ELbm2KyQQ5NzESDXytXoaBk=
+X-Received: by 2002:a05:7022:286:10b0:143:6525:f9f6 with SMTP id a92af1059eb24-1b25d2f7929mr4156861c88.13.1793994057316;
+        Fri, 06 Nov 2026 11:40:57 -0800 (PST)
+Received: from [127.0.1.1] ([2406:b400:21:7ec1:90d0:3395:e0de:2d21])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b25e4c1df6sm7788930c88.14.2026.11.06.11.40.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 11:40:56 -0800 (PST)
+From: Vishal Tyagi <vishalxtyagi.oss@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Subject:
+ [PATCH] Revert "Input: synaptics - enable SMBus for HP Elitebook 850 G1"
+Date: Sat, 07 Nov 2026 01:10:52 +0530
+Message-ID: <179399405216.85438.8327280593401118083@gmail.com>
+User-Agent: git-dispatch/1.0 (Linux x86_64; git-send-email compat)
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 19:35:55 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,347 +96,50 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 8 potential
-issues to consider:
-- [High] rust: serio: rust_helper_serio_register_driver() uses wrong
-  THIS_MODULE
-- [High] rust: serio: Driver::ID_TABLE slice lacks sentinel causing OOB
-  read
-- [Medium] rust: serio: unguarded serio and input build fails when
-  CONFIG_SERIO=3Dm/n
-- [Medium] rust: serio: connect_callback() negates negative errno and
-  opens port late
-- [Medium] rust: serio: Registration stores serio_driver without Opaque
-  causing UB
-- [Low] rust: serio: IrqReturn duplicates kernel::irq::IrqReturn with
-  wrong paths
-- [Low] rust: serio: Device and Registration bypass generic driver
-  infrastructure
-- [Low] rust: serio: missing inline attributes, non-vertical imports,
-  and core::ffi
---
+This reverts commit f04f03d3e99bc8f89b6af5debf07ff67d961bc23.
 
-commit a79cbd7ccd6c2d027f39fc787dc865ce37a52295
-Author: clicedvly768 <harepro29@gmail.com>
+Commit f04f03d3e99b ("Input: synaptics - enable SMBus for HP Elitebook 850 G1=
+")
+added PNP ID "SYN3003" to smbus_pnp_ids[] to enable SMBus/InterTouch mode.
 
-rust: serio: add serio bus abstractions
+However, on Haswell-generation HP EliteBooks sharing this touchpad controller
+(including HP EliteBook 840 G1 and HP EliteBook 850 G1), the touchpad fails
+to resume after ACPI S3 suspend:
 
-This commit adds Rust abstractions and C helper wrappers for the serio
-bus subsystem, including DeviceId, Device, IrqReturn, Driver, and
-Registration.
+  rmi4_smbus 0-002c: failed to get SMBus version number!
+  rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
+  rmi4_physical: Failed to resume rmi4-00: -6
 
-> diff --git a/rust/helpers/helpers.c b/rust/helpers/helpers.c
-> index 7a11f5fa461d2..84ffdb015b6d9 100644
-> --- a/rust/helpers/helpers.c
-> +++ b/rust/helpers/helpers.c
-> @@ -66,6 +66,7 @@
->  #include "fs.c"
->  #include "fwctl.c"
->  #include "gpu.c"
-> +#include "input.c"
->  #include "interrupt.c"
->  #include "io.c"
->  #include "irq.c"
-> @@ -92,6 +93,7 @@
->  #include "scatterlist.c"
->  #include "security.c"
->  #include "serdev.c"
-> +#include "serio.c"
->  #include "signal.c"
->  #include "slab.c"
->  #include "spinlock.c"
+Following resume from suspend, the touchpad remains completely unresponsive
+and dead until a full reboot or manual module reload (modprobe -r psmouse).
 
-[ ... ]
+Falling back to standard PS/2 mode (via synaptics_intertouch=3D0) allows
+multi-touch gestures (two-finger scrolling, tap-to-click) to function normally
+while preserving 100% reliable S3 suspend/resume behavior.
 
-> diff --git a/rust/helpers/serio.c b/rust/helpers/serio.c
-> new file mode 100644
-> index 0000000000000..cd061495d9b1d
-> --- /dev/null
-> +++ b/rust/helpers/serio.c
-> @@ -0,0 +1,23 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include <linux/serio.h>
-> +
-> +__rust_helper void *rust_helper_serio_get_drvdata(struct serio *serio)
-> +{
-> +	return serio_get_drvdata(serio);
-> +}
-> +
-> +__rust_helper void rust_helper_serio_set_drvdata(struct serio *serio, vo=
-id *data)
-> +{
-> +	serio_set_drvdata(serio, data);
-> +}
-> +
-> +__rust_helper int rust_helper_serio_register_driver(struct serio_driver =
-*drv)
-> +{
-> +	return __serio_register_driver(drv, THIS_MODULE, KBUILD_MODNAME);
-> +}
+Revert this commit to prevent this regression on affected hardware.
 
-[Severity: High]
-Does evaluating THIS_MODULE and KBUILD_MODNAME inside
-rust_helper_serio_register_driver() leave drv->driver.owner as NULL for
-loadable Rust serio drivers?
+Fixes: f04f03d3e99bc8f89b6af5debf07ff67d961bc23 ("Input: synaptics - enable S=
+MBus for HP Elitebook 850 G1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vishal Tyagi <vishalxtyagi.oss@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Because rust/helpers/serio.c is compiled into rust/helpers/helpers.o rather
-than the registering driver module, THIS_MODULE expands to NULL (when
-helpers.o is built-in) and KBUILD_MODNAME expands to "helpers".  When
-__serio_register_driver() sets drv->driver.owner =3D owner, neither the
-driver core nor serio_queue_event() (via try_module_get(drv->driver.owner))
-can pin the driver module while ports are bound or kseriod events are
-queued, allowing the module to be unloaded while still in use and causing a
-use-after-free.
-
-Since __serio_register_driver() and serio_unregister_driver() are already
-exported non-inline C functions, these two helpers can be dropped and
-Registration::new() can take a &'static ThisModule and pass
-module.as_ptr() and name.as_char_ptr() directly to
-bindings::__serio_register_driver().
-
-> +
-> +__rust_helper void rust_helper_serio_unregister_driver(struct serio_driv=
-er *drv)
-> +{
-> +	serio_unregister_driver(drv);
-> +}
-> diff --git a/rust/kernel/lib.rs b/rust/kernel/lib.rs
-> index 559fc79b1e820..c9f82dce8f823 100644
-> --- a/rust/kernel/lib.rs
-> +++ b/rust/kernel/lib.rs
-> @@ -86,6 +86,7 @@
->  #[doc(hidden)]
->  pub mod impl_flags;
->  pub mod init;
-> +pub mod input;
->  pub mod interop;
->  pub mod interrupt;
->  pub mod io;
-> @@ -128,6 +129,7 @@
->  pub mod seq_file;
->  #[cfg(CONFIG_RUST_SERIAL_DEV_BUS_ABSTRACTIONS)]
->  pub mod serdev;
-> +pub mod serio;
->  pub mod sizes;
->  #[cfg(CONFIG_SOC_BUS)]
->  pub mod soc;
-
-[Severity: Medium]
-Does building with CONFIG_SERIO=3Dm or CONFIG_SERIO=3Dn (or CONFIG_INPUT=3D=
-m/n)
-fail to link vmlinux?
-
-CONFIG_SERIO and CONFIG_INPUT are tristate Kconfig options, and
-include/linux/serio.h and include/linux/input.h declare
-__serio_register_driver(), serio_unregister_driver(), serio_open(),
-serio_close(), and the input_*() functions without inline stubs when
-disabled.  Because rust/kernel/lib.rs and rust/helpers/helpers.c are always
-built into vmlinux when CONFIG_RUST=3Dy, compiling rust/helpers/serio.c,
-rust/helpers/input.c, kernel::serio, and kernel::input without Kconfig
-guards causes undefined symbol references at link time whenever
-CONFIG_SERIO or CONFIG_INPUT is n or m.
-
-[ ... ]
-
-> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
-> new file mode 100644
-> index 0000000000000..3b752ce4b64de
-> --- /dev/null
-> +++ b/rust/kernel/serio.rs
-> @@ -0,0 +1,223 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +//! Serio (Serial I/O) bus abstractions for safe Rust drivers.
-> +//!
-> +//! Provides a safe Rust interface for serio devices and drivers in the =
-Linux kernel,
-> +//! supporting input devices such as serial gamepads (e.g. Gravis Stinge=
-r), mice, and keyboards.
-> +
-> +use crate::{
-> +    bindings,
-> +    error::{to_result, Result},
-> +    prelude::*,
-> +    types::ForeignOwnable,
-> +};
-> +use core::{marker::PhantomData, pin::Pin, ptr::NonNull};
-> +
-> +/// Identifies supported serio hardware devices for auto-probing and mat=
-ching.
-> +#[repr(transparent)]
-> +#[derive(Copy, Clone)]
-> +pub struct DeviceId(bindings::serio_device_id);
-> +
-> +impl DeviceId {
-> +    /// Creates a new serio device identifier.
-> +    pub const fn new(type_: u8, extra: u8, id: u8, proto: u8) -> Self {
-> +        Self(bindings::serio_device_id {
-> +            type_,
-> +            extra,
-> +            id,
-> +            proto,
-> +        })
-> +    }
-> +}
-
-[Severity: Low]
-This isn't a bug, but there are a few style and convention issues in this
-file:
-
-- The imports at the top use horizontal grouping instead of the kernel
-  vertical import style.
-- Small functions in the kernel crate (DeviceId::new(), IrqReturn::to_c(),
-  Device::as_raw(), and Device::phys()) are missing #[inline] attributes.
-- connect_callback() and interrupt_callback() use core::ffi::{c_int,
-  c_uchar, c_uint} instead of the crate::ffi / prelude C integer types.
-
-> +
-> +/// Status returned by a serio driver interrupt handler.
-> +#[derive(Copy, Clone, PartialEq, Eq)]
-> +pub enum IrqReturn {
-> +    /// Interrupt was not handled by this driver.
-> +    None,
-> +    /// Interrupt was successfully handled.
-> +    Handled,
-> +}
-> +
-> +impl IrqReturn {
-> +    fn to_c(self) -> bindings::irqreturn_t {
-> +        match self {
-> +            Self::None =3D> bindings::irqreturn::IRQ_NONE,
-> +            Self::Handled =3D> bindings::irqreturn::IRQ_HANDLED,
-> +        }
-> +    }
-> +}
-
-[Severity: Low]
-Can this reuse kernel::irq::IrqReturn instead of defining a second
-IrqReturn enum?  Also, bindgen generates bindings::irqreturn_IRQ_NONE and
-bindings::irqreturn_IRQ_HANDLED rather than bindings::irqreturn::IRQ_*.
-
-> +
-> +/// A serio port device instance passed to driver callbacks.
-> +pub struct Device {
-> +    ptr: NonNull<bindings::serio>,
-> +}
-
-[Severity: Low]
-Should Device and Registration integrate with the generic device and
-driver abstractions in kernel::device and kernel::driver?
-
-Wrapping Opaque<bindings::serio> with a device::DeviceContext parameter and
-implementing AsRef<device::Device<Ctx>> (and using driver::RegistrationOps
-/ driver::DriverLayout for registration) would allow serio drivers to
-obtain a &device::Device for setting parent devices (such as
-input_dev->dev.parent =3D &serio->dev), logging via dev_info! / dev_err!, a=
-nd
-using devres.
-
-[ ... ]
-
-> +/// Trait implemented by serio device drivers.
-> +pub trait Driver: Send + Sync + Sized {
-> +    /// Context data stored per connected device instance.
-> +    type Data: ForeignOwnable + Send + Sync;
-> +
-> +    /// Device ID match table.
-> +    const ID_TABLE: &'static [DeviceId];
-
-[Severity: High]
-Can passing a plain &'static [DeviceId] slice to C as drv->id_table cause
-an out-of-bounds read in serio_match_port()?
-
-drivers/input/serio/serio.c:serio_match_port() walks the table until it
-reaches a zeroed sentinel entry:
-
-drivers/input/serio/serio.c:serio_match_port() {
-	while (ids->type || ids->proto) {
-		if ((ids->type =3D=3D SERIO_ANY || ids->type =3D=3D serio->id.type) &&
-...
-		ids++;
-	}
-}
-
-Because Driver is a safe trait and &[DeviceId] does not enforce a trailing
-zero sentinel (and an empty slice passes a dangling pointer from
-as_ptr()), any safe Driver implementation that does not manually append a
-zeroed DeviceId entry will cause serio_match_port() to read past the end of
-ID_TABLE when probing a non-matching port.  DeviceId should implement
-kernel::device_id::RawDeviceId and use kernel::device_id::IdTable /
-IdArray so the zero terminator is guaranteed at compile time.
-
-[ ... ]
-
-> +    /// # Safety
-> +    ///
-> +    /// Must only be invoked by the serio subsystem when a matching port=
- is probed.
-> +    /// `serio` and `drv` must be valid non-null pointers provided by th=
-e kernel.
-> +    unsafe extern "C" fn connect_callback(
-> +        serio: *mut bindings::serio,
-> +        drv: *mut bindings::serio_driver,
-> +    ) -> core::ffi::c_int {
-> +        let Some(serio_nn) =3D NonNull::new(serio) else {
-> +            return -(crate::error::code::EINVAL.to_errno());
-> +        };
-> +
-> +        let mut dev =3D Device { ptr: serio_nn };
-> +
-> +        let data =3D match T::connect(&mut dev) {
-> +            Ok(d) =3D> d,
-> +            Err(e) =3D> return e.to_errno(),
-> +        };
-> +
-> +        let raw_data =3D data.into_foreign();
-> +        // SAFETY: `serio` is valid; store driver data pointer.
-> +        unsafe {
-> +            bindings::serio_set_drvdata(serio, raw_data.cast());
-> +        }
-> +
-> +        // SAFETY: Open serio port to start receiving characters.
-> +        let ret =3D unsafe { bindings::serio_open(serio, drv) };
-
-[Severity: Medium]
-Does connect_callback() return a positive errno on NULL and invoke
-T::connect() before the port is opened?
-
-Error::to_errno() already returns a negative errno (-22 for EINVAL), so
--(crate::error::code::EINVAL.to_errno()) returns +22 instead of -EINVAL.
-
-In addition, calling T::connect() before serio_set_drvdata() and
-serio_open() means the serio port is not open during T::connect(), and a
-driver that registers an input device inside T::connect() exposes the input
-device to userspace before serio_open() has succeeded.
-
-[ ... ]
-
-> +impl<T: Driver> Drop for Registration<T> {
-> +    fn drop(&mut self) {
-> +        // SAFETY: Unregister driver with kernel.
-> +        unsafe {
-> +            bindings::serio_unregister_driver(self.drv.as_mut().get_mut(=
-));
-> +        }
-> +    }
-> +}
-
-[Severity: Medium]
-Does self.drv.as_mut().get_mut() violate Rust's aliasing rules while the
-serio driver is still registered with the kernel?
-
-Registration<T> stores bindings::serio_driver directly in
-Pin<KBox<bindings::serio_driver>> without wrapping it in
-kernel::types::Opaque.  While the driver is registered, C code in the
-serio core holds pointers to struct serio_driver and accesses or mutates
-its fields (such as drv->manual_bind in bind_mode_store() and
-serio_unregister_driver()), so creating an exclusive &mut
-bindings::serio_driver before serio_unregister_driver() completes is
-undefined behavior.  Wrapping bindings::serio_driver in Opaque avoids
-forming an exclusive reference to C-owned memory.
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index a8e2a14..0d1b54a 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -195,7 +195,6 @@ static const char * const smbus_pnp_ids[] =3D {
+ 	"LEN2058", /* E490 */
+ 	"LEN205b", /* T490 */
+ 	"LEN2068", /* T14 Gen 1 */
+ 	"SYN1221", /* TUXEDO InfinityBook Pro 14 v5 */
+-	"SYN3003", /* HP EliteBook 850 G1 */
+ 	"SYN3015", /* HP EliteBook 840 G2 */
+ 	"SYN3052", /* HP EliteBook 840 G4 */
+ 	"SYN3221", /* HP 15-ay000 */
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106191714.3340=
-55-1-harepro29@gmail.com?part=3D2

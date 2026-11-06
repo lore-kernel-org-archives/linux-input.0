@@ -1,100 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793994542;
-	b=Y6S7JQvrnU/raHyQiGeXJln7ga8aE3xaoVIzMgnZEQG9/sRETTknzXU57Ma+JKnjOWT2
-	 Bd+VD8DxtTr+rsN9OMdVvrkaz9qvZtTQvNNK9wHHy0B84WxD6sgqgjSRGsQfuJqE0P1Ox
-	 wPMjulvCDbtcE/meNEDqDe/9qzAYjXCEAH/TVBGNrQkUWw+O5JYIvoN8OD+9+7HCYUvip
-	 SZxSM0s9bUeYm11WuyM46ME37y5+qSXdQgUSduu7x+LE+sf6cP0pWIQL7/zti0m8PBDMg
-	 PvipSIXM6amvUZN0TqLuNTuYkmErMshCTW82pffyg54t5YZVRZcu/VWe3ltbQn+pmrg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793994542;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793996182;
+	b=don8LiGBw48E0F+fOIX8nhGh64f/SUKmOqd3jgVD7GIKuLtutW0FObB0u9vJiuiaAgN6
+	 f509hcSXVP2peD4DQiP3eJ+wbBROJIMUkCFep/cSbdNq/HdSFiMjBlLYJ+iBN3hZWDOqy
+	 J8a9wvVwhF3jSzafhpbiNL3cHf+nSoj14wJ8ppdUvx35XS9e11NMHoRuR6JU4YG3vezYk
+	 s02KexDvjSnffUO4YV+ZIQn+UyIUOMGVFJsM/cUaLaHV230ZGxr6tAnn3V/VeGb+1teOu
+	 J8z6WempL8DN0dl3gUWdG5kzgETTvnS7A64yVhW9Ok5Qsa6LosOjKisnnG0OMXwvWKg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793996182;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
-	b=m3Wm9he6T+14Qr5DQLFXqBeroG/37cNyFE+JfuPM6aBNE0RUE0QeM2lcGf9oTMM8o9mL
-	 hvUPjb5DGmX/UtVEsb+FDBu5ev70IjmR3ObyjEwcbRr2MfJRECBDjuCvO+yRVt7ckl51R
-	 ixQJfBnTYfjcieB8d1oTg1ILQx5LxSdFbmklm9frxS0ZURGRQ/rXWImUaUnv71nhG19x9
-	 Ouysw51k9smCrtg+/My08o230nJWeEKw8YgtbV9T2RYqZwjGrS3SFHL27M8XABMvFj4nZ
-	 UEh3de7QFciAp5lPABWgEfF28nCj/n0clf+bsFiJTVVFDCruRlUyZ1kvspZP6WuGtxw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=H61jNpGZqjdF50P6YJtvoTcfxhYbPsYfLt5K8cgjXTM=;
+	b=vKNKNtd6aQno5zxXYZyQ23FzgWlAzlUoJ47iMqFA/RrVHILhIOff25WFqZjCGet17Eho
+	 Aqkj7R9VVCffvTOFeq8EIrhLdplA/DZfw/uxyBPUKemSEj6+nQGBAPjf4ccRsz79i1gj/
+	 cnSKjicWO+5th/P3scQXNDStzmAeicOHIlNZK5hde8DkkbGkRkPrbFHm4ZcoRIvdssnFO
+	 mH5wf323YprmAYG/4oG3c5Xrdzv+aJ5Ne2XL4fh2SugK0LxhWprr2aym8ho+a5Q/YanNt
+	 ntrrWnlJpxLfn0zWideN09m65R/zq5ZdYyWdp7pucGUW9IO665Ex3LUUHphvWh5bKFQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wyPperED;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sW4HDWtj;
+	arc=none smtp.remote-ip=209.85.221.45
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 208D5606A329
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 19:49:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 208D5606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34A7D606A33B
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 20:16:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34A7D606A33B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wyPperED
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-5430f70c827so11691551cf.2
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 11:49:01 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793994541; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BvUE8A/TqJbKCgYJ9JB7fa2ZL6bsi9XIwN3y7E74/Q8JuDBDGeZB1MBRSBaZ18uaRK
-         8Wez0lp3EbNpcsOqTOQINR1C1gKdUDVSvZjXLqbNMXdGzdofWxRocHNZyaxXbWugQJ7o
-         xHWCQxftcY0gdrG2iixFVah6oVHQf9ltIy6jtlFEju1mTNjeOJ2zVje6EfeNxnviO0PT
-         OqjPhE7ES6M18aMW16mOfaf0QU1wp9y+1aiT8lE+I/sU8Kvee539vPqizRRgdH7S65Y+
-         6DgFOkXXDQg2SWsZQva+E/jkiL9a7AslZDC4EpChiYmjOuXtxPbrUuQmvpvLspGw8Mf1
-         SN6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
-        fh=D2Xw1g8bXNa2jJnfZpErSqmGeOtH9OjV2XWSSMyh0Aw=;
-        b=ZQXYK/5Xq9tSpy0GrdOu7iWNdEe6dxx0jDXq7fEV8s5JQSRQN3WGuLqpbq7A0/R+Bv
-         KeGuM6Wr0vXo1AZLMcaMcCOpVcEktxWEeEVU0g2Pkomv54T9Rjj1V/TTE4Hlt0/uhx1M
-         YnNSTcD1a5cEDmFU+3IPg15Eb4lKPIaNa0kgtEcj4IBrUui6YUFZpWBJuseGu8r0q+DG
-         z4Nz1Acdhs4vFy89eKjNW3GSkUk81nOd7/8Khy1QuuJgWdRFQFscMgmkK4EfSBwbsDT2
-         SNzmWYHwT3vn3F3vAaH74j5U1N5jhmJUMI/JcCt3skk2LAlwGOY1z3TfB4JT0x6vfcW0
-         xrpA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sW4HDWtj
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4919a880834so612627f8f.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 12:16:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793994541; x=1794599341; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
-        b=wyPperEDJFDS5ADQ8nuKsgHhpHE7PYSaU768vbWgKoHreydewdmho6uuzVeAienWkS
-         /Yn0kyQMk0a2dfdx3CpmgxlEM7P3KliO1+hXpHPemuBw6uZthvK0K6E0NpGJdf2oQ0yT
-         KVlxRUguqQtWBosSe2XX0crKRy0NPNvCnLgsPQWrURCxCYt4d8CgzO/lxjKESf8aIyWU
-         9wJpLYrsCvMmYtIiOe7Rr+McCyHoIap5CjwpiRI/CbZTj6gt8vpNPj3kMgRQjtz+BWu/
-         MtazFNqZ6mzCTGo+5m9IOYWmvtE55hAlfN8JXQ27ZUQHn9D1jXPpRDmPGctgcnW2+D3w
-         2xgw==
+        d=gmail.com; s=20260707; t=1793996181; x=1794600981; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=H61jNpGZqjdF50P6YJtvoTcfxhYbPsYfLt5K8cgjXTM=;
+        b=sW4HDWtj5U1B1LJeS/dJD5eBY1RstADEtv/MwF5AHXSRy0CIyXCo+GYmZJa8CRZilQ
+         uFtX1MyH4CC1oiZsmPun9/cPnrai3H8xR8rco7fgOk+MausVmmwAmjCYqwr3PJKuWcIb
+         gT6zw8sPOVzu1arljrwq395pEcxx60OYUeqqR+cPiXECmfybyfSPMN4DA69OWwHnJ+iZ
+         ENdtF2Mdat+SrOQuf5R67xrAFNz7SeSVnVNs7Ikj+gHX79SARpBhiR3S71QiX2Acrd7p
+         2BQTjFZAp2K3IrWi93oJO8vBz8ic/chINupmnALMDKMler5Unyi0FGnVswZvqLzadePt
+         N1dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793994541; x=1794599341;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=DbZu5q+W+xtqYiktZfPU34LNXZ8FfBPEek4cd/Iy6iY=;
-        b=YAOX5PsPk3FoGbbVZy5hwlIRMFi6lz76PodTy1VpAlir+Shr2FQGdNMLSAzHNkpYQJ
-         UnRogbGQMIcNJLklRSqb1cHaK4W3MdLz39pBZTjaL/dtZ6uSKKNd68Ad0yk7pQ4QjyJa
-         4R1EZLnbytI/cGdX74pCSwdTvshy8bEEb6yuXQGVwrMUD2RxxMeMK3lpqjWtv1/In1kn
-         6+9XEzc46LoRqdE6MSWcFRgNY+hMTfMByqa7JyZcGKRI3iB+pZRPm6gbSTX2TQZY+DUq
-         Ti8geFvRtd9Lho7kyp+OCzKq8CgkkM7dGu7PWa7hmnkB5d4FZ2p3BPqa/g2cvtr9Lhzy
-         7MdQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy1qTv+sCBHaT2s/et4BYI3YBt54tEBrD9p38bbX/gaCfp43Q5KFJFtjQVPv5V7jqLN5fEApEgMjpP8+Q==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/yUq3Uw/sl0wYj9gqFq4nIur3hz7GZrq8hRQpIibgHToY4s3/g
-	LSRhsTMdmSSEnQq685ki8OcYtyb3ZJBuTZ01wa6Q9v1EaAmR2Xa7sM1nL8XmrURafLj6aRRUsHF
-	5IHDgtU/HGwuPkFQT40gFm6T6ynNvi/gHM5N6
-X-Gm-Gg: AYBFou2cxZAIUNMttex9/v1FSOBo3gfNmqO94hKTzeNTL4/9FWGIfHWz69S7X/XQ49V
-	E0moi7ZPDbo7DUEdsUpap1J+Lzb9tVFxrTArQ7iMK6BzgTICjvI5+8+DCjUOTil4EgAwoGAOXRR
-	fbDOhoIDH/favoDPOmLh6Bw5o1ao7bBJmZqzDbZhekA4ZQZ/W60P8D5I4j7P8FIe2KfFAmUI7sy
-	2yO0aOVUl8cJ8SZRzEGwXpYz/1rlf3tZLwlhtyRogukoY4l37qxDSwKP3FMof1VWMBEENQ5qw1j
-	XXJwRf+55Zm0GXxQI3fXQ0Fox6GrkZlGU0doLG0BHb0ZyIQ13Pp7jwomPtS6+lW9wTRvBBNJ11H
-	WLEmcke9qABi7ppj4eAg9SBnmmTQwf8Q5RmdW
-X-Received: by 2002:a05:622a:5b08:b0:536:64c9:b1af with SMTP id
- d75a77b69052e-54e1329ad88mr53720801cf.24.1793994540966; Fri, 06 Nov 2026
- 11:49:00 -0800 (PST)
+        d=1e100.net; s=20260707; t=1793996181; x=1794600981;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=H61jNpGZqjdF50P6YJtvoTcfxhYbPsYfLt5K8cgjXTM=;
+        b=Va91SJcWbKSc58txISq0WLocH9doPnsRi9T1xsbAkrDIJODF4igAh4736H6/yYyw0y
+         Gr9GThSM1rVEkFlSdxdZ2gf2vPDw1NmYbk9VJh8Kny2+AESortfp87gPor2CngDMDb2n
+         Yk98UvAcYmjdWGiihRiWsaIHnlgwWgZz59AZq2VaTn9+rct4GPVr5TTlt9xJgPxI9KAA
+         x/nUyxyXM3Yx2yzTXrx73KpgEUafF5e/pCXp4UcAYktMBYPjSu5S3NzQ7rVaWSZCo/Mk
+         KXuJ44O4dhjSlMyvm1bjEaGSkmS7W9QPW0qLzhblA1dHRB94VAgatyiJ3gSfFNR5uofu
+         Coxw==
+X-Forwarded-Encrypted: i=1; AL+hErF95QFujuedwYtu9Yx8pXgzfzP+K7OcCOmgDeKd+lnyYcOrT4rtQin+PYBRkN5wyfqbW4OwdSTkjiRxog==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+JIK27VbAUlRB59WiTrjfTvSBa7QA/1bnaYUrCyOZnt+DNYL1y
+	+2RI1MDXPUPXRJX3uZwGdnUCOLi6iUgmMsU3/+WwK6edx6yzeR5FV5h2
+X-Gm-Gg: AYBFou34D2+VlVKUNy3RSYN9V0cTyP2cHeJK5llwl1ETeZHF03yuidTC4vnFZC+MiSJ
+	qjAUNW+NaVJjV+4KuUKqe2sJ7Mh+xIUUILz0rPYb8Wxb0j5/LamMXO4FEyCgO2WpBPtl8z64Fs9
+	PRE5qSljVJiAeIuUjGjFe1AOv88fEQKQRbT5zJGV2BXe+gzG2tSr0gLxCuqHeDvs+wSJdfB/0gG
+	m6ijy7nzjwzAtEnR0/lei23j67G7gUxiJIwi+ysgHIWwR05ucDWV5awiqiDjVyMtu/2MoOE5qpD
+	jyof9PAcYLGon71cUKj2z8mrbZoCN4AZSTJBzizWqDil+qBGInDvNYRSGzfQ0o69XrBlQh60Lkl
+	KL8VpWYEx3QZKTnYFEWf16dColkcLAxxQfgOtCTVSGJJ2G2lwoIv2UR5tqVP3jqVDNIPnU4yVR2
+	Wcl1wZ48tajqZ33GhK5Zk+el0zSqM5c74qKjdPsD2DKSMS5PWaV/45eL3cs6I5pkYWC08WXfKbJ
+	sqp4fVGDQs2k4AuB9abvhdItc2wcBTyr8aTuQ4zQM57QMmkJ/sERiksoTM4SiwzpC85zo1R/WCy
+	m/wfLQEnR2z9g60Cdg2pddx22B6QVWMIa6328brFsDGFMAVYqHN2c/N8EIt9JwJiEdUFebpLrP3
+	HwmeCrP+YL/LhXyXmcQR98QGZjrJbp0FrPoiMSj/t0yBPHmBf
+X-Received: by 2002:a05:6000:4810:b0:48f:bcdf:6f68 with SMTP id ffacd0b85a97d-49275a271a1mr6840008f8f.37.1793996180501;
+        Fri, 06 Nov 2026 12:16:20 -0800 (PST)
+Received: from DESKTOP-KHFMJSR ([194.9.62.193])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-492d3d609a3sm5849954f8f.7.2026.11.06.12.16.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 12:16:20 -0800 (PST)
+From: clicedvly768 <harepro29@gmail.com>
+To: ojeda@kernel.org,
+	dmitry.torokhov@gmail.com
+Cc: rust-for-linux@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	clicedvly768 <harepro29@gmail.com>
+Subject: [PATCH v2 0/2] rust: input: add input/serio abstractions and port Gravis Stinger driver
+Date: Sat,  7 Nov 2026 01:14:27 +0500
+Message-ID: <20261106201429.376997-1-harepro29@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,136 +97,93 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260915041248.2432629-1-qwe.aldo@gmail.com> <20260915042546.2454238-1-qwe.aldo@gmail.com>
-In-Reply-To: <20260915042546.2454238-1-qwe.aldo@gmail.com>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Fri, 6 Nov 2026 11:48:49 -0800
-X-Gm-Features: AclHuK9iaJcHe9K1bRdtuipGjw8e3uQB2h1pAJywOj53Kvv9pWIoHDLbZ4NPWUE
-Message-ID: <CANRwn3Tt0VguzG=_azEZAP8vfxr0BbyWj=Nu-R3a0TA1nNGqog@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: wacom: validate battery range before scaling
-To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 14, 2026 at 9:28=E2=80=AFPM Aldo Ariel Panzardo <qwe.aldo@gmail=
-.com> wrote:
->
-> Battery events divide by the difference between the logical maximum
-> and minimum without validating the range.  A malformed HID descriptor
-> with equal limits can therefore trigger a divide-by-zero exception.
->
-> Move percentage conversion to a helper that widens the arithmetic,
-> rejects non-positive ranges, and accounts for a nonzero logical
-> minimum.  Clamp the result to [0, 100] instead of rejecting
-> out-of-range values, so that real hardware whose ADC occasionally
-> reports slightly beyond its declared limits still registers its
-> battery and updates capacity normally.
->
-> Fixes: 37d160193834 ("HID: wacom: generic: Scale battery capacity measure=
-ments to percentages")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+This series introduces safe Rust abstractions for the Linux input and
+serio (Serial I/O) subsystems and demonstrates their real-world usage
+by porting the legacy Gravis Stinger serial gamepad driver to safe Rust.
 
-I realize this is *very* late, but (similar to the just-reviewed
-sequence number patch) I'd like to request a version of this patch
-that only addresses the divide-by-zero without introducing variable
-widening. It is unlikely that the range of battery values would ever
-exceed anything more than a very small fraction of __s32 so the
-widening (and associated requirement to use div64_s64) feels very
-unnecessary. Checking `if (range <=3D 0)` on an __s32 range should be
-sufficient to catch overflowing and empty ranges. I think the
-introduction of clamping is pretty reasonable as well and should be
-kept in the v3.
+Following community review, the serio bus abstractions and the Stinger
+driver port have been consolidated into the second patch, while keeping
+the input device abstractions in the first patch.
 
-Again, apologies for the delay---hopefully we'll (finally) get this merged =
-soon!
+Motivation and Design:
+- In the Rust for Linux (RfL) philosophy, device drivers should not rely
+  on raw FFI and unsafe blocks. Instead, the kernel crate provides safe,
+  idiomatic Rust abstractions.
+- The Gravis Stinger gamepad is an ideal candidate for demonstrating safe
+  Rust driver development in the input subsystem: it uses a well-defined
+  4-byte serial protocol at 9600 baud, 10 buttons, and 2 analog axes.
+- The ported driver (`drivers/input/joystick/stinger_rust.rs`) contains
+  ZERO unsafe blocks, using RAII types (`AllocatedDevice`,
+  `RegisteredDevice`, `serio::Registration`) for memory safety and
+  device lifetime management.
+- Non-regression: `CONFIG_JOYSTICK_STINGER_RUST` is offered alongside
+  the original C driver (`stinger.c`), ensuring architectures without
+  Rust (e.g. powerpc defconfigs) suffer no hardware support regressions.
 
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+Testing:
+- Built with Clang/LLVM and rustc 1.85.
+- Passes all strict kernel Rust checks: `make LLVM=1 rustfmtcheck`,
+  `make LLVM=1 rustdoc`, and `make LLVM=1 CLIPPY=1` with zero warnings.
+- Tested both built-in (`CONFIG_JOYSTICK_STINGER=y`) and loadable module
+  (`CONFIG_JOYSTICK_STINGER=m`) configurations.
+- Tested end-to-end in a custom QEMU virtual test environment with serial
+  port loopback (`serport` line discipline `N_MOUSE` and `SERIO_STINGER`).
+- Verified event reporting (`EV_KEY`, `EV_ABS`, `EV_SYN`) via `evtest`
+  and an automated test suite across all 10 buttons and
+  both axes (-64..64).
 
-> ---
->
-> Changes in v2:
->   - Clamp the computed percentage to [0, 100] instead of returning
->     false, so that slightly out-of-range ADC values do not prevent
->     battery registration (WACOM_QUIRK_BATTERY) or silently drop
->     updates.  Reported by Sashiko AI review.
->
->  drivers/hid/wacom_wac.c | 23 +++++++++++++++++++++--
->  1 file changed, 21 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index da1f0ea85..XXXXXXX 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -7,6 +7,7 @@
->  #include "wacom.h"
->  #include <linux/input/mt.h>
->  #include <linux/jiffies.h>
-> +#include <linux/math64.h>
->
->  /* resolution for penabled devices */
->  #define WACOM_PL_RES           20
-> @@ -1937,6 +1938,22 @@ static void wacom_wac_battery_usage_mapping(struct=
- hid_device *hdev,
->         return;
->  }
->
-> +static __s32 wacom_wac_battery_percentage(struct hid_field *field, __s32=
- value)
-> +{
-> +       s64 range =3D (s64)field->logical_maximum - field->logical_minimu=
-m;
-> +       s64 result;
-> +
-> +       if (range <=3D 0)
-> +               return 0;
-> +
-> +       result =3D div64_s64(((s64)value - field->logical_minimum) * 100,
-> +                          range);
-> +
-> +       return clamp_val(result, 0, 100);
-> +}
-> +
->  static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_=
-field *field,
->                 struct hid_usage *usage, __s32 value)
->  {
-> @@ -1950,7 +1967,8 @@ static void wacom_wac_battery_event(struct hid_devi=
-ce *hdev, struct hid_field *f
->                         wacom_wac->hid_data.bat_status =3D POWER_SUPPLY_S=
-TATUS_UNKNOWN;
->                 }
->                 else {
-> -                       value =3D value * 100 / (field->logical_maximum -=
- field->logical_minimum);
-> +                       value =3D wacom_wac_battery_percentage(field, val=
-ue);
->                         wacom_wac->hid_data.battery_capacity =3D value;
->                         wacom_wac->hid_data.bat_connected =3D 1;
->                         wacom_wac->hid_data.bat_status =3D WACOM_POWER_SU=
-PPLY_STATUS_AUTO;
-> @@ -1958,7 +1976,8 @@ static void wacom_wac_battery_event(struct hid_devi=
-ce *hdev, struct hid_field *f
->                 wacom_wac->features.quirks |=3D WACOM_QUIRK_BATTERY;
->                 break;
->         case WACOM_HID_WD_BATTERY_LEVEL:
-> -               value =3D value * 100 / (field->logical_maximum - field->=
-logical_minimum);
-> +               value =3D wacom_wac_battery_percentage(field, value);
->                 wacom_wac->hid_data.battery_capacity =3D value;
->                 wacom_wac->hid_data.bat_connected =3D 1;
->                 wacom_wac->hid_data.bat_status =3D WACOM_POWER_SUPPLY_STA=
-TUS_AUTO;
-> --
-> 2.43.0
->
+Changes in v2:
+- Consolidated serio abstractions and Stinger driver port into patch 2/2.
+- Gated built-in Rust modules and helpers with `#[cfg(CONFIG_* = "y")]`
+  and `#if IS_REACHABLE(CONFIG_*)` to prevent vmlinux link failures
+  when CONFIG_INPUT or CONFIG_SERIO is compiled as a module or disabled.
+- Retained original `stinger.c` and introduced `JOYSTICK_STINGER_RUST`
+  to avoid hardware support regressions on architectures without RUST.
+- Replaced raw slice `&'static [DeviceId]` with
+  `kernel::device_id::RawDeviceId` and `kernel::device_id::IdTable`
+  via `kernel::serio_device_table!`, guaranteeing compile-time
+  zero-sentinel termination and exporting modpost device aliases.
+- Fixed module owner tracking: removed `helpers.o` registration wrappers;
+  `Registration::new` now takes `&'static ThisModule` and calls
+  `bindings::__serio_register_driver` with the driver's own module pointer.
+- Stored `Opaque<bindings::serio_driver>` in `Pin<KBox<...>>` to avoid
+  aliasing violations on C-owned memory.
+- Fixed return error code sign in `connect_callback` (`to_errno()` is
+  already negative).
+- Reordered port opening: `serio_open` is called before publishing the
+  input device to userspace.
+- Reused `kernel::irq::IrqReturn` instead of duplicating a custom enum.
+- Integrated `serio::Device` with generic device infrastructure:
+  implemented `AsRef<device::Device>` and `Deref<Target = device::Device>`,
+  and added `AllocatedDevice::set_parent()` in `input.rs` to maintain
+  the sysfs device hierarchy (`&serio->dev`).
+- Switched `AllocatedDevice::set_phys()` to `&'static CStr`.
+- Added bounds check `axis < ABS_CNT` in `set_abs_params()`.
+- Added `#[inline]` on small helper methods and used vertical imports.
+
+clicedvly768 (2):
+  rust: input: add input device abstractions
+  rust: serio: add serio bus abstractions and port Gravis Stinger driver
+
+ drivers/input/joystick/Kconfig         |  14 ++
+ drivers/input/joystick/Makefile        |   4 +
+ drivers/input/joystick/stinger_rust.rs | 178 +++++++++++++++++
+ rust/bindings/bindings_helper.h        |   2 +
+ rust/helpers/helpers.c                 |   2 +
+ rust/helpers/input.c                   |  22 +++
+ rust/helpers/serio.c                   |  17 ++
+ rust/kernel/input.rs                   | 214 +++++++++++++++++++++
+ rust/kernel/lib.rs                     |   4 +
+ rust/kernel/serio.rs                   | 256 +++++++++++++++++++++++++
+ 10 files changed, 713 insertions(+)
+ create mode 100644 drivers/input/joystick/stinger_rust.rs
+ create mode 100644 rust/helpers/input.c
+ create mode 100644 rust/helpers/serio.c
+ create mode 100644 rust/kernel/input.rs
+ create mode 100644 rust/kernel/serio.rs
+
+-- 
+2.56.0
+

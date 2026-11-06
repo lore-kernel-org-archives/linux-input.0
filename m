@@ -1,51 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.242
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.237
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793975037;
-	b=d0sSmoRSOvkMBISAo4LJAYGxGtIC2bBPkbwPBjsOHu/yW7H21/CLc6gcz8hBinfo49t4
-	 HI54MLhcKGOiWW8cBLVliMi9wUcOdqAUmwnwbFPN1Rus8tFFFgRI0T1jmQYM/EdCrQDxB
-	 aBEKaw9e3RQt91q8K6KJDdkmQ1rCwOf3zDrHSdHwfiDA5+fy1U6mIKg9RyGinFSozfZzI
-	 8tnAkRVNkKYfQqr2Z3meVM8qq0m0r1ZLFankocLpKA2yugU48pRxZRZVRE3j/+YOM5QZ3
-	 fJxCePTYOHSHosH092SG49aTe/zWtZSgV77UAcwp9smlm5K2gqM24uMfo8Ktu8vrM2A==
+	t=1793975035;
+	b=iOFTa+eXa/JI3U1ZyAvzrvpNc7WVlNOqSXw0FCfZde0JRNA4RN50vvFTbMqtIjaXFxZV
+	 yLyA+MYHx8l2/XmDIjuhrQ6388tD4WkjIuWOoL0wKgGuRGTzqCUvSNZEyC/1JxlnRLjtM
+	 ymE4jJoL0ngTCB+z/vHdE+6GPDLLqF3QlVVOd/6r/GpGthtODIDBhAogw7CbXFYPU3rSS
+	 5PlaMS6ul92+qG8UkisWicHU/9bMy0cJNw5Fi13uEd0Zi7tab7hvvn/X3jO9ulVt13KS6
+	 w+CFDHH94+Dw2zDk1qV0dNjCFRUzwwni21sKZ4z+wKeUZAKLodUJvrWJK3pcQHOEoEg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793975037;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793975035;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=VulZgd1OmIgfFNSU3Wrt5M2z68Iowq4ne/lLLBtWXyo=;
-	b=zAzrRpHkere6uCCNY8n+uZ6y/EFfxzw1Cj24g+4NrBk+qcjnKosZvgotCcJq9Jh6h/gV
-	 +I3nulMaye6JR0RMtISquVP1Tztb6+jITQtc5QTru36yOX7CqgcSsTt+qwWfbKx3C2TnM
-	 RTXmdRVrVp5yx+VuGLZzXv5AlCDy94cBoW562hLzVc7eK58iX3dgHLhf1goyvjLa6hdla
-	 UtlP5D+HeeeYMZVAqAQ9IqgiXt/0XPPRTka3AHrC3kkj61GvkLoOGebUixaJAYTIZl3ku
-	 xWsHbQOwx2jc8kcIZqLY3xCmK3BF6VWrdQCHarsgKosmg8QHpxXsXQMXRXxN4FJwfLQ==
+	 X-Mailer:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=lmRXjz7+E/rotkgF80/yzAjfLFcsxBPmMFF4v2svVb0=;
+	b=xGEJrRyKYGezFXrF49Gm0Rq4e/G0FaRoDPl7gdO98lLJO4tONkkttAUbluDF0+BWna5q
+	 XuO5Ji8yDTvj+Oj5etLMxrl/jvGYrPC3lurwz47s3aiVjTBZSGA2zgWl9ySDrvMclK1Nx
+	 bDM/eCjz+v9YxDOjBF3UhUevnbxHEqmLgmrL1naSwcslaWuIpI8/G47LzAaYNJlf5lTrW
+	 hP1y9IjiDcq9mqEB0gUwi4mcnwMDak/qZwmknD12sWnSK9iJBmqn66NIJ/ZU1a4l+BK4O
+	 5Jyy8hiEqUZ/esf/OF4MgTs6DsSdBdZcEFzwRINIW4PeQ3im6S3cBfJ3RZz1WiR2ijA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=dlsdc6sH;
-	arc=none smtp.remote-ip=95.215.58.242
-Received: from mta1.migadu.com (out-242.mta1.migadu.com [95.215.58.242])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ZpIhTnXi;
+	arc=none smtp.remote-ip=95.215.58.237
+Received: from mta1.migadu.com (out-237.mta1.migadu.com [95.215.58.237])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4949B606D801
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:23:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4949B606D801
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63166606A32C
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:23:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 63166606A32C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=dlsdc6sH
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ZpIhTnXi
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=IzInqVi5ibrCr4PMJDN9KnBm3+SlxCOw2z/EKJEDIl0=;
+DKIM-Signature: a=rsa-sha256; bh=RCn2fkWl7MOXytw8BD9GhXFD9DmfIuWjWNENhw2UKlI=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793975034; v=1; x=1794579834;
- b=dlsdc6sHuWrFLJn5khMKGYp8WmUfGkDygzLXLVvhj603RjgmAXzdCHD+UnMsFmkgAPrRqEPu
- yjNBOeFNn5GDgV5YGi07lD2WFW7VNBQMO4ZxkJXQ5OgrT6PZmYRvF+V3tGQBarbM/l4NMgOp7bq
- U5y2j4u+rI8QrFR9r8foBZ14=
+ t=1793975029; v=1; x=1794579829;
+ b=ZpIhTnXih/rY06nZt6VR4AQBLw5LbZkENdgGvEoJHM6J94oiwHMrH4IY8gKt4F84MEhYqrrc
+ Ffk9727JfFYk+RbQOgUAC0JccwGWKmnLzRI9abmtEzewEzLK/+h7Jl6xiVfBZbD/ktTwlwb0MIY
+ WvSTP01f0I5N2y2mBxX8vlwY=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 4ac4f48c69c41eb7;
-	Fri, 06 Nov 2026 14:23:54 +0000
-X-Mizu-Trace-ID: 4ac4f48c69c41eb7
+Received: by smtp.migadu.com with ESMTPS id 6788b584a1e77f46;
+	Fri, 06 Nov 2026 14:23:49 +0000
+X-Mizu-Trace-ID: 6788b584a1e77f46
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -56,14 +55,11 @@ Cc: linux-input@vger.kernel.org,
 	"Luke D . Jones" <luke@ljones.dev>,
 	"Mateusz Schyboll" <dragonn@op.pl>,
 	"Denis Benato" <benato.denis96@gmail.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	=?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
-Subject: [PATCH v14 01/18] HID: asus: size feature reports from the HID report descriptor
-Date: Fri,  6 Nov 2026 14:23:17 +0000
-Message-ID: <20261106142334.1881-2-denis.benato@linux.dev>
+	Denis Benato <denis.benato@linux.dev>
+Subject: [PATCH v14 00/18] HID: asus: add support for ROG Ally handhelds
+Date: Fri,  6 Nov 2026 14:23:16 +0000
+Message-ID: <20261106142334.1881-1-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261106142334.1881-1-denis.benato@linux.dev>
-References: <20261106142334.1881-1-denis.benato@linux.dev>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -76,369 +72,741 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The ASUS vendor protocol uses the same feature report IDs across very
-different devices: on N-KEY keyboards and ROG Ally report 0x5A/0x5E are
-64-byte reports, while on XG Mobile stations report 0x5E is a 300-byte
-report. The driver currently hardcodes transfer lengths (16 bytes for
-the handshake, FEATURE_KBD_REPORT_SIZE for reads, ROG_XGM_REPORT_SIZE
-for the XG Mobile LED, ROG_ALLY_REPORT_SIZE for the MCU version read),
-which mismatches what the hardware expects and would break if a new
-device used yet another size for the same report ID.
+Hi all,
 
-Derive the transfer length of every feature report from the HID report
-descriptor of the device at hand:
+This patch series adds support for ROG Ally handhelds in the HID driver for ASUS devices.
 
-- add asus_report_len(), which resolves a report ID to its struct
-  hid_report and returns hid_report_len();
-- asus_kbd_set_report() now zero-pads short payloads to the exact
-  report size and rejects payloads that do not fit the report;
-- add asus_kbd_get_report() and use it from asus_kbd_init() and
-  asus_kbd_get_functions() so reads are sized per report as well;
-- asus_xgm_led_set() sends a minimal payload and checks the transfer
-  result against the descriptor length instead of the hardcoded
-  ROG_XGM_REPORT_SIZE, which is removed along with the fixed-size
-  buffers in asus_kbd_set_fn_lock() and asus_kbd_set_brightness();
-- mcu_request_version() sizes the 0x0d response from the descriptor
-  and names the keyboard feature report FEATURE_KBD_REPORT_ID.
-  ROG_ALLY_REPORT_SIZE has no remaining user and is removed.
+The changes include reinitialization of the device after exiting a sleep state,
+gamepad configuration, vibration strength configuration, joysticks and triggers
+range configuration, anti-deadzone configuration, response curve support,
+force feedback support, gamepad mode support, turbo buttons support,
+and button remapping support.
 
-Captured USB traffic of the same commands issued by Windows shows they
-are always written at the full report length, which this change now
-matches.
+This driver is based on the original Luke's work, which was a great starting point
+and I have reworked it to be upstreamable, while keeping the original functionality
+intact and extending hid-asus to avoid regressions in functionality such as the
+backlight control.
 
-Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
----
- drivers/hid/hid-asus.c | 181 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 135 insertions(+), 46 deletions(-)
+The ally support has been a surprisingly long task, spanning multiple years and
+being used in Steam OS and well as other distributions for quite a while,
+and I am happy to finally be submitting it.
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index f6aa1be09ad5..46643022b68d 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -22,6 +22,7 @@
- 
- #include <linux/acpi.h>
- #include <linux/cleanup.h>
-+#include <linux/container_of.h>
- #include <linux/dmi.h>
- #include <linux/hid.h>
- #include <linux/module.h>
-@@ -30,6 +31,7 @@
- #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
- #include <linux/power_supply.h>
- #include <linux/leds.h>
-+#include <linux/types.h>
- 
- #include "hid-ids.h"
- 
-@@ -51,9 +53,6 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define FEATURE_KBD_LED_REPORT_ID1 0x5d
- #define FEATURE_KBD_LED_REPORT_ID2 0x5e
- 
--#define ROG_XGM_REPORT_SIZE 300
--
--#define ROG_ALLY_REPORT_SIZE 64
- #define ROG_ALLY_X_MIN_MCU 313
- #define ROG_ALLY_MIN_MCU 319
- 
-@@ -582,20 +581,104 @@ static int asus_raw_event(struct hid_device *hdev,
- 	return 0;
- }
- 
-+/**
-+ * asus_find_report() - Find a report of the given type by its ID
-+ * @hdev: HID device
-+ * @type: report type (HID_INPUT_REPORT, HID_OUTPUT_REPORT or
-+ * HID_FEATURE_REPORT)
-+ * @report_id: report ID to look for
-+ *
-+ * Return: the report with the given ID, or NULL if the device does not
-+ * declare such a report.
-+ */
-+static struct hid_report *asus_find_report(struct hid_device *hdev,
-+					   unsigned int type, u8 report_id)
-+{
-+	return hdev->report_enum[type].report_id_hash[report_id];
-+}
-+
-+/**
-+ * asus_report_len() - Length of a feature report for the device
-+ * @hdev: HID device
-+ * @report_id: report ID of the feature report
-+ *
-+ * The same ASUS report ID can have different sizes depending on the device:
-+ * report 0x5E is a 64-byte report on laptops but a 300-byte report on XG
-+ * Mobile stations. Always size transfers from the report descriptor of the
-+ * device at hand instead of hardcoding lengths.
-+ *
-+ * Return: the length of the feature report in bytes, or 0 if the device
-+ * does not declare the report.
-+ */
-+static size_t asus_report_len(struct hid_device *hdev, u8 report_id)
-+{
-+	struct hid_report *report;
-+
-+	report = asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
-+
-+	return report ? hid_report_len(report) : 0;
-+}
-+
- static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t buf_size)
- {
--	u8 *dmabuf __free(kfree) = kmemdup(buf, buf_size, GFP_KERNEL);
-+	size_t hw_len = asus_report_len(hdev, buf[0]);
-+
-+	/* The payload (including the report ID) must fit the device report. */
-+	if (!hw_len || buf_size > hw_len)
-+		return -EINVAL;
-+
-+	u8 *dmabuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
- 	if (!dmabuf)
- 		return -ENOMEM;
- 
-+	memcpy(dmabuf, buf, buf_size);
-+
- 	/*
--	 * The report ID should be set from the incoming buffer due to LED and key
--	 * interfaces having different pages
-+	 * The report ID should be set from the incoming buffer due to LED and
-+	 * key interfaces having different pages. Short payloads are zero-padded
-+	 * to the exact report size the hardware expects for this report ID.
- 	 */
--	return hid_hw_raw_request(hdev, buf[0], dmabuf, buf_size, HID_FEATURE_REPORT,
-+	return hid_hw_raw_request(hdev, buf[0], dmabuf, hw_len, HID_FEATURE_REPORT,
- 				  HID_REQ_SET_REPORT);
- }
- 
-+/**
-+ * asus_kbd_get_report() - Read a report sized from the descriptor
-+ * @hdev: HID device
-+ * @report_id: report ID to read
-+ * @buf: buffer to store the report in
-+ * @buf_size: size of @buf
-+ *
-+ * The transfer is performed at the exact report size the device declares
-+ * for @report_id. The device may answer with a short read, and only the
-+ * bytes that fit in @buf are copied into it.
-+ *
-+ * Return: 0 on success, negative errno on failure.
-+ */
-+static int asus_kbd_get_report(struct hid_device *hdev, u8 report_id,
-+			       u8 *buf, size_t buf_size)
-+{
-+	size_t hw_len = asus_report_len(hdev, report_id);
-+	int ret;
-+
-+	if (!hw_len)
-+		return -EINVAL;
-+
-+	u8 *dmabuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, report_id, dmabuf, hw_len,
-+				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* The device may return less than requested (short read). */
-+	memcpy(buf, dmabuf, min(buf_size, hw_len));
-+
-+	return 0;
-+}
-+
- static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- {
- 	/*
-@@ -604,8 +687,13 @@ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- 	 */
- 	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
- 		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	size_t hw_len = asus_report_len(hdev, report_id);
-+	size_t cmp_len;
- 	int ret;
- 
-+	if (!hw_len)
-+		return -EINVAL;
-+
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
- 	if (ret < 0) {
- 		hid_err(hdev, "Asus handshake %02x failed to send: %d\n",
-@@ -613,19 +701,20 @@ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- 		return ret;
- 	}
- 
--	u8 *readbuf __free(kfree) = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	u8 *readbuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
- 	if (!readbuf)
- 		return -ENOMEM;
- 
--	ret = hid_hw_raw_request(hdev, report_id, readbuf,
--				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
--				 HID_REQ_GET_REPORT);
-+	ret = asus_kbd_get_report(hdev, report_id, readbuf, hw_len);
- 	if (ret < 0) {
- 		hid_warn(hdev, "Asus handshake %02x failed to receive ack: %d\n",
- 			 report_id, ret);
--	} else if (memcmp(readbuf, buf, sizeof(buf)) != 0) {
--		hid_warn(hdev, "Asus handshake %02x returned invalid response: %*ph\n",
--			 report_id, FEATURE_KBD_REPORT_SIZE, readbuf);
-+	} else {
-+		cmp_len = min_t(size_t, sizeof(buf), hw_len);
-+		if (memcmp(readbuf, buf, cmp_len) != 0) {
-+			hid_warn(hdev, "Asus handshake %02x returned invalid response: %*ph\n",
-+				 report_id, (int)cmp_len, readbuf);
-+		}
- 	}
- 
- 	/*
-@@ -640,32 +729,35 @@ static int asus_kbd_get_functions(struct hid_device *hdev,
- 				  u8 report_id)
- {
- 	const u8 buf[] = { report_id, 0x05, 0x20, 0x31, 0x00, 0x08 };
--	u8 *readbuf;
-+	size_t hw_len = asus_report_len(hdev, report_id);
- 	int ret;
- 
-+	/*
-+	 * Function flags are at byte 6. A shorter report does not
-+	 * contain that byte.
-+	 */
-+	if (hw_len < 7)
-+		return -EINVAL;
-+
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
- 	if (ret < 0) {
- 		hid_err(hdev, "Asus failed to send configuration command: %d\n", ret);
- 		return ret;
- 	}
- 
--	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	u8 *readbuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
- 	if (!readbuf)
- 		return -ENOMEM;
- 
--	ret = hid_hw_raw_request(hdev, report_id, readbuf,
--				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
--				 HID_REQ_GET_REPORT);
-+	ret = asus_kbd_get_report(hdev, report_id, readbuf, hw_len);
- 	if (ret < 0) {
- 		hid_err(hdev, "Asus failed to request functions: %d\n", ret);
--		kfree(readbuf);
- 		return ret;
- 	}
- 
- 	*kbd_func = readbuf[6];
- 
--	kfree(readbuf);
--	return ret;
-+	return 0;
- }
- 
- static int asus_kbd_disable_oobe(struct hid_device *hdev)
-@@ -690,7 +782,7 @@ static int asus_kbd_disable_oobe(struct hid_device *hdev)
- 
- static void asus_kbd_set_fn_lock(struct hid_device *hdev, bool enabled)
- {
--	const u8 buf[FEATURE_KBD_REPORT_SIZE] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x4e, !!enabled };
-+	const u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x4e, !!enabled };
- 	int ret;
- 
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
-@@ -700,7 +792,7 @@ static void asus_kbd_set_fn_lock(struct hid_device *hdev, bool enabled)
- 
- static void asus_kbd_set_brightness(struct hid_device *hdev, u8 brightness)
- {
--	const u8 buf[FEATURE_KBD_REPORT_SIZE] = {
-+	const u8 buf[] = {
- 		FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, brightness
- 	};
- 	int ret;
-@@ -900,10 +992,15 @@ static int mcu_parse_version_string(const u8 *response, size_t response_size)
- 
- static int mcu_request_version(struct hid_device *hdev)
- {
--	u8 *response __free(kfree) = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
--	const u8 request[] = { 0x5a, 0x05, 0x03, 0x31, 0x00, 0x20 };
-+	size_t hw_len = asus_report_len(hdev, FEATURE_KBD_REPORT_ID);
-+	const u8 request[] = { FEATURE_KBD_REPORT_ID, 0x05, 0x03, 0x31, 0x00, 0x20 };
- 	int ret;
- 
-+	if (!hw_len)
-+		return -EINVAL;
-+
-+	u8 *response __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
-+
- 	if (!response)
- 		return -ENOMEM;
- 
-@@ -911,17 +1008,16 @@ static int mcu_request_version(struct hid_device *hdev)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response,
--				ROG_ALLY_REPORT_SIZE, HID_FEATURE_REPORT,
--				HID_REQ_GET_REPORT);
-+	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response, hw_len,
-+				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = mcu_parse_version_string(response, ROG_ALLY_REPORT_SIZE);
-+	ret = mcu_parse_version_string(response, hw_len);
- 	if (ret < 0) {
- 		pr_err("Failed to parse MCU version: %d\n", ret);
- 		print_hex_dump(KERN_ERR, "MCU: ", DUMP_PREFIX_NONE,
--			      16, 1, response, ROG_ALLY_REPORT_SIZE, false);
-+			       16, 1, response, hw_len, false);
- 	}
- 
- 	return ret;
-@@ -958,17 +1054,12 @@ static void validate_mcu_fw_version(struct hid_device *hdev, int idProduct)
- 
- static bool asus_has_report_id(struct hid_device *hdev, u16 report_id)
- {
--	struct hid_report *report;
--	int t;
-+	if (report_id >= HID_MAX_IDS)
-+		return false;
- 
--	for (t = HID_INPUT_REPORT; t <= HID_FEATURE_REPORT; t++) {
--		list_for_each_entry(report, &hdev->report_enum[t].report_list, list) {
--			if (report->id == report_id)
--				return true;
--		}
--	}
--
--	return false;
-+	return asus_find_report(hdev, HID_INPUT_REPORT, report_id) ||
-+	       asus_find_report(hdev, HID_OUTPUT_REPORT, report_id) ||
-+	       asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
- }
- 
- static int asus_kbd_register_leds(struct hid_device *hdev)
-@@ -1171,17 +1262,15 @@ static int asus_battery_probe(struct hid_device *hdev)
- 
- static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
- {
--	const u8 buf[ROG_XGM_REPORT_SIZE] = {
--		FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00
--	};
-+	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
- 	struct asus_xgm_led *xgm = container_of(led_cdev, struct asus_xgm_led, cdev);
- 	int ret;
- 
--	ret = asus_kbd_set_report(xgm->hdev, buf, ROG_XGM_REPORT_SIZE);
-+	ret = asus_kbd_set_report(xgm->hdev, buf, sizeof(buf));
- 	if (ret < 0) {
- 		hid_err(xgm->hdev, "Unable to set XG mobile led state: %d\n", ret);
- 		return ret;
--	} else if (ret != ROG_XGM_REPORT_SIZE) {
-+	} else if (ret != (int)asus_report_len(xgm->hdev, FEATURE_KBD_LED_REPORT_ID2)) {
- 		hid_err(xgm->hdev, "Unexpected partial transfer to XG mobile: %d\n", ret);
- 		return -EIO;
- 	}
+At this time LEDs are not part of the patch series as I have work in progress to
+unify LEDs handling across all ASUS devices, and I will submit that in a separate
+patch series when the userspace interface will be ready to express capabilities
+of these devices, but that will take some more time.
+
+This driver is the culmination of a lot of work, from many different people,
+and I want to thank Luke for his original work, as well as the many people that have
+helped me test and provide feedback on the driver: Khamunetri, Jonathan, Derek,
+Matthew and others that have helped during these years.
+
+Best regards,
+Denis Benato
+
+Link v1: https://lore.kernel.org/all/20260813144736.2477941-1-denis.benato@linux.dev/
+Link v2: https://lore.kernel.org/all/20260819195835.1649657-1-denis.benato@linux.dev/
+Link v3: https://lore.kernel.org/all/20260823185849.2478673-2-denis.benato@linux.dev/
+Link v4: https://lore.kernel.org/all/20260830234320.114356-1-denis.benato@linux.dev/
+Link v5: https://lore.kernel.org/all/20260904145845.184887-1-denis.benato@linux.dev/
+Link v6: https://lore.kernel.org/all/20260908174433.74260-1-denis.benato@linux.dev/
+Link v7: https://lore.kernel.org/all/20260915201314.28279-1-denis.benato@linux.dev/
+Link v8: https://lore.kernel.org/all/20260922230205.6847-1-denis.benato@linux.dev/
+Link v9: https://lore.kernel.org/all/20261009122820.7603-1-denis.benato@linux.dev/
+Link v10: https://lore.kernel.org/all/20261017181520.70206-1-denis.benato@linux.dev/
+Link v11: https://lore.kernel.org/all/20261025235232.129945-1-denis.benato@linux.dev/
+Link v12: https://lore.kernel.org/all/20261031174130.208240-1-denis.benato@linux.dev/
+
+------------------------------------------------------------------------------------------------
+
+Version 14 fixes reported issue by sashiko: a possible UAF and my misusage
+of sysfs compare function alongside extending the documentation.
+
+------------------------------------------------------------------------------------------------
+
+The 13th version is mostly structural work based on the v12 comments, plus one
+new patch: the ROG Ally sysfs attributes are now documented in
+Documentation/ABI/testing, placed right after the commit that creates them and
+before MAINTAINERS... I had it by v12 but forgot to send it... I even answered
+the bot pointing to it.
+
+Limited structural changes: mainly ctrl+alt+del handling and AC/CC presses
+going to hid core to make things easier to follow and spare some lines.
+
+With usage of macros to compress duplicate code I managed to reduce lines of
+code by more than a thousand while also increasing the number of (hopefully)
+useful comments and kernel-doc.
+
+The rest is some [Low] feedbacks from sashiko I decided was worth doing.
+
+When I sent v12 I had changed gamepad_mode_index to gamepad_mode_available
+to follow bot suggestion: it was a mistake that broke the simmetry with
+other handhelds so I switched back to _index.
+
+Also from my local review I was stupid enough to convert a bunch of
+scoped_guard to a guard and I introduced a possible deadlock... So
+I have reworked that and now sashiko should (hopefully) be happy
+and not find other synchronization issues.
+
+This time I used glm-5.3 with sashiko and it is flagging the cross-ally
+talk of ally_prefs as Medium, but it is actually intended to be that
+way and is explained in the code why it is made the way it is.
+
+The previous sashiko-bot on 01/18 run flagged a feature report misalignment,
+I said I wouldn't have changed that, but I did because I misunderstood what
+it was telling me: it is now that will flag an issue about query the length
+of report 0x5a and sending something else: attempting to fix that will break
+the driver.
+
+Hopefully this is the last revision.. I hope I haven't missed anything
+else and there are no more weird issues with the mutex.
+
+------------------------------------------------------------------------------------------------
+
+The 12th version is aimed at cleaning up all the weird locking/unlocking machinery
+and compressing the code wherever it was natural to do so while also addressing
+all comments and suggestions.
+
+I thank all the reviewers for their feedback and suggestions, along with Luytan that
+borrowed me an API key for sashiko-bot as I could ensure no medium/high/critical issues
+were left unaddressed and low ones are benign.
+
+Given I have made quite a bit of changes I would ask for a second test by at least
+Rebecca and Paolo to ensure I hadn't screwed up what was working before:
+this is also the reason why I left out Tested-by tags.
+
+------------------------------------------------------------------------------------------------
+
+Version v11 has been more involved and I focused on two main things: extending the
+xg mobile (which the ROG ally is one of the few models that supports it) and
+properly handling hid packet sizes because it has been a constant source of issues
+and fight in the past and I want to put an end to both of those.
+
+I kindly ask Rebecca and Paolo to try using the new asus_report_len() to see if its
+also suitable for theirs Zenbook Duo devices and if so to adopt it in theirs patches
+as well.
+
+Link of a relevant patchset: https://lore.kernel.org/all/20261020092423.36380-1-p.pisati@gmail.com/
+
+------------------------------------------------------------------------------------------------
+
+Version v10 drops a patch already merged as part of XG mobile and applies the
+patchset on top of for-next/7.4.
+
+------------------------------------------------------------------------------------------------
+
+With v8 the driver does sysfs_notify after successfully changing configuration
+attributes so that userspace can be notified of the changes immediately.
+
+------------------------------------------------------------------------------------------------
+
+With v7 the series is rebased on top of the asus tree: the first patch of v6
+has been applied upstream as 8099f9da59f1 ("HID: asus: do not send keyboard
+init reports to touchpads"), so this series is now 12 patches.
+
+The probe paths of the ally interfaces now reserve the interface role while
+their initialization is running, the configuration attributes work from the
+moment their files exist and a failed initialization rolls the configuration
+back instead of leaving the created sysfs groups behind. The response curve
+is no longer configured entry by entry: a single attribute per joystick now
+takes the whole curve in one validated write, and a companion index file
+documents what each value is.
+
+------------------------------------------------------------------------------------------------
+
+With v5 I returned to the original manual management of memory and sysfs groups
+as going devm did not play well with the general "plugin" architecture of the
+ally portion of the driver and has caused more bugs than it solved: sashiko-bot
+will have to come to terms with hand-managed memory this time.
+
+------------------------------------------------------------------------------------------------
+
+Changelog:
+
+-v2
+  - HID: asus: add support for ROG Ally handhelds
+   - release all vendor buttons on resume
+   - align arguments of hid_asus_ally_raw_event()
+  - HID: asus: add gamepad configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add vibration strength configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add joysticks inner and outer range configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add triggers inner and outer range configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add joysticks anti-deadzone configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add support for response curve
+   - normalize kernel-doc comment
+  - HID: asus: add support to force feedback
+   - remove a stale comment
+  - HID: asus: add support for gamepad mode
+   - remove a stale comment, normalize kernel-doc
+  - HID: asus: add support for turbo buttons
+   - remove stale comments, normalize kernel-doc
+  - HID: asus: add support for btn remapping
+   - convert function comments to kernel-doc
+
+-v3
+  - HID: asus: add support for ROG Ally handhelds
+   - take references on input devices to avoid use-after-free on unbind
+   - reject probes from USB devices other than the recorded controller
+   - add open/close callbacks to the gamepad input device
+   - keyboard_input is populated after hid_hw_start(): issue does not apply
+  - HID: asus: add gamepad configuration
+   - restore cached Xbox controller mode after an MCU reset
+   - convert remaining scoped_guard() users to guard()
+   - avoid printing "(null)" for unnamed sysfs groups
+  - HID: asus: add vibration strength configuration
+   - send MCU commands through ally_gamepad_send_packet()
+  - HID: asus: add joysticks inner and outer range configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add triggers inner and outer range configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add joysticks anti-deadzone configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add support for response curve
+   - send MCU commands through ally_gamepad_send_packet()
+   - check resp_curve_support in show callbacks too
+  - HID: asus: add support to force feedback
+   - read ally_x_hdev under ally_data_lock and take a reference on it
+   - publish ally_x_hdev before registering the input device
+  - HID: asus: add support for gamepad mode
+   - convert remaining scoped_guard() users to guard()
+  - HID: asus: add support for turbo buttons
+   - pass the config pointer directly to ally_config_remove()
+   - run ally_config_remove() outside ally_data_lock
+   - restore cached values when the hardware rejects an update
+   - check turbo_support in show callbacks too
+   - reported scoped_guard warning verified as false positive
+  - HID: asus: add support for btn remapping
+   - look up default mappings by name instead of array index
+   - resend the old mapping when a sequential update fails midway
+   - allow macros regardless of the gamepad mode
+   - rename PAD_* codes to proper input event names
+   - convert remaining scoped_guard() users to guard()
+
+- v4
+  - HID: asus: do not send keyboard init reports to touchpads
+    - Added to avoid regressting touchpads and as guidance for maintainers
+  - HID: asus: reinitialize the device after exiting a sleep state
+    - Follow the modified logic of the previous patch
+  - Addressed issues of sashiko-bot albeit one was a false positive
+  - Rework patches: I made some disasters rebasing in v3
+
+- v5
+  - HID: asus: add support for ROG Ally handhelds
+    - Fix UAF due to inverted input device ownership in hid_asus_ally_remove()
+    - Reject probes claiming an interface role that is already owned
+  - HID: asus: add gamepad configuration
+    - Keep the configuration allocated until module removal instead of
+      devm-managing it: the sysfs callbacks must be able to outlive probe
+    - Undo sysfs group creation manually on the error path and in
+      ally_config_remove(): creation and removal are now symmetric
+    - Add payloads size check in ally_alloc_cmd()
+  - HID: asus: add vibration strength configuration
+    - Restore the cached vibration intensity after an MCU reset
+  - HID: asus: add joysticks inner and outer range configuration
+    - Restore the cached joystick thresholds after an MCU reset
+    - Remove the calibration sysfs groups manually like the other ones
+  - HID: asus: add triggers inner and outer range configuration
+    - Restore the cached trigger ranges after an MCU reset
+  - HID: asus: add joysticks anti-deadzone configuration
+    - Restore the cached anti-deadzone values after an MCU reset
+  - HID: asus: add support for response curve
+    - Restore the cached response curves after an MCU reset
+    - Keep holding config_mutex until the curve packet has been sent
+  - HID: asus: add support to force feedback
+    - Serialize the cross-interface force-feedback sends with the gamepad
+      interface removal by holding intf_mutex in the callers
+  - HID: asus: add support for gamepad mode
+    - Restore the recorded gamepad mode after an MCU reset
+  - HID: asus: add support for turbo buttons
+    - Fix UAF allocating the turbo button entries with kcalloc
+    - Restore the cached turbo parameters after an MCU reset
+  - HID: asus: add support for btn remapping
+    - Keep the button mappings outside of the controller lifetime, so
+      that the recorded configuration survives a re-probe
+    - Re-apply the recorded mappings after an MCU reset
+    - Fetch the configuration through ally_get_config()
+
+- v6
+  - HID: asus: add support for ROG Ally handhelds
+    - Add a maximum size check in ally_alloc_cmd()
+    - Drop the dead x_hdev snapshot taken in hid_asus_ally_raw_event()
+    - Drop the unused hdev parameter of handle_ctrl_alt_del()
+    - Drop the unused hdev/report parameters of ally_x_raw_event()
+    - Turn the "// F20;" comment into a proper "/* F20 */"
+  - HID: asus: add gamepad configuration
+    - Publish the configuration (ally->config under ally_data_lock)
+      before the sysfs groups are created and withdraw it on the error
+      path: attributes could become visible while ally_get_config()
+      still returned NULL and the restore path silently did nothing
+    - Record the Xbox controller mode in the first-setup defaults and
+      apply the recorded value from hid_asus_ally_init()
+    - properly rebase ally_alloc_cmd(): make it no change from previous patch
+  - HID: asus: add joysticks inner and outer range configuration
+    - Drop the unused cfg parameter of ally_set_joystick_thresholds()
+  - HID: asus: add triggers inner and outer range configuration
+    - Drop the unused cfg parameter of ally_set_trigger_ranges()
+    - Fix a commit message typo: "sensitivity"
+  - HID: asus: add support for response curve
+    - Add ally_resp_curve_is_valid() and use it in the init/resume
+      restore path exactly like the apply path does
+    - Drop the unused struct device * parameter of the four
+      response-curve helpers
+  - HID: asus: add support to force feedback
+    - Drop the unused pointers from ally_x_send_ff_report() and ally_x_send_ff_off()
+  - HID: asus: add support for gamepad mode
+    - Apply the mode exactly once from hid_asus_ally_init()
+  - HID: asus: add support for turbo buttons
+    - Remove the calibration groups created before a sysfs failure
+  - HID: asus: add support for btn remapping
+    - Do not gate remapping by turbo
+    - Reject NULL remap/macro pointers in ally_set_button_mapping()
+    - Carry the ally pointer in struct button_remap_attr
+    - Fix the "hypen" comment typo
+
+- v7
+  - The "HID: asus: do not send keyboard init reports to touchpads" patch
+    is not part of this series anymore: it has been applied upstream as
+    8099f9da59f1 and the series is rebased on top of it
+  - HID: asus: add support for ROG Ally handhelds
+    - Reserve the probed interface role for the whole duration of its
+      sleeping initialization: a concurrent probe of the same role could
+      pass the singleton checks before the first one published its pointer
+  - HID: asus: add gamepad configuration
+    - Publish drvdata->rog_ally before the configuration attributes are
+      created: the callbacks fetched it before asus_probe() published it
+      and returned -ENODEV in the meantime
+    - Roll the configuration back with ally_config_remove() when
+      hid_asus_ally_init() fails, instead of leaking the created sysfs
+      groups and the button entries
+  - HID: asus: add support for response curve
+    - Replace response_curve_pct_1..4, response_curve_move_1..4 and the
+      apply attributes with one response_curve attribute per joystick that
+      takes the whole curve in a single validated all-or-nothing write:
+      staged partial edits reaching the MCU on resume cannot happen anymore
+    - Add a read-only response_curve_index attribute documenting the
+      meaning of each value
+    - Restore both curves unconditionally on init/resume: only validated
+      curves are recorded now
+  - HID: asus: add support for btn remapping
+    - Drop the stale cfg->turbo_support gate in ally_config_create():
+      remapping attributes are created for every device with button
+      directories, not only turbo-capable ones
+
+- v8
+  - HID: asus: add support for ROG Ally handhelds
+    - Release the probe reservation when the interface pointer is
+      published: the flags were only cleared on failure, leaving them
+      stuck set after the first bind and rejecting every later probe
+      of that role
+    - Reserve the keyboard interface role too: its check and its
+      publication were two separate locked sections, so concurrent
+      probes of the same role could both publish
+    - Keep the recorded USB device while any probe is still in flight
+  - HID: asus: add gamepad configuration
+    - Report the missing Xbox controller capability with -EOPNOTSUPP
+  - HID: asus: add vibration strength configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add joysticks inner and outer range configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add triggers inner and outer range configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add joysticks anti-deadzone configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for response curve
+    - Wake pollers with sysfs_notify() after a successful curve write
+  - HID: asus: add support to force feedback
+    - Clear the rumble update latch on setup so a fresh interface
+      cannot inherit one left over from a teardown race
+  - HID: asus: add support for gamepad mode
+    - Return -EIO for invalid gamepad modes stored in the device
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for turbo buttons
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for btn remapping
+    - Return -EIO if a mapping is ever found unset instead of
+      dereferencing it
+    - Wake pollers with sysfs_notify() after remap and macro writes,
+      and after a mode switch re-defaults the mappings
+
+- v9
+  - HID: asus: add support to force feedback
+    - Hold intf_mutex while unpublishing the gamepad interface in the
+      setup error path, like hid_asus_ally_remove() does
+    - Improve gamepad interface device lock around the initialization
+      force-feedback send
+  - HID: asus: add support for btn remapping
+    - Unpublish button_entries under config_mutex before removing the
+      attributes and freeing the array
+
+- v10
+  - HID: asus: reinitialize the device after exiting a sleep state
+    - Dropped as already merged in XG Mobile patchset
+
+- v11
+  - HID: asus: add support for ROG Ally handhelds
+    - Split the chained data[1] = data[3] = 0x00 assignment into two
+      statements
+    - Align the hid_asus_ally_raw_event() continuation line with the
+      opening parenthesis
+  - HID: asus: add gamepad configuration
+    - Add the missing blank line between struct hid_driver and
+      asus_init()
+  - HID: asus: add joysticks inner and outer range configuration
+    - Align the sysfs_remove_group() and hid_warn() continuation lines
+      with the opening parenthesis
+  - HID: asus: add triggers inner and outer range configuration
+    - Align the hid_warn() continuation lines with the opening
+      parenthesis
+  - HID: asus: add joysticks anti-deadzone configuration
+    - Align the hid_warn() continuation lines with the opening
+      parenthesis
+  - HID: asus: add support for response curve
+    - Drop the duplicate blank line before ally_config_attrs[]
+  - HID: asus: add support to force feedback
+    - Add the missing blank line before the static_assert
+    - Align the hid_warn() continuation line with the opening
+      parenthesis
+  - HID: asus: add support for btn remapping
+    - Align the hid_warn() and ally_set_button_mapping() continuation
+      lines with the opening parenthesis
+  - HID: asus: size feature reports from the HID report descriptor
+    - New patch
+  - HID: asus: identify XG Mobile stations and bind the LED to the
+    reported model
+    - New patch
+  - HID: asus: expose XG Mobile identity and firmware information
+    - New patch
+  - HID: asus: size ally gamepad commands from the HID report descriptor
+    - New patch
+  - platform/x86: asus-armoury: pick the eGPU activation from the
+    reported GPU
+    - New patch
+  - HID: asus: report the XG Mobile GPU vendor to asus-wmi
+    - New patch
+  - MAINTAINERS: add maintainer for the ASUS HID driver
+    - New patch
+
+- v12
+  - HID: asus: size feature reports from the HID report descriptor
+    - First commit in the series. v11 had it after the Ally driver
+    - Look reports up in report_id_hash. asus_find_report() is that
+      lookup, and asus_has_report_id() is three calls to it after
+      rejecting an id of HID_MAX_IDS or more
+    - asus_kbd_get_functions() returns -EINVAL when the 0x5A report is
+      shorter than 7 bytes, before it reads the flags byte
+    - mcu_request_version() sizes the 0x0D response from the descriptor
+      and names the request FEATURE_KBD_REPORT_ID
+    - Remove ROG_ALLY_REPORT_SIZE as not needed anymore
+    - Include linux/container_of.h as asus_xgm_led_set() already calls
+      container_of()
+  - HID: asus: add support for ROG Ally handhelds
+    - One ally_intf per interface. Vendor keys are reported on the
+      input device of the interface that received the report
+    - The private gamepad input is registered and unregistered by that
+      interface.
+    - Remove BTN_TRIGGER_HAPPY as it was unused
+    - The rumble-off packet is the array ally_force_feedback_off (lowercase)
+    - Include linux/compiler_attributes.h for the packed report structs
+    - hid_asus_ally_probe() frees the interface with __free(kfree) and
+      returns no_free_ptr()
+    - Commands are allocated from the FEATURE_KBD_REPORT_ID length.
+      ally_dev_set_report() calls asus_kbd_set_report(), so a short
+      payload is padded to the descriptor length. The init rumble-off
+      packet starts with 0x0D and is padded to the length of report
+      0x0D. ally_dev_get_report() reads HID_ALLY_GET_REPORT_ID through
+      asus_kbd_get_report()
+    - ally_gamepad_check_ready() sleeps after a failed transfer as well
+    - HID_ALLY_X_INPUT_REPORT_SIZE is not defined.
+      hid_asus_ally_raw_event() does not take the unused struct
+      hid_report. The kernel-doc @ally lines are gone
+    - handle_ctrl_alt_del() names the boot-protocol offsets
+      (HID_INPUT_REPORT_ID_OFFSET, HID_INPUT_MODIFIER_OFFSET,
+      HID_INPUT_RESERVED_OFFSET, HID_INPUT_KEY_OFFSET) and the modifier
+      and key bytes. Its kernel-doc says true means the buffer was
+      rewritten and ally processing of that report stops
+    - KEY_PROG1 and KEY_F16-F19 are set in asus_input_mapping(), before
+      input_register_device(). KEY_F19 is the second event of usage
+      0x38
+  - HID: asus: add gamepad configuration
+    - The cache is the static ally_prefs. A comment on it says one set
+      is by design: the controller is part of the PC, and a second HID
+      device only appears when one is emulated with uhid
+    - Payloads passed to ally_alloc_cmd() are const
+    - hid_asus_ally_init() holds ally_prefs.lock with one guard().
+      ally_prefs_setup() does the same from the capability stores
+      through sysfs_live
+    - ally_sysfs_remove() is its own call and runs before hid_hw_stop
+    - The message names xbox_controller and says hid_asus_ally_reset_resume()
+      can fail with -ENODEV. The comment in that function about
+      initialization already having been performed is gone
+  - HID: asus: add vibration strength configuration
+    - The intensity fields, the attributes, and the restore path are
+      born on ally_prefs
+    - ally_set_vibration_intensity() has a kernel-doc comment. The lock
+      requirement is in the Context section
+  - HID: asus: add joysticks inner and outer range configuration
+    - The threshold fields, the attributes, and the restore path are
+      born on ally_prefs. The calibration groups are created only when
+      user_cal_support is set
+    - ally_sysfs_remove() takes ally_prefs.lock with guard() and holds
+      it until the function returns, so the calibration-group removal
+      reads the capability flags under the mutex
+  - HID: asus: add triggers inner and outer range configuration
+    - The trigger fields, the attributes, and the restore path are born
+      on ally_prefs, under the same calibration-group gate
+  - HID: asus: add joysticks anti-deadzone configuration
+    - The attributes are born on the joystick groups. The calibration
+      gate includes anti_deadzone_support
+    - The command buffer is declared with __free(kfree) on the
+      ally_alloc_cmd() line. The capability test stays above that
+      declaration
+  - HID: asus: add support for response curve
+    - The curves, the attributes, and the restore path are born on
+      ally_prefs. The calibration gate includes resp_curve_support
+    - response_curve_store() parses eight values with
+      ally_parse_u8_token(), which copies each token out of the write,
+      bounds it by count, and parses it with kstrtou8(). After the
+      eighth value every remaining byte is checked, and a non-space
+      byte, including an embedded NUL, is rejected
+    - ally_set_joystick_resp_curve() has a kernel-doc comment, with the
+      lock requirement in the Context section
+  - HID: asus: add support to force feedback
+    - Rumble state, the work, and rumble-off live on the gamepad
+      interface. The off packet is sent on that interface's own hdev.
+      There is no snapshotted ally_x_hdev
+    - ally_ff_quiesce() runs before hid_hw_stop
+    - select INPUT_FF_MEMLESS in config HID_ASUS is indented with a tab
+  - HID: asus: add support for gamepad mode
+    - Changed gamepad_mode_index to gamepad_mode_available to follow conventions
+    - The mode byte and the attribute are born on ally_prefs.
+      ally_prefs_setup() stores ALLY_GAMEPAD_MODE_GAMEPAD as the
+      initial mode
+    - The command buffer is declared with __free(kfree) on the
+      ally_alloc_cmd() line
+    - gamepad_mode_store() returns the sysfs_match_string() error for
+      an unknown mode and does not log it
+    - ally_set_gamepad_mode() has a kernel-doc comment, with the lock
+      requirement in the Context section
+  - HID: asus: add support for turbo buttons
+    - The turbo parameters and attributes are born on ally_prefs. The
+      button attributes do not carry an Ally back-pointer
+  - HID: asus: add support for btn remapping
+    - Changed btn_remap_index to btn_remap_available to follow conventions
+    - The mapping cache and the attributes are born on ally_prefs. The
+      button attributes do not carry an Ally back-pointer. Mappings are
+      applied on the configuration interface under ally_prefs.lock
+    - ally_encode_button_code() writes one code into a slot of
+      ASUS_ALLY_BTN_FUNCTIONS_LEN (11) bytes. ally_set_button_mapping()
+      calls it at offsets 5, 16, 27 and 38. A type of 0 writes only the
+      type byte
+    - ally_apply_button_mappings() says the caller holds
+      ally_prefs.lock
+    - gamepad_mode_store() takes that mutex once, with guard(), and
+      holds it until the function returns. The mode update, the
+      default-mapping refresh, and the notifies all run under that
+      lock. The store notifies remap_index together with remap and
+      macro
+    - button_remap_store() restores the previous code through
+      err_restore. On a first-generation device, a pair that already
+      reached the hardware is pushed back through err_restore_hw
+  - HID: asus: identify XG Mobile stations and bind the LED to the
+    reported model
+    - Identity fields are copied by tag (MB, SN, PRO, PNUM)
+    - The LED name is asus:xgm-<model>-<uniq>:led. The second field is
+      hdev->uniq when that string is non-empty, and dev_name(&hdev->dev)
+      otherwise
+    - ASUS_XGM_QUERY_VERSION is not defined in this commit
+    - asus_xgm_get_identity() is tried three times, with ssleep(1)
+      between attempts. The LED stays unregistered only when all three
+      fail. An unsupported model is not retried
+  - HID: asus: expose XG Mobile identity and firmware information
+    - ASUS_XGM_QUERY_VERSION is defined next to the identity query
+    - A version field is a 3-character tag, a length byte, and the data
+  - HID: asus: document ROG XG Mobile sysfs attributes
+    - New patch. Documents xgm_model, xgm_serial, xgm_mainboard,
+      xgm_part_number, xgm_firmware_version and xgm_generation
+  - platform/x86: asus-armoury: pick the eGPU activation from the
+    reported GPU
+    - This commit also reports the GPU vendor. v11 had that report in
+      the following commit
+    - The version payload's four PCI IDs are stored high byte first.
+      asus_wmi_egpu_set_vendor() receives the 16-bit vendor
+    - The message records that the WMI method returned 1 for every
+      activation value, that 0x0001, 0x0101 and 0x0201 are NVIDIA, AMD
+      and Intel, and that known tools only write 1
+    - Removing the station stores 0, and the next activation uses the
+      default
+    - egpu_vendor_lock covers that one word. The armoury store reads
+      the vendor inside egpu_mutex. The getter takes egpu_vendor_lock
+      and drops it before returning
+  - MAINTAINERS: add maintainer for the ASUS HID driver
+    - The entry also lists Documentation/ABI/testing/sysfs-driver-hid-asus
+  HID: asus: size ally gamepad commands from the HID report descriptor
+    - Dropped. The descriptor-length commit sizes mcu_request_version(),
+      and the Ally commits allocate their commands from
+      FEATURE_KBD_REPORT_ID
+  HID: asus: report the XG Mobile GPU vendor to asus-wmi
+    - Dropped as its own commit. Joined into the armoury commit
+
+- v13
+  - HID: asus: size feature reports from the HID report descriptor
+    - mcu_request_version() names the keyboard report FEATURE_KBD_REPORT_ID
+    - Tested-by added in commit message
+  - HID: asus: add support for ROG Ally handhelds
+    - Drop the linux/types.h include added in v12
+    - KEY_F19 dropped: it was a leftover that went unnoticed
+    - ally_vendor_keys() consumes only the vendor codes (0x38, 0xA6, 0xA7
+      and 0xA8): the 0x00 report that releases the keys reaches hid-core,
+      which can only release the usages it saw pressed.
+    - Updated the kernel-doc for the AC and CC short and long press codes
+    - handle_ctrl_alt_del() requires the four bytes it reads
+    - ally_quiesce() disables the resume work instead of only cancelling
+      it, so a concurrent asus_resume() cannot re-queue after the cancel
+    - New hid_asus_ally_terminate(): code compression
+    - asus_raw_event() declares the intf pointer once at the top instead
+      of inside the size check
+  - HID: asus: add gamepad configuration
+    - ally_check_capability() returns int and ally_detect_capabilities()
+      propagates failures through an error label
+    - ally_set_xbox_controller() has a kernel-doc comment and tests
+      xbox_controller_support before allocating the command buffer
+    - ally_prefs_setup() takes the ally_intf: sysfs_live is
+      intf->sysfs_live now, and ally_sysfs_remove() takes the interface
+      and returns early without one
+    - The sysfs groups are created and removed without ally_prefs.lock:
+      this prevents a deadlock
+  - HID: asus: add vibration strength configuration
+    - The store is bounded by ASUS_ALLY_VIBRATION_INTENSITY_MIN/MAX
+      instead of a hard-coded 100, and the range files print those macros
+      instead of "0 100"
+    - The four per-side callbacks collapse into
+      ally_vibration_intensity_show() and ally_vibration_intensity_store()
+      over an enum ally_vibration and the ALLY_VIBRATION_FUNCS generator:
+      the store snapshots both values under the lock and sends them
+      together
+  - HID: asus: add joysticks inner and outer range configuration
+    - ally_set_joystick_thresholds() has a kernel-doc comment
+    - The four threshold callbacks collapse into ally_threshold_show()
+      and ally_threshold_store() and the ALLY_THRESHOLD_FUNCS generator,
+      bounded by the new ASUS_ALLY_INNER_THRESHOLD_MIN/MAX and the
+      existing outer macros, which the range files print too
+    - The calibration groups are created when any of user_cal_support,
+      anti_deadzone_support or resp_curve_support is set, read under the
+      mutex: v12 grew that gate one capability at a time in the following
+      commits
+    - A failure while creating them unwinds through the new
+      err_cal_groups label, and intf->cal_sysfs_live records whether they
+      exist
+    - ally_sysfs_remove() removes the calibration groups based on
+      intf->cal_sysfs_live instead of re-reading the capability flags
+  - HID: asus: add triggers inner and outer range configuration
+    - ally_set_trigger_ranges() has a kernel-doc comment
+    - The generated block does not carry trailing spaces on its blank
+      lines anymore
+  - HID: asus: add joysticks anti-deadzone configuration
+    - The store is bounded by ASUS_ALLY_ANTI_DEADZONE_MIN/MAX instead of
+      a hard-coded 100, and the range file prints those macros instead of
+      "0 100"
+    - The calibration gate for this commit is gone: the joystick commit
+      already covers anti_deadzone_support
+  - HID: asus: add support for response curve
+    - The curve structs are defined before struct ally_prefs, and the
+      "one set by design" comment moved onto ally_prefs: it now also says
+      the settings survive the controller powering off and coming back,
+      that no device or input pointers live there, and that a second
+      device emulated with uhid would be rejected by the driver
+    - The calibration gate for this commit is gone for the same reason
+  - HID: asus: add support to force feedback
+    - ally_ff_quiesce() runs from hid_asus_ally_terminate() instead of
+      from the asus_probe() error path and asus_remove()
+  - HID: asus: add support for gamepad mode
+    - gamepad_mode_available is renamed back to gamepad_mode_index to
+      align with other handheld drivers, and the commit message says so
+  - HID: asus: add support for turbo buttons
+    - button_entries lives in struct ally_intf instead of ally_prefs
+    - ally_create_button_attributes() reads turbo_support under
+      ally_prefs.lock instead of unlocked
+    - ally_set_turbo_params() sends the ally_turbo_config struct itself
+      as the payload instead of a hand-built initializer list, and its
+      kernel-doc gained the @hdev and Context sections
+    - The turbo and toggle period callbacks collapse into
+      ally_btn_period_show() and ally_btn_period_store() over an enum
+      ally_btn_period and the ALLY_BTN_PERIOD_FUNCS generator, and the
+      range files print the real bounds instead of a hard-coded "0 255"
+    - The button attributes are created without the turbo_support gate:
+      the next commit decides where the turbo attributes go, and
+      intf->button_entries is published under the mutex together with
+      cal_sysfs_live and sysfs_live
+    - ally_sysfs_remove() unpublishes intf->button_entries under the
+      mutex and removes the groups outside of it, so a mode-store notify
+      holding the lock sees either the live array or NULL
+  - HID: asus: add support for btn remapping
+    - The attribute listing the valid remap targets is named
+      remap_available: v12 called it remap_index, and the commit message
+      follows
+    - ally_create_button_attributes() no longer returns NULL when turbo
+      is unsupported: entries_attr_index is computed under the lock and
+      the turbo attributes are appended only when supported
+    - gamepad_mode_store() notifies remap, macro and remap_available
+      outside ally_prefs.lock over the static ally_button_names[] instead
+      of iterating the button entries under the lock: the mode update and
+      the default-mapping refresh stay under it
+    - ally_prefs_setup() applies the recorded mappings whenever
+      initialized: the button_entries test is gone since the entries
+      always exist
+  - HID: asus: document ROG Ally sysfs attributes
+    - New patch
+
+- v14
+  - HID: asus: add support for ROG Ally handhelds
+    - Fix possible UAF with kfree_rcu
+  - HID: asus: document ROG Ally sysfs attributes
+    - Improve description for joysticks response curve
+  - HID: asus: add support for response curve
+    - Drop additional line of _index attribute
+  - HID: asus: add support for turbo buttons
+    - Fix a wrong string comparison
+
+Denis Benato (18):
+  HID: asus: size feature reports from the HID report descriptor
+  HID: asus: add support for ROG Ally handhelds
+  HID: asus: add gamepad configuration
+  HID: asus: add vibration strength configuration
+  HID: asus: add joysticks inner and outer range configuration
+  HID: asus: add triggers inner and outer range configuration
+  HID: asus: add joysticks anti-deadzone configuration
+  HID: asus: add support for response curve
+  HID: asus: add support to force feedback
+  HID: asus: add support for gamepad mode
+  HID: asus: add support for turbo buttons
+  HID: asus: add support for btn remapping
+  HID: asus: identify XG Mobile stations and bind the LED to the
+    reported model
+  HID: asus: expose XG Mobile identity and firmware information
+  HID: asus: document ROG XG Mobile sysfs attributes
+  HID: asus: document ROG Ally sysfs attributes
+  platform/x86: asus-armoury: pick the eGPU activation from the reported
+    GPU
+  MAINTAINERS: add maintainer for the ASUS HID driver
+
+ .../ABI/testing/sysfs-driver-hid-asus         |  491 ++
+ MAINTAINERS                                   |    7 +
+ drivers/hid/Kconfig                           |    1 +
+ drivers/hid/hid-asus.c                        | 4426 ++++++++++++++++-
+ drivers/platform/x86/asus-armoury.c           |   57 +-
+ drivers/platform/x86/asus-wmi.c               |   43 +
+ include/linux/platform_data/x86/asus-wmi.h    |   11 +
+ 7 files changed, 4931 insertions(+), 105 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-asus
+
 -- 
 2.47.3
 

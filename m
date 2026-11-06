@@ -1,54 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.252
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.149
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793923411;
-	b=skB3BUiz8lmTOBkugkAVW7J95mr9OaaqC+jWnhx/Usjg85XVkYiNSl0ngkR90BSCtd7R
-	 N9dU7wTiQsj2EOIUic/sBGPfJVyVVPwbqkG8CxCVmaDqYJJSFOSbXk/gJRZjl6E6fbwh6
-	 h8fJXgLoFVdmxo6Uc4cfao6YhkF38DtY1g3Jy2RpelcP/0j99mVtXG4s1c2XUwBR0KHsy
-	 fSceFjlWUmf5TEUV541nFwXZO3isLF+iKzxqmzD+K53iuqBRanlYZbtB6xaxPO+rzwvHe
-	 ZTZ01RLJV9XVHP5zSeLI2NYSygqCI+vIQRW1kYLxKMYw25lXZ4zePnyDDS3stU94YVA==
+	t=1793929780;
+	b=U8psex3SmxTYBemGB7/YIsdtTk7p4FrBn9JHiHYiWeLDAK93DoJh/C6YJoDLLUuq12vi
+	 uu/L5TLco4+6sVEaVNPmYhJS9bmh2fj6h+YVdMYKZZrXlvdKtb8s6X8U2XIlB/ByegjYJ
+	 c9YoyX4+zA8FlaZiyXiaO2kgeoT2Km06LySoiKJ40LeJLlG/a0l33kNHrmgH4fOsomw5D
+	 XROFKpOiE0A4Y6p6iR8sA0LUlD2eGfFfrtaUPwT07SIqjr2yANPvuTTab6KxBy/ZUkDmc
+	 vzdvOyWvji2FvTkaau8Mgnmtt5W6VCGPN923CHNh9ZR2oQv/5iOU2GDu1qq0czo6zAA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793923411;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=Fg1ahS80Ypguquz/bjrktsf7/I4p55tudPwBHjm0cAU=;
-	b=BZl4yvMZXgt4GeCc+ezTaJ9VPG0k6789RrUZ0cl+AQxrN8tyb7B0HP5RD7V0+b4scTwu
-	 VUjDLqvGibuU8hU+B0Qs1k/72DEip4MFgfKFSoZZ4ruBo24RFqN9VwD1Ays3tro3ByheA
-	 oAuyWD80QazrbKl6Chbpb22d/zuLkP2G1bPPKrH2uIrPlXLq3r5+E83OKVHByxVfpcyaG
-	 2w9tau+kVqwLv598DpvCHeXCNnTUqgw/d7C8b4Gi2NvIqaV3eqLYB6FnOQ/HbVwrEQW5S
-	 Q7324XGUtcGqk5hDWUU/+XK8SiVKrKKKiaNUWsv99yZWqdXFTmvZsLKgYuIF8cE0Peg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793929780;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=3wVPvgXMObIvEiKqVWoN+3DnMWZhPdBWHG1bhWGhuUQ=;
+	b=19oZ0+6pcxpgSMCrwUKNUeEfKHfs5vZ2+ThyYazHkRzEtPYyeBrrJ+TGRS07hyMSzo/m
+	 wIN3yab2nLL3qF1ZE5fAUkwUWUPxNLGgZ3Z0Li9iBlNaLK7074ltYy2QA9dNNOG62JRfj
+	 DT3fVvfq4GO21MVewNrvhYMUFoqDzs7umYcTlu9xzCNSs8Grqx86Cz121p4yL/xH9BFZS
+	 4kogCtH7zKtEBE++RUHuEnV303Gte3nIDgnzGGcl75lnoZk1JoNXxKN/1vSMOZ2WfuJ5l
+	 1aM5y/QCVJeeCU7nThhwTLSDGIIHYSdjsHLzyGgjQnO+R89fMTOHyiPqskBxlpKYLkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vbjosgl+;
-	arc=none smtp.remote-ip=95.215.58.252
-Received: from mta1.migadu.com (out-252.mta1.migadu.com [95.215.58.252])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=hkYXfZ3O;
+	arc=none smtp.remote-ip=115.124.28.149
+Received: from out28-149.mail.aliyun.com (out28-149.mail.aliyun.com [115.124.28.149])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A34606A31B
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 00:03:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B9A34606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B38EF606A32E;
+	Fri,  6 Nov 2026 01:49:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B38EF606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vbjosgl+
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=Fg1ahS80Ypguquz/bjrktsf7/I4p55tudPwBHjm0cAU=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793923406; v=1; x=1794528206;
- b=vbjosgl+dNptKED1W7jYGM5Yql2Zgf5LGH2qe7IATFLp0BQY24Xgjtl05GM/rZArI4APdifB
- d8b/O/vzyemoU2plTK8R58XJs+D6AoHiUFiz9Jr/oKUW0/961nC5wb7xSswVFv2NbsDpM4w8Ke1
- iV/YY0Yh7Tg5agXOosOHc1ig=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 67ccb14cf52d417d;
-	Fri, 06 Nov 2026 00:03:26 +0000
-X-Mizu-Trace-ID: 67ccb14cf52d417d
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <546fd97f-bbd6-4867-b86c-9a4a44ca44c6@linux.dev>
-Date: Fri, 6 Nov 2026 01:03:25 +0100
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=hkYXfZ3O
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1793929770; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=3wVPvgXMObIvEiKqVWoN+3DnMWZhPdBWHG1bhWGhuUQ=;
+	b=hkYXfZ3O2uKn/GBin3CGL5JYXX0AZzWwNy3viJuCsM2mRuV52T6+vvBlYtb1a6F+qHkenfd51TZXzuye0mZ6fdhpi19EfFH7zoWIRxwivTqE4d3lJZHmMSF+EmK+KlVanqQ6Lqq/VkB8ts1P/rvmBZevAnjNTtZQSKq5qCf4VjU=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.0840445|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00178982-0.000206233-0.998004;FP=17750681906991275378|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam011083032240;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jxs7sS._1793929769;
+Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jxs7sS._1793929769 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Fri, 06 Nov 2026 09:49:29 +0800
+From: Guanglei Zhu <zhugl3@xiaopeng.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	liuc63@xiaopeng.com,
+	stable@vger.kernel.org
+Subject: [PATCH v3] Input: lpc32xx-keys - reject matrices bigger than the hardware has
+Date: Fri,  6 Nov 2026 09:49:28 +0800
+Message-ID: <20261106014928.328020-1-zhugl3@xiaopeng.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <aurPvymSFACa_kXH@google.com>
+References: <aurPvymSFACa_kXH@google.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,71 +63,71 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/2] HID: flydigi: add support for vader 5 pro
-To: MIrian Shilakadze <mirian@msh.ge>, 'Jiri Kosina' <jikos@kernel.org>
-Cc: 'Benjamin Tissoires' <bentiss@kernel.org>,
- 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, "Derek J. Clark" <derekjohn.clark@gmail.com>
-References: <befcd715-ecc8-463d-9617-a269dc7c62cf@msh.ge>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <befcd715-ecc8-463d-9617-a269dc7c62cf@msh.ge>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+The scanner state array holds the last state of eight matrix
+columns, and the interrupt handler walks the matrix size that the
+device tree declared:
 
-On 11/6/26 00:51, MIrian Shilakadze wrote:
-> On 9/15/26 9:14 PM, Denis Benato wrote:
->> To make optimal use of this device the xpad driver should not
->> bind to the controller, and this is the case for more than just
->> this controller as Derek told me, so I added some basic infrastructure
->> to use the best available driver for the device.
-> Hi Denis,
-Hi Mirian,
+	u8 lastkeystates[8];
+	...
+	for (i = 0; i < kscandat->matrix_sz; i++)
+		lpc32xx_mod_states(kscandat, i);
 
-Thanks for your intrest!
-> I gave v5 a try with a Flydigi Apex 5 (37d7:2501, wired, firmware
-> 0x7045). It uses the same protocol as the Vader 5 Pro, as far as I can
-> tell. The difference I found is the report ID: 0x03 for output and 0x04
-> for input. SDL already handles this.
+The probe path only checks that rows and columns match; the
+hardware supports square matrices from 1x1 up to 8x8, but nothing
+stops a device tree from declaring more, which makes the state
+array index run past the field into the rest of the driver data -
+including the keymap pointer the same code dereferences.
 
-That's easy enough, we can do it.
+Reject matrices larger than the hardware supports.
 
-> One thing came up that probably affects the Vader too. The driver
-> ignores the third-party flag in the status reply (the "Allow third-party
-> apps to take over mappings" setting in Space Station). SDL checks it for
-> all V2 pads, the Vader 5 Pro included. On my Apex 5, with the flag off,
-> acquire is ACKed but no 0xef reports come and nothing tells the user
-> why. After setting it with 0x11 (ff ff ff ff 01), the stream starts and
-> M1-M4 work. It stays on after a USB replug. I tested this by hand over
-> hidraw.
->
-> Should the driver check the flag and warn or turn it on itself with 0x11?
+Fixes: 69690bec400e ("Input: add support for key scan interface of the LPC32xx SoC")
+Cc: stable@vger.kernel.org
+Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
+---
+v3: actually include the LPC32XX_MAX_MATRIX_SIZE definition that v2
+    referenced but forgot to add; compile-tested with
+    CONFIG_KEYBOARD_LPC32XX enabled.
 
-I think it should have a sysfs property allowing to change it and also set
-the most reasonable value at probe.
+ drivers/input/keyboard/lpc32xx-keys.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-> Supporting the Apex 5 looks small from what I have seen so far.
-> raw_event already skips the report ID. The descriptor check would need
-> to learn this layout (output ID 0x03), plus the ID in the hid and xpad
-> tables. Would you like that as part of this series or as a separate
-> patch later? I'm happy to write and test it.
+diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
+index 2392e7e..b3c1dc1 100644
+--- a/drivers/input/keyboard/lpc32xx-keys.c
++++ b/drivers/input/keyboard/lpc32xx-keys.c
+@@ -39,6 +39,8 @@
+ 
+ #define LPC32XX_KSCAN_DEB_NUM_DEB_PASS(n)	((n) & 0xFF)
+ 
++#define LPC32XX_MAX_MATRIX_SIZE		8
++
+ #define LPC32XX_KSCAN_SCOND_IN_IDLE		0x0
+ #define LPC32XX_KSCAN_SCOND_IN_SCANONCE		0x1
+ #define LPC32XX_KSCAN_SCOND_IN_IRQGEN		0x2
+@@ -65,7 +67,7 @@ struct lpc32xx_kscan_drv {
+ 	unsigned int row_shift;
+ 	unsigned short *keymap;	/* Pointer to key map for the scan matrix */
+ 
+-	u8 lastkeystates[8];
++	u8 lastkeystates[LPC32XX_MAX_MATRIX_SIZE];
+ };
+ 
+ static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int col)
+@@ -141,6 +143,12 @@ static int lpc32xx_parse_dt(struct device *dev,
+ 		dev_err(dev, "rows and columns must be equal!\n");
+ 		return -EINVAL;
+ 	}
++	if (rows > LPC32XX_MAX_MATRIX_SIZE) {
++		dev_err(dev, "rows and columns must be at most %d!\n",
++			LPC32XX_MAX_MATRIX_SIZE);
++		return -EINVAL;
++	}
++
+ 
+ 	kscandat->matrix_sz = rows;
+ 	kscandat->row_shift = get_count_order(columns);
+-- 
+2.43.0
 
-I have actually a better idea: the friend of mine with the actual hardware
-has discovered that a recent firmware update changed things and he
-tasked an llm to properly handle the apex 6.
-
-Since you two have the whole range of hardware and SDL has working
-code why don't you take over? It would surely be better than me making
-the bridge since you do own hardware and care about it.
-
-Let me know if you are interested and I will be more than happy to
-make that happen!
-
-Best regards,
-Denis
-
-> Thanks,
-> Mirian Shilakadze
->

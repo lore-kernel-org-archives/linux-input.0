@@ -1,99 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.41
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793952002;
-	b=Jr1qCEtIHI1SFxbCBcfuJivWlzkt/9l3XZDlPwweXWmteCHE5TfeK73gWv6yI6ijejQ0
-	 ZbLoZUDTnzuR86auFwPKSvRtBqVd5XUtUZ2reQmr1WKGNi2vF5Ghk2jPkzjjfBMRDwiWq
-	 XpyW2pKg74/lfTV86RjeSOxLzKNyO2frSHlR26gCWzu9RPUw/7ejunO0Nm1IUJlcruJm1
-	 7Bcg8e0nChJ3GYPjV7R/KUPX5xnxnMW80gIjRQhAlU/xv+GLZsWXs6J6LhGsgL1SlVKSE
-	 SNhNNvRw/yJi0yDIfTmycNxzi6O2AhxBrMx/XgASi5WjKUhnpb3c1oSrYVzJxYpe+Jw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793952002;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793954069;
+	b=pyuX0bF/nJsoXrqxMPW+PcX49RJAinihEEeSR7pNqYYNpz657LZvlUSGo7V5dSyrYVHS
+	 Xrzj8Jn7QcVnDQxuHFkOlQ5x4vcQh5keEZmIop/KfZU0exAa5cxu5rVdbCzPpYpAum9tm
+	 RU3EMBjbrMI0gDmDgrYbyEPMEaow23k4LjF7L3cY5q/McjwylET+DHNK1EGGKWdAxl2TU
+	 rTQRng5A71kdvayAYMpUmYzQlDKxtBXqThUgRFsQLs9yQ24DtaapaQjQloB89wCU3CDXT
+	 gpSEDSZUWIGvyKOpzMyUaIOSBQvbyQgdaFocVIPV6c62Cb7SrTFzkSEeEXh798ymf2A==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793954069;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=JL/ejsWQpZh4uIBI1fUZsT9Ty7diuDK7PLmVq35sQrc=;
-	b=CHRgpZYwayBCwGFOcV2v1+qzDvFp9dTy2nsuSFyh2u/emKdRpQ07YhlmZ7SdGbPYhm5c
-	 rfFUdIOaHnv/L5TKF+CGAXFG+I11RGxFZajLchswhR3vcPqgqOxROIcraWrvbJZLLH1GB
-	 U3aaduYQomDOJnRBIUKvdmmp6acBkjdKGoTyXlCTy6TcBSjQHV/WlxQt+JHEjrCWNm5AO
-	 7Aq4EMx2XZWTryTDRrURQJXIkG1haeh6RA3iCwWuPY2LVauR7oOWKTDEjIpkVQUT0dJsI
-	 vmer8fb6U3Nhi6gYHZXbTalYCydLBOx3G4VhAtzFO/j6mlDbPsPqTEsF+w1DBg3mUjA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=MXb7pO3sdUb2tVH9tQJHPvfD0PJ6M9Jq2AVgdOqIcF0=;
+	b=okYAryR+qmutc59+lTIJDIVmH5YrwMaSfyMcIwPImFna2NGbTKXOnpaGR5KSiudIkeSX
+	 huaFADhZQgu0ptR8o/jwYoB64kRTLkrH8TXpaCf3jg/Vfok2YbX4JqD4o8ZxwxRxq4G+k
+	 PzwDBhaVoDTd0kp9GjGwZDTZgtCmrVujmjizbhOfvKoQ9GpCociwao/hht1dEv50bwUo3
+	 H0V97C5iVL5rYR1MlpLFrZmFW7P5K4R5TyHz0Ehz+xDTwf3kcd7nvlvmWKXQBzj9aWvpm
+	 YfOg/zcRn3s5QwBpJSLH9U0VmD5+VQfDL1I19JFJDaiGfDgdlViKdyRcx0hfZ1yVNkA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NZn45ghf;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.41
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="AncYDq/M";
+	arc=none smtp.remote-ip=74.125.82.41
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA9B76083622
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 08:00:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DA9B76083622
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F60A606A328
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 08:34:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4F60A606A328
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NZn45ghf
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6b6e8b6d424so84666a12.0
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 00:00:01 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793952000; cv=none;
-        d=google.com; s=arc-20260327;
-        b=nJW7TkJgeDHp3IiokS1LnS1rncaDc7rsT7O+1PpS6faY3IcgyhCnbCfkt3tNvxRF0n
-         /yaaTUQG+u72JznlaLf0p27xDBbihP9KVEhyXKLaZokopYAleCnq1sdJJwPWv0cGqeYh
-         FUaPZAFVRLpu/OePpUhQGpzQ6x6NIxkrPTJMbnVsiNh3dPfUXCVPOC+JhLqlGP64hnxT
-         17x0Iix0ijyCMxi3wCtKVU8VsZg89MCL09M7P/8/NA9froWPp9jD2y/bQ1JtF1aGXQll
-         uN4+FiRL+sysGIO0Ao9MhSh5ZIBEsh+QcFBzc4qLF6yFX4p9i1yw6jJort6u+g1D+Ub/
-         S5MQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=JL/ejsWQpZh4uIBI1fUZsT9Ty7diuDK7PLmVq35sQrc=;
-        fh=B4VIZvnJfw439S0NhuHVIQcWolq4UPJbW14HcWlrSnI=;
-        b=NHqndnV8+1CEIgcbxJtLyimgJwP1KwK+grYRD0cIUEKYrvDAHHibDLAKqxthuHwBCH
-         FlT6lIyHDGsiDkBeqed6Uevvb0e/OvXtSNCz+/iLLvQQpIxuZ1CIChtPy2OxQh3Mf0sN
-         7vX07CqZJks5y/2LUlZr1NnsD9ywx/GTpIiAzZyHS1z6UEe7/EobTxScLOCcr5Cbe2Jt
-         qpRAlctAE5I0Xf1yb8qmxS4/Hjw2VxYnEMNiUG7GLfQhppPOqZe9zpTw//2o30UOvw9n
-         6T4/vGcWcEw7Ln2zEu2miEsSEWUv2yYvnsDCYMK3Y7IIrnnf7pIzZWkpY8FoACsRd9IN
-         HVZw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AncYDq/M
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-170135e43c7so773688c88.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 00:34:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793952000; x=1794556800; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=JL/ejsWQpZh4uIBI1fUZsT9Ty7diuDK7PLmVq35sQrc=;
-        b=NZn45ghfBG0ZvdDOyynp1nFEfObT1pcptC1zoQJVefkfah5Cvf4KhBdfAtP45zAtAQ
-         UULmHj0hEPtCZn15bvzalYNRj9fhdp3uyVdEClRuRLkVnpOfV9ppeglAAdfxPS28qNaw
-         O+q0E4sjEMKTMoFNcQUz67xVF3I/KdEzY8yg+Tpd2afhiQuFsmYUaFLtm5Ti/Cv1nQCD
-         bntrz8dBI8l+pN19cS/mEKfoLl4E98jrhkuxDF+X3o30Z7L31Q/ieTJQlTrfBLk9dFV/
-         5CptV3jFVboDZT6yTQgUn6wxAwHGSAsVVrnPYMvRpyNWRmRF2c+DpLESNG1RwdqVq9wY
-         I3nQ==
+        d=gmail.com; s=20260707; t=1793954067; x=1794558867; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=MXb7pO3sdUb2tVH9tQJHPvfD0PJ6M9Jq2AVgdOqIcF0=;
+        b=AncYDq/MLvihYjaq9mD3QHYPGHU0EM/d2UJGKvW3ulkmK8iDbOdFEuuTOGeZJIDwGR
+         zSsx+f16KNXCj+gTIcYkJ7ZXixdeclDdyGGKY+OktrTsUtM4a5aYco1ZAJfBAt9efoX8
+         qEGrIMgq7zTKUeRh9em8fGVq3MiQe61mXr05Y9IR9UFTU+aGc6zwv/SNYqgrDw7QdIae
+         UxPrMAP+Cse+pQy6QkLjIBWY8r9tdUbSYPrewWyoe0cgsf+xqtBx2phl5CsaLkBkL2uW
+         EbgKqUKEx/M2rsS+8gkyGbhzyv5DbHnNzr2/PnNmRxhd7C5l2iN99KujJa2yBwBp+AIb
+         9Bcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793952000; x=1794556800;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=JL/ejsWQpZh4uIBI1fUZsT9Ty7diuDK7PLmVq35sQrc=;
-        b=yvqjZvU0Oo60U2G/IMiBzuV5cWUCd/pMQRHUw1IAwgEdDBpMCmrW+KJ9r8WDLo5yJu
-         xyaHFVkPqAEvIm+ib+NrtmKXKTi+e4+imeRw8FJN6fxtqaJhQxIKGhulGtvg1fWkk1+l
-         DTH3hK0ZPOEQamTp0IEH84oPZfGA/AycESROFVUsFXj49+NGoTpykWG5q5gAIKVfRLPh
-         hGatm3iWm0TK67VJeerb05Uqlh+9s+i3Y+5GQX8sUjQXqbGiT4EQqqIBigOFbj1qo+/b
-         JMilUOsWsBbj004ejIgh3barYWokd0zvAwBsg0bt7qEhzKsdwDd3Ky7l4ISIW3YGZMPr
-         fV4Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxgfu81CNwb+SreWeJythia/et1ZwHoHtevqyGbIIYye6RMg+VrhcDOjM75e4++dAoHOOvM3jrmnDYdzQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9EzN+fjttWQBaykceLFYbGazAcjL0vI8zY14JMdrByXU+xwLu4
-	EsX7x5xsuHX9X9ISeV4PluKEbhqz7YTGt2yj2305a/OH40iIuWlXcmia8WDzwoLJ8kobKB1WQYC
-	Wa4DnPbaGKaRhe9rv9Voi95SQOrCpeJk=
-X-Gm-Gg: AYBFou37GS/BdB+kjKhWBxIPilzrAsNPiswXNid5VVJuycn5Y7zS9Vx6vyjdCgJiOjg
-	8kYKDYusu3CU6AKxw5nvtJJd0QsIQHWbWFxl/JOKBlC5oFoXiH0kowNxL1nQfcLfvxP2TxtQmRn
-	7xbsAlwNEMik4yuZmwHn68bP9qTq4oYHzp6YeHNP3LjU0G6Dni6Lr+QdOylVJ34CDqsMbxQ2woa
-	9B03jezarzM15XBq89zJ/JeNzQ/OHR17iVkHhgt9j0BNAkUZcMNUMrKxj7CI6wDBWmv6Rvq4kWf
-	RH/8JzekXlWjNw+rC79qOXTeDs94rOuzgVER8LkFDJ+3c6BTUmJPfbM1XIIoDzwatoOtN7bOV0J
-	P9t5R8is+efCFXbWW2AeHYXaNsbcsSYMZBQeWndF4FZGZvutnRtkAUvqk
-X-Received: by 2002:a05:6402:440b:b0:6b5:9849:e335 with SMTP id
- 4fb4d7f45d1cf-6b5985927b4mr1117288a12.1.1793952000065; Fri, 06 Nov 2026
- 00:00:00 -0800 (PST)
+        d=1e100.net; s=20260707; t=1793954067; x=1794558867;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=MXb7pO3sdUb2tVH9tQJHPvfD0PJ6M9Jq2AVgdOqIcF0=;
+        b=TSHNS29j7VXBIAI6RsqxIx+xRKwhGwEwvnWXpWeqJOp/UeuNP4c4FZwYNtUL1NgnE4
+         oxQpJN1k1tKA07ZcymyoVY7FaWiYZyYBV6Hw4YJ/qVa+N0ZvBYvsfk7EWIEyllE7Ce/e
+         CwtMRM+xaS28IBEEkH0PURZQtULPQdInVbku9kdnYkvqpNP1H1HbS/n0W6hlSlMeeoZy
+         owukDVi+oUAiYYwYgGAVvycjGfNSFrRzV0ZWiNfhNqlOMk8baY6uaYbOAZEnp++ucFkF
+         xrUbr1VnWGqg9oMpBGaW5dLP3nBzJUr43SBLCZD/mTkgSGamf+lagqSHNfXRSraHTJrh
+         pqwg==
+X-Gm-Message-State: APuU4Z8ImM3SsT5b3qCuQl//H0hy8rwIU1lui4dxELGWohowKnEdpKSt
+	UVjgvekEQl0zES4mPF5ENOd26jNpat0HIN3hwyLaU2iHYfX3slJ33PLG
+X-Gm-Gg: AYBFou0v25CFTpydMfoPWlT4SAIgjbVlIJdBkkLKC7u8QPY0ibYzx2jKgzvfEIfOzA0
+	tjub66dS9SnF+J4/Dl04BmrAy0DqxvZUYXiZHm463NwksmMIiEoP0R1xY4tomxV/MeSTBlsUAZK
+	EfHAC52xTsm7t7YgcCA4Cu6nY/ZFIWRAdgROGrUWKzJp56/Mms66V21GdXiwfXttQYWQhHEfm/y
+	5mALOxR6KiGGHjrVSEfsRMm0C+t21a1jppirtpeD+KUvPV9PaliZQiiuhGTfMqRwEtWR+LuZ8wv
+	6Bcg+VSqW2551MiXGBSBbltkN7i8YJtKObYswhXRlXn31ko+RGxVBwYpS0yP07h6GLnKilBZ+HZ
+	5a4h4vQs0OMlcVMOJ4FwmPM6OV5cLSOpEasD7GAiU6RaPhhYnWgClX8UVrPA7F2YkBQHMYo+7jf
+	Sxm02irMSC2gmXpZ+BluBcIJTuqYsqilyw6FlyN7bECr8RusefQOwOtDQgCdVJdT9qmzAhdhsM0
+	EZ1JT7bnjxbScloAt2+cI5TgxOQH/Yd/Nh6+vf3RtAQPL4vni9I8P1Fo8Lj88o/0oF6dbOc5WLH
+	L4u8nJSdOcD38EVskcPmxaH3a5KcfLOeU/QeNiNBZQfHQKIEPWF5HnTZdOlJb0zYURSYgfFZV6u
+	X//p0kdVAS9eD12UuLKeTJtoh3hw=
+X-Received: by 2002:a05:701b:2506:b0:195:e4b9:d326 with SMTP id a92af1059eb24-1b25d305837mr2299612c88.12.1793954067223;
+        Fri, 06 Nov 2026 00:34:27 -0800 (PST)
+Received: from localhost.localdomain ([2405:201:301c:f8cd:3827:c357:8cc4:f558])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36fa651eccdsm4594322eec.1.2026.11.06.00.34.24
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 06 Nov 2026 00:34:26 -0800 (PST)
+From: Aryan Sinha <sinha.aryan03@gmail.com>
+To: Nikolas Koesling <nikolas@koesling.info>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Aryan Sinha <sinha.aryan03@gmail.com>
+Subject: [PATCH v2] HID: pulsar: print errors with %pe
+Date: Fri,  6 Nov 2026 14:03:18 +0530
+Message-ID: <20261106083419.29334-1-sinha.aryan03@gmail.com>
+X-Mailer: git-send-email 2.46.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,35 +96,108 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261021105109.199886-1-l.scorcia@gmail.com> <20261103150936.GB792264@google.com>
-In-Reply-To: <20261103150936.GB792264@google.com>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Fri, 6 Nov 2026 08:59:48 +0100
-X-Gm-Features: AclHuK_yxwIK0Nk7bFmyEO_n6HuxXT4AJJgazikzKXrXwadabrKuwJfTV_QGR20
-Message-ID: <CAORyz2J_J0dYtg2BMKq9cuzo7U0j-cMQoFXn+2pOTztHz8dS-g@mail.gmail.com>
-Subject: Re: [PATCH v11 0/9] Add support for MT6392 PMIC
-To: Lee Jones <lee@kernel.org>
-Cc: linux-mediatek@lists.infradead.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
-	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>, Fabien Parent <parent.f@gmail.com>, 
-	Akari Tsuyukusa <akkun11.open@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-> How many more Acks do you need now?
+%pe prints the symbolic errno, which is easier to read in a log than the
+raw number. Convert every print in the driver that logs an errno so they
+all report the same way.
 
-Still missing acks for the regulator and pinctrl device. Yesterday I
-sent v12 of the series [1], rebased on v7.1-rc4.
-Thank you
+The prints that log data bytes, battery readings or a byte count are left
+on %d, those are not error values.
 
-[1] https://lore.kernel.org/linux-mediatek/20261105194426.1113050-1-l.scorcia@gmail.com/
---
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
+v2:
+  - convert the remaining errno prints too, not just the battery one
+
+Signed-off-by: Aryan Sinha <sinha.aryan03@gmail.com>
+---
+v2:
+  - convert the remaining errno prints too, not just the battery one
+v1: https://lore.kernel.org/all/20261104150055.33028-1-sinha.aryan03@gmail.com/
+ drivers/hid/hid-pulsar.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
+index b0b34849f..495ce3b5c 100644
+--- a/drivers/hid/hid-pulsar.c
++++ b/drivers/hid/hid-pulsar.c
+@@ -162,8 +162,8 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
+ 		spin_lock_irqsave(&drvdata->raw_event_lock, flags);
+ 		drvdata->pending_event = CMD_NONE;
+ 		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
+-		hid_err(hdev, "failed to send command 0x%02x: %d\n",
+-			payload[1], ret);
++		hid_err(hdev, "failed to send command 0x%02x: %pe\n",
++			payload[1], ERR_PTR(ret));
+ 		goto out;
+ 	}
+ 
+@@ -295,8 +295,8 @@ static int read_power(struct pulsar_data *drvdata)
+ 		if (status < 0) {
+ 			ret = status;
+ 			hid_err(drvdata->hdev,
+-				"%s: failed to read status: %d\n",
+-				__func__, ret);
++				"%s: failed to read status: %pe\n",
++				__func__, ERR_PTR(ret));
+ 			goto unlock;
+ 		}
+ 
+@@ -320,8 +320,8 @@ static int read_power(struct pulsar_data *drvdata)
+ 
+ 	ret = exec_cmd(drvdata, payload, response, CMD_TIMEOUT_MSEC);
+ 	if (ret < 0) {
+-		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
+-			__func__, ret);
++		hid_err(drvdata->hdev, "%s: failed to read power: %pe\n",
++			__func__, ERR_PTR(ret));
+ 		goto unlock;
+ 	}
+ 
+@@ -411,8 +411,8 @@ static void power_uevent_work_handler(struct work_struct *work)
+ 
+ 	ret = read_power(drvdata);
+ 	if (ret < 0) {
+-		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
+-			__func__, ret);
++		hid_err(drvdata->hdev, "%s: failed to read power: %pe\n",
++			__func__, ERR_PTR(ret));
+ 		return;
+ 	}
+ 
+@@ -584,10 +584,11 @@ static void pulsar_init_work(struct work_struct *work)
+ 	}
+ 	if (ret < 0) {
+ 		if (drvdata->type == TYPE_PULSAR) {
+-			hid_err(hdev, "failed to read device info: %d\n", ret);
++			hid_err(hdev, "failed to read device info: %pe\n",
++				ERR_PTR(ret));
+ 			return;
+ 		}
+-		hid_dbg(hdev, "failed to read device info: %d\n", ret);
++		hid_dbg(hdev, "failed to read device info: %pe\n", ERR_PTR(ret));
+ 		snprintf(drvdata->battery.model,
+ 			 sizeof(drvdata->battery.model), "%s", hdev->name);
+ 		goto register_battery;
+@@ -615,8 +616,8 @@ static void pulsar_init_work(struct work_struct *work)
+ 	    devm_power_supply_register(&hdev->dev, &drvdata->battery.desc,
+ 				       &psy_cfg);
+ 	if (IS_ERR(drvdata->battery.ps)) {
+-		hid_err(hdev, "failed to register battery: %ld\n",
+-			PTR_ERR(drvdata->battery.ps));
++		hid_err(hdev, "failed to register battery: %pe\n",
++			drvdata->battery.ps);
+ 		drvdata->battery.ps = NULL;
+ 		return;
+ 	}
+@@ -639,7 +640,7 @@ static int pulsar_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret < 0) {
+-		hid_err(hdev, "hid_parse failed: %d\n", ret);
++		hid_err(hdev, "hid_parse failed: %pe\n", ERR_PTR(ret));
+ 		return ret;
+ 	}
+ 
+-- 
+2.46.0
+

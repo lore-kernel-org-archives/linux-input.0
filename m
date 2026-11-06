@@ -1,57 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794000483;
-	b=zUoKuxAO5v55wcgI52KVveP8AkPguYgjunJVLlqTZ7Bl+saZVGxsnD2xK/fae72zFmsT
-	 imAIbm3lDWE3AqjCpupf81osMYiTjx8fRvyH3N0mCAaRNn+0PLWJ5Xz1np5C146eP3Bgk
-	 PhJEfqM/PmeXytcDHZD3BkVZtuVQH2/39kGHNKaiY2Nv0BJOfp4NoDpX3g9Be8P4tPLRj
-	 CoUHxSdyRtMX8d3IGZlh4rjc59TL7+l6PQ4pfT/tJ2ADFfJYT4Lxc26NDwrnAxCeN0qN/
-	 0r60z/H6nXCRt6wGf8wIO1tmX7gmWBlsDNKHnANKDqWudHK/Mzz796Znzi2YMKby67g==
+	t=1794000940;
+	b=DdWWPU/vYGDoTlSImuL9rwQ5tCxvKNQQaYrdxNuvgZC4BoChUtxHYfy375YY1RJUiPJN
+	 e8QEAgdnabgkcnZ88kXQdSHwWB5MdlTyT2JCdkwT9Tj6fURWWQ1SLoO6dZahHa3NLwMvO
+	 sIoPNfK/6bXov+47nTlVRNUaiWtpmsPpZPWF4Ffry5fqjjnFXvdP86sz4a+YTHHS9eRze
+	 Qseay7ZJ92/nil3jSwQEfW//ri8ut9XeGzdOTjIatgNSP/p6/5JMehxpdQ7VhqcJi0DWd
+	 LPh7qFH0nhMpLxg2inXxeAfKzli8+yboAaIOkuVgEGsLwK37I4vyfBY28r7YDqUbm2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794000483;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0cps4azkeQeAAjt2CPfu8ck4GXrd0/o1W+lmQpN8b+U=;
-	b=TZb3InPIs56xWewDKv0rhOAsBhO+HmI+OKFN1ZTHRiQYfimiCpTSrS23b2RwHUx272NR
-	 ST6Yz41DFVox4RkSLsrR2SuRURu7ooZmhbCctdBH30fXIh/jt6CBxttlHl48m2LhuyLn5
-	 F2oAFhSiLuuqruDgG+NsISiFmMeCqCLJuHAastqRC7K+uhI8sZYVMe1CxGFcKasQs0dHt
-	 eOD96JTAkpMU1f6wKBkKPbdudXNMELGBHwdrlsGLiOa4NE41WHf2cu51HlrL5IEwvO70u
-	 WcDhkzz9cH5IuC5h/sPFJJQa7DP2/7kwobtY79nf7a8iehGimiE+n87pCetKDWQ0E3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794000940;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=wdxh+aljoFBv60+IjwtRPv+nHnuCCpie0lKl0KHTOho=;
+	b=dgslKjzJVIDQd6eyVCzDNjUKD/jPP8PHw98OLm47zLm/FA+cHCmHlw968/nVLeF3ZKmy
+	 EiFn6tPK/yQCoj0R5WbNFhcuaJKpno2XNrPYBbMP3NzZRG7iehSJnMGh+8avq4lr2PBxr
+	 f2nS6AxlwkVJwMmSDu14gcHypWzzNB4lTeAUSlsQO/bLGYkkcnPCFxnJuAQVgugOGKMMz
+	 bAnNW16V1zF0xojBaFiDBozMsVqB4rne0W8BFZINOVDQ5IGpcAPrP/NvH5MyDxNS3Hvd/
+	 l6DrAS70tlVtZGZM/7d5uMRF2WULIiyXoCqViTXgqIVNNuEYXarEhrsJcfzd9zxgiGA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VoBzNxJj;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gbjcMn5a;
+	arc=none smtp.remote-ip=209.85.208.43
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA0AC606A326
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 21:28:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8707B606A32F
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 21:35:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8707B606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VoBzNxJj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E2101F0089F;
-	Fri,  6 Nov 2026 21:28:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794000482;
-	bh=0cps4azkeQeAAjt2CPfu8ck4GXrd0/o1W+lmQpN8b+U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VoBzNxJjhjeOcKYxoVC9MgBmlT/jUOBzWXLqJ4LN/kk41PTpDDadE0EYZ8Q9jwU1U
-	 ZOzK5wb1zAEsy3abDAo95UXZPLMk5U6O9GT5OF/bN1l0Qy1LJBwThiM2ru4+XlgK25
-	 EvsNA9QAmGr7N07PvvWRvZukw98gTf+qOwMRs1NSyZr9abWWIVGqEfQft5u8JW4vtA
-	 OAvVHeFjwHQuYXu5O+uCMZWr/U6kJKuyFZ6mETp0JzDy+z2PMqYYFSfK9DQ4ZnJLB5
-	 3P8UPqvkEj8cvSn8vz6/TbV0vEFKLCXZPmgtZ2TV1bLYCY0S71+Yy65JltBV+1CkiS
-	 pb4R0OnB8E8rg==
-Message-ID: <sashiko-outbox-202296@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] rust: serio: add serio bus abstractions and port
- Gravis Stinger driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: clicedvly768 <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261106211034.401918-3-harepro29@gmail.com>
-References: <20261106211034.401918-1-harepro29@gmail.com>
- <20261106211034.401918-3-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 21:28:01 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gbjcMn5a
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6b203527bceso1555021a12.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 13:35:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794000939; x=1794605739; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=wdxh+aljoFBv60+IjwtRPv+nHnuCCpie0lKl0KHTOho=;
+        b=gbjcMn5aR2wOI66yF8d+3Zdznq6J+xtRck++4A5CylDDKDYFMD1vrtwMjIXwoAMRPV
+         7PSHfZM7laJuwt7BTSoG4hK5GtRYoreSBHXcWlz8iwKL/r7Uu52MnMXY3DFwfYz+++Zb
+         xgBq+ZQsYZUR450/S94cTt7zKKlZbmAuz8ffMA5RvOpGAPScO3qXhpXLZooh95yq6sRw
+         CKM1ybYpMYJP4N8QJT7zS18I8LJMfLiDRTnzEleICPtfBaLVxPkdOg2xUlN0nmcbVuzV
+         LIkQI+4Jx5bN2tiTuxUIc4VXa7Qb/xXrc/1xZV7Z+uqC1wAR/YcHSEwrmqdw+mSA8qEy
+         7laQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794000939; x=1794605739;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wdxh+aljoFBv60+IjwtRPv+nHnuCCpie0lKl0KHTOho=;
+        b=eMTnMNgblrWplQX7kjysGPKQ2JTKGyZUhj5PtDLSZXFRDoY9oQyP4+7WNkVL6qaEDV
+         VMbM/+PMp2xkDXd13luwV2P1S3R8+U5uc61hwVjuzsPLutM5BqRyu374joaJdDJs6yHw
+         8Hw9QsFJdr/AcWOOw8r23kb2SiXMkw7BMq8un/EWcAGlJIcUz8sl4EDEYfb3PYtdZ5G8
+         abzqYBYLUPq3d8eFrJl6v6nZBJxkFFPq9djHDDQ2cHfL9yH2YIqCS+e96Yi4rgC54VgF
+         Sb1lfkk+wxSeTrmTLEGuFxT57sbibVZebtCW9ylyRERYyEO9C7Y3nwHw2NcoSSohY0UV
+         15Pg==
+X-Forwarded-Encrypted: i=1; AL+hErGlfP47zToWzgJm3VOkcE/mj7ymoHXQPfuntX9UlKmlWUzqobmkuQFlJxLzYQwAsYRVZJOoD2zpfTT8CQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/dWlt6XuibZzvJFtQWnxDO1l1X2a/rAdmUTkH8yq2/Zb7Znxlx
+	uAq4CM8LSN4sVipkqprlygCH67hoXpqRrp9H8hy3r1N7jHOyxRpdolj7
+X-Gm-Gg: AYBFou27DZum0og4yV3GeL6YO/IOqHEeDaKbubGW5hPcrpjq4vwzK3FqTqdbFKi+hGO
+	dM77GF4iNJYSr2BtGkGVjGvcRNko+YPwrCfrf8H+DlksiKn+u+gz2HNlf2CMr/esWQBDLtQSRfB
+	Cc8gqgxFRHIw3WgROH7kqQQ+4NvL1CB+yipkqGM540ZvtLJZcHpcki8/ezfGIlwe5Ifdb0NQJUn
+	L9hrLXD2g3OyFAW3JJuiNuMhYE5XCwd6gex81cFf83Qnz0MjpwwfAVpDSldssR4jhqzbWSQizse
+	oVwFW/AcrMYDo/MoqBAkL1t1rV35Xlzu6iCQedBeB7rfCuM6lA4d2oyGNiZyz0pUTF6ZR/s4Gjc
+	PNKaggFz6OybyZi/Fh2tJ3kJe9XzYo1YgMngIU5p/lsly35dGGpXgqBus47nGeLfSP9ffloD6/t
+	OiJfTZ2Kzq4RPay9ZtAILtMpEg4vJ13nDq8z8Vtktupmkf7dn34winkN3IkLJJ7rs2MopyUNw3J
+	YRUJINLWXd0Xu0bqV6Eozw/TOiIyU+JXy9ksUx4GYRl/yi2LV2IvOU6FgqQYiIl8rtQxvs4nR4O
+	z4DDiU0bxY5BOAvSIsxPKA==
+X-Received: by 2002:a05:6402:28cc:b0:6b4:5a98:2628 with SMTP id 4fb4d7f45d1cf-6b5977d5c9bmr2608295a12.23.1794000938821;
+        Fri, 06 Nov 2026 13:35:38 -0800 (PST)
+Received: from beelink ([186.247.78.219])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b664ad2cd6sm1118836a12.7.2026.11.06.13.35.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 13:35:36 -0800 (PST)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v3] HID: wacom: validate battery range before scaling
+Date: Fri,  6 Nov 2026 18:35:26 -0300
+Message-ID: <20261106213526.3393779-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <CANRwn3Tt0VguzG=_azEZAP8vfxr0BbyWj=Nu-R3a0TA1nNGqog@mail.gmail.com>
+References: <CANRwn3Tt0VguzG=_azEZAP8vfxr0BbyWj=Nu-R3a0TA1nNGqog@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,207 +101,78 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issues to consider:
-- [High] Input: joystick - unintended removal of analog.o and db9.o from
-  Makefile
-- [High] rust: serio: concurrent borrow_mut() and data race between
-  start() and interrupt()
-- [Medium] rust: serio: non-existent bindings::irqreturn::IRQ_* paths in
-  interrupt_callback()
-- [Low] rust: serio: non-vertical import style in serio.rs and
-  stinger_rust.rs
-- [Low] rust: serio: missing #[inline] on Registration::drop() and
-  Driver defaults
---
+Battery events divide by the difference between the logical maximum
+and minimum without validating the range.  A malformed HID descriptor
+with equal limits can therefore trigger a divide-by-zero exception.
 
-commit 26aa0ef3bea4ec16308e3ef9c8b5857b4bc682ad
-Author: clicedvly768 <harepro29@gmail.com>
+Move percentage conversion to a helper that rejects non-positive
+ranges and accounts for a nonzero logical minimum.  Clamp the result
+to [0, 100] so that hardware whose ADC occasionally reports slightly
+beyond its declared limits still registers its battery and updates
+capacity normally.
 
-rust: serio: add serio bus abstractions and port Gravis Stinger driver
+Fixes: 37d160193834 ("HID: wacom: generic: Scale battery capacity measurements to percentages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
 
-This commit adds Rust abstractions for the serio bus subsystem and ports
-the Gravis Stinger serial gamepad driver to Rust.
+Thanks for the feedback, Jason -- you are right, the s64 stuff was
+overkill here.  Much simpler this way.
 
-> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Mak=
-efile
-> index 9976f596a9208..31e23236ff91a 100644
-> --- a/drivers/input/joystick/Makefile
-> +++ b/drivers/input/joystick/Makefile
-> @@ -10,9 +10,7 @@ obj-$(CONFIG_JOYSTICK_ADC)		+=3D adc-joystick.o
->  obj-$(CONFIG_JOYSTICK_ADI)		+=3D adi.o
->  obj-$(CONFIG_JOYSTICK_AMIGA)		+=3D amijoy.o
->  obj-$(CONFIG_JOYSTICK_AS5011)		+=3D as5011.o
-> -obj-$(CONFIG_JOYSTICK_ANALOG)		+=3D analog.o
->  obj-$(CONFIG_JOYSTICK_COBRA)		+=3D cobra.o
-> -obj-$(CONFIG_JOYSTICK_DB9)		+=3D db9.o
->  obj-$(CONFIG_JOYSTICK_FSIA6B)		+=3D fsia6b.o
+Changes in v3:
+- Drop s64 widening and div64_s64 as requested by Jason Gerecke.
+  Use __s32 range with a <= 0 guard instead. Keep the clamping.
 
-[Severity: High]
-Were the build rules for analog.o and db9.o removed by mistake? Dropping
-these lines causes builds with CONFIG_JOYSTICK_ANALOG or
-CONFIG_JOYSTICK_DB9 enabled to stop compiling both drivers.
+Changes in v2:
+- Clamp the computed percentage to [0, 100] instead of returning
+  false, so that slightly out-of-range ADC values do not prevent
+  battery registration or silently drop updates.
 
-[ ... ]
+ drivers/hid/wacom_wac.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
-> new file mode 100644
-> index 0000000000000..bd3fae462bb53
-> --- /dev/null
-> +++ b/rust/kernel/serio.rs
-> @@ -0,0 +1,301 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +//! Serio (Serial I/O) bus abstractions for safe Rust drivers.
-> +//!
-> +//! Provides a safe Rust interface for serio devices and drivers in the =
-Linux kernel,
-> +//! supporting input devices such as serial gamepads (e.g. Gravis Stinge=
-r), mice, and keyboards.
-> +
-> +use crate::{
-> +    bindings, device,
-> +    device_id::{IdTable as GenericIdTable, RawDeviceId},
-> +    error::{to_result, Result},
-> +    ffi::{c_int, c_uchar, c_uint},
-> +    prelude::*,
-> +    types::{ForeignOwnable, Opaque},
-> +    ThisModule,
-> +};
-> +use core::{marker::PhantomData, pin::Pin};
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 361738b..36bab07 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1960,6 +1960,16 @@ static void wacom_wac_battery_usage_mapping(struct hid_device *hdev,
+ 	return;
+ }
+ 
++static __s32 wacom_wac_battery_percentage(struct hid_field *field, __s32 value)
++{
++	__s32 range = field->logical_maximum - field->logical_minimum;
++
++	if (range <= 0)
++		return 0;
++
++	return clamp_val((value - field->logical_minimum) * 100 / range, 0, 100);
++}
++
+ static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+@@ -1973,7 +1983,7 @@ static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_field *f
+ 			wacom_wac->hid_data.bat_status = POWER_SUPPLY_STATUS_UNKNOWN;
+ 		}
+ 		else {
+-			value = value * 100 / (field->logical_maximum - field->logical_minimum);
++			value = wacom_wac_battery_percentage(field, value);
+ 			wacom_wac->hid_data.battery_capacity = value;
+ 			wacom_wac->hid_data.bat_connected = 1;
+ 			wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
+@@ -1981,7 +1991,7 @@ static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_field *f
+ 		wacom_wac->features.quirks |= WACOM_QUIRK_BATTERY;
+ 		break;
+ 	case WACOM_HID_WD_BATTERY_LEVEL:
+-		value = value * 100 / (field->logical_maximum - field->logical_minimum);
++		value = wacom_wac_battery_percentage(field, value);
+ 		wacom_wac->hid_data.battery_capacity = value;
+ 		wacom_wac->hid_data.bat_connected = 1;
+ 		wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
+-- 
+2.53.0
 
-[Severity: Low]
-This isn't a bug, but the imports here and in
-drivers/input/joystick/stinger_rust.rs group multiple items on a single
-line instead of using the kernel Rust vertical import style with one item
-per line and a trailing // comment.
-
-[ ... ]
-
-> +        // 3. Open serio port.
-> +        // SAFETY: `serio` and `drv` are valid non-null pointers provide=
-d by the kernel.
-> +        let ret =3D unsafe { bindings::serio_open(serio, drv) };
-> +        if ret !=3D 0 {
-> +            // SAFETY: Clean up drvdata if open failed.
-> +            unsafe {
-> +                bindings::serio_set_drvdata(serio, core::ptr::null_mut()=
-);
-> +                let data =3D <T::Data as ForeignOwnable>::from_foreign(r=
-aw_data);
-> +                T::disconnect(data);
-> +            }
-> +            return ret;
-> +        }
-> +
-> +        // 4. Start driver and publish devices now that port is open and=
- interrupts are active.
-> +        // SAFETY: `raw_data` was created via `into_foreign()` above and=
- remains valid.
-> +        let mut borrowed =3D unsafe { <T::Data as ForeignOwnable>::borro=
-w_mut(raw_data) };
-> +        if let Err(e) =3D T::start(&mut borrowed) {
-> +            // SAFETY: Close port and clean up on start failure.
-> +            unsafe {
-> +                bindings::serio_close(serio);
-> +                bindings::serio_set_drvdata(serio, core::ptr::null_mut()=
-);
-> +                let data =3D <T::Data as ForeignOwnable>::from_foreign(r=
-aw_data);
-> +                T::disconnect(data);
-> +            }
-> +            return e.to_errno();
-> +        }
-> +
-> +        0
-> +    }
-> +
-> +    /// # Safety
-> +    ///
-> +    /// Must only be invoked by the serio subsystem during an interrupt =
-on a connected port.
-> +    /// `serio` must be a valid pointer.
-> +    unsafe extern "C" fn interrupt_callback(
-> +        serio: *mut bindings::serio,
-> +        data: c_uchar,
-> +        flags: c_uint,
-> +    ) -> bindings::irqreturn_t {
-> +        // SAFETY: `serio` is valid.
-> +        let raw =3D unsafe { bindings::serio_get_drvdata(serio) };
-> +        if raw.is_null() {
-> +            return bindings::irqreturn::IRQ_NONE;
-> +        }
-> +
-> +        // SAFETY: `raw` was created via `into_foreign()` in `connect_ca=
-llback`.
-> +        let mut borrowed =3D unsafe { <T::Data as ForeignOwnable>::borro=
-w_mut(raw) };
-> +        let ret =3D T::interrupt(&mut borrowed, data, flags);
-
-[Severity: High]
-Can Registration::interrupt_callback() and Registration::connect_callback()
-call ForeignOwnable::borrow_mut() on raw_data at the same time?
-
-Once bindings::serio_open() returns in connect_callback(), port interrupts
-are enabled while connect_callback() runs T::start(&mut borrowed) in
-process context without holding serio->lock:
-
-CPU0                                  CPU1 (<hardirq>)
-Registration::connect_callback()
-  bindings::serio_open(serio, drv)
-  ForeignOwnable::borrow_mut(raw_data)
-  StingerDriver::start(&mut borrowed)
-    alloc.register()
-                                      Registration::interrupt_callback()
-                                        ForeignOwnable::borrow_mut(raw)
-                                        StingerDriver::interrupt()
-                                          stinger.process_packet()
-                                            self.input.as_ref()
-    stinger.input =3D Some(...)  <-- aliasing &mut / data race
-
-This creates two concurrent mutable references to Stinger (undefined
-behavior in Rust) and races the unsynchronized write to stinger.input in
-StingerDriver::start() against reads of self.input in
-Stinger::process_packet(), allowing a torn read of RegisteredDevice.
-
-In addition, on the T::start() error path,
-ForeignOwnable::from_foreign(raw_data) is called while borrowed is still
-in scope, violating the ForeignOwnable::borrow_mut() safety requirement
-that all borrows end before from_foreign() is called.
-
-> +        match ret {
-> +            IrqReturn::None =3D> bindings::irqreturn::IRQ_NONE,
-> +            IrqReturn::Handled =3D> bindings::irqreturn::IRQ_HANDLED,
-> +        }
-> +    }
-
-[Severity: Medium]
-Does bindings::irqreturn::IRQ_NONE compile when CONFIG_SERIO=3Dy is enabled?
-Bindgen generates bindings::irqreturn as a type alias for c_uint and
-emits top-level constants bindings::irqreturn_IRQ_NONE and
-bindings::irqreturn_IRQ_HANDLED (as used in rust/kernel/irq/request.rs),
-so referencing associated constants on bindings::irqreturn fails to
-build.
-
-[ ... ]
-
-> +impl<T: Driver> Drop for Registration<T> {
-> +    fn drop(&mut self) {
-> +        // SAFETY: Unregister driver with kernel. `self.drv` is valid an=
-d registered.
-> +        unsafe {
-> +            bindings::serio_unregister_driver(self.drv.get());
-> +        }
-> +    }
-> +}
-
-[Severity: Low]
-Should Registration::drop() and the default methods Driver::start() and
-Driver::disconnect() be marked #[inline]? In the kernel crate, small
-functions and functions that forward directly to a C binding call are
-annotated with #[inline].
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106211034.4019=
-18-1-harepro29@gmail.com?part=3D2

@@ -1,56 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.137
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793976709;
-	b=Gd5dLWutlA5cSBFWI1FpwqPL8oo1PTzT5R75tNNAhKLjAr296NgrmW5ytkm4BJQlJbig
-	 uiFerdher9K0EBp/+T8cnAmpz7ebNmYK0V+xlrHwru/+CSGRzOtNtdDoa65wDUlNd79ki
-	 +1dQuXL4mgznF68Vz1WIgPJ972mjEUmsSFnlgIhsUCKO/tyWwzK2IubgNYYYn7Ci6fnYT
-	 qkeGoQr32Wm9B7arPwvrt4t/1903TGNHLzm4rsXLMIcsC0x7NtR37OKjiis0c2fv/6uXh
-	 MGUKo+ZxTDCajWsL9OZcSjhp6QPF0vXM3854B6dCMg/TUccAglj38Y7FJSQEFMHDCRA==
+	t=1793979594;
+	b=l3DjC6kQZssuehf2cLT+a5CqmCqFY10Pc9Po+40F7kEE1IF771iQX5PC4u63c8XUSAa0
+	 yp6OOy+Ikw+qSYq7AoxT/NA5l4rwr5g9MhLhXxdvA/mfTdN3kC7s9BZiMeZK1I3Br2RRy
+	 ApCfJVzqfz4wzTlJZ1qCc1zsKjLP19tRMZGHP0QUer0uQTpCUBXPi6YtRrdtek3HvNqkd
+	 nnlOobtTgS9gVjIR+bH4KfFhphDYLvmY8hxp6g6Mp/WOn+vJo2v/98huA8g4v7HGV/IKH
+	 xdbNEvLCt2gFf5zD02ZD29cZwQkALP5JwHAr6dEW+K/TFNfScbj6zyVD1jUtl4Qg/9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793976709;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HSabH8l+HxqXtjZszEgQDErZ45j79Lt8wkMPSeieqbE=;
-	b=Az2TzazK0yCWTwDM6+CAcgP266TvXxqLJjPONJ9yzpt5THehj/2OJ+qcyO3Dg1hJaK/o
-	 a7MU7DJXnUJSdXHUnPzeffo4DbW7Xp4pqY80npGOVJ1X9tmOBTLcYOS11wrLMhFYnAFDk
-	 9gr0crI3ErZXTKy88tgJEdGPVYvyD+GRwY/FTQfBiyy3noQlu2rVFFjSu1LlB/oZw62XM
-	 8B9YXY9vjRqxuy8EbCMGqb/OEVC+Pf1qbQbsDVoXuTZ3/tmvfh1OW2mh/uDQ1Xlhs6Ht8
-	 gDZW6B+3QENoKLF8H9ykJQTtbCZEGifrTe5Cn4VtQNjizalCcyeTQumTysutv6VHtVw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793979594;
+	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=72dhPHd4WBhPIQghSIWyyc2JN2E4/ifchxxNZweNup8=;
+	b=g+FWobH2SDiqxWuUwbMgNrMZnvwSS60Y6ePDaCqSS9LdYRUwZj/WZ5AtUlKtiaKtTefA
+	 UjMgeZrVDQX1xAr9mRpm20Ke0UVn3EaFLYKDA6gtRK7Xe0l0dIVAVtuKp2T9tIlr5Rrih
+	 iD9GADtJenwnRWrubAc6mTKtjBXyRMsgWZEeJi1wQvMy6x1m17krqMD4/H7oxpa3n7ALm
+	 esdv5g+PsdCZ0Ci3BG6vqNiIMrtHz4Tbx21jl2iRII66vtIHa527FCI0aQmQWmWlE2uAg
+	 OMpnjbrvYthIrkCjlBvCogcT3nDohjyd5cV7RvspTbOGYQTKfQ9SXg8lzTpjACt/bsA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eqTT7Jtw;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=foxmail.com;
+	spf=pass smtp.mailfrom=foxmail.com;
+	dkim=pass header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=IPWinYrl;
+	arc=none smtp.remote-ip=162.62.57.137
+Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C2D2606A326
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:51:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA554606A326;
+	Fri,  6 Nov 2026 15:39:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA554606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eqTT7Jtw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E31FD1F008A5;
-	Fri,  6 Nov 2026 14:51:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793976709;
-	bh=HSabH8l+HxqXtjZszEgQDErZ45j79Lt8wkMPSeieqbE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eqTT7JtwcUIK6s03nG0WSjURpgHpsm8FbFumzg5/XGxOXrdKsTwC8ynIwN7sZOvET
-	 YyTWGrna9MB87y3Qn50G1PwGNdOc/N9RqkocjCgzmdj3tl+XV8aMuiovpelMPuPh81
-	 NaLPZPILpI38BsJZBEn3EHEFjkaI9GJm89sOlKcnSxXLzFkJ6paXdgq7WYFs+JRrFy
-	 bCTTogFpkH1tZRsK+djzvf7jWWASfUyHxLai7pZh4/y62sLZQs4rD/81IP1HQIVNU8
-	 zYz+UDTTShm1fkRMTPBBFgzZn9EOWPRIBdPviVFepLgndeq6H2+w360MBGmB45gzR6
-	 UFgOKQln4ZIsA==
-Message-ID: <sashiko-outbox-201620@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v14 02/18] HID: asus: add support for ROG Ally handhelds
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261106142334.1881-3-denis.benato@linux.dev>
-References: <20261106142334.1881-1-denis.benato@linux.dev>
- <20261106142334.1881-3-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 14:51:48 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=IPWinYrl
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1793979586;
+	bh=72dhPHd4WBhPIQghSIWyyc2JN2E4/ifchxxNZweNup8=;
+	h=From:To:Cc:Subject:Date;
+	b=IPWinYrlfsip2SQCRzp7kMuxsy/SA1Ufj6+L2RWgri0R1G0ZiJrxvXkMjgf/vzReD
+	 k0K2D4vkbZWerAXVPnCje3wJo2xlTup8+3hkitBknne7Xg467EhX09gYPOqh4DMkSB
+	 XRvlpKZmnaYWs0ScR9SDAOJAKD+m78Xgsy631h+c=
+Received: from KernelDevBox.byted.org ([240e:83:200::a6])
+	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
+	id 9EA9A806; Fri, 06 Nov 2026 23:39:42 +0800
+X-QQ-mid: xmsmtpt1793979582tv4o5erxa
+Message-ID: <tencent_C156772B062CD403424112354682F1E6B805@qq.com>
+X-QQ-XMAILINFO: NHTNowOA4hJd7B15tE22RqWdK0w43iQEgOXuLtQP1vQrMao0FsnDgqKzSA5A1h
+	 MelHTD29NBjddhm6NgMjKa9Uq1efYOe3SSgIvvrQ3U0ekaiI15PduQMe0VKjH9dPdEuN3XyvP5Y1
+	 ZtS0bCHi6t5zI5i76z/KYrukLKcCic/C1MLzdMilHvzeoEv41qOnzULzZygbvEg556V/5GdhVBCJ
+	 EvosULC9w8/CArdv+L+XKXkSG0yTxVifhyHDL4Kp90FlARVC0KhuHcdCqhGJR45KmFeqmjALkfYz
+	 P1/f5JhZZxM7R1qPF+GosFCfyorOfDPSdoTHSLlcomsvZ+VQeNq/BZZGige94OFSd1hNBGbjwdpy
+	 srI16ZpYlY0sTDvCfbF42KlH36bbf6YsUzTAaVn2olPqpa/iKLrBo7+7elYPIbyI0UmVN2P5uNn9
+	 RASjRJ5V8bdYelJeDLNt2psbYPr1Ek5qOFmwDmfGZ844VmOlwueOAaUMybvT4Om02SBq2MAgJ2GA
+	 cLZFEvU9BZkQ9xAmhaSVPFcBtWdGunFlj+uhDSn69G/1LJq+nsH3kFvtcFUAk5OdAN+lFzMQJxwk
+	 MNQ42SJe7EwlsrOpiiZXsA2pJL3Edb/Qc8KxbbDp+n+PiEDyy7aKh3PYZjiR+iOXnL4i1dZy+/GR
+	 /KaYh3/2WoHHlAYKXqQjnXNJYGcd17i0T9r9TfkaA8RHdPIH2ItWgcxepXOvXkwHbWTbAB/nFSSX
+	 /9PBBIvzmHK//nYDLOtaYLOoPvWym7U1oP3Wjves9A6JwyyOyf1z41F7cgbk4hLhRPT1pfLCb85b
+	 CLjDaNqgMiaSUMMmHl6kd0FKsfJju3pWwjPQTV+TMUv0bGCxZzhtaHFpuOgpoSDR6P2hlISQhSaq
+	 taIRUXlTJn4ju7/SLycxTxOmwF9d9Jkafrd4mhgm3mv+LsYYwar/qrg0ueyV9xQ0PueTiy7DPpex
+	 tw5vk5q/oflyH9yYCmlhAdLldZS1pF12Eth/iOVD/62n7UuJ/Ie4SxrTOfdX9vKy308TYDlgfKwG
+	 cA0ZKhOEzIhe1myl9hIZjnVxFvy/+a2CV4QqwL3R/H2hSAAVZps3K2XsA3Pdr2o3B4gcIHxORX84
+	 IjX3tOXnUMU9W9n4E=
+X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
+From: Zhang Shurong <zhang_shurong@foxmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: sanjay.govind9@gmail.com,
+	krisfur@proton.me,
+	byt.es@mailbox.org,
+	zoliviragh@gmail.com,
+	francesco.orlando99@libero.it,
+	wiagn233@outlook.com,
+	roberts.kursitis@azeron.eu,
+	contact@zharov.dev,
+	elliotctester@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Zhang Shurong <zhang_shurong@foxmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: xpad - fix use-after-free in probe error path
+Date: Fri,  6 Nov 2026 23:39:38 +0800
+X-OQ-MSGID: <20261106153938.1947025-1-zhang_shurong@foxmail.com>
+X-Mailer: git-send-email 2.39.5
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,160 +88,73 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issues to consider:
-- [Medium] HID: asus: duplicate KEY_PROG1 report in ally_vendor_keys()
-  clobbers press
-- [Medium] HID: asus: unignored report 0x0B in asus_input_mapping()
-  duplicates gamepad
-- [Medium] HID: asus: wrong report type and interface for FF off in
-  hid_asus_ally_init()
-- [Low] HID: asus: missing __rcu annotation on drvdata->ally pointer
---
+xpad_probe() creates the input device asynchronously for wireless
+(XTYPE_XBOX360W) controllers: xpad360w_start_input() submits the interrupt
+URB, and its completion handler queues xpad->work, which calls
+xpad_init_input() and registers the input device. It then submits a
+presence packet on the output URB; if that submission fails,
+xpad360w_start_input() returns an error after the interrupt URB has
+already been submitted and may have completed. The err_deinit_output
+label then only tears down the output URBs and frees the xpad structure.
+It never cancels the pending work nor unregisters an input device that the
+work may already have created.
 
-commit 1bb5ac5d2f0b1934ac4c2fed917f199e9d5f52d6
-Author: Denis Benato <denis.benato@linux.dev>
+Consequently, after kfree(xpad) the input device can remain registered and
+input_dev->phys still points into the freed xpad->phys[64] array. A
+userspace EVIOCGPHYS ioctl on the corresponding event node then reads the
+dangling pointer:
 
-HID: asus: add support for ROG Ally handhelds
+  BUG: KASAN: slab-use-after-free in strlen
+  Read of size 1 at ...
+  Call Trace:
+   strlen
+   str_to_user
+   evdev_do_ioctl
+   evdev_ioctl
+   __x64_sys_ioctl
 
-This commit adds per-interface ROG Ally and ROG Ally X handheld support to
-hid-asus, including MCU readiness checks, vendor key handling, Ctrl+Alt+Del
-long-press translation, and a dedicated gamepad input device for Ally X
-input report 0x0B.
+The same window also allows the queued work or the output URB callbacks to
+run after xpad has been freed, which can instead report a use-after-free in
+xpad_init_input() or xpad_prepare_next_out_packet().
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 46643022b68d0..ae596a8475718 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -129,121 +164,964 @@ struct asus_work_action {
-[ ... ]
-> +struct asus_drvdata {
-> +	unsigned long quirks;
-> +	struct hid_device *hdev;
-> +	struct input_dev *input;
-> +	struct input_dev *tp_kbd_input;
-> +	struct asus_worker *worker;
-> +	unsigned int kbd_backlight_brightness;
-> +	struct ally_intf *ally;
+Make the error path mirror xpad_disconnect(): stop the wireless input URB
+(which also flushes the queued work), unregister the input device if it was
+created, stop the output URB, release the output resources, and clear the
+interface data before freeing the xpad structure.
 
-[Severity: Low]
-Should drvdata->ally be annotated with __rcu?  Every access to it uses
-rcu_dereference(), rcu_dereference_protected(), rcu_access_pointer(), or
-rcu_assign_pointer(), which triggers Sparse address-space warnings without
-the __rcu qualifier.
+This use-after-free has been reproduced and the fix has been verified on a
+KASAN-enabled kernel. The original syzbot report's allocation and free
+stacks show the address later reused by tmpfs; the xpad owner was
+established by local reproduction.
 
-[ ... ]
+Fixes: 09c8b00ae3e1 ("Input: xpad - handle "present" and "gone" correctly")
+Link: https://syzkaller.appspot.com/bug?id=04f471e8f027835f49842bbc7694e723d2289d7d
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Shurong <zhang_shurong@foxmail.com>
+---
+ drivers/input/joystick/xpad.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> +static bool ally_vendor_keys(struct input_dev *input, const u8 *data, in=
-t size)
-> +{
-> +	bool is_vendor;
-> +
-> +	if (size < 2 || data[0] !=3D FEATURE_KBD_REPORT_ID)
-> +		return false;
-> +
-> +	is_vendor =3D data[1] =3D=3D 0x38 || data[1] =3D=3D 0xA6 ||
-> +		    data[1] =3D=3D 0xA7 || data[1] =3D=3D 0xA8 ||
-> +		    data[1] =3D=3D 0x93;
-> +
-> +	/* Neither a vendor press nor a release: leave it to the other handlers=
-. */
-> +	if (!is_vendor && data[1] !=3D 0)
-> +		return false;
-> +
-> +	if (input) {
-> +		/* AC short press (ROG Ally) */
-> +		input_report_key(input, KEY_PROG1, data[1] =3D=3D 0x38);
-> +
-> +		/* AC short release (ROG Ally X) */
-> +		input_report_key(input, KEY_PROG1, data[1] =3D=3D 0x93);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 53fd3b562f41..3951b4b05740 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -2224,7 +2224,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	return 0;
+ 
+ err_deinit_output:
++	if (xpad->xtype == XTYPE_XBOX360W)
++		xpad360w_stop_input(xpad);
++	xpad_deinit_input(xpad);
++	xpad_stop_output(xpad);
+ 	xpad_deinit_output(xpad);
++	usb_set_intfdata(intf, NULL);
+ err_free_in_urb:
+ 	usb_free_urb(xpad->irq_in);
+ err_free_idata:
+-- 
+2.39.5
 
-[Severity: Medium]
-Does the second input_report_key(input, KEY_PROG1, ...) call clobber the
-first one when data[1] =3D=3D 0x38?
-
-On the original ROG Ally, pressing the AC button sends data[1] =3D=3D 0x38.
-The first call reports KEY_PROG1 as pressed (1), and the second call
-immediately reports KEY_PROG1 as released (0) before input_sync(), so the
-key cannot be held down and the subsequent 0x00 release report becomes a
-no-op.  Combining both checks into a single call:
-
-	input_report_key(input, KEY_PROG1, data[1] =3D=3D 0x38 || data[1] =3D=3D 0=
-x93);
-
-avoids overwriting the state.
-
-[ ... ]
-
-> +static int hid_asus_ally_init(struct hid_device *hdev)
-> +{
-> +	int ret;
-> +
-> +	/* Failure at this point is non-critical. The packet goes to this inter=
-face. */
-> +	ret =3D ally_gamepad_send_packet(hdev, ally_force_feedback_off,
-> +				       sizeof(ally_force_feedback_off));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does hid_asus_ally_init() send ally_force_feedback_off with the wrong
-report type and on the wrong USB interface?
-
-ally_force_feedback_off has report ID 0x0D, which is an output report on
-the gamepad interface (endpoint 0x87, HID_ALLY_X_INTF_IN), as later modeled
-in commit "HID: asus: add support to force feedback".  Here,
-hid_asus_ally_init() runs on the configuration interface (endpoint 0x83,
-HID_ALLY_INTF_CFG_IN) and calls ally_gamepad_send_packet() ->
-asus_kbd_set_report(), which looks up buf[0] (0x0D) as a feature report in
-hdev->report_enum[HID_FEATURE_REPORT].  When endpoint 0x83 does not declare
-feature report 0x0D, asus_kbd_set_report() returns -EINVAL and logs an
-error on every probe and reset_resume.
-
-[ ... ]
-
-> @@ -512,6 +1392,25 @@ static int asus_raw_event(struct hid_device *hdev,
->  	if (drvdata->quirks & QUIRK_MEDION_E1239T)
->  		return asus_e1239t_event(drvdata, data, size);
-> =20
-> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-> +		/*
-> +		 * Return -1 to suppress further processing by the generic HID
-> +		 * input parser for reports we fully handle. The interface is
-> +		 * published with rcu_assign_pointer() only after its fields
-> +		 * are set, and is kept alive by the RCU read-side lock even
-> +		 * if it races with the teardown in asus_remove(). Letting
-> +		 * report 0x0B reach the default parser creates a generic
-> +		 * gamepad and Steam Input overlaps.
-> +		 */
-> +		rcu_read_lock();
-> +		intf =3D rcu_dereference(drvdata->ally); /* fields are published */
-> +		stop_parsing =3D hid_asus_ally_raw_event(hdev, intf, data, size);
-> +		rcu_read_unlock();
-> +
-> +		if (stop_parsing)
-> +			return -1;
-> +	}
-
-[Severity: Medium]
-Does suppressing report 0x0B (HID_ALLY_X_INPUT_REPORT) only in
-asus_raw_event() still leave a duplicate generic gamepad input device
-registered on the Ally X?
-
-Returning -1 from asus_raw_event() drops runtime packets after
-drvdata->ally is published, but hid_hw_start(hdev, HID_CONNECT_DEFAULT)
-has already run hidinput_connect() -> asus_input_mapping() before
-hid_asus_ally_probe().  Because asus_input_mapping() does not return -1 for
-field->report->id =3D=3D HID_ALLY_X_INPUT_REPORT when QUIRK_ROG_ALLY_XPAD is
-set, hid-input maps all of report 0x0B's gamepad usages onto the generic
-hidinput->input device in addition to the dedicated intf->gamepad device
-registered by ally_x_setup_input().
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106142334.1881=
--1-denis.benato@linux.dev?part=3D2

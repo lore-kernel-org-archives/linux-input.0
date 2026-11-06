@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793976124;
-	b=DaKdVrYX963QBaHAS3j4N/kEm2BVBcpzfJsxz4cwbjNHNIl5F6gcJa8YIPnol7vyZZ92
-	 uRup7mOoFZAJinaEqpBxdu9JtAfkOqo+MgtbqAD0mZ+AknnbawG0SgegN6o1EbHsNOpMe
-	 FB/24fnfw+4FvtXr+Y7hZwMUzmWtJMcRIMJwUbD5435eoWZ2zWGG6mRhOG6wdyZGBMZZ3
-	 OoauRNXXdsrpE0XvJgjXmFgRZsf82PY37BbMvjXm6e7PQOfWUmBQ5qBidPZrTXBekvQn4
-	 7XpulQ2dhfQTQvTl5S1b+Jbzj0VMxNPcdaNHI33HdwI2kQ0WRmr7gIKXdkFTkhuz5Eg==
+	t=1793976373;
+	b=y8VyVVTkgm+U7VBPuXdKqMDOZ7xyt23qKdBQOOHU+Ps7Td3/h4XwMNVaOYcp478lH0DQ
+	 DSmofjaC/82Pvo/U8AJq/N7tBR+x9wi0l4GSTwqDYzTobXPMZDGdW5DZtHkbQHvHISbuy
+	 NtbmD2vHSoWK3WvOeNPpDZD1+tIgN/pyvDVn+sM3X9v1yp6m4H1O4IVZOXcHfx+XB8tTF
+	 qqL3N/OIfxWp99iUZjS+nstCoN/Vacw/R/oDLse5LLXOwkPa5W0dva7aRyymFEsF5UMzN
+	 MrR7Y0Zz4aly6BntHYCMktk7JBvrgjI1Q3MPiqGAJr1CEkOdjrIcMbLqm4knJkUFIyA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793976124;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793976373;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0aq+Q+tH+20HuxVM9aUa787stDzEDhfrTiNvt1xDlRY=;
-	b=G1ygrhRwH4BLjiZ9lha2vQHWh/u45e3F2WUXakvV3FYUFD00n8Nc+9J6op87mNd27ggt
-	 ots/7MfY2tCkq7uJjsIppsH/Q83DKJ7HVbnYRtDBEGh0gHVN/O8Das0r/vipFjjxoIsVn
-	 NIcu3i6KdjO+gZCoJ9MQiZvBP8OGD8vzWZcx7ZsRvGxgdu9q6EbQ2/FBum3e9jHt3zdxp
-	 tYhd9UeBCyUvainvZVor1XBSAaPE6ISIo2dUX0Jz6HJHYLL/Gal4PPwaHjh29Hm6xpMA8
-	 ZB+z/GnyAF3QpBwq2EcOjyiWmLfBeZa1hdJB7uwY5C9/Yj3rqk9DJ6eQPrOdIfCY3Cw==
+	bh=thwgJWKxJb2iKxHm16F1Un53WxbapXefJ54vaAgPNJk=;
+	b=v/E2WM5AYJ0NrSPa6l5sSzMJG7pJlFZccGXxHRITSGOE+ZXi1rrGV6CJzNm+uOg5BBXB
+	 p2mG6aJIpWxI/bY7Ccc0LIh1YRcJG3qyZMA2PyrMQFzsrOEom2WqkOLGNwbxxdxTROFGY
+	 40j9NFZv4RZPwdm97jdbxUPtOHqalayWjJ/puZpAG02uoOYcqLZa0d3lGwNqfyA2vl7P+
+	 jHwlsUkXpHSFJV2e18RLeJNhUXMIqIAjqNY97H0B/SfDXEmQgEyJUZDTW/fB5fOsjB1L6
+	 6qtSC3sM2IVe2DpHFyqYE2dQdnj87JVXWmJqWaXIOeOKgcGUz1SFuah9M3w0OjhpILA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="gFnPd/3R";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsDNsPJ9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C618A606A326
-	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:42:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E37AE606A32D
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 14:46:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gFnPd/3R
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 219061F008A1;
-	Fri,  6 Nov 2026 14:42:02 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsDNsPJ9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 360EB1F0089F;
+	Fri,  6 Nov 2026 14:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793976123;
-	bh=0aq+Q+tH+20HuxVM9aUa787stDzEDhfrTiNvt1xDlRY=;
+	s=k20260515; t=1793976372;
+	bh=thwgJWKxJb2iKxHm16F1Un53WxbapXefJ54vaAgPNJk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gFnPd/3RvkIauHZwxVtEg78WcWmc8W8PK571X79/neGm3B/GNW9jX41zbjfXWNa/2
-	 W9VS+MQmETz72D/xvhKSAJ4xGKeLl3mRQWkFUNgiDijRuaHbpdwPhynHFXGZWB7Cfr
-	 n7V4r3CFW7Zcka1rZJTJZloI4OaqDrMpTniH5Xr9ByH4abeIiTEdxLqZ95PWv7swGn
-	 6U8KGm1EUVCvd6SVCL8A1bf48ip7T2pC0zy8/+itbuhtLD6Wa3eXWp/GRv7M4GR236
-	 aO+oirKs3YGe5SUurKYEVGhFL/DQVtC251KAhpTe2HyhMFnt9ujr3/v87xicq3KoBK
-	 V0wPLjpf9x7aA==
-Message-ID: <sashiko-outbox-201599@kernel.org>
+	b=hsDNsPJ9xw4gVdDwqDo63IM/HXIgjbKTtOLSaKeEZDM+TEMJGEkS7O5ZraIOuDX5E
+	 d7DlLlJGesd7U/ox7N/pc0RJhB6Z0a16p46hf/cyOKntb+2XXxRDWwE2lhpn5Ls87h
+	 ZrqQ1Z+Rosb1d/i/nCP8lB63h0Q3M76bpAjWbBjcvXg8QN67JB9uPGt6fqOi0AGJX7
+	 uLeuvzJxRoetrceGLrJCxHaJPBwhkZWXJlLEo8FaMogrI9DLT3yVMzS/EorcPt69Jo
+	 wo2RX/z9DnqbB7+Ta73LVEk4I8Psd6/tW2OXjHgMQmZtght+Hjwo9yOPFOh5n5uirC
+	 G9A2Xnd0H3L4Q==
+Message-ID: <sashiko-outbox-201604@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v14 11/18] HID: asus: add support for turbo buttons
+Subject: Re: [PATCH v14 12/18] HID: asus: add support for btn remapping
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261106142334.1881-12-denis.benato@linux.dev>
+In-Reply-To: <20261106142334.1881-13-denis.benato@linux.dev>
 References: <20261106142334.1881-1-denis.benato@linux.dev>
- <20261106142334.1881-12-denis.benato@linux.dev>
+ <20261106142334.1881-13-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 14:42:01 +0000
+Date: Fri, 06 Nov 2026 14:46:11 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,121 +60,126 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Low] HID: asus: mix of cleanup helpers and goto in
-  ally_create_button_attributes()
-- [Low] HID: asus: per-call stack lookup table in ally_btn_param()
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] HID: asus: mixed cleanup helpers and goto in
+  button_remap_store()
 --
 
-commit 41d2b47a8b98d8711a6cf26beaa8f9fb7b5092d2
+commit 0fe51bd4cd86b318227ccb9c127184422216243c
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for turbo buttons
+HID: asus: add support for btn remapping
 
-This commit adds sysfs attributes to configure per-button turbo and toggle
-periods on ROG Ally devices and restores those parameters on device
-initialization.
+This commit adds sysfs attributes and firmware command support for button
+and macro remapping on ASUS ROG Ally handheld devices.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index cf33ccefcc2b3..c0c337a5fcba9 100644
+> index c0c337a5fcba9..cb6c55e75e6ee 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
 
 [ ... ]
 
-> @@ -2143,8 +2222,261 @@ static const struct attribute_group ally_attr_gro=
-ups[] =3D {
->  	},
->  };
-> =20
-> +static struct ally_btn_turbo_params *ally_btn_param(enum ally_button_id =
-btn)
+> +static ssize_t button_remap_store(struct device *dev,
+> +				  struct device_attribute *attr,
+> +				  const char *buf, size_t count)
 > +{
-> +	struct ally_btn_turbo_params *table[ALLY_BTN_MAX] =3D {
-> +		[ALLY_BTN_A] =3D &ally_prefs.turbo.btn_a,
-> +		[ALLY_BTN_B] =3D &ally_prefs.turbo.btn_b,
-> +		[ALLY_BTN_X] =3D &ally_prefs.turbo.btn_x,
-> +		[ALLY_BTN_Y] =3D &ally_prefs.turbo.btn_y,
-> +		[ALLY_BTN_LB] =3D &ally_prefs.turbo.btn_lb,
-> +		[ALLY_BTN_RB] =3D &ally_prefs.turbo.btn_rb,
-> +		[ALLY_BTN_DU] =3D &ally_prefs.turbo.btn_du,
-> +		[ALLY_BTN_DD] =3D &ally_prefs.turbo.btn_dd,
-> +		[ALLY_BTN_DL] =3D &ally_prefs.turbo.btn_dl,
-> +		[ALLY_BTN_DR] =3D &ally_prefs.turbo.btn_dr,
-> +		[ALLY_BTN_J0B] =3D &ally_prefs.turbo.btn_j0b,
-> +		[ALLY_BTN_J1B] =3D &ally_prefs.turbo.btn_j1b,
-> +		[ALLY_BTN_MENU] =3D &ally_prefs.turbo.btn_menu,
-> +		[ALLY_BTN_VIEW] =3D &ally_prefs.turbo.btn_view,
-> +		[ALLY_BTN_M1] =3D &ally_prefs.turbo.btn_m1,
-> +		[ALLY_BTN_M2] =3D &ally_prefs.turbo.btn_m2,
-> +	};
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct button_remap_attr *btn_attr =3D to_button_remap_attr(attr);
+> +	enum ally_button_id button_id =3D btn_attr->button_id;
+> +	const struct btn_code_map *old_code, *code;
+> +	const struct btn_code_map **target_map;
+> +	struct ally_button_mapping *mode_map;
+> +	enum btn_pair_index pair_idx;
+> +	struct button_pair_map *pair;
+> +	struct button_map *btn_map;
+> +	bool is_first;
+> +	int ret, i;
 > +
-> +	if (btn >=3D ALLY_BTN_MAX)
-> +		return NULL;
+> +	code =3D find_button_by_name(buf);
+> +	if (!code)
+> +		return -EINVAL;
 > +
-> +	return table[btn];
-> +}
-
-[Severity: Low]
-This isn't a bug, but table[] holds fixed pointers into the static
-ally_prefs.turbo struct and is rebuilt on the stack on every call.  Could it
-be declared static const like the other lookup tables in this file?
-
-[ ... ]
-
-> +static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct=
- hid_device *hdev)
-> +{
-> +	int i, ret;
+> +	ret =3D get_button_pair_info(button_id, &pair_idx, &is_first);
+> +	if (ret < 0)
+> +		return ret;
 > +
-> +	scoped_guard(mutex, &ally_prefs.lock)
-> +		if (!ally_prefs.turbo_support)
-> +			return NULL;
+> +	guard(mutex)(&ally_prefs.lock);
 > +
-> +	struct ally_btn_sysfs_entry *entries __free(kfree) =3D kzalloc_objs(*en=
-tries, ALLY_BTN_MAX);
-> +	if (!entries)
-> +		return ERR_PTR(-ENOMEM);
+> +	/*
+> +	 * Validate the remap target while holding the lock: the
+> +	 * gamepad mode can change concurrently, and the check must
+> +	 * be done against the very mode the mapping is written to.
+> +	 */
+> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
+> +				   btn_attr->is_macro))
+> +		return -EINVAL;
 > +
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +		entries[i].btn =3D i;
+> +	/* Access the mapping for current gamepad mode */
+> +	pair =3D &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
+> +	btn_map =3D is_first ? &pair->first : &pair->second;
 > +
-> +		if (!ally_btn_param(i)) {
-> +			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> +			ret =3D -EINVAL;
-> +			goto ally_btn_err_cleanup;
-> +		}
+> +	target_map =3D btn_attr->is_macro ? &btn_map->macro : &btn_map->remap;
+> +	old_code =3D *target_map;
+> +	*target_map =3D code;
 > +
-> +		ally_btn_turbo_init_attrs(&entries[i]);
-> +		entries[i].group.name =3D ally_button_names[i];
-> +		entries[i].group.attrs =3D entries[i].attrs;
+> +	/* Update pair index */
+> +	pair->pair_index =3D pair_idx;
 > +
-> +		ret =3D sysfs_create_group(&hdev->dev.kobj, &entries[i].group);
-> +		if (ret < 0) {
-> +			hid_err(hdev, "Failed to create sysfs group for %s: %d\n",
-> +				ally_button_names[i], ret);
-> +			goto ally_btn_err_cleanup;
+> +	/*
+> +	 * Send mapping to device with the caveat that first
+> +	 * generation devices require individual button pair updates.
+> +	 */
+> +	if (ally_prefs.is_ally_x) {
+> +		ret =3D ally_set_button_mapping(hdev, pair);
+> +		if (ret < 0)
+> +			goto err_restore;
+> +	} else {
+> +		mode_map =3D &ally_prefs.button_mappings;
+> +		for (i =3D 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
+> +			mode_map->button_pairs[i].pair_index =3D i + 1;
+> +			ret =3D ally_set_button_mapping(hdev,
+> +						      &mode_map->button_pairs[i]);
+> +			if (ret < 0) {
+> +				/*
+> +				 * Pairs are pushed one at a time. This pair
+> +				 * already reached the hardware when a later
+> +				 * pair is the one that failed.
+> +				 */
+> +				if (i > pair_idx - 1)
+> +					goto err_restore_hw;
+> +				goto err_restore;
+> +			}
 > +		}
 > +	}
+> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
+> +		     btn_attr->is_macro ? "macro" : "remap");
+> +	return count;
 > +
-> +	return no_free_ptr(entries);
+> +err_restore_hw:
+> +	*target_map =3D old_code;
 > +
-> +ally_btn_err_cleanup:
-> +	while (i--)
-> +		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
+> +	/* Try to recover the mapping presented to the user. */
+> +	ally_set_button_mapping(hdev, pair);
+> +	goto err_out;
 > +
-> +	return ERR_PTR(ret);
+> +err_restore:
+> +	*target_map =3D old_code;
+> +
+> +err_out:
+> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
+> +	return ret;
 > +}
 
 [Severity: Low]
-This isn't a bug, but ally_create_button_attributes() mixes __free(kfree)
-with goto ally_btn_err_cleanup, contrary to the cleanup.h guideline against
-combining scope-based cleanup helpers and goto error handling in the same
-function.  Since ally_btn_err_cleanup already unwinds the loop on failure,
-entries could be freed explicitly with kfree(entries) there instead of using
-__free(kfree) and no_free_ptr().
+This isn't a bug, but button_remap_store() mixes guard(mutex) with
+goto-based error handling (err_restore_hw, err_restore, err_out).
+Likewise, ally_create_button_attributes() below mixes __free(kfree) on
+entries with goto ally_btn_err_cleanup.  The cleanup.h convention is to
+avoid mixing scope-based cleanup helpers and goto unwinding within the
+same function.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106142334.1881=
--1-denis.benato@linux.dev?part=3D11
+-1-denis.benato@linux.dev?part=3D12

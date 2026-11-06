@@ -1,56 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793965430;
-	b=X1IT4uiGLGQTYAMNRAw0ls3s8Rsxde8E9zG7zg07t7DKAaotOF7Q6P2osSGIcZ8XE6tY
-	 jUGOSFauZRfVKXhMNm3JQ1f3YxwQyk3MDFJzd8PGEs2fj4/sDymKuFR1KqbTTRSi/NpJh
-	 I93VVXBw65bM1on3FGMIPtOSSXD5KqdyAP2ylxUh/8MLuYpLvVrnsKYNUeBIZOEaCZqYT
-	 PvYKZlce6+s19laG9PZhgCVdcR6A+nTaVI15ofTxrAi+Su7ZKr/XPorEcTtkMxN1mp/2o
-	 nKsebAzhPCYa+tEZMYkfXd04nK+fM4f2yUaQ5L4f5gl24+iJpbboUhLh7AG/rdzp6WQ==
+	t=1793966667;
+	b=1zSbNZkusdkhGGjwq5xnX1X4k/K8J9Id41n68XmLuUPv3MuXPF6ExFaNFOhdyRXJeJ4z
+	 u3NSLsMS/Tp5Gh3eiu3Jf5CTubc8mESkSgDHTMWWFLtOfPACLOj326+ux0h1hu9fYogWy
+	 YaibqMeatSIRWYlDLbWDqxpBmGRxAqeQY99R9jJ/FL3NJMx75UJ9z9+tfcxILAHh4byAA
+	 21Ixpr4YvAT27MfaskSHBnvq7F3ow+AjGIJMHe7qEmmtzd8y8X8bu6yHiR8wDvnahCd1r
+	 681LEvehpcd8L/NcGK4S14xGKpcH1zyuw3rUiMCZkATrahIcBF7uw7icPLkKVQUVI1A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793965430;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=GN1fVjYxpwYeWehIr6jWZIABSi3LQWbasYzKdhco65s=;
-	b=sHwRI6ae1DirQFqJ45kDqWLsfBHEdb1hA78HnmAhNJw964X9swiswv7jOHldzUzkRCcu
-	 mqwDPACK2AmmYCOjpuBbkXK0FXPzfCyG6K+RUI4D4K293KchNs2O/Is+MFFm7wopaGHaN
-	 LNPgT62mniP/bngissyjym6c0mIo+o1n5Kv2EFyTWO+pnWNhsiOuF1yLBLTwjyyza00A8
-	 gQTi8X0Cw5u6OewKuHC9jFzVPB5Fv4RQuTxJaivixGErvImMZdf6MaoUSpmqksUZ+eLUR
-	 pPJCX9OQYcwixkSV/I9IX+AE+6weKR0U0M9p1/i/B2AG0AoN4YfbosyxMG5AwyP451Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793966667;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=P1OMG/B1lVqgZxM1GZjWM6eenEu+BEzraRxEM+z0u2A=;
+	b=sx2OJrrNVSg4HihyNN22RYF+ofMHLb7SMA7fQDe207DV6syKVz+iG+AS8HrJ5grJTHss
+	 roZE5gvpT0FrMddRFa9ei7WBb2tvysQRJmK9wNWeNc0MxJUjDsZSRyRUjx8kgHizLCMs7
+	 IBNcd7PsOHZfdCRLaXPfiRzC/mIoVcR1Z1XyUlLmRZ4/cUT1imp6yN6fD2ZvGtrCaTNUi
+	 sMZOT1ivUZrXW9QQ0wZHpXKTUhLJybWsnPRG1dzjFaYdHuwA/uSAYMlprUj263Xv9i7c3
+	 PiE0fgESskH4bnaXzE88W73Cu4V6InsI41stj4fBVqfjMc0Q7n2AT+fEGSIVkrtHFiQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SwcAb+sx;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xJ5DVKWL;
+	arc=none smtp.remote-ip=209.85.218.51
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE45608361D;
-	Fri,  6 Nov 2026 11:43:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E76B5606A32E
+	for <linux-input@vger.kernel.org>; Fri,  6 Nov 2026 12:04:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E76B5606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SwcAb+sx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C05701F008A3;
-	Fri,  6 Nov 2026 11:43:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793965430;
-	bh=GN1fVjYxpwYeWehIr6jWZIABSi3LQWbasYzKdhco65s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SwcAb+sxEnWI/JBGmzxPNQ5wKyAWW/3g/2fpXplAaNNGURCVD9uB1U+C6ByTMWQ5a
-	 sFJaq6+qbhH3dwAL0SfRMk0/cMFnXElYmK1XahWN3ClcQplq3F5NMtOwVd+MZeI+SD
-	 DKA6FKq87YrujhPXPBIEyZLnnYovliknLkehO7uUcX4+hUdtOcvdnYhbN8//OIVAGy
-	 85TMarOOBPkcHLbXf1HvuH1QgOJscqe2saQXqjVKRK0z5wfN/kbJvygzCNoDbqphdC
-	 SeoC2kzl2S2E/FOWdeQkbrXhS75Zvk8HCH/xXIOVVRZ30iAAaTEi1wyThO3A5+LOuR
-	 a6zmxkQqimJrA==
-Message-ID: <sashiko-outbox-201350@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 17/17] PCI: Replace untrusted state with device trust
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Leon Romanovsky" <leon@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261105-device-trust-core-v1-17-1e536825b4eb@nvidia.com>
-References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
- <20261105-device-trust-core-v1-17-1e536825b4eb@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 11:43:49 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xJ5DVKWL
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c4d2b741ed9so78977566b.2
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 04:04:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793966665; x=1794571465; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=P1OMG/B1lVqgZxM1GZjWM6eenEu+BEzraRxEM+z0u2A=;
+        b=xJ5DVKWLdsqGYUj4mBLEzYwT4ZfyRw80Pr3dR6mVmfZ2qrKdrEj0P2Ev+90MvMbeyR
+         fr/CR0GbJCTMdBd3vdDH5q84uNemVDCluDEoiWRoEis2P/deHkOkn3Xd8xY7DFovRntM
+         EjQYE5OSOVZ8hi1kDghiMRg3bri/s/FPFcvFY9Cn7gfYgwc0C0TwCi5K2mUdPzhImMJ2
+         43eqptqFyRwStcXDo55PV9iOzDWloW4mR9WNbayt031LkXwlpBZ1VjCZTVLgoijV6EK3
+         sHNmhiwDZfezljtn3m4HEwXEEytX8/P7CU3r77pvcuBj3OMp76NJQu+R0VmOR1Q2QXAF
+         7ycQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793966665; x=1794571465;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=P1OMG/B1lVqgZxM1GZjWM6eenEu+BEzraRxEM+z0u2A=;
+        b=cByxH7CatDxFBAHRv5UBew3tR9l07GGsr1uwRk7sFLN+I2x9lep84rMrhaVaJNUr7k
+         4V1dmFXyA9rf1cDETqATlUK0Cp7j6UVPryHz11smv34zGX9wrP8Ww1b062YljIBhFzKf
+         5GaTv4uN72FI8krwm/1ELWhLOzdZnSVlmLOFYtbIkjy9LuoNTeJDktGmMXBcW1shLH7Q
+         At0NxcPAFdCXw+KMM9NsMP9qzPtfkVgJ88EBZHBfsNiBH+sIbRqJSmh3NtVoPUWUqSO2
+         Tu/tR3NkqpErS+nvnow2omJLdNgyjwhbKMiPtwUvNeM2QNNNsYKNv3cMrPga5HeZgYHE
+         lpRw==
+X-Forwarded-Encrypted: i=1; AKwUvByBQUE2LG/8OgrfBpDG7/bOFiCttG+R93k6auJCHIoOQm5kY9Gwu7GkmN+QYe2xdfEHpjNP22sYRevZLQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/vrXnFKlOAdSWpHyqp9TY9rz7wDm4Yu/iFCu/22dxaw+OmwqHp
+	4DLtDMyiowedCNFufvgXrqXqxdva4XU53Ytiv83nIpNNBrRFmIT3rW1V
+X-Gm-Gg: AYBFou2NyhYLOxyv6oBY7i6YbJJNceRgnRyFAdpoa64CK695Zsna71AprR6/ykx5qXj
+	4ZmeQF0iCJAj+uRXV+gcdJIRiLzaoexgg6aOjY+otiB3bVH2RgmUKLT8oN46J/zyrMo9P3zwNZF
+	2v6HiRTXNy1dAyzbVlFzbZmQhkZnZladGab54P+o6GGvSUoBctIiHex9WIh9U83aaQTh1wcfb25
+	FA2f0FYZFxFxmr6nPj7PUniTgeL79nxH7lSGAbg36OyL9VHZCTPyZUZ+kA893Z5kmmxo9ODgO8o
+	Z6a8U5ajwTEYG+eeYEv99RCEJjtre8HebbmsbrxcG8vO51fjqyCP6DMT86YnKsAzvfjqR7v9i0P
+	0smGZMcZSBspHWFbD6qDFu+5wCxZlTqt/e03+ywdeppbhhj/nIuz++Jl68GY2B5far0EJHmGokY
+	t7xBGAcPRY/BzcODJNhFKDZUCEC0pPbfmBkTHY8/Bjb7Hn6CXwaBxA9dgA+gT7KsEVgJ9inEH+Q
+	/HBAxHW9Zv3V9wmy/CsEuj61H+aeqV1Q5PcU47VkZcWNx5sIyN0CeMmi43wDxSa/bFRE+0EdNt2
+	6MqGTlnh/65qzkeGkHgWIw==
+X-Received: by 2002:a17:906:dc8a:b0:c29:f5d8:9c6c with SMTP id a640c23a62f3a-c4d3530b51amr205452766b.27.1793966665069;
+        Fri, 06 Nov 2026 04:04:25 -0800 (PST)
+Received: from beelink ([186.247.163.88])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d356c60b0sm73922866b.69.2026.11.06.04.04.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 04:04:24 -0800 (PST)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v4] HID: wacom: avoid divide exception in dropped-packet calculation
+Date: Fri,  6 Nov 2026 09:04:05 -0300
+Message-ID: <20261106120405.169399-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <CANRwn3RYhEu0g9Lx+Vg=Uy8V7BWWz-jWV9d7UVuyRK-MGdbHOA@mail.gmail.com>
+References: <CANRwn3RYhEu0g9Lx+Vg=Uy8V7BWWz-jWV9d7UVuyRK-MGdbHOA@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,227 +101,74 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] PCI: default trust policy overwrites adversarial default in
-  pci_setup_device()
-- [High] PCI: broken adversarial trust inheritance in
-  pci_set_default_trust_policy()
-- [Medium] PCI: pci_dev_ats_permitted() drops PCI_ACS_TB after full
-  authorization
---
+The dropped-packet calculation uses a modulo against sequence_size
+(logical_maximum - logical_minimum + 1).  When a HID descriptor
+declares a sequence field whose logical range spans all 32-bit
+values, sequence_size wraps to zero and the modulo triggers a
+divide exception.
 
-commit 4f93e031c1b1cdb8175550bd66ba1ab96c7a1e00
-Author: Leon Romanovsky <leon@kernel.org>
+Replace the division-based calculation with a branch that computes
+the forward distance through the sequence range directly, as
+suggested by Jason Gerecke.  This keeps the existing int types and
+avoids the divide-by-zero without any 64-bit arithmetic.
 
-PCI: Replace untrusted state with device trust
+Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 16-bit")
+Cc: stable@vger.kernel.org
+Suggested-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
 
-This commit replaces the PCI-specific untrusted flag in struct pci_dev with
-the generic device trust policy and trust level infrastructure, defaulting
-removable PCI devices to DEVICE_TRUST_POLICY_ADVERSARY and updating IOMMU,
-ATS, and ACS callers accordingly.
+Changes in v4:
+- Replace s64 arithmetic with a branch-based helper that computes
+  the forward wrapped distance directly, as suggested by Jason Gerecke.
+  Keeps sequence_number as int; no type changes needed.
 
-> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-> index 5b6960bbb35bc..139e6f7b4e022 100644
-> --- a/drivers/pci/probe.c
-> +++ b/drivers/pci/probe.c
-> @@ -1738,24 +1738,27 @@ static void set_pcie_cxl(struct pci_dev *dev)
-> =20
->  }
-> =20
-> -static void set_pcie_untrusted(struct pci_dev *dev)
-> +static void pci_set_default_trust_policy(struct pci_dev *dev)
->  {
-> -	struct pci_dev *parent =3D pci_upstream_bridge(dev);
-> +	struct pci_dev *parent =3D pci_physfn(dev);
-> +
-> +	if (dev->dev.trust_policy !=3D DEVICE_TRUST_POLICY_DEFAULT)
-> +		return;
-> +
-> +	if (parent =3D=3D dev)
-> +		parent =3D pci_upstream_bridge(dev);
-> =20
->  	if (!parent)
->  		return;
-> -	/*
-> -	 * If the upstream bridge is untrusted we treat this device as
-> -	 * untrusted as well.
-> -	 */
-> -	if (parent->untrusted) {
-> -		dev->untrusted =3D true;
-> +
-> +	if (device_policy_is_adversarial(&parent->dev)) {
-> +		dev->dev.trust_policy =3D DEVICE_TRUST_POLICY_ADVERSARY;
->  		return;
->  	}
-> =20
->  	if (arch_pci_dev_is_removable(dev)) {
-> -		pci_dbg(dev, "marking as untrusted\n");
-> -		dev->untrusted =3D true;
-> +		pci_dbg(dev, "setting adversarial trust policy\n");
-> +		dev->dev.trust_policy =3D DEVICE_TRUST_POLICY_ADVERSARY;
->  	}
->  }
+Changes in v3:
+- Replace raw s64 modulo with div64_s64()-based remainder to avoid
+  __moddi3 link failure on 32-bit architectures (i386, arm32).
 
-[Severity: High]
-Can checking device_policy_is_adversarial(&parent->dev) in
-pci_set_default_trust_policy() fail to propagate the adversarial default to
-downstream ports and endpoints when the upstream bridge's trust_policy has
-been overridden?
+Changes in v2:
+- Normalize logical_maximum/value as unsigned when logical_minimum >= 0,
+  matching HID parser signedness. Store sequence state as s64.
 
-On x86 ACPI systems, for a PCIe switch connected to an integrated
-USB4/Thunderbolt Root Port where root->external_facing and
-pcie_has_usb4_host_interface(root) are true, arch_pci_dev_is_removable() in
-arch/x86/pci/acpi.c returns true only for the Switch Upstream Port directly
-under the Root Port:
+ drivers/hid/wacom_wac.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-arch/x86/pci/acpi.c:arch_pci_dev_is_removable() {
-	...
-	/* Anything directly behind a "usb4-host-interface" is tunneled */
-	if (pcie_has_usb4_host_interface(parent))
-		return true;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 361738b..1d3ae94 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2426,6 +2426,13 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 	}
+ }
+ 
++static int wacom_hid_wrapped_dist(int after, int before, int min, int max)
++{
++	if (after >= before)
++		return after - before;
++	return (max - before) + (after - min) + 1;
++}
++
+ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+@@ -2551,8 +2558,11 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 	case WACOM_HID_WD_SEQUENCENUMBER:
+ 		if (wacom_wac->hid_data.sequence_number != value &&
+ 		    wacom_wac->hid_data.sequence_number >= 0) {
+-			int sequence_size = field->logical_maximum - field->logical_minimum + 1;
+-			int drop_count = (value - wacom_wac->hid_data.sequence_number) % sequence_size;
++			int drop_count = wacom_hid_wrapped_dist(
++				value,
++				wacom_wac->hid_data.sequence_number,
++				field->logical_minimum,
++				field->logical_maximum);
+ 			hid_warn(hdev, "Dropped %d packets", drop_count);
+ 		}
+ 		wacom_wac->hid_data.sequence_number = value + 1;
+-- 
+2.53.0
 
-	/*
-	 * Check if this is a discrete Thunderbolt/USB4 controller that is
-	 * directly behind the non-USB4 PCIe Root Port marked as
-	 * "ExternalFacingPort". Those are not behind a PCIe tunnel.
-	 */
-	if (pcie_switch_directly_under(root, pdev))
-		return false;
-	...
-}
-
-For the Switch Downstream Ports and Endpoints on that switch,
-pcie_has_usb4_host_interface(parent) is false and
-pcie_switch_directly_under(root, pdev) returns true, so
-arch_pci_dev_is_removable() returns false and relies on inheritance from the
-parent bridge.
-
-Because pci_setup_device() calls device_trust_init(&dev->dev) on the parent
-bridge before subordinate buses are scanned (or userspace updates the bridg=
-e's
-trust_policy via sysfs before hotplugging a downstream device), overriding =
-the
-Switch Upstream Port's trust_policy to disabled or full changes
-parent->dev.trust_policy away from DEVICE_TRUST_POLICY_ADVERSARY.
-
-When child devices are subsequently set up, both
-device_policy_is_adversarial(&parent->dev) and arch_pci_dev_is_removable(de=
-v)
-return false, leaving removable external devices at
-DEVICE_TRUST_POLICY_DEFAULT (which resolves to DEVICE_TRUST_FULL) and
-bypassing IOMMU DMA domain enforcement, ATS restrictions, ACS Translation
-Blocking, and SWIOTLB bounce buffering.
-
-> =20
-> @@ -2082,7 +2085,7 @@ int pci_setup_device(struct pci_dev *dev)
-> =20
->  	set_pcie_cxl(dev);
-> =20
-> -	set_pcie_untrusted(dev);
-> +	pci_set_default_trust_policy(dev);
->  	device_trust_init(&dev->dev);
-
-[Severity: High]
-What happens if a removable PCI device is configured with an explicit defau=
-lt
-policy via device_trust=3D, device_trust.driver=3D, or sysfs trust_policy?
-
-In pci_setup_device(), pci_set_default_trust_policy(dev) runs on a freshly
-zero-allocated struct pci_dev before device_trust_init(&dev->dev). Because
-dev->dev.trust_policy is always DEVICE_TRUST_POLICY_DEFAULT at that point, =
-the
-early return in pci_set_default_trust_policy() is never taken, and a remova=
-ble
-device is set to DEVICE_TRUST_POLICY_ADVERSARY.
-
-Immediately afterward, device_trust_init(&dev->dev) invokes
-device_trust_apply_boot_policy(). If the kernel command line contains a
-per-device default rule such as:
-
-  device_trust.default=3Ddisabled device_trust=3Dpci:<bdf>=3Ddefault
-
-or if default is later selected via device_trust.driver=3D or by writing de=
-fault
-to sysfs trust_policy before binding, dev->dev.trust_policy is set to
-DEVICE_TRUST_POLICY_DEFAULT.
-
-Because pci_set_default_trust_policy() is never called again and pci_bus_ty=
-pe
-does not implement bus_type->trust_resolve():
-1. pci_dev_default_is_restricted() returns false for
-   DEVICE_TRUST_POLICY_DEFAULT, allowing identity IOMMU domains in
-   iommu_get_default_domain_type() and amd_iommu_def_domain_type(), IOMMU
-   bypass quirks in risky_device(), ATS capability registration in
-   pci_ats_init(), and omission of PCI_ACS_TB in pci_enable_acs().
-2. At driver bind time, device_trust_prepare() calls
-   device_trust_resolve_default(), which resolves DEVICE_TRUST_POLICY_DEFAU=
-LT
-   to DEVICE_TRUST_FULL instead of DEVICE_TRUST_ADVERSARY, so
-   device_is_adversarial() returns false and SWIOTLB bounce buffering in
-   drivers/iommu/dma-iommu.c is skipped.
-
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index aa3765a20a96c..087c63b177c85 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-[ ... ]
-> @@ -616,6 +608,28 @@ static inline struct pci_dev *to_pci_dev(const struc=
-t device *dev)
->  {
->  	return container_of(dev, struct pci_dev, dev);
->  }
-> +
-> +static inline bool
-> +pci_dev_default_is_restricted(const struct pci_dev *pdev)
-> +{
-> +	enum device_trust_policy policy =3D READ_ONCE(pdev->dev.trust_policy);
-> +
-> +	return policy =3D=3D DEVICE_TRUST_POLICY_DISABLED ||
-> +	       policy =3D=3D DEVICE_TRUST_POLICY_ADVERSARY;
-> +}
-> +
-> +static inline bool pci_dev_ats_permitted(const struct pci_dev *pdev)
-> +{
-> +	enum device_trust_level level =3D device_get_trust_level(&pdev->dev);
-> +	enum device_trust_policy policy =3D READ_ONCE(pdev->dev.trust_policy);
-> +
-> +	if (level =3D=3D DEVICE_TRUST_DISABLED)
-> +		return policy !=3D DEVICE_TRUST_POLICY_ADVERSARY &&
-> +		       policy !=3D DEVICE_TRUST_POLICY_DISABLED;
-> +
-> +	return level =3D=3D DEVICE_TRUST_FULL;
-> +}
-
-[Severity: Medium]
-Won't a device discovered with DEVICE_TRUST_POLICY_DISABLED lose PCI_ACS_TB
-after being authorized as full and undergoing a reset or D3cold transition?
-
-When a PCIe port or device is discovered with DEVICE_TRUST_POLICY_DISABLED
-(for example via device_trust.default=3Ddisabled), pci_ats_init() sees
-pci_dev_default_is_restricted(dev) =3D=3D true and permanently skips record=
-ing
-dev->ats_cap, while initial pci_enable_acs() sees
-!pci_dev_ats_permitted(dev) =3D=3D true and enables PCI_ACS_TB in
-pci_std_enable_acs() or pci_quirk_enable_intel_spt_pch_acs().
-
-If userspace in initrd later sets trust_policy to full and binds a driver,
-dev->dev.trust_level becomes DEVICE_TRUST_FULL and pci_dev_ats_permitted(de=
-v)
-returns true even though dev->ats_cap is still 0.
-
-Because PCI_EXT_CAP_ID_ACS is not saved in saved_cap_space, a subsequent PCI
-reset or D3cold-to-D0 resume resets the hardware ACS control register and r=
-uns:
-
-  pci_restore_state()
-    -> pci_enable_acs()
-      -> pci_std_enable_acs() / pci_quirk_enable_intel_spt_pch_acs()
-
-At that point pci_dev_ats_permitted(dev) returns true, so PCI_ACS_TB is no
-longer set even though ATS was never initialized for the device.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-device-tru=
-st-core-v1-0-1e536825b4eb@nvidia.com?part=3D17

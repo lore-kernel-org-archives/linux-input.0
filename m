@@ -1,57 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794031408;
-	b=V9a8jCXR/WBUBw6g6FB938wHpFLY8U5TfayLxz1vh8Tx600ntQc5Nq4/PLZEurFjji10
-	 OfIveb3fCEeH18A/qmeblW11/vk2juHqGu6LL/JQ8VQzNTZm8ayyYOF4Mqb8F3Yxwwd+i
-	 aRb2HfmVB0QvEdpHswdr2X3N3RV+FPRnvChLo2oAG1BjlfC/sd6iEruy38GfZMbuwyTOZ
-	 dHBJwA84DkOOPLcRl1F71z8UMPyFSpkrpoGHjPi4uiP2tJpJMBHJf+uiRjs7/faBP7YNd
-	 e0kGfvOssHI3rzSm0fJxuSzcmr/AMU9fe5KdzkeE9nNhOti82TQzJ/05KXTVEKVsA5Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794031408;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=WiA5qT8eRjnxgtA4uHSNnQnqdcnJzRqNedb1td25pz4=;
-	b=OBsWvxImSo6SNAOTrqar+1aOsPzj5/S0s/nzdYgJGAzORUl7A9gQKuYI9VCTi8bCa/SX
-	 +EWjfXcKshcS12D9A1fQ5dQZeNMRUuMxk4pYAiREp7SiAFHgXUBwO38g+03VbgdbYsHEr
-	 ZO6VBKMhln2qD7buCtipQOxfc9iIBYX0gCEombnYgvhXmI5zfXpeh8hIFXtMS+dv3Xo01
-	 l1HtPjQ5EV09FW8vfxIjKkdRnPx4/bW3sHxkL4YjTFyO3tNiLz8lBzDWeBtclH3aylu2U
-	 +xWAHVQ9mRm0YiPGN4IoA9HzJCUp36HKQrEmJC7/w9Uj87lMEEluzw4j1IlAgO0TXgw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XzBJIncc;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.161.43
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794032201;
+	b=OH9aCkAjoUIfQKU3KMQCxme2lJId7mtBANn58X2b+t8lmNFQCxZ/2TJZ/PRkBmO1O1io
+	 +Rgwgv0pMlTS6pQNP0/WhWKTD40lLJTNJVyaYHLrJdRQReiUspSQ2ySd8W/D2mGTtf17T
+	 sKMIxezc+l8tM9j150b31F1tySKuYz1n5+ecAvWciz7P87x8qpT2q5CZZAVvOwjslHhQ6
+	 sfE5db2Kvc/JFiMo6x/GKtEFfE1ZXZNcLMSiXeZ4avwF+VDpdtYYjb/XLUtomjlrv/gFX
+	 oFbhFMaZOAT9ssj0nCKI//cHIVXdblQoYEnhf7sj60c8X7Fnbck+Xv7w4A/uJXVB9Gw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794032201;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Content-Type;
+	bh=CcbEvffJ1YbktP52+IBjEmJDBOSEygU9COTJPwRmZYo=;
+	b=oGKwVFqfQQrK7kZZELa+eQwr43gYGL+66UZ4ek7R5GqWWgw1m/9A5w3uLsyhKxer23Ng
+	 rR+SKKvOK8olDJ72I9iUr4L2zbtSynWcY5OYCQaZM79Pg3omOGBJiohAwSMag2n0U8Ofa
+	 E0l3XzdkCFlsNE+ibY1m3AMfDwy/rLfJRk5+oE4IynMrYQq69hlJWP9XvoFHIZV2Mts6g
+	 5GxiwalPQfqtb+1f4Wl6evbJnaZzs4QMGaar1UerxPZ55MssmsYHqjMz1T6KrFbPgCrxU
+	 EPIWqYrA6N6jl4fbxQTn8nUSgvJujYVFdnXETzIvg7rlCIcK5v2la5Fq1T5KOawukdw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IMzMEgbD;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.161.43
+Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71EC1606A326
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 06:03:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73092606A326
+	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 06:16:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73092606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XzBJIncc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF681F0089F;
-	Sat,  7 Nov 2026 06:03:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794031408;
-	bh=WiA5qT8eRjnxgtA4uHSNnQnqdcnJzRqNedb1td25pz4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XzBJInccecaDSdLUT56Z/2V9aV23LaW7NJioLLBHXAIqH5W8K062juVYWv/gRwm7T
-	 snTst4ZNzmwAuHTIOF/+4YysqEl8v+IEvXmDrjPKf3GR+nG3mj+aTLoMgJKwzbgRyy
-	 pFP7IMEzWt5/DhCcKMcTd5q2ag9e8pjXAVVQCEqrJRQ6RDa+A5cDc5SaS4i8eQKwQE
-	 V8rmw52Bc+4ctPrVfJt1qwlmb/Dr6YIXD+0ZT1jJ2CiOXnWA0vURTcShnoN2VvPPAD
-	 /EVrc4sw5D/TEQo9cZMyekOj41iGrogZwJ1Fv2IhncikUfGyNnFuj0aHhKsryZvIP/
-	 M78jUlxiES8gA==
-Message-ID: <sashiko-outbox-202644@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/2] rust: serio: add serio bus abstractions and port
- Gravis Stinger driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vecheslav Filatov" <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261107053953.471972-3-harepro29@gmail.com>
-References: <20261107053953.471972-1-harepro29@gmail.com>
- <20261107053953.471972-3-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 07 Nov 2026 06:03:27 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IMzMEgbD
+Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-6d68de53053so928422eaf.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 22:16:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794032200; cv=none;
+        d=google.com; s=arc-20260327;
+        b=M84a2ICrjN7iHsp9C8IJTSM9jzB0NljNJAW+ZfaCD5MVbvqSbANjjjJxojPC+cr3uG
+         +gl2JBbUgOU6q1CEpR4xFmTTYgRLdSCy5Hq2oRLn+/pTmHi5EO9u5OmqfQW3npZcud/u
+         XFXVQPVZgQEwkje1Uesy/oES39DyVXfwEy0TUFqawoDVUJRKLy6/yPX0GJVI17vGY4Q1
+         IjrZ1w3wMqF6G99/3T0RUXR+zcuDWR0zoREzQ2dOo5Wk+xNqsXSd+WLIOIu1+no/GSnp
+         db293IjDkD/PwUjaGVaLuSy42MoutS5nSSm9IxmXaAKmCL6S12VYiKsM1+0JLSwZ8Tfv
+         wWiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=CcbEvffJ1YbktP52+IBjEmJDBOSEygU9COTJPwRmZYo=;
+        fh=8WpCMq3m8uVrMbShYQORakEEjbJBqYs0BoY297hCLZY=;
+        b=Vr1sGnasvxpYLsQV4eXpG9ylDZ3bKpQuk3ZJ+K/Antt2qE5Z12utMxFUjMUXjAVMbW
+         UvQ93yCVCeNiEtxDDwA9sSrBkEmovelXP4QcsLre+XQxTpmVg8fjRFF3+TZ1yr9KFTL7
+         bRDmK/IpyqoFhlYuqqBa6VtpQbxcqag8vgPPS1JqrAa1DjKlUjpBGPgrfH2HRa9aHfNk
+         et6htvjKEYwf3kW2TFUsnRZiR3PF1eJjwvD181H9PBH3+YF0XvroGbS6A5a9Wt0tRWnP
+         vb0s7pdvQtSifKkIKYITTI75XL5vIUoWeGYIhOWyO/bTdILIKtUh5HtPfYWnqKbB/jDj
+         umuQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794032200; x=1794637000; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=CcbEvffJ1YbktP52+IBjEmJDBOSEygU9COTJPwRmZYo=;
+        b=IMzMEgbDuU/dEA5PKn8VAjPY8UhVs0wJQPu/uFjWMu2+wsdQa6sufP7Q+QnhrHVK1v
+         CbA89xlsC4QlNY/DHmhqdbrEZCRBbddvJRAaj+Iz6Wu17wCKEg/F3qqzb9OHs0LdUdlw
+         +HSb33qX9/f7WJ+2iyD6y6p7Ca/ccDJkK7A6iJ4jHCNuJEPbOiBOEcSa/gEUoXcENmSZ
+         W51KyHleJ+BMciSNEUCMFeTBvcXdH+Y5yAUfgnHkAtDoHgECedJKoMK8IBhLeMsaF9vn
+         Hagdyk8hZSkRyXlYO6CO6/7yEgraCpDpaoUTV2VTYg6j0yAZ5N84mpOyY92WSUJbzb/A
+         HZIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794032200; x=1794637000;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CcbEvffJ1YbktP52+IBjEmJDBOSEygU9COTJPwRmZYo=;
+        b=Xl2lwqnISKawjnJh75XtR5n7lcp8s+6UkAgL72qaSi+g2dTErUsv5SWM/RW24yxKJ8
+         DWwmM+jITjGkHu6HevLF2UTeST6tnQQgaA+DhlY/asygMeReDhyamfFxjKKbTa8dMjOe
+         dulm4FNKfSnT0Lna0dzMjIpoOvpvhUx+a4o3Y/l/T7uLINi62dR30KxMITE+kVokK+BA
+         7dH2J+LTInqsSoa2XSBsJdjH4IQLbAQFqwzFlMA85D74w3PvAbzEo33Wue+tPKyP4dZG
+         pkRBrLBBKS2064gCMjkBmXenQjrz3nHz3IWjUG0Ghe5uiPNvuYjFBAtb2Wav+GpRenq5
+         h8eg==
+X-Forwarded-Encrypted: i=1; AKwUvBwwc6x/Xu0D2HhET1QJmPGNtJIcRXdVOjBRYQL631H32ATtdM+JlKiqdpUx5TvlNmFlIe310FqtCnoxvQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+7C8IAvxohHC74AZKWw9eISKlR3Bl+zdyGqbU7uFBn/GVLB6pl
+	epF225/Cp4HOvYJ3iNy1Kxw9zhPru+ONXfBVU/fObQYXOcQ/fo0+eAG07QI1qlqb0AxgHRW0f5e
+	mDhO9/iRkLG6fRSWRMyfB7mxn69EPNgU=
+X-Gm-Gg: AYBFou1XZJHhmXPBSprXeIWiE/iLYmoh+7awfJ5VlPyyo36t7Vwts1SIVmEPW/CgtPU
+	07hnrgM5mBUbHdv7/u/kWyJGh+zjBrlBI74ZwwS6nfrb8HRu98eM///cSoq9mD0e2CII/wScCJ9
+	sFx+6ibv6/gr87rJuCQog+Zt6XXWBTtULTv+u2tiOFKe7ol1yiGwu3dfnJ/Spo015tMtXkHXUeS
+	WzbOz6iDMHARmED08Tc3FZuzsPrg1hglreKQp7Iz2UeQW6iYK7zV5H55CEh+6j5ASfTU1PilzCn
+	3cq9xl8KBJEUNjKAxTdVAcBnUupAkb3FIQst1z3GrbaEicC+PzjtC5qtLofc4FzyrAv0G0eCuy4
+	zTqMmRL98rNuSX6GyQ52uE7rb1Ct+pEKFlcw=
+X-Received: by 2002:a05:6820:4b8f:b0:6dd:9d9d:50f8 with SMTP id
+ 006d021491bc7-716e78fc66amr2751990eaf.38.1794032200385; Fri, 06 Nov 2026
+ 22:16:40 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,128 +102,49 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <CADYJuTsGK0k5RgLrRjWjkKBO79OFH4Lfj6OtiUOKnOECzeTuxg@mail.gmail.com>
+In-Reply-To: <CADYJuTsGK0k5RgLrRjWjkKBO79OFH4Lfj6OtiUOKnOECzeTuxg@mail.gmail.com>
+From: Jakariya Abbas <jakariya3460@gmail.com>
+Date: Sat, 7 Nov 2026 12:16:29 +0600
+X-Gm-Features: AclHuK8iCp1Hu10x6DoiPbm04zgIUus9PDVhhNqbaER5tr09p4iMw5HgXvj9qqI
+Message-ID: <CADYJuTt283d74=0=WoX4yTAQT6gRt2NPvfPJ5AsEU0G8Di0aYA@mail.gmail.com>
+Subject: Re: [PATCH] Input: synaptics - Add LEN205b entry to smbus_pnp_ids for
+ ThinkPad T490
+To: lovekeshsolanki00@gmail.com, dmitry.torokhov@gmail.com, 
+	linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] rust: serio: non-existent bindings::irqreturn::IRQ_* in
-  interrupt_callback()
-- [Low] Input: stinger_rust: built-in modalias uses stinger_rust instead
-  of stinger
-- [Low] rust: serio: borrow_mut() lifetime spans across
-  serio_continue_rx()
---
+Hi Lovekesh and Dmitry,
 
-commit 8182b04fefab6df9f076e7e3b941b950b2bc4c52
-Author: Vecheslav Filatov <harepro29@gmail.com>
+I have a ThinkPad T490 with the same Synaptics TM3471-020 touchpad
+(LEN205B, firmware ID 3972349).
+After the SMBus/RMI4 support was added, I noticed that touchpad
+movement and scrolling work, but physical clicking and tapping become
+extremely unreliable. A click registers only after several attempts.
 
-rust: serio: add serio bus abstractions and port Gravis Stinger driver
+My environment:
+- ThinkPad T490
+- Synaptics TM3471-020
+- Tested on kernel 6.18.58-1-lts and 7.3.0-4-cachyos
 
-This commit adds Rust abstractions for the serio bus subsystem and ports
-the Gravis Stinger serial gamepad driver to Rust.
+Relevant kernel error:
+    rmi4_physical rmi4-00: rmi_driver_clear_irq_bits:
+    Failed to change enabled interrupts!
 
-> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Mak=
-efile
-> index 9976f596a9208..2ba3391af7c9f 100644
-> --- a/drivers/input/joystick/Makefile
-> +++ b/drivers/input/joystick/Makefile
-> @@ -33,6 +33,9 @@ obj-$(CONFIG_JOYSTICK_SENSEHAT)	+=3D sensehat-joystick.o
->  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+=3D sidewinder.o
->  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+=3D spaceball.o
->  obj-$(CONFIG_JOYSTICK_SPACEORB)		+=3D spaceorb.o
-> +ifdef CONFIG_JOYSTICK_STINGER_RUST
-> +stinger-objs				:=3D stinger_rust.o
-> +endif
->  obj-$(CONFIG_JOYSTICK_STINGER)		+=3D stinger.o
+Workaround confirmed: Disabling Synaptics InterTouch resolves the
+clicking and tapping issue:
+    sudo modprobe -r psmouse
+    sudo modprobe psmouse synaptics_intertouch=0
 
-[Severity: Low]
-Does building stinger_rust.o into composite stinger.o emit
-stinger_rust.alias instead of stinger.alias into modules.builtin.modinfo
-when CONFIG_JOYSTICK_STINGER=3Dy?
+With this setting, the touchpad falls back to the PS/2 Synaptics path,
+and clicking and tapping become reliable.
+Could this indicate an issue with the SMBus/RMI4 implementation or
+interrupt handling for this particular touchpad?
+I would appreciate your guidance on whether this is an expected
+limitation or a driver issue that needs further investigation.
 
-rustc derives the crate name and module_path!() from the source filename
-stinger_rust.rs, which serio_device_table!() embeds after __kmod_ in the
-__mod_device_table__ symbol, whereas module! declares the module name as
-"stinger".
+Thank you.
 
-> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
-> new file mode 100644
-> index 0000000000000..fa5fd93182938
-> --- /dev/null
-> +++ b/rust/kernel/serio.rs
-
-[ ... ]
-
-> +        // 5. Attach published resources under `serio_pause_rx` to elimi=
-nate races with interrupts.
-> +        // SAFETY: `serio_pause_rx` holds `serio->lock`, preventing conc=
-urrent interrupt execution.
-> +        unsafe {
-> +            bindings::serio_pause_rx(serio);
-> +            let mut borrowed =3D <T::Data as ForeignOwnable>::borrow_mut=
-(raw_data);
-> +            T::attach(&mut borrowed, published);
-> +            bindings::serio_continue_rx(serio);
-> +        }
-
-[Severity: Low]
-Does borrowed remain in scope across bindings::serio_continue_rx(serio)?
-
-Because ForeignOwnable::BorrowedMut may have drop glue, borrowed is not
-dropped until the end of the unsafe block after serio->lock is released.
-An interrupt arriving right after serio_continue_rx() can run
-interrupt_callback() and call ForeignOwnable::borrow_mut(raw) while
-connect_callback()'s BorrowedMut is still alive, violating
-ForeignOwnable::borrow_mut()'s non-overlapping lifetime requirement.
-Explicitly dropping borrowed before serio_continue_rx(serio) avoids this.
-
-> +
-> +        0
-> +    }
-> +
-> +    /// # Safety
-> +    ///
-> +    /// Must only be invoked by the serio subsystem during an interrupt =
-on a connected port.
-> +    /// `serio` must be a valid pointer.
-> +    unsafe extern "C" fn interrupt_callback(
-> +        serio: *mut bindings::serio,
-> +        data: c_uchar,
-> +        flags: c_uint,
-> +    ) -> bindings::irqreturn_t {
-> +        // SAFETY: `serio` is valid.
-> +        let raw =3D unsafe { bindings::serio_get_drvdata(serio) };
-> +        if raw.is_null() {
-> +            return bindings::irqreturn::IRQ_NONE;
-> +        }
-> +
-> +        // SAFETY: `raw` was created via `into_foreign()` in `connect_ca=
-llback`.
-> +        let mut borrowed =3D unsafe { <T::Data as ForeignOwnable>::borro=
-w_mut(raw) };
-> +        match T::interrupt(&mut borrowed, data, flags) {
-> +            IrqReturn::None =3D> bindings::irqreturn::IRQ_NONE,
-> +            IrqReturn::Handled =3D> bindings::irqreturn::IRQ_HANDLED,
-> +        }
-> +    }
-
-[Severity: High]
-Does this fail to compile when CONFIG_SERIO=3Dy?  bindgen generates
-bindings::irqreturn as a u32 type alias with top-level constants
-bindings::irqreturn_IRQ_NONE and bindings::irqreturn_IRQ_HANDLED, so
-bindings::irqreturn::IRQ_NONE and bindings::irqreturn::IRQ_HANDLED do not
-exist:
-
-rust/kernel/irq/request.rs:IrqReturn {
-    #[repr(u32)]
-    pub enum IrqReturn {
-        /// The interrupt was not from this device or was not handled.
-        None =3D bindings::irqreturn_IRQ_NONE,
-
-        /// The interrupt was handled by this device.
-        Handled =3D bindings::irqreturn_IRQ_HANDLED,
-    }
-}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107053953.4719=
-72-1-harepro29@gmail.com?part=3D2
+Best Regards,
+Jakariya Abbas

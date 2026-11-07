@@ -1,57 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794036169;
-	b=kq5s4NLwzePSB+D7bdz9AmKZw3egtxSnNUCF0GixqAcZ0MHRiD7dTvLdo7pcA6kyXgSX
-	 FcSKsFT+IbMcbIwaZykTMZMda1dADbWyyaoaEORwydZbxNrbo/ccisZEhpJ6/p5LQ706p
-	 SYxiZ/zpamPaCTUKw+IH61pumVZp8e4TWPYzf65tTRinJ7L7q44VMBJHaLmTyo4a48yLO
-	 a5kEOwFyqC53K2hnW792MzMaHZst+07qXTWwCPtRRFnCfu9/r/S1A8UA/jq3xvjSxXxI2
-	 4N7jgKxGNeW0G96uRDRAWLWpT8fhLk8TNZOQX34UvC6NtLG3bqYvZJ8ZUk9inDI/M5w==
+	t=1794037711;
+	b=xkSvkAPOtSSNF1R0wXsEFrvDvoFcRkcSaux/RYuLKzPBNYbUTzDEcHhjNyA7reUXqt5+
+	 C+O7rGIRyqN3ft5zUUM7PC/mBRYE29sWIKuIVRAfYRMUD3pCY3KJGQdEO/ctMhvMbdVvO
+	 dR1XeDLXo29ComhU6GlDf/srRHwesa9QyuVIZGalQQHxnmZjHKoHWHVbe/lpHwMtt185Y
+	 UYZlxQP14Vxl3hlDUxyy3m9Lph8d1D2ddKilq2xaGc7gmPB7iSftieBQfjFkq/bs+doKb
+	 cyIDW6Ywc8k7OPNDQKqCXlsSbApE+TU8xEEfaMdiA4wZUOCAZ+DILaFGzkgQHSnHz8g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794036169;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=qbH8EttvH59RugU4BW+FC+QS9ahAoLb2gTdzk4uHk6Y=;
-	b=D1HN4M+TlKPa4gzlZ5+gSiNxCnuYBS66Hjlqs8dtjLx4QD9ChT0SMQXRX0Ny+sMSgKlN
-	 Liq9HGU5nyoDbDd30VNmEXLwY4UFst4KnuBYqa7roF7YzqgV5ZA7GrCH/sbqzgMfe7ymi
-	 3AseuDRaEjQHGsznAG5NrdB9J3+GN3oZavsfY+uXBUmMVihBJkcIVwC0m0hVa+a8ekCaf
-	 8Z9nElLzTTbQ5uM/oDWHPc4pCyM6CGmNIL5sdPW6A3sC4aYdj7s3Q8vkT+hgW7QJuihlX
-	 jc9AQpPDzyjYSJurgFijk1DhQK9L3I3dHxxJvtpjgFeA6prwibnViNwFEvjL8iRHTaQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794037711;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=xws3TV4eGyEGoCj4qfjxC+3xAzbBe7+peoj+q66DzJg=;
+	b=zezFxqObnXM0HQYJCojyj7phOt3zWQxjqnS89IIDY3aoaVUL4vNjcqF4bJjCtoaCpcFB
+	 i2PUg0gyMwfNQAkghpt/ODPdm7kVVyq8vwbyMQluJ4fIBGsWNhEShx0pRwgZ0iL0MgnEP
+	 ZnjZOq/NYROWx3aaccS58PXxUGvki0wgTgwwTzLkwWVC7HtRWtGnqNxA4jYLNZC3gzWfy
+	 BLmIxRzEWEP8MjC873hXVYMPZZoHn0zHHsrehcJQEjdIqHrrFkKHP8IMfCr9DBcTc8xhh
+	 cyQIIHb83WVj6Vf0lTFeYA+32n9hDIa4YredEbE4+krzWW94iO0m/gcRpY78sn8RN9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVnp1BXW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B9eUUSOc;
+	arc=none smtp.remote-ip=209.85.210.181
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C67606A326
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 07:22:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F4E9606A326
+	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 07:48:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F4E9606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVnp1BXW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1B21F0089F;
-	Sat,  7 Nov 2026 07:22:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794036169;
-	bh=qbH8EttvH59RugU4BW+FC+QS9ahAoLb2gTdzk4uHk6Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fVnp1BXWGUnvw3cI7qBnbDPwrS20NPQtdOiDbvZMKeQxEp3OeSILTW32AZ6lWygM8
-	 NpRxFxcLulEEuVz5O8eGt7R9+zBTlJG41ZZ+fzyF1X3vN+mnjjdQto8qLTV+Farkqg
-	 mNfL9rPq69Ay/q3XeC6Zc6V2W6chMtZw5WUjvCN1Qc+smtH5mDT8SwCqUuWzlaQE/j
-	 C0bDtXUA/959CX5Im3l+KGH9RX5rJZKBbZFJ2NPgPU24U15SMHdoeRTAeqHGiS/DNM
-	 Ei45slkBvMHGzPs7+hop1Y8ztX1cE4z10zLvlURb3OVESvdX2tWNk0Lq+Q24u1m2y1
-	 wCK53Q188gcdA==
-Message-ID: <sashiko-outbox-202704@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 2/2] rust: serio: add serio bus abstractions and port
- Gravis Stinger driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vecheslav Filatov" <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261107070010.500128-3-harepro29@gmail.com>
-References: <20261107070010.500128-1-harepro29@gmail.com>
- <20261107070010.500128-3-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 07 Nov 2026 07:22:48 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B9eUUSOc
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8ac1f2ff78dso169525b3a.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 23:48:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794037710; x=1794642510; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=xws3TV4eGyEGoCj4qfjxC+3xAzbBe7+peoj+q66DzJg=;
+        b=B9eUUSOcKUFoAACEt5QdxSuu9nhnDfuBqFeWW2zij4OTiEQ9cckV/Cx0k0EWVI5rC9
+         6NMoDzVMk9uudEuAVDf+YigY5dZNVUX0cHqKP9wPARLZLVlW0JnOBQcbeWCMCy8dzbqe
+         nbATpZ7MoGw892OejOLoot/E+VUbd5QJtUa5zj010AfZedT3SzFzMX/lPQ1HLMIlIDsG
+         FTfKGH6gECkNz/NlbWUf4Id9oiOJCQqxAni2ZrBZqvsf7uVopwfMhfCwDljDp2oZ4ON7
+         9zGBHyurY0zIH9EMh53dTjqu5Q22r1xcBAq4MRgyDbVzp/IeVXanAAkLk/25m78ST5Vy
+         DeIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794037710; x=1794642510;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xws3TV4eGyEGoCj4qfjxC+3xAzbBe7+peoj+q66DzJg=;
+        b=kozCs5iRmv1MVu+XRXlcMwbslkoehZtvyRYDqO4QPPGeA4l5BTZuL0mWlxxaz/jl+p
+         TBjGhGwAeQGlNLyBHTDD76eVptxwc9H/pX5Rz2IQHz14iGDY5fp4l3weITdtOhbOQ6R6
+         L3yMXGWCTxYwg0qH3spv/2iho1D1bfqJPxYTA4Hx3Ezq4wvIbPYP1sJk1CJPRBzWgG55
+         Utfmg7XIPF9KiLM6tWnTfiK9EqKHDQfIDccpm1crD9qT9LItIs9AFAZyaNEtttRTURdB
+         ecPUc2G9Tm7Si/bi32KxMSEnKr1P8V50YJWA+OS5PVLuZuYTbyA+7O5BVm9RkVveHaQ/
+         SYjw==
+X-Forwarded-Encrypted: i=1; AL+hErFt+maxlD6FW4XVCSgRHFhBozkQjv4xkj4KRlRsudXB8KqTgIn1iQnEDgdsPULm8r5v4QaX7K7kuXckMg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9oCxAZv7xbFykSnU8AnmrLwWSmDmVqiCBOWLvoVcECe4MlOC94
+	+0enBFyOzfuvFwAupxcCJN6NTNZovEiTLlqro3MqUBzS6s8M16xEozZg
+X-Gm-Gg: AYBFou2srptIq/6QXCSI1TZOC3RS5Jg0wfdyDhnBPOFncoo9uoPSdZA11nk2WXxX3KI
+	60F9HlZUFgThIOF/3YIBO/sHEXTz0yidS1D+tlWOcdZFbfEyvxLQmRApr+i7hY/xcREQqp/2Gy4
+	bg4BiyMslBpr+BpFcCalMH3KbP/jyfWw11OVprxae1GrzNGyD7K2U0ElfcYm1a9SmjJX0fzPlJf
+	axo9JypsrGsWhOEwLMvgEOBavQdCgEvfetjr/TtuJVNP/eEdjpvVFA/SOrX/JVP4jgxV1uc3+5J
+	ow+nuQzvFOT5zv2TOl9I5WEiGokw0k5+1xqvqKb+VcTtBfciCdYE8yoGLYCr2XnlKX77AOFepta
+	/ly4JEQeXSQAqkOGR9fR/AThStsbB8f/wDTE5rWWBUf2DaWAgtGOoD8W7ODmfrPR+wnCdavCLC1
+	tHcJZ0X86Mtz1yI/8xiPUcY0OF3nOTmEM+SvKWwXb8+uMpe1NCU9vjSuYYW71jSsIihU6VmmvNS
+	njm5eYqEV6GFPNUtqfQQzu0vPxmNIbs5zv719BC7UVyG88ZC9m4T0y6f2p6NyPAqPZh9Hb8YKS0
+	TTvoZ8Sb0NN+sEjEZRijAsVj0Shyfwf+OIZv3nIb4nh8fkM1GgnBUvTRZC47Z+S2K0s+ECP0sRB
+	eMJYMzPDZSUKm
+X-Received: by 2002:a17:90b:1b02:b0:3ae:3b3d:c617 with SMTP id 98e67ed59e1d1-3b10637bf81mr1022182a91.29.1794037710320;
+        Fri, 06 Nov 2026 23:48:30 -0800 (PST)
+Received: from eggarch ([2409:40c4:100c:32b8:cdcf:1840:88f5:4e8])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b1058a80a1sm2495542a91.12.2026.11.06.23.48.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 23:48:29 -0800 (PST)
+Date: Sat, 7 Nov 2026 13:18:23 +0530
+From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+To: Jakariya Abbas <jakariya3460@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - Add LEN205b entry to smbus_pnp_ids
+ for ThinkPad T490
+Message-ID: <au7RHdJGhycNmteO@eggarch>
+References: <CADYJuTsGK0k5RgLrRjWjkKBO79OFH4Lfj6OtiUOKnOECzeTuxg@mail.gmail.com>
+ <CADYJuTt283d74=0=WoX4yTAQT6gRt2NPvfPJ5AsEU0G8Di0aYA@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,49 +97,29 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADYJuTt283d74=0=WoX4yTAQT6gRt2NPvfPJ5AsEU0G8Di0aYA@mail.gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] rust: serio: non-existent bindings::irqreturn::IRQ_* paths
-  break build
---
+Hi Jakariya,
 
-commit 7de59dece60ff6273292c2ada6f83924d551c7fd
-Author: Vecheslav Filatov <harepro29@gmail.com>
+On Sat, Nov 07, 2026 at 12:16:29PM +0600, Jakariya Abbas wrote:
+> Hi Lovekesh and Dmitry,
+> 
+> I have a ThinkPad T490 with the same Synaptics TM3471-020 touchpad
+> (LEN205B, firmware ID 3972349).
+> After the SMBus/RMI4 support was added, I noticed that touchpad
+> movement and scrolling work, but physical clicking and tapping become
+> extremely unreliable. A click registers only after several attempts.
 
-rust: serio: add serio bus abstractions and port Gravis Stinger driver
+Could you verify again whether this bug is really there, on mainline?
+Because same issue was reported a week ago but then reporter said they
+were unable to reproduce it.
 
-This commit adds Rust abstractions for the serio bus subsystem and ports the
-Gravis Stinger serial gamepad driver to Rust.
+...For some reason I can't find their mail on lore here's the link
+to thread anyways.
+https://lore.kernel.org/all/audS8Nb1wnifhCpr@eggarch/T/#u
 
-> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
-> new file mode 100644
-> index 0000000000000..4e16917ddd70c
-> --- /dev/null
-> +++ b/rust/kernel/serio.rs
-[ ... ]
-> +pub use crate::irq::IrqReturn;
-> +
-> +#[allow(non_upper_case_globals)]
-> +const irqreturn_IRQ_NONE: bindings::irqreturn_t =3D bindings::irqreturn:=
-:IRQ_NONE;
-> +#[allow(non_upper_case_globals)]
-> +const irqreturn_IRQ_HANDLED: bindings::irqreturn_t =3D bindings::irqretu=
-rn::IRQ_HANDLED;
-
-[Severity: High]
-Does this fail to build when CONFIG_RUST=3Dy and CONFIG_SERIO=3Dy are enabl=
-ed?
-bindgen generates bindings::irqreturn as a u32 type alias with flat top-lev=
-el
-constants bindings::irqreturn_IRQ_NONE and bindings::irqreturn_IRQ_HANDLED
-(as used in rust/kernel/irq/request.rs), so resolving associated items
-IRQ_NONE and IRQ_HANDLED on bindings::irqreturn fails with E0599.  Dropping
-these local constants and using bindings::irqreturn_IRQ_NONE and
-bindings::irqreturn_IRQ_HANDLED directly in Registration::interrupt_callbac=
-k()
-will fix the build.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107070010.5001=
-28-1-harepro29@gmail.com?part=3D2
+Regards,
+Lovekesh

@@ -1,54 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794073667;
-	b=CUMyys/XAqBw3nDhPzkGy4+x/gVTnjRe6rdgnI9hNFB2djgFt3eQ/qK0VGohfWa+uJu4
-	 rhV5pCCOtD8clh5nhDOjIOS7+b4z1o4lQc0qDmZY8irGiFsrottkqkRSurreKvO4b+J6l
-	 bRJznMuHD++npXLt4+FksuEgc7444Q5lagMMfEL84Y4q56MZJk7uIc8r46DdA77DNMO5z
-	 f0/kGuLI7tyVT/acJwWCVw9ST453uJSBf4NrRlyRQd0jY9uAg8Sm6+aUHw8nrR8A1uge7
-	 xCLbMe2Iu6XsReRUztqK0Uu5ibpPeA6ec+iduSRdyrWwjnSJNnlS6/Ler/kTldl5o6Q==
+	t=1794082129;
+	b=zZ3exKUCjIaOtw9oIzgNioGphX7/zKwhUmIWlp0cirUHVdADKn/uC+wNAq/VCCtJXQYy
+	 cQdFO1gyS0E3JiWmRPoub+7sZ41PlbuhafnP3tpy/IaVCGwM7xzr0bOWRNojnHZ53KSXK
+	 8U3L7BahwxMxTnn1nTy55AhmcyMwFvfMhbejQ07uEyoMsobfTtXVGW9KWdIeHyW6jTEGa
+	 phSqaIkh/0p+XfpxNIwCUKDa+c5BtXPWxVBTwktiMl6YOmQ+4Qb1USssP78dGFBdaWszn
+	 HJgqhJkIcnQqfSBYU5cY3Bl51A/V3bWtUJChD2Kg91g0Y3UYUMtO2a5cHh/Zt0IuQhg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794073667;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:X-Developer-Signature:X-Developer-Key:
+	a=rsa-sha256; c=relaxed/relaxed; t=1794082129;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=vARIb/eUKST3+AmBEI7Cuzd0dCLfvGmpPb1wpV4o+6k=;
-	b=1c0wp6B9L8TqFJDx5EjiybTR1Np46vJPBzvUFF2kCIfmgR3c4lrx1m3fJDrOeLUKzbzt
-	 SPhFyot/Jdb7k4eYFyJEBpyUz7v8ZoU599Y8Nnbhamlmh/0xn/aC2BbvwYm/7X4Y36kIk
-	 FQhJWTj59RnKOcmSWPbSZi01pHQflLFDDgZGoBk+KXpLomsQ47w376GoFWdsHuemEb9wz
-	 vcfqxr7nINjfiIF9T0wMAAScXGyxUlvyMpyA3oqmWezufhDvr1KXAtKTfO7dY8Y1mgzrG
-	 eUXF/Hx+jhL9V9pPvLQG1BkI1KPCtOgsjdqxhtikyZroDPJlhGmoVQ9es+s2rJD63Mg==
+	bh=zYuYV9k/OCUdFVcBP6hgrMsxIeQ2TmANARLgmjBz7hU=;
+	b=kfh3Xc0pTM5ZRpddcyJH3W2oop8WItXTD8CxDRS0PYR8Jfgg0+bQfxQ+Rk+R9IFtT4jc
+	 EAAj/Rld0hEnqBX9XpZEAM642rEFq+cz1+MoPLFX9PwbCHZe0wCuVLVqrSB2UAzExLaXI
+	 jbrqhs/3VtCEA54XhMiWOi1iiRr1V175aPWoLBsosURcZWxiO/UAzm4yPKKJc/dkMlM7q
+	 gSQtnN1vHb1l8Zxd4JsG9f6hos5Yv+Lnt4OYH3xfup4dyBqlB/1wh9lUHn5M008Itg7jl
+	 4pLTg95BsHuf8jB3F7Tgu3YbKgf+lZHDrSqH+07niWAImvntuxZSwaluGYzZNS4EVNg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lzqnSwiX;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkbhddL0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06604606A326;
-	Sat,  7 Nov 2026 17:47:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC241606A326;
+	Sat,  7 Nov 2026 20:08:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lzqnSwiX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 671901F0089F;
-	Sat,  7 Nov 2026 17:47:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkbhddL0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43D431F0089F;
+	Sat,  7 Nov 2026 20:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794073666;
-	bh=vARIb/eUKST3+AmBEI7Cuzd0dCLfvGmpPb1wpV4o+6k=;
-	h=From:To:Cc:Subject:Date;
-	b=lzqnSwiXkim+1Xd1t0PWLgS7AuyrWPWNL/NLI5UQjgULjiMFOwDlKgiX7jJXe6TRY
-	 61oFhppC5Jb1+mo2StblOOFDxwjtjLv+TAuLwuLBOEzjWWOIqv1tuXU7h+Q784nIKQ
-	 hepyoRvvC+Pj/+eNSObGbzw2jBn9o77KGdN2iU7XnRoSxXGhdZKjeEyHK3SGjEDlDm
-	 0p+yhqLMpC0FK0BjBdRX226hJAjs94DI7NGtqnLaV/Znhz1/5t8RtjxzD+7STY/mw9
-	 A45DNqrYl/OasnA3k1/RH8Sbnxvkt2XYClVBp+bYU1wgLoCRfYWrtX+CL/pyuYPA7Y
-	 lHZP3ujP0Gt2Q==
-From: Thorsten Blum <blum@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thorsten Blum <blum@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: amijoy - mark amijoy_phys as __initconst
-Date: Sat,  7 Nov 2026 18:47:38 +0100
-Message-ID: <20261107174739.369375-2-blum@kernel.org>
-X-Mailer: git-send-email 2.56.0
+	s=k20260515; t=1794082128;
+	bh=zYuYV9k/OCUdFVcBP6hgrMsxIeQ2TmANARLgmjBz7hU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=kkbhddL07qM68VUlLnGi3nsedhFKcseD14gCl50f4mk9FmadfXJyHMSNhizvIqifX
+	 Iqe6Ox8UjNpZILJ+tFy9OcHPwxOgFTWyIDbbJM5w36QExJqHhqICHxw+KN7sjywD5V
+	 SpZvy+h4qcoM8ZcXQgOOJjzuYPhzLoJRMIIp/DVdhzIohkz9vQ4i3N4WEr/j1/9Vhf
+	 fVngDQiktg/2OUglvrJoL2JfgmaWZWG3YhMKtfrTZmLHmfKAxPFN8PXh/O2vc8FBqX
+	 alFTUFQR+x17mirE0V97/yxyjrQkvkwJnPTgOnimfFGsr/VF6kyfDVX/gtlPsbc+HR
+	 gZEfqVQmsh5Qg==
+Date: Sat, 7 Nov 2026 20:08:40 +0000
+From: Jonathan Cameron <jic23@kernel.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ simeon@maryasin.name, lixu.zhang@intel.com, crofts@kernel.org
+Subject: Re: [PATCH v2 0/7] HID: sensor: custom: use-after-freec after
+ remove
+Message-ID: <20261107200840.2de08565@jic23-hlaptop>
+In-Reply-To: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
+References: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,32 +61,40 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=897; i=blum@kernel.org; h=from:subject; bh=qVvadY324JelskwzKrqx0tuoGJDDKPjZ/UEtcmuv/Ug=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDFnvU6x5ZSwlVifmLPg88w3npVPZh3+9ZfvQO+Fm4H2ZX ddW+0T+6yhlYRDjYpAVU2R5MOvHDN/SmspNJhE7YeawMoEMYeDiFICJFN9jZNhgkMDAI6g++crT klTnLwsuNInExzJ+/Ht/bZ6f95JW/T2MDLM+Lbf92e92bl/G4kMi7kszJjRfrZ2hsefK0ueLOL/ +dmMDAA==
-X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-amijoy_phys is only read by the __init function amijoy_init().
+On Wed,  4 Nov 2026 12:13:56 -0800
+Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
 
-Also declare amijoy_phys as const.
+Trivial but freec in the title.  If we end up having a v3, please
+tidy that up.,
 
-Signed-off-by: Thorsten Blum <blum@kernel.org>
----
- drivers/input/joystick/amijoy.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> This is v2 for patch " [PATCH] HID: sensor-custom: Synchronize
+> misc-device teardown with file lifetime".
+>=20
+> This patch series is essentially the same version that was sent to
+> =D0=A1=D0=B5=D0=BC=D1=91=D0=BD for testing.
+>=20
+> Following a feedback review conducted with various AI models, it was
+> suggested to break each change into individual, separate patches. This
+> makes perfect sense, which is why this series now contains more patches.
+>=20
+> Additionally, these reviews identified issues in the adjacent probe and
+> removal code when active sensor instances are present. I have addressed
+> those issues in this version as well.
+>=20
+> Srinivas Pandruvada (7):
+>   HID: sensor: hub: Synchronize callback removal with raw events
+>   HID: sensor: custom: Set owner for misc device
+>   HID: sensor: custom: Disable sensor before hub close on removal
+>   HID: sensor: custom: Fix state lifetime during removal
+>   HID: sensor: custom: Serialize misc device reads
+>   HID: sensor: custom: Register enable attribute after misc device
+>   HID: sensor: hub: Remove clients before stopping hardware
+>=20
+>  drivers/hid/hid-sensor-custom.c | 121 +++++++++++++++++++++++---------
+>  drivers/hid/hid-sensor-hub.c    |  27 +++++--
+>  2 files changed, 110 insertions(+), 38 deletions(-)
+>=20
 
-diff --git a/drivers/input/joystick/amijoy.c b/drivers/input/joystick/amijoy.c
-index 3752dc2a2086..cdb2b8f15348 100644
---- a/drivers/input/joystick/amijoy.c
-+++ b/drivers/input/joystick/amijoy.c
-@@ -30,7 +30,10 @@ MODULE_PARM_DESC(map, "Map of attached joysticks in form of <a>,<b> (default is
- static int amijoy_used;
- static DEFINE_MUTEX(amijoy_mutex);
- static struct input_dev *amijoy_dev[2];
--static char *amijoy_phys[2] = { "amijoy/input0", "amijoy/input1" };
-+static const char * const amijoy_phys[2] __initconst = {
-+	"amijoy/input0",
-+	"amijoy/input1",
-+};
- 
- static irqreturn_t amijoy_interrupt(int irq, void *dummy)
- {

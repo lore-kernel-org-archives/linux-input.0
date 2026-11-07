@@ -1,92 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794068669;
-	b=YprnEpdlqOf2j4Ex34goSXaeXtwQHMAk1P9V092trBs1LRDrJAU8cgINtBssMiOzb80i
-	 iu1FOnpZ/hzeScKgAR8iD7Cun44P+p/rUMT8wph0rSTJW8rue1DDU6fqAoF9Sd+h/b6tw
-	 OkezTvynP4MBQqBlE07OjOT31yUbyeY/2W1kOb1fdLBydGqoo0V/sI75RcRI52VMLixVc
-	 4q+PuA7He/qpBRiaGjE8bscmWhsMiME3FeNXcwogaEjCa6euIOBV+RDZFoHqibqiBWLyE
-	 Y6AIvwF1meOZZS/ZbcwQq6NJHoyr9qmzwqDaGuE8kXKggJF+HGk6kPV4vyzC45Lnz1g==
+	t=1794069813;
+	b=FcxHyxtIkzaBox2KvRnSB06gS5W2gQIb0IiGkZVIVMlwJDfcs0EJ1jNXjDGfiexEyvn1
+	 aJOKEL1XTKcfjYnj8wUWEaCd8FyFI5KyzN/DfsZTWm2NGGVV0cj73/Byzg7Xb2uyBuUFQ
+	 pQdlLjpVd+n9k/9vSPSlekLfQpvJiTqnbleL+5QN9jAQVx/qCWSbYAt/ExX96F9El73JZ
+	 TYScXyp2x/+4R8nnT8N8HCrDVWMG1thAZKwKn0sOMxE4mHP3tgJOHb6nSHyCC6ug1WrWi
+	 VzGEbo8+RKK61/K5QtPwKEgpqsxehf4vP5ASkYgFINnYNZ6RImsNJsqLTkDBXYcYrdQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794068669;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=G0Hqu1+FGz/IWPNQ567UsEhZ0Yh7IpxOzw14Cvzayz8=;
-	b=BR43mr5/Pmuv6+I1H8CIRQ/y9r0OVXX6yWtRemPrJUnYNk+MLxWs0ug/dczeFdyBiDJq
-	 V/YyeON1OyeGt+6226luB/qyvxSQL8N3VlBmdoF3Ck+CD8B6xdJxlQzoK/tCsS8evoX8h
-	 QE8gVsxs8/lKBzxBnpPMcgs2y3zKWXgzEmjGojGvCq98I0lQ/6FCtCNNklDYnkpJRBEaE
-	 cWZVri4fA2VYc3wtfYDaT3UEEnzyvVukpYNmyCv5s5FvP94YH0NMa3Zky/4qoTiT8lbvj
-	 UM+PFogv2eyN1KIdwhXHOA3zBAB+Obbem2Ti9Ehwy9vNKF56fQRSnjcM+5J4IMue6xA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794069813;
+	h=Received:DKIM-Signature:Received:Received:X-ME-Sender:
+	 X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=vJlfnNqej/LkG6MaOOq3+jKdNMX9ZNsvcUBYJfUwMpw=;
+	b=XYdxC4oBS1FdiMFWogdZkITyyvpnP07kfx40FL3qmWcL+Ix5dQnemIUjKjT2ymM+NVQw
+	 zYUcJ+UdrPj4awTM+b7Uh6vvw+fFzfh7xgH2NKmyvlh1zjE/oqg/Jltdgj5q1CdMVcyUW
+	 V1qL/XHpqqQLsbB22SUmUSj/IHPUp7NjvhJnbsBlAG/1smEGvSC+GkvpMaSF8LrtXFldJ
+	 qszURAP2t2G5KJn928/reUUwNB6Cs+k364lEM7/V0L5a4r5oLkrlyLIKZ51rtt2xp+hCH
+	 JnzJixV7r1kMMBc8auORrzt8DLItJu0qcTTy9SI0bkoOhly3vqiujalMbOPUCPwm3rA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="rF/WqaYE";
-	arc=none smtp.remote-ip=74.125.82.180
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ec9OinBL;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1821A606A326
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 16:24:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1821A606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68846606D806;
+	Sat,  7 Nov 2026 16:43:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rF/WqaYE
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-36fc0a3fe93so2673400eec.0
-        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 08:24:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794068668; x=1794673468; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=G0Hqu1+FGz/IWPNQ567UsEhZ0Yh7IpxOzw14Cvzayz8=;
-        b=rF/WqaYEza57PrcTeP20UCOKjtuV3xFLTpZWGIpMwgWX77YJcYiquOqutIGEzYd6py
-         V71XQXFoxp7gSODveG6Io2g8PKRph5REtXexqiP5gLf4xmqZCA/FOPey6CLQLQbmvBW4
-         +YjuxYsYFEZSY830VcJdefBYytyoQYQwp/ie1RVPSpg/JARjunuIFKnw+5E6vxNJLMvv
-         0qsckkAMsNExQu+l8fBCITFlLuvtxMJR0joYDCwE3M5PapPqHOfEvZpqBXXhm0unedZX
-         95ArVI5DZ8AvKpEGX+mnbXKcBTeA+hqu049ALfhny2Tqf63lpBmfy/WujqeHbYdsQPTL
-         2y6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794068668; x=1794673468;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=G0Hqu1+FGz/IWPNQ567UsEhZ0Yh7IpxOzw14Cvzayz8=;
-        b=yJhczknpOmgatEBs0f++ePBZ83xngTq6vqrfsWAyTt4XH6xyaGf4JA0koH6P9fov8r
-         vSdmcHC6IhrcSh809xgzMggT/tdIUzDOli847824fIPcg2la1lCCkuWrMVEbFC+398zx
-         D/fyL3DUH3wPYjkpAUbStJIUaK+H+VXyM0ih/r9Aov8HZvAZjRfuhUc/Ny2pRZfbjDRw
-         uU/+TP1nfXdzGVFIUHHths+ZJbX5BNaR6tF7oGVi1Y8M2lWsvKP8z4D2MIRePxQVERo0
-         OQXEwEtIy3agO/OahqwnuUDDJM0OPKOXmOyAilL2Lf75FGYToqZ/e4mAr8h/e93+w2N3
-         u8JQ==
-X-Gm-Message-State: APuU4Z9vzHpT5HJsH0IdC//ZkM4u/8g82gz37AcfcRTWczs+wi3FjEAe
-	3jGxxtlBksXJ0fs17yDP4Bsmuh5svjKcCa8IWGr376bJriEbx8P533l5
-X-Gm-Gg: AYBFou3FGJCQLnyaZmCRgVzs4PydpxnlP0teXiPELrnZ30fkG6MfsZiJCVAmzVlGF9b
-	jiezrG2w7MOptKRwnEXcioJLzuDGxmTN4ZR8FJGRNgZnM08fHmbzABe7/Pb4iYNETNuPu8x8llX
-	uwnqmn4Rov/yIikQC47fhWDCx2LvKUzROkV17CFMRbCYJ/NcGqv/hoTAOoNxZ1QxKvI+IPyMAUh
-	yN5zdnbV/E3uhEJr58TydnQhb76XyMpyLQsbSS6EJDh66DCR5HHB+9cxqqFsxorSkAyrUt8xELW
-	62aC4KruUidd1ApURmZ+EwArefHIOvD0iUkDRGpoDFUQjXxkjDfp41JvQzKJ0UUw3dEPqHKPopf
-	WaXv9cbWy82LvAAVxW5sui/j4k4ExEm7tEDe1vVHshgOsmIyHFAYxNz96KrZRWTvMzYRcdwV/mn
-	NqTU1OE4fRyiQr3vtlELIZGwNWL0E0tLtAElTN3bp1J5G7fS7KqJLrrLMIJgwM15leDo4mu91lG
-	qewvYvCzR9TDkF5IAyl0iCAE4F6cjFOXUFmupZBMkTuCqx9tVunUd5bJ7rCumyIstf58/QUy9jo
-	oYxxNSBg8Mme1Eq6jBkm5NJSL8CdOu5C3swq3r421XkUiYf/u0VQSyl6Z5XdzQ44M8mjdw1M82M
-	x+KmJmdxStkBvGs4/j3vg2F+wsnMj
-X-Received: by 2002:a05:701b:2706:b0:1a0:5c85:d1b3 with SMTP id a92af1059eb24-1b25d3a8127mr6940925c88.43.1794068667872;
-        Sat, 07 Nov 2026 08:24:27 -0800 (PST)
-Received: from localhost.localdomain ([2405:201:301c:f8cd:b097:433d:def1:34a1])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b26294289dsm22854161c88.4.2026.11.07.08.24.24
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 07 Nov 2026 08:24:27 -0800 (PST)
-From: Aryan Sinha <sinha.aryan03@gmail.com>
-To: Nikolas Koesling <nikolas@koesling.info>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Aryan Sinha <sinha.aryan03@gmail.com>
-Subject: [PATCH v3] HID: pulsar: print errors with %pe
-Date: Sat,  7 Nov 2026 21:54:06 +0530
-Message-ID: <20261107162419.9051-1-sinha.aryan03@gmail.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ec9OinBL
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D49EF1F008A2;
+	Sat,  7 Nov 2026 16:43:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794069813;
+	bh=vJlfnNqej/LkG6MaOOq3+jKdNMX9ZNsvcUBYJfUwMpw=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=Ec9OinBLTdERos6h50EC0xUMTn77I2eH+sW83Lh5kwSY9BvV2OOVa/KNof0GP2Q58
+	 RS4VV3vBrJ/LJog1T9lg0D2JE4OoyqUja1mYU0rh9TBbXyPIEhQRpsuojcmq8ZMIA4
+	 CCDIxEY1vZFYI7ppfT5M0lTExZ07bRV7cMY147urYKAEBYKJp+dYFF+px+uccoSGQJ
+	 uVAe3HJmFJqNBLzSUpkpxl6XM/ygvvEBAxQusxKpDQigosD1nBGLgkLmP/DR4y72y1
+	 LgnZYxUr+IR4Egl8rgUGA8KwMUI2eGvYxK8dwEAUy7fQvT097QujPauhtAAp8a8K3u
+	 wRcc9px1LLfNQ==
+Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 1E9E1F40067;
+	Sat,  7 Nov 2026 11:43:31 -0500 (EST)
+Received: from phl-imap-15 ([10.202.2.104])
+  by phl-compute-10.internal (MEProxy); Sat, 07 Nov 2026 11:43:31 -0500
+X-ME-Sender: <xms:MlXvakDJz2aoRG_Q0Tr3dYW0eo4APQUabQqIttoZFPRFZ-x9snzIqw>
+    <xme:MlXvahUE11fMZOXF9JjGlaXmovQ63rXPe9CVrxbGMz01XC2UXZ8Ub-s6v11mUcT7K
+    6EUgoab8dJTWAHO_c14xHkS1kUKnJq9SFX4dojoicG37nrqW8Y-SchLZQ>
+X-ME-Proxy-Cause: dmFkZTF47JQfJLdRdMge2GMs+GugpouQhIspgU7BDymJQjozGtWeayorP8T8qJjOJtez5n
+    Mu6YVQMuTAuQf8dNPbyiJidY6z5iDchqOk/rPreMnFBsaZEyFLA1xNLvX2+sRgAAEV6CpA
+    18n7d+taVvJebv5vU6jJPdclNeeGqwUnruqBfjOVpjA4xXpT5GCaWy76JSn+teNqAA0ny2
+    vVmyqvtCRPIMNOkOlHDxwf2R+IqqtIN68NFJGnHnqmIyGIjD3zNX0zKaDGqEk7Ze2onYqy
+    9RdgDPRA3PikGN1W/7nDb8NiYp8Q9/+7zqfHAJcBEVt9DgwuHrHPFfmetOJuJSFKJUDZpN
+    mbRzObrxaiH+VuPVfFTvBWVxOAq7xc3fchnSigBQCyM4PA4HDuL1vAF5IoeXrMQk2aUW21
+    59Pn6Ph8ElZIblHku0CFRDKCKdVU/6BJGsrAIobO6f/CRmXPwJZ+FZIWnzEq4zHbFnFSj5
+    2GavxWreHaI/dkosMa1/Hz50DzNovuOurQwGdhu5YM7nZSIaOcaigZUM86iQpTNPvFE5q8
+    X0RucoetdeEG7ZlTg0zjUFsHpRlOfhY/tCKI3ix9kioMo32DZjUgaL6ky8l30WUfX53owO
+    FaUB1P+IyjUQnKRpIIcJTsmMD1HsAXSFOSlEcd18MZD9Rox3fmXGxCSSzMdg
+X-ME-Proxy: <xmx:M1Xvarm_GuLHtdhc-beslZ2ZxZoqr1pVXnXixSSL7TSDZnhBDdRW2w>
+    <xmx:M1XvakuXdXodbZzwSGhXpuZDbgbK4xmWfFZIJTq2PW_KgUkMPLhQ2w>
+    <xmx:M1XvakHt6uhcrYM_XDobstbNvikecMWxKGRyUkZcuWV3Fx0M6IIITQ>
+    <xmx:M1XvakswcIzGwK3QU4AniovTIpZY-XUd3Ibq2iA0mAnVEdW_mDFClQ>
+    <xmx:M1XvaqI_u5j39OfSlUWtLpJlRc3Dik8eKjcfeQJUyBgtS0utAvmxR5za>
+Feedback-ID: ifa6e4810:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id DFD31782738; Sat,  7 Nov 2026 11:43:30 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -96,107 +77,66 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: AE4uiykVHNXw
+Date: Sat, 07 Nov 2026 11:43:10 -0500
+From: "Chuck Lever" <cel@kernel.org>
+To: "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
+ "Jann Horn" <jannh@google.com>, "Josef Bacik" <josef@toxicpanda.com>,
+ "Chris Mason" <mason@kernel.org>, "Jeff Layton" <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>,
+ "Thomas Gleixner" <tglx@kernel.org>,
+ "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "Jonathan Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>,
+ "Greg Kroah-Hartman" <gregkh@suse.de>,
+ "Joel Granados" <joel.granados@kernel.org>, "Kees Cook" <kees@kernel.org>,
+ "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>,
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
+ "Linuxppc Dev" <linuxppc-dev@lists.ozlabs.org>, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
+ coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org,
+ linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net,
+ jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org,
+ linux-sh@vger.kernel.org, linux-usb@vger.kernel.org,
+ samba-technical@lists.samba.org, sparclinux@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
+ "Takashi Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org,
+ linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org,
+ linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org
+Message-Id: <39d3364c-d4d1-4919-86c0-695f75946c95@app.fastmail.com>
+In-Reply-To: <20261104-work-procfs-net-v2-7-221e2437fed1@kernel.org>
+References: <20261104-work-procfs-net-v2-0-221e2437fed1@kernel.org>
+ <20261104-work-procfs-net-v2-7-221e2437fed1@kernel.org>
+Subject: Re: [PATCH RESEND v2 07/13] SUNRPC: let procfs copy in writes
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-%pe prints the symbolic errno, which is easier to read in a log than the
-raw number. Convert every print in the driver that logs an errno so they
-all report the same way.
 
-The prints that log data bytes, battery readings or a byte count are left
-on %d, those are not error values.
 
-Signed-off-by: Aryan Sinha <sinha.aryan03@gmail.com>
----
-v3: 
-  - move changelog below as requested by Nikolas
-v2: https://lore.kernel.org/all/20261106083419.29334-1-sinha.aryan03@gmail.com/
-  - convert the remaining errno prints too, not just the battery one
-v1: https://lore.kernel.org/all/20261104150055.33028-1-sinha.aryan03@gmail.com/
- drivers/hid/hid-pulsar.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+On Wed, Nov 4, 2026, at 2:59 PM, Christian Brauner wrote:
+> Implement ->proc_write_buf() for the procfs channel, flush and
+> use-gss-proxy files so procfs copies in what is written before it pins
+> the entry. The channel file parses the downcall from that copy and the
+> flush files share the parsing with rpc_pipefs in do_write_flush(). The
+> rpc_pipefs files keep copying in themselves.
+>
+> CACHE_DOWNCALL_MAX and CACHE_FLUSH_MAX name the limits both sides
+> enforce, procfs through ->proc_write_size. The procfs files are removed
+> when the network namespace goes away and that no longer waits for a
+> writer that faults on its buffer.
+>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-index b0b34849f..495ce3b5c 100644
---- a/drivers/hid/hid-pulsar.c
-+++ b/drivers/hid/hid-pulsar.c
-@@ -162,8 +162,8 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
- 		spin_lock_irqsave(&drvdata->raw_event_lock, flags);
- 		drvdata->pending_event = CMD_NONE;
- 		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
--		hid_err(hdev, "failed to send command 0x%02x: %d\n",
--			payload[1], ret);
-+		hid_err(hdev, "failed to send command 0x%02x: %pe\n",
-+			payload[1], ERR_PTR(ret));
- 		goto out;
- 	}
- 
-@@ -295,8 +295,8 @@ static int read_power(struct pulsar_data *drvdata)
- 		if (status < 0) {
- 			ret = status;
- 			hid_err(drvdata->hdev,
--				"%s: failed to read status: %d\n",
--				__func__, ret);
-+				"%s: failed to read status: %pe\n",
-+				__func__, ERR_PTR(ret));
- 			goto unlock;
- 		}
- 
-@@ -320,8 +320,8 @@ static int read_power(struct pulsar_data *drvdata)
- 
- 	ret = exec_cmd(drvdata, payload, response, CMD_TIMEOUT_MSEC);
- 	if (ret < 0) {
--		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
--			__func__, ret);
-+		hid_err(drvdata->hdev, "%s: failed to read power: %pe\n",
-+			__func__, ERR_PTR(ret));
- 		goto unlock;
- 	}
- 
-@@ -411,8 +411,8 @@ static void power_uevent_work_handler(struct work_struct *work)
- 
- 	ret = read_power(drvdata);
- 	if (ret < 0) {
--		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
--			__func__, ret);
-+		hid_err(drvdata->hdev, "%s: failed to read power: %pe\n",
-+			__func__, ERR_PTR(ret));
- 		return;
- 	}
- 
-@@ -584,10 +584,11 @@ static void pulsar_init_work(struct work_struct *work)
- 	}
- 	if (ret < 0) {
- 		if (drvdata->type == TYPE_PULSAR) {
--			hid_err(hdev, "failed to read device info: %d\n", ret);
-+			hid_err(hdev, "failed to read device info: %pe\n",
-+				ERR_PTR(ret));
- 			return;
- 		}
--		hid_dbg(hdev, "failed to read device info: %d\n", ret);
-+		hid_dbg(hdev, "failed to read device info: %pe\n", ERR_PTR(ret));
- 		snprintf(drvdata->battery.model,
- 			 sizeof(drvdata->battery.model), "%s", hdev->name);
- 		goto register_battery;
-@@ -615,8 +616,8 @@ static void pulsar_init_work(struct work_struct *work)
- 	    devm_power_supply_register(&hdev->dev, &drvdata->battery.desc,
- 				       &psy_cfg);
- 	if (IS_ERR(drvdata->battery.ps)) {
--		hid_err(hdev, "failed to register battery: %ld\n",
--			PTR_ERR(drvdata->battery.ps));
-+		hid_err(hdev, "failed to register battery: %pe\n",
-+			drvdata->battery.ps);
- 		drvdata->battery.ps = NULL;
- 		return;
- 	}
-@@ -639,7 +640,7 @@ static int pulsar_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_parse(hdev);
- 	if (ret < 0) {
--		hid_err(hdev, "hid_parse failed: %d\n", ret);
-+		hid_err(hdev, "hid_parse failed: %pe\n", ERR_PTR(ret));
- 		return ret;
- 	}
- 
+Acked-by: Chuck Lever <cel@kernel.org>
+
+
 -- 
-2.46.0
-
+Chuck Lever (Come to NFS bake-a-thon! https://nfsv4bat.org)

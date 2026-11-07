@@ -1,93 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794060724;
-	b=19beqvpvwUhJ8YEVLvKHAvOX6MV1LM2k0bYI6eqjDVMSCTzSghi56l5Z1icymBWbP7aX
-	 zleV2E2L+J8KAf1jU2kRgffZLwWxob0iebJyuRbaL3eDUu3KNtZxlKgFLyGVJ3LKpj2j5
-	 oriXlVqbXPztXdWLNO0NsGxziPRNAiHbW+169RNjakOZNg7D6kQrBp6ToJC6HSwib+2Ig
-	 jXw/dYEm9OwUI8gdQLe8rDB2T369sfMxI4YA21ZiNg9OVPhyRDboIt39z4XjruY39wLtu
-	 mk8HXnZ2mOhlzBxv3iONiItMajjUfJO8tsYhjq25IU/vgyJSMQR5YScgoWF/AjTArzw==
+	t=1794060729;
+	b=EY7Vrq93zDO0u77iGsJdxfgm7Wx8D/MnAQEHND0GL6f4TDjktr0LSv0/8UzdszzfpgFQ
+	 8dfojKiBRQjljnQIbgbAooFzr2saF9K+wtITIJt69Jg3t9NRTW1OsAlkzQaU7RFBKdnCv
+	 6D9c/frJhi4N7vNhLE1iH2LYa8oXVRTQ9pJ8QGU7XSrjH6wpqm+bbToc9H6mTipnW1a7E
+	 Jsk8nOmf8arTKBE2NzQkkCxGGVtQ/Whrh8SAuHlIv4Xd/mtYXBzrkEQQt1ep4lHJKHsCG
+	 dqLYQaBOGRN3DmTjuiFrl8XgVbT4P/AczLk3tHM/nswHfkWVNzyg8VfbquMsAOTZAVg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794060724;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794060729;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=N7oNzfxnPM1b9iq8PjBkau8djf/0wkMbcjPct0Hzu0M=;
-	b=O6SyAqUFYlQeQA6j+wsofyBDaszLKP0+igHNJcv5bsDLt/T7UPFAWDFOnVRK24NQX2rD
-	 eFEQS9Xs4GJFB1Yhnw474ALGr1NGio2Wt4jVhJVFqdbj7hylOQUF1H4cu/18IMM5LNnja
-	 oMEggM8Nyx5ew7jPJFb+uV561GmX4Ykm20LeJgUK/cRIgjiTYs0T+6ZZlu69tkggiMqiI
-	 EtTIwBKVQRtvKl2knCuB6GKaEMYl/7SgwCXSoXFbatFYg8nvEj8wilkG7sEQhX1IaVmIX
-	 bOFvnS/L5bZxjuUMhM6VxFdrFcFBkC6V4DAsmPFYuMPaZ7sZglF3fW2I9AU7WfcHHZg==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=RacPJkBXQjWo1L6NvBAwFVNdOm+cWYSxFk+Cu0fqNro=;
+	b=AszlOLrWbeWXFEy9rWpvIsoQVbfWMLJPNNNoQAcwjYW15sC+FJS7wm9byTYJm5QvlOiQ
+	 /ktxTv5IqLQRo6aYhWzPdbCfNdhAW44+6RANLupUyLqjAuCvhG+nN7PxiEn7UQcRZGC8r
+	 YsKhc11/Fj6pu7VQn/5g1azHRmiT7MdW/0cHJW1PyRDapnx6K8KEQwbFCO5AlZD/Z+TtW
+	 XGB4f3IogzlBl4Igs1PQzrO7RPePVVYTON58L5wjkVYbtoeVMU//s6FZdom2gG7ILwp2t
+	 ASf2FXIunLWsu2Ig3IqFYTkDCpdGwCuISoYZUsjloHh/ZQddbBLKTBrS0V43/P3Tpjw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LW4FW7cD;
-	arc=none smtp.remote-ip=209.85.128.48
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BQQ98Ko0;
+	arc=none smtp.remote-ip=209.85.128.52
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07ACD606A32E
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 14:12:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 07ACD606A32E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F990606A330
+	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 14:12:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0F990606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LW4FW7cD
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a35d5d4a20so16918125e9.2
-        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 06:12:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BQQ98Ko0
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4afe2d546f9so19955845e9.3
+        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 06:12:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794060722; x=1794665522; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=N7oNzfxnPM1b9iq8PjBkau8djf/0wkMbcjPct0Hzu0M=;
-        b=LW4FW7cD+jZcHT7uQVYRyo3ICGNS03dPqayGgBVmcrYdpiTkCln0qBqhDm+abH3url
-         iCg19+nIrV7WTLeDG8XCs0+Ohd/I0APYJvnKc9ztJZNgEqUBi8lThtOq7UshZeaB2v+K
-         EQ6FndwVnxEtkIb4l/chDZEX4DRTOCYU3RAplyfSuEBG8ooPP//7qnv0ZgQuhbFje+f0
-         NYgncEAJq7diCAWSDraKPWefMgQHTZA/B5/+gZrjQE43NlW9hLfaUuZA4Nwt13urKl8K
-         0omQF4aiUC5FZQPJLrI76zh58NcJ42Wc9Q44NyuRO+wmFBxRL+KVgpTsq17HJPo22/ju
-         I5xA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794060722; x=1794665522;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1794060727; x=1794665527; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=N7oNzfxnPM1b9iq8PjBkau8djf/0wkMbcjPct0Hzu0M=;
-        b=qmlqLDRz1WQG2XUskAOzsUbIm8XDbUPGJbOM8I4JN+NI+bcK8tf7RAYQ0ejGVf4/XC
-         kUpWPz/lvjSI254cyYSXjk4AaKvdz121IIi56lZb69M/tuZa3Zde715hKrHcm01IhijB
-         UfB57AN/JlaU+kMXcjsiLOiLGoVnEKMfQdw4IZLniy7jibbl2q1vWWN6DzOHI6dunGEQ
-         5gaTp/D4zWTQH2rvIaU+F0vN1pstyADixmQPeP3/dp0COHJNCntE2ytXj0d5FIzwQtIg
-         uxekhgWKLX3aRj1Qq+mEBAxMhzk87FLbOb8et3gO5YjMTn8Zb/dihRFeU2mSd62hcidN
-         TaeA==
-X-Forwarded-Encrypted: i=1; AKwUvBxAABQVD1nWLmzIbtdeUd+0cJKvJ58G3QmQaaKIEtXvPFjw55IcZzhXAENqgVy06q5j3G8WdAVHMhnWZw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8qAQgOu9ms7ienvr99i3sw40b1WZqL3MrfhH/xKwTVRqaLtrfB
-	YDtWe7hT+4hSJe+uZzOP8Nz2Q6pKTPkJj1bOQfhOi6dDpjYz1hxipGGT
-X-Gm-Gg: AYBFou0rts68LAfFtBE0XpN/VnMn8s1wQAaeR7k63iSHHiv1uo4Pb2g0W01uIDSOxOg
-	HXXL/ASb6BmtHV+WRSrBh6A7APtEOjn80Gwo0aThDVXMBqVMSU35XMI/7Y6ua3ufk/wwGtvQUXu
-	vPagn53Cv19S92A6qZlMAbBHtZ8cpqMXCigKTE5CGm797ayank+TVqpk5phzKgwMIG8C4eOJKle
-	FvvWrauBbjpdQRLvXDrZYBf5vW09+/h3MrXKY/4UfrxArFAlESRD1NjS3SkEHeSgYo0uVu1Syge
-	a1cNNUmF0dIeSbpEcy0wcQVOoP+zwCuyvih5c22YHLiUcJ/jfUcKgNIR5RFqmj+4Dkqq1v1wwuG
-	/QtSnn8rg971VmV2t9oo9Nmjexk/er5jMUNDAtdqrgL8JzxTRW62buPNe0CYWG+FwmgMRbG50of
-	9jZ1Gm6l67Dg224MqfFPp7kG1uEyv1Mu5O0eMWGYyYaKJ1CpqsbgBuD4QhhOi6qeu7/mzSHzRWC
-	CGUCeR5wqVsuXJ7DB3xWkIYBw1RuOSqf9P4Sl/08lMbne2enJKHilU/DT3HSnJ/skd/aEq33v59
-	ROs36LOjKv8UBcF2cDkvaUqvTHk3Pu0ZXad8PKZoDIIGGNQh40sd7nNHXE4+nWAJg2SNT+uS5VV
-	6sE0VXmK1FHWGI/Rr8+LlqFhmDDzY1cuRYPjjPlA/aHZ4qxus
-X-Received: by 2002:a05:600c:a015:b0:4a3:5a91:5f61 with SMTP id 5b1f17b1804b1-4b6df028f04mr101869655e9.14.1794060722177;
-        Sat, 07 Nov 2026 06:12:02 -0800 (PST)
+        bh=RacPJkBXQjWo1L6NvBAwFVNdOm+cWYSxFk+Cu0fqNro=;
+        b=BQQ98Ko0i5a3/d0JVcD6XaQiDMx3Zp1AR7ku6rJ4qAPLX0QS9Ym1+SPeBowSv1qC9t
+         Q/vyqY5PCNPF6eOI6C9Ex40XgJpxkkcsrpzbv11OV9cTZKnoqdYtsqh8LTJqYjpoNRyb
+         sV9Ty6E/JfOvYOLAKhZXwgZ0c6PO4OcdBx61O39Pk4DaLxwxZ7DpbMn0tdiNtagLY8Nc
+         KcQ7ZOBDtbnV/q3TuhzWv+Ch22vm4KY2r1r5vmysWqY7CwFuc/3MHE4CtAriHrNW/H8L
+         zD+yYhNEIoZtqZua6/NJeL/iADe48WxlWGrhwefKKziL+qquF2xNacHCg/HX39VDEgB8
+         o56A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794060727; x=1794665527;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RacPJkBXQjWo1L6NvBAwFVNdOm+cWYSxFk+Cu0fqNro=;
+        b=ZxeX1FUl6jJafy82FGqNsNv2Rzg2rZcHex7LvJRxJl5faRNINmmvfLdfjJIbU7fm+f
+         2ObCRfOBlzgAUQtIYDikOcl+e/S3eWTjTLYBtIz3i831N3D0YzEDQT68QOJU5wQG5HlR
+         /PEZLjnJvfSAu3fMo1sIQhzOX+tCGut72+Czo4VT26WGVNViayPOiB0CkMLLboLuuu4Y
+         kGRNNLk7oMr59XpZvSqgsBQ+c18u7af5nNhioIULTZ7zfk0uGnzDy0T4wWhpUt+kwbnO
+         YNdpTHkf0sDv4SbQ8oruhBLdwq9DVvOdef/DCrlQrDZN6WRjPyRhOdUUepfy2BgnpEUP
+         nRMA==
+X-Forwarded-Encrypted: i=1; AKwUvBxyBjQqCk5tYdK2fv0ozosuaDSS23NNvATNMXcGAflr8dipgbXiTR8YygzGtoVBhVRn6SA5xyLm5D48IA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8SxVY4HmBVGoYYFD2WENM5ROjt6WARJF5m4AFmPuDC4RWK6qaP
+	KI24f7kzl6M9AZP8WXf6Bdu3RSqQAYcx7Ybnfpxfaa/SBih8SO6V34T3
+X-Gm-Gg: AYBFou2IvoWgHnIM382lcUXuojued+po/MuiaZQEkiLNHugQGc+g44mn78BtjRtU5VM
+	tEGsyPYnTCGGqFzvIS7JjsAkxoKxAGtjFyofpPxYg6CwAkQ0ypnT2U0ZSg/3DIlAzufoCZAjXB4
+	FzPtwxKRUIBLGu8OAlqF+ZmWw0YnOxl+DJIyOHGHUa1OLX+H8G3QlhZfz9+tgwbuf5k83T0aP3F
+	3oiPolhmuNGke6/gpNLW8d5nBSEZDFHdwYuYs6jhDTAc63NNR2dOdGC34NpZ1nJTlEtIzGVP8Wg
+	AQbQozosjsjCmmvUEg7vxAMBcLcKBOU+q20MQego4D1tBQcqJuQJdeOOSth2UgHpLnfSjxt157U
+	LlelP3kxQ6hzZ8tpHWrB0kg7vnd0PKdlANl2bQAsgIr/V2f/nl75q4ztYt+U8Dq31/6d6smG9dD
+	m7AkXLnkmcneeIOsSAaf1IoKpbWmzL4x1kJubjnPSrjxLAsth2LboFxb5Tr584XzMGac0+F73G0
+	KNE04n9Onjz+oMfB90hi1x9ldQZ18KnnPFI+5R3G1QeYNWshgHRr6AVoj4UkdCQv/EPeteavpAu
+	VMSZJz+HHAcN2GrPUVQ4535C6WLi/pK9Pz3s1oSxML2mNf2gA5YhROzC3hmY8xmku40BkdYM/hc
+	TT80Jg8k2+BKXE9nt75o7IV78821jtRFO7sTdv1zfUq5ebNpJHQ==
+X-Received: by 2002:a05:600c:4e41:b0:4a1:f68a:9736 with SMTP id 5b1f17b1804b1-4b6dfe8f3c1mr98075685e9.26.1794060727289;
+        Sat, 07 Nov 2026 06:12:07 -0800 (PST)
 Received: from DESKTOP-KHFMJSR ([194.9.62.193])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-492d809dae9sm9313327f8f.52.2026.11.07.06.12.00
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-492d809dae9sm9313327f8f.52.2026.11.07.06.12.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Nov 2026 06:12:01 -0800 (PST)
+        Sat, 07 Nov 2026 06:12:06 -0800 (PST)
 From: Vecheslav Filatov <harepro29@gmail.com>
 To: ojeda@kernel.org,
 	dmitry.torokhov@gmail.com
 Cc: rust-for-linux@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	Vecheslav Filatov <harepro29@gmail.com>
-Subject: [PATCH v10 0/2] rust: input: add input/serio abstractions and port Gravis Stinger driver
-Date: Sat,  7 Nov 2026 19:11:54 +0500
-Message-ID: <20261107141156.591711-1-harepro29@gmail.com>
+Subject: [PATCH v10 1/2] rust: input: add input device abstractions
+Date: Sat,  7 Nov 2026 19:11:55 +0500
+Message-ID: <20261107141156.591711-2-harepro29@gmail.com>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261107141156.591711-1-harepro29@gmail.com>
+References: <20261107141156.591711-1-harepro29@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,110 +102,364 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series introduces safe Rust abstractions for Linux input
-devices (struct input_dev) and the serio (Serial I/O) bus subsystem,
-along with a port of the legacy Gravis Stinger serial gamepad driver
-to safe Rust.
+Add safe Rust abstractions for Linux input devices (struct input_dev).
 
-Changes in v10:
-  - serio: removed wrapper module and aliases, directly mapping
-    Registration::interrupt_callback() to canonical constants
-    bindings::irqreturn::IRQ_NONE and bindings::irqreturn::IRQ_HANDLED.
+This provides:
+- `AllocatedDevice`: a newly allocated, unregistered input device handle
+  that allows configuring capabilities (keys, absolute axis limits, parent
+  device) before registration.
+- Safe string methods: `set_name` and `set_phys` accept `&'static CStr`
+  to prevent use-after-free since the input core does not copy strings.
+- `set_phys_from_parent`: dynamic physical location path formatting
+  ("%s/input0") stored safely in an owned kernel heap buffer.
+- Device lifecycle and reference count management: `set_parent` takes
+  a reference count via `bindings::get_device` to avoid dangling pointers,
+  releasing it appropriately on drop or post-registration.
+- Bounds-checked `set_abs_params` validating `axis < ABS_CNT` (0x40)
+  to prevent memory corruption in `dev->absinfo`.
+- `RegisteredDevice`: a registered input device handle providing safe,
+  inlined methods to report keys, absolute coordinates, and synchronization
+  events. Automatically calls `input_unregister_device` on drop (RAII).
+- Constants for bus types (`bus::*`) and event types (`event_type::*`).
+- Alphabetically sorted imports and module entries gated with
+  `#[cfg(CONFIG_INPUT = "y")]` and `#if IS_REACHABLE(CONFIG_INPUT)`
+  to avoid link failures when CONFIG_INPUT is disabled or modular.
 
-Changes in v9:
-  - serio: updated Registration::interrupt_callback() to map IRQ
-    return codes using module-level constants.
-
-Changes in v8:
-  - serio: simplified IRQ return constants to module-level definitions
-    with direct crate::bindings import without extra wrapper modules.
-
-Changes in v7:
-  - serio: scoped the lifetime of borrowed mut data inside
-    connect_callback() to drop before calling serio_continue_rx(),
-    preventing aliasing violations with incoming interrupts.
-  - joystick: added RUSTFLAGS_stinger_rust.o := --crate-name stinger
-    in Makefile to ensure built-in modpost device table aliases match
-    the canonical module name "stinger".
-
-Changes in v6:
-  - Developer identity: updated author and Signed-off-by to developer's
-    real name (Vecheslav Filatov) across all commits in compliance with
-    the Developer's Certificate of Origin (DCO).
-
-Changes in v5:
-  - serio: decoupled child device allocation and publication in Driver
-    lifecycle (init -> start -> attach). Child input devices are
-    allocated and configured before opening the port, but only registered
-    via Driver::start() after serio_open() succeeds. This prevents
-    premature registration and spurious uevents on probe failures.
-  - serio: added C wrappers rust_helper_serio_pause_rx() and
-    rust_helper_serio_continue_rx() to safely attach child devices in
-    Driver::attach() under hardware RX pause, eliminating races with
-    concurrent interrupts without sleeping.
-  - serio: removed redundant Device::as_device() method and made
-    Device::as_raw() crate-private (pub(crate)), relying on the standard
-    AsRef<device::Device> implementation.
-
-Changes in v4:
-  - Makefile: restored analog.o and db9.o in joystick Makefile
-    that were inadvertently removed during previous revisions.
-  - serio: eliminated concurrent borrow_mut() and aliasing data races
-    between connect_callback() and interrupt_callback() by initializing
-    and registering the input device prior to serio_open().
-  - serio: mapped interrupt return codes without missing constants.
-  - serio & stinger: formatted all module imports in strict vertical
-    style with trailing // comments.
-  - serio: annotated Registration::drop() and Driver::disconnect() with
-    #[inline].
-
-Changes in v3:
-  - input: added AllocatedDevice::set_phys_from_parent() to dynamically
-    format the physical device path ("%s/input0") in an owned kernel
-    heap buffer.
-  - input: managed parent device reference counts in set_parent(), drop(),
-    and register() using get_device()/put_device() to avoid dangling
-    pointers and reference leaks.
-  - input: eliminated manual cleanup duplication in register() by checking
-    to_result() before mem::forget(self).
-  - input: implemented Send and Sync for AllocatedDevice, added #[inline]
-    on small methods, and formatted imports vertically.
-  - serio: integrated serio::Device with kernel device abstractions via
-    AsBusDevice, impl_device_context_deref!, and AsRef<device::Device>.
-  - stinger: restored userspace-visible device name ("Gravis Stinger")
-    and dynamic phys path, preserving udev and EVIOCGNAME compatibility.
-  - stinger: maintained module name "stinger.ko" using Kbuild object
-    aliasing under CONFIG_JOYSTICK_STINGER_RUST.
-
-Changes in v2:
-  - Combined serio subsystem abstractions and Gravis Stinger driver
-    port into a single patch (2/2).
-  - Retained original C driver (stinger.c) under CONFIG_JOYSTICK_STINGER
-    and introduced CONFIG_JOYSTICK_STINGER_RUST to avoid regressions on
-    architectures and configurations without Rust support.
-  - Ensured IS_REACHABLE() guards for C helpers and #[cfg(CONFIG_* = "y")]
-    for rust/kernel modules to prevent unresolved symbols.
-
-Vecheslav Filatov (2):
-  rust: input: add input device abstractions
-  rust: serio: add serio bus abstractions and port Gravis Stinger driver
-
- drivers/input/joystick/Kconfig         |  14 ++
- drivers/input/joystick/Makefile        |   4 +
- drivers/input/joystick/stinger_rust.rs | 191 +++++++++++++++
- rust/bindings/bindings_helper.h        |   2 +
- rust/helpers/helpers.c                 |   2 +
- rust/helpers/input.c                   |  22 ++
- rust/helpers/serio.c                   |  27 ++
- rust/kernel/input.rs                   | 253 +++++++++++++++++++
- rust/kernel/lib.rs                     |   4 +
- rust/kernel/serio.rs                   | 331 +++++++++++++++++++++++++
- 10 files changed, 850 insertions(+)
- create mode 100644 drivers/input/joystick/stinger_rust.rs
+Signed-off-by: Vecheslav Filatov <harepro29@gmail.com>
+---
+ rust/bindings/bindings_helper.h |   1 +
+ rust/helpers/helpers.c          |   1 +
+ rust/helpers/input.c            |  22 +++
+ rust/kernel/input.rs            | 253 ++++++++++++++++++++++++++++++++
+ rust/kernel/lib.rs              |   2 +
+ 5 files changed, 279 insertions(+)
  create mode 100644 rust/helpers/input.c
- create mode 100644 rust/helpers/serio.c
  create mode 100644 rust/kernel/input.rs
- create mode 100644 rust/kernel/serio.rs
 
+diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+index 3791af0aadc7..4b09d3980e10 100644
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -64,6 +64,7 @@
+ #include <linux/fwctl.h>
+ #include <linux/fs.h>
+ #include <linux/i2c.h>
++#include <linux/input.h>
+ #include <linux/interrupt.h>
+ #include <linux/io-pgtable.h>
+ #include <linux/ioport.h>
+diff --git a/rust/helpers/helpers.c b/rust/helpers/helpers.c
+index d62c7be1ca7b..77cec85ad153 100644
+--- a/rust/helpers/helpers.c
++++ b/rust/helpers/helpers.c
+@@ -67,6 +67,7 @@
+ #include "fs.c"
+ #include "fwctl.c"
+ #include "gpu.c"
++#include "input.c"
+ #include "interrupt.c"
+ #include "io.c"
+ #include "irq.c"
+diff --git a/rust/helpers/input.c b/rust/helpers/input.c
+new file mode 100644
+index 000000000000..f43a06acfdc3
+--- /dev/null
++++ b/rust/helpers/input.c
+@@ -0,0 +1,22 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/input.h>
++
++#if IS_REACHABLE(CONFIG_INPUT)
++
++__rust_helper void rust_helper_input_report_key(struct input_dev *dev, unsigned int code, int value)
++{
++	input_report_key(dev, code, value);
++}
++
++__rust_helper void rust_helper_input_report_abs(struct input_dev *dev, unsigned int code, int value)
++{
++	input_report_abs(dev, code, value);
++}
++
++__rust_helper void rust_helper_input_sync(struct input_dev *dev)
++{
++	input_sync(dev);
++}
++
++#endif /* IS_REACHABLE(CONFIG_INPUT) */
+diff --git a/rust/kernel/input.rs b/rust/kernel/input.rs
+new file mode 100644
+index 000000000000..14977298ad47
+--- /dev/null
++++ b/rust/kernel/input.rs
+@@ -0,0 +1,253 @@
++// SPDX-License-Identifier: GPL-2.0
++
++//! Input subsystem abstractions for safe Rust drivers.
++//!
++//! Provides a safe Rust object-oriented interface around Linux `struct input_dev`,
++//! ensuring safe allocation, capability configuration, registration, and RAII cleanup.
++
++use crate::{
++    bindings,         //
++    device,           //
++    error::to_result, //
++    prelude::*,       //
++};
++use core::ptr::NonNull;
++
++/// Bus types for input devices.
++pub mod bus {
++    use super::*;
++
++    /// PCI bus.
++    pub const PCI: u16 = bindings::BUS_PCI as u16;
++    /// USB bus.
++    pub const USB: u16 = bindings::BUS_USB as u16;
++    /// RS232 serial bus.
++    pub const RS232: u16 = bindings::BUS_RS232 as u16;
++}
++
++/// Event types reported by input devices.
++pub mod event_type {
++    use super::*;
++
++    /// Key or button press/release events.
++    pub const KEY: u32 = bindings::EV_KEY;
++    /// Absolute axis movement events.
++    pub const ABS: u32 = bindings::EV_ABS;
++}
++
++/// An allocated input device being configured prior to registration.
++pub struct AllocatedDevice {
++    ptr: NonNull<bindings::input_dev>,
++    phys: Option<KBox<[u8; 64]>>,
++}
++
++impl AllocatedDevice {
++    /// Allocates a new input device.
++    #[inline]
++    pub fn new() -> Result<Self> {
++        // SAFETY: `input_allocate_device` returns either a valid pointer or NULL.
++        let ptr = unsafe { bindings::input_allocate_device() };
++        let ptr = NonNull::new(ptr).ok_or(ENOMEM)?;
++
++        Ok(Self { ptr, phys: None })
++    }
++
++    /// Sets the human-readable device name.
++    #[inline]
++    pub fn set_name(&mut self, name: &'static CStr) {
++        // SAFETY: `self.ptr` is valid and `name` has static lifetime.
++        unsafe {
++            (*self.ptr.as_ptr()).name = name.as_char_ptr().cast();
++        }
++    }
++
++    /// Sets the physical location string from a static C string.
++    #[inline]
++    pub fn set_phys(&mut self, phys: &'static CStr) {
++        // SAFETY: `self.ptr` is valid and `phys` has static lifetime.
++        unsafe {
++            (*self.ptr.as_ptr()).phys = phys.as_char_ptr().cast();
++        }
++    }
++
++    /// Sets the physical location string by formatting `<parent_phys>/input0`.
++    #[inline]
++    pub fn set_phys_from_parent(&mut self, parent_phys: &[u8]) -> Result {
++        let mut buf = KBox::new([0u8; 64], GFP_KERNEL)?;
++        let len = parent_phys
++            .iter()
++            .position(|&b| b == 0)
++            .unwrap_or(parent_phys.len());
++        let suffix = b"/input0\0";
++        if len + suffix.len() > buf.len() {
++            return Err(EINVAL);
++        }
++        buf[..len].copy_from_slice(&parent_phys[..len]);
++        buf[len..len + suffix.len()].copy_from_slice(suffix);
++
++        // SAFETY: `buf` is allocated on the kernel heap and its lifetime is tied to `self.phys`.
++        unsafe {
++            (*self.ptr.as_ptr()).phys = buf.as_ptr().cast();
++        }
++        self.phys = Some(buf);
++        Ok(())
++    }
++
++    /// Sets device identifier (bus type, vendor, product, version).
++    #[inline]
++    pub fn set_id(&mut self, bustype: u16, vendor: u16, product: u16, version: u16) {
++        // SAFETY: `self.ptr` is valid.
++        unsafe {
++            let dev = self.ptr.as_ptr();
++            (*dev).id.bustype = bustype;
++            (*dev).id.vendor = vendor;
++            (*dev).id.product = product;
++            (*dev).id.version = version;
++        }
++    }
++
++    /// Sets the parent device for this input device.
++    ///
++    /// Holds a reference count on `parent` to prevent dangling pointers before registration.
++    #[inline]
++    pub fn set_parent(&mut self, parent: &device::Device) {
++        // SAFETY: `self.ptr` is valid, and `parent.as_raw()` returns a valid `struct device`.
++        // Acquire a reference to guarantee `parent` remains alive while referenced by `dev.parent`.
++        unsafe {
++            let old = (*self.ptr.as_ptr()).dev.parent;
++            if !old.is_null() {
++                bindings::put_device(old);
++            }
++            (*self.ptr.as_ptr()).dev.parent = bindings::get_device(parent.as_raw());
++        }
++    }
++
++    /// Enables support for a capability (e.g. key or axis).
++    #[inline]
++    pub fn set_capability(&mut self, type_: u32, code: u32) {
++        // SAFETY: `self.ptr` is valid and type/code are valid capability values.
++        unsafe {
++            bindings::input_set_capability(self.ptr.as_ptr(), type_, code);
++        }
++    }
++
++    /// Sets parameter limits for an absolute axis.
++    ///
++    /// Bounds-checks `axis < ABS_CNT` (0x40) to prevent out-of-bounds writes
++    /// to the `absinfo` array in `struct input_dev`.
++    #[inline]
++    pub fn set_abs_params(
++        &mut self,
++        axis: u32,
++        min: i32,
++        max: i32,
++        fuzz: i32,
++        flat: i32,
++    ) -> Result {
++        if axis >= bindings::ABS_CNT {
++            return Err(EINVAL);
++        }
++
++        // SAFETY: `self.ptr` is valid and `axis` has been verified within bounds.
++        unsafe {
++            bindings::input_set_abs_params(self.ptr.as_ptr(), axis, min, max, fuzz, flat);
++        }
++        Ok(())
++    }
++
++    /// Registers the input device with the kernel input core.
++    ///
++    /// Consumes the `AllocatedDevice` and returns a [`RegisteredDevice`].
++    #[inline]
++    pub fn register(mut self) -> Result<RegisteredDevice> {
++        // SAFETY: `ptr` is valid and was allocated by `input_allocate_device`.
++        to_result(unsafe { bindings::input_register_device(self.ptr.as_ptr()) })?;
++
++        // SAFETY: `device_add` during `input_register_device` acquires its own reference
++        // to `parent`, so we drop our pre-registration reference to avoid a leak.
++        unsafe {
++            let parent = (*self.ptr.as_ptr()).dev.parent;
++            if !parent.is_null() {
++                bindings::put_device(parent);
++            }
++        }
++
++        let ptr = self.ptr;
++        let phys = self.phys.take();
++        core::mem::forget(self);
++
++        Ok(RegisteredDevice { ptr, _phys: phys })
++    }
++}
++
++impl Drop for AllocatedDevice {
++    #[inline]
++    fn drop(&mut self) {
++        // SAFETY: `self.ptr` was allocated by `input_allocate_device` and has not been registered.
++        unsafe {
++            let parent = (*self.ptr.as_ptr()).dev.parent;
++            if !parent.is_null() {
++                bindings::put_device(parent);
++            }
++            bindings::input_free_device(self.ptr.as_ptr());
++        }
++    }
++}
++
++// SAFETY: `AllocatedDevice` exclusively owns its `input_dev` pointer and can be transferred
++// across threads.
++unsafe impl Send for AllocatedDevice {}
++// SAFETY: `AllocatedDevice` has exclusive ownership and thread-safe methods.
++unsafe impl Sync for AllocatedDevice {}
++
++/// A registered input device capable of reporting events to userspace.
++pub struct RegisteredDevice {
++    ptr: NonNull<bindings::input_dev>,
++    _phys: Option<KBox<[u8; 64]>>,
++}
++
++impl RegisteredDevice {
++    /// Reports a binary button or key state event.
++    #[inline]
++    pub fn report_key(&self, code: u32, value: bool) {
++        // SAFETY: `self.ptr` is valid and registered with the input core.
++        unsafe {
++            bindings::input_report_key(self.ptr.as_ptr(), code, if value { 1 } else { 0 });
++        }
++    }
++
++    /// Reports an absolute axis position value.
++    #[inline]
++    pub fn report_abs(&self, code: u32, value: i32) {
++        // SAFETY: `self.ptr` is valid and registered with the input core.
++        unsafe {
++            bindings::input_report_abs(self.ptr.as_ptr(), code, value);
++        }
++    }
++
++    /// Flushes and synchronizes all reported events into a single input packet.
++    #[inline]
++    pub fn sync(&self) {
++        // SAFETY: `self.ptr` is valid and registered with the input core.
++        unsafe {
++            bindings::input_sync(self.ptr.as_ptr());
++        }
++    }
++}
++
++impl Drop for RegisteredDevice {
++    #[inline]
++    fn drop(&mut self) {
++        // SAFETY: `self.ptr` was successfully registered with `input_register_device`.
++        // Unregistering automatically unbinds and frees the device.
++        unsafe {
++            bindings::input_unregister_device(self.ptr.as_ptr());
++        }
++    }
++}
++
++// SAFETY: `RegisteredDevice` can be safely transferred across threads.
++unsafe impl Send for RegisteredDevice {}
++// SAFETY: Event reporting on `input_dev` is thread-safe (protected by internal locks in the
++// input core).
++unsafe impl Sync for RegisteredDevice {}
+diff --git a/rust/kernel/lib.rs b/rust/kernel/lib.rs
+index 1ab41129d557..ff5c978758d0 100644
+--- a/rust/kernel/lib.rs
++++ b/rust/kernel/lib.rs
+@@ -88,6 +88,8 @@
+ #[doc(hidden)]
+ pub mod impl_flags;
+ pub mod init;
++#[cfg(CONFIG_INPUT = "y")]
++pub mod input;
+ pub mod interop;
+ pub mod interrupt;
+ pub mod io;
 -- 
 2.56.0
+

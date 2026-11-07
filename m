@@ -1,57 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.238.236.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794048216;
-	b=aH1csWF1wLdzcnb28mvqYd9GTdaRTv8djmFyyudYKlXaZN9R3atyKSeBWtUP/yxWxFW4
-	 WE9QqMPoBLKIQNlq9/oqoX/2BFL2TYh0+kMYQjpC3nsMp1CFYLz1tX28V3d3t7Ir2Wv6X
-	 NA/SbTiGcHozkvy7HAeOQGBUT688LWxrqlXUxeHrF+WJBu2JK3y7tVdnpWccu3J7W0tGd
-	 HaOOsAjQnujrgPdLxWlt8/moEdA/6D6A53bpji/KdGq8igbEPW8yeZSgM8Anyze7rlJKg
-	 t1sP3+dB/ByIAsnJ39UTn1BixptyCrzO7GA73YTU8jrESt5qpGw7vgUI/LDVriWbBRA==
+	t=1794048509;
+	b=Kjdv9aaz+mVu0Uuvd6R2nImMJ8jN9HK3bAkdGbRxvHT0MpktPkaQdP+OBiglX2PDs3w7
+	 bJxeWic1w7LZC32uJ841PUJtoKLsue6+LYbyOFoydWfridTSrSqSN8c1lK1s9dGmgomaj
+	 ZctYi2c6OzQEZBdAYNCeDjFwE1SE6x7KcMkXOCN6o9G8pa70Tegd2wTTsj2jLja8w1K0W
+	 /r7enj0+2+Ai8QdYsvXh2dMPR+Qj0cMLTZ5xRENEa6oPLvtbMK2V+CLryjJ6D2ddIKAmS
+	 CF6ZyaBGZGb806OuNjQNRuwrV8+TissIz3/3AEyo9VerSFD77DW6csu3xAD+JPln8ag==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794048216;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=giPbV5+A3C01/xSiBJecZKKff0VXrYHGJi91ofl0dcM=;
-	b=SwwxjOzDUFl94joHQGP10yY5gUL7pBlHZBo4PvthZdSz4o5ins40V1t0klzvudOGN1Y0
-	 9NvySU8jNhi8ki5ZUt3EOmtPTlAAgL5Et+Uaz3TGh/ep9gQx2NxzkQq7N3dHkFoWdu3ki
-	 blnKrsNZKdbyO4nOBlUOnChRnlYbwagGit4mfOvTJ3lZ7PZ4f3Eor/SDqIsE+aNzxbkZ5
-	 LoSSMSg8MSkiL+k7hExg2zv1CfITWKb8+kCJjiculjVM0oiWCVAYrjrQtCJUgii/jPt+b
-	 YMBkVarO77WOUPlowV1X8XQ05ZDiYJcaqbiSYHQ67dJF0WcxUFBWpjGZ4FKgQryaPCQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794048509;
+	h=DMARC-Filter:DKIM-Signature:From:To:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=8y3qUwF5AW7hRyJC8vTVeAE1YxJuk8veAqbgzvjkaCE=;
+	b=ghEzHWzxjxLEt9FBIkfRTz1Pzp/Qg0bsCkAnAvPt/zfURmXwjwfa7Rl1WNjhIAMHwljc
+	 mDidob58BPaYIjh++l0EmKHxlPdYHcPFSRP57e+sXG8XqR4+6CVdc7ZykVPRh864dDWeW
+	 ZB6rQAEAf1ajywzxsHbrL2WEgcFFK5pzNQry6wMl//4cAaQCrCK+lRyLlalTNSvz3pP3K
+	 6C3IboOYHMBwCSKRuIU8fbGjs6ORlNjx7wFfJ6DEKI68RLYudnvaWyNRkoXMfs7kVV95L
+	 orUHRtbZAamr9nb1pcyv3NZr97onhzF2nuiGP2TYYAFCo4JamANZkrvUctyub2KwmAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Elg2fRqW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=kemnade.info;
+	spf=pass smtp.mailfrom=kemnade.info;
+	dkim=pass header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=cVrQLdja;
+	arc=none smtp.remote-ip=178.238.236.174
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E462606A326
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 10:43:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C058E606A32C;
+	Sat,  7 Nov 2026 10:48:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C058E606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Elg2fRqW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B9C1F008A2;
-	Sat,  7 Nov 2026 10:43:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794048216;
-	bh=giPbV5+A3C01/xSiBJecZKKff0VXrYHGJi91ofl0dcM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Elg2fRqWUXgqJ6OiRoBpMbJxRyrQvVQ37xx8Zc7AA/daq7gfWBL2kndX/OsH0r4kc
-	 cHKnnRALyfHvGfJfIiFNOwIoIwYk6gmYTK+TjzQCWFA6rQYoOFL9IVN/JS1gt4aXli
-	 uYU9EL81sBKrcWlrLoF5FSfq01760Bl9M4IYt0V2Hf1eGaPqc/gkwm0YoYS4cvIqrI
-	 faJt8goxvspCNVX1JK6iL90XVQz9tEpndABsEmBDXBrl2lACIvJUIyaOgpe7ToYxoL
-	 g6AztE/t647UpWMWcLy6Gyjzxz/GCuYLQs+i4UeJEPGXott+sAeXmgjtNFg/Hrm49A
-	 I6/7F+kEeuqUw==
-Message-ID: <sashiko-outbox-202820@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 2/2] rust: serio: add serio bus abstractions and port
- Gravis Stinger driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vecheslav Filatov" <harepro29@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
-In-Reply-To: <20261107102106.546041-3-harepro29@gmail.com>
-References: <20261107102106.546041-1-harepro29@gmail.com>
- <20261107102106.546041-3-harepro29@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 07 Nov 2026 10:43:35 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=cVrQLdja
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Subject:To:From:Reply-To:Cc:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=8y3qUwF5AW7hRyJC8vTVeAE1YxJuk8veAqbgzvjkaCE=; t=1794048508; x=1795258108; 
+	b=cVrQLdjagm5ExuhSyBg4bqyHy1FERkvyL2TmjSa4FfBIA5Oj+Vt+ZZh7m2E/bvjONvIHPqRx31h
+	p9b+zckJA9WmhPVyopBHH46TcWCUcZAO5MRyoYD6iOnFcOwX8Ru3vCREyaY2HJhYUWs7S9SOaOlp3
+	iUnZBJ1VqtHSoyglwPBu4MkWuHRP0yTRTnl6o41Tzpix0gX1auit8fQYiHOf++IprB7fdIjxA54Sr
+	BjH3jMOhdOVtsd4HJm35coVCCMepTXAG+NfBf4meY04MPsKVRuPm4AglFSAPnpDnkWhL5rg2mLLiN
+	6PuzeY/mf8hvvMqLLByIPYpBYJNPCcoYVLsw==;
+From: Andreas Kemnade <andreas@kemnade.info>
+To: dmitry.torokhov@gmail.com,
+	andreas@kemnade.info,
+	bartosz.golaszewski@oss.qualcomm.com,
+	arnd@arndb.de,
+	marco.crivellari@suse.com,
+	tony@atomide.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	brgl@kernel.org
+Subject: [PATCH v2] Input: gpio-keys - do not BUG() on requested wakeirqs
+Date: Sat,  7 Nov 2026 11:48:07 +0100
+Message-ID: <20261107104807.54410-1-andreas@kemnade.info>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,123 +63,45 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [High] rust: serio: non-existent bindings::irqreturn::IRQ_* paths
-  break build
-- [Medium] rust: serio: unsound Device<Bound> cast in
-  Registration::connect_callback()
---
+Having the IRQ handler called when enabled IRQs arrive should be considered
+as a feature not as a bug. So do not BUG() there when this happens.
+Also BUG() is too harsh here.
 
-commit 8b9bc178d0ee71cd5694b16b76519c8a7ef9200e
-Author: Vecheslav Filatov <harepro29@gmail.com>
+Fixes: 3717194f24922 ("Input: gpio-keys - add system suspend support for dedicated wakeirqs")
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+Changes in v2:
+do not BUG() at all here and remove the other similar instance of this
+BUG().
 
-rust: serio: add serio bus abstractions and port Gravis Stinger driver
+ drivers/input/keyboard/gpio_keys.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-This commit adds Rust abstractions for the serio bus subsystem and ports
-the Gravis Stinger serial gamepad driver to Rust.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index fbc31c5db3db4..41a9210b40176 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -412,8 +412,6 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ {
+ 	struct gpio_button_data *bdata = dev_id;
+ 
+-	BUG_ON(irq != bdata->irq);
+-
+ 	if (bdata->button->wakeup) {
+ 		const struct gpio_keys_button *button = bdata->button;
+ 
+@@ -465,8 +463,6 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+ 	struct gpio_button_data *bdata = dev_id;
+ 	struct input_dev *input = bdata->input;
+ 
+-	BUG_ON(irq != bdata->irq);
+-
+ 	guard(spinlock_irqsave)(&bdata->lock);
+ 
+ 	if (!bdata->key_pressed) {
+-- 
+2.47.3
 
-> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
-> new file mode 100644
-> index 0000000000000..4e16917ddd70c
-> --- /dev/null
-> +++ b/rust/kernel/serio.rs
-> @@ -0,0 +1,336 @@
-
-[ ... ]
-
-> +pub use crate::irq::IrqReturn;
-> +
-> +#[allow(non_upper_case_globals)]
-> +const irqreturn_IRQ_NONE: bindings::irqreturn_t =3D bindings::irqreturn:=
-:IRQ_NONE;
-> +#[allow(non_upper_case_globals)]
-> +const irqreturn_IRQ_HANDLED: bindings::irqreturn_t =3D bindings::irqretu=
-rn::IRQ_HANDLED;
-
-[Severity: High]
-Does this compile when CONFIG_RUST=3Dy and CONFIG_SERIO=3Dy are enabled?
-
-bindgen generates bindings::irqreturn as a c_uint type alias with top-level
-constants bindings::irqreturn_IRQ_NONE and bindings::irqreturn_IRQ_HANDLED
-(as used in rust/kernel/irq/request.rs), so bindings::irqreturn::IRQ_NONE
-and bindings::irqreturn::IRQ_HANDLED fail to resolve with E0599.  Dropping
-these local constants and returning bindings::irqreturn_IRQ_NONE and
-bindings::irqreturn_IRQ_HANDLED directly in
-Registration::interrupt_callback() avoids the build failure.
-
-[ ... ]
-
-> +/// Trait implemented by serio device drivers.
-> +pub trait Driver: Send + Sync + Sized {
-> +    /// Context data stored per connected device instance.
-> +    type Data: ForeignOwnable + Send + Sync;
-> +
-> +    /// Pending resources allocated during probe to be published after t=
-he port opens.
-> +    type Pending;
-> +
-> +    /// Published device handle created after the port opens.
-> +    type Published;
-> +
-> +    /// Device ID match table.
-> +    const ID_TABLE: IdTable;
-> +
-> +    /// Initializes driver data before the port is opened.
-> +    fn init(dev: &Device<device::Bound>) -> Result<(Self::Data, Self::Pe=
-nding)>;
-
-[ ... ]
-
-> +    unsafe extern "C" fn connect_callback(
-> +        serio: *mut bindings::serio,
-> +        drv: *mut bindings::serio_driver,
-> +    ) -> c_int {
-> +        if serio.is_null() {
-> +            return crate::error::code::EINVAL.to_errno();
-> +        }
-> +
-> +        // SAFETY: `serio` is valid. `Device<Bound>` is repr(transparent=
-).
-> +        let dev =3D unsafe { &*(serio.cast::<Device<device::Bound>>()) };
-> +
-> +        // 1. Initialize driver data before port is opened.
-> +        let (data, pending) =3D match T::init(dev) {
-
-[Severity: Medium]
-Is it sound to pass &Device<device::Bound> to T::init() here?
-
-Because Device<Ctx> implements AsRef<device::Device<Ctx>>, safe code in
-Driver::init() can obtain &device::Device<device::Bound> and register
-managed resources via Devres::new() or devres::register().  However, manual
-driver binding through sysfs drvctl calls serio_bind_driver() outside
-really_probe():
-
-drivers/input/serio/serio.c:serio_bind_driver() {
-	...
-		serio->dev.driver =3D &drv->driver;
-		if (serio_connect_driver(serio, drv)) {
-			serio->dev.driver =3D NULL;
-			return -ENODEV;
-		}
-
-		err =3D device_bind_driver(&serio->dev);
-		if (err) {
-			serio_disconnect_driver(serio);
-			serio->dev.driver =3D NULL;
-			return err;
-		}
-	...
-}
-
-If connect_callback() or device_bind_driver() fails in that path,
-devres_release_all() is never called on &serio->dev, leaving any Devres
-registered during T::init() unrevoked on an unbound device and causing
-later really_probe() attempts on that port to fail with -EBUSY.  Passing
-&Device<device::Normal> (or &Device) to Driver::init() prevents callers
-from registering devres resources before binding completes.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107102106.5460=
-41-1-harepro29@gmail.com?part=3D2

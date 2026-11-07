@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794082408;
-	b=ci3OilPlnuzvio8dcNDBqNIsRivNYRww8T+gbs/fheH3UNXMAcEFDgZfi95VfXH1hk5f
-	 RaT7KSDSQxjxsJPQiO9zbDq4RnhI92xO+r6FO3Ed2GhuBrORrzk772UbqgOf9WWv0TYaD
-	 Hnjyq6/l83TrpwcUxyS/uSTJeCm8azBbSJ/0+zjCpO85giGIQmHbhc/Q8PB7QjNqbf6O6
-	 xu2uEi1kCcRT11Z7MW+Z4/xveAVm2HX+hprYkUnzQ8vuCynPyVEFA2Wn+IrFudFZohRKo
-	 L+zWZwi0Y2YY6iTN3DTFshPoMykSjjKN7ELP9u3aiku7no5ExLsFSWKuKoFi2MLOhOQ==
+	t=1794082571;
+	b=sbxxFFOpqYcNFpiVMO1QJ2ErYfNL8bdG/dwVb48Cw9IumZ+oil1PS0u3LUBpQPbOWvvx
+	 wZG+SB3FlwRMVaqPJK3H9WJU6tb/MclkNKwUeeLtqhX9kVR2MaZt5tCu9pqjR+IX9wBM2
+	 GFuqiiz8Sd9JSIV4kMskOrelW63+0pH9VwkoZUQlO9pAI0/bI/siMvBlQrJjDpB4DqrHi
+	 nLL4QloiOR88dHhT2pPOT+VgFjcz+Fg9FXUGGETErMoUd6biceGamLi41ZJrCqPUGolcL
+	 ZU2BnJMfwZRyYfwLuwKx6F2EapnQ02aCeDzC0nXE8uOph6p2xP6H55dq2R1StKNFXYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794082408;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794082571;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=ERTBlzUdFoDfton7ShqaRUah2+gc/i29+LWYPPh83VI=;
-	b=boslhL9jwNZ9Ebj8e2T/GmqXqGPwU+vRe2uzZr1ZeOMmuaHmAugj4GOACAhrFkBCSqg1
-	 Lgq8rIJ8OUFcVKdAXglHKCZRCc4IZ2SwWD9oLe/784jZIkUR1+7CUZ5FHuPRr9ph/rKU4
-	 9tJMqzoUtGTGbbWDAK7vxf8812jXoEoX9EymW+TEjn9GqnAlvyNAd6mkT9MRVHUFc7ouv
-	 mVchzV3CwRAOODzilA3Gnlb+/8le8Vq/IDw6ZdRmAFEI0T+4QAJlAimqHfVplkEXDKesj
-	 Y+YMzKjrhLhmRDr1DXvxW9vGq2lvpyQuS/yy5iGfRG3xyA/s7xJeOfIjGi3vB3rC+qw==
+	bh=FJ6uIHCg/Nv3UfSn+KtMNeOWaSMTeRzKLIHEwClVtTk=;
+	b=Ho6xC/qEVUPO2ekwAlFO9pR2h9B4Ok8dhvsYZIfVc6z7hSNNSMiuBNLSUA71f07C5EEB
+	 RlN/QPVy78G1Uhl4iGpdwr7OKW+fBWbVCyFchPzbh+LpM+69h7/lmaLjlKDErA84zupTq
+	 n968o8lCJGZn6+bLlVbXkN+zEqnnnzanmC2MnAbqDixkwKSElQwMPzD6MnQ+jnrwpRKUn
+	 KuObUz4O2nElON6N8mvBq6PwUCFJPM2YnhPldNWsn0GS66wUu5LpCjQCHWG/TFZd19gNr
+	 aZtdWZUQmAJomADR0C0mEW7B2pyoL0waqW7E8jFaYM7/ACJ8vLtxzMjpbw971n45pgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VsF8sTE9;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QELX8uWM;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91ED5606EE91;
-	Sat,  7 Nov 2026 20:13:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3C4606A32F;
+	Sat,  7 Nov 2026 20:16:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VsF8sTE9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FC621F008BC;
-	Sat,  7 Nov 2026 20:13:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QELX8uWM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5241F0089F;
+	Sat,  7 Nov 2026 20:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794082408;
-	bh=ERTBlzUdFoDfton7ShqaRUah2+gc/i29+LWYPPh83VI=;
+	s=k20260515; t=1794082570;
+	bh=FJ6uIHCg/Nv3UfSn+KtMNeOWaSMTeRzKLIHEwClVtTk=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=VsF8sTE9Jq7H2cEPwCcycGZ4nUtWmwkUwVyNuNs31HVfLIA5SCdJmcELnSNWh6QOh
-	 DoTwyXs94QNZI41O4zJsOGh1YiyC2LJHVlpP9QjvKKc1417kjUEXdlDUQ2ufDcT3nF
-	 j4rLM1uFopdt7xn75IJ8KzEN4w/vhgyLSw0zuDlOLXOORvNb12skVZOu+FVVHKrEm/
-	 eBtEP4nuN5ILVTgYhWHse6d6skxdO/vVN3Sof2qJ8TFARo+qEFbDmvNHvABkmQ7oek
-	 nuux35Vx5+InkccYfXPwZyJbG5MXamVLLd5mmYGAWN0pMPCX+D4qSKffearbFt2Dy6
-	 gL0+ZCD4YN3BQ==
-Date: Sat, 7 Nov 2026 20:13:19 +0000
+	b=QELX8uWMXEX56NX2jthu56daLO/ojSTqfXaeHYuRnszElirpFRDSBfRFF0fGy8Vt8
+	 SmXsMoAseLiGGqyOc9cyzHwNxZct6yuTmkbv59Oqk378JzqAgNrJGugJJX04obsUO3
+	 +z51GA9srCRx9C6AJswM9jBRbIwrSm7hBkWr6r/5pBTfGv2Gxdhc2UrlA/LqeF+lPO
+	 0QRjMp+9entkNETSvVTc97mJnNN+YlsYOBnPLPHo1J3u9jjcmL8q7qEOSPgi5+Sjbr
+	 bFX4ksF6hXMxxGI6crv9a2PYfXc3+g5Q5TQElJoxZNsA1Fcoftp339Kcq2m9e8J00B
+	 yKkBLYJZV7v1g==
+Date: Sat, 7 Nov 2026 20:16:01 +0000
 From: Jonathan Cameron <jic23@kernel.org>
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
  linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
  simeon@maryasin.name, lixu.zhang@intel.com, crofts@kernel.org
-Subject: Re: [PATCH v2 1/7] HID: sensor: hub: Synchronize callback removal
- with raw events
-Message-ID: <20261107201319.0f496662@jic23-hlaptop>
-In-Reply-To: <20261104201403.2039921-2-srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 6/7] HID: sensor: custom: Register enable attribute
+ after misc device
+Message-ID: <20261107201601.7d5aa69f@jic23-hlaptop>
+In-Reply-To: <20261104201403.2039921-7-srinivas.pandruvada@linux.intel.com>
 References: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
-	<20261104201403.2039921-2-srinivas.pandruvada@linux.intel.com>
+	<20261104201403.2039921-7-srinivas.pandruvada@linux.intel.com>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -65,72 +65,70 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On Wed,  4 Nov 2026 12:13:57 -0800
+On Wed,  4 Nov 2026 12:14:02 -0800
 Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
 
-> Raw-event processing holds pdata->lock across callback lookup and
-> invocation, and takes dyn_callback_lock during lookup. Removal must
-> prevent both active callbacks and future lookups before client state can
-> be released.
+> Register the enable_sensor sysfs group only after misc-device setup
+> succeeds. This prevents userspace from opening the sensor hub while
+> probe can still fail, which would otherwise leave the hub open reference
+> unbalanced on unwind.
 >=20
-> Take pdata->lock before dyn_callback_lock, matching raw-event order,
-> and unlink the callback while holding both locks. This ensures active
-> raw-event callbacks have finished and prevents future lookups.
->=20
-> Fixes: 401ca24fb34a ("HID: sensors: introduce sensor framework")
+> Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
 > Reported-by: =D0=A1=D0=B5=D0=BC=D1=91=D0=BD =D0=9C=D0=B0=D1=80=D1=8C=D1=
 =8F=D1=81=D0=B8=D0=BD <simeon@maryasin.name>
 > Closes: https://lore.kernel.org/all/CAM2dg7ewfVJSP4rFyhkCB1Rmd1+X56sAg=3D=
 eUdbPthG2xrLqwQQ@mail.gmail.com/
 > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+You probably already saw it, but sashiko had more feedback.
+https://sashiko.dev/#/patchset/20261104201403.2039921-1-srinivas.pandruvada=
+%40linux.intel.com
 
-Maybe a minimal fix is good for now, but I do note that we can
-make this code nicer with some guard() magic.
+I haven't looked closely at it though so might be either wrong
+or material for a future patch.
 
-Perhaps a follow up series to tidy this up.
+One rather odd looking thing in here though.
 
-Things are getting very messy around this driver wrt to fix vs
-cleanup.  Hopefully it won't cause too much of a problem in next
-until I can merge the fixes back after they go upstream.
 
 > ---
->  drivers/hid/hid-sensor-hub.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-sensor-custom.c | 15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
 >=20
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 6470a290ebfc..0c4884c5821f 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -173,7 +173,9 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_=
-device *hsdev,
->  	struct sensor_hub_data *pdata =3D hid_get_drvdata(hsdev->hdev);
->  	unsigned long flags;
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-cus=
+tom.c
+> index 4f824cadd370..990e653995e1 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -1059,20 +1059,21 @@ static int hid_sensor_custom_probe(struct platfor=
+m_device *pdev)
+>  	if (ret)
+>  		goto err_remove_callback;
 > =20
-> -	spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
-> +	/* Serialize callback removal with raw-event callback execution. */
-> +	spin_lock_irqsave(&pdata->lock, flags);
-> +	spin_lock(&pdata->dyn_callback_lock);
-
-Do both of those with appropriate guard()=20
-
->  	list_for_each_entry(callback, &pdata->dyn_callback_list, list)
->  		if (callback->usage_id =3D=3D usage_id &&
->  						callback->hsdev =3D=3D hsdev) {
-I'd just go long!
- 		if (callback->usage_id =3D=3D usage_id && callback->hsdev =3D=3D hsdev) {
-
-
-> @@ -181,7 +183,8 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_=
-device *hsdev,
->  			kfree(callback);
->  			break;
-And we can return here.
-
->  		}
-> -	spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
-> +	spin_unlock(&pdata->dyn_callback_lock);
-> +	spin_unlock_irqrestore(&pdata->lock, flags);
+> -	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> -				 &enable_sensor_attr_group);
+> +	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+>  	if (ret)
+>  		goto err_remove_attributes;
+> =20
+> -	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> +	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> +				 &enable_sensor_attr_group);
+>  	if (ret)
+> -		goto err_remove_group;
+> +		goto err_remove_dev_if;
 > =20
 >  	return 0;
->  }
+> =20
+> -err_remove_group:
+> -	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> -			   &enable_sensor_attr_group);
+> +err_remove_dev_if:
+> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> +	hid_sensor_custom_dev_if_remove(sensor_inst);
+> +	goto err_remove_attributes;
+
+If my eyes are tricking me, isn't this going to the next line?
+
+>  err_remove_attributes:
+>  	hid_sensor_custom_remove_attributes(sensor_inst);
+>  err_remove_callback:
 

@@ -1,92 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794035936;
-	b=I0elvxsFG0j/1Jc1WcGYOfQSj/b0uzjr+FYZNHQkKGUUuPsCs0+c645ehUktrRpNcfJH
-	 GGQBMIiu53zsC0eiTmg2Or/sDzQILXjEEuYC12EPUuGtJglltkyzcROY84wbdUzKKQ7nh
-	 3y6TIN+z+wJ56ZcDzGUX6ld2Jq44G1uT6ENzgX5l4GmilYRwSAY2eeJl7piCtnAfbpsiB
-	 VHhGY7UoytgEOQDZjmpvTxyQxCFo3Jdqo9vjlpO+Ezz/tH2kqQ+CtI2a1m7rXX4Ceytmg
-	 bCRozDSRfGQS82k4vr40H6bnwXnyk2scI2bwWqB4lwKjUra5fF63kUj7ACaSLkOuNMg==
+	t=1794036169;
+	b=kq5s4NLwzePSB+D7bdz9AmKZw3egtxSnNUCF0GixqAcZ0MHRiD7dTvLdo7pcA6kyXgSX
+	 FcSKsFT+IbMcbIwaZykTMZMda1dADbWyyaoaEORwydZbxNrbo/ccisZEhpJ6/p5LQ706p
+	 SYxiZ/zpamPaCTUKw+IH61pumVZp8e4TWPYzf65tTRinJ7L7q44VMBJHaLmTyo4a48yLO
+	 a5kEOwFyqC53K2hnW792MzMaHZst+07qXTWwCPtRRFnCfu9/r/S1A8UA/jq3xvjSxXxI2
+	 4N7jgKxGNeW0G96uRDRAWLWpT8fhLk8TNZOQX34UvC6NtLG3bqYvZJ8ZUk9inDI/M5w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794035936;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=e2RBvV6ZC2qSudUbd18r2yO6oRHwMggBhLaocYC4YVg=;
-	b=APdRKYDPJQd3RifxQJIGDKAY/CoX7hM9U6aWJkWtCJve8DgfhapaWFlSePtQD228okN0
-	 LROq5Zh8h9+21mzhl0OTzT/n/rTLmvp2qJn7t5akZECKzQaCIIkHlWvx001A+FJsZl1ro
-	 QrQYFBXffE7akYObq5PYEZAxYjmroC3ZB194gmD8IsFON0YLm/zp5iq80dMmLkVU74ZMZ
-	 xL3VfzKivPIM0ZWFxLIVlzo/crUcg5Y4JqXwjha1xYFK7qdssvdMJc13xSMAhX+u9WKni
-	 xcyVSbcV74tHvhCEnjLdKEe2GMfr1aqo/BxBjFn4yWEqbLmh+6uxV9ndRWsRjFzxP2g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794036169;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=qbH8EttvH59RugU4BW+FC+QS9ahAoLb2gTdzk4uHk6Y=;
+	b=D1HN4M+TlKPa4gzlZ5+gSiNxCnuYBS66Hjlqs8dtjLx4QD9ChT0SMQXRX0Ny+sMSgKlN
+	 Liq9HGU5nyoDbDd30VNmEXLwY4UFst4KnuBYqa7roF7YzqgV5ZA7GrCH/sbqzgMfe7ymi
+	 3AseuDRaEjQHGsznAG5NrdB9J3+GN3oZavsfY+uXBUmMVihBJkcIVwC0m0hVa+a8ekCaf
+	 8Z9nElLzTTbQ5uM/oDWHPc4pCyM6CGmNIL5sdPW6A3sC4aYdj7s3Q8vkT+hgW7QJuihlX
+	 jc9AQpPDzyjYSJurgFijk1DhQK9L3I3dHxxJvtpjgFeA6prwibnViNwFEvjL8iRHTaQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=H75OZMkX;
-	arc=none smtp.remote-ip=209.85.210.172
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVnp1BXW;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16BF9606A32D
-	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 07:18:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16BF9606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C67606A326
+	for <linux-input@vger.kernel.org>; Sat,  7 Nov 2026 07:22:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=H75OZMkX
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8a052aff9e9so1042774b3a.0
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2026 23:18:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794035935; x=1794640735; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=e2RBvV6ZC2qSudUbd18r2yO6oRHwMggBhLaocYC4YVg=;
-        b=H75OZMkXSjam0NOi3FZTiMVbVJF2RYmjV9H0u/a4VttNJxAm5Sx5cn//1UR34WbQbI
-         Fk0vCUFMXQ+zZcuOW1sSveqJXFgZcGZ3yZAHTMsbroZ3o3MmkNF1LIJMVA3HX4EFqNgR
-         exgw9WPmdb1u58gPSC9A5Q66r+U+Uwz2fVU4tuWPJPtpTpvhaJ4AkL4LfNy1fNraTg18
-         vEzDRDc4CxJKXdDqwJ9Y4Od4HJvsyN9Ys0do8JWY1hXQXWW6USlEs7auSegDvFjzGGJ7
-         1FBbKGFbOpt+cIMypYL5W0OMGUfakv5YoYFj6BUS6i6gxHTOhO0Q4rLkyxSyA9jl6rGg
-         IXww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794035935; x=1794640735;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=e2RBvV6ZC2qSudUbd18r2yO6oRHwMggBhLaocYC4YVg=;
-        b=GDHsStXQgBjVos7vTrf5KYBCG+8yDUhBfuGDH3Hujy+gK8go6QLTue7fq7GGN/BQok
-         An8htjWPmg8iUnfzSlsxvoRBdulRXSv7VUYysLvWMcz+W1ymzNP4XfyBGRdJ0eiiokHI
-         25VQILXGfVtEqICxzsu0y6tRqQLrxemoIGKzL+n5FRQJEis7cx9IkIxL6TFcirNXgXF9
-         l1MNYuE4A/XToNsqvIQ0SxjwAU+FjDC1S4zG3Iow0ILlXt2GERpz9zbu23fpdjT3Te3E
-         kEUQ0O7G5DHU5X+GgczQwkW+BmbAI36dEhx/nIJXlejxCV56Awjs7HzwxX3XE2QnJ2ly
-         dMRQ==
-X-Forwarded-Encrypted: i=1; AL+hErE+wU2XOa5qCFetJtR5UEv7LFtlw3HE1xqF/I1Hhv6rA6DeVT8vkSmE+lXTR4KcgTZC9jRCtD5Qy8Ezmw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9+8CBaetj3W4IIsrK9k/AlqkszvcsKwrN/Mwhe4l5aT4iVyu2K
-	TdE8+bEc4+GDdtYU1UxMedG/82dcQAB/2gNa1vA8I/qya1aeSw2Fc1tb
-X-Gm-Gg: AYBFou1ONz6salq+RMMlmHOQeTBqgVdlIe4+9BZiEqi8thzmG6yQ0zDrWC0Y/nTEsa7
-	E9kVJPdBUgDWTJLrFRzwBu12cRDQLxbOJs6tsQkk4b9j6+iEwpKfGtQdKa3rudsMrtTQ4+KV5jQ
-	6hJ3sCAkzPIwJP5uXzEUH+S1jXujTWfC8aMNlSxE2B3y/j/K1zUfu4jwij28u3s0J2KaPPycsRG
-	zPj20B+tVK5D/Qjv90UJavi8D9nMjKLy/dR3Yc30CQNR/wPDVe/k6iD4ketm4/TemCSUeyjy2+z
-	Tgi8b0nNTzicwcTxp3hR+D71pI+0aLQKh/wvyCCkfLjQeRfzciDvJaE/50y3qxanjIdUxYBLfMx
-	4oqqTUOUVOQp4n69ZitL4pswxmb/qIjfSzApKt3WmHCgxfa1iVRAXxSwdyFckeBxJ9qM3pb5INV
-	GuxaUsdpBF8pINqY9nBu/hkQpRyk6n1p9Xw8EEIfj5Eh/D/UFLtK08wXHd6OredWe6VdmW2ef8r
-	74Gf5fDSP8n+/wqL/mQ6//XqFM4str9cGjpQBvR3hXqdZwc0FDgA6oujFyLqxMRu6GuYHGGdLoH
-	san6A73uJKj/33FhzNNkRMNjhCwHt95pwwjGfnpjqPRR0hJov5cYuzdERuiaBL8YGtixZw==
-X-Received: by 2002:a05:6a00:b82:b0:89f:450d:90f5 with SMTP id d2e1a72fcca58-8b37aca2e17mr4908542b3a.11.1794035935229;
-        Fri, 06 Nov 2026 23:18:55 -0800 (PST)
-Received: from hj.. ([163.239.22.29])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8b356c287a8sm1234364b3a.3.2026.11.06.23.18.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 23:18:53 -0800 (PST)
-From: hyunjungg <hj351016@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Hyunjung Ko <hj351016@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] Input: lm8323 - cancel PWM works on unbind to avoid use-after-free
-Date: Sat,  7 Nov 2026 16:18:42 +0900
-Message-ID: <20261107071843.3427985-1-hj351016@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVnp1BXW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1B21F0089F;
+	Sat,  7 Nov 2026 07:22:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794036169;
+	bh=qbH8EttvH59RugU4BW+FC+QS9ahAoLb2gTdzk4uHk6Y=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=fVnp1BXWGUnvw3cI7qBnbDPwrS20NPQtdOiDbvZMKeQxEp3OeSILTW32AZ6lWygM8
+	 NpRxFxcLulEEuVz5O8eGt7R9+zBTlJG41ZZ+fzyF1X3vN+mnjjdQto8qLTV+Farkqg
+	 mNfL9rPq69Ay/q3XeC6Zc6V2W6chMtZw5WUjvCN1Qc+smtH5mDT8SwCqUuWzlaQE/j
+	 C0bDtXUA/959CX5Im3l+KGH9RX5rJZKBbZFJ2NPgPU24U15SMHdoeRTAeqHGiS/DNM
+	 Ei45slkBvMHGzPs7+hop1Y8ztX1cE4z10zLvlURb3OVESvdX2tWNk0Lq+Q24u1m2y1
+	 wCK53Q188gcdA==
+Message-ID: <sashiko-outbox-202704@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8 2/2] rust: serio: add serio bus abstractions and port
+ Gravis Stinger driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vecheslav Filatov" <harepro29@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ojeda@kernel.org, gary@garyguo.net
+In-Reply-To: <20261107070010.500128-3-harepro29@gmail.com>
+References: <20261107070010.500128-1-harepro29@gmail.com>
+ <20261107070010.500128-3-harepro29@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 07 Nov 2026 07:22:48 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,67 +60,49 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Hyunjung Ko <hj351016@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] rust: serio: non-existent bindings::irqreturn::IRQ_* paths
+  break build
+--
 
-lm8323 registers LM8323_NUM_PWMS PWM works (lm8323_pwm_work) and
-schedules them from the threaded IRQ handler, when a PWM ramp script
-completes, and from the LED brightness_set callback. The handler
-dereferences the containing struct lm8323_pwm and its ->chip, i.e. the
-struct lm8323_chip.
+commit 7de59dece60ff6273292c2ada6f83924d551c7fd
+Author: Vecheslav Filatov <harepro29@gmail.com>
 
-The driver is fully device-managed and has no remove callback, and
-nothing ever cancels these works. struct lm8323_chip is allocated with
-devm_kzalloc(), so on unbind devres frees it once probe's resources are
-released. A PWM ramp completion interrupt arriving while a fade is in
-progress schedules pwm->work; free_irq() stops further interrupts but
-does not cancel an already queued work, and led_classdev_unregister()
-only flushes the LED core's own work, not this driver-private one. The
-queued work can therefore run after the lm8323_chip has been freed,
-dereferencing freed memory (use-after-free).
+rust: serio: add serio bus abstractions and port Gravis Stinger driver
 
-Register the works with devm_work_autocancel() instead of INIT_WORK().
-It is registered in init_pwm(), before devm_request_threaded_irq(), so
-on unwind devres runs free_irq() first, after which no new work can be
-scheduled, and then cancels each work while the lm8323_chip is still
-valid. The handler does not re-queue itself, the re-arming comes from
-the interrupt, so a single cancel drains it.
+This commit adds Rust abstractions for the serio bus subsystem and ports the
+Gravis Stinger serial gamepad driver to Rust.
 
-Found by static analysis and code review; not runtime-reproduced (needs
-LM8323 keypad/PWM hardware with a fade in progress racing device unbind).
+> diff --git a/rust/kernel/serio.rs b/rust/kernel/serio.rs
+> new file mode 100644
+> index 0000000000000..4e16917ddd70c
+> --- /dev/null
+> +++ b/rust/kernel/serio.rs
+[ ... ]
+> +pub use crate::irq::IrqReturn;
+> +
+> +#[allow(non_upper_case_globals)]
+> +const irqreturn_IRQ_NONE: bindings::irqreturn_t =3D bindings::irqreturn:=
+:IRQ_NONE;
+> +#[allow(non_upper_case_globals)]
+> +const irqreturn_IRQ_HANDLED: bindings::irqreturn_t =3D bindings::irqretu=
+rn::IRQ_HANDLED;
 
-Fixes: a48b2d4a0091 ("Input: introduce lm8323 keypad driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hyunjung Ko <hj351016@gmail.com>
----
- drivers/input/keyboard/lm8323.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+[Severity: High]
+Does this fail to build when CONFIG_RUST=3Dy and CONFIG_SERIO=3Dy are enabl=
+ed?
+bindgen generates bindings::irqreturn as a u32 type alias with flat top-lev=
+el
+constants bindings::irqreturn_IRQ_NONE and bindings::irqreturn_IRQ_HANDLED
+(as used in rust/kernel/irq/request.rs), so resolving associated items
+IRQ_NONE and IRQ_HANDLED on bindings::irqreturn fails with E0599.  Dropping
+these local constants and using bindings::irqreturn_IRQ_NONE and
+bindings::irqreturn_IRQ_HANDLED directly in Registration::interrupt_callbac=
+k()
+will fix the build.
 
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index 8eac63b..388b790 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -16,6 +16,7 @@
- #include <linux/sched.h>
- #include <linux/mutex.h>
- #include <linux/delay.h>
-+#include <linux/devm-helpers.h>
- #include <linux/input.h>
- #include <linux/leds.h>
- #include <linux/platform_data/lm8323.h>
-@@ -564,7 +565,9 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 	pwm->desired_brightness = 0;
- 	pwm->running = false;
- 	pwm->enabled = false;
--	INIT_WORK(&pwm->work, lm8323_pwm_work);
-+	err = devm_work_autocancel(dev, &pwm->work, lm8323_pwm_work);
-+	if (err)
-+		return err;
- 	mutex_init(&pwm->lock);
- 	pwm->chip = lm;
- 
--- 
-2.43.0
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107070010.5001=
+28-1-harepro29@gmail.com?part=3D2

@@ -1,51 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794129835;
-	b=0XIrzf4RMxJMPMnMCmSRsXTkv9Q9YxDHiHn1OP6g98sfwwcMf78y3a9GbxxX8Wvf3Xc4
-	 zs8RdeXyzhUDJpX2kEKBRS51KAp6CQlRJsxdE6W2xjPsG8abayZ+syVf4EhwyvK3LJGoY
-	 ek/RWXYqeBYmssqgDWHJ0gAi7Ik20icONRQXS+070UggApxPIqY84D20UTCNWcyy/D7U4
-	 4CcY+8+BsPpjGM0wLVLE9s8r2QqOw/Uwc4Ox53D4Kieq/bPWFXwzbvnhF3nS1hRyz0rI6
-	 hfe5lKERMiAdh/lcLVNuQyrCaTJM5T2qVcLIFXiZ9f1vhamDLX/h9kXXHsDOhCUd6YQ==
+	t=1794133550;
+	b=Q6q9AAw6GaHSkrsQDRqZd4a5uI2IwXrufuCsG5bDCAkLp1BmBSVsLFApCDAaPGCnfSPn
+	 nSUcZQN5eJ34cBqci5bEx6Y6Dlq2/2dbx/MIBFie4c/MHlkWSE5pjecpvQljdXcIC+rPs
+	 fH7Psc927O9LNIFaLIYkiKlo+KD2shGae7A/531KDh+PMtsF4jXkpC9qDAxvHmJSgxwyH
+	 PoN/oKSNMjLldVdNDOr8G6a9qpOdiyczvuwurha45dusDDGGU56AZrChO/ALDJH+jmQbP
+	 xCfEWuOUgEjhFsoy5gc7h022UDE7FXCBUti2Cww5HfNczIFyrS4yaMols8+f5kLLpgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794129835;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
-	 References:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-CM-TRANSID:X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
-	bh=tFFukMiDzJt9S0fOOUEqLbI2e2gAGmA6iCuWDckb1mQ=;
-	b=C/eC9zOVtwy47Wkn+wVjqc4n071l3ldQv2X3m4BD4cxP6soGJlwEDd6/R8bTwGbEUaeu
-	 MSPuTjNo5WvcQGZ8Q/BPkUbrI1umZpXQJ5vvyeio1Ac21bANaVUiS0BZXHEOPEXfempoD
-	 nhMGtXANqGMMlnxjQKpN1yn8/zQSWhQMBBdVX2/dvQeYtAe+013IaoQ2/YpDE79MT3AP3
-	 m9Bag8MuiVz8dBD5bdRqVCUuNjKAenA+LJZx1P8G05pJBCos6POvSA9Ca4/m1S1rBtpn9
-	 4/3roZ6FSN6qNqcIeDia5K8NUkiX4QPSl1hnhU5VnwYuSrWL+zom+MhfYpySN3D2A0Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794133550;
+	h=Received:DKIM-Signature:Received:From:To:Cc:In-Reply-To:References:
+	 Subject:Message-Id:Date:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key;
+	bh=v1Af1P1P1zbev8CYQkts6hQ+hHJRvEA7sX0TkjFdZnw=;
+	b=QB93FJFObGiWz9VPFNSYb6SOdPmZgicwRHIyaiCLr0CKuzFpm7GFZVXxtGY7JZJImGpW
+	 jLKNxl92hqCBkJgoWc3FrURPMy5BRjkxnCI+8LjrtE+8A/qyBf6apkS1FDrOm/EyiqhNH
+	 vLpk+TZs2pJW1dc0vdDqFU2ljDUYCiZehOqujQ87RRMWNF1sjPSnm2/8/QycKdhPlerkG
+	 hIM3B+m0A80q0u/jBUaIS1KtQuWizQYC3A3dtaH7Hnq1nIImXUnmWUzm9sKskQm2oHKWm
+	 d5p4pUurH5LpasYanuibvPfWO6aJnB5KUqD5pEpDM55SaS9qJtuguR+FJBNpjTGIA5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iscas.ac.cn;
-	spf=pass smtp.mailfrom=iscas.ac.cn;
-	arc=none smtp.remote-ip=159.226.251.25
-Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PNpKxx95;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8587606A31C;
-	Sun,  8 Nov 2026 09:23:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8587606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from [172.100.0.8] (unknown [36.110.52.2])
-	by APP-05 (Coremail) with SMTP id zQCowAB31bqkP_Bq6o2YAA--.17700S2;
-	Sun, 08 Nov 2026 17:23:48 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: dudl@cypress.com,
- linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in
- cyapa_update_rt_suspend_scanrate()
-Date: Sun, 08 Nov 2026 06:45:47 +0000
-Message-ID: <1794120347.2701234.vulab@iscas.ac.cn>
-In-Reply-To: <aqwD1o6J4svIevWW@google.com>
-References: <20260916185015.2093520-1-vulab@iscas.ac.cn>
- <aqwD1o6J4svIevWW@google.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 992AA606A31C;
+	Sun,  8 Nov 2026 10:25:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PNpKxx95
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028201F0089F;
+	Sun,  8 Nov 2026 10:25:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794133550;
+	bh=v1Af1P1P1zbev8CYQkts6hQ+hHJRvEA7sX0TkjFdZnw=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=PNpKxx95tQplb5JM4+uP1TWChj9AbUwLPfociXRfICTLjmxCZsejaOIwW3ME4ie8R
+	 HmFXofTZWu8JpP2MW43DM3+pDXHvi6hiHE17B7I/TUzxhh+fQSFDtDXxMreH/NWSsf
+	 8cyq8mBKLjCB7wDMu2KOl38Yo9G8k7b6ZgzLer+FnR/iTPIzqX1Z+Xk2WojQCfGufD
+	 OhfJx3Z+C4C0m1RWkFRA6otBVj/6VmSmnoH+K1jsr/xbUyatur17pMbrlWXNnaxLqf
+	 kt7iny3qW7m7ps+H9EYZMM7+TR57qqGMlkwl9ookoNI6pROi4I6zbnHf0wMz3GF8FK
+	 WyrbCqg68nmEA==
+Received: from traversing.sirena.org.uk (localhost [IPv6:::1])
+	by traversing.sirena.org.uk (Postfix) with ESMTP id 8509A2BDF03E;
+	Sun, 08 Nov 2026 10:25:48 +0000 (GMT)
+From: Mark Brown <broonie@kernel.org>
+To: Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wenst@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+ linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
+ linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+In-Reply-To: <20261103043734.2179858-1-wenst@chromium.org>
+References: <20261103043734.2179858-1-wenst@chromium.org>
+Subject: Re: (subset) [PATCH v7 0/8] arm64: mediatek: Chromebook trackpad
+ supply fixes
+Message-Id: <179406980914.3424803.6201831446824678583.b4-ty@b4>
+Date: Sat, 07 Nov 2026 16:43:29 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -55,102 +69,53 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:zQCowAB31bqkP_Bq6o2YAA--.17700S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxXF4kGFW8Cw13Xr4rurykXwb_yoW5uF4kpF
-	WYganrKrWkJw48tws2yr1kZFyFq3yakay5GrykJ3W8uw45G34xtF1UJrya9F1jyryxCa1q
-	yF1Fyw4ayF1YyaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvFb7Iv0xC_Kw4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
-	cIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2
-	AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v2
-	6r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxV
-	WxJr0_GcWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
-	Yx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2jsIE14v26F4UJVW0owAm72CE4IkC6x0Yz7
-	v_Jr0_Gr1lF7xvr2IY64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
-	42xK82IY6x8ErcxFaVAv8VW8GFyrJr1UJwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
-	02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_
-	Jw1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
-	CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v2
-	6r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvj
-	xUqUGOUUUUU
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiDAAFA2rv4qiTXwAAsJ
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1241; i=broonie@kernel.org;
+ h=from:subject:message-id; bh=YiAPZOAOOLU5YOLoZTNzrcCrnz944fe3k/TYLXO5sfw=;
+ b=owGbwMvMwCWm/754w+YLFp2Mp9WSGLI++OmIHPW+E3fsCTvnHlePnZLv27l4DoQUyWulREY6x
+ 286EMfYUcrCIMbFICumyBKXxf2yvuT1Gr6DC9tg5rAygQxh4OIUgImoXGb4X8KwJZIzezXroi7x
+ WYeFpnm4m6/L3b/AvFr18r6k/sLE8wz/M/1VJh02W1fszLh1RtSWKfKXivZ3yAftjY+w65/y++Y
+ 2ZgA=
+X-Developer-Key: i=broonie@kernel.org; a=openpgp;
+ fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
 
-Hi Dmitry,
+On Tue, 03 Nov 2026 12:37:24 +0800, Chen-Yu Tsai wrote:
+> arm64: mediatek: Chromebook trackpad supply fixes
+> 
+> Hi everyone,
+> 
+> This is v7 of my Chromebook trackpad supply fixes and optimization
+> series.
+> 
+> [...]
 
-Sorry for the very late reply.
+Applied to
 
-It does not have to be the "sync" variant.  I used
-pm_runtime_put_sync_autosuspend() only to mirror the normal flow of the
-same function and the other runtime PM call sites in cyapa.c, but there
-is nothing on this path that needs a synchronous transition: no device
-state has been changed yet, both put variants mark the device busy
-first, and cyapa_start_runtime() sets a 2 s autosuspend delay, so either
-of them would only arm the autosuspend timer before the store returns.
-v2 uses pm_runtime_put_autosuspend(), the counterpart of
-pm_runtime_get_sync() for devices that use autosuspend.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-7.5
 
-For the record on how the patch was produced: the candidate came from
-static analysis tooling, and DeepSeek and GPT-6.1 Sol were used to audit
-it and to help write the change.  I reviewed the result and I am
-responsible for it.  v2 is build-tested only: it compiles cleanly on
-x86-64 with CONFIG_MOUSE_CYAPA=y, including W=1, and passes checkpatch.
-I have no Cypress trackpad to test it on.
+Thanks!
+
+[1/8] regulator: core: Add "enable and wait" functions
+      https://git.kernel.org/broonie/regulator/c/9f9bcca6adc3
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
 Thanks,
-Wentao
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Wentao Liang <vulab@iscas.ac.cn>
-Date: Sun, 8 Nov 2026 06:45:47 +0000
-Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in cyapa_update_rt_suspend_scanrate()
-
-pm_runtime_get_sync() unconditionally increments the runtime PM usage
-counter. If mutex_lock_interruptible() is interrupted, the function
-returns without dropping that reference, so the usage count stays
-elevated for as long as the driver is bound and the device can no longer
-be autosuspended. Drop the reference on the error path.
-
-Use pm_runtime_put_autosuspend() rather than the synchronous variant
-there: nothing has been done to the device on this path, so there is
-nothing to wait for, and with the 2 s autosuspend delay the driver
-configures the put only arms the autosuspend timer instead of suspending
-the device.
-
-Fixes: 672865080a8f ("Input: cyapa - add runtime power management support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
----
-Changes in v2:
-- Apologies for the late reply.
-- Use pm_runtime_put_autosuspend() instead of
-  pm_runtime_put_sync_autosuspend() on the error path: the synchronous
-  variant was only there to mirror the normal flow, and with the 2 s
-  autosuspend delay the put only arms the timer, so there is nothing to
-  wait for.
-- Link to v1: https://lore.kernel.org/all/20260916185015.2093520-1-vulab@iscas.ac.cn/
-- Link to the June posting of the same change:
-  https://lore.kernel.org/all/20260609004617.175476-1-vulab@iscas.ac.cn/
----
- drivers/input/mouse/cyapa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index a8e9b9ab9f84..737fc54539d9 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -900,8 +900,10 @@ static ssize_t cyapa_update_rt_suspend_scanrate(struct device *dev,
- 	pm_runtime_get_sync(dev);
- 
- 	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
--	if (error)
-+	if (error) {
-+		pm_runtime_put_autosuspend(dev);
- 		return error;
-+	}
- 
- 	cyapa->runtime_suspend_sleep_time = min_t(u16, time, 1000);
- 	cyapa->runtime_suspend_power_mode =
--- 
-2.34.1
+Mark
 

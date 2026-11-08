@@ -1,56 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794177651;
-	b=XCpurHPuhi6KrUaZq+qh5NOJtuNiwMwn++RJUx3qfBBBCux4NS8kZ/b9MPOYB+zsIlv8
-	 BZpRCU8g6D/RJ3bKEe42On00RRmsLyYwlkmYagJ1YVaryQmSLnGSHdw1jaoTkvzaVd+H7
-	 bBjaYU/wqXOu7K+9zl4B1V/mkHmt2RYpaFVPjjjWariTzTe8iQzp+wRhI4cGzOeH6pzAN
-	 OzMRg2cekIJzjxQ8xsEBv+BfLNTzywTjgO+9uqzfx4cofxYex2yd41/TArBnsRTdBSrx8
-	 ItqvoAv+qBjs/ZlkySeXU1xhEkvERyK7syGbMZ09VLnnBpEdScZ1vsJSDyN/B9tuYYQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794177651;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hNVW82+nhA+Yw0GsHJrb3CYDP6KnCnMGsWmuyGFIouU=;
-	b=J/e2QZxzyIbXcADa9OhFM7woBguk39A+ixkfEZNnOVKay6AlqGCvyJ3amRnm14GoTFzI
-	 eDdkh+Kh84s7Pbp2njd/rKRHCurp+ZEMU3y3YXkd95FU2QvBp7SowtL7POen+voHnWzHs
-	 /yj3eP9tGr7wzrRsbkygmkt+v8ExTkegpRHSOlVJSqUwBqbwAtD8svvjGO8Vew8YjztLv
-	 T/4I2A70wgF3fO1O6I2P4nCPexbhpyR80Q8TsXTUOUS+NdZawKSWx82jaespZ6TUQQNc8
-	 sPCr2tneOTtLYsGL6hfhQXUOs+2BrweThJXWIsXY+X3kF0yymaWqP/Vaeq3gNmZO8hw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GCDlLIpf;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.11
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794181955;
+	b=cqnprarQhneuePJVSt8hy3zaF6N4tW0Ng09ac7zPb1VrKRkrcHW3q95rXuoH7u2Ue7l2
+	 gKhcfR1Iv6Me8q4Jfqhh0e/NAhCBF++hhMF7puHo8nhrukN0j+F+IFr/iq+rkuJkLZE/o
+	 xiQjA5ZRZw170jV5OQSyWcUUKEjRs2U8agByWTXPzWLDEx8mlRGKxnxkMUPEe/RFsvb77
+	 txtJzYsyVbCdt8YE4qMQ6pUkCCUl1T2uUZ1OU6X+C8fuevcTgFCNn0NY8Pv0SC+K0UUzq
+	 s8bMDq0wHYgR42pmB/EHarXzQiTe7/qLCRMF19yrvrwtYQnvfI0W5vza/ftU2Pg4qXQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794181955;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Zoho-Virus-Status:X-Zoho-AV-Stamp:
+	 X-ZohoMailClient;
+	bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=;
+	b=FixskRu9z5AQcALbyitr4e2+isBqHBLau4YPuYHGQpbpTI2QrBcVjKR3FzTWpwciHaa+
+	 nIPbh71+ZX4wmJ9nwPQG0tHZyESqm4xzF1XpQ5QmsoiUYhWuSC+CjcYZVfEsAhO/tt9nP
+	 lMQY7eqvHTi16YeZp+o7aiDqEJCwrIn3P1sOnpxh2Cov+vgU9EABxo3cZOjiujHYBvWcV
+	 1SjZ9Y+n1F0lnWww+lG5cwqxljh1T3zeVA+aEJjKNOJvmXe37KEqU1wRiM5959qT0JRBU
+	 G3BQjHBTyDkVXKRF/2mHX5OVBZQmZ7UeiWPrnGo3hAe7Ygy6Ietd6+9BO7drDH6vYmA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=collabora.com;
+	spf=pass smtp.mailfrom=collabora.com;
+	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=OpUROlzi;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.11
+Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6837606A320
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 22:40:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 978CE606A31C;
+	Sun,  8 Nov 2026 23:52:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 978CE606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GCDlLIpf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 102F51F0089F;
-	Sun,  8 Nov 2026 22:40:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794177650;
-	bh=hNVW82+nhA+Yw0GsHJrb3CYDP6KnCnMGsWmuyGFIouU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GCDlLIpfCBLipKZLkbyY0fnkz2BJzaMWkN7j5DnIlSJWLikALG/ddBl0XtRxLJ0hU
-	 trtXHdPQnlKdW4wvNqPtNT64JGlcFzN4ONtbOhY16iEsWHT9ktbG3oOuT+WzVBfo1E
-	 DQYarMVAl+Tev9Wy0LgdQRLi8mXNT3vElaqSlfXktFnGt4EU/A84y84o2gmiBQmlzA
-	 0LCnuR61RseUkC0TydzNPEP1KYKCJW0DKQcJk99lvXfNVovKu/P/IgJzKQDpfMnqM0
-	 lSYIkb8pEyW02To0ZbIsgXtDqV+UXbAxRfP5Fg64RMmPi1SyYw00wPJQ3pQRTxMhWT
-	 mFRGf7/xXJlzA==
-Message-ID: <sashiko-outbox-204122@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: nintendo-switch2-usb: check URB before use and
- reset state on free
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Noah Weinberger" <NoahWeinberger2003@proton.me>
-Cc: =?utf-8?b?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, dmitry.torokhov@gmail.com
-In-Reply-To: <HP2LhXZGIipAd2XxKx7dDh8q3SopkJRAxo8IQkuyMxTlR0YfO3rS3CT9NqUkg3ispO72yfhC7Oa4MoZdXgo6lNIEjC1WvQFlrKreFzCnmFM=@proton.me>
-References: <HP2LhXZGIipAd2XxKx7dDh8q3SopkJRAxo8IQkuyMxTlR0YfO3rS3CT9NqUkg3ispO72yfhC7Oa4MoZdXgo6lNIEjC1WvQFlrKreFzCnmFM=@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 22:40:49 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=OpUROlzi
+ARC-Seal: i=1; a=rsa-sha256; t=1794181941; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=BtFzMLxCW7POmHOdJvh+YwHALuxCRW48T/bezj1uC6xdFetr9tIPL7Iszd+OdGzDicTRGJXtluttjiQHye306N07B5G1fxSyWDVuKI93VbJIqsOwpo/m03zWmCPb/0yOhHJPMj2wy+qakZFU4U5nb947JLi2dTQ/yyAdRZ9y998=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1794181941; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=; 
+	b=J+ztNFldbR4GOE2FU2XTryHLrv70bkTrCOYeKe8n+7e33QZ+R21A92K0UTx9gaqBAMP31H3JgegChUbV6xhg9poA52MKbC58qMmlS3v4FGfDbc3WKsdGqsYiad3DCLfB0YMviEQCN7ANl3qlVVadvOtVHV157pA3H1okdvHEVsc=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=sebastian.reichel@collabora.com;
+	dmarc=pass header.from=<sebastian.reichel@collabora.com>
+DKIM-Signature: a=rsa-sha256; b=OpUROlziJtMRtlVCbGddqbMWE4oPwZCM2nLSQ0fOYpEOqEce/RZWih6LsE2v456FiUtwqV+oBvq/s+yjeaBo6HGRjAN1E0TtLlCggAwV9aUZ4e5ByC6gmgBnLLwSIcbwii+MVqEFMnl6+Op8qHmivM/j1cf7k5lS1pvwNyD9Njk=; c=relaxed/relaxed; s=zohomail; d=collabora.com; v=1; bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1794181940739147.63396619540686;
+	Sun, 8 Nov 2026 15:52:20 -0800 (PST)
+Received: by venus (Postfix, from userid 1000)
+	id 390461808E6; Mon, 09 Nov 2026 00:52:18 +0100 (CET)
+Date: Mon, 9 Nov 2026 00:52:18 +0100
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mika Westerberg <westeri@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Corey Minyard <corey@minyard.net>, 
+	Hans de Goede <hansg@kernel.org>, Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
+	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, openipmi-developer@lists.sourceforge.net, 
+	platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH 8/8] power: supply: sbs-battery: use 4-argument
+ i2c_smbus_read_block_data()
+Message-ID: <avELD9tlEfl9Uth7@venus>
+References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+ <20261024-i2c-smbus-read-block-data-v1-8-19bb97467982@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,154 +72,102 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="djssy5i5cnzkks24"
+Content-Disposition: inline
+In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-8-19bb97467982@gmail.com>
+X-Zoho-Virus-Status: 1
+X-Zoho-AV-Stamp: zmail-av-0.2.13.1.5.4/294.158.93
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] HID: nintendo-switch2-usb: TOCTOU race in
-  switch2_usb_message_in_work()
-- [Low] HID: nintendo-switch2-usb: misleading indentation in
-  switch2_usb_message_in_work()
-- [Low] HID: nintendo-switch2-usb: missing Fixes and Signed-off-by
-  trailers in changelog
---
 
-commit ad9c19b8222174b67d5185145f7040b445c19cb7
-Author: Noah Weinberger <NoahWeinberger2003@proton.me>
+--djssy5i5cnzkks24
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 8/8] power: supply: sbs-battery: use 4-argument
+ i2c_smbus_read_block_data()
+MIME-Version: 1.0
 
-> HID: nintendo-switch2-usb: check URB before use and reset state on free
->
-> Hello,
->
-> Proposed-fix limitation: the checks below do not establish URB or
-> interface lifetime across the pointer check, lock release, and subsequent
-> use. These proposed changes may therefore not resolve the teardown race
-> or the late-work use-after-free described below. Please review the
-> locking and work/interface lifetime before treating this as a complete
-> fix; this is an incomplete proposal for maintainer review, not a
-> validated resolution.
->
-> switch2_bulk_in() calls schedule_work() after dropping bulk_in_lock, so
-> the work can be queued after switch2_usb_free_in_urbs() has returned
-> from cancel_work_sync(). free_in_urbs() NULLs bulk_in[i].urb but never
-> resets bulk_in[i].state, so the late work still sees NS2_URB_IN and
-> dereferences urb->urb->transfer_buffer / urb->urb->actual_length on a
-> NULL pointer - the existing !urb->urb check sits after those
-> dereferences:
->
->     if (urb->state !=3D NS2_URB_IN)
->             continue;
->     spin_unlock_irqrestore(...);
->     if (ns2_usb->cfg.parent) {
->             err =3D switch2_receive_command(..., urb->urb->transfer_buffe=
-r,
->                                     urb->urb->actual_length);   <-- NULL =
-deref
->     ...
->     if (!urb->urb)   <-- too late
->
-> A malicious or misbehaving controller (or an unplug racing active
-> traffic) wins a narrow window to trigger this; the outcome is an oops
-> in workqueue context, and a use-after-free if the work runs after the
-> interface data is released. The patch re-checks urb->urb under the lock
-> before using it and resets the URB state when freeing, mirroring what
-> switch2_usb_shutdown() already does.
->
-> Affected version/commit: mainline fa4ad798f6f681031775266044ba1b0cf3c670b=
-d (v7.4-rc1, 2026-11-07), drivers/hid/hid-nintendo-switch2-usb.c:51-121 (co=
-mpletion), 209-240 (free path), 288-316 (work).
-> New driver merged in this window (zero prior field exposure).
->
-> This was found during an assisted (AI-supported) static source review of
-> mainline fa4ad798f6f681031775266044ba1b0cf3c670bd (v7.4-rc1, 2026-11-07);=
- every code path cited below was re-verified by the
-> reporter against that tree. The patch below has NOT been compiled and has
-> NOT been runtime tested, and no reproducer was produced - the triggering
-> conditions are described above instead. Please treat this as a report for
-> verification rather than a battle-tested fix.
->
-> Reported-by: Noah Weinberger <noahweinberger2003@proton.me>
+Hi,
 
-[Severity: Low]
-The commit message is missing a Signed-off-by: trailer, includes conversati=
-onal
-report boilerplate in the changelog body, and should include:
+On Sat, Oct 24, 2026 at 07:48:48PM -0700, Dmitry Torokhov wrote:
+> Pass the destination buffer size to sbs_read_string_data(), and pass
+> the buffer capacity reserving space for a trailing NUL terminator to
+> i2c_smbus_read_block_data().
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
 
-  Fixes: 9417132df63e ("HID: nintendo: Add preliminary Switch 2 controller =
-driver")
+Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-> diff --git a/drivers/hid/hid-nintendo-switch2-usb.c b/drivers/hid/hid-nin=
-tendo-switch2-usb.c
-> index 8b3b6841035d0..c103cedc181ff 100644
-> --- a/drivers/hid/hid-nintendo-switch2-usb.c
-> +++ b/drivers/hid/hid-nintendo-switch2-usb.c
+-- Sebastian
 
-[ ... ]
-
-> @@ -298,6 +299,11 @@ static void switch2_usb_message_in_work(struct work_=
-struct *work)
->  		urb =3D &ns2_usb->bulk_in[i];
->  		if (urb->state !=3D NS2_URB_IN)
->  			continue;
-> +			/* urb->urb is NULLed by switch2_usb_free_in_urbs() while we
-> +			 * may still run; re-check under the lock before using it.
-> +			 */
-> +			if (!urb->urb)
-> +				continue;
-
-[Severity: Low]
-Does this over-indent the comment and if (!urb->urb) check by one tab level
-after the unbraced continue?  This triggers a -Wmisleading-indentation
-compiler warning (and a build failure with CONFIG_WERROR=3Dy).
-
->  		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+>  drivers/power/supply/sbs-battery.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sb=
+s-battery.c
+> index 6714313bb3a3..f8b194c58a62 100644
+> --- a/drivers/power/supply/sbs-battery.c
+> +++ b/drivers/power/supply/sbs-battery.c
+> @@ -424,7 +424,8 @@ static int sbs_read_string_data_fallback(struct i2c_c=
+lient *client, u8 address,
+>  	return ret;
+>  }
 > =20
->  		if (ns2_usb->cfg.parent) {
+> -static int sbs_read_string_data(struct i2c_client *client, u8 address, c=
+har *values)
+> +static int sbs_read_string_data(struct i2c_client *client, u8 address,
+> +				char *values, size_t size)
+>  {
+>  	struct sbs_info *chip =3D i2c_get_clientdata(client);
+>  	int retries =3D chip->i2c_retry_count;
+> @@ -440,7 +441,7 @@ static int sbs_read_string_data(struct i2c_client *cl=
+ient, u8 address, char *val
+>  	}
+> =20
+>  	while (retries > 0) {
+> -		ret =3D i2c_smbus_read_block_data(client, address, values);
+> +		ret =3D i2c_smbus_read_block_data(client, address, size - 1, values);
+>  		if (ret >=3D 0)
+>  			break;
+>  		retries--;
+> @@ -709,7 +710,8 @@ static const char *sbs_get_constant_string(struct sbs=
+_info *chip,
+> =20
+>  		addr =3D sbs_data[ret].addr;
+> =20
+> -		ret =3D sbs_read_string_data(chip->client, addr, buf);
+> +		ret =3D sbs_read_string_data(chip->client, addr, buf,
+> +					   sizeof(chip->strings[0]));
+>  		if (ret < 0)
+>  			return ERR_PTR(ret);
+>  	}
+>=20
+> --=20
+> 2.56.0.257.gf7497c7d27-goog
+>=20
 
-[Severity: High]
-Can switch2_usb_free_in_urbs() still clear and free urb->urb right after
-switch2_usb_message_in_work() drops bulk_in_lock here?
+--djssy5i5cnzkks24
+Content-Type: application/pgp-signature; name="signature.asc"
 
-switch2_bulk_in() calls schedule_work(&ns2_usb->message_in_work) after
-releasing bulk_in_lock, and switch2_usb_free_in_urbs() calls
-cancel_work_sync() before killing the URBs, so message_in_work can still be
-scheduled and run concurrently with teardown:
+-----BEGIN PGP SIGNATURE-----
 
-CPU0                                  CPU1 (kworker)
-switch2_bulk_in()
-  lock(&ns2_usb->bulk_in_lock)
-  urb->state =3D NS2_URB_IN
-  unlock(&ns2_usb->bulk_in_lock)
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmrxCyYACgkQ2O7X88g7
++pqbCA//WLpBfQbt6ZJ6XndBJ9N2OdPV0zOs8CxWZ+ua1SthiUpJEudANpYMuh8N
+0CmMUo+5FSj0HQmQYi3dnJecNT95GMgFnBhlctIo7MGfkenakz+0kAyVfzUWhh0D
+1kRQuB1pN754PEAjDKtaLQFDQq8EWYWI0S78dLmRKl1wlfxiqWQKVTk4uhpKqMsq
+WEThh3GiB2xPDttBSP/YU9X5nGmB9WWE4KVB7OuWI5gA/6e23w7MetL78gOvQDXw
+DIj8je51ctSbRU5iF2/rsRvjWp/DAQBN6H4OIuqvdJD8VYycfBZ2YM5W42pzhEDf
+3LNhVqsMAJWJIEsz+xYtYS578mxAYKCMWQEc5ol1b1wVHbA8J0QUQxJOMhBWQhys
+jgN2LwCQQXaiiwwRfJ77TJL/SVwCa9hfo2ST5POaTdIYPWTfKklpf9jNUjy5ISe6
+9lfpr94Rw9+B5gMaNJenVgQCVaKGfqdOMMDb2OigI1OpKPC4boV6btBc9bORiHQV
+t4BMOKy6MYWlst+LgE1Aw9WGNxArJ24fc+4gprFY2uxJC5ysK1bpXcsha6IyqUA9
+5kDAhLMTmfdpijezA1681U7HE88+xx8pjSdG9OSTl0G35IvZMESiWdXgCYx369Dh
+/i3G7gy+cnIPSBuVsuvGHLuQPsfELTqm9NlvpHQoBPSZ3yi1pjk=
+=XodA
+-----END PGP SIGNATURE-----
 
-switch2_usb_free_in_urbs()
-  ns2_usb->shutdown =3D true
-  cancel_work_sync()
-  usb_kill_anchored_urbs()
-
-switch2_bulk_in() (resumes)
-  schedule_work(&message_in_work)
-                                      switch2_usb_message_in_work()
-                                        lock(&ns2_usb->bulk_in_lock)
-                                        if (!urb->urb)
-                                        unlock(&ns2_usb->bulk_in_lock)
-  lock(&ns2_usb->bulk_in_lock)
-  ns2_usb->bulk_in[i].urb =3D NULL
-  unlock(&ns2_usb->bulk_in_lock)
-  usb_free_coherent(...)
-  usb_free_urb(urb)
-                                        switch2_receive_command(...,
-                                          urb->urb->transfer_buffer, ...)
-                                          <-- NULL dereference / UAF
-
-If message_in_work runs after switch2_usb_disconnect() or the
-switch2_usb_probe() error path frees ns2_usb, it also dereferences freed
-ns2_usb memory, and when re-acquiring bulk_in_lock at the end of the loop it
-does not check ns2_usb->shutdown before resubmitting the URB.  Killing the
-URBs before cancel_work_sync() (or moving schedule_work() inside bulk_in_lo=
-ck
-while checking ns2_usb->shutdown) would prevent new work from being queued
-after cancel_work_sync() completes.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/HP2LhXZGIipAd2XxKx7=
-dDh8q3SopkJRAxo8IQkuyMxTlR0YfO3rS3CT9NqUkg3ispO72yfhC7Oa4MoZdXgo6lNIEjC1WvQ=
-FlrKreFzCnmFM=3D@proton.me?part=3D1
+--djssy5i5cnzkks24--

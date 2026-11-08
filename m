@@ -1,52 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794095957;
-	b=5WM26MtfzlRSYDu9g0W42ARNr1JPw3Y7Ckq32kfmAx+veypUsCssPi1AzINdXQeR/3sL
-	 tFtyFWlwuO+904qEI83Hil8fli5SarQoyeWq/nM2xVKyVIzN1GnKI9MxYhLX2TMYKCqW2
-	 nNMEfMFQ2H+JQf7Ex+2cEwKOMKIfAMSBhgx3f73HWC4pezSvI167pEBuFMHyCstNvwQMZ
-	 +tBHikorX9MkssfK4G+0OSW+oGWmsanyca3C7cOuUEhEp5BTBKW+ZXgnb99ALyEhshSL5
-	 x94GI9CWSSXm7y/e0qwvKW81ugCNg6Yk08C5uK8i5j9ALykZkOj6HRU0YB0DAKhXzNg==
+	t=1794096373;
+	b=M425de0MPCMYwC86egc+lnY76pK/KicQUsDs7B3ymOEh7MYIfJL0b3uScwaaMvDK8/bE
+	 j0HNkLBr7iqpciRAlqtACKK4YHlqtIRACMR3LsfeUmTMp6T1vyS3YILODLX6k6btLJKOs
+	 KmNkAHahB5mrY4zkmuQSVrjiADGm5Sqm2R0KML2VqFr6hWK5M/zk1bv9YeWLT4GkRWZs7
+	 Ggzo/+n5Zx7wWhpFbDH94SJOxKHFhAHy6mvm3SVkuvqfeJPEZUic4iLCM7MtxbC4Q+mQR
+	 pA1Eq/QiPhDGmesbS4od26KncNqRXjL578fKcNDMYRnvVXNRQfEiNgZiGj5iIeFTQ9A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794095957;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=kCOZc6iAcXWp2hiznIFFu5kx2ZnmhlZFlmxyVqS3+No=;
-	b=UNbwIcATJKcVHdqzmtrIlV2aVGaaOMtdEWtFMW9ZVwWbO7PAiwlM6TYib6YYJrdsSXvK
-	 my3SVp2mGJi+r11JteiKpR3T2pN8PVvFBWSVrxWqSwMF97nyfcClo/nrt90Jp/4junj8y
-	 kI/Ivo91T96WqscBrsgd6zZrXS+l4poAFfrERwqjblIvpqNT1/wLNSdFS9hbUzRruQ4vj
-	 AeKR5OilKLKoPVnNeSM1bIqkKw+m0cQmP4TlkBiR5F536pZEgLeax4ZG9ZGRu4pjbXNcW
-	 Pe3WvZ3TUb3n2IuqFYUMcVXWOOEWAr5mYseApAjVOCGNf4QzmkodIk4pq6PViSGL6/g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794096373;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=wkq+o+mkue1kEdGjgGA6xzvph56O5rXIKMsRzYT7JkA=;
+	b=C9b68IP9jMK5eR4gnRzS71fLYBLIjIW/a9Kw63iYXnbvK08iQZ7Dx9dowjUZafUKfgQE
+	 R3NPeBwVOauCtkHubln7TyXRgCHIFsX2R+qJJU/7gcHTJTq7f6fhLb/a1NojOMbY2ymcz
+	 1Tr6BJYh7U6kldyvgM2jNFU4Qg9ez7wPqFZ0admC8rNe7McLIVi8ONjtfSdMGKtq+s9d2
+	 44zgazLmgFRgKiZhlmapp4LahsQPEe2Hj+S9eLXO2nKQW+pUA/e/9/oQZEtroleCdmYZ8
+	 gVu9OlxyMT3KnAPQ96wCkr+prRf2FkHDwiF4z0xltq9xjysasoLKr0LmiVGtqaXLTaQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWZk7947;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D7kP+X9E;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F77606A326;
-	Sat,  7 Nov 2026 23:59:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 789F1606A326
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 00:06:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWZk7947
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C5BE1F0089F;
-	Sat,  7 Nov 2026 23:59:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D7kP+X9E
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6338D1F008A1;
+	Sun,  8 Nov 2026 00:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794095957;
-	bh=kCOZc6iAcXWp2hiznIFFu5kx2ZnmhlZFlmxyVqS3+No=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=PWZk7947Eka/Od4m8tnPaUmdGGsPIyF9eff4iSNWZwpX3g5wkQOPWKhUt+O5574nZ
-	 7O+pdGgsNBGGMdK5/tWtxgh0bOK71muEcTyxQ1Hbb2P2bcWRYbv1fVw3RwHJL+IdtR
-	 SVCxKs38Uaqoju1nZNt8Wlb6glCSZoYQRM8FDm6WOQyO0OKk435w25OmIkBAvIsNey
-	 pBxudCOK+6Cg4aa2BE73arJsBeDiekSrWE7r/eqkMV8vQu9bdfBFeShxJrekpqocvz
-	 ljtxk1w4k9hagcFQwy3NHgTWb85WulDaY/Jg9eQ4ZlmEOkScoc5ghGzR1rJIu57/kJ
-	 H/3h1V4GT0/wg==
-Date: Sun, 8 Nov 2026 00:59:12 +0100
-From: Thorsten Blum <blum@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: amijoy - mark amijoy_phys as __initconst
-Message-ID: <au-7ULg8TnNUBSRM@kernel.org>
-References: <20261107174739.369375-2-blum@kernel.org>
- <f7574ee1581d609d45e0ff35e6d908b0@gmail.com>
+	s=k20260515; t=1794096372;
+	bh=wkq+o+mkue1kEdGjgGA6xzvph56O5rXIKMsRzYT7JkA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=D7kP+X9EzZUNR92lHd+yAUfwvQWKQAqdyRtRIDG7a8VGsDte/8P2s+ZopKg0uvirz
+	 Xaagn491K80itEyGHjRyJl/hGWEF3VMiCPKXbo1iahOzzjHRQa6iHF/IGTujg8hsaR
+	 PnhS4eXB7J8RtvbrHH2uwEIB+zm8Hn32ooZv77z1Ed5heS+LVeuMeASDHVCLfCKFpg
+	 yBpdDZFT3kcXK8fbmm6ltgf1aFNXFGINeZ+Vot+Nw24pNhGma1E9QjNn6OfiMr+87u
+	 8VtTpAybqoEUi96CLueouw6CYZvqEGO/9gnajQ0w6a4kxhSYupxthiRmgYQdRxLzd5
+	 7m1dCQmss5dOg==
+Message-ID: <sashiko-outbox-203404@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] HID: santroller: add driver for Santroller
+ controllers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sanjay Govind" <sanjay.govind9@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261107234444.960207-2-sanjay.govind9@gmail.com>
+References: <20261107234444.960207-2-sanjay.govind9@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 08 Nov 2026 00:06:11 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -55,47 +59,94 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f7574ee1581d609d45e0ff35e6d908b0@gmail.com>
 
-Hi Dmitry,
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] HID: santroller: stale brightness read in
+  santroller_player_led_set()
+- [Low] HID: santroller: USB profile naming compiled out when USB_HID=3Dm
+  and HID_SANTROLLER=3Dy
+--
 
-On Sat, Nov 07, 2026 at 03:19:38PM -0800, Dmitry Torokhov wrote:
-> Hi Thorsten,
-> 
-> On Sat, Nov 07, 2026 at 06:47:38PM +0100, Thorsten Blum wrote:
-> > amijoy_phys is only read by the __init function amijoy_init().
-> >
-> > Also declare amijoy_phys as const.
-> ...
-> > -static char *amijoy_phys[2] = { "amijoy/input0", "amijoy/input1" };
-> > +static const char * const amijoy_phys[2] __initconst = {
-> > +	"amijoy/input0",
-> > +	"amijoy/input1",
-> > +};
-> 
-> While this technically works because __initconst only places the pointer
-> array itself into .init.rodata and leaves the string literals in .rodata,
-> I find it too subtle and fragile. input_register_device() retains the
-> dev->phys pointer for the entire lifetime of the input device, so if
-> anyone later turns amijoy_phys into a 2D char array to avoid pointer
-> indirection, the strings themselves will move into .init.rodata and
-> dev->phys will become a dangling pointer after init (with no warning
-> from modpost since the reference is inside amijoy_init()).
+commit 28369893e9b4de37e159a34ce2a7a1ca4302cd7d
+Author: Sanjay Govind <sanjay.govind9@gmail.com>
 
-Thanks for the feedback.
+HID: santroller: add driver for Santroller controllers
 
-> Could we either just mark amijoy_phys as const without __initconst (it
-> is only 8 bytes on m68k), or drop amijoy_phys altogether and do:
-> 
-> 	amijoy_dev[i]->phys = i ? "amijoy/input1" : "amijoy/input0";
-> 
-> in amijoy_init() (which stays in .init.text anyway)?
+This commit adds a HID driver for Santroller USB and Bluetooth game
+controllers and instruments, supporting profile naming, rumble, player
+LEDs, RGB indicator LEDs, and turntable euphoria LEDs.
 
-I prefer to drop it then. v2 is here:
-https://lore.kernel.org/lkml/20261107234349.382944-3-blum@kernel.org/
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 2481bc01c435b..2fab7003ce18f 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -1138,6 +1138,18 @@ config HID_SAMSUNG
+>  	help
+>  	Support for Samsung InfraRed remote control or keyboards.
+> =20
+> +config HID_SANTROLLER
+> +	tristate "Santroller game controller support"
+> +	depends on LEDS_CLASS_MULTICOLOR
+> +	select INPUT_FF_MEMLESS
 
-Thanks,
-Thorsten
+[Severity: Low]
+Should this also depend on USB_HID || !USB_HID?  When CONFIG_HID_SANTROLLER=
+=3Dy
+and CONFIG_USB_HID=3Dm, IS_REACHABLE(CONFIG_USB_HID) in
+santroller_profile_name() evaluates to false and silently compiles out USB
+profile naming even though USB HID support is enabled.
+
+> diff --git a/drivers/hid/hid-santroller.c b/drivers/hid/hid-santroller.c
+> new file mode 100644
+> index 0000000000000..7dcc5d7eae604
+> --- /dev/null
+> +++ b/drivers/hid/hid-santroller.c
+
+[ ... ]
+
+> +static void santroller_player_led_set(struct led_classdev *led,
+> +				      enum led_brightness value)
+> +{
+> +	struct hid_device *hdev =3D to_hid_device(led->dev->parent);
+> +	struct santroller *sc =3D hid_get_drvdata(hdev);
+> +	int i;
+> +
+> +	guard(spinlock_irqsave)(&sc->lock);
+> +
+> +	sc->player =3D SANTROLLER_PLAYER_LED_OFF;
+> +	for (i =3D 0; i < SANTROLLER_NUM_PLAYER_LEDS; i++) {
+> +		if (sc->player_leds[i].brightness) {
+> +			sc->player =3D i;
+> +			break;
+> +		}
+> +	}
+> +	sc->player_dirty =3D true;
+> +	santroller_schedule_output(sc);
+> +}
+
+[Severity: Medium]
+Can santroller_player_led_set() send a stale player LED state by ignoring
+value and reading sc->player_leds[i].brightness?
+
+When software blinking (such as the timer trigger) is stopped while the LED
+is in its ON phase, led_set_brightness(led_cdev, LED_OFF) defers the update
+to set_brightness_delayed() without clearing led_cdev->brightness:
+
+drivers/leds/led-core.c:set_brightness_delayed() {
+    ...
+	if (test_and_clear_bit(LED_SET_BRIGHTNESS_OFF, &led_cdev->work_flags)) {
+		set_brightness_delayed_set_brightness(led_cdev, LED_OFF);
+    ...
+}
+
+set_brightness_delayed_set_brightness() calls __led_set_brightness(led_cdev,
+LED_OFF) -> santroller_player_led_set(led_cdev, LED_OFF) while
+led->brightness is still 1, leaving the hardware player LED lit.  Using
+value for the entry matching led (or updating led->brightness =3D value und=
+er
+sc->lock before the loop) would keep the state in sync.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107234444.9602=
+07-2-sanjay.govind9@gmail.com?part=3D1

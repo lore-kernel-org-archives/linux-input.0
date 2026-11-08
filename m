@@ -1,92 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794097139;
-	b=H30ckFCE2VT/GKkIJn6hcp8O95fwRdjZsHYkvP1LYK7FEX2atTlcLwk3aiDNW2XOCVvV
-	 dhx8yTxaJ26Z+yksYn2G15y32uKF8hvHfRj/uDbv0ae3B1flYqQtshm8bT3dG0vn06xYa
-	 5KhkRoFFsPzqPdG1ExTVu2/Oq+SvlXAWoYLr82lKXNDdHJ+pKS66eHfjNAemja3tLhGEs
-	 glHkrPApoeT0RrMRkfQwms2TOHQl0fYIBn0GaEaQ5yHeid56/9RMtCLP6y265jXNPIPON
-	 EQAwSZ5ypTwxTweShtpQPLK+Y1Jtft5fqEmdtdW5vta7k6PcPH2xGUDUAkBTC8+1KuA==
+	t=1794099031;
+	b=MIs7/jeGAWvcv4qnWI6SVK5MK9SjdaxmGVKLdKixlZCtKfiyjRMLNZSN3Wdu6VLnqln/
+	 KYMCBNFCjLuYzM4kBVvcJe/pjHAe2ya4HHVmsq5YZycTz5C228eTgiwM4PKsrtvagBsO/
+	 qx2FBA2WPx/1OJb78EAU/1tDC4p5l7SCTK3geEnnzT8Owuv8xJ230ZgnCYVDMJqWJNj6o
+	 KccefC31kmdGC+v/4p33ge5dgx3dxJqmqPomXFhibSqpnpN+brkiMK5OjeJ69UOSZpNnW
+	 gLNH+NTtesPcx5tu7M+ajIPYt7+ZDFgANPCyp8me4BKL+kaLn1dpbCAH6TKlxjp0R9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794097139;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
-	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Content-Disposition;
-	bh=EfxSBm3bzgzf2A9VtrSo7r03r+1kEbbvQLbRQsMqp+w=;
-	b=Ghh6hAOx6Saezqm+YMftrH0eLOX2GN8rsRgLDipE33l8aJrh+BdAgNRjCdF6FTis7c9q
-	 ArngpVsOy86cc/I30wkBaZN/uF5jv4Q0A1SOn1bQSWe+VgjTlvKZq0jOJwpe8XBdhhid0
-	 O/z5eoRf5MrPUP+siHI2qVtFQ0ccFeskLP1iXlVsr+VKtt4WWZhiCuQh5U4BIs7kv/MZN
-	 6q4D+JLcme9yGRZpg1wNEFGnWFD4fg+4VylWAvp7KV2TLDJiL5i1nNsSEVxs/9Kbadbc4
-	 AAMFlFMtCeoFFbKR540i2oxZ5ywMeipM5caXBVkutJE32pcQ3JltJ09dAhEBH5gNZhw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794099031;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=IgKH8Z1mL+DVQ1H4WNBQhYGDTfBDUYUJQ7trdSWqD3M=;
+	b=UJvI0MvEDxMb7BHPnPX76V47mrKBjnOCQyfke5CvbuIb4hPC5EveFCsLQrYh3a53ZfSu
+	 fK3carc7ZpOSPbCzo9zvvps1m7kZEjndYTVx4sucg3E3ckOelaa1mLzLbMj37hRyg+mej
+	 55EW4mPABuEZtigtYtPaTT8QhI5HLvZYCW2TNkGHL4UGepDB7fq2Atbo7fXx1tm2rLmjt
+	 4OIhn+2qQ590WYEYVfKfEnp93S8Qy/rwJFo0qZpIBxra31ZT4gQKpJjJeUzkxldfUNRNX
+	 SLDj09E68TxqoiCSs9KCMV1iM8Je+Rpe2dV8M8ERh+nF/HmFIgrwXN84JpFAnRR6zEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d2TGOyRm;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="OfFTR3/v";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2436F606A32E
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 00:18:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2436F606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0E1C606A326;
+	Sun,  8 Nov 2026 00:50:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d2TGOyRm
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36fc0a3fe93so251455eec.0
-        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 16:18:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794097138; x=1794701938; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EfxSBm3bzgzf2A9VtrSo7r03r+1kEbbvQLbRQsMqp+w=;
-        b=d2TGOyRm9+/hxneg1TLi5SkUGIVJcqxd8tpssnCoA0seFj3UMrwvzsK5ZaHkPacPPu
-         ckxD31vn1SjS5iXNgOSzpCEG9U0T0FWN5A9KQxamnbvhyXMdKEOzB6yQ2kNXbMiayf6A
-         OEAd+KVeIC31GxBm0Ikq2kl9254iGD5WHineEOWGqTBc1Af5gHncO7GT6y6zBSSxSz0W
-         WzIkoVSoKYiecR6VFOu9nWuqeg6YmABUN8x6cCAjdd2fBfX+KUlRNC4i56W+Xx2Adq04
-         DHVi6c64AREYizRAlkRX4xS9PPwfktK6RUGferj3DRAAKN88KxW/s9dh/v+ZoIT/wF9+
-         lUPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794097138; x=1794701938;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=EfxSBm3bzgzf2A9VtrSo7r03r+1kEbbvQLbRQsMqp+w=;
-        b=2ZFQsaydHRfJbZFFbCpfXAgkdipQGBzmPkMrgHeT/4EbzTdJJ3OsstEPhXmetPK5Ys
-         7FmRl0goYz1Ip5LvgOcnT3iDCjg8uvy+TAnQmDwltitLeYSIaTw01vmLHqBGdHxBnrST
-         vP1LtUR+wxeZS4kmWq7x6GE6OzLbpxrduUkqX6CEBbepeKeibCzLBWgq6LtRx9qbl/2+
-         J7CKpsq1iHPaNIBd3uyfUWt6OXKs7moORv6CFYITD+Itc593XQTI8wEew5AcD2gRTxK+
-         JJkphHuqaz4zj/BkKuJiLEuEryYP6nsivj+8BjjXZZy8M/rGgglLgBGAkJaximLD3g/n
-         SBdg==
-X-Gm-Message-State: APuU4Z/iGbonrIEXqQi87cfWF9QOfippTyOexAfRQhayQkYOcG+b7WC3
-	BH/5sKKJ2URwLmE+2SJ6yIxQQZi/WTdJL66YLjr9V+/zZwKJ9CkWYk+q
-X-Gm-Gg: AYBFou0MKiv5+/qmBqOOuhFiXd9FqVMOX+EXUBNrjeVsATrkP6EkMdocYi+8Ba7vZjl
-	auuE7xn/rs4CmrU+8DsvEa/R6YUckSRylhXv6XaTLYW85Rk+nITACWOpwNwu3SMMYT0p7DKaLvz
-	SFJ0BxBts3Z6EbZim8h8aG7F5NAkOTV2SUlCnr5CGnRY5Cr+qyZ6bMRvA4BHNSUVpAm3cgj+KHZ
-	7kqYkw1JEOJ9d1H/a4iM6qKyLK6BOQ3lkLat7OK02Jw/Iotl5skUYigFiJP4cQPOgC7NuElHsML
-	fLTdfRG0ehwI9QaTconbu1a855+VcI5+SEG1OSr9ghJGFM0KO4vAleU0T5oXHr84SENn1bSXEPj
-	N7Zsey0yTilAb94IJJzzTb1eb/y2/8Is7NUdPDz7soxsJhlHDIq0dL5WA8pPjnLJCv171JLWLa7
-	IuC3smt/xuh3++AXlEb5hmEuZrL+Z9YUBFlUE0B7ftld3BJ3Qe4AjVAt/6db7R6dNkKAzk21fJJ
-	F9YGKvSsBnz1lMK44L33kFOpyUx9U72LcgPkij9wjDJLExjgOWtftz/waE+2SLEBMCKSuIARs3w
-	MRNL/zISZT++Qthg2uWIEdTlCgIsH6cedn45Mx42zzK3Oto8Lxg08AVG/6a9MdF80iMc
-X-Received: by 2002:a05:701b:4294:10b0:1b2:6c97:fecd with SMTP id a92af1059eb24-1b39fecea0amr167005c88.42.1794097138049;
-        Sat, 07 Nov 2026 16:18:58 -0800 (PST)
-Received: from localhost ([2a00:79e0:2ebe:8:5a4:1cb9:242d:4f00])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b372ed839fsm2018026c88.0.2026.11.07.16.18.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Nov 2026 16:18:56 -0800 (PST)
-Date: Sat, 07 Nov 2026 16:18:56 -0800
-Message-ID: <ccc5eb71825e1bd468007e548a8367e7@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Thorsten Blum <blum@kernel.org>
-Cc: linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OfFTR3/v
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5822E1F0089F;
+	Sun,  8 Nov 2026 00:50:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794099030;
+	bh=IgKH8Z1mL+DVQ1H4WNBQhYGDTfBDUYUJQ7trdSWqD3M=;
+	h=From:To:Cc:Subject:Date;
+	b=OfFTR3/vXG43mgWFpNDV7fGQpUgxlG83QntrPq/VplACnBW3CxMPC39ZXeQyW8mGa
+	 tujpDzsdjXkMaEL7yFhzFkps8W1npIiN9nvK1r23NfLIxL1eIsqyjNObFOMu2DsUYw
+	 uTtSXvkCJydp9i2rp01kfVrAOt7qdlcRn+8lpG3pukJy3B6HWWw9oqLeLoAVmU5KEQ
+	 ywgu9Aj+gRylid3P6/qlt7e+ygrZyU5DGdHSwh8/FI3cccCcbycJGu1BXf9bFRAVhk
+	 ATRpwuW3Dm/9mHA552KDEcIgOQNFciPl5hx8WR0JqMvlBwI1QVoHUhiotv50xJmsXH
+	 5KhbUd8ep8Xqg==
+From: Thorsten Blum <blum@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thorsten Blum <blum@kernel.org>,
+	Dmitry Torokhov <dtor@insightbb.com>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: amijoy - fix memory region leak on registration failure
-In-Reply-To: <20261107160159.367919-2-blum@kernel.org>
-References: <20261107160159.367919-2-blum@kernel.org>
+Subject: [PATCH v2] Input: amijoy - fix memory region leak on registration failure
+Date: Sun,  8 Nov 2026 01:49:52 +0100
+Message-ID: <20261108004952.394691-3-blum@kernel.org>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -96,39 +59,67 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1812; i=blum@kernel.org; h=from:subject; bh=rhvDwBj41iEjNWACt66355iyRXFmHoeThbk+YoRAYDM=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDFnvjxu0mzW/NVN9uXGbyrzf/7/yHnF2FO+weXa2THBj0 ITCPb8fdpSyMIhxMciKKbI8mPVjhm9pTeUmk4idMHNYmUCGMHBxCsBE2uMYGV5NW/mVudr6hN0e ju/57PrTpp/8LfLNPeputKfzpQtueQWMDCc5/PcLyGnFdy0We8f9dFX6l0m55dbyDmIrRHfVuCx +wgYA
+X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
+Content-Transfer-Encoding: 8bit
 
-Hi Thorsten,
+If input_register_device() fails in amijoy_init(), release the memory
+region for the current port before cleaning up the previously registered
+ports.
 
-On Sat, Nov 07, 2026 at 05:01:57PM +0100, Thorsten Blum wrote:
-> If input_register_device() fails in amijoy_init(), release the memory
-> region for port i before cleaning up the previously registered ports.
->
-> Fixes: 127278ce2254 ("Input: joysticks - handle errors when registering input devices")
-> Cc: stable@vger.kernel.org
-...
->  		err = input_register_device(amijoy_dev[i]);
->  		if (err) {
->  			input_free_device(amijoy_dev[i]);
-> +			release_mem_region(CUSTOM_PHYSADDR + 10 + i * 2, 2);
->  			goto fail;
->  		}
+Consolidate the error paths while at it.
 
-Do we really need this in stable? It has been like this for 20 years,
-and only affects an unlikely input_register_device() failure (basically
--ENOMEM during init) on Amiga hardware, so please drop Cc: stable.
+Fixes: 127278ce2254 ("Input: joysticks - handle errors when registering input devices")
+Signed-off-by: Thorsten Blum <blum@kernel.org>
+---
+Changes in v2:
+- Consolidate the error paths (Dmitry)
+- Drop cc stable (Dmitry)
+- v1: https://lore.kernel.org/r/20261107160159.367919-2-blum@kernel.org/
 
-Without the constraint of keeping the diff minimal for stable, could we
-also clean up the error handling here instead of unwinding inline (and
-out of order relative to input_allocate_device() / request_mem_region())?
-Either add cascading err_release_mem / err_free_dev labels before the
-unregister loop so unwinding happens in reverse order without repeating
-input_free_device(), or factor per-port initialization out into a small
-amijoy_setup_port() helper.
+ drivers/input/joystick/amijoy.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-Thanks.
-
--- 
-Dmitry
+diff --git a/drivers/input/joystick/amijoy.c b/drivers/input/joystick/amijoy.c
+index 3752dc2a2086..03e5f924c678 100644
+--- a/drivers/input/joystick/amijoy.c
++++ b/drivers/input/joystick/amijoy.c
+@@ -98,13 +98,12 @@ static int __init amijoy_init(void)
+ 		amijoy_dev[i] = input_allocate_device();
+ 		if (!amijoy_dev[i]) {
+ 			err = -ENOMEM;
+-			goto fail;
++			goto err_unregister;
+ 		}
+ 
+ 		if (!request_mem_region(CUSTOM_PHYSADDR + 10 + i * 2, 2, "amijoy [Denise]")) {
+-			input_free_device(amijoy_dev[i]);
+ 			err = -EBUSY;
+-			goto fail;
++			goto err_free_dev;
+ 		}
+ 
+ 		amijoy_dev[i]->name = "Amiga joystick";
+@@ -127,14 +126,17 @@ static int __init amijoy_init(void)
+ 		}
+ 
+ 		err = input_register_device(amijoy_dev[i]);
+-		if (err) {
+-			input_free_device(amijoy_dev[i]);
+-			goto fail;
+-		}
++		if (err)
++			goto err_release_mem;
+ 	}
+ 	return 0;
+ 
+- fail:	while (--i >= 0)
++err_release_mem:
++	release_mem_region(CUSTOM_PHYSADDR + 10 + i * 2, 2);
++err_free_dev:
++	input_free_device(amijoy_dev[i]);
++err_unregister:
++	while (--i >= 0)
+ 		if (amijoy[i]) {
+ 			input_unregister_device(amijoy_dev[i]);
+ 			release_mem_region(CUSTOM_PHYSADDR + 10 + i * 2, 2);

@@ -1,56 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794124092;
-	b=jI98dWOBuWKlD/EFL6gr7qX4XO1icdzSeKhlNseqYoJq4hFtmt/jHUcDpe+HvpZEyzTf
-	 F++1F+VYYAdMJXosUn57XfHNaoqaWq1jCXusUuTpTL8knkZZEtilqQEqS4DqYdCFdkyIv
-	 v82qWIq2KPdYkcoOTvsCQgHy3UV2fv2lFQlHPMnMjAusiscXwA6lJBNjbZvyPP3Qt9yaV
-	 ryjyQxlkpySPGOEwL+Fgo/SvfLAV/YjUIySTPt+hZLOOMlFKqHo4P+YoQ4KW6ADa+m6/7
-	 EaECfMUtcn/5tI/gqknaujgljRCaD9Lz62aDdIuf+47GPIJOuFZDUtef6skpYAT8uwQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794124092;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3j65SYmSc/Yx9+A1aijBAHS3lcPaJsPueO2COBy9Q68=;
-	b=W/dlWzYJ3CyHKGy2KExC58u1EcvtJdeTGbZQ279gc18DNmuL0aQD/Tz6/om0ETcd+EWB
-	 vxeIXWrPMwpSinU7dajCCy/WK3CIlJhiVeA3ZoSlyvwMmJ2ozi9ujVq4jGoRDrNwxty2K
-	 3dJf4qrCoPJqt8wLJN86HL0v8Ihe7yoFEyDfTSY1H7kB7Fu0LYtQidh/NtA9Q0ag4Al1d
-	 TuMQ18bM8Gk9vwGSfohhO9vkXGBmuWIvSPE66HRKEXhd6j/e/JI6fN70CYtIlYuKw3XMu
-	 pEGjm9DA0fd/+SR3FUEqcu4sW5Ty4kQuPYNUL59lxVvHKjHa6y8bAdoBsvgED1i0gRQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jwpUZhNk;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794124136;
+	b=ckoNU6qpZivWQQPWpDsLiLisc8y91yZTr/epP9Z76VBmXCchwH/awBLBOqDtvmV7NF28
+	 hwAJxsntupCVi7TpbUvoEM2fM107fLLqbdTIoFJTJXmv6ZjLy8Q9BjOnzX4+QJZANZaF6
+	 RoImRou4y9pnRDJjaoSLlVb8eh5e0WJSSdCduRSMn8DUBIZbM2DpBmT6Hzm/2m1RCga6a
+	 A9RG8aF3DZDeNUiyYYBHTu870bjqyejn/01WPIksqG8TGr8wHcBDu870XUhjT6KRBpvXn
+	 iI7ouuICGFV0TmcDx6aiZm38Xboc6v1Mnb/rMajAw0PCJUztmyjTfU+Yf1G2zLJ8bFg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794124136;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=q1Zvus5rC8hShMH7t8nxjox6t7ensKu+IzIvUVh4Gsw=;
+	b=sPaBqKrdY4JJ8paicGAd9nteMxVMLiZQOwZ8C0egmLnYCdFvBurF0mEtLgkXhIoWKn28
+	 eoICzltSly6kZ9YOLOA/+UofMDgLQZhG6oeRuxF6WG1vLYETJFpn7U5JGywR8Xr6WfRhs
+	 x+aKNBwT2P95SvaBaZ47fjayv1m1R2IsEfpcoq27V9dI8FMNLzjdZ3wFauiygLPIkjpUz
+	 BLL5wkWDJHX3q9D480r4sJSGohBYwVQdHOX8XOdlSenmGk0UrujGuvJFfjWUvsBdqzEAU
+	 zN88WLkgZdtKE6e3IOPuzfPsh/MTCjjtlFTtbr77nGkAHnBZY6AtoYF+skOfvUlOhGg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hq5Q0Zk8;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD628606A332;
-	Sun,  8 Nov 2026 07:48:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF57606A321
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 07:48:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0EF57606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jwpUZhNk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460F91F008A2;
-	Sun,  8 Nov 2026 07:48:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794124091;
-	bh=3j65SYmSc/Yx9+A1aijBAHS3lcPaJsPueO2COBy9Q68=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jwpUZhNkqGY05SnSmj5PW3eX1HxZUDOWq9WPWIsMXfUGQ3+0Qm7UTklYFxKw9Toys
-	 FRT1wQpX67nMlhnklj9gJ/P7ofkaikuCdB02yYJyU4Wd0n9HX3m5M9Ku/Q28OUdzY9
-	 u4M1636hK4PF69ivnysrQaXVp2/ckhxBGzy5SFBqdMg7h6nlTeMHjL3DmeVPf6/beK
-	 0c/ZkDZOFCdbSjDtjJMoHm6enoFp8bgtWTPQMnHwbOXED7/CwYkTwQcrQITo/W/X1t
-	 aqJ1Ym8K3188PkDTsaSeOHEA6jfC0mIDIGPJzLm4xVQ1hWt3PIYKPD1as8DB2i5M8s
-	 eKT0M+ihtsp1g==
-Message-ID: <sashiko-outbox-203640@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 6/8] HID: apple: Add DockChannel HID transport driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael Reeves" <michael.reeves077@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108-b4-apple-mtp-keyboard-v5-6-e2c97b82669a@gmail.com>
-References: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
- <20261108-b4-apple-mtp-keyboard-v5-6-e2c97b82669a@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 07:48:10 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hq5Q0Zk8
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8b33de9d2b1so1003687b3.3
+        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 23:48:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794124135; cv=none;
+        d=google.com; s=arc-20260327;
+        b=dOW6GpOuIqqYXuvfXX7bwu3vaHNJoU3XQTBw+EvVOyDkPHxyjLYAs2OQT3dY8NhW0T
+         xrTFC/htfzFUaMX6roDNEo3RdlL5mOXYcRCvQN0ZvYyt9uE66Q8IiK0yzAFDvxEQDkzH
+         kzrSqZTcVV0qbjNnFKxI9JGDdU8yMdfgTbCBrFoQ6J7JQvM5WqF0xKGcv/9Shl10dxt1
+         7DI8NxCP1txbbsRJE6lE8gcvpMUepZ95dXFqK/G0rulF1GRqFlrwHb8VrDaBkAptqEpq
+         nSTBScuVv+9heuwmpiK1xEZdVhkCxHBKBmSLMCfm6YeedimMVffA8uBm+xo3fVd5FgSp
+         6M4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=q1Zvus5rC8hShMH7t8nxjox6t7ensKu+IzIvUVh4Gsw=;
+        fh=I5e57mbztHSGUtujDuTdMMpojEjP48NlwXw2YP9lJSQ=;
+        b=bDcCDyuVjX8RYDm4yj4i9jaaaLQx4hNSyWnGYLDtJj5ks2NNp+3YSdQXqDaFBBnmPJ
+         2kZLNmdjuW98OcI6b7a8qhX1BQKMSOZEKODrGdgAzIEanSbVIlEssrq9xZsUSTRIx93a
+         pC5PgNKdtwmEN1rTaHaQjkMc6BtmnnGsFqRuEaX5S44djxNkeCeUYz6geJDxH81Tu4j6
+         tOsNdX/vH091MCgrC6/qA9p1rZdtMxzVnoWbbQG1d74Y3naprgP9dWrV4B/vaCzjdb7s
+         um6s1TQXLL4lO+Y0OVnbkX14Nd4SHMpR/N9OGhtqagU4+LeMvj4bRKg3m2R6t0HOZoBA
+         bMLw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794124135; x=1794728935; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=q1Zvus5rC8hShMH7t8nxjox6t7ensKu+IzIvUVh4Gsw=;
+        b=Hq5Q0Zk8osL5u2wXfAxeQHwqUJyw+54EnYgiKD7/xrVPG/AZjhQ6zOnxaqwS1kbXvK
+         ZpD3UpEtYUwcqMHBJkFby5fuLjZ4t9CYJlf0gFfjHG+OLcuahCBM8jbXoIEIwMpRRgEL
+         v+0+jH+zV3bWzaLYR8Z0mR5j1DjuZCsDkW7DMNTqe6XA0dJx+X3YwEhCDDmtaJy8Yt2Y
+         9WUCHjM7n+fq8Vs22zsVrt43gnI3QfmskUJywDkZc1RTsm4CwUIEt6lCgN/4/hlogxOe
+         1uCxm3dmJCyLEzXzXIh6UIhme+S3NrHYCsT/e1Ni94y69P1GSu90woc/Daqco7CY+fNo
+         +JVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794124135; x=1794728935;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=q1Zvus5rC8hShMH7t8nxjox6t7ensKu+IzIvUVh4Gsw=;
+        b=ez/SJJpWKkv5GnT9PO/1byUzg1AZQ9a1PGQLqzs5i6gnDeWikSNiroGoODSaEpQgT1
+         XWTHFTxxCXDA/o/qNS4EFYY9i63o3JjbueoR77hhEwE/9d5HM2D36JQtbEEP7BOT+WxV
+         K9Q4szAnscA3aSrL23YriMfGNjRvkm/YRFcujzIoer0rZZDf06pUM0M1nAWUAsX/6Q5v
+         +qpaQjl4yu/0CMKRIPbB0lecBwZJnxR8uGAOIc452+2EyjtFfBk10WaZtxFkYpRrshC+
+         +QwAKypgu+YPzuosP5ZvVfFrmFdWXbixbCAGatzUYe9+HVO75Upjq1ui+YcEkxjpCGtb
+         4baQ==
+X-Forwarded-Encrypted: i=1; AL+hErFg04+sm8gS0pRUtLbdLKzgxGFTXllvV4SHkjlMUG7XX1X1RdNwpzGiGacY7JlXk1IvazFG/wgjfmVRsA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+ZRbEjbS/CC+8OO63le8fytaA2ok8m9breZxAGNjztcHDdTVYi
+	cFecePA6BcFzoiOb0760d6jGoLvXz/TNA4S5LQuD2LojhwUbeQ0UpT8Ts0AYKt10ijpSck8cy70
+	e4CPogkk2OfFu1xYgcc2W/QIqkUTff/k=
+X-Gm-Gg: AYBFou1pBCIakBW0kbhC+ab+AdHqEcqrdLUSPE9wMUgVpxTYlSJZBS18lkadMrhxdHY
+	xz5+aAssOAW4dTiuIyWKXCTso80EKwMU8BCranq6o0NIbhzmwrgoYMn3WRY62WfPu+D6cdTrs8G
+	PU86pXgyKY4wt6pKsmDN8XxuibsX248z2QKst8ibKicCLpYr0EtnjUNUQh3lvEEJeTbLFSNrOf3
+	WNY2sxANNQK9xD9zTxbJCS3rWf932NqfV8en3ta7YHAL/f9JMCfIxUNjt7gbxx3448TMF6zGM+M
+	7kL7i8VTsC/nBml46K3WzNUJpuyws+UHMKgGH3OQnPMHHH1mpH3sbV9/Kl8qMo0eK8HZkjG6z/+
+	etH9qR1DbejGk5McAAIx9/BhdBoK3WSNBvAHw3y8MhXgER6eSQUEiUxtVdEHikOzrfruSqLJqBa
+	e71ilPobtfi7IjPs7Jelg/36ig
+X-Received: by 2002:a05:690c:388:b0:8b3:2b8:854 with SMTP id
+ 00721157ae682-8b36caf6665mr5647857b3.89.1794124134911; Sat, 07 Nov 2026
+ 23:48:54 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,255 +104,38 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
+ <20261108-b4-apple-mtp-keyboard-v5-7-e2c97b82669a@gmail.com> <sashiko-outbox-203632@kernel.org>
+In-Reply-To: <sashiko-outbox-203632@kernel.org>
+From: Michael Reeves <michael.reeves077@gmail.com>
+Date: Sun, 8 Nov 2026 18:48:44 +1100
+X-Gm-Features: AclHuK80jFNSV0poXYzL--QRjzmnK-TW4SRDsdRWfR9wTFf83IZv331kn811FJs
+Message-ID: <CANpmGNv2WHN_C+83FiNZHjKrdrPECCapDRuXL4Bn+0d=00pfLQ@mail.gmail.com>
+Subject: Re: [PATCH v5 7/8] arm64: dts: apple: Add MTP DockChannel HID nodes
+To: sashiko-reviews@lists.linux.dev
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, 
+	conor+dt@kernel.org, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] HID: dockchannel: fix STM device_id race in
-  dchid_create_interface_work()
-- [High] HID: dockchannel: bound TX size and timeout in dchid_send() and
-  dchid_probe()
-- [Medium] HID: dockchannel: validate report descriptor and iface in
-  dchid_handle_init()
---
+On Sun, Nov 8, 2026 at 6:40=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+> Are the M3-family compatible strings in mtp_mbox and mtp_dart documented
+> in the binding schemas?
+>
+> Running make dtbs_check fails because apple,t6030-asc-mailbox,
+> apple,t6031-asc-mailbox, and apple,t8122-asc-mailbox are not listed in
+> Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml, and
+> apple,t6030-dart, apple,t6031-dart, and apple,t8122-dart are not listed i=
+n
+> Documentation/devicetree/bindings/iommu/apple,dart.yaml (the same applies
+> to t6031-die0.dtsi and t8122.dtsi below).
+As stated in cover, documentation for these was intentionally dropped from =
+v5,
+because it was picked up into apple-soc/dt-7.5, so will be included
+when this lands.
 
-commit 098cc69f724a6a1dd739b50990fad1fd9d489e3d
-Author: Michael Reeves <michael.reeves077@gmail.com>
+Sorry, I should have made that more clear.
 
-HID: apple: Add DockChannel HID transport driver
-
-This commit adds a HID transport driver for Apple MTP keyboards and
-trackpads connected over the DockChannel mailbox and RTKit.
-
-> diff --git a/drivers/hid/dockchannel/apple-hid.c b/drivers/hid/dockchanne=
-l/apple-hid.c
-> new file mode 100644
-> index 0000000000000..3974b877236b5
-> --- /dev/null
-> +++ b/drivers/hid/dockchannel/apple-hid.c
-[ ... ]
-> +static int dchid_send(struct dchid_iface *iface, u32 flags, const void *=
-msg,
-> +		      size_t size)
-> +{
-> +	struct dchid_dev *dchid =3D iface->dchid;
-> +	size_t payload_padded =3D round_up(size, sizeof(u32));
-> +	size_t total_len =3D sizeof(struct dchid_hdr) + sizeof(struct dchid_sub=
-hdr) +
-> +			   payload_padded + DCHID_CHECKSUM_LEN;
-> +	struct apple_dockchannel_msg dc_msg;
-> +	struct dchid_hdr *hdr;
-> +	struct dchid_subhdr *sub;
-> +	__le32 *checksum_ptr;
-> +	u8 *buf;
-> +	int ret;
-> +
-> +	if (total_len > DCHID_RX_BUF_SIZE)
-> +		return -EINVAL;
-> +
-> +	buf =3D kzalloc(total_len, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	hdr =3D (struct dchid_hdr *)buf;
-> +	sub =3D (struct dchid_subhdr *)(buf + sizeof(*hdr));
-> +	checksum_ptr =3D (__le32 *)(buf + total_len - DCHID_CHECKSUM_LEN);
-> +
-> +	hdr->hdr_len =3D sizeof(*hdr);
-> +	hdr->channel =3D DCHID_CHANNEL_CMD;
-> +	hdr->length =3D cpu_to_le16(payload_padded + sizeof(*sub));
-> +	hdr->seq =3D iface->tx_seq;
-> +	hdr->iface =3D iface->index;
-> +
-> +	sub->flags =3D (u8)flags;
-> +	sub->length =3D cpu_to_le16(size);
-> +
-> +	memcpy(buf + sizeof(*hdr) + sizeof(*sub), msg, size);
-> +
-> +	*checksum_ptr =3D cpu_to_le32(DCHID_CHECKSUM_SEED -
-> +				   dchid_checksum(buf, total_len - DCHID_CHECKSUM_LEN));
-> +
-> +	dc_msg.data =3D buf;
-> +	dc_msg.len =3D total_len;
-> +	ret =3D mbox_send_message(dchid->dc_mbox, &dc_msg);
-> +	kfree(buf);
-> +
-> +	return ret < 0 ? ret : 0;
-> +}
-
-[Severity: High]
-Can a SET_REPORT larger than 2048 bytes wedge dchid->dc_mbox for an hour
-and leave a dangling stack pointer queued in the mailbox channel?
-
-dchid_send() checks total_len against DCHID_RX_BUF_SIZE (65547), while
-dchid_ll leaves max_buffer_size unset (allowing raw output reports up to
-HID_MAX_BUFFER_SIZE, 16384 bytes).  However, apple_dockchannel_send_data()
-rejects any message larger than APPLE_DOCKCHANNEL_FIFO_SIZE (2048 bytes)
-with -EMSGSIZE.
-
-When msg_submit() fails in mbox_send_message(), the stack pointer &dc_msg
-has already been added to chan->msg_data[] without setting
-chan->active_req.  Because dchid_probe() sets dc_mbox_client.tx_block =3D
-true while leaving tx_tout as 0, mbox_send_message() defaults to a
-3600000 ms (1 hour) wait on chan->tx_complete while holding
-dchid->cmd_lock.  Once that wait times out, dchid_send() frees buf and
-returns while &dc_msg remains in chan->msg_data[], causing a stack and
-heap use-after-free on later mailbox submissions.
-
-Bounding total_len to APPLE_DOCKCHANNEL_FIFO_SIZE and setting a reasonable
-dc_mbox_client.tx_tout in dchid_probe() would avoid this.
-
-[ ... ]
-> +static void dchid_create_interface_work(struct work_struct *ws)
-> +{
-> +	struct dchid_iface *iface =3D container_of(ws, struct dchid_iface, crea=
-te_work);
-> +	struct dchid_dev *dchid =3D iface->dchid;
-> +	struct hid_device *hid;
-> +	char cap_name[16];
-> +	int ret;
-> +
-> +	if (READ_ONCE(dchid->stopping))
-> +		goto done;
-> +
-> +	if (iface->hid) {
-> +		dev_warn(dchid->dev, "interface %s already created\n", iface->name);
-> +		goto done;
-> +	}
-> +
-> +	ret =3D dchid_enable_interface(iface);
-> +	if (ret < 0) {
-> +		dev_warn(dchid->dev, "failed to enable %s: %d\n", iface->name, ret);
-> +		goto done;
-> +	}
-> +
-> +	iface->deferred =3D false;
-> +
-> +	hid =3D hid_allocate_device();
-> +	if (IS_ERR(hid))
-> +		goto done;
-> +
-> +	strscpy(cap_name, iface->name, sizeof(cap_name));
-> +	if (cap_name[0])
-> +		cap_name[0] =3D toupper(cap_name[0]);
-> +	snprintf(hid->name, sizeof(hid->name), "Apple DockChannel %s", cap_name=
-);
-> +
-> +	snprintf(hid->phys, sizeof(hid->phys), "%s.%d", dev_name(dchid->dev),
-> +		 iface->index);
-> +	strscpy(hid->uniq, dchid->serial, sizeof(hid->uniq));
-> +
-> +	hid->ll_driver =3D &dchid_ll;
-> +	hid->bus =3D BUS_HOST;
-> +	hid->vendor =3D le16_to_cpu(dchid->device_id.vendor_id);
-> +	hid->product =3D le16_to_cpu(dchid->device_id.product_id);
-> +	hid->version =3D le16_to_cpu(dchid->device_id.version_number);
-[ ... ]
-> +	ret =3D hid_add_device(hid);
-
-[Severity: High]
-On machines with apple,has-stm, doesn't dchid_create_interface_work()
-register the stm HID device before or concurrently while
-dchid_handle_ready() fetches dchid->device_id and dchid->serial?
-
-dchid_handle_init() queues create_work for stm before dchid->id_ready is
-set.  When CMD_ENABLE_INTERFACE completes, dchid_create_interface_work()
-does not wait for EVENT_READY on stm, so it races with dchid_handle_ready()
-running on dchid->comm->wq:
-
-kworker (dchid->new_iface_wq)     kworker (dchid->comm->wq)
-dchid_create_interface_work()
-  dchid_enable_interface(stm)
-                                  dchid_handle_ready()
-                                    dchid_get_report_cmd(...,
-                                      &dchid->device_id, ...)
-                                    dchid_get_report_cmd(...,
-                                      dchid->serial, ...)
-  strscpy(hid->uniq,
-          dchid->serial, ...)  <-- data race / uninitialized
-  hid->vendor =3D ...            <-- data race / zero IDs
-  hid_add_device(hid)
-    ...
-      dchid_open()
-        !completion_done(&stm->ready)
-        dchid_start_interface(stm)
-          dchid_reset_interface() <-- resets stm mid-init
-                                    dchid->serial[ret] =3D 0;
-                                    dchid->id_ready =3D true;
-                                    complete_all(&stm->ready);
-
-As a result, the stm HID device is registered with zero or torn device IDs
-and an uninitialized or unterminated serial string, and opening it before
-dchid_handle_ready() reaches complete_all(&iface->ready) sends
-CMD_RESET_INTERFACE while STM reports are being queried (or triggers a
-second EVENT_READY that overwrites dchid->device_id and dchid->serial
-while deferred interfaces are reading them).
-
-[ ... ]
-> +static void dchid_handle_descriptor(struct dchid_iface *iface, void *hid=
-_desc,
-> +				    size_t desc_len)
-> +{
-> +	u8 *rdesc;
-> +	int i;
-> +
-> +	/* Keep the descriptor stable while creation and HID parsing run. */
-> +	if (iface->hid_desc)
-> +		return;
-> +
-> +	rdesc =3D devm_kmemdup(iface->dchid->dev, hid_desc, desc_len,
-> +			     GFP_KERNEL);
-> +	if (!rdesc)
-> +		return;
-[ ... ]
-> +	iface->hid_desc =3D rdesc;
-> +	iface->hid_desc_len =3D desc_len;
-> +}
-[ ... ]
-> +static void dchid_handle_init(struct dchid_dev *dchid, void *data, size_=
-t length)
-> +{
-> +	struct dchid_init_hdr *hdr =3D data;
-> +	struct dchid_init_block_hdr *blk;
-> +	struct dchid_iface *iface;
-> +	u8 *p =3D data;
-> +
-> +	if (length < sizeof(*hdr))
-> +		return;
-> +
-> +	if (!memchr(hdr->name, 0, sizeof(hdr->name)))
-> +		return;
-> +
-> +	iface =3D dchid_get_interface(dchid, hdr->iface, hdr->name);
-> +	if (!iface)
-> +		return;
-[ ... ]
-> +	if (hdr->more_packets)
-> +		return;
-> +
-> +	/* Wait for the shared device IDs only on machines with an STM. */
-> +	if (dchid->id_ready || !strcmp(iface->name, "stm"))
-> +		dchid_create_interface(iface);
-> +	else
-> +		iface->deferred =3D true;
-> +}
-
-[Severity: Medium]
-What happens if devm_kmemdup() fails in dchid_handle_descriptor(), or if
-an EVENT_INIT packet has no non-empty INIT_HID_DESCRIPTOR block?
-
-dchid_handle_descriptor() returns without recording an error, and
-dchid_handle_init() still queues dchid_create_interface(iface).
-dchid_parse() then passes a NULL or zero-length iface->hid_desc to
-hid_parse_report(), where kmemdup(NULL, 0, GFP_KERNEL) returns
-ZERO_SIZE_PTR and registers a broken HID device with a zero-length report
-descriptor.
-
-Also, dchid_get_interface() accepts the name "comm" and returns any
-existing dchid->ifaces[index] without checking that hdr->iface !=3D
-IFACE_COMM or that the existing interface name matches hdr->name, which
-would allow an EVENT_INIT for index 0 to queue HID device creation on
-dchid->comm.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-b4-apple-m=
-tp-keyboard-v5-0-e2c97b82669a@gmail.com?part=3D6
+Thanks,
+Michael

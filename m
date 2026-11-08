@@ -1,56 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794115750;
-	b=WO+HFoqWbXbjesl1NOVQRvB6rKK7DdKV6V6jKk0sV3inp0Rz5Ct8QR2iA4bCHHtcSoQ/
-	 kZLNf808Tl50v/TX5A9AS2Y1Q+zWNP/83owIjnVX79VT83J3R6pNBqOcbhvwPFN/3sblm
-	 OKjGiK3lc5Zt4OAHAvgILqmA+WJoDtj/5yTQLPxrohZ6Z5wOxoULciZTf0/YnAFJDOV2O
-	 Q7WNzaSP2o+vNqmj9bd0E7tDiUaULrNZfMenzHLIUrPY9S1J6Omh1H3Yt57m1SykLv1cY
-	 9kISogw2gzYSYfSDo8V0fzRJxe94PXcMDNwSGNMcWBtq9nshHakyPt/A80BX4ebTtLg==
+	t=1794119605;
+	b=j22kJK5qqpQX03k17VnVMxRQpTSjM9ABcxMbnyxLMbPzKgrUg9GGccfzjrAa+Wgi7o0Z
+	 +tS3Q+eiMaNiWsLy4SiCxqMpMHdfsiRgCWsd9XtHN/KeEpAY5dlESHNUbwqqBVy0/PNFz
+	 F3nhd7IbNXYL764MwnwAKxdKJJJBVnEB5fKwfWP9T4ChL6NMKyW+8LLo4ZxkKI8gNp8qq
+	 FBYMlESRm62ZbzvZ6IcIlXWrJO/jE0+1tCiu8tAljTVa7jXeQmhw5rOEfHgkuhNmIfOH1
+	 43o1Y4GxNFtooq7kmmt3jbr5AEE8yw35/ZIF7kLbFHfCQO1qZeR4VFFHsa4RxXKkkSQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794115750;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=kp0sT8SmUsOFXTuK4zLCt64zPhaSL5YK0cGDEjRVp08=;
-	b=lnz+N539kiE2xScHAmI0oMcH0RBk5MTpCDmW6JdxLvMX6mtgClAeuKM9rry9zF7C+wx9
-	 7cVV64iTYNXOG9lamDIZu/cMG/aOKi+HV6dQ6OpjVt9USY4xiZPP507Q42YwUMeEWo1rc
-	 zXsi9UIfdDa+TV8/du4a4OXz5yjHRbV27oL9JuMislXoCmN/9iNRo0lSrixbm0E3gytCj
-	 LIE6ngfTslkSBpp548+oQ9JPNKx62Iv5mzNFEv1vGyjpB9yAxyxUjuj2eN2K67ud/R+25
-	 5IfKxZnBsNESGrSl90/EknmqUmcI7z81lyxDrdYb8z4bK6EccDD83DtgdKH6NIySYug==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794119605;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=7tw1+OakpoH9nv5oeIcEeSnu2yq2xP4kxsGUVLSS30s=;
+	b=kxr4v5bLPXOa5VX72+VyM9YOQZ18RBqGEfBelF/X2m8RI3gXUVEALNBYtgr/OIJ8Kq3H
+	 Fno1Wa5avLFLyGuqs+SJ6mxTJPY7jJNWEbQjBzgwqUcrGToNxWpX0K4KFXerHuv1CegOj
+	 EwzIcmrHa8qteaNzl9CnwrX0ezQnFf8B+BU8uuVrGaRGB+18+AYfpiPkpEwSsIKTciTi+
+	 GPhCA260Tzgy0ZzVddu/JwCX5zh/SDgKlnI7i1UlbivHy5oyOXKV5qb2MFvL95QBUi7KL
+	 EV4nBxwNfcCH3O0BlNSoNs86DNmiSyLgqznUMSvAdxWEWv1SRDLiXpcPW4FBXTfE4NA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MNMj8hSx;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nfwogyhf;
+	arc=none smtp.remote-ip=74.125.82.181
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 953E7606A31A
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 05:29:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D771B606A31C
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 06:33:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D771B606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MNMj8hSx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030C31F0089F;
-	Sun,  8 Nov 2026 05:29:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794115750;
-	bh=kp0sT8SmUsOFXTuK4zLCt64zPhaSL5YK0cGDEjRVp08=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MNMj8hSx/vwvvVnFEESNM332dHuJckKOLlOAgcxm2RPL6XnC5vu1H+0//ooBpJHnu
-	 Zjz76UIVYV6UVzWUX2wCD7xhll6PxTnqPDv0x1qsz06muj3uLjuD/eYyOiaZM2fs7n
-	 s5/k0Y00HDieMCuQxsZP9jTUDxWUy4GKZZG/H9Q8MKh0vZltFlSRS26BAV/NxGo/m/
-	 XeJ1dPXS43HkEGm4ZBgSKxXxN7QPM8JneEHMmMkFiUrmEc6K+K7t+mbaCkritGA5Co
-	 EB7UdrSb5ixU7+SFIArCU/y4lIAjpSOqZvEEpLokTY+J8Ati8+dEcbhIgrfVEIy3wP
-	 LACXERO0Q2L9g==
-Message-ID: <sashiko-outbox-203579@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12] Input: xpad - overhaul device data for wireless
- devices
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sanjay Govind" <sanjay.govind9@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108050056.424305-2-sanjay.govind9@gmail.com>
-References: <20261108050056.424305-2-sanjay.govind9@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 05:29:09 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nfwogyhf
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-36a315ed211so262286eec.0
+        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 22:33:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794119604; x=1794724404; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=7tw1+OakpoH9nv5oeIcEeSnu2yq2xP4kxsGUVLSS30s=;
+        b=nfwogyhfxYMzhIdJgftuvaUAywO8YTaWI09/Ngr2qPexgB7X+oQSG3Ywnz0S5EWJi5
+         1Bf9GzLJCv6IT1CGsgD8I/g4xIL1lugugzD7saWOuoClP8ph2YFbkj01RYPLRp8N+jqB
+         2zT6xBsRTaozjYHnHiBTT7fm3LkWhmPfod8+qbKopXgQ2AzO/yTLEkXLURSY+NhWlPvt
+         WLFwPe53VMq3M6IC9Jva9v9MEWcWtJ5NXtGDEinm9AIHGc9V+rGV834iG++48miOZTdz
+         AhEO149FxBxBEA/HX+jbUNxKvbrol6YeefpkKXYqxSQ6Cj/02ez4IG/8O/THIEix6n45
+         XW3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794119604; x=1794724404;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=7tw1+OakpoH9nv5oeIcEeSnu2yq2xP4kxsGUVLSS30s=;
+        b=wjJ2k95auY/UwM0ET4i2eJ0THKL6v7Jt+d7ceVfpFhZvSp7T4iIj8ZpQOX4woUS5ih
+         kwJoOBzoLF3/g1rlOJs1wtsBnp7BwSYIWwkz78Lk6l9qMHUG21bAEsO51ou2Evjrs1UX
+         7W2SzmwbNKAalmRAjFjeSLe3t2P2Wd1cTOQUZQKmnxeezQBt3gwNDFbJIcN+9vZ6NGwq
+         9HKeYMqLiPnOwZbrxxqRtgjDr9rYswGrrZOK1n8ZwXDiapU0KUXvGm8TzfaPjJE1z4LI
+         MwZF2nOjFKbyka2Edo2Wif1xCycplbGI8cg8imgQdSywNVweRmo/hGjmOTkNqmK85cPB
+         ooIQ==
+X-Gm-Message-State: APuU4Z9I8d72hcF3+dPFo8Pvv4jU8gNEUDW8CPfPbq7RPIhyHijjg/Jv
+	2LG2kdgMbURfZWAWFWdkjb6BdwyA1FB6w13X5hLEy5kTlK/aLk31X+Ih
+X-Gm-Gg: AYBFou1bUXRJUE1ksKIDbtqtUsvZvPCgaa16cD663JvSMMtqq4j4oeTEnwt413hu/xR
+	FySYBZ5tOjZAtd8z5Onnq/0aoyUg/hD93t8skeQqBuMTZiYNhEDandg1XlJ3lQzME+L/YYCSH/c
+	wkBPa0cfInnUy/BGV2q4v7blOP2Mvv1s/1vbKj0ewijwyPAVWejqZfIVbMVQFtmIsCAa3p3sedf
+	b4dwLZ/9c16CGPZt6DFfqTOIvlbY5BCNwnIoRI6izbt+Ave4+yHicQb6Re52D4p1ifBwbcA8u1z
+	Y6nIkSHDEy4ZSkzQ8hu8Djhw4RsviHtggAnJ1/XF9/KtmXzL7sEZqlLiFqMd74+BUe27f695Tq2
+	wxuKgffbURG/kB6rcKONX2xDez1zRz8ZHgxfPqwzMdGwDYPVmkizPWhBF8bO+4gaO9JCcl0xEx7
+	yH8CeZKe3VZyhEeYUTKRs8Qe/D2ZqZarMcXy3DzX0xgwNF3pxQCcldBTdA81ZOqRubofgRwSu2r
+	ACZKpL6wSRY6iFfOOSgAKmVoaROSGe48kRgjyUchqqzsMIBhyv72o19FgbXaweuP8IbUclLdTM0
+	ilJcCvz6AZlWqqSamPoFlTiKv2wl3ewZqBf5JoZhkj9xryu9NMNThbVMhHmr96g3Aa/L
+X-Received: by 2002:a05:7301:4712:b0:36a:15ba:43ea with SMTP id 5a478bee46e88-37255c4ce59mr1728747eec.5.1794119603737;
+        Sat, 07 Nov 2026 22:33:23 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:5a4:1cb9:242d:4f00])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37265d05514sm3001194eec.15.2026.11.07.22.33.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Nov 2026 22:33:22 -0800 (PST)
+Date: Sat, 7 Nov 2026 22:33:20 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: xujiahao <xujiahao@cmss.chinamobile.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: sidewinder - size the name buffers to their
+ formats
+Message-ID: <avARPWwbjYnmuTeb@google.com>
+References: <20261106033300.3439313-1-xujiahao@cmss.chinamobile.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,176 +94,61 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261106033300.3439313-1-xujiahao@cmss.chinamobile.com>
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [Medium] Input: xpad - missing xpad_stop_output() on xpad_probe()
-  error path
-- [Medium] Input: xpad - uncancelled discovery work on xpad_resume()
-  error path
-- [Medium] Input: xpad - use-after-free race on xpad_led in
-  xpad_resume()
---
+On Fri, Nov 06, 2026 at 11:33:00AM +0800, xujiahao wrote:
+> sw_connect() composes the physical path of each port as "%s/input%d"
+> from gameport->phys into a 32-byte array.  gameport->phys is a 32-byte
+> string and the port number is an int, so the worst case is 31 + 6 + 10
+> characters plus the terminator and does not fit.
+> 
+> sw_3dp_id() builds " [PnP %d.%02d id %s rev %s]" into the 40-byte
+> comment buffer of sw_connect().  The PnP ID is 7 characters, the
+> revision string 8, and the %d arguments are a full-range int as far as
+> the compiler can tell, so 44 characters plus the terminator do not fit
+> either.
+> 
+> Size both buffers to their formats.  Truncation is theoretical with the
+> values seen today, but a buffer should not be smaller than what it is
+> asked to hold.  Building with W=1:
+> 
+>   drivers/input/joystick/sidewinder.c:538:58: warning: '%s' directive output may be truncated writing up to 8 bytes into a region of size between 5 and 21 [-Wformat-truncation=]
+>   drivers/input/joystick/sidewinder.c:727:29: warning: '/input' directive output may be truncated writing 6 bytes into a region of size between 1 and 32 [-Wformat-truncation=]
+> 
+> Signed-off-by: xujiahao <xujiahao@cmss.chinamobile.com>
+> ---
+>  drivers/input/joystick/sidewinder.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+> index 7f37d18c8..2bd5cfe5c 100644
+> --- a/drivers/input/joystick/sidewinder.c
+> +++ b/drivers/input/joystick/sidewinder.c
+> @@ -97,7 +97,7 @@ struct sw {
+>  	struct gameport *gameport;
+>  	struct input_dev *dev[4];
+>  	char name[64];
+> -	char phys[4][32];
+> +	char phys[4][64];
+>  	int length;
+>  	int type;
+>  	int bits;
+> @@ -574,7 +574,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  	unsigned char *buf = NULL;	/* [SW_LENGTH] */
+>  	unsigned char *idbuf = NULL;	/* [SW_LENGTH] */
+>  	unsigned char m = 1;
+> -	char comment[40];
+> +	char comment[48];
 
-commit 8fc5697265d2347744860ac1eec114fe9c075964
-Author: Sanjay Govind <sanjay.govind9@gmail.com>
+This just wastes memory for something that never happens. We are OK even
+if data is truncated.
 
-Input: xpad - overhaul device data for wireless devices
+To shut off the warnings I think we can switch to scnprintf().
 
-This commit updates wireless Xbox 360 controller handling to populate input
-device identification from link and capabilities reports, deferring input
-device registration until discovery completes or times out and protecting
-discovery state across connect, disconnect, and suspend/resume transitions.
+Thanks.
 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 810e52782ae89..a273d820910e0 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-
-[ ... ]
-
-> @@ -2204,8 +2496,18 @@ static int xpad_probe(struct usb_interface *intf, =
-const struct usb_device_id *id
->  		 * we're waiting for.
->  		 */
->  		error =3D xpad360w_start_input(xpad);
-> -		if (error)
-> +		if (error) {
-> +			/*
-> +			 * Reports received before the inquiry failed may have
-> +			 * queued discovery work, or even registered an input
-> +			 * device. The irq is already stopped, so nothing can
-> +			 * queue more work or use x360w_dev.
-> +			 */
-> +			cancel_delayed_work_sync(&xpad->work);
-> +			RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-> +			xpad_deinit_input(xpad);
->  			goto err_deinit_output;
-> +		}
-
-[Severity: Medium]
-Can jumping to err_deinit_output without calling xpad_stop_output(xpad)
-cause a use-after-free on xpad->irq_out, xpad->odata, and xpad?
-
-Before xpad360w_start_input() kills xpad->irq_in on failure, an early link
-report can submit xpad->irq_out via xpad_inquiry_pad_capabilities(), and
-xpad_deinit_input() -> xpad_led_disconnect() -> led_classdev_unregister()
-also submits xpad->irq_out to turn off the LED if an input device was
-registered.  Because err_deinit_output calls xpad_deinit_output() and
-kfree(xpad) without waiting for anchored output URBs to complete via
-xpad_stop_output() (unlike xpad_disconnect()), xpad_irq_out() can
-dereference the freed structures when the URB completes.
-
-[ ... ]
-
-> @@ -2262,6 +2565,7 @@ static int xpad_suspend(struct usb_interface *intf,=
- pm_message_t message)
->  {
->  	struct usb_xpad *xpad =3D usb_get_intfdata(intf);
->  	struct input_dev *input =3D xpad->dev;
-> +	struct xpad360w_pad_info info;
-> =20
->  	if (xpad->xtype =3D=3D XTYPE_XBOX360W) {
->  		/*
-> @@ -2271,14 +2575,37 @@ static int xpad_suspend(struct usb_interface *int=
-f, pm_message_t message)
->  		 */
->  		xpad360w_stop_input(xpad);
-> =20
-> +		scoped_guard(spinlock_irqsave, &xpad->x360w_lock) {
-> +			info =3D xpad->pad_info;
-> +		}
-> +
->  		/*
->  		 * The wireless adapter is going off now, so the
->  		 * gamepads are going to become disconnected.
->  		 * Unless explicitly disabled, power them down
->  		 * so they don't just sit there flashing.
->  		 */
-> -		if (auto_poweroff && xpad->pad_present)
-> +		if (auto_poweroff && info.present)
->  			xpad360w_poweroff_controller(xpad);
-> +
-> +		/* Finish teardown if suspend cancelled work for an old pad. */
-> +		if (xpad->input_created &&
-> +		    (!info.present || xpad->input_gen !=3D info.gen)) {
-> +			RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-> +			synchronize_rcu();
-> +			xpad_deinit_input(xpad);
-> +		}
-> +
-> +		/*
-> +		 * The controller may have changed while input was stopped.
-> +		 * Force resume to rediscover it instead of reusing stale data.
-> +		 */
-> +		scoped_guard(spinlock_irqsave, &xpad->x360w_lock) {
-> +			RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-> +			xpad->pad_info =3D (struct xpad360w_pad_info) {
-> +				.gen =3D xpad->pad_info.gen,
-> +			};
-> +		}
->  	} else {
->  		guard(mutex)(&input->mutex);
-> =20
-> @@ -2297,8 +2624,15 @@ static int xpad_resume(struct usb_interface *intf)
->  	struct input_dev *input =3D xpad->dev;
-> =20
->  	xpad->delayed_init_done =3D false;
-> -	if (xpad->xtype =3D=3D XTYPE_XBOX360W)
-> +	if (xpad->xtype =3D=3D XTYPE_XBOX360W) {
-> +		/*
-> +		 * Tear down the old input device even if the resume inquiry
-> +		 * reports that no controller is currently present.
-> +		 */
-> +		mod_delayed_work(system_percpu_wq, &xpad->work, 0);
-
-[Severity: Medium]
-Can deferring xpad_deinit_input() to xpad->work during resume race with
-dpm_resume() and cause a use-after-free on xpad->led?
-
-When a wireless controller was present at suspend, xpad_suspend() leaves
-xpad->input_created set (and xpad->led->led_cdev.dev on dpm_suspended_list)
-while clearing xpad->pad_info.present.  During system resume, xpad_resume()
-queues xpad->work to run xpad_deinit_input() asynchronously while
-dpm_resume() moves on to resume the child LED device:
-
-CPU0 (dpm_resume)                 CPU1 (system_percpu_wq)
-device_resume(&udev->dev)
-  ...
-    xpad_resume()
-      mod_delayed_work(..., &xpad->work, 0)
-device_resume(led_cdev->dev)
-  dpm_wait_for_superior()
-                                  xpad_presence_work()
-                                    xpad_deinit_input(xpad)
-                                      xpad_led_disconnect(xpad)
-                                        led_classdev_unregister()
-                                        kfree(xpad_led)
-  led_resume()
-    led_classdev_resume(led_cdev)  <-- use-after-free
-
-Since xpad_suspend() unconditionally clears pad_info to force rediscovery,
-calling xpad_deinit_input() synchronously in xpad_suspend() whenever
-xpad->input_created is true would avoid tearing down child devices
-asynchronously during dpm_resume().
-
-> +
->  		return xpad360w_start_input(xpad);
-> +	}
-
-[Severity: Medium]
-If xpad360w_start_input(xpad) fails here after xpad->irq_in was briefly
-submitted, can xpad->work remain scheduled and register an input device
-while input is stopped?
-
-Inside xpad360w_start_input(), usb_submit_urb(xpad->irq_in, GFP_KERNEL)
-runs before xpad_inquiry_pad_presence().  If a presence or link report
-arrives before xpad_inquiry_pad_presence() fails and kills xpad->irq_in,
-xpad360w_process_packet() sets pad_info.present and arms xpad->work for
-discovery.  Unlike the error path in xpad_probe(), xpad_resume() returns
-the error without cancelling xpad->work, clearing pad_info, or calling
-xpad_deinit_input().
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108050056.4243=
-05-2-sanjay.govind9@gmail.com?part=3D1
+-- 
+Dmitry

@@ -1,78 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=78.46.171.57
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794148253;
-	b=qlusV+QzQoxV5pzhmJQhpeerxPnN6qv2ywXBr/XoVIgYgxN/Br1f5FcPdZeHWTotayj3
-	 LHV5yWnkNhZIZ+x5sJG7fbZvO1dtXSZj+Z7KSpF8ceK+xjhEK7AK4TBSW0h5RAVtzWI2d
-	 lhLaVT2c+DvIaI9p3i1jGnrDy+OyohbD2jPP/iTlNdikMjrwq4LQoKX8gwzb6BE7sjrIh
-	 Yeq/IRveSIbOV8sETQZKGG95WiRFyS8CjvMdbGyeevlwlRDKOFW6IeYEaNK/kpMgdj5Lm
-	 vIUnknWGu/iOm6kSxdNNi4GArjtjU8Oo1QrSJVcIUx4wa7kf1umvxsOWm6woclfPuBw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794148253;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Received-SPF:
-	 Received:X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:X-PPP-Message-ID:X-PPP-Vhost:X-Virus-Scanned:
-	 X-Virus-Status;
-	bh=CY/McYpu+0ebDojIJRHMZeui4dASH1SC50Q2/rCUGZo=;
-	b=bo62KRN4/6ykvI9YoInvQKK6UWnLHD40Ozkp88BqHUH4rHTSMFF745n92sNIGrqnk4bR
-	 LHIIicqyuoOex0rmvpfp0HLMtvyNspgsnUde0XHA4h61OsL2Z2L1Kw3N2DfkYwGt/2KL7
-	 gDPKQ8QgUdwveHXX6y88/qPwsi5vLo8xfapztVdGMKVtv6vvWeZ8DfUQmZlfwWcX4Of/u
-	 72abwVwwCMGLfGPEPRThCNDO52Al87qodHM1rN2EfRcAb+6SXlSoJY8X8ObbkPAJrL+3F
-	 6dVvsZ6St9sq6oWgAzcFdTpPPwrXtwMVAKurOX0hHrQsuqweIr3wfzq0iCNpLL08PYw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=antheas.dev;
-	spf=pass smtp.mailfrom=antheas.dev;
-	dkim=pass header.d=antheas.dev header.i=@antheas.dev header.a=rsa-sha256 header.s=default header.b="Vpsbr/ey";
-	arc=none smtp.remote-ip=78.46.171.57
-Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794153320;
+	b=inEgdRSZua8H4RsyH3d19V+dQYER3KC9rkLpNm14R5gBjgnyezG/insLYPYkSXpbZ4Ul
+	 ESo5NGxUPnRLCLeBTNVuqGH3KNfU8cnEDHn9W2/HFxDzbNzCffiagEDWKXzN6+JCD0YPQ
+	 20Ys7JvttTxFuWRcd75pAOy4Tqb8lJSFbR6I6VGUReOINokon3D63IGaoHcY0R3+zjc4Y
+	 +zVlXYGvOWOohkuVLGq2ivXtw9OGUb5MBdLx3qb5GTGT6PylcRortEL05uUWG3ECgT2jF
+	 n8ICQ/AjugemdyusW6t7mRL/Xdb3hBCV98TTUqWBjmK9QGBHPjjvno0vroKDkVkd7EA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794153320;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=LvMIPwXGFg1XneApC90M26IpMbrU8r6YTUanv8t5q+0=;
+	b=xsX22ACel5NAo4x6npsfgZrsOC5tDRnuaMuFw/2R+CpnNF7K0RWTGPhmRW1XSiTYS22T
+	 PS7E31HB+vJVc5BURx5LlcKjJ+RtxUTp1fRH3HWuDAfWhv+8kWM/njKbq3cz+f+w3IesZ
+	 5W5HHHEpWgUlWGt4KEux2nxKQfSEGAkGVE6a9fuzTMl5cDHABJbb3V1afxXarn6HN8Lqd
+	 JK4cxqtTHOk5wIEo8YCW5rpH0GjTQQBM3KuHrdzo+l+2AgEdVeVdz4/cc8TG4MfbpLyyw
+	 3CI2LduEIincMtuoklCjbqDYl9Yh9WoAwRXMevwBGSC1xh/j4q++PZ4nA0lExKTEt8A==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="VyoaD/PO";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36957606A320
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 14:30:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36957606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACA5F606A31C;
+	Sun,  8 Nov 2026 15:55:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.a=rsa-sha256 header.s=default header.b=Vpsbr/ey
-Received: from relay11 (localhost.localdomain [127.0.0.1])
-	by relay11.grserver.gr (Proxmox) with ESMTP id 3750EC253A
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 16:30:51 +0200 (EET)
-Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VyoaD/PO
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794153319;
+	b=UgPTXuzxM0EamG7V5mXllRelS1Vkl52LIBsuyXaE/852hABo5juryRcgIh2WPkZ5sww2
+	 YQxhJdXNpYbPMWAx8XaA1EUNfihErAbGUH9j5iRbL4Cxz8QwpmvvaFIZYG/gVrxMfDFen
+	 ECDjFlx74kn/hh5VruafmLE8hreYXaCQjyz7AqQZgWBR9rL39UfAMJCglSM9OOnerR7j9
+	 9XtTTUJLBMa4Rpw2bBHWv3jlO7sv8vsNRrnYgF4gepNO26CMqFItlmuLavTmNsnOtZlsN
+	 wlpDl4JAEp1ztxtmgtZnZuEpGmQbR+OLAenwegwFsRj9VhEx3Gh9iWUjLRGYQAPqhdg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794153319;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=LvMIPwXGFg1XneApC90M26IpMbrU8r6YTUanv8t5q+0=;
+	b=ehCa/9G6OCLgR2cZ8StdUkqkkV1dtVSdACIsv3LQ4IoPOD/RJIjxrLXuIhb6+mgG37Ng
+	 XCHqShSJITdI7dRaGJD2F+7LPfVqrw2VTeXj6GDPGbCKQwYZL8UQi9RHw9SqPJnfI2WXR
+	 RIVCAfdLr6XTMsN1zbZV9EphnR5SOy4QgmDkGvgEby+7CWRe0FgV6SCeZpdY9TyNpc2K9
+	 236gbhEYEuNvZ50RU3UIr7Q906EvsNorzJ9JnsEE0xd5UZCu9vJpP0H+tlOVpJZBNQTg/
+	 RG2tkE81/IWi2EPSgbcHeSssY0FkNfK/UY4V6yY0DEPGZ8kEaKM/nSLbCsHUMXA7sTA==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by relay11.grserver.gr (Proxmox) with ESMTPS id 669E7C23F4
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 16:30:50 +0200 (EET)
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id A8C9A1FF289
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 16:30:49 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1794148250;
-	bh=CY/McYpu+0ebDojIJRHMZeui4dASH1SC50Q2/rCUGZo=;
-	h=Received:From:Subject:To;
-	b=Vpsbr/eyQQH7R7tb57iuAbYx1TDcjTcAUw6honlEPUnyXJUG2/KvRMjdrSjAcjKMk
-	 gFIKg1ousrfhpzOyitK+WCM3/3YJQH7wlCPKcswYjt4mBqf/ecSvtKEqJGBZdZtJms
-	 1Z/j9itu0QXwh/EMk74IQOtNx8/H9foddmqnbe7SyI33C5C1DkWms5fo+ZlGtvSjwK
-	 H4nVznhPwoULBPG8NOh4Ep5UIuFl277Rj5Ybli50SdpNyHakoq2EnwBVOJPfHid+TG
-	 FlOSg5zzzSlLVqTkblUn5jv4JnmWGBy/0HsmYYXDxc+0BSmn3CgVrQNmfEphVPsoaM
-	 8cNsDgquE8yjg==
-Authentication-Results: linux3247.grserver.gr;
-        spf=pass (sender IP is 209.85.214.175) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pl1-f175.google.com
-Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
-Received: by mail-pl1-f175.google.com with SMTP id
- d9443c01a7336-2e942864693so431705ad.1
-        for <linux-input@vger.kernel.org>;
- Sun, 08 Nov 2026 06:30:49 -0800 (PST)
-X-Forwarded-Encrypted: i=1;
- AL+hErH6OX/TOhUSUQltpUwzQiGzCbHy5skJJVKSrTsPXe7gFrESIrBO2aOfi3t8ZEafbgJku2+W2q1HifiFvg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9yEWqkwH2fq5mSVLPDYZNhBcwrJFBCE9KjLPeoY19dXr9p0+kM
-	MBfhJLis2sexXrFxa3qM/UrgOyheRdaDLTNRen8QF3ITx5i7R8GP2RHChqZ6L7JBWBJnWfvf4e0
-	T+hqawGYJRox5RlQPxsjjZrWzcWOkxbQ=
-X-Received: by 2002:a17:903:110e:b0:2ed:3be3:c63d with SMTP id
- d9443c01a7336-2ed837afe76mr13741695ad.23.1794148248256; Sun, 08 Nov 2026
- 06:30:48 -0800 (PST)
+	by smtp.kernel.org (Postfix) with ESMTPS id C79971F0089F;
+	Sun,  8 Nov 2026 15:55:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794153319;
+	bh=LvMIPwXGFg1XneApC90M26IpMbrU8r6YTUanv8t5q+0=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=VyoaD/POHW+DgfUvpVNhXEvJ92V7vS3AjqT/ZAfbfVy6PQUQ2Iq91kjq81d46WWHs
+	 Dv0G/srGdrCBl/h1/MZREhioHDiRQNJvPN3/7lQqz1YDP1arwJjA66Nmm3QLiQraTM
+	 nJuuT0m6TEaLQybozjpQsbwq+BZXkLN0znsggtJz4+dK+AtvxsUngKLurYc1uz/tDF
+	 a0UTVqL6qAzR2Mg2GaWWqE4LtRQhfAlUR5+TyMb/16dlJGl3tIMqoU6xVzKDtqIDKY
+	 ObbuvxHZA9PBmkTegNOy5zLuyWFkDG4/pktX+254T7BCRbDWL69RmNNBjQYwfnsC0d
+	 u8tgr6Tbn3wXQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 3F6B347FE4;
+	Sun,  8 Nov 2026 15:55:18 +0000 (UTC)
+From: Nizat Mikayilli via B4 Relay <devnull+nacht.dxdmail.cc@kernel.org>
+Subject: [PATCH 0/2] Input: wacom_w9000 - add support for Wacom WEZ01
+Date: Sun, 08 Nov 2026 16:55:16 +0100
+Message-Id: <20261108-b4-wacom-w9000-wez01-v1-0-c2b5e3466187@dxdmail.cc>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,129 +83,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: 
- <CAGwozwEKXJGBY5oZtdrrzfK-aOyYu5GaiOqkejSqbCPdeq0UJg@mail.gmail.com>
- <20261108135505.67330-1-hijae99@gmail.com>
- <CAGwozwHoTDCw63MoP2S6Qd1dk9Ym-=_E1e3oXOXkoWNfJxmUVQ@mail.gmail.com>
- <CAGwozwFv9x_d5WprytNTdgAFqepeqxgT6TTKeXLD8-G1Z9T3yg@mail.gmail.com>
-In-Reply-To: 
- <CAGwozwFv9x_d5WprytNTdgAFqepeqxgT6TTKeXLD8-G1Z9T3yg@mail.gmail.com>
-From: Antheas Kapenekakis <lkml@antheas.dev>
-Date: Sun, 8 Nov 2026 15:30:34 +0100
-X-Gmail-Original-Message-ID: 
- <CAGwozwE2vN9Za2eYNwaKHN-NjE6zRfC43-dSr2ug5-2OS2z_kw@mail.gmail.com>
-X-Gm-Features: AclHuK_HzHti2lUaHGe0yFtShcc0XhjDDjFmALYvAZ1Wrf5mnv5HvKejfealJrA
-Message-ID: 
- <CAGwozwE2vN9Za2eYNwaKHN-NjE6zRfC43-dSr2ug5-2OS2z_kw@mail.gmail.com>
-Subject: Re: [PATCH] HID: ayaneo-flip-kb: Add driver for keyboard backlight
-To: Hijae Song <hijae99@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-PPP-Message-ID: 
- <179414825005.1264551.10417894096191140096@linux3247.grserver.gr>
-X-PPP-Vhost: antheas.dev
-X-Virus-Scanned: clamav-milter 1.4.6 at linux3247.grserver.gr
-X-Virus-Status: Clean
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQrDIBBA0auEWWdgRoq0uUrIwtgxnUU1KMTQ4
+ N0rWb7F/xcUySoFpuGCLIcWTbGDxwH8x8VNUN/dYMhYZnri+sDqfPpifRERVvkR4xpMEG+d42C
+ hp3uWoOe9nZfW/vK+tM5mAAAA
+X-Change-ID: 20261108-b4-wacom-w9000-wez01-bf2fec6aa1f6
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Hendrik Noack <hendrik-noack@gmx.de>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Nizat Mikayilli <nacht@dxdmail.cc>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794153317; l=1082;
+ i=nacht@dxdmail.cc; s=20261004; h=from:subject:message-id;
+ bh=8XkiUPix4eRLdqxcZAiV0Titd2an3O/18ecr23mOFlE=;
+ b=0V0q+sHIVc9jvjTC76iCBVo2+++7cuTURsWSlDAmS7xlYDHvBH72lt4A6hKdUPReWmzTRnD7y
+ 5TwdDJCnC1GA1CeapkWYaS7MgPAukdmd9FAWVLyjtPyrr+tHBYu9AD9
+X-Developer-Key: i=nacht@dxdmail.cc; a=ed25519;
+ pk=Kay3P3pOJq5klUD+0/I8QX8JGOh0CeQXEwRVv7CMm4k=
+X-Endpoint-Received: by B4 Relay for nacht@dxdmail.cc/20261004 with
+ auth_id=1111
+X-Original-From: Nizat Mikayilli <nacht@dxdmail.cc>
+Reply-To: nacht@dxdmail.cc
 
-On Sun, 8 Nov 2026 at 15:28, Antheas Kapenekakis <lkml@antheas.dev> wrote:
->
-> On Sun, 8 Nov 2026 at 15:26, Antheas Kapenekakis <lkml@antheas.dev> wrote:
-> >
-> > On Sun, 8 Nov 2026 at 14:55, Hijae Song <hijae99@gmail.com> wrote:
-> > >
-> > > Hi Antheas,
-> > >
-> > > Thanks for the feedback.
-> > >
-> > > > If this is an actual keyboard product on the market and Ayaneo is
-> > > > sourcing the part for their device, look-up similar devices and kernel
-> > > > drivers.
-> > >
-> > > I checked. hid-sigmamicro only fixes the 0x0059 report descriptor, and
-> > > I found no SiGma Micro backlight driver on lore.
-> > >
-> > > > The name of the driver cannot be -flip-kb. You need to make sure it is
-> > > > generic enough to match most Ayaneo devices.
-> > >
-> > > 1c4f:007c also appears on the AYANEO Slide in hhd-dev/hwinfo, with the
-> > > same vendor interface (report ID 0x41, 7-byte feature report). I only
-> > > have a Flip KB, so I can only test the byte layout there.
-> > >
-> > > Matias's hid-ayaneo already claims 1c4f:0002 behind a DMI check for
-> > > AYANEO 3. Would you prefer that I add 007c backlight support to
-> > > hid-ayaneo once it is merged, or keep a separate driver named after
-> > > the chip? I lean towards hid-ayaneo, since the Slide may work the same
-> > > way, but I would like your view first.
-> >
-> > Mmmm so Ayaneo does not have a vid and may trample the pid of another
-> > device. That is not good. There is no guarantee this led profile is
-> > used by a different vendor.
-> >
-> > There are two options:
-> >  - Adding the keyboard to the hid-ayaneo driver
-> >      - This would happen after it merges
-> >      - There is 0 common logic between the rgb device and the keyboard device
-> >      - Driver registers a different led sysfs ABI and has convoluted
-> > dmi handling
-> >      - The driver would devolve
-> >  - Adding a scoped driver for the keyboard
-> >      - You can start now
-> >      - Can tightly scope to keyboard device
-> >      - name can be hid-ayaneo-kbd unless other vendor is found
-> >
-> > I would tend towards the latter. hid-ayaneo has plenty of work to
-> > merge. The controller firmware is quite unstable. Even my
-> > implementation in userspace is buggy. But that's fine... Windows is
-> > buggy too.
-> >
-> > I have two comments for your current version:
-> >   - remove all flip kbd references, name AYANEO_KBD
-> >   - use brightness values of 0 and 1, no scaling. DEs know how to
-> > handle these values by toggling.
-> >      - another option is 0-3, which looks nicer, but let's not get too
-> > deep into this
-> >   - use devm to register the led structure, drop remove entry point.
-> > Use devm prior to starting the device so that register code stays with
-> > initialization
-> >   - check if led subsystem is appropriate. I am not sure of the
-> > correct place. If not, current location is fine
-> >   - initialize host values to ff ff ff so on first write we get a nice
-> > white color
-> >   - if there is only one effect, brightness 0 is off. Do not add an
-> > effect handler
->
-> Ah yes, if the device supports Fn+Space, for this driver to merge you
-> need to send the correct hw notify and have at least KDE report the
-> cycling correctly. You will also need to read the values currently in
-> the device instead of hardcoding them. If it is a feature report, a
-> get_report should return current values
->
-> I am not sure what your current comment means about sending 0 breaking
-> the toggle.
+The Samsung Galaxy Tab S9 Wi-Fi uses a Wacom WEZ01 for its S Pen. It
+has the same query and coordinate layout as the W9000 series, so these
+patches add it to wacom_w9000.
 
-Ok got it. Make intensity take values of 0 and 1, and use those for
-the mode byte. Do not scale intensities. Always send what is
-programmed currently. Implement the readback correctly and see if the
-device notifies you when brightness changes. If it does, use hw notify
-(as other drivers do) to notify userspace and have them read the new
-value.
+The digitizer node for the tablet will be sent with its board series:
+https://lore.kernel.org/r/20261022-gts9wifi-dts-v4-0-a361428fe59c@dxdmail.cc
 
-Antheas
+I tested it on the tablet. I don't have a device with a W9002 or W9007A,
+so for those it is only compile-tested.
 
-> Best,
-> Antheas
->
-> > With 2-3 revisions this should be good to go. While at it, try to find
-> > a Slide user
-> >
-> > Best,
-> > Antheas
-> >
-> > > I will also fix the two sashiko comments in v2.
-> > >
-> > > Thanks,
-> > > Hijae
-> > >
+Signed-off-by: Nizat Mikayilli <nacht@dxdmail.cc>
+---
+Nizat Mikayilli (2):
+      dt-bindings: input: touchscreen: wacom,w9007a-lt03: Add Wacom WEZ01
+      Input: wacom_w9000 - add support for Wacom WEZ01
+
+ .../input/touchscreen/wacom,w9007a-lt03.yaml       |  1 +
+ drivers/input/touchscreen/Kconfig                  |  2 +-
+ drivers/input/touchscreen/wacom_w9000.c            | 53 ++++++++++++++++++----
+ 3 files changed, 47 insertions(+), 9 deletions(-)
+---
+base-commit: f7a8b89bc067fa1cbcd3312539bc0d61810d3280
+change-id: 20261108-b4-wacom-w9000-wez01-bf2fec6aa1f6
+
+Best regards,
+-- 
+Nizat Mikayilli <nacht@dxdmail.cc>
+
 

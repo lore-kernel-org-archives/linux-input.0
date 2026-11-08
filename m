@@ -1,93 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.224.139
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794101012;
-	b=Loew+FN08szrfqKUPjylkVWDTHF+uolQvNt6sbt21p9DDIFikwgLDKsV1Zuh9cERKgku
-	 IXdA3Hr+nBcocUAAqKgTlte16FlDBDdm1KW5dZ9ns2bVw58zDnF+Nz59wjGcvngq7PFP8
-	 ddW4uFsRUMvPwu2IYcWNg6cOxcSeSU+nkpgtNbBF3aPBGx5LBg2CjT5mXbh+9zTm5lTdl
-	 Z5PxJrD7IsGS690wq6vUsOmAVe0F1TeXUfvd+BCAIOzdbxeXWE+NKFtJxyzvjItCPz0wS
-	 Y4Z171cMFh+q2TqoGH+bKCAgwqEk3H/Bxaw63ekzNxj3Comw6MZAyl1OIJiWwce87sQ==
+	t=1794111996;
+	b=yKk5tjSS5urx/u0DFJse0GAiqkEAL6oLQyMEA2nXw7Szd4dUL9e4hPMuHRRMPPJusZxh
+	 IRQwWtU9qiRm0PUhRCaNRB6dVt7DTov/g/bS4WxdQcHpwXhtqjHYP9JclLFh/QWI5WcKp
+	 FsWx6oBF4Sd9kdLS4g/FVJUEpPFtcnVhJlwx5vIv2ehsN52fcec+dvTUAfN5PXamj9/4B
+	 dFMMBh1i+TqvpUtNSPMt4vybZaM4Y5goJwyV72zeyMai5npk1XeKygbgwkh/boFAeiiAQ
+	 hGYPzfvCW+wuavP3X96N1mbfW+J06kEMY176N7NIAQsiFURN5DBG27nRNwkQSPB1m/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794101012;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794111996;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=EaQPKJIgHcZvrcBYOXtJ/XqbYityXldTm39GT/47PWU=;
-	b=05y0hxJlV6TeKd8xR+8r3ZigtfLmzw5Vcgq7liZe1Ytxg1GrN7xDECfVjG7XCpb5xTlP
-	 dON8fkVnBvCLBSufFI3X2c3Of+gSjy5b+k83tNHEM61FFFBmvtL/eGpl0zpvB2oGABkH7
-	 oAizRCM0vqRJqpdFFpCstM49T3oUokJLHrC1yPLViQmuZTYkNi1829SkG7z2K3MlGk9Zc
-	 eRlTE6fErQe/HnvUDksRYGeeFvmVzEaZdkg8+tTn9Va6G/HJOc/Tbp2MZ04clXl+AUj78
-	 tNJzfviZclNcdqiI70WOyEtkRcxscIhzNC77+aj/HihEYe/Wa25wiYoQ8wBSRb8ApOw==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=njyJJB6va/RqrZ7iHDzS1u9pLjUtbXjnhiE6IUdL/0g=;
+	b=tglUUDhZeS0YzU1cNuoCAsoGHnrhSG/Iq0x4HHAdfb+LGmi3UhN5yb9T9k3nWg+WxoVU
+	 fYbELkSD5zfE/vFDCSscVmitLP0bsckjTUWD+TsuGs6au5KxTV9nqmIhOh401I690CAVi
+	 oBEz1VxPlvpPX5fiZEpu509J/K6IWv5aijy2uIbF/0IVARsQqB6N2C5YKx0i0YAI+t4Zx
+	 w+SpLkBr30piQawYmrWXcHmsefdU8uHKH722+BSV9Cx7XmXx67cBCP8sqTw0XiK549wt6
+	 7y7ojFCEEkxf4kiVkN/+ghB5nDwQJfs2Lc8nAndBC++d/LyjVHcERDZ8G/sHps5RfWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ve2niqA4;
-	arc=none smtp.remote-ip=74.125.224.139
-Received: from mail-yx2-f11.google.com (mail-yx2-f11.google.com [74.125.224.139])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=grc0VMcV;
+	arc=none smtp.remote-ip=74.125.82.178
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A151606A326
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 01:23:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0A151606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F5F606A31D
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 04:26:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19F5F606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ve2niqA4
-Received: by mail-yx2-f11.google.com with SMTP id 956f58d0204a3-67a3f0c460cso41120d50.1
-        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 17:23:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=grc0VMcV
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-3704d30b84fso202297eec.1
+        for <linux-input@vger.kernel.org>; Sat, 07 Nov 2026 20:26:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794101011; x=1794705811; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=EaQPKJIgHcZvrcBYOXtJ/XqbYityXldTm39GT/47PWU=;
-        b=ve2niqA4RDDgqG+tXiwhezhKV6NJswF1w8qz+PAiVqAlFyszJ747lOV6zyz0reC2oo
-         yTj/ZXUixO8tzwURePEyX4s6MjwoJds/GXeP9+3LWbzHrnKop5kbdcqvB49a55P31421
-         j3ilVims/jD1ENNWTKmYPtZuOEoXo4dE+nJ10Q/uQ7uKVFcdFAp6VOpWD7M/D3VzNwIO
-         DFPhCk12Wgg2JRjAPfQP3mBXJ/YVXX8QOqelCM6gZU50wg7u0X/K0diqfQ9nvXmMvRJL
-         FFt7EsQ4LU1xFLkC1d8HwHp8TJm6opmUDdT+MX2weBj0/fPXsLo/zfhm4ve+bojCd9IF
-         XAXA==
+        d=gmail.com; s=20260707; t=1794111995; x=1794716795; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=njyJJB6va/RqrZ7iHDzS1u9pLjUtbXjnhiE6IUdL/0g=;
+        b=grc0VMcV3BVdh7jhhMbrgmrNGnHzKK6cEnqHqxstWAnN/QYUJwS5zwEhIFMRAI0sVV
+         9Fw206AdgEWJmCY2ufV0R0u6UdpM0+lISrWzgFQNlb2WaGkUM7cNkA8AJN/z8TvBYw3z
+         TdrCrm8TGkLzV5G8Mz74TLTag0Hd/EQAkYKqxUnmAruUUQlBX066Qe2o01oFl3XwCk8C
+         vdzAiLuwiq00MBMY5TW3jDKtz9UP2u+vFWondWDSntenxoTH0trLQlea5WPFJQWZzB+6
+         YYCTwJDFOxp3IRD0CMJCJ6S+55aljkGiot5N9+LY2L2GcqWCsubWXF8PXS2M+0M+Bz8n
+         I1eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794101011; x=1794705811;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EaQPKJIgHcZvrcBYOXtJ/XqbYityXldTm39GT/47PWU=;
-        b=d8O93ZhXmdBZ2rI7wsNgqTz8ZXZDetpwqeeOXKoUOUjngiZxj5BpV41sJa0adtesuW
-         zO/0NqjPRZbHguGl8L4IpSPGi5UxZcqVl2qaqIwEhDNqEW4bHKY8hRiO5quBzdUXD3r/
-         vDnc8N64qcPhDAHoYhvLB1mW/msoRKPwuNbd5s7dHqEV5f6iSupQcIgugrO5SoDavOux
-         FYbe0UB7WKTJTKz6a427LGsX5vRtMo4IN/1wCK3ki6+kRZy6xYP267SMKBgd9YOluipH
-         saSpfS5VzhZrKTYc0ltvznUiWNHG5BR+ZzJN3uiV1wwE2cwL8L3ZKPhhBxHmKvqdGsgT
-         6fiQ==
-X-Gm-Message-State: APuU4Z/KBSoNOO0qep41xe/OMaSTPh1C4LFv0nynsV8q4DSW/TmnR3sQ
-	f1TG1easg+w6ImG0OJmh85ilQMX6GppZayEwPUhTsibiUeIQabnOkCKF6FfpgrCY
-X-Gm-Gg: AYBFou3+RpiJJhSJ5ToTXKAVxW+C2cM0tn1eEpX7/KxubsNSpGyqNQLfeJX0wqWSLOp
-	cmk+pnZNFfEXPpytznN+m1D4gSA65QkoVApBoHsqBw8sbIkvklZUU5z/euui6OP/6hZYvG4cOlO
-	JdS4v33CqVq+Yk8GDU2lSFoEPtB5Fssp6R3eHRiksyTBMGq0XcH0CPS15bx5KQg6e1T7+zLzygb
-	Vr0bVajd3eQ7BMpu4ozKK2JKEcY/SDYbnOGd0LofZJ89yFBEhO0dyaT+8EwHBUGdqdb1rEO7Qie
-	nUfNdnU4A9Mmkq8u0ZgAtgBHUzHwc+3AtIQwI4xmLlTWfVHoE6s0u06cob85UNP+on8B+GJssMB
-	BGJ4fdF4EGnZo+M+NUmJ1s5Pdpa4q98drrTFn1Z0ntzol+ITyT7oiH4j8u6RfeaomFM9GSSbThm
-	dU9S8EQcJzqXCiUO3JPtaZu2I1Ol+i59m/FglbIT7mpQtFJLlk2pfygIEhtOpSVQoT3LxZexZSA
-	WnYLCp80cZicS7KqHDM14HXMQ00qzVeowkeMClQgqpMkAVx9zieOYUrzGT8S4vzVYtdPJSTMydO
-	L/ar9XIwvGWz7uty0ucCrpOzGzLmKJc8gieLbpM+
-X-Received: by 2002:a05:690e:458a:20b0:67b:f91c:109c with SMTP id 956f58d0204a3-67c3d97b1bamr148961d50.46.1794101011020;
-        Sat, 07 Nov 2026 17:23:31 -0800 (PST)
-Received: from linuxmint.. ([2802:8010:9a07:a501:b0f7:cdff:6e05:69af])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-8b36c09705bsm4706447b3.43.2026.11.07.17.23.29
+        d=1e100.net; s=20260707; t=1794111995; x=1794716795;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=njyJJB6va/RqrZ7iHDzS1u9pLjUtbXjnhiE6IUdL/0g=;
+        b=Vcff/fmlPWNIETml6AvXrCP02bRam/hA6HN8zq1h4cE4LN939SRzZchbB18Gz9UWTc
+         nWFFIsIGN2hSfJ26mV95gYjwSeylWkiVOEnvZVqUal+3AmOuT+1UkWQQpq4KMJ+spRLF
+         iG30w04lHc091UylPUCrIlAlfHkwJTRaSFvrIE9g4ghiIXX92BZkTXga+uDb96zQ+Oah
+         MtZgJghy1/BqkFBNFquyXgl9TNbJ9RUeeWB/esAUPRK5/qr2ynzW5MBbFdl+f870TeVv
+         fq+6NajmxUpgexsvMuGkOuFrWtGG1aO7nh1IxL+uL7lfdShBoN+yY+omBzNFYUKfxJAF
+         Nahg==
+X-Gm-Message-State: APuU4Z9PMlvMd+WGidP5EAItLbVnncCFBCdCNesG8MVN848wTkBxjAmw
+	XXHL/xQwOEK2y2P1uu2+uYw/azMZw0F/zEIavObq4BXaQdorYFdv2XEU3iyvcQ==
+X-Gm-Gg: AYBFou16DD1nBUJSyatyqJoQkLH8GNaty0N4iQDi6uzMVpHh9YIxYod4nV3+QeSdDD8
+	BYwRnbgSUPUcKna2ECMOv5ceIZ/jpU5G0ByzcvssyIrwGQmrH9YrGG7DqGLYOydqs79g4OVeUbs
+	sGFMwpXvJ0Q5Iz7cVcMn3R7GrRlJR7tRGkbAtdtqZLDiu40A5OT1QOOhb7ZFgNYRWgTrDEcOsbX
+	PHgbM+kF4konGyxWfHLDclHOqVVy6SBIJ9AedGO5lemxTbI6n1AaW6fdqqgFazIpItERIZJELs4
+	CJJ6vZfBm0v0y36x95fIfcurlyI1Vy2WcKAeUOUNdG7nULzos9xLQEDBN9hHhfLnEbfuKYzHvHP
+	LrnQTyd68lXHHWlfR/S6A1QriBJ0U7g3dAaPNE69QBHXADnmj0GYtbUPdUyeVNxIzhTbw5gh55X
+	WoZXYDJL1y0Al4gzG0PjVQQFCmC5DxUco9+2hUHm/22Qu5scGB2IVi4sc6OG/9Vwsdq0DRuQs31
+	uQcWSe44jDX2scS0nZUsUU/59K44ZDYe9veMX0fdVM4a5d720N+xX/KXEVyfaJrVrkfqvTKY+8t
+	UQSgj3Q6g4yDxgcwhdrj48hpnqntfMh4sbduyrd+IEo+2G1ajEA595aVUp7QJcsb4eWAz0rz75l
+	aXC6A2w6/AHs3zQ==
+X-Received: by 2002:a05:7300:79c9:b0:36c:b1a9:542 with SMTP id 5a478bee46e88-3725e04de3emr1622032eec.29.1794111995038;
+        Sat, 07 Nov 2026 20:26:35 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:5a4:1cb9:242d:4f00])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37265a16c49sm2251480eec.10.2026.11.07.20.26.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Nov 2026 17:23:30 -0800 (PST)
-From: Nehuen Lian Bova <nehuenlian.kernel@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] HID: wacom: replace sprintf calls with safer alternatives in wacom_sys.c
-Date: Sat,  7 Nov 2026 22:23:27 -0300
-Message-ID: <20261108012327.89115-1-nehuenlian.kernel@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CANRwn3SnB97Oeg4rKBiYX2DD9r51Km5Cf3kpnAn7s2xd42c0BA@mail.gmail.com>
-References: <CANRwn3SnB97Oeg4rKBiYX2DD9r51Km5Cf3kpnAn7s2xd42c0BA@mail.gmail.com>
+        Sat, 07 Nov 2026 20:26:34 -0800 (PST)
+Date: Sat, 7 Nov 2026 20:26:31 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Thorsten Blum <blum@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: amijoy - remove amijoy_phys
+Message-ID: <au_59Ml4mAdZzg8a@google.com>
+References: <20261107234349.382944-3-blum@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,22 +95,17 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261107234349.382944-3-blum@kernel.org>
 
-> If you're going through the effort to use snprintf the string, you
-> might as well also read its return value to check to check for
-> truncation (return value greater than or equal to size) and handle
-> such an error condition appropriately.
->
-> Jason (she/they)
+On Sun, Nov 08, 2026 at 12:43:47AM +0100, Thorsten Blum wrote:
+> amijoy_phys has only two entries and is only used by amijoy_init().
+> Select the physical path directly and remove the array.
+> 
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
 
-I didn't check the return value because I noticed in almost every
-situation snprintf() is used, the return value wasn't checked.
+Applied, thank you.
 
-Anyway, would be a good idea to return -ENAMETOOLONG after 
-checking if return value >= sizeof(bat_name)?
-Or using scnprintf() instead of snprintf() could be a cleaner option?
-:)
-
---
-Nehuen Lian Bova
+-- 
+Dmitry

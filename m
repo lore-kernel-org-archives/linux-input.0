@@ -1,55 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794161006;
-	b=wJitZAuj79BejM+h0T8sOha3P9rjkAumoUpv+/yjUq6l8DYigmSokQ8vfUVsdKu+TIXj
-	 0aO+VfdlMoTOVtrFi63oAJEXVjbo+NeroxLWKP/fQjk/i9mJaiebppaC7PFoxWdbKgmAo
-	 OgDEpZC17QP/hneKaqUchrW4eN5FuO+dptVe3Fbj9/uZVcVXXIO5oKxowXFih8CXpj9ta
-	 TSoOz1UQxhyjy+5gJ/KA14wbAWWEoclwxcZYMQkrrAEvu4h/m9aMBgpuUjk3g4m4H/W5G
-	 CVVoHNLN+AKFbQerac1Tam4HhfhzgeWrOTkAb21TqtQnnha/NlUDDVyeyKVV78EQ/vw==
+	t=1794161562;
+	b=LIFSnLsXns1aGWRuFI0zWs0vHoQKxTSCWJNREhNCL1dCDI6pYBcLO3iDtjPKsbOerLCJ
+	 Ftn/imr++bsR/ll6mK02h3E256gb49WIbWcQfzxm7pIVchUZ+TiPuJtIQz3oHTKT4XYZs
+	 zLcURK5cFvBcBSUrnGyvMZIfoxlGzRYjqkD3D+LjdObLOULD4YRuxmoXd01/8CeSU9DMr
+	 SyTdoKXNwnHqK0PEmE6iIH1/jcqj2OEFz8vpkPdBuwjzRcePaIA6K4Jev3qlcDN5dtya+
+	 EHPI/OjbvJ6j9u3Jo0iarzG95xT8JBpxo+iqEiL55aBvfTbXx9IaeJClOWfHxY4/Hww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794161006;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794161562;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Y7QToFCv+rBYUzorhIZyG+PoWcboFm4WEtffXC323v0=;
-	b=3H2Y/fMF3REq9lkJ6ATJ3vhrclr/d0puozICSrjGOBiLpS8ahwfqfcyowXfikPBJ9mhj
-	 9B3YS86xX2WnNMEJDu1rYhiBeNXSrcUZZ6A/m9C/D9eZoCiX2Yk/Lz6RHvDlFBEO89m4P
-	 pGc7CWm0AyX+pYIABZKYbapaY7tImauQlRcGynFbrDpcGBMtAh+8dOERdA/hIvgSxSoTB
-	 TG+YqC67wQnDaKixWtBsfeuiEncHnN5DX8s6jqf1DMMuEcjU7sSvYa7A2myRhKoWv1hzO
-	 6HiUnS+/IRfOThcPTVK6TdW5CrjAGyVEU1YXaNKqM4kwvcHgtGcNO8PlsYbwyz1hUuA==
+	bh=bL+CVzi1BCspXVrcUqLqj3fXYTflPR6wIEHZAqYNHs8=;
+	b=z7aT047qcqo2zuP5TnyyM94sJlgb6kuAL9ReAox1pzf92PoXVCusuqoSq8f2oQpgucXi
+	 KLKoHuYuE2CCtpBp89U77BjqiAiLWHaBruRg2q1B3YjMI3Rggd0XasoMbsBM2btgaWIhb
+	 f91AaicjHf4w/evrZg2ctMlPYA9RDbXmiiXt9rNitaIy7KbARlLPQP9W7RMCk3WK9rMJ4
+	 o+9JyApIKSxe1PqF2bkIc/U4PlA8h+9mbgAvJ8jrTl5KsdQ16tNt1uqqfqr5H6ndEIbn+
+	 02i2oL7cNuz+kJVVgxbwtUrI9/HkcSf/jQBfGRDTzBD8EiNtJXnEMjFKgbLazjbejdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J6GNDg0Z;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAJC6hJA;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE603606A31C
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 18:03:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6696E606A31C
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 18:12:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J6GNDg0Z
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE951F0089F;
-	Sun,  8 Nov 2026 18:03:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAJC6hJA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD52D1F0089F;
+	Sun,  8 Nov 2026 18:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794161005;
-	bh=Y7QToFCv+rBYUzorhIZyG+PoWcboFm4WEtffXC323v0=;
+	s=k20260515; t=1794161562;
+	bh=bL+CVzi1BCspXVrcUqLqj3fXYTflPR6wIEHZAqYNHs8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J6GNDg0Zz//AyyqEvysikhm8eMbijmoUOAQmqbSG2nNgGsGPlTOBtHQCoVcmxUHBl
-	 o5CkGZYLwN9xOcIsTd3XwiWoJQWtNrwVaIPJe7E/WLxqRdOMCifbHuHLqnzWHJA5HX
-	 +lN8o8KRry/hv/qNHBIQGNusQpY0wJ/lQmUS/+yJl/UOkvHGRf3op3HamwBWqsu2Qz
-	 dmMA9hZCWhPBbx6tmiQNApeAAXBAITXY8zmkxLQ00MoQXTs0eHyUIEjT6EqBF6wpJG
-	 eztnwzU3yzBk3Tk+/Ne0ZlVC+xsHbBVO/FscIuR1aehB25tLRV10DWjEaxkT09/xpP
-	 Xk2l0R+07oVMg==
-Message-ID: <sashiko-outbox-203893@kernel.org>
+	b=kAJC6hJAvzt4Jf40VCbPmk8P8z6395HTyLPmJjOS1La1hUUb3W6kp1HbqUBFEcW/Z
+	 QqPe05IVCFpJ2bBTGQz6NRgNJbGZLhI1mpJuv0/AADKxd6g0frm8ZT93nlrU0poyg3
+	 kRNMZE44Xph7Dv7LI+RmyyDw/dWqsN4QrFWjJM0HZV777rvcPkHC4813zLURK+doVs
+	 xvlCIAJzJINVe2MK2GW+mwqUWNlso1VSvNPcxuYfJl8JbK9k2xjhNXBRsCPr6cF9Bk
+	 DE+2kWZOgYnhKCueidOcl93NHVLER2mB0TnYt+eYcdktO4HFKiDaEBREcbctFFwo4l
+	 nFe/sbaA82q0g==
+Message-ID: <sashiko-outbox-203898@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: lg-g15: Add G15 LCD framebuffer support
+Subject: Re: [PATCH v2] HID: microsoft: fix use-after-free of ff_worker on
+ teardown
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Benjamin Valentin" <benpicco@googlemail.com>
+To: hyunjungg <hj351016@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108173920.424072-1-benpicco@googlemail.com>
-References: <20261108173920.424072-1-benpicco@googlemail.com>
+In-Reply-To: <20261108175205.722820-1-hj351016@gmail.com>
+References: <20261108175205.722820-1-hj351016@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 18:03:24 +0000
+Date: Sun, 08 Nov 2026 18:12:41 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,107 +60,123 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [High] HID: lg-g15: missing hid_is_usb() check in lg_g15_fb_init()
-- [Medium] HID: lg-g15: reversed horizontal pixel bit order in
-  lg_g15_pack_report()
-- [Medium] HID: lg-g15: LCD updates dropped during USB runtime
-  autosuspend
+- [Medium] HID: microsoft: cancelling ff_worker after hid_hw_stop()
+  races with stop()
+- [Low] HID: microsoft: Fixes trailer cites 73c5b254c365 instead of
+  1cfc77a64b71
 --
 
-commit 12c2a94ad75eaba461660e9c5ba7c7edbfce9af1
-Author: Benjamin Valentin <benpicco@googlemail.com>
+commit 4c6868d5ba6d04af120ee3895542c5a22d96e529
+Author: Hyunjung Ko <hj351016@gmail.com>
 
-HID: lg-g15: Add G15 LCD framebuffer support
+> HID: microsoft: fix use-after-free of ff_worker on teardown
+>
+> ms_play_effect() schedules ms->ff_worker to send the force-feedback
+> report; ms (and ms->output_report_dmabuf) is devm-allocated, so it is
+> freed by devres after ms_remove() returns. The work was never cancelled
+> on teardown, so ms_ff_worker() could run against freed memory.
+>
+> Draining the work is not quite enough on its own:
+>
+>  - hid_hw_stop() in ms_remove() unregisters the input device, whose
+>    teardown (input_ff_flush() -> ms_play_effect()) can re-queue ff_worker,
+>    so the work must be cancelled *after* hid_hw_stop(), not before;
+>  - ff_worker was only INIT_WORK()'d in ms_input_configured() for devices
+>    with force-feedback, so cancelling it unconditionally would hit the
+>    WARN_ON(!work->func) in __flush_work() for the other MS devices; and
+>  - if hid_hw_start() fails in ms_probe() after force-feedback was
+>    registered, its unwind can likewise schedule ff_worker, which was then
+>    left pending when ms_probe() returned.
+>
+> Initialise ff_worker unconditionally in ms_probe() (so it is always valid
+> to cancel), cancel it on the hid_hw_start() error path, and cancel it in
+> ms_remove() after hid_hw_stop().
+>
+> Not runtime-tested (requires MS force-feedback hardware).
+>
+> Fixes: 73c5b254c365 ("HID: microsoft: Add rumble support for Xbox One S c=
+ontroller")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hyunjung Ko <hj351016@gmail.com>
 
-This commit adds deferred-I/O framebuffer support for the 160x43 monochrome
-LCD on Logitech G15 and G15 v2 keyboards.
+[Severity: Low]
+Should the Fixes tag reference 1cfc77a64b71 ("HID: microsoft: move FF
+initialization to .input_configured()") instead?
 
-> diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-> index 02ef3e2094b4c..ca1f3280c05a6 100644
-> --- a/drivers/hid/hid-lg-g15.c
-> +++ b/drivers/hid/hid-lg-g15.c
+73c5b254c365 ("HID: microsoft: Add rumble support for Xbox One S
+controller") defined ms_remove_ff() to call cancel_work_sync() after
+hid_hw_stop() in ms_remove(), and only initialized force-feedback after
+hid_hw_start() succeeded.  1cfc77a64b71 ("HID: microsoft: move FF
+initialization to .input_configured()") deleted ms_remove_ff() and moved
+INIT_WORK() and input_ff_create_memless() into ms_input_configured().
+
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index a7d3493a6141e..1042a5247c4e5 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+
 [ ... ]
-> +static void lg_g15_pack_report(u8 *report, const u8 *pixels)
-> +{
-> +	unsigned int page, x, bit, y;
-> +	u8 value, mask;
-> +
-> +	memset(report, 0, LG_G15_LCD_HEADER_SIZE);
-> +	report[0] =3D 0x03;
-> +	report +=3D LG_G15_LCD_HEADER_SIZE;
+
+> @@ -377,6 +382,7 @@ static int ms_probe(struct hid_device *hdev, const st=
+ruct hid_device_id *id)
+>  				HID_CONNECT_HIDINPUT_FORCE : 0));
+>  	if (ret) {
+>  		hid_err(hdev, "hw start failed\n");
+> +		cancel_work_sync(&ms->ff_worker);
+>  		return ret;
+>  	}
+> =20
+> @@ -384,7 +390,16 @@ static int ms_probe(struct hid_device *hdev, const s=
+truct hid_device_id *id)
+>  }
+>  static void ms_remove(struct hid_device *hdev)
+>  {
+> +	struct ms_data *ms =3D hid_get_drvdata(hdev);
 > +
 > +	/*
-> +	 * The LCD consumes vertical, LSB-at-the-top groups of eight pixels.
-> +	 * Its pixel polarity is opposite to FB_VISUAL_MONO10.
+> +	 * hid_hw_stop() unregisters the input device, whose teardown can
+> +	 * re-queue ff_worker via input_ff_flush() -> ms_play_effect(). Drain
+> +	 * the work after hid_hw_stop() so it cannot run against the
+> +	 * devm-freed ms once ms_remove() returns.
 > +	 */
-> +	for (page =3D 0; page < LG_G15_LCD_PAGES; page++) {
-> +		for (x =3D 0; x < LG_G15_LCD_WIDTH; x++) {
-> +			mask =3D BIT(7 - x % 8);
+>  	hid_hw_stop(hdev);
+> +	cancel_work_sync(&ms->ff_worker);
+>  }
 
 [Severity: Medium]
-Should mask be BIT(x % 8) instead of BIT(7 - x % 8)?
+Does waiting until after hid_hw_stop() to cancel ms->ff_worker allow
+ms_ff_worker() to call hid_hw_output_report() concurrently with or after
+hdev->ll_driver->stop()?
 
-Standard 1bpp packed-pixel sysmem framebuffers (with nonstd =3D 0) place the
-leftmost pixel of each byte (x % 8 =3D=3D 0) in BIT(0) on little-endian
-architectures, as used by sys_imageblit(), sys_fillrect(), sys_copyarea(),
-and samples/auxdisplay/cfag12864b-example.c.  Testing BIT(7 - x % 8) mirrors
-every 8-pixel horizontal byte on the LCD when drawn via standard fbdev
-operations.
+CPU0                                  kworker
+ms_remove()
+  hid_hw_stop(hdev)
+    hid_disconnect(hdev)
+      ...
+        input_ff_flush()
+          ...
+            ms_play_effect()
+              schedule_work(&ms->ff_worker)
+    hdev->ll_driver->stop(hdev)
+                                      ms_ff_worker()
+                                        hid_hw_output_report(hdev, ...)
+                                          hdev->ll_driver->output_report(..=
+.)
+                                          <-- runs during or after stop()
+  cancel_work_sync(&ms->ff_worker)
 
-[ ... ]
-> +static int lg_g15_fb_init(struct hid_device *hdev, struct lg_g15_data *g=
-15)
-> +{
-> +	struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
-> +	struct usb_host_interface *alt =3D intf->cur_altsetting;
-> +	struct usb_endpoint_descriptor *out;
-> +	struct fb_info *info;
-> +	struct lg_g15_fb *fb;
-> +	int ret;
-> +
-> +	ret =3D usb_find_int_out_endpoint(alt, &out);
+hid_hw_stop() invokes hdev->ll_driver->stop(hdev) immediately after
+hid_disconnect(hdev) before returning to ms_remove() (and similarly when
+hid_hw_start() unwinds on failure in ms_probe()).  For Bluetooth and UHID
+transports, this queues an output report after hidp_stop() has purged the
+transmit queue or after uhid_hid_stop() has queued UHID_STOP.
 
-[Severity: High]
-Does lg_g15_fb_init() need to check hid_is_usb(hdev) before casting
-hdev->dev.parent with to_usb_interface()?
-
-A virtual HID device created via /dev/uhid with bus =3D BUS_USB and a G15 L=
-CD
-product ID passes all earlier transport-agnostic HID calls in
-lg_g15_probe(), causing to_usb_interface(hdev->dev.parent) to cast a
-non-USB parent device and dereference an invalid intf->cur_altsetting
-pointer.
-
-[ ... ]
-> +static int lg_g15_suspend(struct hid_device *hdev, pm_message_t message)
-> +{
-> +	struct lg_g15_data *g15 =3D hid_get_drvdata(hdev);
-> +	struct lg_g15_fb *fb;
-> +
-> +	if (!g15 || !g15->fb)
-> +		return 0;
-> +
-> +	fb =3D g15->fb;
-> +	mutex_lock(&fb->lock);
-> +	fb->suspended =3D true;
-> +	mutex_unlock(&fb->lock);
-> +	flush_delayed_work(&fb->info->deferred_work);
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does setting fb->suspended during runtime autosuspend cause
-lg_g15_fb_deferred_io() to drop all subsequent LCD updates?
-
-Because usbhid enables autosuspend and G15 / G15 v2 devices do not connect
-hidinput LEDs, the USB interface can runtime-suspend while no G-keys are
-pressed.  lg_g15_suspend() then sets fb->suspended =3D true even when
-PMSG_IS_AUTO(message) is true, and lg_g15_fb_deferred_io() bails out
-instead of waking the interface (for example via
-usb_autopm_get_interface() / usb_autopm_put_interface()).
+Calling disable_work_sync(&ms->ff_worker) before hid_hw_stop() would drain
+any in-flight work while the transport is still active and prevent
+input_ff_flush() from re-queueing it during input device teardown.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108173920.4240=
-72-1-benpicco@googlemail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108175205.7228=
+20-1-hj351016@gmail.com?part=3D1

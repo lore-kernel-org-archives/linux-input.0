@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794123640;
-	b=XemgfIqc2/ikWkfJFnJR1ft7f52pft6PrFqgsz3eOFGeeNcxpKfVgKS5U1N1TM/u9VMR
-	 ndamYNH0+jV3O0G+iAOnYdnpSE54MLioBOn87UGrfP8pfmNkXTvl161VsnLzzA9gh1hUI
-	 baTnPYQIhDG/eELlrgbHyFdJDTaHgHtm8cYtSsp/lbnqeAbZg4k3preT0RVm2RbaWCGlG
-	 179PnLL7X2l75AEfCp/vvZADITjsJUxROunSYMFmcWIdooRHsTwHOhMu9z6e+s1nzAnzj
-	 Frjxm6A7/ACvxvnaF+YGJX3e/TSgKnanRE2rq+1wSBHsJ8ToZhrmFGFhh8cUz3hKVVw==
+	t=1794123916;
+	b=yqyPXyA/5Pr9z9lkxI+ht/8kCIhs65NkSuikvuGqpLH+oxZEwZpeeXrh1fGImTmWw31i
+	 oFyMxL4PZievza7he5hQy05Em9piXnQ1y+2hX//rewehuCRFFPH0OBENLvDhp2BhPEUxI
+	 9Otg4bSGtVE2R+f7LUFjbjQJk6ix22uy7o8gzggpegAYILFXFAmTRpJc8rFCALTfY6kwA
+	 I/Ic8lZKwlFSeb0xJtJFoRVW9qQvFATs5EAaBxtC2G7oKmgpl+D2u/GXGXeMVyAVLMudE
+	 PRw5ri8Ib8iIU0NHDVDwDtU2JbFPgU50eM612XtDS+8p0NeH3Vyhi0YNdzZs2jIyFOA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794123640;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794123916;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=AR4cUy9xsPoPS7nt98pkg3PkAnjW20K1vGcyHgflvns=;
-	b=GffrarjGMcMnozAErH9M52AG3RXCR3x90UKrVJ0h/m6xOaRObW54r6ll7B7Rl4OJ44+k
-	 X2N/awC+pZdPpLIsIFCXCEaEOAEChP68fmSHFJqH476E7xH5N5nMGW5d9Bf5UzrTNxQZc
-	 2m6XZB6V5BoyYd1baMKiC9bgnh/S3zgNDdKVmvGKxZl8oHLgpRVYle6QlI9bgej2lRLUC
-	 SdoUHqtA95HD+LJUsRAwnzpxo0J4CxoszB83DLS3ArLQVLoRpaTnM48gs2eb1fpKicZFs
-	 VgUMeYqT4XL4TorTlAnxsSV/SGqVyph5EgGiVSCRjcinskVlEkAfZkCz9OchyVj5k4A==
+	bh=aF2G0ydcFppuwjaNTLg5qirYElBIA155TQabt5hQbPI=;
+	b=3HMlLbtB1cA1JSN4zZYv16zmtJnuPUQGY5mJW2Vavc0OrSlPHJxyThRCZuhwPalCblKF
+	 bZnqjEOvhHohcuxXY3CDjDQOi5I0XTqWUtm1RICZqXcDvs2HIPD+0TQXzSYgTHVPYxtJ/
+	 Kw9ikfmYLu8zlMuqBgQudYBzitThmazczW9k+q4T0QyBYm2VlVm8+G/6RgMSpJPLhqMkK
+	 3W8Ev4Yl01esNqONsB1F2lEjp74bR/DAZDgsZMLpQsyQcBvPU2zNqi48oc46nndi6f5us
+	 DExIbz+j2PeUI2pm65szBISIHp4gj9FlkRIeKgETVqWLckaRqSZXmA4BmgLkOdeyzmA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e7x+DcDg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XtQWeMGm;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04721606A31C;
-	Sun,  8 Nov 2026 07:40:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0031606A31C;
+	Sun,  8 Nov 2026 07:45:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e7x+DcDg
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FBA21F0089F;
-	Sun,  8 Nov 2026 07:40:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XtQWeMGm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E1CB1F0089F;
+	Sun,  8 Nov 2026 07:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794123639;
-	bh=AR4cUy9xsPoPS7nt98pkg3PkAnjW20K1vGcyHgflvns=;
+	s=k20260515; t=1794123915;
+	bh=aF2G0ydcFppuwjaNTLg5qirYElBIA155TQabt5hQbPI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=e7x+DcDg49QMR0b0a7EwOuSvEhJ0qiyPK/ltuTU2L+Dp6L1b7nqgZeeu3O2i9vv6H
-	 Pp4IDfa8xqgIP6L9QVqKQRO7ttUTHSnSVSB0D5yBiqt0AHdakOwliK2CFhwf92zqB1
-	 4U0etWOhOOslxee3pa/0Iq/fUZn+k7LPMjOV3L5EAfYEPjwaC8GYFalQsUTLY5ld+L
-	 b6LXM+OAb0Lz35JqilTox04yA+5VKlEsNBdbXCOfn8l4PfdG1ey3yrvDVRxwxyrDSz
-	 y1ad0iHiVo0VAuJuDFKa83xoARchESflU8Y0KhLYBbrDa6IWs0EaABUnleTVrUWBjw
-	 lUqNkRe6SYunA==
-Message-ID: <sashiko-outbox-203632@kernel.org>
+	b=XtQWeMGmszOzHz0yrOZsGLeXBVy+1lbgrqWFZ1eszJJI/X8+JiUqXHamMPTOWdTsP
+	 8DmOkgyzklN6sBCDez7KfJEuCcy+5GroA9lb3z+34HhEDshsHs3BO6ARwqK7O24ciZ
+	 txQexdPkezAOuswNXRkr/4I4THwhGFYTk0kFRYOVMDyI4jw50982b1czvmcQGFU0CH
+	 aFB6xaL0J/L+TvAlFDzKY1Q0yIkkidZvW+Sxcu/Wp16jVv+jTVJhYvCbdU3AXtPeFe
+	 aLiMvZ7F70SeEHTUEYOoO9jk4siMNJqNcs8ZAAtNPooBCcxD1A3ob+ig1+FlGftZwA
+	 tMRge7CsdnMQA==
+Message-ID: <sashiko-outbox-203639@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 7/8] arm64: dts: apple: Add MTP DockChannel HID nodes
+Subject: Re: [PATCH v5 3/8] mailbox: apple: Add DockChannel FIFO controller
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Reeves" <michael.reeves077@gmail.com>
 Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108-b4-apple-mtp-keyboard-v5-7-e2c97b82669a@gmail.com>
+In-Reply-To: <20261108-b4-apple-mtp-keyboard-v5-3-e2c97b82669a@gmail.com>
 References: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
- <20261108-b4-apple-mtp-keyboard-v5-7-e2c97b82669a@gmail.com>
+ <20261108-b4-apple-mtp-keyboard-v5-3-e2c97b82669a@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 07:40:38 +0000
+Date: Sun, 08 Nov 2026 07:45:14 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,105 +60,154 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issues to consider:
-- [Low] arm64: dts: apple: undocumented mtp_mbox and mtp_dart
-  compatibles on M3 SoCs
-- [Low] arm64: dts: apple: MTP nodes violate ascending unit-address
-  sorting order
+- [High] mailbox: apple: unhandled TX IRQ storm in
+  apple_dockchannel_irq_thread()
+- [Medium] mailbox: apple: premature RX IRQ_FLAG clear in
+  apple_dockchannel_irq_thread()
+- [Medium] mailbox: apple: TX queue stall when FIFO is non-empty with
+  tx_active false
 --
 
-commit c67685ca53359623ed7c777d5acba1746d1c1301
+commit b95e903761484cc55af89a24caaf5c68658e43d3
 Author: Michael Reeves <michael.reeves077@gmail.com>
 
-arm64: dts: apple: Add MTP DockChannel HID nodes
+mailbox: apple: Add DockChannel FIFO controller
 
-This commit adds disabled MTP ASC mailbox, DART IOMMU, DockChannel
-mailbox, and DockChannel HID device tree nodes for Apple M2 and M3 SoCs.
+This commit adds a mailbox controller driver for the Apple DockChannel
+hardware FIFO, handling TX completion and RX data in a threaded interrupt
+handler.
 
-> diff --git a/arch/arm64/boot/dts/apple/t6030.dtsi b/arch/arm64/boot/dts/a=
-pple/t6030.dtsi
-> index 524e532830e20..15c102758097b 100644
-> --- a/arch/arm64/boot/dts/apple/t6030.dtsi
-> +++ b/arch/arm64/boot/dts/apple/t6030.dtsi
-> @@ -492,6 +492,53 @@ wdt: watchdog@3642b0000 {
->  			interrupts =3D <AIC_IRQ 480 IRQ_TYPE_LEVEL_HIGH>;
->  		};
-> =20
-> +		mtp_mbox: mbox@37a408000 {
-> +			compatible =3D "apple,t6030-asc-mailbox", "apple,asc-mailbox-v4";
-> +			reg =3D <0x3 0x7a408000 0x0 0x4000>;
-> +			interrupt-parent =3D <&aic>;
-> +			interrupts =3D <AIC_IRQ 953 IRQ_TYPE_LEVEL_HIGH>,
-> +				     <AIC_IRQ 954 IRQ_TYPE_LEVEL_HIGH>,
-> +				     <AIC_IRQ 955 IRQ_TYPE_LEVEL_HIGH>,
-> +				     <AIC_IRQ 956 IRQ_TYPE_LEVEL_HIGH>;
-> +			interrupt-names =3D "send-empty", "send-not-empty",
-> +					  "recv-empty", "recv-not-empty";
-> +			#mbox-cells =3D <0>;
-> +			status =3D "disabled";
-> +		};
+> diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-=
+dockchannel.c
+> new file mode 100644
+> index 0000000000000..4400d767f6ad5
+> --- /dev/null
+> +++ b/drivers/mailbox/apple-dockchannel.c
+
+[ ... ]
+
+> +static int apple_dockchannel_send_data(struct mbox_chan *chan, void *dat=
+a)
+> +{
+> +	struct apple_dockchannel *dc =3D chan->con_priv;
+> +	struct apple_dockchannel_msg *msg =3D data;
+> +	unsigned long flags;
 > +
-> +		mtp_dart: iommu@37a808000 {
-> +			compatible =3D "apple,t6030-dart", "apple,t8110-dart";
-
-[Severity: Low]
-Are the M3-family compatible strings in mtp_mbox and mtp_dart documented
-in the binding schemas?
-
-Running make dtbs_check fails because apple,t6030-asc-mailbox,
-apple,t6031-asc-mailbox, and apple,t8122-asc-mailbox are not listed in
-Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml, and
-apple,t6030-dart, apple,t6031-dart, and apple,t8122-dart are not listed in
-Documentation/devicetree/bindings/iommu/apple,dart.yaml (the same applies
-to t6031-die0.dtsi and t8122.dtsi below).
-
-> +			reg =3D <0x3 0x7a808000 0x0 0x4000>;
-> +			interrupt-parent =3D <&aic>;
-> +			interrupts =3D <AIC_IRQ 937 IRQ_TYPE_LEVEL_HIGH>;
-> +			#iommu-cells =3D <1>;
-> +			status =3D "disabled";
-> +		};
+> +	if (!msg || !msg->data || !msg->len)
+> +		return -EINVAL;
 > +
-> +		mtp_dockchannel: mailbox@37ab14000 {
-> +			compatible =3D "apple,t6030-dockchannel", "apple,t8112-dockchannel";
-> +			reg =3D <0x3 0x7ab14000 0x0 0x4000>,
-> +			      <0x3 0x7ab30000 0x0 0x4000>,
-> +			      <0x3 0x7ab34000 0x0 0x4000>;
-> +			reg-names =3D "irq", "config", "data";
-> +			interrupt-parent =3D <&aic>;
-> +			interrupts =3D <AIC_IRQ 939 IRQ_TYPE_LEVEL_HIGH>;
-> +			#mbox-cells =3D <0>;
-> +			apple,irq-index =3D <1>;
-> +			status =3D "disabled";
-> +		};
+> +	if (msg->len > APPLE_DOCKCHANNEL_FIFO_SIZE)
+> +		return -EMSGSIZE;
 > +
-> +		mtp_hid: hid@37a400000 {
-> +			compatible =3D "apple,t6030-dockchannel-hid", "apple,t8112-dockchanne=
-l-hid";
-> +			reg =3D <0x3 0x7a400000 0x0 0x4000>,
-> +			      <0x3 0x7ac00000 0x0 0x100000>;
-> +			reg-names =3D "asc", "sram";
-> +			mboxes =3D <&mtp_mbox>, <&mtp_dockchannel>;
-> +			mbox-names =3D "asc", "dockchannel";
-> +			iommus =3D <&mtp_dart 1>;
-> +			status =3D "disabled";
-> +		};
+> +	spin_lock_irqsave(&dc->lock, flags);
 > +
->  		pinctrl_smc: pinctrl@36c820000 {
+> +	if (dc->tx_active || !apple_dockchannel_tx_empty(dc)) {
+> +		spin_unlock_irqrestore(&dc->lock, flags);
+> +		return -EBUSY;
+> +	}
 
-[Severity: Low]
-This isn't a bug, but the new MTP nodes are out of unit-address order,
-which triggers dt-check-style child-address-order warnings.
+[Severity: Medium]
+Can this stall the mailbox TX queue if the hardware TX FIFO is non-empty
+while dc->tx_active is false?
 
-In all five files, mtp_hid (hid@...400000) is placed after mtp_mbox
-(mbox@...408000), mtp_dart (iommu@...808000), and mtp_dockchannel
-(mailbox@...b14000) despite having a lower unit address.  In t6030.dtsi,
-the MTP block at 37a400000..37ab14000 is also placed before
-pinctrl@36c820000 and pinctrl@374824000, and in t6031-die0.dtsi the MTP
-block at 2ac400000..2acb14000 is placed after serial@391200000 instead of
-between pinctrl@2a4820000 and i2c@391010000.
+When msg_submit() gets -EBUSY from send_data() on a txdone_irq controller,
+it leaves the message queued in chan->msg_data and waits for
+mbox_chan_txdone() to retry submission.  If residual bytes are in the FIFO
+at apple_dockchannel_startup() or after apple_dockchannel_shutdown()
+clears dc->tx_active and masks dc->irq_tx, returning -EBUSY here without
+arming dc->irq_tx and setting dc->tx_active means no interrupt will fire
+when the FIFO drains and mbox_chan_txdone() will never be called.
+
+[ ... ]
+
+> +static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
+> +{
+> +	struct apple_dockchannel *dc =3D data;
+> +	unsigned long irqflags;
+> +	u32 flags;
+> +	u32 pending;
+> +	bool tx_done =3D false;
+> +
+> +	spin_lock_irqsave(&dc->lock, irqflags);
+> +
+> +	flags =3D readl_relaxed(dc->irq_base + IRQ_FLAG);
+> +
+> +	pending =3D flags & dc->irq_mask & (dc->irq_tx | dc->irq_rx);
+> +	if (!pending)
+> +		goto out_unlock_none;
+> +
+> +	if (pending & dc->irq_tx) {
+> +		if (apple_dockchannel_tx_empty(dc)) {
+> +			apple_dockchannel_irq_disable(dc, dc->irq_tx);
+> +			tx_done =3D dc->tx_active;
+> +			dc->tx_active =3D false;
+> +		} else {
+> +			pending &=3D ~dc->irq_tx;
+> +		}
+> +	}
+> +
+> +	writel_relaxed(pending, dc->irq_base + IRQ_FLAG);
+> +
+> +	spin_unlock_irqrestore(&dc->lock, irqflags);
+> +
+> +	if (tx_done)
+> +		mbox_chan_txdone(&dc->chan, 0);
+> +
+> +	if (!(pending & dc->irq_rx))
+> +		return pending ? IRQ_HANDLED : IRQ_NONE;
+
+[Severity: High]
+Can clearing dc->irq_tx from pending when apple_dockchannel_tx_empty() is
+false cause an unhandled IRQ storm?
+
+In apple_dockchannel_send_data(), FIFO writes go to dc->data_base,
+CONFIG_TX_THRESH goes to dc->config_base, and apple_dockchannel_irq_enable()
+clears IRQ_FLAG and unmasks dc->irq_tx in dc->irq_base using relaxed MMIO
+without a readback.  If dc->irq_tx is latched in IRQ_FLAG before
+DATA_TX_FREE reaches APPLE_DOCKCHANNEL_FIFO_SIZE, removing dc->irq_tx from
+pending skips clearing it in the write-to-clear IRQ_FLAG register while
+leaving it unmasked in IRQ_MASK.  When dc->irq_rx is not also set, the
+handler returns IRQ_NONE with the level-high interrupt still asserted,
+re-entering the handler in a tight loop until genirq disables the IRQ line.
+
+Also, because IRQ_FLAG is written after apple_dockchannel_tx_empty() is
+checked, acknowledging IRQ_FLAG before checking DATA_TX_FREE is needed so a
+FIFO that finishes draining between the check and the IRQ_FLAG write does
+not lose its completion interrupt.
+
+> +
+> +	for (;;) {
+> +		struct apple_dockchannel_msg msg;
+> +		size_t avail;
+> +
+> +		avail =3D readl_relaxed(dc->data_base + DATA_RX_COUNT);
+> +		if (!avail)
+> +			break;
+> +
+> +		avail =3D min_t(size_t, avail, APPLE_DOCKCHANNEL_FIFO_SIZE);
+> +
+> +		apple_dockchannel_read(dc, dc->rx_buf, avail);
+> +
+> +		msg.data =3D dc->rx_buf;
+> +		msg.len =3D avail;
+> +		mbox_chan_received_data(&dc->chan, &msg);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+
+[Severity: Medium]
+Does clearing dc->irq_rx in IRQ_FLAG before draining the RX FIFO cause a
+spurious interrupt after every RX transfer?
+
+IRQ_FLAG is a sticky write-to-clear status register, and CONFIG_RX_THRESH
+is set to 1.  When IRQ_FLAG is written before reading the FIFO,
+DATA_RX_COUNT is still at least 1 (and more bytes may arrive while the loop
+drains the FIFO), so dc->irq_rx immediately re-latches in IRQ_FLAG and trig=
+gers
+an extra wakeup of apple_dockchannel_irq_thread() once the line is unmasked.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-b4-apple-m=
-tp-keyboard-v5-0-e2c97b82669a@gmail.com?part=3D7
+tp-keyboard-v5-0-e2c97b82669a@gmail.com?part=3D3

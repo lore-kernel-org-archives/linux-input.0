@@ -1,57 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.25
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794127374;
-	b=JA7ZXOew0eDK4zdTx11TYshtrWNwqd0HTGblHYfNcnvrn1N2xoZt7VcVMnpQtKhype17
-	 JuAQ41auOglnHkBeV1BxIGMyr68KPNjUU7b9mPeCYC9pIsYufmRnaE2J9zQ4FciCisUR/
-	 mwAHAh8GdXNg8d8TNZO0TiWbymib7PvYRadzUC3MFg8pZJC9RDuegQGtCDgv6C6LiqbtA
-	 z/HQoeCiQe3Drc+iM9gGvRNdJ0Ui5LxZh2ZBzW9TcgZ63SlmpoKVmqIr1Yb71kEiy0jCI
-	 ZU2AKtCJUhrzViDDJkfLeqgtCJfzViogWOE4iDZsOuTYI3eu/Ii7MZ6rk66hbfpnKdg==
+	t=1794129835;
+	b=0XIrzf4RMxJMPMnMCmSRsXTkv9Q9YxDHiHn1OP6g98sfwwcMf78y3a9GbxxX8Wvf3Xc4
+	 zs8RdeXyzhUDJpX2kEKBRS51KAp6CQlRJsxdE6W2xjPsG8abayZ+syVf4EhwyvK3LJGoY
+	 ek/RWXYqeBYmssqgDWHJ0gAi7Ik20icONRQXS+070UggApxPIqY84D20UTCNWcyy/D7U4
+	 4CcY+8+BsPpjGM0wLVLE9s8r2QqOw/Uwc4Ox53D4Kieq/bPWFXwzbvnhF3nS1hRyz0rI6
+	 hfe5lKERMiAdh/lcLVNuQyrCaTJM5T2qVcLIFXiZ9f1vhamDLX/h9kXXHsDOhCUd6YQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794127374;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=YAO6+6Mae3ehm36oisKgJJdRjVFNwYD63LsMg3fVU4A=;
-	b=4frklm8QyoR3NwyguDClwoLn/hIQRWsX6B1H3U5miUOut02t97tgv4TryI/70c3Xktz2
-	 5Or8utEdCmMgXZ05/lAI7uBAgB0l7INN2gP5tVfK9lgvtyEkqWL7Su9hMwuOKp6ousclU
-	 cQ8Em1oL2qcf9a0WyoetKBYFK1L+P6LnOboji+j/Ph3iwCUpEHYRMESSfE2HIUwI16u0A
-	 /NdAJZzgPOvcvxxKmhlCstwlonvILojXlCkvvxxTZAU5hhiOugm0n/aTzZTAIOx7lT6u1
-	 2DuGZ9d8pRrGd43KBNswJlXiRfa8tMhirCUIWDPeqcBluSFFjaYhfEZPhmKBWPCiHcA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794129835;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
+	 References:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
+	bh=tFFukMiDzJt9S0fOOUEqLbI2e2gAGmA6iCuWDckb1mQ=;
+	b=C/eC9zOVtwy47Wkn+wVjqc4n071l3ldQv2X3m4BD4cxP6soGJlwEDd6/R8bTwGbEUaeu
+	 MSPuTjNo5WvcQGZ8Q/BPkUbrI1umZpXQJ5vvyeio1Ac21bANaVUiS0BZXHEOPEXfempoD
+	 nhMGtXANqGMMlnxjQKpN1yn8/zQSWhQMBBdVX2/dvQeYtAe+013IaoQ2/YpDE79MT3AP3
+	 m9Bag8MuiVz8dBD5bdRqVCUuNjKAenA+LJZx1P8G05pJBCos6POvSA9Ca4/m1S1rBtpn9
+	 4/3roZ6FSN6qNqcIeDia5K8NUkiX4QPSl1hnhU5VnwYuSrWL+zom+MhfYpySN3D2A0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="jehD8wB/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=iscas.ac.cn;
+	spf=pass smtp.mailfrom=iscas.ac.cn;
+	arc=none smtp.remote-ip=159.226.251.25
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C3B7606A31C;
-	Sun,  8 Nov 2026 08:42:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jehD8wB/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 643B61F0089F;
-	Sun,  8 Nov 2026 08:42:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794127373;
-	bh=YAO6+6Mae3ehm36oisKgJJdRjVFNwYD63LsMg3fVU4A=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jehD8wB/9WWQPaMtiIUYmQpoxolGvwLF2gB4k1dB4fglqrj58nd+EE7oQUEWhT7hb
-	 JTcoFdANWlYRo93eRMGbqvVsIflr8isS0U2TiysphDMlQfkSreaQXtTrv7CB0Ws6Cy
-	 sOL4JE6rOHjTJGMDswhzbJZHyqD/vnsn62lSAmDBlUepUehQRUD5q92TaAiBnErydH
-	 aLzqV6Sz3lSyVkD6hBjreAAHMeP3XHJN82BJgqVchxraZdrgXrFEe1QzVlrblYknU6
-	 2v1cjpv+gF1JwXjxJROMMmSEQl/cj8/1uEdy5CZoAQcBkhCYV4+zgJwtxCPI1hZCOl
-	 FSLNpXX24Bbjg==
-Message-ID: <sashiko-outbox-203652@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/5] Input: s6sy761 - move chip differences into
- per-chip data
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nizat Mikayilli" <nacht@dxdmail.cc>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108-b4-s6sy761-fts1ba90a-v1-4-999b3cfaf82d@dxdmail.cc>
-References: <20261108-b4-s6sy761-fts1ba90a-v1-0-999b3cfaf82d@dxdmail.cc>
- <20261108-b4-s6sy761-fts1ba90a-v1-4-999b3cfaf82d@dxdmail.cc>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 08:42:52 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8587606A31C;
+	Sun,  8 Nov 2026 09:23:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8587606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from [172.100.0.8] (unknown [36.110.52.2])
+	by APP-05 (Coremail) with SMTP id zQCowAB31bqkP_Bq6o2YAA--.17700S2;
+	Sun, 08 Nov 2026 17:23:48 +0800 (CST)
+From: Wentao Liang <vulab@iscas.ac.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: dudl@cypress.com,
+ linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in
+ cyapa_update_rt_suspend_scanrate()
+Date: Sun, 08 Nov 2026 06:45:47 +0000
+Message-ID: <1794120347.2701234.vulab@iscas.ac.cn>
+In-Reply-To: <aqwD1o6J4svIevWW@google.com>
+References: <20260916185015.2093520-1-vulab@iscas.ac.cn>
+ <aqwD1o6J4svIevWW@google.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,53 +54,103 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID:zQCowAB31bqkP_Bq6o2YAA--.17700S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxXF4kGFW8Cw13Xr4rurykXwb_yoW5uF4kpF
+	WYganrKrWkJw48tws2yr1kZFyFq3yakay5GrykJ3W8uw45G34xtF1UJrya9F1jyryxCa1q
+	yF1Fyw4ayF1YyaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvFb7Iv0xC_Kw4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
+	cIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2
+	AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v2
+	6r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxV
+	WxJr0_GcWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
+	Yx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2jsIE14v26F4UJVW0owAm72CE4IkC6x0Yz7
+	v_Jr0_Gr1lF7xvr2IY64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
+	42xK82IY6x8ErcxFaVAv8VW8GFyrJr1UJwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
+	02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_
+	Jw1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v2
+	6r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvj
+	xUqUGOUUUUU
+X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiDAAFA2rv4qiTXwAAsJ
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [High] Input: s6sy761 - interrupt storm on I2C error in
-  s6sy761_irq_handler() [1]
---
+Hi Dmitry,
 
-commit a2e70885f2393c600cd0947a2d064a0c055020a7
-Author: Nizat Mikayilli <nacht@dxdmail.cc>
+Sorry for the very late reply.
 
-Input: s6sy761 - move chip differences into per-chip data
+It does not have to be the "sync" variant.  I used
+pm_runtime_put_sync_autosuspend() only to mirror the normal flow of the
+same function and the other runtime PM call sites in cyapa.c, but there
+is nothing on this path that needs a synchronous transition: no device
+state has been changed yet, both put variants mark the device busy
+first, and cyapa_start_runtime() sets a 2 s autosuspend delay, so either
+of them would only arm the autosuspend timer before the store returns.
+v2 uses pm_runtime_put_autosuspend(), the counterpart of
+pm_runtime_get_sync() for devices that use autosuspend.
 
-This commit moves controller-specific parameters and callbacks into a
-per-chip data structure to prepare for adding support for the ST FTS1BA90A
-controller.
+For the record on how the patch was produced: the candidate came from
+static analysis tooling, and DeepSeek and GPT-6.1 Sol were used to audit
+it and to help write the change.  I reviewed the result and I am
+responsible for it.  v2 is build-tested only: it compiles cleanly on
+x86-64 with CONFIG_MOUSE_CYAPA=y, including W=1, and passes checkpatch.
+I have no Cypress trackpad to test it on.
 
-> diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscr=
-een/s6sy761.c
-> index 59166865d397c..f000ed0d7a9a4 100644
-> --- a/drivers/input/touchscreen/s6sy761.c
-> +++ b/drivers/input/touchscreen/s6sy761.c
+Thanks,
+Wentao
 
-> @@ -229,7 +244,7 @@ static irqreturn_t s6sy761_irq_handler(int irq, void =
-*dev)
-> =20
->  	ret =3D i2c_smbus_read_i2c_block_data(sdata->client,
->  					    S6SY761_READ_ONE_EVENT,
-> -					    S6SY761_EVENT_SIZE,
-> +					    sdata->chip->event_size,
->  					    sdata->data);
->  	if (ret < 0) {
->  		dev_err(&sdata->client->dev, "failed to read events\n");
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wentao Liang <vulab@iscas.ac.cn>
+Date: Sun, 8 Nov 2026 06:45:47 +0000
+Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in cyapa_update_rt_suspend_scanrate()
 
-[Severity: High]
-This problem wasn't introduced by this patch, but can returning IRQ_HANDLED
-when i2c_smbus_read_i2c_block_data() or s6sy761_read_events() fails cause
-an interrupt storm [1]?
+pm_runtime_get_sync() unconditionally increments the runtime PM usage
+counter. If mutex_lock_interruptible() is interrupted, the function
+returns without dropping that reference, so the usage count stays
+elevated for as long as the driver is bound and the device can no longer
+be autosuspended. Drop the reference on the error path.
 
-The IRQ is registered with IRQF_TRIGGER_LOW.  When an I2C read fails, the
-pending event is not drained from the controller, so the level-triggered
-interrupt line stays asserted and immediately re-fires once unmasked, while
-returning IRQ_HANDLED instead of IRQ_NONE prevents the spurious interrupt
-detector from disabling the IRQ.
+Use pm_runtime_put_autosuspend() rather than the synchronous variant
+there: nothing has been done to the device on this path, so there is
+nothing to wait for, and with the 2 s autosuspend delay the driver
+configures the put only arms the autosuspend timer instead of suspending
+the device.
 
-[1] https://sashiko.dev/#/bug/linux-d31827dd-6777-4c33-8908-c3b4fbd062c3
+Fixes: 672865080a8f ("Input: cyapa - add runtime power management support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+---
+Changes in v2:
+- Apologies for the late reply.
+- Use pm_runtime_put_autosuspend() instead of
+  pm_runtime_put_sync_autosuspend() on the error path: the synchronous
+  variant was only there to mirror the normal flow, and with the 2 s
+  autosuspend delay the put only arms the timer, so there is nothing to
+  wait for.
+- Link to v1: https://lore.kernel.org/all/20260916185015.2093520-1-vulab@iscas.ac.cn/
+- Link to the June posting of the same change:
+  https://lore.kernel.org/all/20260609004617.175476-1-vulab@iscas.ac.cn/
+---
+ drivers/input/mouse/cyapa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-b4-s6sy761=
--fts1ba90a-v1-0-999b3cfaf82d@dxdmail.cc?part=3D4
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index a8e9b9ab9f84..737fc54539d9 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -900,8 +900,10 @@ static ssize_t cyapa_update_rt_suspend_scanrate(struct device *dev,
+ 	pm_runtime_get_sync(dev);
+ 
+ 	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
+-	if (error)
++	if (error) {
++		pm_runtime_put_autosuspend(dev);
+ 		return error;
++	}
+ 
+ 	cyapa->runtime_suspend_sleep_time = min_t(u16, time, 1000);
+ 	cyapa->runtime_suspend_power_mode =
+-- 
+2.34.1
+

@@ -1,87 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794136154;
-	b=l1skM2H6YGtYQuaaILNdCsvpZ6qCIT8aKpK3+CXVBWuBnLcIv2+iJT+9PY3I5bFaszms
-	 5hGhhWM/RPJK2MnLHR2zKz+pDs8tc6Zv3EaIVNC31Tp6fKMVL6Ff/Qa4a6SIIsEJGytca
-	 bQKMwSaP5UMpfY4sRcdDJ5rZptHykZ4F4l7QRar9ACco4fYYjeibyYAcC28lU3r1LG0AF
-	 BBfuM/tQYS8mko/u38oEStvC/IShILZMOL0Noit3CK5guQz7oSd4WGvciy2wzXsQAjCQf
-	 mMtX73ZOVOLk8s2w/KIOnDxF3LF+yITMLJkrSor86KuuTZ7GaC17xsZURANqrsx0WBg==
+	t=1794137043;
+	b=ZxN2JQ718VRPevf8CjNYspZVUbuJh9cTl6EUBHVhiJhZJhY2XvqovrcotgqLa+xqWM33
+	 2KI/gfPzz2mf3VhS9YuhNCjwDXxsHun74kGzVh4618FcfWdHZ3XOXnOzttnuKNshuewJW
+	 YB3yJ2meK+TKhfMVU4La4uL7tZaPIcFp9p+1izAxsgA8nSOOTh5CBumHc589Oe+L1MaIq
+	 TznWzrWvqbDyXsYQDbxcUufoBq+PPLC/siSuhpQfkrjxaZMLT7ierd2UZEOvae5ZnWgc+
+	 l+4d1tisKx1gy5ixlq+ML3QNnFZvjV2u+CQghIa4FApInXw5o4LOzq5djx6mLZaInmg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794136154;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=rRMDSUzD/4dqXKQ7EKZyKnxoCi/M0piqkjg2dM9fwCI=;
-	b=1ZRCRebOhBeS7O8eGQabP124RSjWW59es5u+++aT5TCVmq69xg1SbVKqyDGN7QtVSF1t
-	 5sHQ8lkim3CEQfkw3JHrlaBxVdP/6L0M0M+VLDx7x72/DWrE9g34buOXaXkksBg2JqU4j
-	 nxAGA7kAFiyGB4QVsoQSp/2+6kZ36uI6ertqwTFbYqmWTVrqZboP3VrBbsZut/rHNmuWD
-	 DMv+bmNZkEsRXoJny/S4Qz6V5mbrM8sjx37bnusqfqUmBvOy+aCyHiQierIQ1yMVaUkHP
-	 7dkhlQ4LcGjczgLce5Ynd5bHZhsQQwpnBln+5KZyr7wDFH5WNtjJK3DvdhT6/O/N77g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794137043;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=qnB57uX7smHWhcExk/rez1Kc/uiMOIn8ZV8FWDOsUCE=;
+	b=fGZm9Bv8fd7zBF3dG2NOgGglqMApm/p5N1N+/wAHfCeIUom/poOCMuTDmNrWNclPtv7s
+	 vLqsstbkzMFNoPYC0g6xqAoZOOqvxT7fX2O0KTUZRoIvZ/S2VA/zu325qSZWNoM+9TLm8
+	 wRVtk9wbBTQzrASej9CBygRbF63zotiU+XbMghY8/nLyTUtqotjW/enB8NnUZMhp3UpSD
+	 oVR4hBXUhSHgA025FV//J6d8HR8TRPleKqj3WIgqGCFZGhOA2bIsBVunZcAl34V+OA+/U
+	 9QVTHrdGHI941XMIQCsHRnK0UwquT0Nj72oUEoGrjsuG2Qe/JXZmDu+GpS2t46rpfsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N0YYA4cp;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GUGRAVkT;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67CF4606A31C;
-	Sun,  8 Nov 2026 11:09:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1B1B606A31C
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 11:24:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N0YYA4cp
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFD11F008A1;
-	Sun,  8 Nov 2026 11:09:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GUGRAVkT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F661F0089F;
+	Sun,  8 Nov 2026 11:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794136153;
-	bh=rRMDSUzD/4dqXKQ7EKZyKnxoCi/M0piqkjg2dM9fwCI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=N0YYA4cpwk2rSpGMMYuOqSqMumav/sn0wLJeni7+D5sRDUh6oQesbQll0590AxfPg
-	 YHZL34AcSy3m/oA/+Mg50SxmE2ticTBJ0JeVPjSjHFm7kxxRs5L8DQMA7BTnLRn9Qu
-	 2ZAZr5kKEMP1mX37TLY8VAg7PQwGUVqeJOcMERAGlH5l3zZZEjSFO6rqxrHnW3bvxF
-	 j8U2+HgWFrfZqDiA8t9jLRXdMwzd73OoApHczJMktKFXOELRAAGT46mdFrtZFBMPZ4
-	 MVG5MgmA0/z1plVr0CdzxGC6RsARpcD0nOIKT0WnIOzRGRQJttYGclefHMO9alDFAo
-	 8foRVxDwmD7Ew==
-Date: Sun, 8 Nov 2026 13:09:09 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH 05/17] USB: Lock registered interfaces during manual
- driver binding
-Message-ID: <20261108110909.GA8635@unreal>
-References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
- <20261105-device-trust-core-v1-5-1e536825b4eb@nvidia.com>
- <bb83fe3c-cebb-4bc8-bfc9-24df1cf72b0b@rowland.harvard.edu>
- <20261105184442.GF8298@unreal>
- <bf756e50-c77e-40f2-916d-e88887426806@rowland.harvard.edu>
+	s=k20260515; t=1794137042;
+	bh=qnB57uX7smHWhcExk/rez1Kc/uiMOIn8ZV8FWDOsUCE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GUGRAVkTVRytP7K6evQKz73rYT/D5sHR2GxjYZWnAQ/LLWxpBu1L99aTuK1L/wv4m
+	 +/Q9Tf5HLRzjWMxVsbBShpNZen6ZHXUDdIhJyiFBezhsyYJGBtY4BXGMDQtsATzuYQ
+	 MFML2VQ0mKIa4bOMzaQ2o/SLXNgzgVIWgtA1vs2a2B0D334wD8BeULA3gedcKZS9u/
+	 evjCiAkizMm/nrDhKFNlPRifu4x857juam7fAx1WSGJ0hiu7wtMxHRduhEjPB+zhTY
+	 7EJNLkBR8CyfYC9Y6UK2oNlATeWbkukuHToev1wdy+UVlem2DeuH9IGjZxtBp5BIcP
+	 jgOJZLIWpjpxg==
+Message-ID: <sashiko-outbox-203693@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: ayaneo-flip-kb: Add driver for keyboard backlight
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Hijae Song" <hijae99@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261108110757.41368-1-hijae99@gmail.com>
+References: <20261108110757.41368-1-hijae99@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 08 Nov 2026 11:24:01 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,47 +58,100 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bf756e50-c77e-40f2-916d-e88887426806@rowland.harvard.edu>
 
-On Thu, Nov 05, 2026 at 03:04:18PM -0500, Alan Stern wrote:
-> On Thu, Nov 05, 2026 at 08:44:42PM +0200, Leon Romanovsky wrote:
-> > On Thu, Nov 05, 2026 at 12:24:33PM -0500, Alan Stern wrote:
-> > > On Thu, Nov 05, 2026 at 01:42:18PM +0200, Leon Romanovsky wrote:
-> > > > From: Leon Romanovsky <leonro@nvidia.com>
-> > > > 
-> > > > Interface claims hold the USB device lock, but device_bind_driver()
-> > > > requires the target interface lock. Without it, trust-policy writes can
-> > > > race admission.
-> > > 
-> > > This says nothing about usb_driver_release_refused_claim() and the code 
-> > > related to it.  It is an incomplete description of the patch.
-> > > 
-> > > Note that nothing prevents drivers from using an interface they claim 
-> > > before that interface is registered.  For your scheme to work properly, 
-> > > you should make sure the claim is authorized when 
-> > > usb_driver_claim_interface() is called, not when the interface is 
-> > > registered.
-> > 
-> > This patch is unrelated to authorization;
-> 
-> I meant "authorization" in its generic sense.  When you don't trust 
-> something, you don't authorize it to do anything.  Pretend I had written 
-> "the interface being claimed is trusted" in place of "the claim is 
-> authorized" above.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Low] HID: ayaneo-flip-kb: spurious error log in flip_kb_probe()
+- [Low] HID: ayaneo-flip-kb: missing HID_CONNECT_DRIVER in
+  flip_kb_probe()
+--
 
-I will combine existing USB authorization scheme with device trust in v2.
+commit 9c851b9f20ca56279eed558bac4b9d796257c299
+Author: Hijae Song <hijae99@gmail.com>
 
-> 
-> >  it ensures that the lock is
-> > acquired when the driver is bound.
-> 
-> That may have been your intention when the patch was created, but if you 
-> read the patch you'll see that it includes a whole bunch of material 
-> not related to locking during binding.  Namely, this part:
+HID: ayaneo-flip-kb: Add driver for keyboard backlight
 
-Once I added `device_lock()` to `bind`, I had to add it to `unbind` as well.
+This commit adds a HID driver exposing the RGB keyboard backlight of the
+AYANEO Flip KB as a multicolor LED class device.
 
-Thanks
+> diff --git a/drivers/hid/hid-ayaneo-flip-kb.c b/drivers/hid/hid-ayaneo-fl=
+ip-kb.c
+> new file mode 100644
+> index 0000000000000..8068b7d44eae2
+> --- /dev/null
+> +++ b/drivers/hid/hid-ayaneo-flip-kb.c
+
+[ ... ]
+
+> +static int flip_kb_probe(struct hid_device *hdev, const struct hid_devic=
+e_id *id)
+> +{
+> +	struct flip_kb *kb;
+> +	int ret, i;
+> +
+> +	ret =3D hid_parse(hdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/*
+> +	 * Both interfaces match this driver, which keeps hid-generic from
+> +	 * binding to them, so the boot keyboard interface must be started
+> +	 * normally and left alone.
+> +	 */
+> +	if (!hid_validate_values(hdev, HID_FEATURE_REPORT, FLIP_KB_REPORT_ID,
+> +				 0, 1))
+> +		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+
+[Severity: Low]
+Does calling hid_validate_values() here log a spurious error every time the
+boot keyboard interface is probed?
+
+hid_validate_values() logs hid_err(hid, "missing %s %u\n", ...) whenever the
+requested report ID is absent, so probing the boot keyboard interface always
+emits a false error message.  Also, if the vendor interface has a malformed
+report 0x41 descriptor, hid_validate_values() returns NULL and causes
+flip_kb_probe() to treat it as the boot keyboard interface instead of
+failing probe.
+
+> +
+> +	kb =3D devm_kzalloc(&hdev->dev, sizeof(*kb), GFP_KERNEL);
+> +	if (!kb)
+> +		return -ENOMEM;
+> +
+> +	kb->hdev =3D hdev;
+> +	hid_set_drvdata(hdev, kb);
+> +
+> +	kb->subled[0].color_index =3D LED_COLOR_ID_RED;
+> +	kb->subled[1].color_index =3D LED_COLOR_ID_GREEN;
+> +	kb->subled[2].color_index =3D LED_COLOR_ID_BLUE;
+> +	for (i =3D 0; i < 3; i++)
+> +		kb->subled[i].intensity =3D 255;
+> +
+> +	kb->mc_led.subled_info =3D kb->subled;
+> +	kb->mc_led.num_colors =3D 3;
+> +	kb->mc_led.led_cdev.name =3D "ayaneo:rgb:" LED_FUNCTION_KBD_BACKLIGHT;
+> +	kb->mc_led.led_cdev.max_brightness =3D 255;
+> +	/* Keep the backlight lit across driver unbind instead of blanking it. =
+*/
+> +	kb->mc_led.led_cdev.flags =3D LED_RETAIN_AT_SHUTDOWN;
+> +	kb->mc_led.led_cdev.brightness_set_blocking =3D flip_kb_brightness_set;
+> +
+> +	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +	if (ret)
+> +		return ret;
+
+[Severity: Low]
+Will hid_hw_start() fail with -ENODEV on the backlight interface when both
+CONFIG_HIDRAW and CONFIG_USB_HIDDEV are disabled?
+
+Because the vendor-defined interface has no input application usages and
+flip_kb_driver has no .raw_event callback, hid_connect() finds hdev->claimed
+=3D=3D 0 when hidraw and hiddev are disabled and returns -ENODEV ("device h=
+as no
+listeners, quitting"), preventing the LED device from registering.  Passing
+HID_CONNECT_DEFAULT | HID_CONNECT_DRIVER (or HID_CONNECT_DRIVER) marks the
+interface claimed by the driver.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108110757.4136=
+8-1-hijae99@gmail.com?part=3D1

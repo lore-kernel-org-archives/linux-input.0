@@ -1,56 +1,125 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794161562;
-	b=LIFSnLsXns1aGWRuFI0zWs0vHoQKxTSCWJNREhNCL1dCDI6pYBcLO3iDtjPKsbOerLCJ
-	 Ftn/imr++bsR/ll6mK02h3E256gb49WIbWcQfzxm7pIVchUZ+TiPuJtIQz3oHTKT4XYZs
-	 zLcURK5cFvBcBSUrnGyvMZIfoxlGzRYjqkD3D+LjdObLOULD4YRuxmoXd01/8CeSU9DMr
-	 SyTdoKXNwnHqK0PEmE6iIH1/jcqj2OEFz8vpkPdBuwjzRcePaIA6K4Jev3qlcDN5dtya+
-	 EHPI/OjbvJ6j9u3Jo0iarzG95xT8JBpxo+iqEiL55aBvfTbXx9IaeJClOWfHxY4/Hww==
+	t=1794164398;
+	b=jKlUvU0We6K6TrTfjK2mmj8UxE8mDngUnjoT6J1nwWHO4yDRMRSe8HtccVrg0uCqcqDJ
+	 9o3KNAR7QzJF5b7pCQykhPndG1UuS+W96zanIIkpRP9tfnTWQP9Y2HhstHQQB6lkcBPD0
+	 F5bOzH3TNbMvMDhfkJt8BiarfY3GTOG9tezxYY4XQK+EKMlxovHlWBOgzR3juzeQZmLYM
+	 3LyDQSQMrht9Dkj3he/qvqgdFuiCQMF8S03fmv+gwuGPr8XoYm/4YFbEUmh1IWsqnj/oF
+	 Dh4EFR/cATaBv/a537ze8TjulgTMVdVz/hPfCEJgcL9tVRhAvV7f0dWH4e/hQtBSNNQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794161562;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bL+CVzi1BCspXVrcUqLqj3fXYTflPR6wIEHZAqYNHs8=;
-	b=z7aT047qcqo2zuP5TnyyM94sJlgb6kuAL9ReAox1pzf92PoXVCusuqoSq8f2oQpgucXi
-	 KLKoHuYuE2CCtpBp89U77BjqiAiLWHaBruRg2q1B3YjMI3Rggd0XasoMbsBM2btgaWIhb
-	 f91AaicjHf4w/evrZg2ctMlPYA9RDbXmiiXt9rNitaIy7KbARlLPQP9W7RMCk3WK9rMJ4
-	 o+9JyApIKSxe1PqF2bkIc/U4PlA8h+9mbgAvJ8jrTl5KsdQ16tNt1uqqfqr5H6ndEIbn+
-	 02i2oL7cNuz+kJVVgxbwtUrI9/HkcSf/jQBfGRDTzBD8EiNtJXnEMjFKgbLazjbejdA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794164398;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=JLhUwzup1lwefYy8NOOFjthYnrByVfTsqIe79kkV+Lk=;
+	b=eXbEi3kXkPZJlZhJHNCOiaDGfYCV/DwNdQWlu7bT+0wcwPZiAZpKYdPFMFZKKpc5+wNn
+	 1HCfKXb2VKYlIFmboCHZ3p/p9FVtEaQnpCcU8JG7By0A/wFyJZe9srAsoqf1Ed6z+wSOo
+	 WA5EsLHQlK3f2Q70ARiRmbVaVyhO43jlM73Gl5qYMJlnUr2utRsZzyJ6UreJUuIdJ6is+
+	 q8f2RNUnVOtd1YXk02umv8ddQEs4UFfDZK9We4xiAfqgxwzDwTT9R90MGj23TcwLjMi/I
+	 iz7yLkztZkZr5tqbNUHLWXluE+DzXa/J88XzFSn6y/mWAJZ61xi/qF7k3Nsq6AtO8tA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAJC6hJA;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XrEUEgHU;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6696E606A31C
-	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 18:12:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A38606D802
+	for <linux-input@vger.kernel.org>; Sun,  8 Nov 2026 18:59:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40A38606D802
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAJC6hJA
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD52D1F0089F;
-	Sun,  8 Nov 2026 18:12:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794161562;
-	bh=bL+CVzi1BCspXVrcUqLqj3fXYTflPR6wIEHZAqYNHs8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kAJC6hJAvzt4Jf40VCbPmk8P8z6395HTyLPmJjOS1La1hUUb3W6kp1HbqUBFEcW/Z
-	 QqPe05IVCFpJ2bBTGQz6NRgNJbGZLhI1mpJuv0/AADKxd6g0frm8ZT93nlrU0poyg3
-	 kRNMZE44Xph7Dv7LI+RmyyDw/dWqsN4QrFWjJM0HZV777rvcPkHC4813zLURK+doVs
-	 xvlCIAJzJINVe2MK2GW+mwqUWNlso1VSvNPcxuYfJl8JbK9k2xjhNXBRsCPr6cF9Bk
-	 DE+2kWZOgYnhKCueidOcl93NHVLER2mB0TnYt+eYcdktO4HFKiDaEBREcbctFFwo4l
-	 nFe/sbaA82q0g==
-Message-ID: <sashiko-outbox-203898@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: microsoft: fix use-after-free of ff_worker on
- teardown
-Reply-To: sashiko-reviews@lists.linux.dev
-To: hyunjungg <hj351016@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261108175205.722820-1-hj351016@gmail.com>
-References: <20261108175205.722820-1-hj351016@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 18:12:41 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XrEUEgHU
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4b79502c27aso1791535e9.1
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 10:59:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794164397; x=1794769197; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=JLhUwzup1lwefYy8NOOFjthYnrByVfTsqIe79kkV+Lk=;
+        b=XrEUEgHUwv+lt2Z0T4RzlOQuYT1yMbnY/MJrtF5HY2pc8m0ujKE+1IGJbqc3A1SsPJ
+         Pz+po0Wh7ECcrOl1hyNdZBme+OsO/r11IeCA1lW9KMbstFhlOkC0Hm7Ef+TTavGsfrDk
+         7T2AE8nlcorDhYFpLo0KTCt4xOv09AacMRilfH2h4PS2mZ0iBReAF8XAcgtI3iT+qlRY
+         EJQPYUIUlDRCCjadf1+24R8V0flZyhCZpLCroCVsidoQ510350k4POOaAcSXgGRrBTWF
+         rbpUnz5O6K0TOR8uz/zwLHiObwDAqnCJFWP0+ssCNYCBYnXJwQ2yMfUqdKkv6ro/lp/q
+         XMaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794164397; x=1794769197;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JLhUwzup1lwefYy8NOOFjthYnrByVfTsqIe79kkV+Lk=;
+        b=CBjv8VAprwutEv68YPg0iWfZzjRzQjsuX2b2Mb9X2yLaurH/ulxPPB1IU0oTTYC8WJ
+         mwA0sMoTcop4SgeNwZM6srfibOo/SPhidiDiMYmfGVA0SvEm/BrqxFQseiBMtHhWIvbo
+         4WACSuRq7L7jpKHmND9ql05TZm/VEIjZgz3fY40x9l8opeH9cxza3tq0C4oH0jRDJxp8
+         fDPKoi4DT+wvr/SVMeHIQTlh5WbS9V3KbEnZkvhwMxgwzXABNFEOh6mAQ5QIk/F58TpF
+         moxxkhe2jz62ip7VPXndmxywwPy2tbBFlg6DTlFI1evXsjVKsPWgWb6j1O1lAMrqsc65
+         dfDA==
+X-Forwarded-Encrypted: i=1; AL+hErFME2hAsOOLl/A3bo6iRxW19BYb9SwIAtMzrDT+Bs4L8y5wG6kAxcMmwEE6gMgHv1/PIk9Gx6JikGAzew==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8F8NGhsMnA+KWXimqnbnONgvQw183ZwBrB4dckkFX+HGZOiD4/
+	nit3mImBrTixy8MaqCF8UlPhuHoTXJDehDpPK3MxzlMh4/MNJpoVCxUC
+X-Gm-Gg: AYBFou3xmqvylL1aGMJkPUmBwcXtv1yYPtnksCmHyvMYWgLGmPIXvy+XriIp3ldcBS9
+	MqEtHEQv9JVj/hikB4Th2LfUWTh3eun2aQq+fHe0Q/h0yC8fwzAiADKOYrQdF0o02G1B8tcOKe9
+	PhN5NqpzAsszZ5ykgorWvIrwNsl4fsB1JfQ7ZBF+cOzsaRyRLafzANW5vJNPfnOD3xjyHnTGRN/
+	tmQ1lFz2euWe588D1wP8UA8uz73kDfh4z1ZHR0Ogh0TslEnN1QWNp+TVNieMlLlAPUztllFfsYv
+	pyTK23Hgl16OKIf2EliMNjC+dmojLONIcTRP4UaVgtGjuSsApP3vkXPweiydjPUNy+TprothEyK
+	IlrdMUyErWbs5Jf4WieB7qvFvS+Fpy/nCrd3pBqb6o78IyntAgJm5UHsQ2GZQVb0ZusKVk4TCnl
+	4mHrmZIKtplvppYEEm7IoJgho5F1W4Hq+8BzBUaRtTPbHYptTGdOUcK3A4TcW8BZhavJUxZmpEp
+	b0c4UehBaDcOcZp8/ICagrNPt3CEzOjybuW8clDtLCXcRxSMYzKJF4R6NPo/0AQxT9Z+KXKUr4E
+	N7nr6sS1KKD88LOEo5lUwiVF2nkT0+E3G/m+RDVqdX8Z6d8UCdU2bCCQ8CwKoQKC
+X-Received: by 2002:a05:600c:468f:b0:4a1:7e77:c382 with SMTP id 5b1f17b1804b1-4b960d9b170mr35982125e9.5.1794164396406;
+        Sun, 08 Nov 2026 10:59:56 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b7efb1f3acsm185228445e9.14.2026.11.08.10.59.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Nov 2026 10:59:56 -0800 (PST)
+Date: Sun, 8 Nov 2026 18:59:53 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+ linux-fsdevel@vger.kernel.org, Linus Torvalds
+ <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik
+ <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, Jeff Layton
+ <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet
+ <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Al Viro
+ <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph
+ Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados
+ <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara
+ <jack@suse.cz>, Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ netdev@vger.kernel.org, ntfs3@lists.linux.dev,
+ platform-driver-x86@vger.kernel.org, coreteam@netfilter.org,
+ kexec@lists.infradead.org, linux-pci@vger.kernel.org,
+ linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net,
+ jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-mm@kvack.org, linux-sh@vger.kernel.org, linux-usb@vger.kernel.org,
+ samba-technical@lists.samba.org, sparclinux@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
+ Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org,
+ linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org,
+ linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, Chuck Lever
+ <cel@kernel.org>
+Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
+ pinning the entry
+Message-ID: <20261108185953.28054fb3@pumpkin>
+In-Reply-To: <20261107-akteur-gemieden-eckdaten-21304d085e35@brauner>
+References: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
+	<CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
+	<20261107-akteur-gemieden-eckdaten-21304d085e35@brauner>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,124 +128,20 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] HID: microsoft: cancelling ff_worker after hid_hw_stop()
-  races with stop()
-- [Low] HID: microsoft: Fixes trailer cites 73c5b254c365 instead of
-  1cfc77a64b71
---
+On Sat, 7 Nov 2026 10:48:35 +0100
+Christian Brauner <brauner@kernel.org> wrote:
 
-commit 4c6868d5ba6d04af120ee3895542c5a22d96e529
-Author: Hyunjung Ko <hj351016@gmail.com>
+> > While at it, I think it would be good to use this conversion as an
+> > opportunity to replace "char *" by "void *", which will probably let
+> > you drop several casts from users.  
+> 
+> So I tried that too. The thing is it drops exactly one u8 * cast in
+> ntfs3's label write. 
 
-> HID: microsoft: fix use-after-free of ff_worker on teardown
->
-> ms_play_effect() schedules ms->ff_worker to send the force-feedback
-> report; ms (and ms->output_report_dmabuf) is devm-allocated, so it is
-> freed by devres after ms_remove() returns. The work was never cancelled
-> on teardown, so ms_ff_worker() could run against freed memory.
->
-> Draining the work is not quite enough on its own:
->
->  - hid_hw_stop() in ms_remove() unregisters the input device, whose
->    teardown (input_ff_flush() -> ms_play_effect()) can re-queue ff_worker,
->    so the work must be cancelled *after* hid_hw_stop(), not before;
->  - ff_worker was only INIT_WORK()'d in ms_input_configured() for devices
->    with force-feedback, so cancelling it unconditionally would hit the
->    WARN_ON(!work->func) in __flush_work() for the other MS devices; and
->  - if hid_hw_start() fails in ms_probe() after force-feedback was
->    registered, its unwind can likewise schedule ff_worker, which was then
->    left pending when ms_probe() returned.
->
-> Initialise ff_worker unconditionally in ms_probe() (so it is always valid
-> to cancel), cancel it on the hid_hw_start() error path, and cancel it in
-> ms_remove() after hid_hw_stop().
->
-> Not runtime-tested (requires MS force-feedback hardware).
->
-> Fixes: 73c5b254c365 ("HID: microsoft: Add rumble support for Xbox One S c=
-ontroller")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hyunjung Ko <hj351016@gmail.com>
+Since char is now unsigned that one isn't even needed...
 
-[Severity: Low]
-Should the Fixes tag reference 1cfc77a64b71 ("HID: microsoft: move FF
-initialization to .input_configured()") instead?
-
-73c5b254c365 ("HID: microsoft: Add rumble support for Xbox One S
-controller") defined ms_remove_ff() to call cancel_work_sync() after
-hid_hw_stop() in ms_remove(), and only initialized force-feedback after
-hid_hw_start() succeeded.  1cfc77a64b71 ("HID: microsoft: move FF
-initialization to .input_configured()") deleted ms_remove_ff() and moved
-INIT_WORK() and input_ff_create_memless() into ms_input_configured().
-
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index a7d3493a6141e..1042a5247c4e5 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-
-[ ... ]
-
-> @@ -377,6 +382,7 @@ static int ms_probe(struct hid_device *hdev, const st=
-ruct hid_device_id *id)
->  				HID_CONNECT_HIDINPUT_FORCE : 0));
->  	if (ret) {
->  		hid_err(hdev, "hw start failed\n");
-> +		cancel_work_sync(&ms->ff_worker);
->  		return ret;
->  	}
-> =20
-> @@ -384,7 +390,16 @@ static int ms_probe(struct hid_device *hdev, const s=
-truct hid_device_id *id)
->  }
->  static void ms_remove(struct hid_device *hdev)
->  {
-> +	struct ms_data *ms =3D hid_get_drvdata(hdev);
-> +
-> +	/*
-> +	 * hid_hw_stop() unregisters the input device, whose teardown can
-> +	 * re-queue ff_worker via input_ff_flush() -> ms_play_effect(). Drain
-> +	 * the work after hid_hw_stop() so it cannot run against the
-> +	 * devm-freed ms once ms_remove() returns.
-> +	 */
->  	hid_hw_stop(hdev);
-> +	cancel_work_sync(&ms->ff_worker);
->  }
-
-[Severity: Medium]
-Does waiting until after hid_hw_stop() to cancel ms->ff_worker allow
-ms_ff_worker() to call hid_hw_output_report() concurrently with or after
-hdev->ll_driver->stop()?
-
-CPU0                                  kworker
-ms_remove()
-  hid_hw_stop(hdev)
-    hid_disconnect(hdev)
-      ...
-        input_ff_flush()
-          ...
-            ms_play_effect()
-              schedule_work(&ms->ff_worker)
-    hdev->ll_driver->stop(hdev)
-                                      ms_ff_worker()
-                                        hid_hw_output_report(hdev, ...)
-                                          hdev->ll_driver->output_report(..=
-.)
-                                          <-- runs during or after stop()
-  cancel_work_sync(&ms->ff_worker)
-
-hid_hw_stop() invokes hdev->ll_driver->stop(hdev) immediately after
-hid_disconnect(hdev) before returning to ms_remove() (and similarly when
-hid_hw_start() unwinds on failure in ms_probe()).  For Bluetooth and UHID
-transports, this queues an output report after hidp_stop() has purged the
-transmit queue or after uhid_hid_stop() has queued UHID_STOP.
-
-Calling disable_work_sync(&ms->ff_worker) before hid_hw_stop() would drain
-any in-flight work while the transport is still active and prevent
-input_ff_flush() from re-queueing it during input device teardown.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108175205.7228=
-20-1-hj351016@gmail.com?part=3D1
+David

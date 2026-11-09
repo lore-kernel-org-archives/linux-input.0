@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209645;
-	b=Fw09vnRc1jkC9PoMjjH7C6jxUQQSNOgU3G34Bh+9HL8v3PViORoOf3Fw+k/NIRhkDM1v
-	 cpCJ/nMP3xQpq829FMoHtQpQhSsKYilsK1L4eDZ35KC2jUR7VVn9OB09R2Nf7UKOACAtl
-	 dqRust6ILxBzYE0Gfe/aatW+BD4qJ1bh6Fpaee98LBxrEvyuX/8bTvCoqp9nsqRSlZtEa
-	 CXvyGJRYN2Y6jUL2ZYp87ayxEOpg4zdFtlLJYu8KX/AdJxw4y6RCmcOiAI9BWsRe/kg3h
-	 I3fsQLXDDZ0CmQlFJpTBZ3AVaTE3htxuN/fe2L8vi11d1DplxjIcEoXn3A9KaWoe1rA==
+	t=1794209652;
+	b=ueRJ3rd8jdospcvnu3pvWUcmbE7L6IMIyOvYsSQnFyjXy7uMcvtyvDBIb+luJDPpgEkI
+	 VLy/vaqKDNtoxIglpj9oh8z4Xvnc3C4/JKAkA/MP97CqMUvJcaebqI1Eit8tEXajM/w99
+	 reFO1/Rly7H+MqGV8ZGjiTJWIjBKTjJUP27q+7FFUjJfW+t5V1XfkstwWEQxjlJJymoHJ
+	 URCSSB48SncW90hXM1ViCdorzH2nPJV9l9Gi2b4ehHsIGpGS+BJFazKnKieoT0HDZn2DI
+	 kcRMtx4GfpwXjuY848+m+wyoOzT6oyH5NB7bOLJCKLptGKzGZSlY6LV7igTG+xHZCrw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209645;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794209652;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=cdCM073jR/DCJh2HUDXaqMPcxaAwWF1lPqWNiB/vLUE=;
-	b=0vKsntalvKb5zwLeRqR9lMsWOLgL1hbOYyDK4vuZRMZu4CwhQLc1yh/G9Q6aSVo2Hx47
-	 SMrnv2t08dtMBd0FyMftlcm7VENlT4v8O8vaMKLMli8LoUY63LrW97FEgepvUl9Zj9E6+
-	 VnpkCiIz3yyx1n2qzMGGzn5gFWysMA9p1W2TVDjEJfMxBSU40a7nUT6Y84TwYYTxWk+zY
-	 boX++8ks5hobUX4WpVA+Vk+WZfNePoYKe3w6gcs2LHNfP7OlrJC3ctfnDt8UU/sUePLYy
-	 e8yhScubrrI2I1+CmWCwkLfNhcHlorjmetrR4VZ8l5c4+R8YPsj+ekpRMmuUxVUuh7A==
+	bh=5KpZyXTyDaeCpFL09xfcSddfcVQz8Z2BLa6aTzaRrnw=;
+	b=kIrpUDg7h4QzTP+CD/Lnd48zHcPGiFoqWCqL5t+ztsfJ6Y1KCPhZBgZWcE5QNouGiTVx
+	 YmKkGkqxtkLpog7RUX3zYCyEDD6nCmBiuBcaGaKmzFiqIi8ZyNeFG90EiGsY4D5q5q+Yw
+	 5jt12kvfHl8KRJNRGWdE1cxiF9QaGWZB9egZG5jXSUSMSK8dxx7a3Zzf8ps/KpYZW1pGj
+	 mlv4YeD3A1tKClMeNv+n9zg5T6J5DxdPAnLmElEZyYo+qvTxfr4d3WeYlV1t34Gu7SjxJ
+	 nSLUzxSU00zRpbt1jafZMkwZ+KXyBo9+rfjB+geKyE9bzBmy3B8/gPOAjFT4nz9yVWQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JFbxgJSV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lwKBHRrg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7F5A606A33E;
-	Mon,  9 Nov 2026 07:34:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDA1606D827;
+	Mon,  9 Nov 2026 07:34:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JFbxgJSV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA111F0089F;
-	Mon,  9 Nov 2026 07:34:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lwKBHRrg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410D21F0089F;
+	Mon,  9 Nov 2026 07:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794209644;
-	bh=cdCM073jR/DCJh2HUDXaqMPcxaAwWF1lPqWNiB/vLUE=;
+	s=k20260515; t=1794209652;
+	bh=5KpZyXTyDaeCpFL09xfcSddfcVQz8Z2BLa6aTzaRrnw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=JFbxgJSVJyGy7SW+J+0KIAxI1XhrPwQhbNaVT6wRNqGNJPT7ebLpgixmX6f5TRYUI
-	 mI7fszmxT6vtfO/WS/HH6XQEZxYbeDKtCIRxOS5I/TRspMJWr6Z+uaJ9I3EU8aqlVh
-	 pleyfOrhrz2HjvolsAzEt/GTTS2xbbCRZknTG+Sc+H8nIXLaQ1Lpa9AS5AiqsYy4bC
-	 VOfWafAmh07YVtc7Ezu9uhzDbqubQgq0VCD6lMiMWbwT9piMq3DbO7ZkTu4Yv3jDxE
-	 hIAGVG2IO4CDNeMLIpywlIWi4W0JI7iD08jh9GM9edSnABb/Lcb6rQM9etPnCUrZJ+
-	 wv+htg3AQIizg==
+	b=lwKBHRrgtLlHdfSIgSshSm3e0EGD/FzxILn/oHZ/MBhIlxI92zK1vyP/KinI0O+dq
+	 N1lkFUZ1d1LxsJFXpKksY6sxA+asTaTHkZoul7zy9272bic517JX89oNFsIZ1y5Xpo
+	 lpJVehQ2mPpV8DtjN9VWns0x+h74ukvpSJnGqPF3qV7WMyHiEty6/9IUL4NqOH9sbO
+	 N4Xg0BfHVzBLU8JKOsEAtqqFC/KoByvzJTCTdkwPkrln1oXePe+/4LOBk5b6PTvakB
+	 qGWrjTRcTvelnyEbe0ToJwLbaTKoeQR0FT/RT6LxYj1L0gDGKgW+DHEKRPmlndd15f
+	 1L7qwcpsIsz/A==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -82,9 +82,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-pci@vger.kernel.org,
 	iommu@lists.linux.dev,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v2 02/19] wifi: mac80211_hwsim: lock device for manual driver binding
-Date: Mon,  9 Nov 2026 09:33:32 +0200
-Message-ID: <20261109-device-trust-core-v2-2-3b12d9a9f861@nvidia.com>
+Subject: [PATCH v2 04/19] USB: Release interface claims refused during registration
+Date: Mon,  9 Nov 2026 09:33:34 +0200
+Message-ID: <20261109-device-trust-core-v2-4-3b12d9a9f861@nvidia.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
@@ -103,30 +103,91 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-The documented API contract for device_bind_driver() requires the device
-lock. mac80211_hwsim uses it for a newly created class device with no bus,
-so no automatic driver-core path can bind the device concurrently and the
-missing lock was safe.
+An interface can be claimed by a sibling's probe before registration.
+If its later binding fails, driver core clears the driver pointer while
+USB retains the bound state and claimant data. Device registration still
+succeeds, leaving the claimant unaware that its binding was refused.
+
+Remember the claimant across device_add() and invoke USB unbinding when
+driver core drops the claim. Hold the claimant's module while running its
+disconnect callback, and clear the retained interface state.
 
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/net/wireless/virtual/mac80211_hwsim_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/core/driver.c  | 18 ++++++++++++++++++
+ drivers/usb/core/message.c |  8 ++++++++
+ drivers/usb/core/usb.h     |  2 ++
+ 3 files changed, 28 insertions(+)
 
-diff --git a/drivers/net/wireless/virtual/mac80211_hwsim_main.c b/drivers/net/wireless/virtual/mac80211_hwsim_main.c
-index e53714b81ec2c..b796da3dd54b3 100644
---- a/drivers/net/wireless/virtual/mac80211_hwsim_main.c
-+++ b/drivers/net/wireless/virtual/mac80211_hwsim_main.c
-@@ -5769,7 +5769,9 @@ static int mac80211_hwsim_new_radio(struct genl_info *info,
- 		goto failed_drvdata;
- 	}
- 	data->dev->driver = &mac80211_hwsim_driver.driver;
-+	device_lock(data->dev);
- 	err = device_bind_driver(data->dev);
-+	device_unlock(data->dev);
- 	if (err != 0) {
- 		pr_debug("mac80211_hwsim: device_bind_driver failed (%d)\n",
- 		       err);
+diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+index ad5d9d5fc7598..ee36eae34bdcc 100644
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -652,6 +652,24 @@ void usb_driver_release_interface(struct usb_driver *driver,
+ }
+ EXPORT_SYMBOL_GPL(usb_driver_release_interface);
+ 
++/*
++ * The driver core refused to bind an interface that a sibling claimed before
++ * it was registered, and dropped the claim. Let the claimant release the
++ * interface instead of operating it with a bound interface but no driver.
++ */
++void usb_driver_release_refused_claim(struct usb_interface *iface,
++				      struct device_driver *claimant)
++{
++	struct device *dev = &iface->dev;
++
++	device_lock(dev);
++	dev->driver = claimant;
++	usb_unbind_interface(dev);
++	dev_set_drvdata(dev, NULL);
++	dev->driver = NULL;
++	device_unlock(dev);
++}
++
+ /* returns 0 if no match, 1 if match */
+ int usb_match_device(struct usb_device *dev, const struct usb_device_id *id)
+ {
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index a738d03c23eac..d35a7710c8ef4 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -2264,6 +2264,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 	 */
+ 	for (i = 0; i < nintf; ++i) {
+ 		struct usb_interface *intf = cp->interface[i];
++		struct device_driver *claimant;
+ 
+ 		if (intf->dev.of_node &&
+ 		    !of_device_is_available(intf->dev.of_node)) {
+@@ -2277,7 +2278,14 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 			dev_name(&intf->dev), configuration,
+ 			intf->cur_altsetting->desc.bInterfaceNumber);
+ 		device_enable_async_suspend(&intf->dev);
++		claimant = intf->dev.driver;
++		if (claimant && !try_module_get(claimant->owner))
++			claimant = NULL;
+ 		ret = device_add(&intf->dev);
++		if (!ret && claimant && !intf->dev.driver)
++			usb_driver_release_refused_claim(intf, claimant);
++		if (claimant)
++			module_put(claimant->owner);
+ 		if (ret != 0) {
+ 			dev_err(&dev->dev, "device_add(%s) --> %d\n",
+ 				dev_name(&intf->dev), ret);
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index a9b37aeb515be..293340a48b6c5 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -49,6 +49,8 @@ extern int usb_set_isoch_delay(struct usb_device *dev);
+ extern int usb_get_bos_descriptor(struct usb_device *dev);
+ extern void usb_release_bos_descriptor(struct usb_device *dev);
+ extern int usb_set_configuration(struct usb_device *dev, int configuration);
++void usb_driver_release_refused_claim(struct usb_interface *iface,
++				      struct device_driver *claimant);
+ extern int usb_choose_configuration(struct usb_device *udev);
+ extern int usb_generic_driver_probe(struct usb_device *udev);
+ extern void usb_generic_driver_disconnect(struct usb_device *udev);
 
 -- 
 2.56.0

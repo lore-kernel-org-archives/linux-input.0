@@ -1,95 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209072;
-	b=EbmpEUELHnQ9dqdy/N88AjtkK24plzboWe1Zed5parNUPKLIY9wqDSk6XemqvZXRXEGD
-	 eUJV1JKhnJL/Jhgw6g37e9pdb2kbZhUl5fot4019xkuslfxCCiTjaWlLIc9+2vXlY+rzM
-	 eFKy+aSX0u5JhCX7WQMLgvrwKrYyROiV7lsCbnsIhl1pouA56CSIykXSbzVMP+Jdk8nJn
-	 SPB2a5o0OdQF8qkwDv+q0oLcuh1ZAmAdPVJERVCsHDEjeXz57fnapSQ5w3G+tFpq+mZDr
-	 PTM6ZudWTOfJpUAmX8m0+Ye/Qf+w9zuuJVSDs79tm/Rxpq+eSZk7XxLlHvDjtJlbRyg==
+	t=1794209396;
+	b=WLwUwxq4aYMKdyEc+49eqTnJ5ZD6azdukccvN7DkTUh3VnODSXwDeWbdDdwH9GYyyGDG
+	 UyvZTNtgJAfMG7F16DQJUbOkb4SYcBesJN6b2FxM6SEpL/I/of2Ur26izbL77tDnQeCAH
+	 QvWRUJ545D8PaLfxgrPqbABZqtHGm9BEg0/Dnnj6viflwIZyug47IXQnXXeimEzgoGcB+
+	 0zvPxwdanKyXyf4F7OorS6lmX22HgkgCArqI8zAc3zC/npHDW1ildQmnV6OGc2IKeRiRl
+	 /iA7PwZXmHMer7QFYzcKQzl9F/ExHPlH+m8D/XtESuyfjvuDWKbpZarLRGgr5w+ROPA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209072;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794209396;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
-	b=chKodP9itC73X67G2pXlvn5gyR8Tnf5UrdbwQWdOLoH+pmkhragrOeD/xMTlbjkMrRC6
-	 ReGRxyIjJojNmfqV5pQ9V20jcxGsy6OPRKIvB04SCkRiiVtGXnPFjfNpMWE02wsuc2EoN
-	 Ejglf7e5NU5V5DqZmvHn3lTv0ccHlNE2CCPhTVNNqm548cqh60a10d4Iw9BX4nZazsECB
-	 BnVZw2575Zbkj1sOgICRu4oVJaJUNzv0g83psjaV8+R0QsX3/WOIlxKA1xhEhmtcGc2sB
-	 J2hDmw7eO86F7kicrcd6dXDxmdChVtlU1lXSkr8Z0yLWGpMpqhdq2kHH3DV6rS4Nfvg==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=+iS8GsvwX998BKoi2x1NItUNP3KaRUAQFikRJSM616w=;
+	b=2xVAncc4WB8RsxBaRXN0uT8M1zOi85PfjFX2k+w/sie5lxIu1f//mLTNulwIaIKwziaf
+	 xVLv/PN35g+HYE5WJBMd+SUOYnINMYGB2MNDUZatEu21EvhALSD0GSgR7h8wiInZSfma9
+	 wZyV2yDR1xWPwN6UNL1ugjl6KupSsGQwtPnQ4/J/YUGbWibelhpxTNgnfyU0E7wrEkT0w
+	 YzjKs+oC13PXecM2WVios3sAqxAqr47xm1ZGzxCfovq776ZYsaGTbUvXe2Y4USkYxZlyu
+	 4qvl+pgOcVLcgRqGmFnnAne2dwNFesD8xgIN9Ncabm0/bVh6Ku0WklZSgHmnUcnB/Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Nsg+HPNG;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MhleE8Wx;
+	arc=none smtp.remote-ip=74.125.82.49
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CB83606A323
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:24:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2CB83606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE6FC606A321
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:29:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE6FC606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Nsg+HPNG
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36ff9c9da34so984046eec.1
-        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:24:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MhleE8Wx
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1b3acec6677so591525c88.1
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:29:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794209071; x=1794813871; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
-        b=Nsg+HPNGdxtdTZzq3djvWYmBMw+t2hulucj9xOOp3AWvjM6rcN7YNAWhvsNBCh1Knd
-         5o9871JBsIP/mVo7h9e1K/ZiMLBbIzAL+xbNaet8zL0A6fVksbo7kfCMekOWMoeooI91
-         Z7SjW2/BgWrKmJ/K+oRfYzhWl/Ak1bDo5rGlYFd842whNqAqs3y019dEmg/Edzsgm/Wj
-         FNZs6d54wd5Z8/8r/WxihyDBQsx5SASmVdBkDyDumMExC9qDHZPLCQAx+NaIKaUunIQE
-         Yww0TstAtTL6c/oGlasgOqlznGlFf3Pay7V8F2D7jkaALRtwkEFjiujHDv1rGYh7JbKT
-         5abQ==
+        d=gmail.com; s=20260707; t=1794209395; x=1794814195; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+iS8GsvwX998BKoi2x1NItUNP3KaRUAQFikRJSM616w=;
+        b=MhleE8WxP8f/9gwFta6ieKkHTh6bne+8NEHiWL8t5AxaXp7jMdEnYIog2f9ztkLUjs
+         ycWkBQ7XlP7c6mSYsJfkafzZ1IYL7AAXvtkM7dhQOl2TyE9b0shpMeXXeAceYGF17tjf
+         9YxFhQU54N7KJZb3P0lB3p7vCXOcP/dDYiFvSdSS45D2JZjWwrVsYOFJGJwqT5LsuKzQ
+         FsO6hbrLnxhFNroAd0hNFjcyLqeEW4+eEaB+vRPHOuLeZmXpkGz6knlQE3QT/F6P6Rr4
+         X5eA5P4/kR5jWATKoatn+tSUWmzxIY9U7mAGwcd3IKP5rS3d7J3OKIG7DsuUzfwQxNcu
+         CnyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794209071; x=1794813871;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
-        b=CbJnYH6+eGvqhUPNdDKwCNi2HxTqTKdQRqQWxzJf7ik+L7bETjoO5cxywmdCmfXCem
-         XlDkGDSyp/rvZ94OeNN8XeH2irI9++hg+lkCxeDtjDnQb5cvKgBD2E21slgcJBSpQF/c
-         D4gp4hqH1VFC8h4fIUzpD3eqT8TvYUZYlbrJ6/7QJSujdKLVxAVymcXQpV63cDqSPFrd
-         OpCkiMr2O1/7OQ28BT1KqmdRGKFwLQA9uzSAxKmBPoGONqXoc3vQuy3/qrjGHxw3SgXi
-         MaDSCI8l+QFLxuTatzSnmHk69jDCgKHcEELWk8t8viyeoOQl/8IOqFj0WkUovD2FxrES
-         bOSw==
-X-Forwarded-Encrypted: i=1; AL+hErE6W2bjzrB+VNoT03saAxOsyywrfNBjeqLODiybHK1nha8WxHCK4/X4JPirm3EsRlEP5tz5CWurW1BShA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+GF9LFx3vVTD4jwVFVaxmifOUFgxvpOecHYbpBJIGBzyquskt0
-	EqPtYVGhR1RkyJSClmJ6norCZSBv5f1m9Uz0vASZWFf3PdsoIMiYhwMN
-X-Gm-Gg: AYBFou0QsXLZ4FFwR8DaXO5KHhVzyxE5gTudU0uh2DhFlHrMNJuGA42WEd1vl2hLdcR
-	O8OklN7+U7nht9NwQbEPuqwTF+BH/nWiKyzurKlYaKHY3UAdYi6uGfQFNrcGiFyEea7wCKlY01v
-	Bhaui3FBy4EMEuFoyQnzcbsyWtr180s+PqDgkUQtS+9ipXIkYT3WqPGquSr6Q+NAcQPR8zoPxE9
-	G3ylLFzZ1GbmuU6Ajz+dQ5BlAzMCQgF5PEwPrVlixbCJvqLjgNIbIEvMwDloUkSu5YDD4ynO1nB
-	uEPlNZaXdJa9d0Cvvh6gbAl6gncgzvo6L/UhL1DzOPF4YlFWTsYw2lfrNMohmdCFeI8x2iM94eE
-	EcvH+0tKr+SgAS6+4ZBXVQ/mISeF1ynfoxWOndh2foCWVFUvstGmLDMwPtSwJuiH9TSUjzL1f2M
-	vtHH3NbU5rGZjreWT9NPAgF7qa3rxzbqxxufEoXvEE3WOFs29Up9Oo/qLJT5dSQJKUcj4tR2Q1x
-	aeYk8hqGabzB0JW2crrcfWCSFoaHcro+agYO0atBCjPGZV3zul0yIDn9rlct6jf6qVsegkHWXFL
-	vD4KFxyFKA0h+ZwaZEe2QP8SMBuDIxpTDk6i3JDjzjyotnPeGXAzcWVElXXvV/j4AOcA
-X-Received: by 2002:a05:7300:f788:b0:35c:f667:8b9a with SMTP id 5a478bee46e88-37256038776mr5838575eec.6.1794209071027;
-        Sun, 08 Nov 2026 23:24:31 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-372665db8bbsm9950069eec.22.2026.11.08.23.24.29
+        d=1e100.net; s=20260707; t=1794209395; x=1794814195;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+iS8GsvwX998BKoi2x1NItUNP3KaRUAQFikRJSM616w=;
+        b=gRAh/S13rfv8mCKZV/fgDzJiC5SDpRR0t78ySFD8fmv1gDU8EOOf7Ezm7y5ZMb0c7B
+         DGTqmnXc+35jPhrDMMwB7Ky1N/88p/Uvf2IuuLvfs1/LGzOx/PXODvxDa5Ds/YPSvhzy
+         eFyiKjrMpKwSKN+I7iSlq47VKa/Hnzq6A/z/tqqB9pxJvCOYGSzVuGuF5MoLUtZaShhn
+         EUB9VAZM9KRsVftH5M07a6OloARvBWXNwT+J+fPEWPZjd39JZDt0ESvCPaFwwXOEu5T/
+         It/JoJbJWB2yuNonp499h29FkKscDJkCffoAkt63KdzXie8/F2XZ6jpV92V+u0cmABSm
+         JvEQ==
+X-Forwarded-Encrypted: i=1; AL+hErGHsxck/HX9y+uk8Kz5vLTISS01dpVb07qoi4uG1J7fwWaSaMhvKYX1tiAlFlHuZHIfnkdqNtBNN6WoOw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+5KcvKbKLQJSROFcRXffjldCiIyKbcUi77lgtrLPaiNcs8FlGg
+	x9VKdsfT3dr4b8uf5FP4twxrytaHdi1nd4hhgv8Kx83EyTRbifdOYST9
+X-Gm-Gg: AYBFou3MDUtHzPm9pvVGmQi9Cl2MxUGTjAIXkntOuq8tYbB3ovr4SbEwTu7yc7btleS
+	OA4niFRA1IZvcP4VplaV6SdS4sDGmlRpDOH+KtCfT8UZ3zs7oIMZy5q2/+OytMwzeM8XucfwEyU
+	IGAE0q2dTO6lKODSjOhM/ZrlrR3y4Kq9MmkXQspLIdg5sCzWBweBMd+Bpw0wGGmivATEGvsDOzM
+	cUzeRNm7EO6sIIxww8B/AQ1IrdkLfK1l6eZwHbli+JiF+2jL4XqG90pCa3+Dy8i3uISX+p5TPwp
+	DTwt4ZRzNd5pf/I5KoyF5mjxvntPh5yNoTcijnnTIIQzkLi2k723x7TcvY1KU4O9j1tYArba4Uy
+	DlAEdkmKqL8BECMzXJSDMHRelY8N/FUZg4OKsi5Po0o6/nPJTkpzfNjxO3W+EwyhjdfKeut2MVy
+	YlBKozeb40sYOKUuI8PMlqkjTN1k5nBmu+70wJynvGGSU2vtKVxG/ViLvbTSMzcFldaLgIKrVDC
+	0XZXgCY1Wkc2JyaRII2PhC4zYZ2iOVEDQebNmf5sd1cF9ahrEY6GCIJdFs2It2E4JNSRALEXNPx
+	K2EeyIJgiF/1xebK+KywSob0j2PdKeXu1gH5iYPKnPO+DtStJBjqwQrZ3KIAjwrHWem/HVM2Isq
+	YzCoqhSruIns6mWGh
+X-Received: by 2002:a05:701b:231a:b0:1ae:4ead:8cef with SMTP id a92af1059eb24-1b39feb43a3mr5081732c88.30.1794209394874;
+        Sun, 08 Nov 2026 23:29:54 -0800 (PST)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3771f0e0fsm15265320c88.20.2026.11.08.23.29.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 23:24:30 -0800 (PST)
-Date: Sun, 8 Nov 2026 23:24:27 -0800
+        Sun, 08 Nov 2026 23:29:54 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: dudl@cypress.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] Input: cyapa - fix runtime PM leak in
- cyapa_update_rt_suspend_scanrate()
-Message-ID: <avF1HqGfA-82_Q46@google.com>
-References: <20260916185015.2093520-1-vulab@iscas.ac.cn>
- <aqwD1o6J4svIevWW@google.com>
- <1794120347.2701234.vulab@iscas.ac.cn>
+To: Wolfram Sang <wsa@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>
+Cc: Felipe Balbi <balbi@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Hyunjung Ko <hj351016@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Input: remove unused lm8323 and lm8333 keypad drivers
+Date: Sun,  8 Nov 2026 23:29:48 -0800
+Message-ID: <20261109072950.3474308-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.56.0.506.g506a7eabc5-goog
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,57 +99,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1794120347.2701234.vulab@iscas.ac.cn>
+Content-Transfer-Encoding: 8bit
 
-On Sun, Nov 08, 2026 at 06:45:47AM +0000, Wentao Liang wrote:
-> Hi Dmitry,
-> 
-> Sorry for the very late reply.
-> 
-> It does not have to be the "sync" variant.  I used
-> pm_runtime_put_sync_autosuspend() only to mirror the normal flow of the
-> same function and the other runtime PM call sites in cyapa.c, but there
-> is nothing on this path that needs a synchronous transition: no device
-> state has been changed yet, both put variants mark the device busy
-> first, and cyapa_start_runtime() sets a 2 s autosuspend delay, so either
-> of them would only arm the autosuspend timer before the store returns.
-> v2 uses pm_runtime_put_autosuspend(), the counterpart of
-> pm_runtime_get_sync() for devices that use autosuspend.
-> 
-> For the record on how the patch was produced: the candidate came from
-> static analysis tooling, and DeepSeek and GPT-6.1 Sol were used to audit
-> it and to help write the change.  I reviewed the result and I am
-> responsible for it.  v2 is build-tested only: it compiles cleanly on
-> x86-64 with CONFIG_MOUSE_CYAPA=y, including W=1, and passes checkpatch.
-> I have no Cypress trackpad to test it on.
-> 
-> Thanks,
-> Wentao
-> 
-> From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-> From: Wentao Liang <vulab@iscas.ac.cn>
-> Date: Sun, 8 Nov 2026 06:45:47 +0000
-> Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in cyapa_update_rt_suspend_scanrate()
-> 
-> pm_runtime_get_sync() unconditionally increments the runtime PM usage
-> counter. If mutex_lock_interruptible() is interrupted, the function
-> returns without dropping that reference, so the usage count stays
-> elevated for as long as the driver is bound and the device can no longer
-> be autosuspended. Drop the reference on the error path.
-> 
-> Use pm_runtime_put_autosuspend() rather than the synchronous variant
-> there: nothing has been done to the device on this path, so there is
-> nothing to wait for, and with the 2 s autosuspend delay the driver
-> configures the put only arms the autosuspend timer instead of suspending
-> the device.
-> 
-> Fixes: 672865080a8f ("Input: cyapa - add runtime power management support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+Both the LM8323 and LM8333 keypad drivers strictly require legacy
+platform data, lack Device Tree or generic device property support, and
+have no users in mainline.
 
-Applied, thank you.
+Follow up on the earlier mailing list inquiry [1] (where Wolfram Sang
+confirmed that LM8333 can be dropped and no objections were raised for
+either driver) and remove both drivers along with their platform data
+headers.
+
+[1] https://lore.kernel.org/r/Zr6I9RB5mibU_12N@google.com
+
+Thanks.
+
+Dmitry Torokhov (2):
+  Input: lm8323 - remove driver
+  Input: lm8333 - remove driver
+
+ drivers/input/keyboard/Kconfig       |  22 -
+ drivers/input/keyboard/Makefile      |   2 -
+ drivers/input/keyboard/lm8323.c      | 813 ---------------------------
+ drivers/input/keyboard/lm8333.c      | 213 -------
+ include/linux/input/lm8333.h         |  24 -
+ include/linux/platform_data/lm8323.h |  34 --
+ 6 files changed, 1108 deletions(-)
+ delete mode 100644 drivers/input/keyboard/lm8323.c
+ delete mode 100644 drivers/input/keyboard/lm8333.c
+ delete mode 100644 include/linux/input/lm8333.h
+ delete mode 100644 include/linux/platform_data/lm8323.h
 
 -- 
-Dmitry
+2.56.0.506.g506a7eabc5-goog
+

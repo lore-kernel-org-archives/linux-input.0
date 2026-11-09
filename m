@@ -1,60 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794248740;
-	b=maUwyATnn5t0fMNqDK4MEzAABURiKkyXccM6dM5DRx9IzQZtTmVm5hGycofHN052OkOe
-	 IpPVS7pD48wAEzwBf4R6Hpqe1fOJMeZWmByFDV3NcB5hSOOUMGC35o2Laq1364xQFCMuy
-	 7znchKXnTvhRK1FU7yVA8OuAIhBThzJEomLWgBb3aBm6ybQKdewz4mUf7kBKazaSDxEtb
-	 J9cu1OzDMYUMGLhFoHzQUIS+7mAoVVPOOBlDeiHK10sVRxHFnpsUhQDN+19bkYUBcQMmO
-	 qYoYp2/30DkGQZ1Rz26Ns6cwkXLYT8HSF/q5u6JczOWo6eJYgUAfwlZFymeh7lTr5gg==
+	t=1794253341;
+	b=KgeGPcY0GwuxeZlBxbdkLXRQoW4e9tdOtp/Dl4jmrD/umYzYFGF6cd3pbvK0nqYykhkW
+	 QV/HSnRdaQyX8ACMUdAqzltUIYaK2zz8Nd/LehqU0xG8VVpEikXpMpoySogKA8ERnGtu0
+	 IaKN+EIWQgNfVc9+wXuGh9wztnypuMqqx77azVM4A9B2pdViHH58GfuVhgSc07IGlSDTy
+	 3yDxqnWuNgMs23w0fo3GDb3GvQFg09OmOMQO27gFpAiGsqBsXSSm3wBiFCnCQCknu/5pg
+	 UB82rYltM2OEbpd8pp3yZy8sgZsMJMNOyc/jdD3szKcd4u0nWhoEUkTB+sAko6L9gPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794248740;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=vrr3J9jDAWoXxoZTgAde8TMfIdLINczImmqo7qPCG5k=;
-	b=f1RjlJWK/Rx/G+fHBBRXUmfOBinDj6RxuU7Gr9ys+ZYpgjE48Ljm+008sAtTFue9izWk
-	 Yz6p5JQfr477LIsxWRn4EQQJr5sAbep2QQ7bVHaVDskVA5cJmhAJngSDFTLSZpTulUyWP
-	 L9U7IHvc1OHNZPcvu+b5CV1OAEg32cOReEq2i+LIGdgMHpjeqYVON5Dfpdnl4IyPlMSla
-	 57ikLN9MzORIfF6NPqn3kEOKG7sf/EC5XXpWTRs6IozZU3KNE/Ry4HTv4S9JcHnSUBTdV
-	 9Id5C51J1TbDKmVeLhmjhgOTwE1++6XPjtT5MgXFYBxQzXxaLmSf3NaZPFQmwKJaNQQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794253341;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
+	b=PHzpODnv6tWwu2GrqL+pL67LeWLSVJgk6FvQpdqhE4NlM6X37alfWnDezvcBybvBDDpC
+	 vG9XR97ELUCI1Hfm0FOjnyiJioPipdaUigcljbHXSOVBRklysioufbjaMFg/cUbyIHI2D
+	 gIIaMf9l6xpuh1yKw5t5GrcWQAU2yhHriarpQHUCAe9qS0rrmqvVrWWWXSH0tgq/zMA48
+	 4qRLanqQYthfN3g1dMW16zKDNjtkbpvskqsf5Gxo7j4E2mVd1LsYcPMua/LAr85gVdQqt
+	 eg2Xx7YnKuAQ9KbEdtp/A6pJXn+mXEmNl4ddNJ44nVy5lSr7DMjTbAdo3xZpcgofMyA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=modelmiser.com;
-	spf=pass smtp.mailfrom=modelmiser.com;
-	dkim=pass header.d=modelmiser.com header.i=@modelmiser.com header.a=rsa-sha256 header.s=protonmail header.b=cAH0VmGV;
-	arc=none smtp.remote-ip=185.70.43.18
-Received: from mail-4318.protonmail.ch (mail-4318.protonmail.ch [185.70.43.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n9DI6TLu;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D099A606A330;
-	Mon,  9 Nov 2026 18:25:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D099A606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=modelmiser.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=modelmiser.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1483C60A2633
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 19:42:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1483C60A2633
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=modelmiser.com header.i=@modelmiser.com header.a=rsa-sha256 header.s=protonmail header.b=cAH0VmGV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=modelmiser.com;
-	s=protonmail; t=1794248736; x=1794507936;
-	bh=vrr3J9jDAWoXxoZTgAde8TMfIdLINczImmqo7qPCG5k=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=cAH0VmGVfZUyJQFNTm5B6ui1k0DcPTiXyIcojdtuTA92cKAIH7rjzOSRxBxs9wA+y
-	 UibHcKk87hShMTrz9orYeKJy3vJAw68hWr3YdlS27c6qcDLYPB7H3l7MA7R2gpfPgr
-	 bipA8iL/+Qkacef9Nn5ZcNrfJ+2JMEtX1ntWFnY8dOnqrLZ1rS8BrySyqsv3VRdlTo
-	 vqUkMh7nmk+1ALYfkqftuY4ZqMYlrubdCQIIZbfa1KcV3yR30Gdbf+0uaNOFmSAoR2
-	 agflVbUn3lVRZKN60Z8hZ2JMoFyIISgYYhB+I3OQ+9VDsX4SRHYGmMgIK8CgROil4s
-	 oqp3ybM3tOMoQ==
-Date: Mon, 09 Nov 2026 18:25:31 +0000
-To: Jinmo Yang <jinmo44.yang@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-From: Chad Aldreda <ca@modelmiser.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, alhouseenyousef@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: hidraw: fix use-after-free and double free on disconnect
-Message-ID: <20261109182524.743597-2-ca@modelmiser.com>
-In-Reply-To: <20261010230108.107272-1-jinmo44.yang@gmail.com>
-References: <20261010230108.107272-1-jinmo44.yang@gmail.com>
-Feedback-ID: 232753253:user:proton
-X-Pm-Message-ID: 25868f462026df30b04c5f654ce7c6d3272adeea
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n9DI6TLu
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a20bde60a0so13830715e9.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 11:42:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794253339; x=1794858139; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
+        b=n9DI6TLuifxiNVwKA4DznhzQkifoSkSXBJTCVttgS74ke6jNV+089dK0UaJbC4oBUt
+         a63pXZLc44ntIvFKJI3V5EtsJ4nNoIpB0BYnkD0T+ETOTGcO86bRxkHso4L0cmgAEyN9
+         IGvNb4c8YlEfmHRCWXtkoobhkSBDGuXvh76wze+orSOlEvUL3E/GcUQPvavtFIYwENz1
+         Wj+RPPvjfMums+bR9OUFs2N5v6a0H5hRE/tXRRf3isFmBTFLF4jwTcbMZFVCv+h5dzTN
+         RkOa+02Y8zJHlhgeD+e3VBUZVVgqZ2bt93eqvrP7sciut89gZAWtDZUlkIMiUNZVbeC+
+         Wu5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794253339; x=1794858139;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
+        b=fFfE6oRAGf87CeHCgQoUhCsGEEImWo3Kb+ekCxHNQUyuErgXQjEmRIWqeVRg7YgiMv
+         pgz3tZUzIeW9q/DBj3B8eH0QcW4nmYxeJGkFm7hrLR0JvsZJeAXME+HN6dVaX6Rz7wk7
+         7k7d1d2Vf0HfVBqakp8mn1AQcWxUV0ABaEk6Y1puIkFTUsO8V2ajJzzL/nYFNR8WrrRB
+         AdxAC5UvwCVWJGXnbxh8kSsEPzfUYJtZpz0HFYUkbLj21v/Famuy+tRc6RmVWlmkX79F
+         guJgvCdVbNwhvvOagExynM7S10UEgWz3X6A7iZ+76lGtHnd1xVDWw+ItVMVJKOvoeeic
+         k1JA==
+X-Forwarded-Encrypted: i=1; AL+hErGe/qjtn+VCFxuBenZmbbOLDDZjg/3r/rSmkR80Fz3Kb58A53HX6FtblOHyEfUIxOIlR5s4AfK80SDRKw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8oXobmrekc2P17RcQfPyo2rnTLe3VViFN961B2kIJuyHgx/J+c
+	GB9Ubp//TKjcubwfBtULOed4smrpbXb9PjD4qsvzv5+eO5W8lZyvlV/u
+X-Gm-Gg: AYBFou3+MBd3Kip8f/4Ltza3ODtLWh8WEgy773B30FopUKbUsjQAlqO6ICLaaA8ym+Z
+	mWTmYNJ0DaGD0wSl98m+a0l8zZ5ZJUT0NNpKACqWQKexh61obgYlbnCIp5yCyPf6olCKek+kq6T
+	Z7hvWqXP3oemjshNMm6ac92xdHZY6in69FlKBDnPeDTbsUVSnzqCn8o3msCX6HTgZ/oq9DaOcQf
+	ZTipe+FbWUzdwjt0epKoOIxFQlFc00NgrORCyGhu/uiPkKW828vQwuHAzV0FUqbLglvEBD58mhr
+	vBlCPG9P5aQzG0WqY19g3GB5HPndX6fSXxmNmKO3lSk1jZGRLUuqOtp80gtH+yTbLcyTWkK4VJl
+	KShWktZTu9vdEEUy+rcQuh/jV+KfsywBTTB/17bc7SO8+W0VATd0MsdtCyvJdqWS+2huGe1eJ/5
+	L3xq3H/OzmVm6rvzpGoQnDAPSOHc/AB7ZqEpUbEd+OR+1pbA86Q/am7pDg61F0qSyMBU4M0zYPQ
+	UbIU1a8jSEBscDp6ctWA8TyRSkcG+trWG0c5ZACicXnlLAEnR5U57zIbdvUvx+chhnlhglPgQds
+	SMH1ccJrrZFmmDytElL8m6ceJUBO7FE7akTpfGBWL75F0wrT21ILChmhr5zXfrhPwnEwDI/X1w=
+	=
+X-Received: by 2002:a05:600c:3b2a:b0:4a2:148b:c88c with SMTP id 5b1f17b1804b1-4ba0233f98fmr4406435e9.8.1794253339265;
+        Mon, 09 Nov 2026 11:42:19 -0800 (PST)
+Received: from acer-gaming (121.red-88-28-14.dynamicip.rima-tde.net. [88.28.14.121])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ba01fef675sm9446975e9.14.2026.11.09.11.42.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 11:42:18 -0800 (PST)
+From: Juan Parrado <jparrado.1817@gmail.com>
+X-Google-Original-From: Juan Parrado <jparrado1817@gmail.com>
+To: sashiko-bot@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	jparrado.1817@gmail.com,
+	linux-input@vger.kernel.org,
+	sashiko-reviews@lists.linux.dev,
+	Juan Parrado <jparrado1817@gmail.com>
+Subject: [PATCH v3] [PATCH v3] xpad.c - Add support to Hori Real Arcade Pro 4
+Date: Mon,  9 Nov 2026 20:41:18 +0100
+Message-ID: <20261109194118.18127-1-jparrado1817@gmail.com>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <sashiko-outbox-204846@kernel.org>
+References: <sashiko-outbox-204846@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,55 +102,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Sun, 11 Oct 2026, Jinmo Yang wrote:
-> hidraw_report_event() dereferences hid->hidraw with nothing keeping the
-> object alive, and hidraw_disconnect() frees it without clearing the
-> pointer:
+The HORI Real Arcade Pro 4 in PC mode is currently recognized by xpad.c as
+a 'Generic X-Box pad' and works out of the box. However, this generic name
+does not match the actual device name, making it difficult for users to
+distinguish this controller when multiple devices are connected.
 
-Tested on mainline d48723711bae (v7.4-rc1-672), on x86_64 in QEMU (4
-vCPUs) with KASAN, lockdep, DEBUG_LIST and kmemleak, and without a
-window-widening patch. A test program creates two uhid devices with the
-Wacom vendor ID that bind hid-wacom as generic pen and touch siblings.
-The pen device's descriptor has the WACOM_HID_WD_MODE_CHANGE usage, so a
-report that toggles it schedules wacom_mode_change_work(), which stops
-and restarts both devices.
+Tested on physical hardware. The proposed change works perfectly as is.
+The MAP_TRIGGERS_TO_BUTTONS parameter does not work here. Other arcade
+sticks use an identical configuration, such as the 'Street Fighter IV
+FightPad' and the 'Hori Real Arcade Pro.EX Premium VLX'.
 
-Without the patch, toggling that bit about every 2 ms for 20 s (about
-9,400 reports, nothing else sent) gave slab-use-after-free reports
-reached from hidraw_report_event() in every run (5 of 5; 31 to 61 KASAN
-reports per run, which looks like 2 to 4 hits of about 15 reports each),
-on an object freed by hidraw_disconnect() <- hid_disconnect() <-
-hid_hw_stop() <- wacom_mode_change_work(). The free path matches your
-trace, and it reproduces without any window-widening delay.
+Signed-off-by: Juan Parrado <jparrado.1817@gmail.com>
+---
+v3:
+ - Updated commit subject and description details.
+ - Fixed metadata and updated patch version history.
+v2:
+ - Fixed truncated code lines in xpad.c.
+ 
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-With the patch, 11 runs of the same (220 s in all) had no KASAN, lockdep
-or DEBUG_LIST reports. kmemleak listed unreferenced objects after 2 of
-those 11 runs, and after 3 of the 4 unpatched runs that got as far as
-the scan; I have not looked at what they are. About 18 million pen and
-touch reports over 20 s without any mode changes gave no KASAN, lockdep
-or DEBUG_LIST reports with or without the patch.
-
-Sending pen and touch reports while the mode is toggling oopses the
-kernel within seconds with or without the patch. In every such run the
-first fault is the same NULL pointer dereference in wacom_wac_event(),
-called from wacom_wac_report(), and the later reports are on a tainted
-kernel. That is in hid-wacom, in a function your v4 NULL-input series
-does not change, and after it those runs say nothing about hidraw.
-
-Not tested: the double-free hunk (I never saw two teardowns of the same
-device overlap), the NULL check on its own without the RCU change,
-reading an open hidraw node during teardown (attempted, but the
-hid-wacom fault above comes first), transports that deliver reports from
-interrupt context, real hardware, arm64, and module unload (everything
-was built in).
-
-The harness and this report were produced with an AI assistant (Claude
-Opus 5.5), which also did the earlier runs, including the unpatched
-comparison. I ran the final version on the patched kernel myself and got
-the same results. The harness is available on request.
-
-Tested-by: Chad Aldreda <ca@modelmiser.com>
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 810e52782..2567ea3bd 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -255,6 +255,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f0d, 0x008c, "Real Arcade Pro 4", 0, XTYPE_XBOX360 },
+ 	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
+-- 
+2.56.0
 

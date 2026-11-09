@@ -1,48 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794205536;
-	b=GErA3tU4wK8rtX3PFDcgcn2znMKfEaKthWCuvR/IE/0dkY614RMHu5CyoMPjla4XQjNB
-	 bVplv4kvgJBdDnBagu02C4qWtKJnqo8AjwEX9UcNO/Lp0SeaRhMLZGUujXzya9/T0uFQp
-	 jyUwAPffuvlQ5vgkOFEhdTxJO7VsXLLpXRAsMkPNGOxgLbvcEn39lwzu3QzQEqFmaWUO7
-	 jKSiHGXvz+6yhgxJ/lc5N5Ply7xTG0K9xOtnIar2ivIXpBEyC5noEO9AF6fEAvRNKZT9o
-	 /tNNavuo5ecrfuDUf99YEX+tFEycAE0kRT95+tb1ESKfXzO8PRDO7hESKeC03Lg6Zmg==
+	t=1794207796;
+	b=djiLnJMhi4ho2OXLHE3ejQJ67Y3YlG9yjMimRGoQCPu9oapZuX5RY29ZE/DS0eUgpoN6
+	 5/889epIoe3Q7G2TvtafU61032o8O2xGLpPXzwOljT8Pbo0QYRakzmo+1qu5pUvhbLLSl
+	 e7HfZQhONW9/QyemfdHv4PUgj7GQwT0OVrG1BLaaKFWCkVdKzvhevVAEx4eKytxLGv7P7
+	 nvfCsspgld110qF06QSnPZGaYiMI5qLhCByXRAmstaN126oAUzIkqlPAraqr6SCeRAsnB
+	 CBqQaun1Uac/fQq65pITp6UzQx4/Rcy7W9AyVprTDExKtKbcuhL7c5rTeGYB0zTT+4Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794205536;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=vxR0y8O6Yjfa9xBmupmiYjq0RBrrS/LkXi20mWxNVj4=;
-	b=MqmSNkSECLaCK512kwn1Tyl3nRbFR7H20qWgH7kri25qeaWdhcX4SVFmiJAHQbYQPdtr
-	 4qT0pwFBX/J52DetO92uaSZhWtt6JJCnkXPLF/wQaQCOceWISUlueAh2CRAZ8ZSYsmnSQ
-	 2+MrAXhoz8xaML8L8shzq+FqAFJcwuogWrbN26qiCEsHRFkB6KjD72BRTm1HrW8Mn4pRS
-	 bVJyOLdYHTcfX4t5R3shWL3hW35S3u/3PZcSUADdSKRkOkcLCfMrs+HvFn/lwoRau6EXz
-	 HFs6FYPqfrTl4vwNDf86F3lJvTNkdqxPp9zbiqm2k+JlPoRPNKOn65OL9LeWjb67hyA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794207796;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
+	bh=GaJGr2yTrQT2eFazQKP8XrjlwhAwHTLm5YY2vkdP1M0=;
+	b=JmyuBxaLuW/y8qAdcT15V880FjogXGFbrzKsfiTtGBoJ4FSKZ6rypln03Lh8ZyhRlPoH
+	 B8bCHFsmQs/XvZTvIQZfqhL5V5QbaWtsAz7epH/uhfGTiolEIUw0COhIo7BGIQPNM6+ke
+	 oxXA6NH/1dtXQNFLqsQgJBxL5xF2QLpRQAD/EKghPuU90ua61CuemvtxDhWa8ODnNF21K
+	 wkD8SvafPvCrSMD9XvDHCj8I1CUZBwkm9MfYspbhglNS4vbzx6POGg/7JWRGc4+pYloY0
+	 LcYdJnOcU1F85osWebzNaWJTdWo8YPY+iSqfuUMBjQoSW56LQWW2GC/70sThaxxdlpw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mLSKRX3B;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Tla8DPku;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE951606A31C;
-	Mon,  9 Nov 2026 06:25:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F362606A322
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:03:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5F362606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mLSKRX3B
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F41D1F008A1;
-	Mon,  9 Nov 2026 06:25:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794205535;
-	bh=vxR0y8O6Yjfa9xBmupmiYjq0RBrrS/LkXi20mWxNVj4=;
-	h=From:Date:Subject:To:Cc;
-	b=mLSKRX3BsieLi4GLeZuPq0+ZHK9kVNOPWSfwixBMn4rpaVkA9YsE6GmciW2bwB/GS
-	 jMhza4Hel1F/vyASKGubuDwP+evpOsrc42c52ET8aYW58TE+iULoJrwdd/xy8YfJ8N
-	 vVHhWt2HxsHQ977KH8nX5W7vFaxJgDf3xYqCrtasrntgUjWJobvAVJfeJZA7nlfTs3
-	 J/xwuPkpnRgIxT1U1chNy+FTjmyc+NUb8SvWstd4tbR4OcDpOaKn6V9BiiG7dJf/ue
-	 RCJ/169I/OKMg0/NZSKGz8dvpkuRtJNXMuO3YG8OFfaIlonagAG1jnnis8WrBsuT1p
-	 1AErDaT5zWuvw==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Mon, 09 Nov 2026 01:25:26 -0500
-Subject: [PATCH] Input: apm-power - Rename to apm-power-input
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Tla8DPku
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-37198ed3727so791236eec.0
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:03:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794207795; x=1794812595; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GaJGr2yTrQT2eFazQKP8XrjlwhAwHTLm5YY2vkdP1M0=;
+        b=Tla8DPkujakVDffreHx2/G9So/6RB58giX6uLuc1x+tXQ9czkFzFrsEnokVT7LPJxt
+         ZepYuiBjUVdmO06H+AxozvJ1plnAm69+5YDfsYZmxg5kTwhSRyZZy9LgzC+LMSLkytHl
+         vnUihKpB+jw7yXJDrwbkP98Q00KJXWEBJGICUL24I14xoAteSBwD6n/gOjExSpK307F1
+         RJguP3hFZHHDWPABiz1NvOHMYt6nvFJSKPUrrBfC+SOMrDHczub+MyY9WeDvVKe2eN16
+         VbzfswiNSZIRImSCTHC12YCey7r4XMKBexjW4MMu6KTqmUeNHYVs4B88viBdO+bJQ23V
+         Bsbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794207795; x=1794812595;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=GaJGr2yTrQT2eFazQKP8XrjlwhAwHTLm5YY2vkdP1M0=;
+        b=ubo26ntN/nPS6zFM6EC6drBPUa/fVl1BC6Yvgphl28cE3H5mNxo1Nkx+fYf8HDuqN8
+         UeAwWUOnEEMwEufKJnDXvkeA7At3yW8UdWiwt9QKDYgVRWnniNv8vO5YBSS1/L/V4Y4R
+         PLm1OGCp1o5K9zWBMcdiTIoGx1mDtYMXB3IGQdhhi3pYU3CqxWsrObUdyxkgwrCWh7Rg
+         aGpGvTGoGOfHjxrG0xoCrB9dfSnxbK0FMh4JVX5rdMdNMEnbIJ9m09XEcqJryBjNif3s
+         ReWWwosHt+aDnQGrXeg1CG6iQ0ucEgmBPpoSQ4ma0AJzR3RBISdtMYNs9Sn0olArTjiX
+         XgRA==
+X-Gm-Message-State: APuU4Z/z5TQirBJbOXHgfpNEuoGANoyZ30dnmItFVDaqn85GrjrBhnKI
+	9Tw9PPOwTMM8geEg/Gn45K6IU5bukB0Zj/tUlHEyVBFFfqxQe2khPbCY
+X-Gm-Gg: AYBFou3SwWWPJ+a14iADC+FBYkj64k8OptS0LPHDwV5GggP7c0uduNsw5R87dZhVL8A
+	e3rxo/xPOYTO/tZ4epbuFFlK+loHZHguARAskHW2AEKAd8dQ4puS+d6kQ+SJ3RhuwqlV5HHYsIe
+	VXGEqJroTSvnHv2tQheu9gkFovcDW2CPxiGemaatYIgGUBRGYAG6MbklldsCoau9/j3CK5T5hLY
+	yJol2EU8o4XwcDzQkPLoeABkzUL9+ggU2aF55hJ2ezC++VQIxnv78WRkFLBBEvd6j8GmU5SLJId
+	G2zsAfFZpB4It01lNEHcCL1QkW75k+GsWCjIGuJ48/1pMBsLyuTeBY1TVBxUSbpUAqgfGR6qF8P
+	B3vldkhg/qh7kKzXznvanHGII56A3aed/s+lgd6+XuvL74LnAy4nQ/gsD8KC98dZ5AkMH6pHa8y
+	0L7BNLGokU6IzHJR9RaQf6s3TIacVy0EPBJPz+lpfy1LVYQudyy6Rfc207KD9UEXdGxTZUzRLAm
+	hRlfgLAX8zEj5tv3ZJOpElDlkH2oC4F3FRHz0ywNDpN29AtASiKV22FyjGe6s0jE4t1JHoPfkzX
+	tXmWQMduY1XgGtY7JdhGBo5NzUWZ1XQ1RW98AZvttQZCjhgnluHOxDvUkKvPOoljuaSg
+X-Received: by 2002:a05:7300:6da0:b0:361:a195:c46e with SMTP id 5a478bee46e88-370f427ff8amr14650949eec.1.1794207795205;
+        Sun, 08 Nov 2026 23:03:15 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37265efd2dcsm10574645eec.17.2026.11.08.23.03.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Nov 2026 23:03:14 -0800 (PST)
+Date: Sun, 8 Nov 2026 23:03:11 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Juan Parrado =?utf-8?Q?Garc=C3=ADa?= <jparrado.1817@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: Re: [PATCH] xpad.c: Add support to hyperkin xenon, hori taiko
+ controller dx and 8bitdo pro controller.
+Message-ID: <avFwGwoJ45RGvxRH@google.com>
+References: <CAFkAFXod+xQ2o9SVGbKwg_pacnLrUYgzoVeQLcf4wQZN7JyUHg@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -52,82 +95,39 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAA/yXMQQrCMBBG4auUWTuQpKLoVcTFtPnVEZqGSauF0
- rsbdfkt3lupwBSFzs1KhpcWHVOF3zXUPyTdwRqrKbhw8N6dWPLAeXzDWFOeJzYkGcASorSudXF
- /FKpxNtx0+Y0v17/L3D3RT98bbdsHPY5OwHoAAAA=
-X-Change-ID: 20261109-apm-power-input-rename-a2da3030d47a
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Nicolas Schier <nsc@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kbuild@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Sasha Levin <sashal@kernel.org>, 
- Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2220; i=nathan@kernel.org;
- h=from:subject:message-id; bh=Zm6n7DvPV/zt+FKqZ0sjzZv/v8rOmXG/Eq1yFEOyh8I=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDFkf06P4DTnV9t09uXaJ3Ke8/TW6Tju3hRusifx3do2Z7
- aU1wbqbOkpZGMS4GGTFFFmqH6seNzScc5bxxqlJMHNYmUCGMHBxCsBENGQZ/kqICBo7fTRZZ777
- w4NPJl9Pa0VflHazsZ69OyW15+r9djOG/4lb7zZZdBx9eVbQ4fqZ5YzrDniuiz2t2/D4wI3nwst
- E5/AAAA==
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAFkAFXod+xQ2o9SVGbKwg_pacnLrUYgzoVeQLcf4wQZN7JyUHg@mail.gmail.com>
 
-When scripts/modules-check.sh is fixed to normalize the module's name
-like name-fix-token does in scripts/Makefile.lib before checking that it
-is unique [1], there is an error due to drivers/input/apm-power.ko and
-drivers/power/supply/apm_power.ko having the same module name.
+On Sat, Nov 07, 2026 at 04:47:07PM +0100, Juan Parrado García wrote:
+> Add specific support to various controllers:
+> - HORI Taiko Controller DX
+> - 8BitDo M30 Wired Controller for Xbox
+> - Hyperkin Xenon Controller
+> 
+> Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 810e52782..be81990ce 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -259,6 +259,7 @@ static const struct xpad_device {
+>   { 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch",
+> MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+>   { 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X",
+> 0, XTYPE_XBOXONE },
+>   { 0x0f0d, 0x0152, "Hori Racing Wheel Overdrive for Xbox Series X",
+> 0, XTYPE_XBOXONE },
+> + { 0x0f0d, 0x01b1, "HORI Taiko Controller DX", 0, XTYPE_XBOX360 },
+>   { 0x0f0d, 0x01b2, "HORI Taiko No Tatsujin Drum Controller",
+> MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+>   { 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+>   { 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
 
-  error: the following would cause module name conflict:
-    drivers/input/apm-power.ko
-    drivers/power/supply/apm_power.ko
+This all is line-wrapped.
 
-  $ modinfo drivers/input/apm-power.ko drivers/power/supply/apm_power.ko | grep name:
-  filename:       drivers/input/apm-power.ko
-  name:           apm_power
-  filename:       drivers/power/supply/apm_power.ko
-  name:           apm_power
+Thanks.
 
-Rename drivers/input/apm-power.c to apm-power-input.c to make the module
-name unique and clear up the error.
-
-Reported-by: Sasha Levin <sashal@kernel.org>
-Closes: https://lore.kernel.org/20261108225808.1809266-1-sashal@kernel.org/
-Link: https://lore.kernel.org/20261103110411.11698-1-info@daylightlinux.ch/ [1]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
-We would like to take [1] for 7.5 in kbuild-next, so we would appreciate
-an ack to take this directly or a stable branch that we can pull in.
----
- drivers/input/Makefile                           | 2 +-
- drivers/input/{apm-power.c => apm-power-input.c} | 0
- 2 files changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 2cd6e1c9a778..842a7e4f7b50 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -27,6 +27,6 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- obj-$(CONFIG_INPUT_KUNIT_TEST)	+= tests/
- 
--obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power-input.o
- 
- obj-$(CONFIG_RMI4_CORE)		+= rmi4/
-diff --git a/drivers/input/apm-power.c b/drivers/input/apm-power-input.c
-similarity index 100%
-rename from drivers/input/apm-power.c
-rename to drivers/input/apm-power-input.c
-
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-base-tree: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
-change-id: 20261109-apm-power-input-rename-a2da3030d47a
-
-Best regards,
---  
-Cheers,
-Nathan
-
+-- 
+Dmitry

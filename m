@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794253844;
-	b=UR+GPG0WKEv2lLhqtxPZeOYV4+o4CTjHEWDs0z3hO5ZAFYbVMPtAAg7P7MeUTm+YHbJ3
-	 Pq66iZq8NJPXUIUX382nxqjhKP8eMYD/YPF2lTqz4hbS39WiYNHuyqFXisIs3XTgB430x
-	 pWcbUaR34Urft0MhZIvPcEExLI1kaFx7YG2DybqC5NZe4GNY0PnrqrMe6BFzLyvIa2OGP
-	 nnDBQqZWSB8dxITt/yL0iiPoGVh1KiLzf7Ccs7KNSh+6Q9qp50I2AXpDFnMizD2KNMB3c
-	 K0fwsPYWrRfbQ8cr+T9Us82WQwLu6M6Q5Cce+qm03qJomN9p5V+tri7kDM+mgZLdQfw==
+	t=1794253851;
+	b=1K4UMXfjiwntYlScuQ+IUEHxMuqLnTZqVJSdYtfpX1OM1w984/b6iBv45AR6O55DLy5a
+	 KNHsVEErKfV8b7aoo4cr6v5GeN0J0jc/mKTPpxKl1A9xXG1vAum5aLFG28dcmyZUFxCAk
+	 y5IuK7zMiYPEZmWlFe6xJYzQUiewnAJtYHUHMcsIEAFrVFv/uuuMUy6PZbRS3j7yuCEmr
+	 yiHwHvqzQVK45f9x4VqH7fjB5pOfpbI1S9a8YQ6/99W3ycd8SMEGlJEATlRfwjGQa0wtn
+	 KG4P7/+FATlLtc/2vgWkSkKbI4Mz6DIoNUYfcWk8UZ2+3Pw7TzPCi8PCqzuDPQPiZEw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794253844;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794253851;
 	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer:X-ZohoMailClient;
-	bh=4Kq5DaV16w0JeD18C2Kpb1My2sLJ6azsHZ1Yzio01fE=;
-	b=SaIoIJ5GLY/jnA2w2HPB0yi7886D4K4P4s2iNMfUP9M3jsCO6HGR0fSJ0gPF7gDOPqcK
-	 3vqoote1M+uZnQcFxKX5kn2YQbPCcmcNlGuJHNlwNSY8GqUKxxUxz9t7wfNgHAS7sWWsc
-	 hCm2QjFkOvUSTPzX7q0UZmepCmhK4ujGgUWpyyfaxVwMBI1REtWAvOPMFlKt7vlzqZCIQ
-	 ncSDIom9wc9xbrFSZnHFQ12a6sOC/U0GbiIkyxbjckKehJtWn6TJKanmgdaPoVM9WIp4m
-	 +7bgGAJwsmLaDBQTbqENNlb4I/e1y+zurAp8yIESYYKXSEGvR/V/0boGNeHJ1a8JmaA==
+	bh=m9as34f0vVxOEWiM1bJ9qgJkaYm42EhPwgrInagCDH4=;
+	b=UlSu8pK54jE9rYigCiWq37XmLWbbBaKhGYxui9aBqWmcQndE66XkcIYlrDgbyxvWdkqD
+	 amFbCGBJiZETjj4Fe25ZIpPFCUe0DeCsIZdWl3BbDj9vgo03E4K4qefBL7hWKwNgG5E+G
+	 s/JOeCThq9NaBQf71fzPvd279yshF/0VOQWkGtCTgJLL6Y9oAfJfCrLa9hz5Uzcjwaa/o
+	 vdXYW71VTNN4NGYWk4LfW0b9Iu+1BgsQstSoSwVb45I2IGwEPQfJTgwOTSPYkTrdflpxK
+	 16bCNJgo3ZGUmqkkg5hOmWdezhkoPg4/LDNTvGkTWIViT3aNcA4CTRjEWQ7twjVMOnQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=rong.moe;
 	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=iLlhcxu0;
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=pdIY5V2m;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
 Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17936606A334;
-	Mon,  9 Nov 2026 19:50:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17936606A334
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE05606A334;
+	Mon,  9 Nov 2026 19:50:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EAE05606A334
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rong.moe
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=iLlhcxu0
-ARC-Seal: i=1; a=rsa-sha256; t=1794253810; cv=none; 
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=pdIY5V2m
+ARC-Seal: i=1; a=rsa-sha256; t=1794253812; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=e6+UXE3421OHcM/XFN6S7wvbwL1Vh/NzI4fomt2FWYQEZWGG9ybj0yJ/TpWKjUHPaN5bdsB+bS+9NxUR9CPMONHQctxc2R4vSCH4Mt8b0AoCNR2ll1oxT/QppJ+td5gSG5sYNgeRI2e8zxBPquinI2UKBMbMBhF4WL9N0PlAofE=
+	b=bg37ByVoJ/vPLpQL5rfKN1sMx4sA0FRpnRL2uuftUd+NEvW4LghodZksRe++OqDTg8UntT868GW48cQRL27DFp6azXUmBjLAPu81MU/ZGw6BoqLeBOBnn9S94gImaJcG9HvRnpwqED0/8qcKeOOlvdlrPcA+PS/SdoVxQ0xS9dc=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794253810; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=4Kq5DaV16w0JeD18C2Kpb1My2sLJ6azsHZ1Yzio01fE=; 
-	b=i9w0RkcmYjiArLnXeiv1cjMRpqGcfhWMsejcoFyWRWGMJjq/QfXFH+ox4pVmprgxdLo1qb7E2Z6sVyWm55aI3NP08MuX9W6EkkxLLirlIRQW44J6om+BH0gNxSr7dn8cu4I929krqaHVx+6ikrJwNlMz2VemFr/QAmPFlkfIWvM=
+	t=1794253812; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=m9as34f0vVxOEWiM1bJ9qgJkaYm42EhPwgrInagCDH4=; 
+	b=VAmF56X9zy+b2NyTxPe9mmaagNGAVzczdXZGUEyQ3GnV3wkzc/5yrqBFIyG9dnoWzyDsYhEPCYfcrEcFxr4XhQJDK3hwbFH6k9VOKBCX08Cv5tRnqGjKYsWjOaDVkHAnuXIxxmYeyVhzo9RrUs2DF5BuVAaiEv9NgQPHqx45J7E=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=rong.moe;
 	spf=pass  smtp.mailfrom=i@rong.moe;
 	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=iLlhcxu04JXEPjZBcNXmy0u3pZpZUe7KWTquJGTG39bRLBtzmXl8RJNgjQIMRVZZHjTnxf8DunTH+1rpvzx6T8uMMiELSQ/ZZtgJor/4CI9JjmyUA6XOP5Ouz2h8/LLMqsF79G91n1r17ojQ3WUUoWPu3ZCVAzf6N4e4TdDa/lblLmg0w+6Ry11RTXdJThXqQ+ASartvXYCsAC6UHSZ0gkcpUEsJFYbQdxSH86yshEVxfYsUs4D3KGEYQvsgjH7cQ40btgus7Lx8lbj5HIKfLHqDvsWUG1P1Qbudufyz2eEQWOoAt6Yu80sCkO8gsXjbA/b6YdRNCMtx9k1FAxMZLQ==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=4Kq5DaV16w0JeD18C2Kpb1My2sLJ6azsHZ1Yzio01fE=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794253808016573.208494093635;
-	Mon, 9 Nov 2026 11:50:08 -0800 (PST)
+DKIM-Signature: a=rsa-sha256; b=pdIY5V2mioxWUNwkyf4M30AhtxzZBk55y6MG4ukH8FUsAluSEYnc8/NdqWOcB9f5+A3qthiw0nako3/N3wyu3qzNwOiloelCdFzJnqIBF6ExKQZViluuPUMSkOT9jg9klXmEziwj6lu+TP6DlJQJey8WR7yLkS+xsitNBogWiEP7Za33xQLumbQ95M1mT9QJEFSVmLL/dyOrOyjhlR/S+1pfNNzpsp7Vx1qe5rj4mdeG8G3oezmRb0kYVJbUUHqIcDV3aFnV92/M0syvl92a/Q4pex+dRbXgp26GEBKYCIf1qLpBsUUBrWrEdLxmtRx4fd4FIEF2cSrGD244cfVkZg==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=m9as34f0vVxOEWiM1bJ9qgJkaYm42EhPwgrInagCDH4=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 17942538102661006.4620156655059;
+	Mon, 9 Nov 2026 11:50:10 -0800 (PST)
 From: Rong Zhang <i@rong.moe>
-Date: Tue, 10 Nov 2026 03:49:41 +0800
-Subject: [PATCH v2 4/9] HID: haptic, multitouch: Fix haptic device
- double-free and unnecessary allocation
+Date: Tue, 10 Nov 2026 03:49:42 +0800
+Subject: [PATCH v2 5/9] HID: haptic: Postpone GET_REPORT to init
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,7 +61,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-hid-haptic-kmod-v2-4-b835a067cb62@rong.moe>
+Message-Id: <20261110-hid-haptic-kmod-v2-5-b835a067cb62@rong.moe>
 References: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
 In-Reply-To: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -73,150 +72,62 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
 X-Mailer: b4 0.17-dev-ce4c1
 X-ZohoMailClient: External
 
-The haptic device is allocated by devm_kzalloc(), which will be freed by
-devres on HID device release. At that time, the ff core has already
-freed it on input device release previously, causing double-free.
+Currently, the driver calls GET_REPORT within the feature_mapping
+callback. This is not optimal, as the driver works only if manual
+trigger is also available and the if the device is a touchpad. It makes
+no sense to initiate device IO if the device is not supported by the
+driver.
 
-Allocate the haptic device using kzalloc_obj() to ensure its release can
-be safely delegates to the ff core.
+Hence, postpone GET_REPORT to hid_haptic_init(), and parse default
+trigger in parse_auto_trigger_field() where many fields are already
+parsed there.
 
-The allocation code is also moved to hid-haptic.h, so that it can be
-replaced by a stub in !CONFIG_HID_HAPTIC builds, eliminating the
-meaningless alloc-and-free sequence.
-
-Fixes: 344ff3584957 ("HID: haptic: initialize haptic device")
 Signed-off-by: Rong Zhang <i@rong.moe>
 ---
- drivers/hid/hid-haptic.h     | 17 +++++++++++++++++
- drivers/hid/hid-multitouch.c | 39 +++++++++++++++++++++++++++++----------
- 2 files changed, 46 insertions(+), 10 deletions(-)
+ drivers/hid/hid-haptic.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-haptic.h b/drivers/hid/hid-haptic.h
-index cd4d9c74d2dc..7878cd73ccdb 100644
---- a/drivers/hid/hid-haptic.h
-+++ b/drivers/hid/hid-haptic.h
-@@ -5,6 +5,7 @@
-  *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
-  */
+diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+index 84985ad61d45..9f2af082d2ea 100644
+--- a/drivers/hid/hid-haptic.c
++++ b/drivers/hid/hid-haptic.c
+@@ -22,13 +22,6 @@ void hid_haptic_feature_mapping(struct hid_device *hdev,
+ 				"HID_HP_AUTOTRIGGER out of range\n");
+ 			return;
+ 		}
+-
+-		hid_device_io_start(hdev);
+-		hid_hw_request(hdev, field->report, HID_REQ_GET_REPORT);
+-		hid_hw_wait(hdev);
+-		hid_device_io_stop(hdev);
+-		haptic->default_auto_trigger =
+-			field->value[usage->usage_index];
+ 		haptic->auto_trigger_report = field->report;
+ 	} else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ORDINAL) {
+ 		usage_hid = usage->hid & HID_USAGE;
+@@ -146,6 +139,9 @@ static void parse_auto_trigger_field(struct hid_haptic_device *haptic,
+ 			break;
+ 		case HID_UP_HAPTIC:
+ 			switch (field->usage[n].hid) {
++			case HID_HP_AUTOTRIGGER:
++				haptic->default_auto_trigger = field->value[n];
++				break;
+ 			case HID_HP_WAVEFORMVENDORID:
+ 				haptic->vendor_id = field->value[n];
+ 				break;
+@@ -465,6 +461,12 @@ int hid_haptic_init(struct hid_device *hdev,
+ 		HID_HP_WAVEFORMSTOP & HID_USAGE;
  
-+#include <linux/err.h>
- #include <linux/hid.h>
- 
- #define HID_HAPTIC_ORDINAL_WAVEFORMNONE 1
-@@ -54,6 +55,17 @@ struct hid_haptic_device {
- };
- 
- #if IS_ENABLED(CONFIG_HID_HAPTIC)
-+static inline struct hid_haptic_device *hid_haptic_alloc(struct hid_device *hdev)
-+{
-+	struct hid_haptic_device *haptic;
+ 	mutex_init(&haptic->auto_trigger_mutex);
 +
-+	haptic = kzalloc_obj(struct hid_haptic_device);
-+	if (haptic)
-+		haptic->hdev = hdev;
++	hid_device_io_start(hdev);
++	hid_hw_request(hdev, haptic->auto_trigger_report, HID_REQ_GET_REPORT);
++	hid_hw_wait(hdev);
++	hid_device_io_stop(hdev);
 +
-+	return haptic;
-+}
-+
- static inline bool hid_haptic_connected_to_input(struct hid_haptic_device *haptic,
- 						 struct input_dev *input)
- {
-@@ -80,6 +92,11 @@ void hid_haptic_pressure_reset(struct hid_haptic_device *haptic);
- void hid_haptic_pressure_increase(struct hid_haptic_device *haptic,
- 				  __s32 pressure);
- #else
-+static inline struct hid_haptic_device *hid_haptic_alloc(struct hid_device *hdev)
-+{
-+	return ERR_PTR(-EOPNOTSUPP);
-+}
-+
- static inline bool hid_haptic_connected_to_input(struct hid_haptic_device *haptic,
- 						 struct input_dev *input)
- {
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 5eea774dee44..a9c8396c804e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -34,6 +34,7 @@
- #include <linux/bitmap.h>
- #include <linux/bits.h>
- #include <linux/device.h>
-+#include <linux/err.h>
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-@@ -2129,11 +2130,18 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
- 		return -ENOMEM;
- 	}
--	td->haptic = devm_kzalloc_obj(&hdev->dev, *(td->haptic));
--	if (!td->haptic)
-+
-+	td->haptic = hid_haptic_alloc(hdev);
-+	if (IS_ERR(td->haptic)) {
-+		ret = PTR_ERR(td->haptic);
-+		if (ret == -EOPNOTSUPP)
-+			td->haptic = NULL;
-+		else
-+			return ret;
-+	} else if (!td->haptic) {
- 		return -ENOMEM;
-+	}
+ 	for (r = 0; r < haptic->auto_trigger_report->maxfield; r++)
+ 		parse_auto_trigger_field(haptic, haptic->auto_trigger_report->field[r]);
  
--	td->haptic->hdev = hdev;
- 	td->hdev = hdev;
- 	td->mtclass = *mtclass;
- 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
-@@ -2178,12 +2186,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_parse(hdev);
- 	if (ret != 0)
--		return ret;
-+		goto out;
- 
- 	if (mtclass->name == MT_CLS_APPLE_TOUCHBAR &&
- 	    !hid_find_field(hdev, HID_INPUT_REPORT,
--			    HID_DG_TOUCHPAD, HID_DG_TRANSDUCER_INDEX))
--		return -ENODEV;
-+			    HID_DG_TOUCHPAD, HID_DG_TRANSDUCER_INDEX)) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
- 
- 	if (mtclass->quirks & MT_QUIRK_FIX_CONST_CONTACT_ID)
- 		mt_fix_const_fields(hdev, HID_DG_CONTACTID);
-@@ -2193,7 +2203,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret)
--		return ret;
-+		goto out;
- 
- 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
- 	if (ret)
-@@ -2202,10 +2212,19 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
- 
--	if (!td->is_haptic_touchpad)
--		devm_kfree(&hdev->dev, td->haptic);
-+	ret = 0;
- 
--	return 0;
-+out:
-+	/*
-+	 * Don't double free when the haptic device has been delegated to the ff
-+	 * core.
-+	 */
-+	if (td->haptic && !td->is_haptic_touchpad) {
-+		kfree(td->haptic);
-+		td->haptic = NULL;
-+	}
-+
-+	return ret;
- }
- 
- static int mt_suspend(struct hid_device *hdev, pm_message_t state)
 
 -- 
 2.55.0

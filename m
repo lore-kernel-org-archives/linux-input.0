@@ -1,94 +1,95 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794208538;
-	b=jQNJDvwjPury5yCSYI7U2yUUZdPVY8pctGhyDnABxLcPQ1no/G34Nj4ue29auHIXYX0Z
-	 JxoV6NWTW0EAKpBeTDiIiPYaYz5o0GYlBYa9h8U81SG8aGNovOmdPJ++KQ0Oba/Ii1spT
-	 odLfkPpoFJkA5pBY0u4dc25BdN0vZXI7yvtvfbC8T6hzPPWE9U47kvxmcQDOAPTFF0Pgp
-	 JMmh+O3F5Dw13CB9ATahxCGOoQ+E2C14WpNdCC/3WfyYtzaTxoBQ+VY8D8fI1xbWsCcZH
-	 MsrWWQy4iQ99VALZQi1dYChZGxhMMWomphfnptv5W/SSNlt/nVLRuBKk9KFqGKZYaQw==
+	t=1794209072;
+	b=EbmpEUELHnQ9dqdy/N88AjtkK24plzboWe1Zed5parNUPKLIY9wqDSk6XemqvZXRXEGD
+	 eUJV1JKhnJL/Jhgw6g37e9pdb2kbZhUl5fot4019xkuslfxCCiTjaWlLIc9+2vXlY+rzM
+	 eFKy+aSX0u5JhCX7WQMLgvrwKrYyROiV7lsCbnsIhl1pouA56CSIykXSbzVMP+Jdk8nJn
+	 SPB2a5o0OdQF8qkwDv+q0oLcuh1ZAmAdPVJERVCsHDEjeXz57fnapSQ5w3G+tFpq+mZDr
+	 PTM6ZudWTOfJpUAmX8m0+Ye/Qf+w9zuuJVSDs79tm/Rxpq+eSZk7XxLlHvDjtJlbRyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794208538;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794209072;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
-	b=Ca6ZQa68utidmHFZQPQs25WOGQKjbJVFmAGjWXsNsEhxcjd+iQXGsBwZgmZSI6qbp+GT
-	 CpP8oVr+7fKxsD4FolKBadTEXqiBQC9VShxNiZKVkJKCGiK8m2/jt7LvBG38U1l2TnBe5
-	 IMHeCoYj60syqVwJBdnmz/BQ/aqCnaictTI126No4RMGIEx8FYiPFi2JvdD2fkup1F6Ye
-	 A16hwlI2eoyAx3DbSpY1u3I1hWl48VWisSBTqtZwQWh+av02cGR2DmDLajldgZSnkcfOm
-	 jcJz7URJGjKQKJmbqZLzssuIB2pkwS07moysAhYyd9Nw7g2ewV1JQ0AD8mQF1kQV1+Q==
+	bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
+	b=chKodP9itC73X67G2pXlvn5gyR8Tnf5UrdbwQWdOLoH+pmkhragrOeD/xMTlbjkMrRC6
+	 ReGRxyIjJojNmfqV5pQ9V20jcxGsy6OPRKIvB04SCkRiiVtGXnPFjfNpMWE02wsuc2EoN
+	 Ejglf7e5NU5V5DqZmvHn3lTv0ccHlNE2CCPhTVNNqm548cqh60a10d4Iw9BX4nZazsECB
+	 BnVZw2575Zbkj1sOgICRu4oVJaJUNzv0g83psjaV8+R0QsX3/WOIlxKA1xhEhmtcGc2sB
+	 J2hDmw7eO86F7kicrcd6dXDxmdChVtlU1lXSkr8Z0yLWGpMpqhdq2kHH3DV6rS4Nfvg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=w11j6Mdb;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Nsg+HPNG;
 	arc=none smtp.remote-ip=74.125.82.174
 Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 947E6606A322
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:15:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 947E6606A322
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CB83606A323
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:24:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2CB83606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=w11j6Mdb
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso1100843eec.0
-        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:15:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Nsg+HPNG
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36ff9c9da34so984046eec.1
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:24:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794208537; x=1794813337; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794209071; x=1794813871; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
-        b=w11j6MdbsB4L+lfEhx9/QuPWJwJnoR1/635ejpDfK+LKom66v1X4DvzF2uzylOTZ3/
-         Q9Dj95WkZTzj1PFghbcdCfk34yVFx93MMJxz6Fh9PQU2AnN3QRpI90c1HeaM2Cv6sZdy
-         xBne9KiUAxZ9zou72Cnq5p5hXQgOrGnWF+hOz+swqgKABD2dQlZjeqQwhEaAFPH2TQH+
-         lOiMp873AaypR3uky3pBLXoqP5rSu24uKD+dfdobZrN5JZcu5R5G5cAKOY6v8MJcA7uf
-         JrcxMfecrYw4AhM5KcvnGA72DtPG75dQ+8Yk2j/IYMe5Sjmbvxv0MbDYcQJ6+wEX7rON
-         4prg==
+        bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
+        b=Nsg+HPNGdxtdTZzq3djvWYmBMw+t2hulucj9xOOp3AWvjM6rcN7YNAWhvsNBCh1Knd
+         5o9871JBsIP/mVo7h9e1K/ZiMLBbIzAL+xbNaet8zL0A6fVksbo7kfCMekOWMoeooI91
+         Z7SjW2/BgWrKmJ/K+oRfYzhWl/Ak1bDo5rGlYFd842whNqAqs3y019dEmg/Edzsgm/Wj
+         FNZs6d54wd5Z8/8r/WxihyDBQsx5SASmVdBkDyDumMExC9qDHZPLCQAx+NaIKaUunIQE
+         Yww0TstAtTL6c/oGlasgOqlznGlFf3Pay7V8F2D7jkaALRtwkEFjiujHDv1rGYh7JbKT
+         5abQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794208537; x=1794813337;
+        d=1e100.net; s=20260707; t=1794209071; x=1794813871;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
-        b=wVGLIF3UoSewkSKdZG03n2GYzV19xBjZvux4tm25MiM6YwhwtUhacPRlf8vcqhLsjR
-         YkrQ0/mmQ9Vz4HkgxVNk1ogvmTOoBPN5+AJKLe+r4d6ha0tbLTvxiL0jW3u5v1PUwt4o
-         MkLgtbq8AR7Ic2YNwGES2I58D7D3sUVrNn+mXrQ9+AgPEw/CeyBQ4RIjyvdvt0m3yVlx
-         PEgw5h/izi2HNU/hM5E8O2RN4OYpTrP5dDmHbesZf1ypkiBqAnXibN5g41t3bLtyYJSY
-         LdYBzdNztl+nBvwWdNFLiKQ/a57XH4yNRefM0QVh8e/6LXSKXFz7JTKOMh3dA9FyhxvG
-         1dCg==
-X-Forwarded-Encrypted: i=1; AL+hErH8qTfuSP14GoFnDyWiyVaT/nRVlKpyNn+SBi4CU6pwUq1DyrqFtc2Wh6M9FUWatUOcgkudrwrlG98Prw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/zH+frW4HZhZKspWRcDc23JH/9ntLIgG/Hk1QY4o68XbZajCFh
-	H4EtvJx6G6aOGJR9wiQqFrNOcqCxIen7nn1/4Fr+aKCT5qFIJnLAbjmS
-X-Gm-Gg: AYBFou0rVCz6OqzE5SWzDlrAYB98RZeAmvwBRkCNBkgAKoprobeNCgFZ0LXPmXIabMX
-	blAcsMLwHMiXMZLAspY/3/CyldOshTgN57P8dpvu53VhpSzEpCfFBJyDaQt8vKKVX3QqzZL2Lff
-	XQ+cPx0oXngOISLiKWR80vDodmFSjLlqJORd2RJM2FwA++J2ahH4jr2U5x0jKNHgh9LdsCBvRjc
-	egO/bmGIKJidgZSm0qXQo81LCy2eRI04e14vEWyKdlNO4Hlvu0b8n0cPJ+Df7urqnVuCZIcQYtA
-	Ic+9ri7vUp2bufv16T10D9b8GZPt6B/paXjn+rrq0f19If8+IMv7+yQliT/BaeoTfi0FqSQ/Vke
-	fWHoqk5VBodKp9n5uodrMlj1LdjzNDuzg4YZYoEvaAs4vjo5hG35M43i6f3p6KsPR502xaJkbRk
-	y0Rhy/7UAHF7/V96TDl+prEMGTvOaWJ3rbkaahspS1XKcgwgt1/+d7njklmKOttYTEpqfSm8rNS
-	CuyDu8D/3f1r/GYPFIKSYgdmVxevsl7FJgL+aX8oVhcSj4XXLoL7uVhIKkgjmraH2vs6WPbGFjQ
-	00+zENn9QxqVw8XHOj82G+LH3NOYwRJJUPs/RfARxa0OJ9pmBOTt9daaeVqMo2d4czfk
-X-Received: by 2002:a05:7022:3c03:b0:147:a685:9125 with SMTP id a92af1059eb24-1b39fe30253mr4642534c88.2.1794208536573;
-        Sun, 08 Nov 2026 23:15:36 -0800 (PST)
+        bh=+np9H5/WW8k79AQmUZmL7dcf2+nLZb8rZqIqDwgON38=;
+        b=CbJnYH6+eGvqhUPNdDKwCNi2HxTqTKdQRqQWxzJf7ik+L7bETjoO5cxywmdCmfXCem
+         XlDkGDSyp/rvZ94OeNN8XeH2irI9++hg+lkCxeDtjDnQb5cvKgBD2E21slgcJBSpQF/c
+         D4gp4hqH1VFC8h4fIUzpD3eqT8TvYUZYlbrJ6/7QJSujdKLVxAVymcXQpV63cDqSPFrd
+         OpCkiMr2O1/7OQ28BT1KqmdRGKFwLQA9uzSAxKmBPoGONqXoc3vQuy3/qrjGHxw3SgXi
+         MaDSCI8l+QFLxuTatzSnmHk69jDCgKHcEELWk8t8viyeoOQl/8IOqFj0WkUovD2FxrES
+         bOSw==
+X-Forwarded-Encrypted: i=1; AL+hErE6W2bjzrB+VNoT03saAxOsyywrfNBjeqLODiybHK1nha8WxHCK4/X4JPirm3EsRlEP5tz5CWurW1BShA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+GF9LFx3vVTD4jwVFVaxmifOUFgxvpOecHYbpBJIGBzyquskt0
+	EqPtYVGhR1RkyJSClmJ6norCZSBv5f1m9Uz0vASZWFf3PdsoIMiYhwMN
+X-Gm-Gg: AYBFou0QsXLZ4FFwR8DaXO5KHhVzyxE5gTudU0uh2DhFlHrMNJuGA42WEd1vl2hLdcR
+	O8OklN7+U7nht9NwQbEPuqwTF+BH/nWiKyzurKlYaKHY3UAdYi6uGfQFNrcGiFyEea7wCKlY01v
+	Bhaui3FBy4EMEuFoyQnzcbsyWtr180s+PqDgkUQtS+9ipXIkYT3WqPGquSr6Q+NAcQPR8zoPxE9
+	G3ylLFzZ1GbmuU6Ajz+dQ5BlAzMCQgF5PEwPrVlixbCJvqLjgNIbIEvMwDloUkSu5YDD4ynO1nB
+	uEPlNZaXdJa9d0Cvvh6gbAl6gncgzvo6L/UhL1DzOPF4YlFWTsYw2lfrNMohmdCFeI8x2iM94eE
+	EcvH+0tKr+SgAS6+4ZBXVQ/mISeF1ynfoxWOndh2foCWVFUvstGmLDMwPtSwJuiH9TSUjzL1f2M
+	vtHH3NbU5rGZjreWT9NPAgF7qa3rxzbqxxufEoXvEE3WOFs29Up9Oo/qLJT5dSQJKUcj4tR2Q1x
+	aeYk8hqGabzB0JW2crrcfWCSFoaHcro+agYO0atBCjPGZV3zul0yIDn9rlct6jf6qVsegkHWXFL
+	vD4KFxyFKA0h+ZwaZEe2QP8SMBuDIxpTDk6i3JDjzjyotnPeGXAzcWVElXXvV/j4AOcA
+X-Received: by 2002:a05:7300:f788:b0:35c:f667:8b9a with SMTP id 5a478bee46e88-37256038776mr5838575eec.6.1794209071027;
+        Sun, 08 Nov 2026 23:24:31 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b37314626dsm14607158c88.1.2026.11.08.23.15.35
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-372665db8bbsm9950069eec.22.2026.11.08.23.24.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 23:15:35 -0800 (PST)
-Date: Sun, 8 Nov 2026 23:15:32 -0800
+        Sun, 08 Nov 2026 23:24:30 -0800 (PST)
+Date: Sun, 8 Nov 2026 23:24:27 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Liu Chao <liuc63@xiaopeng.com>
-Cc: Hans de Goede <hansg@kernel.org>, Bastien Nocera <hadess@hadess.net>, 
-	fangxy@xiaopeng.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH] Input: goodix - reject a bak_ref length that cannot hold
- the checksum
-Message-ID: <avFzEGl-xQxGqN9p@google.com>
-References: <20261106075129.3106093-1-liuc63@xiaopeng.com>
+To: Wentao Liang <vulab@iscas.ac.cn>
+Cc: dudl@cypress.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: cyapa - fix runtime PM leak in
+ cyapa_update_rt_suspend_scanrate()
+Message-ID: <avF1HqGfA-82_Q46@google.com>
+References: <20260916185015.2093520-1-vulab@iscas.ac.cn>
+ <aqwD1o6J4svIevWW@google.com>
+ <1794120347.2701234.vulab@iscas.ac.cn>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,24 +101,53 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261106075129.3106093-1-liuc63@xiaopeng.com>
+In-Reply-To: <1794120347.2701234.vulab@iscas.ac.cn>
 
-On Fri, Nov 06, 2026 at 03:51:29PM +0800, Liu Chao wrote:
-> driver_num and sensor_num are taken from the touchscreen config.  A
-> config with driver_num 1 and sensor_num 0 yields a bak_ref length of
-> 0, for which devm_kzalloc() returns ZERO_SIZE_PTR.  That pointer
-> passes the !ts->bak_ref check and the subsequent
-> ts->bak_ref[ts->bak_ref_len - 1] = 1 writes before the allocation.
+On Sun, Nov 08, 2026 at 06:45:47AM +0000, Wentao Liang wrote:
+> Hi Dmitry,
 > 
-> Reject a length that leaves no room for the trailing checksum before
-> allocating, and skip saving a bak_ref that was never allocated.
-> Without the second check a rejected length leaves bak_ref NULL while
-> bak_ref_len still holds the bogus value, and goodix_save_bak_ref()
-> then writes through the same index on suspend.
+> Sorry for the very late reply.
 > 
-> Fixes: 09182ed20c04 ("Input: goodix - add support for controllers without flash")
+> It does not have to be the "sync" variant.  I used
+> pm_runtime_put_sync_autosuspend() only to mirror the normal flow of the
+> same function and the other runtime PM call sites in cyapa.c, but there
+> is nothing on this path that needs a synchronous transition: no device
+> state has been changed yet, both put variants mark the device busy
+> first, and cyapa_start_runtime() sets a 2 s autosuspend delay, so either
+> of them would only arm the autosuspend timer before the store returns.
+> v2 uses pm_runtime_put_autosuspend(), the counterpart of
+> pm_runtime_get_sync() for devices that use autosuspend.
+> 
+> For the record on how the patch was produced: the candidate came from
+> static analysis tooling, and DeepSeek and GPT-6.1 Sol were used to audit
+> it and to help write the change.  I reviewed the result and I am
+> responsible for it.  v2 is build-tested only: it compiles cleanly on
+> x86-64 with CONFIG_MOUSE_CYAPA=y, including W=1, and passes checkpatch.
+> I have no Cypress trackpad to test it on.
+> 
+> Thanks,
+> Wentao
+> 
+> From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+> From: Wentao Liang <vulab@iscas.ac.cn>
+> Date: Sun, 8 Nov 2026 06:45:47 +0000
+> Subject: [PATCH v2] Input: cyapa - fix runtime PM leak in cyapa_update_rt_suspend_scanrate()
+> 
+> pm_runtime_get_sync() unconditionally increments the runtime PM usage
+> counter. If mutex_lock_interruptible() is interrupted, the function
+> returns without dropping that reference, so the usage count stays
+> elevated for as long as the driver is bound and the device can no longer
+> be autosuspended. Drop the reference on the error path.
+> 
+> Use pm_runtime_put_autosuspend() rather than the synchronous variant
+> there: nothing has been done to the device on this path, so there is
+> nothing to wait for, and with the 2 s autosuspend delay the driver
+> configures the put only arms the autosuspend timer instead of suspending
+> the device.
+> 
+> Fixes: 672865080a8f ("Input: cyapa - add runtime power management support")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Liu Chao <liuc63@xiaopeng.com>
+> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
 
 Applied, thank you.
 

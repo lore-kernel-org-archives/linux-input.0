@@ -1,56 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.158
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794218446;
-	b=gP9u287eNGGlJFXgbZks193fTALaZ0XC9YXFfTJSLPPPc2JEuxNwWEfkq2nKm/s+n1kq
-	 xF9/dPKGsTMtzoZxHDjaUW59X/GA/l+moHhNo6JafAZvQ8fh7oshWv59LP8lIXcJRnVVq
-	 BBB6B6bgLduU0b0iHUYYeO05XQiOn8klTwypGdbKLGKvPn4Dx13lxcvqKDyCQwkxvm5ZE
-	 vTa/yl4W7tDBDecCKaBmlWpg+goLMCo+OPPE1hlz1XZaADf1isjYh7Dg82KmjB+qiaO7w
-	 +iOm6nYtM/RGPqurl/KShxrUJFkrVyMuZFvCEHnMUivEqEXRVlf1zBA0/vm3bLYCe0A==
+	t=1794218617;
+	b=JM049Tro+8xPz39bYBTXp/ViuL9L74jMGDuPMhSQdZ7x6qwW44JblJ4MOeaz5t0EtEiB
+	 X0oqBmNcoAjyg/sh8hImIcfYzgB946Sy2cbVim3m0sGqiEWrTSASBKDCEVfkzg8K/ToE/
+	 baGHpZ+9xemos8MXP7eRPzZfsNVkl0PzrDSJEeGw6hzgsRmOMXZFHUf+Pgh7NkSpnJFpd
+	 6mhQihzD06dHMKXFoWa0Iqftf14oweCiRvQV/QYTzDtx2ra7kwMkc+MuEtf4ugZ+1mXcM
+	 JHegEQL3wTFiczQaPhGQz9ljj3doJSp3AwtNejmntil6DdZJvn1nisKe9MDzMrY6O7g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794218446;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=BjnvFkZVTH7Crj3D12oBCZDLjA5oYujllBgl7pOTuIk=;
-	b=Qzpa5mlcOC0TnQbAdALNeIplS7LAPH1q3dGHAayWqZcUbw6+CNcLZMo8Es4iR2zEt0aA
-	 JbDd+Rc0RDrv21cH1Qgn0VI4ee5If4lEgHgiP7NlS9AqqKkAAqrU5x4wy/V5zvDBSksPW
-	 MHaQBQGY6EwlSYEWnLp8JfkMw2tVy39QxhhOjpQfDqOzoZHJIbRfxDdrDjy4/gZkloUSg
-	 i/KUaeJxNGN+FLIUMPsuN88mNap01e2AGmPCtlyMKi/t3dxem2cCm9s1Qau301uNkJ+5/
-	 7M11DJBE3XYCUTsv2XG+XgKEaXtaKMGXnAShx8IQX9FbN66M++RJPSS4fmS+q6TdR2A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794218617;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=NcBU2cPzzA69TnFKl3QcEWwS4YrVCELU3Z1b9WHRzow=;
+	b=sF15FL2WfvptdlFEFthG39Qq3TRZbf1pZW0LW2agsBGLV0R8B06nl+UrPek8wE+FoDHK
+	 otreqpcCEkEBPEb3Csbia9D0Yba5ZdE53zVJHK6JMjLua4rqc3AV5tK4NoZM7rh3uAsVI
+	 jPrUY7ePe1w9zii2KR/w7ss5pB7vuS1wQv4TiBo7W/VDe9NJEtZ3Z9tkNa9Sz2HSP1QeB
+	 0xJEz0sXWCCZhV3xj6IkNGopGO8b2Q6fI1iwCdqDSX+1SiwOZHALqgGnnHeuh1l7PyQSJ
+	 9vKXherSGKSUdQqlrdmRhj+l8sb3hOu1w9EDEbqVfuNgizDJF2mxhkGXjdK3ggrjWow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=caPNEnjt;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b="U/3+jibd";
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=yOsGBGru;
+	arc=none smtp.remote-ip=202.12.124.158
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 794EF606A321
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:00:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CFB9606A321
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:03:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5CFB9606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=caPNEnjt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8161F0089F;
-	Mon,  9 Nov 2026 10:00:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794218446;
-	bh=BjnvFkZVTH7Crj3D12oBCZDLjA5oYujllBgl7pOTuIk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=caPNEnjtIujRFyOYhXVJWRLHEuZP1w+whOx0mrRuxtUi/WvYUsHVaaLtHKOPW/6Lj
-	 gzqhicYQotoB/aWtNXnLZEcy/lIpVFgd27s5Swk3oIzWUFDWgcaTZtKvsXbtfPFTSS
-	 bFDDrddNtzdADuCaOnsTBQyeg+atl1vM7rB0JiAgJ6Pfi3AjAgV+roiInybUIuWgEX
-	 XOZdF+nUcfIN1CMJMT0sbGRxEzME+SJ+IUYiNHyZopOQeYGP+yMkV3x0+b3zT9AHRA
-	 ReCWHAC5E3j1+tDJS9m9uc8de2ZQlF4Qev9XliwCQecJcK8Pf4Ql3a3Cqob1G+dyZN
-	 Qs4D41sykKUIw==
-Message-ID: <sashiko-outbox-204775@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] HID: lg-g15: add LCD contrast LED
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Torstein Eide" <torsteine+linux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109094426.1432465-2-torsteine+linux@gmail.com>
-References: <20261109094426.1432465-1-torsteine+linux@gmail.com>
- <20261109094426.1432465-2-torsteine+linux@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 10:00:45 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=U/3+jibd;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=yOsGBGru
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 6B2787A017E
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 05:03:36 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Mon, 09 Nov 2026 05:03:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1794218612;
+	 x=1794305012; bh=NcBU2cPzzA69TnFKl3QcEWwS4YrVCELU3Z1b9WHRzow=; b=
+	U/3+jibdQ7w09n8aWRpqomoBEXOLgzf9E7RSvnbej+BpSS9jXiTaCxC+rp4EwjB7
+	2+ljXNHVwGmMepBnmucfLh2UcA9Aq/L1wfsP8mIdDKksvQpcrrT+IXiubOQMgv9x
+	w+2iC45jBQhDgymh+T8nMfy5aXmwg1WR37pHlCKT16zP9gxXli4VxYsZ3PN2vd6P
+	Pqi5zZ5f/Zdn0TlpGKwamFQ/ByApdgBYgHZsoQ/ofIFVgnVJTrnBrLTdkgjkHnLr
+	MQZEkCNE0qOirkqX0LboZ2tMgC/Ziwru9M+3ZOGucgXb8DOFhtO4LBpvJTYpamcb
+	AH4O+0RP+E2sQmxqUmb6OA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794218612; x=
+	1794305012; bh=NcBU2cPzzA69TnFKl3QcEWwS4YrVCELU3Z1b9WHRzow=; b=y
+	OsGBGrutSkhSdaQ/ocJkFKrEmFkUOXl4S6P103BxwZ8zsstGhHPRtEGO1GwbGes2
+	OMBAe2FwcaSmQX/O+XBwhT5oZsW5EjG0DVy8v7BrPquJR5uuMzuCURi4IqjmKgcB
+	8QwGeAvxBoVWRohYXXQIOgT/neg2AEOjhLYdjaHegPAJh5epFZnXmJA13yBKLDLC
+	3Wy7B1Lq61GuDRbowUgCuKojMjGHqfUQ9vWGpfhRkYyunycUOz/Ja6riBqhaZvqu
+	JqKWKulhxoaLaYKfl+IVynUB8mnLBEAAQ5mfi3EiZEcym+oENqd/b8uGUkmagRS+
+	V1oHmYgDPPGGuyXHcMIaw==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1794218612; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:ex1n7J3JflgAJfcXmVb+qKwsauVidxfGmey4y5lgXyTqkUY
+	0dJ7MmCcxUJ799Pa2ZjVLaWWX8H6BV004eNnMGsRwrLNpyN3cPC3UivJZaDV0umr
+	rOMbkmiFJrWYCcnqWSsUcEg2TP7g/0qGY9Yfjh5rdLfzdSUEVu+94z0DUoNxTV1T
+	/WlEmsgLLDNUadec8GtUqtb9cnlXXSJajacwM+X+Gpa3hqeDJpqrfgMlhsP7COn4
+	F3PouandY8AunM3KP4PtkV413Z5rXEoBD+6NFqKfqMiFTt1ako+rX4EfNosF+Poz
+	zWkWzlxs2dhkw/GTj43+IQYX+2Fa1LkbmeFteDQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:/T8MQmjz4GgBV8DREY1eJ8DpVLZE+wGw4tn3GSaZ7xU=:57Zn1j/vg5m77olubO1nUZ0hRd4/i5D+ObqZzW2/XIE=;
+X-ME-Sender: <xms:cJrxapzgnQqPss_-TwQrMYbyKTgsEz6hZ8621LCMpyVrbfZOmn0T5A>
+    <xme:cJrxakGeY5By--w60vNj9Wo3ydd-t3hOoDrHtZWN4O-bffoJ5y6tHcPiVc2GH-khh
+    lCZcW_xIZtljhaCardEgnKbIlLCQnsjqlIkHbMcqXD4PmBV7bNjqKvk>
+X-ME-Proxy-Cause: dmFkZTGvWADeWR/cH2ixjH2ih6Shn7KR8b6kzpUoRzcAgWCVZfdu5PxFSNYgCdsaBx4kaN
+    voP7dIVHKYz17En2UcFyHAph/oJuKXxytAVdfU4I8x/F6lTuiqhMeySiQmO4KuXRXZdF6X
+    y65RrVvohm3rtrGxnryzfbyb7+PrWXNZd02w2yJ86QnvVtkrRu39DaIiTVZ8O+fsx6Eo/h
+    mstnA7zFXRRLBJ8EtbIYWMy9ALVMztR49hHA5kQnxdSuWOMsBY518tECWvKFP3uwKMP1Uk
+    qtKLvNyebuxzJRINHjt8OdRLXuZ6RoC3ijSQwIWccFJO1SAcPpM7R75j/bwnWgXjFAgGD+
+    eacF6WdYw8srTH0TxqnS2/AASgz6v10E01ZNPe5Xx1N8h2aI0IP0NBkU9h6SK584V66C68
+    roKXba+DE/MtDgsKiZzrgtfn4U59rzi0fNgPq9A7EDMDmQppcX9YARd3KjraRKt1JRB7N+
+    wwzz6jL4Q6M9cMtrCd2vzH7SBS3If4zTS0PhBuW5MM8TImzSKHxODJQcQP/Y1Rn7UVCaLj
+    I9andH2RXfMutRY5nLTVhI1DhFEDJh0NXF3We+h9z2M50zcS9z3hrN5SfYjWIQ1PW1OhNN
+    mpgaCrPxfvKPkGpNaMoBvMqq9X+FVG3sdBWDd9Afo24nCrLJFuzYjiRqviHA
+X-ME-Proxy: <xmx:cprxavUQ6OAb7GkkSH7a-EuKBsPopbhUTIUUyKARXJsHCKiouD2UPQ>
+    <xmx:cprxajcpzFDVsQ3QyEqRyk9yspa1t22fXjOnuZIaIRsZ-s6vv9AOQQ>
+    <xmx:cprxaoYRdFRSwPwsIcuDgfJLZzqrc6VdZel4tKDFR8lVb0I33GFTEQ>
+    <xmx:cprxavNE41VAk_zq_paGGP-cPuBKMIjA7aYU82M5vnVU8ofljaMy-w>
+    <xmx:dJrxasDgAn3QgTRQ4zX-prmDKdcIj5kwR7Dvp1_aSxo4tlIjF-S4Dy04>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 5D2B732A0099; Mon,  9 Nov 2026 05:03:28 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,134 +114,61 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+X-ThreadId: AW8OeY5oRCck
+Date: Mon, 09 Nov 2026 11:00:31 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Nathan Chancellor" <nathan@kernel.org>, "Nicolas Schier" <nsc@kernel.org>
+Cc: "Daniel Mack" <daniel@zonque.org>, "Russell King" <linux@armlinux.org.uk>,
+ "Sasha Levin" <sashal@kernel.org>, linux-input@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Message-Id: <8560bc0d-5687-4b77-ab07-3d6dda465537@app.fastmail.com>
+In-Reply-To: <20261109080944.3802916-1-dmitry.torokhov@gmail.com>
+References: <20261109080944.3802916-1-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: apm-power - remove driver
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] HID: lg-g15: out-of-bounds read in lg_g15_contrast_set() on
-  unclamped brightness
-- [Low] HID: lg-g15: unlocked read of contrast brightness in
-  lg_g15_resume()
---
+On Mon, Nov 9, 2026, at 09:09, Dmitry Torokhov wrote:
+> The apm-power input handler solely listens for EV_PWR KEY_SUSPEND
+> events to queue APM_USER_SUSPEND via legacy APM emulation. The only
+> in-tree platforms generating those events are legacy Sharp Zaurus ARM
+> machines (spitz/borzoi/akita and collie), none of which were converted
+> to Device Tree. Both mach-pxa board files and mach-sa1100 were marked
+> deprecated in v7.3 by commit cc7852314abd ("ARM: PXA: mark remaining
+> board files as deprecated") and commit 7d92e50ceacd ("ARM: mark
+> mach-sa1100 as deprecated"), and are queued for removal in v7.5. None
+> of the remaining ARM platforms or other APM_EMULATION targets
+> (MIPS_ALCHEMY, PMAC_APM_EMU, and SH_HP6XX) emit EV_PWR input events or
+> enable CONFIG_INPUT_APMPOWER, and arch/arm/configs/pxa_defconfig
+> already dropped CONFIG_PXA_SHARPSL at the same time, leaving its
+> CONFIG_INPUT_APMPOWER=m entry inert.
+>
+> Normalizing dashes and underscores in scripts/modules-check.sh for v7.5
+> exposes a module name collision (apm_power) between
+> drivers/input/apm-power.ko and drivers/power/supply/apm_power.ko.
+> Remove this obsolete input bridge to resolve the collision rather than
+> renaming a module whose last target platforms are going away in the
+> same cycle.
 
-commit 8cb726418b3437c4e73ef257cf7f4986794e4a67
-Author: Torstein Eide <torsteine+linux@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-HID: lg-g15: add LCD contrast LED
+I missed this one and thought it was still needed, but your
+explanation makes sense.
 
-This commit adds an LED class device to control the LCD contrast on
-Logitech G15 and G15 v2 keyboards and restores the configured contrast on
-resume.
+I think we can follow the same logic for drivers/power/supply/apm_power.c
+and remove that once my board removal lands: the only actual battery
+that is ever registered with battery_desc.use_for_apm=1 is for the
+OLPC XO1.5, and that one does not have CONFIG_APM_EMULATION, so that
+can probably all go away.
 
-> diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-> index 02ef3e2094b4c..50abe6c58b10b 100644
-> --- a/drivers/hid/hid-lg-g15.c
-> +++ b/drivers/hid/hid-lg-g15.c
+Maybe we can then fold drivers/char/apm-emulation.c back into
+arch/sh/boards/mach-hp6xx/hp6xx_apm.c and drivers/macintosh/apm_emu.c
+as separate copies. This started out in the mac driver to be
+compatible with x86 and was later unified across architectures,
+but is entirely obsolete now except for the few 20+ year old
+machines that were converted to it in the past.
 
-[ ... ]
-
-> @@ -365,6 +375,57 @@ static int lg_g15_led_set(struct led_classdev *led_c=
-dev,
->  	return ret;
->  }
-> =20
-> +/*
-> + * LCD contrast, report 2 field 32: {2, 32, 129, value}, value in
-> + * {18, 22, 26} for low/medium/high. Distinct sub-format from the
-> + * brightness/macro fields (value sits in byte 3, not byte 2, and byte 2=
- is
-> + * a fixed marker rather than the field selector) and has no GET_REPORT
-> + * readback, so brightness_get just returns the last value we set.
-> + */
-> +static int lg_g15_contrast_set(struct led_classdev *led_cdev,
-> +			       enum led_brightness brightness)
-> +{
-> +	struct lg_g15_led *g15_led =3D
-> +		container_of(led_cdev, struct lg_g15_led, cdev);
-> +	struct lg_g15_data *g15 =3D dev_get_drvdata(led_cdev->dev->parent);
-> +	static const u8 contrast_values[] =3D { 18, 22, 26 };
-> +	int ret;
-> +
-> +	if (led_cdev->flags & LED_UNREGISTERING)
-> +		return 0;
-> +
-> +	mutex_lock(&g15->mutex);
-> +
-> +	g15->transfer_buf[0] =3D LG_G15_FEATURE_REPORT;
-> +	g15->transfer_buf[1] =3D 32;
-> +	g15->transfer_buf[2] =3D 129;
-> +	g15->transfer_buf[3] =3D contrast_values[brightness];
-
-[Severity: Medium]
-Can this read past the end of contrast_values[] when brightness > 2?
-
-When LED_SET_BRIGHTNESS or LED_BLINK_DISABLE is already set in
-led_cdev->work_flags (for example, during back-to-back sysfs writes to
-brightness), led_set_brightness() stores the unclamped brightness value in
-led_cdev->delayed_set_value before led_set_brightness_nosleep() clamps it
-to max_brightness:
-
-drivers/leds/led-core.c:led_set_brightness() {
-    ...
-		if (test_bit(LED_SET_BRIGHTNESS, &led_cdev->work_flags) ||
-		    test_bit(LED_BLINK_DISABLE, &led_cdev->work_flags)) {
-			led_cdev->delayed_set_value =3D brightness;
-			set_bit(LED_SET_BRIGHTNESS, &led_cdev->work_flags);
-			queue_work(led_cdev->wq, &led_cdev->set_brightness_work);
-			return;
-		}
-    ...
-}
-
-set_brightness_delayed() then passes delayed_set_value directly to
-brightness_set_blocking() without clamping, so a value >=3D 3 indexes out of
-bounds in contrast_values[], sends that byte in the feature report, and
-caches the out-of-bounds index in g15_led->brightness.
-
-[ ... ]
-
-> @@ -1389,12 +1465,33 @@ static void lg_g15_remove(struct hid_device *hdev)
->  	hid_hw_stop(hdev);
->  }
-> =20
-> +/*
-> + * The LCD does not retain its contrast across a USB reset or power loss;
-> + * re-apply the last value userspace set, if any.
-> + */
-> +static int lg_g15_resume(struct hid_device *hdev)
-> +{
-> +	struct lg_g15_data *g15 =3D hid_get_drvdata(hdev);
-> +	struct lg_g15_led *contrast;
-> +
-> +	if (!g15)
-> +		return 0;
-> +
-> +	contrast =3D &g15->leds[LG_G15_LCD_CONTRAST];
-> +	if (contrast->cdev.dev && g15->lcd_contrast_set)
-> +		lg_g15_contrast_set(&contrast->cdev, contrast->brightness);
-
-[Severity: Low]
-Can reading contrast->brightness without g15->mutex overwrite a concurrent
-contrast update?
-
-CPU0                              CPU1 (kworker)
-lg_g15_resume()
-  val =3D contrast->brightness
-                                  lg_g15_contrast_set(..., new_val)
-                                    mutex_lock(&g15->mutex)
-                                    hid_hw_raw_request(...)
-                                    contrast->brightness =3D new_val
-                                    mutex_unlock(&g15->mutex)
-  lg_g15_contrast_set(..., val)
-    mutex_lock(&g15->mutex)
-    hid_hw_raw_request(...)
-    contrast->brightness =3D val    <-- overwrites new_val
-    mutex_unlock(&g15->mutex)
-
-Because lg_g15_resume() reads contrast->brightness and
-g15->lcd_contrast_set before lg_g15_contrast_set() acquires g15->mutex, a
-concurrent update on leds_wq can complete in between and then be clobbered
-by the stale value on both the hardware and contrast->brightness.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109094426.1432=
-465-1-torsteine+linux@gmail.com?part=3D1
+       Arnd

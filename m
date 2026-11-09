@@ -1,88 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794231961;
-	b=Rf0GXU50lNAA0degP4eXZZsWpHm0onGA6NkqP5Xd5QXqPz1rmINOkwlasDN6LS1tLOZJ
-	 tjHw/FyI9xniWc07SfqObbTXhtFt6bOAHA/AYoaMGi6NL5NqnkMuPiG2smVkHPVZG9BiJ
-	 vBnpvNyqVsvSRsP7nAU07punrcDN4ayZkldHfubig5yf/Nn2oTty3tSiI4g+lTbWI7X5m
-	 +neR36wv3pcIa7B+tDN0bQmBxKBupa3FmV5H8Y/BpEHw5k0LGcYkwWg9nFPtvqpPcZxF7
-	 ypSiCioFZ/E7k2/3Eys34nLM3WQ19CEeMVTqrwp/vGV0c9yCJjq8oaJk3UGDGV09GgQ==
+	t=1794232152;
+	b=R8T54sdABQdjV+C5xJdmxAJgWyUOe8G80Tcy3kim3mE2efrpSnphWySaPmEGGiTNLTM5
+	 iFnjDRUU1yH6e9WN9QZp5EjHJKvJp5aHFawa85fQAJJ7GSdz602VwsZb1a7uxyVGhaUY+
+	 rmnrs2y8K1eFKV67RuUphQilhezOl6VZwEopEVDMqXU6oCWuY/Sasqh/++RQ84PMPeQKk
+	 AI2Pf5Qh1LYcYZISne88r0QiE6Xq6y84I3PbnGRZeRcuhksEHL3nc7xgfwm3UWB+ZEXwS
+	 jaP0e9OUswir3Ryik3vZ8jRZg5H5XRuxbZ4GUqeGSSqEof9l4R6HtpO3WREgFIdofVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794231961;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To;
-	bh=2IttIcKgL0vKNhvKWk69gg2kUvNLqT6VNsboFSUg3kk=;
-	b=aB8NikLz073EmY2uD/si/fa6LHzymTtJoh4Ifu9joLLjm/YLmJDTZp1JAtXCklxC/3OS
-	 q/0XQol0ZQ6WJuQ28rb0Ts13HOzQ/l4qBzuWjm1Q/miP8jFl5+H9YSPtu1o+qSjxCjTl2
-	 E4RHLlN+1jJ3hKbbl0T4jDpbO8fzM9ibJUrEFVBM74ClFRQY4Qg0qvgnI3XZlK8yCLjXB
-	 uopHh45tX00nJgyK9L9uwpqwBanZRZIcwBnE7H8qNx15HClWh4/LFPGXM9siQND/DHH0E
-	 /BpNRDeMpxtZb8ZMwpjhnItsjFLXqvF368e3Rxu9bV1x3EuUId2ggdJRuhcDufA8YMA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794232152;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=8PFZkQCD6ILn1s8X2AxhNNZGgEneoc7HoQXfmR+1pTg=;
+	b=oZ10KMTkpRs+TdDFoooudwRsEmnevCe50jJogBjyjF6qALaDCzfxLq+B3QqPU5deg7Gn
+	 Q7mWX5upjKmjUBPnWkViZDFuYQ96dc0ntX3hJK7H9/QvPWlNeT4VJV2CsBxkxpNu8q8gw
+	 +RSvTjVxhSNkR5Rqj0z+Las2U8nE7KCUbjiucoH4Fu0RmTKPvwYgyzVb3cQswZprzN+IX
+	 +ktrq4bzLaz+l5xCLjZ++ew/wQX5mG68uedkMQmPL0/NYC7s91U04Hepq/xymLErJZS1H
+	 iBP+uWwfkxFQ4Bx5g2LLugxvfrtJGlE/8uwU/7zEstBKvXiLvFxN9XxLJ644oAYcReg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=lunn.ch;
-	spf=pass smtp.mailfrom=lunn.ch;
-	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=vvkpw5nC;
-	arc=none smtp.remote-ip=156.67.10.101
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YrvuAWsn;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18D7606D806;
-	Mon,  9 Nov 2026 13:46:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C18D7606D806
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF61D606A31C;
+	Mon,  9 Nov 2026 13:49:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=vvkpw5nC
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=2IttIcKgL0vKNhvKWk69gg2kUvNLqT6VNsboFSUg3kk=; b=vvkpw5nCLudUCzq8Vifb2DqkGx
-	kGLbNSsg5SNGbUF/8eDZn3RbuZVaYN8yuFMCNN2LAuq766lfIQCtDmX4spECzkj0HnP+c+OqQ9JDg
-	3SbUlhnWq+AuSrWJRvoa+pF8GnEv8+SzHYUyhyd9DTaD3r5wNDWeQrzF8ZFAL3DUt7bs=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1xQPgl-00FGEi-MR; Mon, 09 Nov 2026 14:45:35 +0100
-Date: Mon, 9 Nov 2026 14:45:35 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v2 10/19] net: phy: Use the compatibility driver
- attachment API
-Message-ID: <ab062469-ece0-495e-8486-78404c580cdb@lunn.ch>
-References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YrvuAWsn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C6041F008A1;
+	Mon,  9 Nov 2026 13:49:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794232151;
+	bh=8PFZkQCD6ILn1s8X2AxhNNZGgEneoc7HoQXfmR+1pTg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=YrvuAWsneTIpjPHVpdFdeFQ/vyNnkHZbq2gfydvtaRDQdYQE/9TRnu35Iu02xiTZC
+	 5rcxFWeHs2xSn/AyZocNZXfDdlpBYe7YSzVNwVnQ1oJKK9yos8XekgXDK4ClVldt7O
+	 Iw6O0BEJOs1WRBDy7Z8c0ek7hTrKA2eKC8BKFWgMUvjJrDPf1OsN9MbohC/miY3ZUi
+	 GhJPpP9CppeUNFay6CcFwwhQdF7RhqPbJzJP+m5RDXJbOOcYNJUdDwcooCYoC+J0Dz
+	 lqVDmT6VwL9HFAG4oqM0UiTQIm4Ugo2uW2ei6IL652kF11UVpPsrd5x0Jp/n/VG4nj
+	 OFXaILSt2gpfQ==
+Message-ID: <f6f843ea-1ab2-45fc-b844-7fbb646c686e@kernel.org>
+Date: Mon, 9 Nov 2026 14:49:08 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -92,25 +51,125 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] HID: lg-g15: G15 v2 LCD and game-mode support
+To: Torstein Eide <torsteine+linux@gmail.com>, Jiri Kosina
+ <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Maoyi Xie <maoyixie.tju@gmail.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261109094426.1432465-1-torsteine+linux@gmail.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <20261109094426.1432465-1-torsteine+linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> @@ -1956,11 +1958,10 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
->  	}
->  	phydev->drv_owner = drv_owner;
->  
-> -	if (phydev->is_genphy_driven) {
-> -		err = d->driver->probe(d);
-> -		if (err >= 0)
-> -			err = device_bind_driver(d);
-> -
-> +	if (bind_genphy) {
-> +		err = device_driver_attach_full(drv, d);
-> +		if (err == -EBUSY)
-> +			irq = phydev->irq;
+Hi,
 
-Just looking at this, it is not clear where the EBUSY can from? And
-why set irq to phydev->irq?
++To: Benjamin Valentin <benpicco@googlemail.com>
 
-    Andrew
+Who also just submitted a G15 LCD HID framebuffer driver:
+
+https://lore.kernel.org/linux-input/20261108173920.424072-1-benpicco@googlemail.com/
+
+On 9-Nov-26 10:44, Torstein Eide wrote:
+> This series adds support for more of the Logitech G15 v2 hardware to
+> hid-lg-g15, plus a fix for the remove path.
+> 
+> Patch 1 exposes the GamePanel LCD contrast as a g15::lcd_contrast LED.
+> 
+> Patch 2 adds an optional fbdev framebuffer (HID_LOGITECH_G15_FB) for
+> the 160x43 monochrome LCD, updated through deferred I/O, so userspace
+> can draw on the LCD or bind fbcon to it without libg15/g15daemon.
+
+Ok, so both of you are trying to turn this into a /dev/fb# device, which
+I can understand but I'm not sure this is the best idea.
+
+The /dev/fb# API is sorta deprecated in favor of the /dev/dri/card#
+kernel-mode-setting (KMS) interface. Note this is not an invitation to
+turn this into a KMS driver instead. Please do NOT tell your LLM agent
+to turn this into a KMS driver.
+
+Regardless of /dev/fb# vs KMS the problem is that userspace code
+like GNOME/KDE will try to treat this as an actual display / an extra
+monitor and that userspace code will now need some special code to not
+treat it as such and may break without special handling added to it.
+
+And we *never* break userspace so using a userspace API which is
+intended for normal (extra) monitor / LCD panel  display output
+is not really appropriate IMHO.
+
+Which brings us to the question, why handle this in the kernel at
+all. I realize that libg15/g15daemon are no longer maintained and
+are obsolete. This is part of why I wrote the drivers/hid/hid-lg-g15.c
+driver to move handling of the key-presses into the kernel.
+
+But while handling key-presses is typically always done in the kernel
+so far these kind of small status displays (again not a full blown
+monitor / display output) has typically been done in userspace.
+
+There are several projects for this, e.g. lcdproc, which is still
+actively developed on github:
+
+https://github.com/lcdproc/lcdproc
+
+This works more or less out of the box with the G15 display, it does
+still rely on the libg15render library. But that can easily be fixed
+as shown by these kernel patches which in essence integrate a copy of
+the relevant libg15render bits.
+
+So maybe instead of writing a kernel driver you can write a PR for
+lcdproc to remove the dependency on the unmaintained libg15render,
+instead folding the render bits directly into the lcdproc code.
+
+Note that on Fedora (you can try by booting a F45 livecd) after
+installing lcdprod "sudo dnf install lcdproc" just replugging
+the G15 keyboard will trigger a udev script which automatically
+creates a lcdproc conf file to use the keyboard if no lcdproc.conf
+exists yet. So this pretty much works plug and play without any
+kernel changes...
+
+> Patch 3 binds the G15 v2's second interface (046D:C226), which is
+> currently handled by hid-generic, and exposes the Super-key-lock
+> ("Game Mode") state as a read-only g15::game_mode LED. Normal key
+> input on that interface is left to hid-input.
+
+Patches 1 and 3 do sound potentially interesting although I wonder
+how these interact with e.g. the existing lcdproc support which
+uses this interface directly in hidraw mode.
+
+Note again we never break userspace. So existing lcdproc setups
+must keep working with these changes.
+
+> Patch 4 fixes a use-after-free on remove: the LED work can be
+> rescheduled by a key press between cancel_work_sync() and
+> hid_hw_stop(). The bug predates this series, but the patch is
+> written against the remove path as changed by patches 1-3, so
+> it does not apply to the current tree on its own.
+
+I'll reply to this patch seperately.
+
+Regards,
+
+Hans
+
+
+> 
+> The LCD wire format and contrast commands follow libg15, hence the
+> Based-on-work-by tags for its authors.
+> 
+> All patches were tested on a Logitech G15 v2.
+> 
+> Torstein Eide (4):
+>   HID: lg-g15: add LCD contrast LED
+>   HID: lg-g15: add LCD pixel-content framebuffer
+>   HID: lg-g15: report Super-key-lock state on G15 v2's keyboard
+>     interface
+>   HID: lg-g15: cancel LED work only after stopping the hardware
+> 
+>  drivers/hid/Kconfig      |  13 +
+>  drivers/hid/hid-ids.h    |   1 +
+>  drivers/hid/hid-lg-g15.c | 599 ++++++++++++++++++++++++++++++++++++++-
+>  3 files changed, 606 insertions(+), 7 deletions(-)
+> 
+

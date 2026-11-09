@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794264690;
-	b=Un7uI8RnEuBs0Jfp3nyL1y7eWvsw6OKjyDOL+9+H32ShWw6jRj1kOHRTeR6dJ1uN/nsN
-	 xxjMjs1xXLH5HH/sSbwjlHcxUVKXzBelEOE+3gVZssG2pp1uZ8peYI7acJ8RiYd0r2ORp
-	 8oh557lSKsrkbwBs4E/yZEapeT1So8b+t6AjHQ01reKmVKFDWGCoXcI5UB45w9Z2w0CmA
-	 5hmjA6dJQGpaWrMXAjWxVZOtiraWmF3Aa1mHi1XhFj8Rh+ao9RnIqCyCCUO7gsAnHI9vx
-	 yR6/lF4fS61LcSMJxTYNMnFaPgl6du3CNp8qTY1DsFdw6bEsS6rP0QInvXybZtYTNmw==
+	t=1794264692;
+	b=eO7RzyIzDEKmrUhBgoQkoODj1j1YxDRVrSX/j+2f5esInsthgooHMsQCe4Drp6I/4P1E
+	 sXzZYIJkhofZLm8BwrMtVwsY2I6BO/mePq8VUs+3l43ae822cvy9KH+wqoLm9Gpife9nS
+	 f3o04LLrofHL4iCcKoQAuwS9lzO+CpjMfb5o5hg5KhDgTaO533CKkoiFzXLIcM1FGBhWS
+	 add/eTWW+uAoI54F5QQaBLy77MVLHc7Y7sJxwNMRW/BU2r8sz9+unUUvHsmG2Rp5rpQCq
+	 nDY3FlcWfCfuDshKTk9A0syGSXgWYbJ+hZFWKRscaBsZRv5J69y4012eXATmHd9zkwQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794264690;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794264692;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
-	b=knL8Ba3zn3G+rNAxR21Q2OhWNl9V8y4e3zQ2LW0ZBCB4B2qmc2LOpXRSQhVA52dsZfZ2
-	 HZHCYVtwDSGvA8/iZLZXVJvuupql2dLSxxWYu4jVQ6Gve+Q8WyHD4qe+sliCc7Ej/pKoX
-	 7S8YS+cv4Sem0lW5vcdt+ZhMr5eaEdSRNQJtFnFYo0RbTzvcZDXiKszDsanc0t4R9j9nO
-	 byDIEK5V86uo3558Pl1psnCd+cl06a2lJO9GEnVNjXqyEKEBmjLyYQrZ0YMYIjz04YXPs
-	 OJq5P4uGPhjRodTD2V5NR7+4EkX7epxHP5jbDay3e0E9bQECTmbntGaP0ayYGgTeFjw==
+	bh=GvOHniWa53++zB9hhvdbgfx5CQlkIGRX7Om2wVE6GuQ=;
+	b=po38N4x798uWO/Q5SNgYwc7eqTis9Q6vbgv61FU6QzBZ0Hj6UZM/oCNDOjgkn2xj2tHH
+	 JsHEnoYq3lKXRxI9tEmoBlZcszGdVDh0/FHj5dwD/VDBQkmireKS/tPG02Z/B4XG97kRG
+	 XL2mR2hz/RjqKm7R0P4iZdoIM/fZJPD0DwwKy/it8pOurH1uAGCzKNffNJ+148zUm/+TM
+	 HR1vfZCCb1qoyLHiOwJ4ndcigMC6/yyHmlv/eR8abGon/4UBqcfHKkRH2kgZXOquUCqWE
+	 FErHTm7O0oxJAX1/CJiLxEck41+XRCf4Rro+rHnqZVHyZd+QQlJJ7yZUel3v1rO8mtg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZHGqHgGg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=evwCWATp;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65336606A31C;
-	Mon,  9 Nov 2026 22:51:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A05606A335;
+	Mon,  9 Nov 2026 22:51:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZHGqHgGg
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=evwCWATp
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794264690;
-	b=b35aneQoJlEoazWSX3bDBdHDrytbbeSKfEqoM5gTRfv3mYxOT18c06nkH60dHC7uIEOj
-	 FKIdSVz0Ab8pBCvbImZDX31Y3gdEl9ROWHyMJzMhsT5v0pKjk1nTkSxqhO/abdDLFps6Z
-	 FYWVdbHMiexsrD0BktNhZniDpq1al3Z6V28wotTpWkUg5bwp9OF5FpwqiGJm1pUnA2Xsv
-	 tBphd0BI6NrP356iabyREEilFrTXurDWmZORTvWmA07lNduNISxITd2DXcaaR3+Gtl8kQ
-	 KZBvcMDUL5KEX6ZY2UVcnokcTa07b2CEY9b2RpZveI8DbgenoGVY65H3aAeIh4Ij7fg==
+	t=1794264691;
+	b=BwHPi9Hzj4ngkBaNe/hhnSGoR0Ybw5o66hRK0VVyhkj8LitnsYvnhH4/sCKcSsGGHeqS
+	 zOigzuqbCamH0UP8s7C5iN8puhS6TzCosQOdS7lsSIy6HtbU5Y+ZEJ5Sb4kxOxPjSImLz
+	 tpagQD1v91XLgaHmLT8+tbzj3W/h5nljC/I2lk2ev0clTiWtzBP8XjEtiFsAHa6shvrfM
+	 4StUq8CfF8QnJpSGTUOmTCVa2VkyGQt40zXhOF+7qLuKMCi/bY1zfCRWXKSZoIVj1ym4w
+	 nA571+5Rs/f8oYHfYup2/hMXL2D2eDv+o6LAbuzYMDqiYCyuQD77mzmgq3AhJ0fbYMg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794264690;
+	c=relaxed/relaxed; t=1794264691;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
-	b=e5sWq4RopryT0rGx0ZYKy7V0Ak8066bwXIQyl8wkjat7fNTcPNVnWxCvTt5Iwnx4fMR1
-	 LEr0/FdVuPf9ZyefYNjYA1jTFTFjnILCvNk6wp9wCj20elznjGFUNU/QGMTMTHjv+YXig
-	 YYr8MXcFsoIaHcwrsADNNxQuLZipb6clIYnAxIL/vo6pFmbx5LA58N32OzpvFFKhGg+2k
-	 O7Oz2r7UO7E1a73rft4YFEIWNM5NXgWEvCoQCyB1EVqvRDPmPhSt7a94HrLLBRdLpjDEQ
-	 eDo0LAeqq1SQl/8J+VsaQ8TrSm70N2jWstelnsurh2ft92aOiw4JyT5EC+cyk65wO2Q==
+	bh=GvOHniWa53++zB9hhvdbgfx5CQlkIGRX7Om2wVE6GuQ=;
+	b=kjfMrRJffDpk1iIO19fPrmMQqMAyA0+ShEBoLQya0tNgvUHtUAX6CmgWYkrm0zDDggh1
+	 L429xfdq7lz/W86g70S1QyYfbxq5MIMYNkVRN4hMaYqGrVV7wt+1YIq3NAiK8g4ttoOBL
+	 6E7qxiaXsXWkkatVEIQyt7pg6aKBx4L6A+0UDc2qthg6R9RHXJpC5vNmBo3ZQNsFn6DZA
+	 K1Eh9SeHtBZ0Fl4dcpJ6xblfF5Vd+zSqKkcuUnXmtJ/dDRxG7Vk/JJ+RwldElf7UE7TDZ
+	 n1972LpHaI2CWR4DYDqlZLP3+n1lmddHvvKVJzLeR37ptl/9LKVXLDW9LnZ/q8IOP8w==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id A946F1F008A1;
+	by smtp.kernel.org (Postfix) with ESMTPS id B1E5E1F008A2;
 	Mon,  9 Nov 2026 22:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794264690;
-	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
+	s=k20260515; t=1794264691;
+	bh=GvOHniWa53++zB9hhvdbgfx5CQlkIGRX7Om2wVE6GuQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=ZHGqHgGgVO+TNJM/ALScEKp06faQF6SrSNSsZGzXmRK6Vxo1bq0DC3rQKEQ2e3v3+
-	 VKBuq6ZN62yW25c5jwr+KnQaL6jbgjLzFMBrTfteucMIKanAwiup6CfwxG5nRk7sQu
-	 p1UsagZN/um+2N0uLtY3rMgjSqfYIiYEDvldgsbQdnKiI3jrMk30czS8SuXAyCJRAu
-	 iPsVe0L33M71O3P3BeqfPaARxuO+/67aSLqqJhdnc0JKfG6lraQ/lD1FAPwbn15Au2
-	 TPa+cDQnb3IHYGChMkFspBh1eQ8Cn37KvQrYTKfx41w8fnV8An58b2eeLXBiqBJx9K
-	 8uE3Z/CaPzFFg==
+	b=evwCWATpyTIHwQJIJDf/vc1RGbAhfXWLli0HrEZriNVqFv9KhoU52rBhMjjVFMJk8
+	 CXMhQuRd3jx8dyNHqjPcw06Z9ZQqcdvJQsLXgZ1pBiwBtbYQv1EkGibpc4Y2vlJp3x
+	 A9t7/j4xVdQhEx6UqkJnqcD7UlbKoFSW8fywmeLO99rsBhKW7qCL8xYQFT0jma3FJs
+	 wO/JsOdkprm9r9jTPKZfvXmSllRjutWaG+l/h8SiyHqNhIq+/AuPQIge6SVQxLrBbJ
+	 E6r2YUToDzIkCLwedYsE6iRV77UeSzixKKCN4/4LlEnkQf06C/jh3vfCjZYjifwOg7
+	 YYaBhsWJDW6og==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 292AE486E3;
+	by lkml.kernel.org (Postfix) with ESMTP id 39B30486DF;
 	Mon,  9 Nov 2026 22:51:29 +0000 (UTC)
 From: Ciro Pedrini via B4 Relay <devnull+ciro.pedrini.gmail.com@kernel.org>
-Date: Mon, 09 Nov 2026 22:50:21 +0000
-Subject: [PATCH RFC 1/2] platform/x86: ideapad-laptop: Ignore keyboard
- backlight hotkeys
+Date: Mon, 09 Nov 2026 22:50:22 +0000
+Subject: [PATCH RFC 2/2] HID: lenovo-legion: Add keyboard lighting driver
+ for Legion Gen 10
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +84,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261109-legion-lighting-rfc-v1-1-a87e1db8c5e3@gmail.com>
+Message-Id: <20261109-legion-lighting-rfc-v1-2-a87e1db8c5e3@gmail.com>
 References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
 In-Reply-To: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
 To: Mark Pearson <mpearson-lenovo@squebb.ca>, 
@@ -97,11 +97,11 @@ Cc: Werner Sembach <wse@tuxedocomputers.com>,
  platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Ciro Pedrini <ciro.pedrini@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794264688; l=1951;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794264688; l=26616;
  i=ciro.pedrini@gmail.com; h=from:subject:message-id;
- bh=Zl7fj9wurzonIdXlmNqfu1Wh3+5k9Rv1TlnZQXC74Oo=;
- b=R9FxoyG/QgvEAbey5++m3oEisB7lQcvb5/ZolCJ7L5vmlcQEWonjVgfrzzLr59JF6vkLJIPUp
- hz+aJFIczsWCasG8/l9hp0bS1UXiz/CDYdPBBzTTn/fNDNpJ6N1Z3cf
+ bh=q4MMMmkh6DYtnmUsQZUHkUBcGffAOXMskTuk+bb2iQA=;
+ b=8CcBXF2wno6U/tQayMCZuY+rUi6DsnBNsfbIIlFlQMA0cRwZVZLjKMU/pWU36dbe81/Zx4qhI
+ x6T32Q/gGHnDfIQ0vVoIvQaO2smKOXDTxBVQKDyA6zIhW3B8lFEg6b/
 X-Developer-Key: i=ciro.pedrini@gmail.com; a=ed25519;
  pk=TOSFlPBon1xBHfTrhODxatabgwEJdgKEzG3jMoMQcbc=
 X-Endpoint-Received: by B4 Relay for ciro.pedrini@gmail.com/default with
@@ -112,44 +112,816 @@ Content-Transfer-Encoding: 7bit
 
 From: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-On the Legion Pro 7 16IAX10H, Fn+Space (backlight effect), Fn+Up and
-Fn+Down (backlight brightness) emit WMI fn-key events 0x21, 0x1a and
-0x19, which the keymap does not cover, so they reach userspace as
-KEY_UNKNOWN. The keyboard's USB controller handles these keys itself: it
-switches the effect or changes the brightness, and reports the new level
-on its own HID interface. Ignore the three events, as is already done for
-FnLock and Esc, rather than mapping them to KEY_KBDILLUM*, which would
-make userspace change the brightness a second time.
+The keyboard and chassis lighting of the Legion Pro 7 16IAX10H is made of
+two USB devices:
 
-Tested on the 16IAX10H with 7.2: with the change, evtest shows no events
-for the three keys, and the keyboard still switches the effect and the
-brightness.
+- The ITE 8258 keyboard controller (048d:c197) is the built-in keyboard
+  and carries a vendor protocol (feature report 0x07, 960 bytes): a
+  hardware brightness 0..9, and a switch selecting whether the LEDs show
+  the controller's own effects or follow the LampArray below. Both are
+  stored in the controller. Fn+Up and Fn+Down are handled by the
+  controller, which reports the new level on vendor input report 5.
 
-The change and this changelog were prepared with Claude Code (Claude
-Opus 5.5), from measurements on the laptop (evtest on the "Ideapad
-extra buttons" device); I reviewed and tested them.
+- 048d:c193 interface 1 is a standard HID LampArray with 319 lamps (keys,
+  front strip, rear vents, lid logo). It only shows anything after the
+  controller hands the LEDs over, its colours are scaled by the
+  controller's brightness, and after resume from S3 it comes back reset,
+  in autonomous mode.
+
+Bind both and expose one multicolor LED, <name>:rgb:kbd_backlight:
+brightness is the controller's, and the hotkeys reach userspace through
+brightness_hw_changed. A lighting_mode attribute selects "firmware" (the
+default: the controller's effects, the driver leaves the LEDs alone so a
+userspace tool may drive the LampArray through hidraw) or "color" (every
+lamp shows multi_intensity, restored after resume); writing a new colour
+switches to "color". The two devices are paired by their USB bus. The
+other interface of c193 is started as hid-generic would.
+
+The controller's brightness can be 0 from the factory (it was on the test
+unit), which leaves every LED dark, LampArray included; the driver doesn't
+change it, the desktop shows the backlight as off and Fn+Up turns it on.
+
+Tested on the 16IAX10H with 7.2 as a module: brightness from sysfs and
+KDE, the hotkeys' OSD, colours on every zone, suspend/resume in both
+modes, a userspace LampArray client in "firmware" mode, and unbinding
+back to hid-generic.
+
+The driver and this changelog were prepared with Claude Code (Claude Opus
+5.5), from measurements on the laptop (usbmon captures, the LampArray's
+own attributes) and analysis of the vendor's Windows software for
+interoperability; I reviewed and tested them.
 
 Assisted-by: Claude:claude-opus-5-5
 Signed-off-by: Ciro Pedrini <ciro.pedrini@gmail.com>
 ---
- drivers/platform/x86/lenovo/ideapad-laptop.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../testing/sysfs-class-led-driver-lenovo-legion   |  20 +
+ MAINTAINERS                                        |   2 +
+ drivers/hid/Kconfig                                |  13 +
+ drivers/hid/Makefile                               |   1 +
+ drivers/hid/hid-ids.h                              |   2 +
+ drivers/hid/hid-lenovo-legion.c                    | 662 +++++++++++++++++++++
+ 6 files changed, 700 insertions(+)
 
-diff --git a/drivers/platform/x86/lenovo/ideapad-laptop.c b/drivers/platform/x86/lenovo/ideapad-laptop.c
-index 91a8d11c79c5..8b6c08b21c8d 100644
---- a/drivers/platform/x86/lenovo/ideapad-laptop.c
-+++ b/drivers/platform/x86/lenovo/ideapad-laptop.c
-@@ -1336,6 +1336,10 @@ static const struct key_entry ideapad_keymap[] = {
- 	{ KE_IGNORE,	0x02 | IDEAPAD_WMI_KEY },
- 	/* Esc (handled by the firmware) */
- 	{ KE_IGNORE,	0x03 | IDEAPAD_WMI_KEY },
-+	/* Keyboard backlight down, up and effect (handled by the keyboard) */
-+	{ KE_IGNORE,	0x19 | IDEAPAD_WMI_KEY },
-+	{ KE_IGNORE,	0x1a | IDEAPAD_WMI_KEY },
-+	{ KE_IGNORE,	0x21 | IDEAPAD_WMI_KEY },
- 	/* Customizable Lenovo Hotkey ("star" with 'S' inside) */
- 	{ KE_KEY,	0x01 | IDEAPAD_WMI_KEY, { KEY_FAVORITES } },
- 	{ KE_KEY,	0x04 | IDEAPAD_WMI_KEY, { KEY_SELECTIVE_SCREENSHOT } },
+diff --git a/Documentation/ABI/testing/sysfs-class-led-driver-lenovo-legion b/Documentation/ABI/testing/sysfs-class-led-driver-lenovo-legion
+new file mode 100644
+index 000000000000..3a543306006c
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-class-led-driver-lenovo-legion
+@@ -0,0 +1,20 @@
++What:		/sys/class/leds/<led>/lighting_mode
++Date:		November 2026
++KernelVersion:	7.5
++Contact:	Ciro Pedrini <ciro.pedrini@gmail.com>
++Description:	(RW) Who drives the keyboard and chassis LEDs of a Lenovo
++		Legion laptop whose lighting is an ITE keyboard controller
++		plus a HID LampArray (e.g. Legion Pro 7 Gen 10):
++
++		- firmware: the keyboard controller's own effects (the
++		  default). The driver doesn't touch the LEDs, so userspace
++		  may drive the LampArray itself through hidraw.
++		- color: every lamp shows the colour in multi_intensity.
++
++		Writing a new colour to multi_intensity also switches to
++		"color". In both modes, brightness is the controller's
++		hardware brightness (0..9).
++
++		Access: Read/Write
++
++		Valid values: firmware, color
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 222b7fc2c3aa..b9762ad715f2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15183,10 +15183,12 @@ M:	Derek J. Clark <derekjohn.clark@gmail.com>
+ M:	Mark Pearson <mpearson-lenovo@squebb.ca>
+ L:	linux-input@vger.kernel.org
+ S:	Maintained
++F:	Documentation/ABI/testing/sysfs-class-led-driver-lenovo-legion
+ F:	Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+ F:	Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+ F:	drivers/hid/hid-lenovo-go-s.c
+ F:	drivers/hid/hid-lenovo-go.c
++F:	drivers/hid/hid-lenovo-legion.c
+ F:	drivers/hid/hid-lenovo.c
+ 
+ LENOVO YOGA BOOK 9 KEYBOARD DOCK DRIVER
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2481bc01c435..cc060c58ed90 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -652,6 +652,19 @@ config HID_LENOVO_GO_S
+ 	S. Say M here to compile this driver as a module. The module will be called
+ 	hid-lenovo-go-s.
+ 
++config HID_LENOVO_LEGION
++	tristate "Lenovo Legion laptop keyboard lighting"
++	depends on USB_HID
++	depends on LEDS_CLASS_MULTICOLOR
++	help
++	Support for the keyboard and chassis lighting of 2025 Lenovo Legion
++	laptops (Legion Pro 7 Gen 10): the backlight brightness of the ITE
++	keyboard controller and one colour for every lamp of its HID LampArray,
++	as a multicolor kbd_backlight LED.
++
++	Say M here to compile this driver as a module. The module will be called
++	hid-lenovo-legion.
++
+ config HID_LETSKETCH
+ 	tristate "Letsketch WP9620N tablets"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 43a8eb0f389b..713bb1c89861 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -78,6 +78,7 @@ obj-$(CONFIG_HID_LCPOWER)	+= hid-lcpower.o
+ obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
+ obj-$(CONFIG_HID_LENOVO_GO)	+= hid-lenovo-go.o
+ obj-$(CONFIG_HID_LENOVO_GO_S)	+= hid-lenovo-go-s.o
++obj-$(CONFIG_HID_LENOVO_LEGION)	+= hid-lenovo-legion.o
+ obj-$(CONFIG_HID_LETSKETCH)	+= hid-letsketch.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-lg-g15.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa6516d..83cb09ca51f5 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -773,6 +773,8 @@
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
+ #define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
++#define USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_LAMPS	0xc193
++#define USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD	0xc197
+ #define I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD	0x8987
+ #define I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD	0x83db
+ #define USB_DEVICE_ID_ITE8595		0x8595
+diff --git a/drivers/hid/hid-lenovo-legion.c b/drivers/hid/hid-lenovo-legion.c
+new file mode 100644
+index 000000000000..923f03d4ed34
+--- /dev/null
++++ b/drivers/hid/hid-lenovo-legion.c
+@@ -0,0 +1,662 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * HID driver for the keyboard lighting of Lenovo Legion laptops (2025).
++ *
++ * Two USB devices form the lighting:
++ *
++ * - The ITE 8258 keyboard controller (048d:c197) is the built-in keyboard and
++ *   carries Lenovo's vendor lighting protocol: feature report 0x07, 960 bytes,
++ *   request "07 op len_lo len_hi params...", answer read back with a
++ *   GET_FEATURE as "07 op len_lo len_hi value..." once the controller has
++ *   prepared it (up to ~50 ms). Brightness is op 0xCE (set) / 0xCD (get),
++ *   0..9. Op 0xAA selects who drives the LEDs: 01 the controller's own
++ *   effects, 00 the LampArray below. Both are stored in the controller. The
++ *   firmware handles Fn+Up / Fn+Down and reports the new level on vendor
++ *   input report 5: "05 02 B" (raised) / "05 03 B" (lowered).
++ *
++ * - "Lenovo Lighting" (048d:c193) interface 1 is a standard HID LampArray
++ *   covering every LED (keys, front strip, rear vents, lid logo). It only
++ *   shows anything once the controller hands the LEDs over (0xAA 00), its
++ *   colours are scaled by the controller's brightness, and after resume from
++ *   S3 it comes back reset, in autonomous mode.
++ *
++ * Userspace sees one multicolor LED: brightness is the controller's, the
++ * colour goes to every lamp. Its lighting_mode attribute says who drives the
++ * LEDs: "firmware" (the controller's own effects; the driver leaves the LEDs
++ * alone, so a userspace tool may drive the LampArray itself) or "color" (the
++ * driver shows multi_intensity on every lamp). It starts as "firmware";
++ * writing a new colour to multi_intensity switches to "color".
++ */
++
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/led-class-multicolor.h>
++#include <linux/leds.h>
++#include <linux/list.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/unaligned.h>
++#include <linux/usb.h>
++#include <linux/workqueue.h>
++
++#include "hid-ids.h"
++
++/* Keyboard controller, vendor protocol */
++#define LEGION_REPORT_ID		0x07
++#define LEGION_REPORT_SIZE		960
++#define LEGION_ANSWER_DELAY_MS		100
++
++#define LEGION_OP_GET_BRIGHTNESS	0xcd
++#define LEGION_OP_SET_BRIGHTNESS	0xce
++#define LEGION_OP_LIGHTING_OWNER	0xaa
++#define LEGION_OWNER_LAMPARRAY		0x00
++#define LEGION_OWNER_FIRMWARE		0x01
++#define LEGION_MAX_BRIGHTNESS		9
++
++#define LEGION_EVENT_REPORT_ID		0x05
++#define LEGION_EVENT_BRIGHTNESS_UP	0x02
++#define LEGION_EVENT_BRIGHTNESS_DOWN	0x03
++
++/* LampArray (HID Usage Tables, Lighting and Illumination page 0x59) */
++#define LAMPARRAY_USAGE			0x00590001
++#define LAMPARRAY_ATTRIBUTES_ID		0x01
++#define LAMPARRAY_ATTRIBUTES_SIZE	23
++#define LAMPARRAY_RANGE_UPDATE_ID	0x05
++#define LAMPARRAY_RANGE_UPDATE_SIZE	10
++#define LAMPARRAY_CONTROL_ID		0x06
++#define LAMPARRAY_CONTROL_SIZE		2
++#define LAMPARRAY_UPDATE_COMPLETE	0x01
++
++struct legion_lamps;
++
++struct legion_kbd {
++	struct hid_device *hdev;
++	struct usb_bus *bus;		/* pairs it with its LampArray */
++	struct list_head node;		/* in legion_kbds */
++	struct mutex lock;		/* one request/answer exchange at a time */
++	u8 *buf;			/* LEGION_REPORT_SIZE, DMA-safe */
++	struct led_classdev_mc mc;
++	struct mc_subled subleds[3];
++	struct work_struct hw_changed_work;
++	unsigned int hw_brightness;	/* last level reported by the firmware */
++	spinlock_t event_lock;		/* protects ready */
++	bool ready;			/* LED registered: events may notify it */
++
++	/* Protected by legion_pair_lock */
++	struct legion_lamps *lamps;
++	u8 rgb[3];			/* last colour seen in multi_intensity */
++	bool color_set;			/* lighting_mode is "color" */
++	bool lamparray_owns;		/* we switched the controller to 0xAA 00 */
++};
++
++struct legion_lamps {
++	struct hid_device *hdev;
++	struct usb_bus *bus;
++	struct list_head node;		/* in legion_lamps_list */
++	struct mutex lock;		/* one report at a time */
++	u8 *buf;			/* LAMPARRAY_ATTRIBUTES_SIZE, DMA-safe */
++	u16 lamp_count;
++
++	struct legion_kbd *kbd;		/* protected by legion_pair_lock */
++};
++
++static DEFINE_MUTEX(legion_pair_lock);
++static LIST_HEAD(legion_kbds);
++static LIST_HEAD(legion_lamps_list);
++
++static struct usb_bus *legion_usb_bus(struct hid_device *hdev)
++{
++	return interface_to_usbdev(to_usb_interface(hdev->dev.parent))->bus;
++}
++
++/* Keyboard controller -------------------------------------------------- */
++
++/*
++ * Send one request. When @answer is non-NULL, wait for the controller to
++ * prepare its answer and return its value byte (byte 4) there.
++ */
++static int legion_exchange(struct legion_kbd *kbd, u8 op, const u8 *params,
++			   u8 len, u8 *answer)
++{
++	struct hid_device *hdev = kbd->hdev;
++	u8 *buf = kbd->buf;
++	int ret;
++
++	lockdep_assert_held(&kbd->lock);
++
++	memset(buf, 0, LEGION_REPORT_SIZE);
++	buf[0] = LEGION_REPORT_ID;
++	buf[1] = op;
++	buf[2] = len;			/* payload length, little endian */
++	buf[3] = 0;
++	memcpy(&buf[4], params, len);
++
++	ret = hid_hw_raw_request(hdev, LEGION_REPORT_ID, buf, LEGION_REPORT_SIZE,
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	if (ret < 0)
++		return ret;
++	if (!answer)
++		return 0;
++
++	msleep(LEGION_ANSWER_DELAY_MS);
++
++	memset(buf, 0, LEGION_REPORT_SIZE);
++	ret = hid_hw_raw_request(hdev, LEGION_REPORT_ID, buf, LEGION_REPORT_SIZE,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0)
++		return ret;
++	if (ret < 5 || buf[0] != LEGION_REPORT_ID || buf[1] != op) {
++		hid_warn(hdev, "unexpected answer to 0x%02x: %*ph\n", op,
++			 min(ret, 8), buf);
++		return -EIO;
++	}
++
++	*answer = buf[4];
++	return 0;
++}
++
++static int legion_set_owner(struct legion_kbd *kbd, u8 owner)
++{
++	const u8 params[2] = { owner, 0 };
++	int ret;
++
++	mutex_lock(&kbd->lock);
++	ret = legion_exchange(kbd, LEGION_OP_LIGHTING_OWNER, params,
++			      sizeof(params), NULL);
++	mutex_unlock(&kbd->lock);
++
++	return ret;
++}
++
++/* LampArray ------------------------------------------------------------ */
++
++static int lamps_set_feature(struct legion_lamps *lamps, const u8 *data,
++			     size_t size)
++{
++	int ret;
++
++	lockdep_assert_held(&lamps->lock);
++
++	memcpy(lamps->buf, data, size);
++	ret = hid_hw_raw_request(lamps->hdev, data[0], lamps->buf, size,
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++
++	return ret < 0 ? ret : 0;
++}
++
++static int lamps_set_autonomous(struct legion_lamps *lamps, bool autonomous)
++{
++	const u8 report[LAMPARRAY_CONTROL_SIZE] = {
++		LAMPARRAY_CONTROL_ID, autonomous,
++	};
++	int ret;
++
++	mutex_lock(&lamps->lock);
++	ret = lamps_set_feature(lamps, report, sizeof(report));
++	mutex_unlock(&lamps->lock);
++
++	return ret;
++}
++
++/* Host control, then every lamp in one colour. */
++static int lamps_set_color(struct legion_lamps *lamps, const u8 *rgb)
++{
++	u16 last = lamps->lamp_count - 1;
++	const u8 control[LAMPARRAY_CONTROL_SIZE] = { LAMPARRAY_CONTROL_ID, 0 };
++	const u8 update[LAMPARRAY_RANGE_UPDATE_SIZE] = {
++		LAMPARRAY_RANGE_UPDATE_ID, LAMPARRAY_UPDATE_COMPLETE,
++		0, 0,				/* first lamp */
++		last & 0xff, last >> 8,		/* last lamp */
++		rgb[0], rgb[1], rgb[2],
++		1,				/* intensity: on */
++	};
++	int ret;
++
++	mutex_lock(&lamps->lock);
++	ret = lamps_set_feature(lamps, control, sizeof(control));
++	if (!ret)
++		ret = lamps_set_feature(lamps, update, sizeof(update));
++	mutex_unlock(&lamps->lock);
++
++	return ret;
++}
++
++/* With legion_pair_lock held: show kbd->rgb, handing the LEDs over first. */
++static int legion_apply_color(struct legion_kbd *kbd)
++{
++	int ret;
++
++	lockdep_assert_held(&legion_pair_lock);
++
++	if (!kbd->lamps)
++		return 0;	/* applied when the LampArray binds */
++
++	if (!kbd->lamparray_owns) {
++		ret = legion_set_owner(kbd, LEGION_OWNER_LAMPARRAY);
++		if (ret)
++			return ret;
++		kbd->lamparray_owns = true;
++	}
++
++	return lamps_set_color(kbd->lamps, kbd->rgb);
++}
++
++/* With legion_pair_lock held: give the LEDs back to the controller. */
++static void legion_hand_back(struct legion_kbd *kbd)
++{
++	lockdep_assert_held(&legion_pair_lock);
++
++	if (!kbd->lamparray_owns)
++		return;
++
++	if (kbd->lamps)
++		lamps_set_autonomous(kbd->lamps, true);
++	legion_set_owner(kbd, LEGION_OWNER_FIRMWARE);
++	kbd->lamparray_owns = false;
++}
++
++/* LED ------------------------------------------------------------------ */
++
++static int legion_brightness_set(struct led_classdev *led,
++				 enum led_brightness value)
++{
++	struct led_classdev_mc *mc = lcdev_to_mccdev(led);
++	struct legion_kbd *kbd = container_of(mc, struct legion_kbd, mc);
++	u8 level = min_t(unsigned int, value, LEGION_MAX_BRIGHTNESS);
++	u8 rgb[3];
++	int i, ret;
++
++	mutex_lock(&kbd->lock);
++	ret = legion_exchange(kbd, LEGION_OP_SET_BRIGHTNESS, &level, 1, NULL);
++	mutex_unlock(&kbd->lock);
++	if (ret)
++		return ret;
++
++	/* A multi_intensity write ends up here too: apply a changed colour. */
++	for (i = 0; i < 3; i++)
++		rgb[i] = READ_ONCE(mc->subled_info[i].intensity);
++
++	mutex_lock(&legion_pair_lock);
++	if (memcmp(rgb, kbd->rgb, sizeof(rgb))) {
++		memcpy(kbd->rgb, rgb, sizeof(rgb));
++		kbd->color_set = true;
++		ret = legion_apply_color(kbd);
++	}
++	mutex_unlock(&legion_pair_lock);
++
++	return ret;
++}
++
++static enum led_brightness legion_brightness_get(struct led_classdev *led)
++{
++	struct led_classdev_mc *mc = lcdev_to_mccdev(led);
++	struct legion_kbd *kbd = container_of(mc, struct legion_kbd, mc);
++	u8 zero = 0, value = 0;
++	int ret;
++
++	mutex_lock(&kbd->lock);
++	ret = legion_exchange(kbd, LEGION_OP_GET_BRIGHTNESS, &zero, 1, &value);
++	mutex_unlock(&kbd->lock);
++
++	if (ret)
++		return led->brightness;	/* keep the last known level */
++
++	return min_t(unsigned int, value, LEGION_MAX_BRIGHTNESS);
++}
++
++static void legion_hw_changed_work(struct work_struct *work)
++{
++	struct legion_kbd *kbd = container_of(work, struct legion_kbd,
++					      hw_changed_work);
++
++	led_classdev_notify_brightness_hw_changed(&kbd->mc.led_cdev,
++						  READ_ONCE(kbd->hw_brightness));
++}
++
++static int legion_raw_event(struct hid_device *hdev, struct hid_report *report,
++			    u8 *data, int size)
++{
++	struct legion_kbd *kbd;
++	unsigned long flags;
++
++	if (hdev->product != USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD)
++		return 0;
++
++	kbd = hid_get_drvdata(hdev);
++	if (!kbd || size < 3 || data[0] != LEGION_EVENT_REPORT_ID)
++		return 0;
++
++	if (data[1] != LEGION_EVENT_BRIGHTNESS_UP &&
++	    data[1] != LEGION_EVENT_BRIGHTNESS_DOWN)
++		return 0;
++
++	spin_lock_irqsave(&kbd->event_lock, flags);
++	if (kbd->ready) {
++		WRITE_ONCE(kbd->hw_brightness,
++			   min_t(unsigned int, data[2], LEGION_MAX_BRIGHTNESS));
++		schedule_work(&kbd->hw_changed_work);
++	}
++	spin_unlock_irqrestore(&kbd->event_lock, flags);
++
++	return 0;	/* let hid-core handle the report as usual */
++}
++
++static struct legion_kbd *led_dev_to_kbd(struct device *dev)
++{
++	struct led_classdev *led = dev_get_drvdata(dev);
++
++	return container_of(lcdev_to_mccdev(led), struct legion_kbd, mc);
++}
++
++static ssize_t lighting_mode_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	struct legion_kbd *kbd = led_dev_to_kbd(dev);
++	bool color;
++
++	mutex_lock(&legion_pair_lock);
++	color = kbd->color_set;
++	mutex_unlock(&legion_pair_lock);
++
++	return sysfs_emit(buf, "%s\n", color ? "color" : "firmware");
++}
++
++static ssize_t lighting_mode_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf, size_t count)
++{
++	struct legion_kbd *kbd = led_dev_to_kbd(dev);
++	struct led_classdev_mc *mc = &kbd->mc;
++	int i, ret = 0;
++
++	mutex_lock(&legion_pair_lock);
++	if (sysfs_streq(buf, "color")) {
++		for (i = 0; i < 3; i++)
++			kbd->rgb[i] = READ_ONCE(mc->subled_info[i].intensity);
++		kbd->color_set = true;
++		ret = legion_apply_color(kbd);
++	} else if (sysfs_streq(buf, "firmware")) {
++		kbd->color_set = false;
++		legion_hand_back(kbd);
++	} else {
++		ret = -EINVAL;
++	}
++	mutex_unlock(&legion_pair_lock);
++
++	return ret ? ret : count;
++}
++static DEVICE_ATTR_RW(lighting_mode);
++
++static struct attribute *legion_led_attrs[] = {
++	&dev_attr_lighting_mode.attr,
++	NULL
++};
++ATTRIBUTE_GROUPS(legion_led);
++
++/* Probe and remove ----------------------------------------------------- */
++
++static int legion_kbd_probe(struct hid_device *hdev)
++{
++	struct legion_kbd *kbd;
++	struct legion_lamps *lamps;
++	int i, ret;
++
++	kbd = devm_kzalloc(&hdev->dev, sizeof(*kbd), GFP_KERNEL);
++	if (!kbd)
++		return -ENOMEM;
++
++	kbd->buf = devm_kzalloc(&hdev->dev, LEGION_REPORT_SIZE, GFP_KERNEL);
++	if (!kbd->buf)
++		return -ENOMEM;
++
++	kbd->hdev = hdev;
++	kbd->bus = legion_usb_bus(hdev);
++	mutex_init(&kbd->lock);
++	spin_lock_init(&kbd->event_lock);
++	INIT_WORK(&kbd->hw_changed_work, legion_hw_changed_work);
++	hid_set_drvdata(hdev, kbd);
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		return ret;
++
++	/* Keep the interrupt endpoint polled so hotkey reports always arrive. */
++	ret = hid_hw_open(hdev);
++	if (ret)
++		goto err_stop;
++
++	for (i = 0; i < 3; i++) {
++		kbd->subleds[i].color_index = LED_COLOR_ID_RED + i;
++		kbd->subleds[i].intensity = 255;
++		kbd->subleds[i].max_intensity = 255;
++		kbd->rgb[i] = 255;
++	}
++	kbd->mc.subled_info = kbd->subleds;
++	kbd->mc.num_colors = 3;
++	kbd->mc.led_cdev.name = "legion:rgb:kbd_backlight";
++	kbd->mc.led_cdev.color = LED_COLOR_ID_RGB;
++	kbd->mc.led_cdev.max_brightness = LEGION_MAX_BRIGHTNESS;
++	kbd->mc.led_cdev.brightness_set_blocking = legion_brightness_set;
++	kbd->mc.led_cdev.brightness_get = legion_brightness_get;
++	/*
++	 * LED_RETAIN_AT_SHUTDOWN: unregistering (unload, unbind) must not
++	 * switch the backlight off, the controller would store 0.
++	 * LED_BRIGHT_HW_CHANGED: Fn+Up/Down are reported to userspace.
++	 */
++	kbd->mc.led_cdev.flags = LED_RETAIN_AT_SHUTDOWN | LED_BRIGHT_HW_CHANGED;
++
++	ret = led_classdev_multicolor_register(&hdev->dev, &kbd->mc);
++	if (ret)
++		goto err_close;
++
++	/* Added afterwards: the multicolor class replaces led_cdev.groups. */
++	ret = device_add_groups(kbd->mc.led_cdev.dev, legion_led_groups);
++	if (ret)
++		goto err_unregister;
++
++	spin_lock_irq(&kbd->event_lock);
++	kbd->ready = true;
++	spin_unlock_irq(&kbd->event_lock);
++
++	mutex_lock(&legion_pair_lock);
++	list_add(&kbd->node, &legion_kbds);
++	list_for_each_entry(lamps, &legion_lamps_list, node) {
++		if (lamps->bus == kbd->bus && !lamps->kbd) {
++			lamps->kbd = kbd;
++			kbd->lamps = lamps;
++			hid_info(hdev, "paired with %s\n", dev_name(&lamps->hdev->dev));
++			break;
++		}
++	}
++	mutex_unlock(&legion_pair_lock);
++
++	return 0;
++
++err_unregister:
++	led_classdev_multicolor_unregister(&kbd->mc);
++err_close:
++	hid_hw_close(hdev);
++err_stop:
++	hid_hw_stop(hdev);
++	return ret;
++}
++
++static void legion_kbd_remove(struct hid_device *hdev)
++{
++	struct legion_kbd *kbd = hid_get_drvdata(hdev);
++
++	/* No new notifications, then wait for a pending one, then the LED. */
++	spin_lock_irq(&kbd->event_lock);
++	kbd->ready = false;
++	spin_unlock_irq(&kbd->event_lock);
++	cancel_work_sync(&kbd->hw_changed_work);
++	device_remove_groups(kbd->mc.led_cdev.dev, legion_led_groups);
++	led_classdev_multicolor_unregister(&kbd->mc);
++
++	mutex_lock(&legion_pair_lock);
++	legion_hand_back(kbd);
++	if (kbd->lamps)
++		kbd->lamps->kbd = NULL;
++	list_del(&kbd->node);
++	mutex_unlock(&legion_pair_lock);
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static int legion_lamps_probe(struct hid_device *hdev)
++{
++	struct legion_lamps *lamps;
++	struct legion_kbd *kbd;
++	int ret;
++
++	lamps = devm_kzalloc(&hdev->dev, sizeof(*lamps), GFP_KERNEL);
++	if (!lamps)
++		return -ENOMEM;
++
++	lamps->buf = devm_kzalloc(&hdev->dev, LAMPARRAY_ATTRIBUTES_SIZE,
++				  GFP_KERNEL);
++	if (!lamps->buf)
++		return -ENOMEM;
++
++	lamps->hdev = hdev;
++	lamps->bus = legion_usb_bus(hdev);
++	mutex_init(&lamps->lock);
++	hid_set_drvdata(hdev, lamps);
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = hid_hw_raw_request(hdev, LAMPARRAY_ATTRIBUTES_ID, lamps->buf,
++				 LAMPARRAY_ATTRIBUTES_SIZE, HID_FEATURE_REPORT,
++				 HID_REQ_GET_REPORT);
++	if (ret < 3 || lamps->buf[0] != LAMPARRAY_ATTRIBUTES_ID) {
++		hid_err(hdev, "can't read the LampArray attributes: %d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto err_stop;
++	}
++	lamps->lamp_count = get_unaligned_le16(&lamps->buf[1]);
++	if (!lamps->lamp_count) {
++		ret = -ENODEV;
++		goto err_stop;
++	}
++	hid_info(hdev, "LampArray with %u lamps\n", lamps->lamp_count);
++
++	mutex_lock(&legion_pair_lock);
++	list_add(&lamps->node, &legion_lamps_list);
++	list_for_each_entry(kbd, &legion_kbds, node) {
++		if (kbd->bus == lamps->bus && !kbd->lamps) {
++			kbd->lamps = lamps;
++			lamps->kbd = kbd;
++			hid_info(hdev, "paired with %s\n", dev_name(&kbd->hdev->dev));
++			if (kbd->color_set)
++				legion_apply_color(kbd);
++			break;
++		}
++	}
++	mutex_unlock(&legion_pair_lock);
++
++	return 0;
++
++err_stop:
++	hid_hw_stop(hdev);
++	return ret;
++}
++
++static void legion_lamps_remove(struct hid_device *hdev)
++{
++	struct legion_lamps *lamps = hid_get_drvdata(hdev);
++
++	mutex_lock(&legion_pair_lock);
++	if (lamps->kbd) {
++		if (lamps->kbd->lamparray_owns)
++			lamps_set_autonomous(lamps, true);
++		lamps->kbd->lamps = NULL;
++	}
++	list_del(&lamps->node);
++	mutex_unlock(&legion_pair_lock);
++
++	hid_hw_stop(hdev);
++}
++
++/* Resumed after a USB reset: the LampArray is back in autonomous mode. */
++static int legion_reset_resume(struct hid_device *hdev)
++{
++	struct legion_lamps *lamps = hid_get_drvdata(hdev);
++
++	if (hdev->product != USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_LAMPS || !lamps)
++		return 0;
++
++	mutex_lock(&legion_pair_lock);
++	if (lamps->kbd && lamps->kbd->lamparray_owns)
++		lamps_set_color(lamps, lamps->kbd->rgb);
++	mutex_unlock(&legion_pair_lock);
++
++	return 0;
++}
++
++static bool legion_is_lamparray(struct hid_device *hdev)
++{
++	return hdev->maxcollection > 0 &&
++	       hdev->collection[0].usage == LAMPARRAY_USAGE;
++}
++
++static int legion_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	if (!hid_is_usb(hdev))
++		return -ENODEV;
++
++	/* As hid-generic: one input device per application collection. */
++	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
++
++	ret = hid_parse(hdev);
++	if (ret)
++		return ret;
++
++	if (id->product == USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD)
++		return legion_kbd_probe(hdev);
++
++	if (legion_is_lamparray(hdev))
++		return legion_lamps_probe(hdev);
++
++	/* Other interfaces of c193: exactly what hid-generic would do. */
++	hid_set_drvdata(hdev, NULL);
++	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++}
++
++static void legion_remove(struct hid_device *hdev)
++{
++	if (hdev->product == USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD)
++		legion_kbd_remove(hdev);
++	else if (hid_get_drvdata(hdev))
++		legion_lamps_remove(hdev);
++	else
++		hid_hw_stop(hdev);
++}
++
++static const struct hid_device_id legion_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_LAMPS) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, legion_devices);
++
++static struct hid_driver legion_driver = {
++	.name = "hid-lenovo-legion",
++	.id_table = legion_devices,
++	.probe = legion_probe,
++	.remove = legion_remove,
++	.raw_event = legion_raw_event,
++	.reset_resume = pm_ptr(legion_reset_resume),
++};
++module_hid_driver(legion_driver);
++
++MODULE_AUTHOR("Ciro Pedrini <ciro.pedrini@gmail.com>");
++MODULE_DESCRIPTION("Keyboard lighting of Lenovo Legion laptops (2025)");
++MODULE_LICENSE("GPL");
 
 -- 
 2.56.0

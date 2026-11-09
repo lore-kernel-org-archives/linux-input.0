@@ -1,127 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794260762;
-	b=tbOlwOXekVLUa8P3DkPg/cfKY9eW6jiQ5B5uIhu9t+Qyj3Ln+fsLdWVBanshQ/MfeoId
-	 LBDMtgSgoCAqN8S60hH1hWlSu12Gbui1PdeviHkZagkATIdVPFsy57i1G33N88zqAtPL4
-	 1Aruk8Mr/w+e1OCsFmCC1uG0kcxt9OesoLJRLglnz7iTrVGht+jxv5Qv3s6Gkc+ztLXVR
-	 aaOj0jwzgC1kHmopC/L/HSBtyXBb4YEJTleWRUEl46+/+P3H/USq3p6tA2u8x8vUiOxv9
-	 iDTnLWSJT3TSqIZ2ACnpmHUuJvAUweBbzpQcnrJseEGRm0rktnJxn6PpXBsYDUltbtw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794260762;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=874yjmK9ypxK94+nKOJ/uR1d6HpqK0owgIThZQA8ZUA=;
-	b=go+foysxKETqo9jET4saQXvk7uLyVfzMdRxJrCmhYLVUhMW4fG01HhsVQ3OoLovso/vn
-	 nxJN+WmBIycSJKqUaFb/pKIhw1dq+IzPwnAwSYEy0AF6iEdu8K+5ldVSi27ncX5E8TXqU
-	 QP0FgbepMvJyPkpMDoZiZlw218pPKF/7Qdqb3U1bbYZlvWXrq7sLw5YY0pqXCFytL1r7M
-	 Hz9qbaRNK9mYPSs4fWUIZXTXC0ibqSNIIDVsJd7EECWLopOq9y7NbYzq7WeMonTygQ8xh
-	 eeCgpe2F5pEqhVitIRe/glPcjZxsApd52iMTZMtBdQxKgIoFUTl2TRAHM3YTr5xILxg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LaZ0qPv5;
-	arc=none smtp.remote-ip=209.85.221.51
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794264690;
+	b=Un7uI8RnEuBs0Jfp3nyL1y7eWvsw6OKjyDOL+9+H32ShWw6jRj1kOHRTeR6dJ1uN/nsN
+	 xxjMjs1xXLH5HH/sSbwjlHcxUVKXzBelEOE+3gVZssG2pp1uZ8peYI7acJ8RiYd0r2ORp
+	 8oh557lSKsrkbwBs4E/yZEapeT1So8b+t6AjHQ01reKmVKFDWGCoXcI5UB45w9Z2w0CmA
+	 5hmjA6dJQGpaWrMXAjWxVZOtiraWmF3Aa1mHi1XhFj8Rh+ao9RnIqCyCCUO7gsAnHI9vx
+	 yR6/lF4fS61LcSMJxTYNMnFaPgl6du3CNp8qTY1DsFdw6bEsS6rP0QInvXybZtYTNmw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794264690;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
+	b=knL8Ba3zn3G+rNAxR21Q2OhWNl9V8y4e3zQ2LW0ZBCB4B2qmc2LOpXRSQhVA52dsZfZ2
+	 HZHCYVtwDSGvA8/iZLZXVJvuupql2dLSxxWYu4jVQ6Gve+Q8WyHD4qe+sliCc7Ej/pKoX
+	 7S8YS+cv4Sem0lW5vcdt+ZhMr5eaEdSRNQJtFnFYo0RbTzvcZDXiKszDsanc0t4R9j9nO
+	 byDIEK5V86uo3558Pl1psnCd+cl06a2lJO9GEnVNjXqyEKEBmjLyYQrZ0YMYIjz04YXPs
+	 OJq5P4uGPhjRodTD2V5NR7+4EkX7epxHP5jbDay3e0E9bQECTmbntGaP0ayYGgTeFjw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZHGqHgGg;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65336606A31C;
+	Mon,  9 Nov 2026 22:51:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZHGqHgGg
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794264690;
+	b=b35aneQoJlEoazWSX3bDBdHDrytbbeSKfEqoM5gTRfv3mYxOT18c06nkH60dHC7uIEOj
+	 FKIdSVz0Ab8pBCvbImZDX31Y3gdEl9ROWHyMJzMhsT5v0pKjk1nTkSxqhO/abdDLFps6Z
+	 FYWVdbHMiexsrD0BktNhZniDpq1al3Z6V28wotTpWkUg5bwp9OF5FpwqiGJm1pUnA2Xsv
+	 tBphd0BI6NrP356iabyREEilFrTXurDWmZORTvWmA07lNduNISxITd2DXcaaR3+Gtl8kQ
+	 KZBvcMDUL5KEX6ZY2UVcnokcTa07b2CEY9b2RpZveI8DbgenoGVY65H3aAeIh4Ij7fg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794264690;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
+	b=e5sWq4RopryT0rGx0ZYKy7V0Ak8066bwXIQyl8wkjat7fNTcPNVnWxCvTt5Iwnx4fMR1
+	 LEr0/FdVuPf9ZyefYNjYA1jTFTFjnILCvNk6wp9wCj20elznjGFUNU/QGMTMTHjv+YXig
+	 YYr8MXcFsoIaHcwrsADNNxQuLZipb6clIYnAxIL/vo6pFmbx5LA58N32OzpvFFKhGg+2k
+	 O7Oz2r7UO7E1a73rft4YFEIWNM5NXgWEvCoQCyB1EVqvRDPmPhSt7a94HrLLBRdLpjDEQ
+	 eDo0LAeqq1SQl/8J+VsaQ8TrSm70N2jWstelnsurh2ft92aOiw4JyT5EC+cyk65wO2Q==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9254C606A333
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 21:46:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9254C606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LaZ0qPv5
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-490c1d337d8so966213f8f.2
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 13:46:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794260761; x=1794865561; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=874yjmK9ypxK94+nKOJ/uR1d6HpqK0owgIThZQA8ZUA=;
-        b=LaZ0qPv5+whTFQHjIA7oYo021SUS2QeXnWN8ii9Y4im7Ue68o46nz2xh/hHMwIUfQ/
-         ICad5fyoXePYl6/8nNVhZk6UxBKiDwJbHcHq6QklDSJskt7Ox2MaUqpcgklbAASOb1WD
-         7U13gt1MK2zXHTSuMFiAfjmE40I4QhfpTIR2Mc6nMOBQW6Dg/mqe6U/h69Hyf/QnrKae
-         CyKIviPRPYc2tnG0IM8qOylYYY2PKnrUJzf833wY0ZcFYDbyZdAS7ekVESO+FaUUNtdA
-         WzN6sPDUCv7pE3hPSGmxzNcqgZM1jmpktE+mpPCXGo9ukB9qCsiBySNit7DIM51G+Ivt
-         K68Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794260761; x=1794865561;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=874yjmK9ypxK94+nKOJ/uR1d6HpqK0owgIThZQA8ZUA=;
-        b=hkHoLOu6dpTM4g0RWaQVz8Tij9OZmJaAXP11E9F6FzGk6az17UgVuUo1AgxVaNf4Ew
-         h2ulrRhuDDxagrk6B6spNN4PZ4/05lnapfiJAslBKl+nrt6jmA81Q68lvGJVmNXhmO1m
-         2DnXSzPJXzWia4wXVjMOpEsom8M5o2ZjdhWH5nUfnixpnugi+iMe1x9NH6QN+d6KxBXF
-         syUu8Vuo01AI4mZrM2+AJY1DieC9TBjEAXHieZDP9LJcjEfL+XU9dd9qAHwHEM8oCUlL
-         8nNcZ+6AMEcoFZkJETGW3FnvQYGadiicdTVRZ1UlONO2dl/eF7Zz+KpoGBUfMOMq/POm
-         FI1Q==
-X-Forwarded-Encrypted: i=1; AL+hErGTYeiLJm34cGy5d09Nx8ISNKRlojzNCBMPTEJOFxdU6pZRepkEJJ0Y/sd8aEs/U1IzFLkaZccosOBpIg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+RqJ2Lda+Xa8O4AjPTWKudAGQ7LdLyY9bDN5XmQHTIj3E7k5f/
-	Yzqq2s3Sbh8d1QDxCZE06TXL05sOOUz5QXcl2/1Upt5t+R7EkBsgo+5F
-X-Gm-Gg: AYBFou0iYWu5bXd3UMOItW3DT5By36HQcleMazQquCofSuCWIEvpyKy700OUP3++pyK
-	wXeEx9E4so8oIAWjMDFR5dGfCClm0tcLaQp78hQic8yZnGexa/iJlKgWIjWvoa+D2n3Na/R17fJ
-	6I0e6c6UI5/ob5BguXi5QHJPDg9Tdu2VawLRqSiLQ3yEbumEUOgS8SAlMzDxkwIpUg7MHzBehCf
-	l4rELhECMEKu4bujcel3HTQGwsc0iVJJlnUV3CZiEcpZKT7ACLTk4x1McZCqxZVzKNS7VPRVSfc
-	rixLUvN7/C4b16cuEUkWQasSgEvZH4MNasNfQPN1be0meBfaYLm2hnQZFbRKcdwrD3BI9lpZ2Iy
-	dzSdsVOdOWBHVv0OXv9gGLG7DOrEgHkPUlcfaBwYrLi9Oq/sLyvP7AUVpKjXnVy+3GSyM1OQV1m
-	PvHm+zpi5Q8jAkD4+o0yv+nYuBNLt6PLxoYYmGIQnUv4NSqsQVLiQr66mk4JC2brhJuYC4xPnkT
-	+LeImvQx6Jh2CdlT/F0xrJR+USTkBcnaH6VH8J8+8CbJkHzwNBHWHW5aTzlPdkKavy1N6zX7pNZ
-	8Zc2Ja90dWxkol2EG7UmCoN31fRlhqDpaF38SIyDZG9Gshem/AA2Oq0zATxgZwqDSg==
-X-Received: by 2002:a05:6000:288d:b0:48e:25e1:5eb8 with SMTP id ffacd0b85a97d-4982b28aa42mr1487213f8f.3.1794260760763;
-        Mon, 09 Nov 2026 13:46:00 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4983585c4fdsm1213644f8f.10.2026.11.09.13.45.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 13:46:00 -0800 (PST)
-Date: Mon, 9 Nov 2026 21:45:58 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc: Christian Brauner <brauner@kernel.org>, Geert Uytterhoeven
- <geert@linux-m68k.org>, linux-fsdevel@vger.kernel.org, Linus Torvalds
- <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik
- <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, Jeff Layton
- <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet
- <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Al Viro
- <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph
- Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados
- <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara
- <jack@suse.cz>, Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-um@lists.infradead.org,
- linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- netdev@vger.kernel.org, ntfs3@lists.linux.dev,
- platform-driver-x86@vger.kernel.org, coreteam@netfilter.org,
- kexec@lists.infradead.org, linux-pci@vger.kernel.org,
- linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net,
- jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org,
- linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org,
- linux-mm@kvack.org, linux-sh@vger.kernel.org, linux-usb@vger.kernel.org,
- samba-technical@lists.samba.org, sparclinux@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org,
- linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, Chuck Lever
- <cel@kernel.org>
-Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
- pinning the entry
-Message-ID: <20261109214558.0d9d5228@pumpkin>
-In-Reply-To: <alpine.DEB.2.21.2611090504170.17804@angie.orcam.me.uk>
-References: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
-	<CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
-	<20261107-akteur-gemieden-eckdaten-21304d085e35@brauner>
-	<20261108185953.28054fb3@pumpkin>
-	<alpine.DEB.2.21.2611090504170.17804@angie.orcam.me.uk>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	by smtp.kernel.org (Postfix) with ESMTPS id A946F1F008A1;
+	Mon,  9 Nov 2026 22:51:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794264690;
+	bh=Xh/cTn4SHxtNgCCKSBrzXT1MLTrBAa30pZNt44cHkqs=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=ZHGqHgGgVO+TNJM/ALScEKp06faQF6SrSNSsZGzXmRK6Vxo1bq0DC3rQKEQ2e3v3+
+	 VKBuq6ZN62yW25c5jwr+KnQaL6jbgjLzFMBrTfteucMIKanAwiup6CfwxG5nRk7sQu
+	 p1UsagZN/um+2N0uLtY3rMgjSqfYIiYEDvldgsbQdnKiI3jrMk30czS8SuXAyCJRAu
+	 iPsVe0L33M71O3P3BeqfPaARxuO+/67aSLqqJhdnc0JKfG6lraQ/lD1FAPwbn15Au2
+	 TPa+cDQnb3IHYGChMkFspBh1eQ8Cn37KvQrYTKfx41w8fnV8An58b2eeLXBiqBJx9K
+	 8uE3Z/CaPzFFg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 292AE486E3;
+	Mon,  9 Nov 2026 22:51:29 +0000 (UTC)
+From: Ciro Pedrini via B4 Relay <devnull+ciro.pedrini.gmail.com@kernel.org>
+Date: Mon, 09 Nov 2026 22:50:21 +0000
+Subject: [PATCH RFC 1/2] platform/x86: ideapad-laptop: Ignore keyboard
+ backlight hotkeys
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -131,34 +83,75 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261109-legion-lighting-rfc-v1-1-a87e1db8c5e3@gmail.com>
+References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
+In-Reply-To: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
+To: Mark Pearson <mpearson-lenovo@squebb.ca>, 
+ "Derek J. Clark" <derekjohn.clark@gmail.com>, Rong Zhang <i@rong.moe>, 
+ Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Werner Sembach <wse@tuxedocomputers.com>, 
+ Aaron Erhardt <aer@tuxedocomputers.com>, 
+ platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, Ciro Pedrini <ciro.pedrini@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794264688; l=1951;
+ i=ciro.pedrini@gmail.com; h=from:subject:message-id;
+ bh=Zl7fj9wurzonIdXlmNqfu1Wh3+5k9Rv1TlnZQXC74Oo=;
+ b=R9FxoyG/QgvEAbey5++m3oEisB7lQcvb5/ZolCJ7L5vmlcQEWonjVgfrzzLr59JF6vkLJIPUp
+ hz+aJFIczsWCasG8/l9hp0bS1UXiz/CDYdPBBzTTn/fNDNpJ6N1Z3cf
+X-Developer-Key: i=ciro.pedrini@gmail.com; a=ed25519;
+ pk=TOSFlPBon1xBHfTrhODxatabgwEJdgKEzG3jMoMQcbc=
+X-Endpoint-Received: by B4 Relay for ciro.pedrini@gmail.com/default with
+ auth_id=1468
+X-Original-From: Ciro Pedrini <ciro.pedrini@gmail.com>
+Reply-To: ciro.pedrini@gmail.com
 Content-Transfer-Encoding: 7bit
 
-On Mon, 9 Nov 2026 05:05:57 +0000 (GMT)
-"Maciej W. Rozycki" <macro@orcam.me.uk> wrote:
+From: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-> On Sun, 8 Nov 2026, David Laight wrote:
-> 
-> > > > While at it, I think it would be good to use this conversion as an
-> > > > opportunity to replace "char *" by "void *", which will probably let
-> > > > you drop several casts from users.    
-> > > 
-> > > So I tried that too. The thing is it drops exactly one u8 * cast in
-> > > ntfs3's label write.   
-> > 
-> > Since char is now unsigned that one isn't even needed...  
-> 
->  Please excuse me missing the context, but what circumstances does your 
-> claim refer to?
+On the Legion Pro 7 16IAX10H, Fn+Space (backlight effect), Fn+Up and
+Fn+Down (backlight brightness) emit WMI fn-key events 0x21, 0x1a and
+0x19, which the keymap does not cover, so they reach userspace as
+KEY_UNKNOWN. The keyboard's USB controller handles these keys itself: it
+switches the effect or changes the brightness, and reports the new level
+on its own HID interface. Ignore the three events, as is already done for
+FnLock and Esc, rather than mapping them to KEY_KBDILLUM*, which would
+make userspace change the brightness a second time.
 
-Just that the cast would have to be:
-	u8 *foo = (u8 *)bar;
-where 'bar' is 'char *', and I don't think you need a cast there when
-char is unsigned.
+Tested on the 16IAX10H with 7.2: with the change, evtest shows no events
+for the three keys, and the keyboard still switches the effect and the
+brightness.
 
-David
- 
-> 
->   Maciej
-> 
+The change and this changelog were prepared with Claude Code (Claude
+Opus 5.5), from measurements on the laptop (evtest on the "Ideapad
+extra buttons" device); I reviewed and tested them.
+
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: Ciro Pedrini <ciro.pedrini@gmail.com>
+---
+ drivers/platform/x86/lenovo/ideapad-laptop.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/platform/x86/lenovo/ideapad-laptop.c b/drivers/platform/x86/lenovo/ideapad-laptop.c
+index 91a8d11c79c5..8b6c08b21c8d 100644
+--- a/drivers/platform/x86/lenovo/ideapad-laptop.c
++++ b/drivers/platform/x86/lenovo/ideapad-laptop.c
+@@ -1336,6 +1336,10 @@ static const struct key_entry ideapad_keymap[] = {
+ 	{ KE_IGNORE,	0x02 | IDEAPAD_WMI_KEY },
+ 	/* Esc (handled by the firmware) */
+ 	{ KE_IGNORE,	0x03 | IDEAPAD_WMI_KEY },
++	/* Keyboard backlight down, up and effect (handled by the keyboard) */
++	{ KE_IGNORE,	0x19 | IDEAPAD_WMI_KEY },
++	{ KE_IGNORE,	0x1a | IDEAPAD_WMI_KEY },
++	{ KE_IGNORE,	0x21 | IDEAPAD_WMI_KEY },
+ 	/* Customizable Lenovo Hotkey ("star" with 'S' inside) */
+ 	{ KE_KEY,	0x01 | IDEAPAD_WMI_KEY, { KEY_FAVORITES } },
+ 	{ KE_KEY,	0x04 | IDEAPAD_WMI_KEY, { KEY_SELECTIVE_SCREENSHOT } },
+
+-- 
+2.56.0
+
 

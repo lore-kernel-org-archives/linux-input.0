@@ -1,69 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.11
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794181955;
-	b=cqnprarQhneuePJVSt8hy3zaF6N4tW0Ng09ac7zPb1VrKRkrcHW3q95rXuoH7u2Ue7l2
-	 gKhcfR1Iv6Me8q4Jfqhh0e/NAhCBF++hhMF7puHo8nhrukN0j+F+IFr/iq+rkuJkLZE/o
-	 xiQjA5ZRZw170jV5OQSyWcUUKEjRs2U8agByWTXPzWLDEx8mlRGKxnxkMUPEe/RFsvb77
-	 txtJzYsyVbCdt8YE4qMQ6pUkCCUl1T2uUZ1OU6X+C8fuevcTgFCNn0NY8Pv0SC+K0UUzq
-	 s8bMDq0wHYgR42pmB/EHarXzQiTe7/qLCRMF19yrvrwtYQnvfI0W5vza/ftU2Pg4qXQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794181955;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Zoho-Virus-Status:X-Zoho-AV-Stamp:
-	 X-ZohoMailClient;
-	bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=;
-	b=FixskRu9z5AQcALbyitr4e2+isBqHBLau4YPuYHGQpbpTI2QrBcVjKR3FzTWpwciHaa+
-	 nIPbh71+ZX4wmJ9nwPQG0tHZyESqm4xzF1XpQ5QmsoiUYhWuSC+CjcYZVfEsAhO/tt9nP
-	 lMQY7eqvHTi16YeZp+o7aiDqEJCwrIn3P1sOnpxh2Cov+vgU9EABxo3cZOjiujHYBvWcV
-	 1SjZ9Y+n1F0lnWww+lG5cwqxljh1T3zeVA+aEJjKNOJvmXe37KEqU1wRiM5959qT0JRBU
-	 G3BQjHBTyDkVXKRF/2mHX5OVBZQmZ7UeiWPrnGo3hAe7Ygy6Ietd6+9BO7drDH6vYmA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=collabora.com;
-	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=OpUROlzi;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.11
-Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.13
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794185250;
+	b=BcNDEV61sytZSDpuXNX9TV6jwhSUTD4J3oARiz3/y0jNMAmHxCpzIcmstrf646BtqgXO
+	 gv0lFrLRY0gfxlcuetRjHhSpl1sSemg3NdUkGUVxRrtvmGex0nyFYMu9AylQ8ZtRroYs/
+	 daHC5m29E3+eimWRvmYgwCKCo+Mbn1R4Yn8T1qlIkyHyusf5doKsZ4ot6OE4p5tE9G0iW
+	 PofYKaAQtr3mXk8ZlUXdt6z7pNc9zBlWG838DNync9pOQkoeFAnYbMoinbG2u2OdaD/O0
+	 etMXVqxTn89I57aqE8Gmo+ZfIqcuaUfBeG7IXoB2ucuPjSXWMI9SxQGnQXlJpcfM4xg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794185250;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=TN4OnWdI7EsV7/wNiHyf3x6f9m0nwMthB86eoS3unrw=;
+	b=iZfwLeg7QluuqOLpp1BQBgx4xAkmiOcRZQ+ztOqVIZiIbCRL7jWtSAdGCjuAmjg9gXDO
+	 Bfz1taTccgGRgGTlCuzREtCJrOgQIdHd7nzzmBarRjeJma9j0NWbopb+/iY6kA9/f9jlw
+	 vaGhy5S4Kj4KWZXkKYAGYISLC4/xbqaWVhhQhpy98VdRniF8+mapWeC8cstFsU8I71Bvr
+	 DZ3nv31cbJszG6qUmPDBDb2hQYTIt5JcawYqzeyWjFPvXW2r4gggVHunb1s3Z31W8/RjU
+	 337arQ3e5N0MCg0HmNXzn7gkBi1CaIVN59nSpPDnuCoK9OUbjf0oD6jYWpaEaKxi08g==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XCs8VKrK;
+	arc=none smtp.remote-ip=198.175.65.13
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 978CE606A31C;
-	Sun,  8 Nov 2026 23:52:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 978CE606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFC9A606A320;
+	Mon,  9 Nov 2026 00:47:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EFC9A606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=OpUROlzi
-ARC-Seal: i=1; a=rsa-sha256; t=1794181941; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=BtFzMLxCW7POmHOdJvh+YwHALuxCRW48T/bezj1uC6xdFetr9tIPL7Iszd+OdGzDicTRGJXtluttjiQHye306N07B5G1fxSyWDVuKI93VbJIqsOwpo/m03zWmCPb/0yOhHJPMj2wy+qakZFU4U5nb947JLi2dTQ/yyAdRZ9y998=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794181941; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=; 
-	b=J+ztNFldbR4GOE2FU2XTryHLrv70bkTrCOYeKe8n+7e33QZ+R21A92K0UTx9gaqBAMP31H3JgegChUbV6xhg9poA52MKbC58qMmlS3v4FGfDbc3WKsdGqsYiad3DCLfB0YMviEQCN7ANl3qlVVadvOtVHV157pA3H1okdvHEVsc=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=sebastian.reichel@collabora.com;
-	dmarc=pass header.from=<sebastian.reichel@collabora.com>
-DKIM-Signature: a=rsa-sha256; b=OpUROlziJtMRtlVCbGddqbMWE4oPwZCM2nLSQ0fOYpEOqEce/RZWih6LsE2v456FiUtwqV+oBvq/s+yjeaBo6HGRjAN1E0TtLlCggAwV9aUZ4e5ByC6gmgBnLLwSIcbwii+MVqEFMnl6+Op8qHmivM/j1cf7k5lS1pvwNyD9Njk=; c=relaxed/relaxed; s=zohomail; d=collabora.com; v=1; bh=ZzZmW7U0j2vJpHF2NsUFVQax3mLzJ80uqYTPEp5SWu8=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794181940739147.63396619540686;
-	Sun, 8 Nov 2026 15:52:20 -0800 (PST)
-Received: by venus (Postfix, from userid 1000)
-	id 390461808E6; Mon, 09 Nov 2026 00:52:18 +0100 (CET)
-Date: Mon, 9 Nov 2026 00:52:18 +0100
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mika Westerberg <westeri@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Corey Minyard <corey@minyard.net>, 
-	Hans de Goede <hansg@kernel.org>, Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
-	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, openipmi-developer@lists.sourceforge.net, 
-	platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH 8/8] power: supply: sbs-battery: use 4-argument
- i2c_smbus_read_block_data()
-Message-ID: <avELD9tlEfl9Uth7@venus>
-References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
- <20261024-i2c-smbus-read-block-data-v1-8-19bb97467982@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XCs8VKrK
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794185249; x=1825721249;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=mTzXtCSlzZ1PsCmCfZrmhVh5AnI/2A8x2G8S6bg4cZs=;
+  b=XCs8VKrKgfFVVQwWf32/MlM5a6mlUkeGWo7BJlA/YmiqX4IbQJxnCY8s
+   0wHvUozMdL53rKKK9I6M6susupMre5a9H0UzwPyhuCe8070zHEeC59wy+
+   caPzYRVbzVxb/dAuGC4JfxTi9w9XVwPLbufEjpbczCMG6VUegssVOLNnY
+   JnDlbncdmrCnmDaeyhTg1HQFevBcumYWGC/k2+ovQpOfVJbezRW6anuV+
+   XGrthS0DimfUJAc9RIoWq0kOfRL28HNytwyEJwN7M8EFA4YlmhWNqnm3c
+   WlXT+QR0ogHuGqmj3Q496hGOz7rt4qsqG5h4X/0HacH0zzZ3BIApvEflc
+   w==;
+X-CSE-ConnectionGUID: ZD0r5zOAQkSfzPE3apQ5iw==
+X-CSE-MsgGUID: z1FzX6nwR8e3p/aFFst1xQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2789273"
+X-IronPort-AV: E=Sophos;i="6.27,202,1787036400"; 
+   d="scan'208";a="2789273"
+Received: from fmviesa011.fm.intel.com ([10.60.135.151])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2026 16:47:29 -0800
+X-CSE-ConnectionGUID: j9o2byqpTNGJFe6A+Auimw==
+X-CSE-MsgGUID: Vg/aNMKpTVeBP/vi9y1bmQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,202,1787036400"; 
+   d="scan'208";a="9519236"
+Received: from spandruv-mobl5.amr.corp.intel.com (HELO [10.124.220.168]) ([10.124.220.168])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2026 16:47:28 -0800
+Message-ID: <b83129fac311b72376cb6fcef5448d3b66c3b45b.camel@linux.intel.com>
+Subject: Re: [PATCH v2 6/7] HID: sensor: custom: Register enable attribute
+ after misc device
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ simeon@maryasin.name, 	lixu.zhang@intel.com, crofts@kernel.org
+Date: Sun, 08 Nov 2026 16:47:27 -0800
+In-Reply-To: <20261107201601.7d5aa69f@jic23-hlaptop>
+References: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
+		<20261104201403.2039921-7-srinivas.pandruvada@linux.intel.com>
+	 <20261107201601.7d5aa69f@jic23-hlaptop>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -73,101 +86,81 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="djssy5i5cnzkks24"
-Content-Disposition: inline
-In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-8-19bb97467982@gmail.com>
-X-Zoho-Virus-Status: 1
-X-Zoho-AV-Stamp: zmail-av-0.2.13.1.5.4/294.158.93
-X-ZohoMailClient: External
 
-
---djssy5i5cnzkks24
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 8/8] power: supply: sbs-battery: use 4-argument
- i2c_smbus_read_block_data()
-MIME-Version: 1.0
-
-Hi,
-
-On Sat, Oct 24, 2026 at 07:48:48PM -0700, Dmitry Torokhov wrote:
-> Pass the destination buffer size to sbs_read_string_data(), and pass
-> the buffer capacity reserving space for a trailing NUL terminator to
-> i2c_smbus_read_block_data().
+On Sat, 2026-11-07 at 20:16 +0000, Jonathan Cameron wrote:
+> On Wed,=C2=A0 4 Nov 2026 12:14:02 -0800
+> Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
 >=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-
--- Sebastian
-
->  drivers/power/supply/sbs-battery.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+> > Register the enable_sensor sysfs group only after misc-device setup
+> > succeeds. This prevents userspace from opening the sensor hub while
+> > probe can still fail, which would otherwise leave the hub open
+> > reference
+> > unbalanced on unwind.
+> >=20
+> > Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor
+> > support")
+> > Reported-by: =D0=A1=D0=B5=D0=BC=D1=91=D0=BD =D0=9C=D0=B0=D1=80=D1=8C=D1=
+=8F=D1=81=D0=B8=D0=BD <simeon@maryasin.name>
+> > Closes:
+> > https://lore.kernel.org/all/CAM2dg7ewfVJSP4rFyhkCB1Rmd1+X56sAg=3DeUdbPt=
+hG2xrLqwQQ@mail.gmail.com/
+> > Signed-off-by: Srinivas Pandruvada
+> > <srinivas.pandruvada@linux.intel.com>
+> You probably already saw it, but sashiko had more feedback.
+> https://sashiko.dev/#/patchset/20261104201403.2039921-1-srinivas.pandruva=
+da%40linux.intel.com
 >=20
-> diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sb=
-s-battery.c
-> index 6714313bb3a3..f8b194c58a62 100644
-> --- a/drivers/power/supply/sbs-battery.c
-> +++ b/drivers/power/supply/sbs-battery.c
-> @@ -424,7 +424,8 @@ static int sbs_read_string_data_fallback(struct i2c_c=
-lient *client, u8 address,
->  	return ret;
->  }
-> =20
-> -static int sbs_read_string_data(struct i2c_client *client, u8 address, c=
-har *values)
-> +static int sbs_read_string_data(struct i2c_client *client, u8 address,
-> +				char *values, size_t size)
->  {
->  	struct sbs_info *chip =3D i2c_get_clientdata(client);
->  	int retries =3D chip->i2c_retry_count;
-> @@ -440,7 +441,7 @@ static int sbs_read_string_data(struct i2c_client *cl=
-ient, u8 address, char *val
->  	}
-> =20
->  	while (retries > 0) {
-> -		ret =3D i2c_smbus_read_block_data(client, address, values);
-> +		ret =3D i2c_smbus_read_block_data(client, address, size - 1, values);
->  		if (ret >=3D 0)
->  			break;
->  		retries--;
-> @@ -709,7 +710,8 @@ static const char *sbs_get_constant_string(struct sbs=
-_info *chip,
-> =20
->  		addr =3D sbs_data[ret].addr;
-> =20
-> -		ret =3D sbs_read_string_data(chip->client, addr, buf);
-> +		ret =3D sbs_read_string_data(chip->client, addr, buf,
-> +					   sizeof(chip->strings[0]));
->  		if (ret < 0)
->  			return ERR_PTR(ret);
->  	}
+> I haven't looked closely at it though so might be either wrong
+> or material for a future patch.
 >=20
-> --=20
-> 2.56.0.257.gf7497c7d27-goog
+> One rather odd looking thing in here though.
 >=20
+>=20
+> > ---
+> > =C2=A0drivers/hid/hid-sensor-custom.c | 15 ++++++++-------
+> > =C2=A01 file changed, 8 insertions(+), 7 deletions(-)
+> >=20
+> > diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> > sensor-custom.c
+> > index 4f824cadd370..990e653995e1 100644
+> > --- a/drivers/hid/hid-sensor-custom.c
+> > +++ b/drivers/hid/hid-sensor-custom.c
+> > @@ -1059,20 +1059,21 @@ static int hid_sensor_custom_probe(struct
+> > platform_device *pdev)
+> > =C2=A0	if (ret)
+> > =C2=A0		goto err_remove_callback;
+> > =C2=A0
+> > -	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> > -				 &enable_sensor_attr_group);
+> > +	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> > =C2=A0	if (ret)
+> > =C2=A0		goto err_remove_attributes;
+> > =C2=A0
+> > -	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> > +	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> > +				 &enable_sensor_attr_group);
+> > =C2=A0	if (ret)
+> > -		goto err_remove_group;
+> > +		goto err_remove_dev_if;
+> > =C2=A0
+> > =C2=A0	return 0;
+> > =C2=A0
+> > -err_remove_group:
+> > -	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> > -			=C2=A0=C2=A0 &enable_sensor_attr_group);
+> > +err_remove_dev_if:
+> > +	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> > +	hid_sensor_custom_dev_if_remove(sensor_inst);
+> > +	goto err_remove_attributes;
+>=20
+> If my eyes are tricking me, isn't this going to the next line?
 
---djssy5i5cnzkks24
-Content-Type: application/pgp-signature; name="signature.asc"
+I realized that. Will fix this in next update.
 
------BEGIN PGP SIGNATURE-----
+Thanks,
+Srinivas
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmrxCyYACgkQ2O7X88g7
-+pqbCA//WLpBfQbt6ZJ6XndBJ9N2OdPV0zOs8CxWZ+ua1SthiUpJEudANpYMuh8N
-0CmMUo+5FSj0HQmQYi3dnJecNT95GMgFnBhlctIo7MGfkenakz+0kAyVfzUWhh0D
-1kRQuB1pN754PEAjDKtaLQFDQq8EWYWI0S78dLmRKl1wlfxiqWQKVTk4uhpKqMsq
-WEThh3GiB2xPDttBSP/YU9X5nGmB9WWE4KVB7OuWI5gA/6e23w7MetL78gOvQDXw
-DIj8je51ctSbRU5iF2/rsRvjWp/DAQBN6H4OIuqvdJD8VYycfBZ2YM5W42pzhEDf
-3LNhVqsMAJWJIEsz+xYtYS578mxAYKCMWQEc5ol1b1wVHbA8J0QUQxJOMhBWQhys
-jgN2LwCQQXaiiwwRfJ77TJL/SVwCa9hfo2ST5POaTdIYPWTfKklpf9jNUjy5ISe6
-9lfpr94Rw9+B5gMaNJenVgQCVaKGfqdOMMDb2OigI1OpKPC4boV6btBc9bORiHQV
-t4BMOKy6MYWlst+LgE1Aw9WGNxArJ24fc+4gprFY2uxJC5ysK1bpXcsha6IyqUA9
-5kDAhLMTmfdpijezA1681U7HE88+xx8pjSdG9OSTl0G35IvZMESiWdXgCYx369Dh
-/i3G7gy+cnIPSBuVsuvGHLuQPsfELTqm9NlvpHQoBPSZ3yi1pjk=
-=XodA
------END PGP SIGNATURE-----
-
---djssy5i5cnzkks24--
+>=20
+> > =C2=A0err_remove_attributes:
+> > =C2=A0	hid_sensor_custom_remove_attributes(sensor_inst);
+> > =C2=A0err_remove_callback:

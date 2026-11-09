@@ -1,102 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794208512;
-	b=UpOpd41F+NC7GSB2eQuRBYIebh/HBSzRagBnxDHnEq8mkt1gaR7/zwy/4o8mYMUQjWWC
-	 R6ouASIzFbl1U8Tb1ImolRHeKPI+KfF6lfr943g/KXA7Aug9wCmxf+s5Fct5s0tZfhH8t
-	 z80itUh3BJ4+T1hqTxUW+4LwE3o2c9HDTN9sazZD2muvxm2xmNoLNoqaDwXPT2n8ftZlg
-	 1Kpl1EYx6EXoyZqdMadNhd7d4hDDpn7FL4Sm/CNcHJPsWfbhQLhIhmPhkWnVl278cAi3e
-	 rf6DoADfBLN6zsbl2PhnhUiQnUWxwkJyn1qmSTClNs8LmJ8FJBDJ1wBg5fUiz2yJ+Og==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794208512;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794208538;
+	b=jQNJDvwjPury5yCSYI7U2yUUZdPVY8pctGhyDnABxLcPQ1no/G34Nj4ue29auHIXYX0Z
+	 JxoV6NWTW0EAKpBeTDiIiPYaYz5o0GYlBYa9h8U81SG8aGNovOmdPJ++KQ0Oba/Ii1spT
+	 odLfkPpoFJkA5pBY0u4dc25BdN0vZXI7yvtvfbC8T6hzPPWE9U47kvxmcQDOAPTFF0Pgp
+	 JMmh+O3F5Dw13CB9ATahxCGOoQ+E2C14WpNdCC/3WfyYtzaTxoBQ+VY8D8fI1xbWsCcZH
+	 MsrWWQy4iQ99VALZQi1dYChZGxhMMWomphfnptv5W/SSNlt/nVLRuBKk9KFqGKZYaQw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794208538;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=W3TH+FpKDkN9+upkUl+wnaxnw+xID6Ayvvs9bsXe9Os=;
-	b=UJEn2sR5hmAc0sZEI2swtE0Ra8RjWNmdnpAiYSrjpM/yZFNwBIi/qN60yhtOHuu6LoC4
-	 0ftV9G6Cw2/WLbRz00vQPnNHNP9+4tBD2/l5g174p0KuNCaX/1cYGSVwM4l9mJKx7HAnK
-	 UUys3GfAtAHNko7bX9Ihe3EoV9lQ2G1FA3flV8TYVIMXEuEH6zhRcRLIP8QsaE06LnKG1
-	 VCTH2eD1q4ShVe0shdDV/Za5kVH70saHBwpduXUFOEILZeOA5Sv1qH8TQjJG9bVyopjh9
-	 yVVEKLgU9PO9+j85SYTCQwNfx+02ae9tFNwsn35dRfqVViqTIXuY46w3yvZH7LnX33g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
+	b=Ca6ZQa68utidmHFZQPQs25WOGQKjbJVFmAGjWXsNsEhxcjd+iQXGsBwZgmZSI6qbp+GT
+	 CpP8oVr+7fKxsD4FolKBadTEXqiBQC9VShxNiZKVkJKCGiK8m2/jt7LvBG38U1l2TnBe5
+	 IMHeCoYj60syqVwJBdnmz/BQ/aqCnaictTI126No4RMGIEx8FYiPFi2JvdD2fkup1F6Ye
+	 A16hwlI2eoyAx3DbSpY1u3I1hWl48VWisSBTqtZwQWh+av02cGR2DmDLajldgZSnkcfOm
+	 jcJz7URJGjKQKJmbqZLzssuIB2pkwS07moysAhYyd9Nw7g2ewV1JQ0AD8mQF1kQV1+Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=csU26nM3;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.173
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=w11j6Mdb;
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED1C606A326
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:15:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1ED1C606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 947E6606A322
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 07:15:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 947E6606A322
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=csU26nM3
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-8b31ca7e0bcso4813137b3.0
-        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:15:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794208511; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KYSsJ9hzHjHd+kHaWNWinRtGHHKeymDVBMeLiCnOSBhCmxAxK1iPqUQQ3VzoF3eF7R
-         NcaV1KKYTkgxrh6/HElYB0aEGGkCi7TlIJfJREBNRwWNKE66Ol99ctK/Epxj0K9JTGtN
-         6uecExIDKIwf/749zE6A4jHDjRuxyFRNS5Iw7J6+aJFmchgpy1OSyunxe+RtaA2fO5Ac
-         tBcJNREmOXngFwqAGR7BraTgbsnK0y3ZSF4sj0q4hFa/uCnO69aerxp6Qek5u6hgeng5
-         pf6Y7A2UYOvGCPnw1l+YFKLR3x/evvoV4P8Ds50zX7A8Q+N6pSDQxIZ/DJOzVQOdbkLE
-         eKYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=W3TH+FpKDkN9+upkUl+wnaxnw+xID6Ayvvs9bsXe9Os=;
-        fh=G2KBqJwTdK71ibhBdGj0RnKPeWEuX5LTl9ANYKR71+I=;
-        b=dVVk6hpbYfN7MMs6CwUFFhTAh6BlVNFdwl9DpTw0+bwEl+oCnf6et/xZW+PcSOVi2Y
-         O762ZzSUVUKNNgUxzNUKtr6nhNdXkH7f6TO1eYPKy6Zf/sJQgM5wkseO8pdl9hyn7CuP
-         5DM0+4AG2Jlo69Q80MWhQ9wlzy9HhIhYf23kk4TvK/sslgWjrjYt0ISv+uoDQ0tmI52H
-         5Gt7GMXZ0V6ETfAjlGZeRIB7wIJ737WXvdnmQxIT1T0a71hzW2PHilIsFEHGrek0KWPB
-         BKHCpG4C3gXarXNuCG+8/tMUnY11gjCp7P5qvGsl9G4VYp+yELFp3fLEc6ScX8dwtsUi
-         4WTg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=w11j6Mdb
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso1100843eec.0
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 23:15:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794208511; x=1794813311; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+        d=gmail.com; s=20260707; t=1794208537; x=1794813337; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=W3TH+FpKDkN9+upkUl+wnaxnw+xID6Ayvvs9bsXe9Os=;
-        b=csU26nM3k4fPR6c+45FXgNSnRd6mcGiFaUu5fBYpJCB35zLotT2fORe0o7XeUCLaY/
-         hjVDjwdD4kDmKRqzjXaYFFBeZ5XabH172MZi+LniP7uqs7p9+8Sho2n/M//EeF2v+Z0Z
-         bIF2rTnHM52w4rZ8UxueOZN/q3swm//FfuG3oAXlS5lfeHcFWFpPrLhH+FMQCJh9n98Q
-         g1fMq00h5DXiDnowP5J2Cysl3dMXpGL3+AmNLAcUnzIALcCARYG/n5E+0yNkz4QouzUr
-         akOFfvi4XQndFgLZBxT/3aR2OWfzVUkGzg5mR5kAq34rjnqlsOPJKhfC/MfQwatFvjmA
-         7HOg==
+        bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
+        b=w11j6MdbsB4L+lfEhx9/QuPWJwJnoR1/635ejpDfK+LKom66v1X4DvzF2uzylOTZ3/
+         Q9Dj95WkZTzj1PFghbcdCfk34yVFx93MMJxz6Fh9PQU2AnN3QRpI90c1HeaM2Cv6sZdy
+         xBne9KiUAxZ9zou72Cnq5p5hXQgOrGnWF+hOz+swqgKABD2dQlZjeqQwhEaAFPH2TQH+
+         lOiMp873AaypR3uky3pBLXoqP5rSu24uKD+dfdobZrN5JZcu5R5G5cAKOY6v8MJcA7uf
+         JrcxMfecrYw4AhM5KcvnGA72DtPG75dQ+8Yk2j/IYMe5Sjmbvxv0MbDYcQJ6+wEX7rON
+         4prg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794208511; x=1794813311;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1794208537; x=1794813337;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=W3TH+FpKDkN9+upkUl+wnaxnw+xID6Ayvvs9bsXe9Os=;
-        b=arGPFLmfjSIMMZQ0tyWT6B7/85dxtTeikSicrqMq6K/fLE74JQ6Y/BzwOnppV9cbOe
-         5uc3RNFDpEE8zAaWxkhEt79jadsXK9DpcbVFbD2+Scy8Aj75K1wRLfqKACKdkaURZunc
-         mpbLPOXALO/3P8MSwbxu23UEp3cqRS2RXk6kVqaHa3AlYI8umykz4Ogxpiv8aArxT8Mf
-         emKsxynEKON1pJfWBBMxxHsYie3vJNktGiB2YJn+NqhKVXmPkWZCME8wXlbeSzKF2kYZ
-         QwR70mv6KtDuwxyRA1rqTRwQ1cuJB5Dzth3BYKxiy29Cq9sQTL82YK/69BYcddTb5cBc
-         OAAQ==
-X-Forwarded-Encrypted: i=1; AL+hErH6ySY5AOeY0cILbP0bTOm/OpYqZ1KyZxOf0t5cUNfVTKvaNcMFC50h3LaERligHtYOKefE0BmaaxlbwQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/wf5BdgllFUfMNQpwso59WZDtbgArzbFknQ8ZS7UYkAt8vkYzj
-	bbTsQFivOTUeOWFIvEl2NXdxjm9nPAiUyhyK9Gm5W3CJT8JTv8kySFRwXE/yE4jyJr4HQlB+2WZ
-	gpSHvrAaEpvj5rNg0x8RkhQ2KNL+nMIQU1Q==
-X-Gm-Gg: AYBFou2KKXlKbXDt9TFBhmMC+HAYJTykesgH/bIY7Jp+9eCcN6MtfJAjKaWtJ7j89Rg
-	5fwTSoW31imHCBvnHLzxUvqYt+w89hPdH1sOnZd9vohrR8EeMTCYb14F+7l3PcoLH0bruAj10H4
-	j9xmumcPejIEKUGjzqXHz3AawUFkOIG1x+gtRibNbTWAKyyOx5VyD3YuM/yYTm/wrkFjA6Z3s0r
-	zM/7JNDDjwVStfCi0LFnafqLl0Qz8UYIV5tRg24/YNqFUaZDxc/EyO5QKs30ORoaBMWJCDqPmJD
-	Q3QcQBPvgDV3hbiiWEbyXpErteh0P+O7iFJi2HDrdP8ESEGeviWzcRkkDeaqZn1+nUj2UStYTRg
-	i8sjANFlJ83nhwqrJ9TZ+EjyOMetrgoCGasSwFHU1384e0vo2R2NdzMEx3RqAJJuzzdYHjT+PIt
-	fJa2P7j+Slk2iTw4oahBQqJ/eu7jh2+3Vin3z8BtS53MwE0TzPq57Src82ZQYMjm0g7KtMSD4gG
-	FQyETCuCN7wPf1S1yMtZ9U3ogSBkvaXnIPQqNbJOj5LEPNwzn/ddD1w4AuEww==
-X-Received: by 2002:a05:690c:a4cd:10b0:8b3:6430:6728 with SMTP id
- 00721157ae682-8b36cb77a09mr16346547b3.53.1794208510681; Sun, 08 Nov 2026
- 23:15:10 -0800 (PST)
+        bh=IHDmqb3emIFmJ8fO9uRNFSu9XBh3Om7oI46gLrUcn6I=;
+        b=wVGLIF3UoSewkSKdZG03n2GYzV19xBjZvux4tm25MiM6YwhwtUhacPRlf8vcqhLsjR
+         YkrQ0/mmQ9Vz4HkgxVNk1ogvmTOoBPN5+AJKLe+r4d6ha0tbLTvxiL0jW3u5v1PUwt4o
+         MkLgtbq8AR7Ic2YNwGES2I58D7D3sUVrNn+mXrQ9+AgPEw/CeyBQ4RIjyvdvt0m3yVlx
+         PEgw5h/izi2HNU/hM5E8O2RN4OYpTrP5dDmHbesZf1ypkiBqAnXibN5g41t3bLtyYJSY
+         LdYBzdNztl+nBvwWdNFLiKQ/a57XH4yNRefM0QVh8e/6LXSKXFz7JTKOMh3dA9FyhxvG
+         1dCg==
+X-Forwarded-Encrypted: i=1; AL+hErH8qTfuSP14GoFnDyWiyVaT/nRVlKpyNn+SBi4CU6pwUq1DyrqFtc2Wh6M9FUWatUOcgkudrwrlG98Prw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/zH+frW4HZhZKspWRcDc23JH/9ntLIgG/Hk1QY4o68XbZajCFh
+	H4EtvJx6G6aOGJR9wiQqFrNOcqCxIen7nn1/4Fr+aKCT5qFIJnLAbjmS
+X-Gm-Gg: AYBFou0rVCz6OqzE5SWzDlrAYB98RZeAmvwBRkCNBkgAKoprobeNCgFZ0LXPmXIabMX
+	blAcsMLwHMiXMZLAspY/3/CyldOshTgN57P8dpvu53VhpSzEpCfFBJyDaQt8vKKVX3QqzZL2Lff
+	XQ+cPx0oXngOISLiKWR80vDodmFSjLlqJORd2RJM2FwA++J2ahH4jr2U5x0jKNHgh9LdsCBvRjc
+	egO/bmGIKJidgZSm0qXQo81LCy2eRI04e14vEWyKdlNO4Hlvu0b8n0cPJ+Df7urqnVuCZIcQYtA
+	Ic+9ri7vUp2bufv16T10D9b8GZPt6B/paXjn+rrq0f19If8+IMv7+yQliT/BaeoTfi0FqSQ/Vke
+	fWHoqk5VBodKp9n5uodrMlj1LdjzNDuzg4YZYoEvaAs4vjo5hG35M43i6f3p6KsPR502xaJkbRk
+	y0Rhy/7UAHF7/V96TDl+prEMGTvOaWJ3rbkaahspS1XKcgwgt1/+d7njklmKOttYTEpqfSm8rNS
+	CuyDu8D/3f1r/GYPFIKSYgdmVxevsl7FJgL+aX8oVhcSj4XXLoL7uVhIKkgjmraH2vs6WPbGFjQ
+	00+zENn9QxqVw8XHOj82G+LH3NOYwRJJUPs/RfARxa0OJ9pmBOTt9daaeVqMo2d4czfk
+X-Received: by 2002:a05:7022:3c03:b0:147:a685:9125 with SMTP id a92af1059eb24-1b39fe30253mr4642534c88.2.1794208536573;
+        Sun, 08 Nov 2026 23:15:36 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b37314626dsm14607158c88.1.2026.11.08.23.15.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Nov 2026 23:15:35 -0800 (PST)
+Date: Sun, 8 Nov 2026 23:15:32 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Liu Chao <liuc63@xiaopeng.com>
+Cc: Hans de Goede <hansg@kernel.org>, Bastien Nocera <hadess@hadess.net>, 
+	fangxy@xiaopeng.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH] Input: goodix - reject a bak_ref length that cannot hold
+ the checksum
+Message-ID: <avFzEGl-xQxGqN9p@google.com>
+References: <20261106075129.3106093-1-liuc63@xiaopeng.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,65 +98,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261108213656.13031-1-antoniovazquezblanco@gmail.com> <20261108213656.13031-3-antoniovazquezblanco@gmail.com>
-In-Reply-To: <20261108213656.13031-3-antoniovazquezblanco@gmail.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 9 Nov 2026 09:14:34 +0200
-X-Gm-Features: AclHuK-MowMPC7nsIXdyGu4QxS5XFSL9LJIdTkFEgLEwFauodytJ5sllsbRZ9KE
-Message-ID: <CAHp75VfuW1Xz=UeEqCUtnwQF0+auziyTa4nyhHWSa6=QuZMV-g@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] platform/surface: surfacepro3_button: don't load
- on amd variant
-To: =?UTF-8?Q?Antonio_V=C3=A1zquez_Blanco?= <antoniovazquezblanco@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hansg@kernel.org>, 
-	Ilpo Jarvinen <ilpo.jarvinen@linux.intel.com>, Maximilian Luz <luzmaximilian@gmail.com>, 
-	Chen Yu <yu.c.chen@intel.com>, Sachi King <nakato@nakato.io>, linux-input@vger.kernel.org, 
-	platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261106075129.3106093-1-liuc63@xiaopeng.com>
 
-On Sun, Nov 8, 2026 at 11:37=E2=80=AFPM Antonio V=C3=A1zquez Blanco
-<antoniovazquezblanco@gmail.com> wrote:
->
-> From: Sachi King <nakato@nakato.io>
->
-> surfacepro3_button binds to MSHW0040 on the AMD variants of the Surface
-> Laptop 3 and 4, where soc_button_array is the right driver.
->
-> surface_button_check_MSHW0040() evaluates function 2 of the MSHW0040
-> _DSM, the OEM Platform Revision, and binds when the result is 0,
-> assuming that only a failed evaluation yields 0. The AMD variants
-> implement that function and legitimately return 0, so this driver binds
-> there as well.
->
-> Decide instead on whether the device implements the function at all,
-> which function 0 of the same _DSM advertises and acpi_check_dsm()
-> reports. Of the 32 Surface models carrying MSHW0040 in the ACPI dumps at
-> [1], only two do not advertise it, and they are exactly the two this
-> driver is for: the Surface Pro 4, whose MSHW0040 device carries no _DSM,
-> and the Surface Book 1, whose _DSM advertises functions 0 and 1 only.
->
-> The driver currently reaches the right answer on the Surface Book 1 by
-> accident rather than by that test. Function 2 is not implemented there,
-> so the _DSM falls through to a trailing Return (Buffer), and
-> acpi_evaluate_dsm_typed() rejects the type and returns NULL rather than
-> an integer. The revision is left at 0 and the driver binds.
->
-> Keep evaluating the revision when it is advertised, so that it remains
-> available through dev_dbg().
+On Fri, Nov 06, 2026 at 03:51:29PM +0800, Liu Chao wrote:
+> driver_num and sensor_num are taken from the touchscreen config.  A
+> config with driver_num 1 and sensor_num 0 yields a bak_ref length of
+> 0, for which devm_kzalloc() returns ZERO_SIZE_PTR.  That pointer
+> passes the !ts->bak_ref check and the subsequent
+> ts->bak_ref[ts->bak_ref_len - 1] = 1 writes before the allocation.
+> 
+> Reject a length that leaves no room for the trailing checksum before
+> allocating, and skip saving a bak_ref that was never allocated.
+> Without the second check a rejected length leaves bak_ref NULL while
+> bak_ref_len still holds the bogus value, and goodix_save_bak_ref()
+> then writes through the same index on suspend.
+> 
+> Fixes: 09182ed20c04 ("Input: goodix - add support for controllers without flash")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Liu Chao <liuc63@xiaopeng.com>
 
-> [1] https://github.com/linux-surface/acpidumps
->
-> Fixes: 64dd243d7356 ("platform/x86: surfacepro3_button: Fix device check"=
-)
-> Link: https://lore.kernel.org/all/20211109081125.41410-1-nakato@nakato.io=
-/
-> Co-developed-by: Maximilian Luz <luzmaximilian@gmail.com>
-> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-> Signed-off-by: Sachi King <nakato@nakato.io>
+Applied, thank you.
 
-Same comments to the tag block and the commit message as per previous patch=
-.
-
---=20
-With Best Regards,
-Andy Shevchenko
+-- 
+Dmitry

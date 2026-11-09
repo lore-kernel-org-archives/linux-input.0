@@ -1,78 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794244556;
-	b=ymBXRxCCQwYqChdHBsOSdgWBOJy4PqZtTJIFlGpnlaeJqw4VSrhf1QeshM+5Mh3wJyux
-	 3/vKlp4S5kPhAp5hUsTUl16rXsNm7t6qtFYOLV3/p0y4AnkW4Fpi0PF9jPQosOZAIT2Nc
-	 QT4u4h7QGNyitQ8krwBUcsAbNQwGvjC1F+4zDsLbXAt4jKgJJMW4g25k1z4WDf0/J/4j1
-	 +q0LuY1wkncSKxjaWUMq9IVmOpEJavJeNbWVUai86ZqwR/xW/mBOKiDVBaA3ccBlxmUqi
-	 2gXCmZ99ZF2Lb+nJ3uFovmf7PpO8Q1Gz9fx25xpwqSCqOR24xUUwEMZRbkWy25UzxXg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794244556;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=hAyVKQNXWEvDV18f6Ws1s35eT9OxUv+MInf6BhY5vP4=;
-	b=eO9R1qnVfU1L1Zo1tqYq8CbKIpT4q+CquJEFofnb0tZLds0Nha5Uin+A3y2oinLkg5Tw
-	 QXLNQw7S51yntJ+IKES1F/V92g00r3n87f/Orsxf1ZF8s/PT+leTPBKiX2DkZbm4qmT9H
-	 7ekNZ4d+mosydCpDQIC0QU35GCJ57wMbuD3gWQ0938tpyKMYA+xnCLlNao6xt3em0zdZh
-	 ojKuhqAXJg2gfDDuVD7NvAvJau/44rVAkxgYqNHlC/O5SB5MrThDvAfhwsnUt7ilT+lgs
-	 fo21dpRokO8LAwZ4RgBWNxhMnZPK83RPti2xZ6wfSGZWvl9WSY1Uqj8ygpVNioZ/PQA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="j/1hLmlX";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A76606A31C;
-	Mon,  9 Nov 2026 17:15:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j/1hLmlX
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794244556;
-	b=g+7vTeLGba+3TikqA2+gW8yFtLo+czzce6GDGiZqeR6mx/8kZCw9AYR/A9pST5ijIuFo
-	 eI7dCARZmnrC6fRIQWeUGnkPIiVF+I8ga8NaXVatdhIdZjNls3eE6UCKl8AmZ1WzMl20M
-	 PrqgpzmnqAMzh21z5JFFAkmsGz9Q0OoGCeWnfA+HPtS5IOz2wt5hkuLduT7DHu9Y4LPBq
-	 Hujbx2c7eLXd2fbYEiZfZV+Ll7XMDGemhPuDPcMcpJX0iEx0j4Xr9kbOYLyPPKwcDJEmb
-	 RJ55V8V7GOgGDXEl2lWk8LIKu3HKQRj5/6gkqapB3iQvKfcOia1CG8cVNg52QuJhH1g==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794244556;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=hAyVKQNXWEvDV18f6Ws1s35eT9OxUv+MInf6BhY5vP4=;
-	b=xoTdqnMgjF43jbykxgZEwXyIRNuxY+C4CyIo4m44pyZ8Qnl4hJ8fWa2haCCNdyD7I4d1
-	 hMCBxBcKVVaTE77zud9y0hBVO1JmLNqHJGxGVahIvGqlXXevaO00Ob4BXBNbWgfCWrEO5
-	 bzZi5BK5fVjWgbq8IuIZFzrXcri8TET+39kWI2ZHDopH1l5mP1YKefcigvzgSUQsiEvsi
-	 sCsBHZEKiO+i3wxW0PXkdVtlx3c4PM8uf4aZDWGypON4ZjlOukn/hWyVMAYnAGsoz9IIK
-	 gfM1IpJ9AQiE3r0ErPHoAmWyBTArGHPY4N6YAQjSPN37fGJhYaSiXyIOopLXQZ9gtGQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.51
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794244663;
+	b=VwCAl6iLHbmUl1+QXugpPxZKyR+osovqGmlb+hoQ5hnPNaHD8oiolEMu4wunVkY5wN91
+	 QS7YFvIA6Cdsb5rvDUXy+I67J1rDp21F4U9lgvbylljESWHx5aNkyzuj2i+XIGiPHBIkc
+	 Zjz9Jk+P5f37j0LsAm9FpCSHNBdHZtZbOXCpBCPaWQvHTwsTHHN1H5JsMxHlCktdnJf54
+	 vZ31ij8zN0o6GyNfctAbig1fiUiNYg0cwodwxB1rrGkQUY/reGiKvAt2h3dgxCaVD1pFc
+	 eenQ3+FWdsWMHwDyDQXuOGgiQvKFIYSFuB7D8QrBpBBDNZ5oOStOTX7XqKrDce3Imsg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794244663;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Sender:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=N6WTQTQRbYXwQiY0GfL/+h0zie0u4l23EdajHTFVMJI=;
+	b=wBGLnFRCJXu+X/zP6gPNHhH9LOWI+ITaSp1dzezrnaw1WV8Ir2e6QUSfQvX4ztOAfMPC
+	 YSBCff/zEF6B1Ow79uY2wecJaDJe2YADAkXSOYNyXZGSKUSA8ff15WE5CPhyH1NWvM33v
+	 yDGSRgxnrLbHFHgbEPAQgrKF8aRlkWMBqyhYh3r/EZs/Ko5XytrKNwBai7gp5pBcbrKJg
+	 HUV8m3JjneaCejoieJO6TsnVL88MQfSTPX8HrHSo8LYXuFwZrrHJoUd2FHe7j45A4Nnyq
+	 xacE6Fi3JdLppwGZ6euPTkTWq8rHD3GqA5UiI2trq3IY7hU1GFot4CFKp8zCztpxwwA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=md6UCzoF;
+	arc=none smtp.remote-ip=209.85.218.51
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 81C431F008A1;
-	Mon,  9 Nov 2026 17:15:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794244556;
-	bh=hAyVKQNXWEvDV18f6Ws1s35eT9OxUv+MInf6BhY5vP4=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=j/1hLmlX2wneU5lbKV4JRevJEBTKFsngH08qCa4u55yRpsV8h9haSsgnBd1M/EJMG
-	 LYubpArL3mtS1KBvahQL0ylrh+wJtLZsBhycBR3Kkzgn1vJlVlvxk9m9fpK7hWqEcy
-	 Zzp+MMviTtGOHXvwjh7JeHq16NMkXusjdSn5AyZ1b1apGHvcPO06yVHGReL7LLNtBG
-	 yKuSGT998Zhv13t8cIfRlg7q0dvZblWW23zrpUp5Erz65ZYmIvrgb3LKSRIT1NSu6G
-	 QcXk/J9Lntrh1mOFeTDMYWww5zLKhzOQ6dPrQ/WXOzDaWi+6GjOuXHAOprN0TKbPeP
-	 9pKfxVQE/tTOA==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id D068348551;
-	Mon,  9 Nov 2026 17:15:54 +0000 (UTC)
-From: Ivan Verbovoy via B4 Relay <devnull+ivanverbovoy.gmail.com@kernel.org>
-Date: Mon, 09 Nov 2026 19:15:55 +0200
-Subject: [PATCH] Input: da7280 - do not advertise FF_GAIN
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C108606A31C
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 17:17:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3C108606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=md6UCzoF
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c4697404c2bso152957766b.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 09:17:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794244662; x=1794849462; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=N6WTQTQRbYXwQiY0GfL/+h0zie0u4l23EdajHTFVMJI=;
+        b=md6UCzoFKluPISx1fQJzYzVoPNKc/a1LxqOY5Ra9wrIkO+MRkniUEbG3XCJMuvtEvR
+         naWUNT4qH04Ifpd7y1SrROqHqYf+ThpVtx+efqADXW1Tx8OkyHTXF1KedfwkctoBYN75
+         61hesQqh9C9zxO0pSmwZev+D36ehhXVGjUmUCHNA8hyMeXTwFz6vrgutT31OSb/X+gRM
+         slu3SwUIq39mwWMxxdzMgyQpAl3byIuFx77tZ56nSQGMjO4Xys2Jgs0vq50i0oatFRlH
+         dmfMARUsITrOMySt0IyYex3RLnzc7arAoxEby/99QK6Y4eWGJfrapP9KcfWydGWf7aGJ
+         Vtqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794244662; x=1794849462;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=N6WTQTQRbYXwQiY0GfL/+h0zie0u4l23EdajHTFVMJI=;
+        b=JSS22i+xvcmhjmhPk9WEABb1vcvNTx47S09X3+73jveQOaVihqMlQTEg5D5ipVo/bN
+         dvFhlN8snMunxGKWQNqQsEATlTvbIMz/iuw1wlUQQyWkSEfZrEhwDN+JhxwUOlc/8wqL
+         ePHsjcXPt7GNoPAq+coDFjxwG+MME5RPIFgMtnOHgvQuQM1ErvhEfJEL1CQYxGnZep+R
+         MbJtGWbI+Qk7WIDvck2ObFEvdn8kTBTWvPmwfVuPkRl+V9FkKUFh67j0q2I9FuDG4auW
+         DYTWrbXp/IMGTZaBe3NhzWX28KD9Xa4Qfs/OzxKQpbi8S2AQScPhqnwb0ylCXJ6yr911
+         mojw==
+X-Forwarded-Encrypted: i=1; AL+hErF9Rnep1WFPrrthiKhLMtq83UW3681+9HfhOVBbGrPq0myPx4cygTTzBIT31uSsVQIMG+m3fvhUDkH1mA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8LSoiIMOJyuvm0O3KyDPy8wHT+TISYhMTxM3l08LeCmbIh5Ygh
+	AYIDkIYH41SQlgEg/YR4uSF0opBvrpXf6NjTJGqh0n0iYUG7PnBKyhOF
+X-Gm-Gg: AYBFou34kJnZa1nJEDz7YtHN4U+qZlfiU0u21cyJyCMXyYTDzqOIH6dfaQOvAbV4I2Z
+	+5sx6JZw4BkWeU/ZlQU5xWs5TBEf6XvNH5UBsjpW05jOHO+kZlP9maTeaPbj/ls24iskSVlQcvl
+	tI2R0fGrpe5MLJ87kxhYQEGXcyhXWklNesvsVCR/Md9E6xUqnC9CRZ9MRQC69x0DNdB5n1j1ZTC
+	OHe6cdlV4MekIkRbGOCRG2bv8Ts+vskl11JacH1TiiQAFLkURjSXW0s+Z/V+uGrt6UeZQYZ70gl
+	L+tKwZHIvsMpPvw8TyM0KWjFFkKOszrLWW5oSGeKrz8ongn8xAOiml4gXDguyAwqEvhos9QM6AH
+	KaqCkIgpltFp48peqXZQQZjp2LacvS2ZBYQ1g2T0r/VfW+XyH6x4GwKO3rPLKofMUqJ4L6JmOQ8
+	qKQZsvjrkgG9NgIO5XSHmH9fEzwOszB7K3Dhefd8cWncl01v+yDWFZ9MFgX1uUTBSQNVYS2PrEC
+	N52InExP+TvlI5bdhhlNdAhKLLRcOUiK328AR9cLGL2oafJPHJ335M4Zx2XLq/nyJO/ZCRtHD5R
+	vK2QrCMfNLFQ3FT/1/nO2YB7y5X9d92d9Eu0mUu0YR6CFmp2wdL7sYpCo7YPn0W+dP0fJOLG74P
+	rCw==
+X-Received: by 2002:a17:907:3f1a:b0:c46:7fa4:922b with SMTP id a640c23a62f3a-c504953a0f4mr2383066b.33.1794244661472;
+        Mon, 09 Nov 2026 09:17:41 -0800 (PST)
+Received: from torstein-desktop.internal ([2a01:799:3a1:9700:9811:d134:cbdf:c22b])
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c4d6a4af091sm191633866b.50.2026.11.09.09.17.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 09:17:40 -0800 (PST)
+Sender: Torstein Eide <torsteine@gmail.com>
+From: Torstein Eide <torsteine+linux@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Hans de Goede <hansg@kernel.org>,
+	Maoyi Xie <maoyixie.tju@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/2] HID: lg-g15: G15 v2 contrast and game-mode LEDs
+Date: Mon,  9 Nov 2026 18:17:25 +0100
+Message-ID: <20261109171727.2812614-1-torsteine+linux@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,73 +100,46 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261109-da7280-fixes-v1-1-09cc3650261c@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMyw5AMBCF4VeRWWvSS1LiVcSil8FYIB1EIt5ds
- fxy8p8LGBMhQ1NckPAgpmXOUGUBYXTzgIJiNmiprVLSiOgqXUvR04ksfDDW6uhqYyLkZE34Dbl
- ou9+8+wnD9n7AfT83JOVbcAAAAA==
-X-Change-ID: 20261103-da7280-fixes-bc3662da833d
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Support Opensource <support.opensource@diasemi.com>
-Cc: Roy Im <roy.im.opensource@diasemi.com>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- Ivan Verbovoy <ivanverbovoy@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794244554; l=1634;
- i=ivanverbovoy@gmail.com; s=20261103; h=from:subject:message-id;
- bh=+tqVB3FFlOvTrxuwLoZlTGemlkZKQe11KqmDZ4ghgME=;
- b=XqGYSR/7q15sJpPAK7Uho+UjtaZTkO0DnDGaX9Y1u0dwatFlIUeVHZZF6L8dDnxHfuHcLi1Zz
- EZfHPuL7AU0CCx/a9jd3bIpfc4EydqRug4g2IvZ36+ADClp9OMQ+H2J
-X-Developer-Key: i=ivanverbovoy@gmail.com; a=ed25519;
- pk=0AchqTH1hJFToIUeFfQRlVzzuaWQDs4e75SxT2y3s8c=
-X-Endpoint-Received: by B4 Relay for ivanverbovoy@gmail.com/20261103 with
- auth_id=1396
-X-Original-From: Ivan Verbovoy <ivanverbovoy@gmail.com>
-Reply-To: ivanverbovoy@gmail.com
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-From: Ivan Verbovoy <ivanverbovoy@gmail.com>
+This series adds two LEDs for the Logitech G15 v2 to hid-lg-g15.
 
-The driver sets FF_GAIN in the device's force feedback capabilities but
-provides no set_gain() callback. input_ff_event() checks the capability
-bit, not the callback, before calling ff->set_gain(), so an EV_FF/FF_GAIN
-event written to the event node by any process with write access to it
-calls through a NULL pointer.
+Patch 1 exposes the GamePanel LCD contrast as a g15::lcd_contrast LED.
 
-The driver has no global gain to set: a constant effect carries its own
-level, and a periodic effect plays a pattern from the device's waveform
-memory. Drop FF_GAIN from the capabilities, so that input_ff_event()
-ignores such an event.
+Patch 2 binds the G15 v2's keyboard device (046D:C226), which is
+currently handled by hid-generic, and exposes the Super-key-lock
+("Game Mode") state as a read-only g15::game_mode LED. Normal key input
+on that device is left to hid-input, with the same
+HID_QUIRK_INPUT_PER_APP setup hid-generic uses.
 
-Fixes: cd3f609823a5 ("Input: new da7280 haptic driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ivan Verbovoy <ivanverbovoy@gmail.com>
----
-A NULL set_gain() call on an FF_GAIN write, seen on a Surface Duo
-(sm8150).
----
- drivers/input/misc/da7280.c | 1 -
- 1 file changed, 1 deletion(-)
+Tested on a Logitech G15 v2, together with lcdproc (g15 driver, hidraw
+mode) driving the LCD: the LCD output, the contrast LED and the L1-L5
+keys all keep working, and the c226 input devices have the same names
+as under hid-generic. Also tested across a suspend/resume cycle.
 
-diff --git a/drivers/input/misc/da7280.c b/drivers/input/misc/da7280.c
-index 995d3f7af41a..4c60fd4fb932 100644
---- a/drivers/input/misc/da7280.c
-+++ b/drivers/input/misc/da7280.c
-@@ -1226,7 +1226,6 @@ static int da7280_probe(struct i2c_client *client)
- 	input_set_capability(haptics->input_dev, EV_FF, FF_PERIODIC);
- 	input_set_capability(haptics->input_dev, EV_FF, FF_CUSTOM);
- 	input_set_capability(haptics->input_dev, EV_FF, FF_CONSTANT);
--	input_set_capability(haptics->input_dev, EV_FF, FF_GAIN);
- 
- 	error = input_ff_create(haptics->input_dev,
- 				DA7280_FF_EFFECT_COUNT_MAX);
+Changes in v2:
+- Drop the framebuffer patch; userspace (lcdproc, libg15) drives the
+  LCD through hidraw instead.
+- Drop the remove-path patch: hid-core holds driver_input_lock during
+  remove(), so raw_event cannot reschedule the work.
+- Contrast LED: clamp the brightness before indexing contrast_values[],
+  and restore the contrast on resume under g15->mutex.
+- Game-mode LED: set HID_QUIRK_INPUT_PER_APP like hid-generic, read the
+  initial lock state before registering the LED, and guard the cached
+  state with a spinlock so a resume-time GET_REPORT cannot overwrite a
+  newer input report.
 
----
-base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
-change-id: 20261103-da7280-fixes-bc3662da833d
+Torstein Eide (2):
+  HID: lg-g15: add LCD contrast LED
+  HID: lg-g15: report Super-key-lock state on G15 v2's keyboard
+    interface
 
-Best regards,
---  
-Ivan Verbovoy <ivanverbovoy@gmail.com>
+ drivers/hid/hid-ids.h    |   1 +
+ drivers/hid/hid-lg-g15.c | 347 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 343 insertions(+), 5 deletions(-)
 
+
+base-commit: 2c2fe95ab19b09bef7391e3e5cdf8146d09792b6
+-- 
+2.53.0
 

@@ -1,94 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794220654;
-	b=xO+gDg1+QZ4Um1yxy5MwiPf2SbLZ8oqnOKmOuXTLgaCYMnB0kvvWNA/pppdjR8KeFjn1
-	 oRGSBVZ6wzaPVLU4kPfmC7AhsQyHYZGUdQX5jKNRC4fGQnTOq1mTLcIe++mifdFw43lkk
-	 gtCgk2eTDLGVzV2qkOPQ4Ji0E4GuqpEyqp3KxxsqJd6GdHW6E0JI61xV4CDLRP/jLNACV
-	 PJ3L0vhXJaBSDTr8+wTIOsPNbgd/hp0U/TLHwhaUth6v+i0X2z5DVZ9YBieyAHrNW9mEW
-	 0FaeSVbvbBFaR+oZALr/tNvPArMxwf8IUxyQLDREx3knEF4VXDLU9aPKxL3l0URFNFQ==
+	t=1794221016;
+	b=MWPBRlJl84V5rm/n+gVT8FTmCp+rHLE7Fly5tdCiypCix81IZg8ARHhAwyDvAWrU/Mx0
+	 2Tte57QsFNmOHyNB/47DclsH1auaqI7vCK7oeOQaQvShShok/u1SbJJS74x8IHKEvK08F
+	 8KvUvl0ElkznH1UXlQbJQaJBvdC/CvJZzhqwZYdP+E9z2LK9e4Hj5sW3vGzEduZaFs1y6
+	 kxfdGhIvemz8BvprCSBy7z5147noGVwnh78CKm7FuG1glG9RqboSyqDbVXdVg0mJORkt/
+	 HUsRveE5/oCs+UYPYqE9YC+Er8UaI1yhvYDMbsR6djen67xL35XI7X6eiHzY9qwzphA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794220654;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:
-	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=Kz/dmeKzKbQwwHowV+QWdMXJ5KBnbt4jspAkyZkZbJ0=;
-	b=dDhXrTvHy2SrY9dLcyoNbPZw4Rhr3sGmornLwmZSDrapGZIOVPEjxR4Bk2LtY4YvtOwv
-	 l6fiN0N43G6fu/ovfTsMeyCGPAJTPrjuhrm2bx0x/RaNyPzU2/tyCdQZKHzE/dNwVmebV
-	 qxtRzQYd9AyR7feZNmQryqjGQvSQYl8efyDrlr5JTvDgD+qkS9k58Hwi9RB4caYQmDbpg
-	 XgC38j5JzR/qy5NVeRuCQl4GMmimMkl7SjqP/KBtbx7Q/RI9Sw+ZZY4fTiaS4DsWG1Gv2
-	 mzEVMtX6QyEt2FiSyUR6jmGEz4JKfZwHig6uTZBtO8ikgVdW5qCk4686jtcQX1CZxvg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794221016;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=9a63u+GKqDfrFWV0R/CWBwp65M56Wr9C/n7xkZeCbjA=;
+	b=cEr5ln7mLQPF1P+PPoSCPArJ+rsHDnCUlHgTdBQ6/9DYVzQE3q5OhzDh45nheoiJtJHo
+	 BuedWDd3928ZmEaQqB/LdVdmUUj/PJ0SOL15hc4oyjTIL0QNq5l6zS5LULbbq9yfrZBaB
+	 h+cgqfpnxSoV3lC7lD2MJPmfoWEmhIJsxyK0HkQYczJZszQ6l/Gk3xpcprk7H7V8Gye+Y
+	 Gu89pGCXkuC6EfPpbG3cWmLhhVSYfyAK/NuU220ecIpKGXHJv160CjUnv7fiqH4LLo16o
+	 YM5YuMQ/yAd9Ybl0yPSazk/rW89OIGVk9tA9xLXYjwyXLVHiWVwwK698Kn6RqdCqK0A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=y8qzmv2T;
-	arc=none smtp.remote-ip=209.85.128.44
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DBjl5PSf;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFF3C606A31C
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:37:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFF3C606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFE5D606A31C
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:43:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=y8qzmv2T
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a35ac4475dso4411715e9.2
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 02:37:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794220652; x=1794825452; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Kz/dmeKzKbQwwHowV+QWdMXJ5KBnbt4jspAkyZkZbJ0=;
-        b=y8qzmv2TlBC2ZTn7I7/O/VIkfIHXG6tvirFKNI0SyS16acPzQw0xyb+5XzuKL8G8zc
-         NrFBOAUUNYbOnh6BLyP8mrUHu9fN7EI7u4g79O6Bd1Nb5hAwrzrZamuFcfI78D0hORY1
-         HQtoHzBcallBLITxVwajD2qbKg/1jKiCPwYGLcw2usuUZO+m27HfgAXwhwBIsi3MI1bR
-         RsAQKhW3OjCMmjQBPY+UC2iYZSTMXattm3ZKpnXaRengfpHBntsL/pExGhqGN0wU/SLH
-         jDXIdati8+Ys7gnjiymWD+LsJmqldy4Nm9jXywXFn+YimAR1lHWB2KSXe6/Cgg8+P3fN
-         rauA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794220652; x=1794825452;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Kz/dmeKzKbQwwHowV+QWdMXJ5KBnbt4jspAkyZkZbJ0=;
-        b=TneTZsA7OytC35cxVuFDBpyoZx03wLc43DtqQTOG5tpb2N84u0tz7sa72wsPiHoYkO
-         9d3h/v+QlSOeUM0L5tYeWJpToIRIIb0AikRK3Bat3eZDLD2W96k9PfiJ9lBYS+zPPEqj
-         xytiQnhoLd2lvA8jD00pEGfMdSaZxjcxKWNcNESeM90QqpzbD1qr56tkhgHPintMZfck
-         lVNkJXLsZ9IAe7iJB0ZPZCHfgUxIfs6xdz0bebtf5h7zh1MSTp7CZF37X8WU1/G2hgJn
-         C3X8M9SiPYd99Nm9VhU3Uc/waLrrPsK6GoJuEnu5YvjYddcVgpyC9fWnYGnayKvZwXkq
-         j9Xg==
-X-Gm-Message-State: APuU4Z81YXHvpYME28ucBbx+sEcgHtCLnpEDb4CWTFzHIMx3wgmC4caS
-	b0baslzrNxcIhEBBSRrWe8+p3GGzK4cnI8wYJPIzYvyJI1JL0yTjXQeOGnMRoNIk
-X-Gm-Gg: AYBFou0zB9QbXd7g+CKeMbJ7+DHq3pLw8h5jzbKCny51JclU724rC2Ua7S1Dex71mmx
-	UQj1Ac8R6/XdtiXQ1039ql9XPaGoU6m4UqZA4z/xEz/4N3sdWfXM1k52Vfhlth3m378+IQWY0SW
-	J0PiYHAZqLC1AlHxlU3y5lTT1RV2AmipvpL/TBjtpjuXPm5qjHAc92bVpKU7mQAlNJv8GioGYiq
-	0qXiGAGbS+1PUKyjTRd3sznR2nR9T4AZTniemO1qBsrZf+04jgfjh7Wp7co7B1oWFzpKc/ipHOw
-	nNPMahVVwgEbu3ZwjY2xTiVIwEqOiM8LRHXIREuFluu2idu8CNwAp1Ccn60Y6BaJLHnb1NA92GM
-	oETIWRC8cDEo2riN5VqAkI6cIlcodKOrhZ5Cf8L8vZtzuvtA0X1nXYLoFZgus+8mv6ORmA2wNRm
-	SRMPvdT6qmTimlY0H7hn6MDizUbBqbmhhicggDILARzWCKl0g9dAJli83V8bmzAnKoT/caSPTW/
-	Q5LZVmGb52/fMx8VPf0OyRGLO9NaB4xVVyKIGSODQkWtDz7nsey4F5MPmKz5AJ7BGbKd87xaYYK
-	WV57uNnK6Mgd3fkFQaoNUny3Sr1h0WJPzuVVCfBWBNZyostwQIb6tImwOPM3G8xZby9PzNRR6Q=
-	=
-X-Received: by 2002:a05:600c:8b24:b0:4a1:9078:911 with SMTP id 5b1f17b1804b1-4b963c82388mr57769565e9.31.1794220651842;
-        Mon, 09 Nov 2026 02:37:31 -0800 (PST)
-Received: from acer-gaming (121.red-88-28-14.dynamicip.rima-tde.net. [88.28.14.121])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b90619bbd2sm131229405e9.1.2026.11.09.02.37.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 02:37:31 -0800 (PST)
-From: Juan Parrado <jparrado.1817@gmail.com>
-X-Google-Original-From: Juan Parrado <jparrado1817@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	Juan Parrado <jparrado1817@gmail.com>
-Subject: [PATCH v2] [PATCH v2] xpad.c: Add support to Hori Real Arcade Pro 4
-Date: Mon,  9 Nov 2026 11:37:15 +0100
-Message-ID: <20261109103715.11017-1-jparrado1817@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <CAFkAFXq-avEh2KP5vdpzK1cxvg9X+5nwc12-5m3NG47Kg7HWcA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DBjl5PSf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6367D1F008A4;
+	Mon,  9 Nov 2026 10:43:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794221015;
+	bh=9a63u+GKqDfrFWV0R/CWBwp65M56Wr9C/n7xkZeCbjA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DBjl5PSfcujkWidrgYYWk4WuYlJRWGbuYO9/OgtMI0uKv95gB6Mg7zXMPOLPgtyqZ
+	 pkF1tzZ2n5vArUMmrezqGzkbWp7QeTJno94RnQSywiab0+wUiub4hTqmHz0e/MkVMn
+	 3/hccFncJhiv4pMrfGHKOUREU81QnVAuv/NSlOczTvNT8OrN4E15xA8dvP9tmmNAV4
+	 avhRQfRo1Y2yGYidIQ0tRa8bduXhXUXjZk40iyfRLtVYMnPmB8aywiNIRdyM2BhlSD
+	 5r6Z0umhpLimItChZaHd9L1hdYRPyH3LCu+oFVemi059hxewOokvHLuRO5sdW+R6DJ
+	 VSs+XOhfmQH0g==
+Message-ID: <sashiko-outbox-204846@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] [PATCH v2] xpad.c: Add support to Hori Real Arcade
+ Pro 4
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Juan Parrado" <jparrado.1817@gmail.com>, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
+In-Reply-To: <20261109103715.11017-1-jparrado1817@gmail.com>
 References: <CAFkAFXq-avEh2KP5vdpzK1cxvg9X+5nwc12-5m3NG47Kg7HWcA@mail.gmail.com>
+ <20261109103715.11017-1-jparrado1817@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 09 Nov 2026 10:43:34 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,30 +60,71 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add specific support to Hori Real Arcade Pro 4.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] Input: xpad - missing MAP_TRIGGERS_TO_BUTTONS for Hori Real
+  Arcade Pro 4
+- [Low] Input: xpad - Author/Signed-off-by email mismatch and changelog
+  issues
+--
 
-v2 fixed format
+commit ae6f93fb0a7ea08dae09b3962836f14f01d5f458
+Author: Juan Parrado <jparrado.1817@gmail.com>
 
-Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
----
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+> xpad.c: Add support to Hori Real Arcade Pro 4
+>
+> Add specific support to Hori Real Arcade Pro 4.
+>
+> v2 fixed format
+>
+> Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 810e52782..2567ea3bd 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -255,6 +255,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
-+	{ 0x0f0d, 0x008c, "Real Arcade Pro 4", 0, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
--- 
-2.56.0
+[Severity: Low]
+The Author address (jparrado.1817@gmail.com) does not match the
+Signed-off-by address (jparrado1817@gmail.com), and the "v2 fixed format"
+revision note should be placed below the "---" separator rather than in the
+commit log.
 
+Also, the commit subject should use the "Input: xpad - ..." prefix, and the
+changelog should explain why an explicit xpad_device[] entry is needed when
+vendor 0x0f0d is already matched by XPAD_XBOX360_VENDOR(0x0f0d) in
+xpad_table[].
+
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 810e52782ae89..2567ea3bd2604 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -255,6 +255,7 @@ static const struct xpad_device {
+>  	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_T=
+RIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+>  	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+>  	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_T=
+O_BUTTONS, XTYPE_XBOXONE },
+> +	{ 0x0f0d, 0x008c, "Real Arcade Pro 4", 0, XTYPE_XBOX360 },
+>  	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTON=
+S, XTYPE_XBOXONE },
+>  	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BU=
+TTONS, XTYPE_XBOX360 },
+>  	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, X=
+TYPE_XBOXONE },
+
+[Severity: Medium]
+Should this entry set MAP_TRIGGERS_TO_BUTTONS instead of 0?
+
+The Hori Real Arcade Pro 4 is an arcade fightstick with digital pushbuttons
+for L2/R2 rather than analog triggers, and the other Hori Real Arcade Pro
+entries in xpad_device[] set MAP_TRIGGERS_TO_BUTTONS so LT/RT are reported
+as BTN_TL2/BTN_TR2 instead of ABS_Z/ABS_RZ.  Previously, 0x0f0d:0x008c bound
+via XPAD_XBOX360_VENDOR(0x0f0d) with XTYPE_UNKNOWN, where xpad_probe()
+auto-detected XTYPE_XBOX360 and still honored the triggers_to_buttons module
+parameter; adding an explicit XTYPE_XBOX360 entry with mapping 0 bypasses
+that XTYPE_UNKNOWN fallback in xpad_probe() and prevents overriding the
+trigger mapping via module parameters.
+
+Also, all surrounding 0x0f0d entries in xpad_device[] include the "Hori "
+vendor prefix in the device name string ("Hori Real Arcade Pro 4").
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109103715.1101=
+7-1-jparrado1817@gmail.com?part=3D1

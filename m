@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794204678;
-	b=a2cD56r6+q4AsBx5MVsP/sTzkJEqAgVRJkyBbbiFfhSHVuYFO0BmVKGBcT2uX+Dv8FuZ
-	 fffmfVzdGPSnQxPgidYoMwsrW8UOokuNlco2q3If0mXHnqx+PJLSOyLHBPxYKC+7IXlC8
-	 Y1RBNXshpWFAEn2J1Zz0j5TAjl490vU0jaAEsdk/t/t0rTTuFKiY/U6LhRs8N7Q/jS2gr
-	 DWsKxtgQc8EyD4TIqNiCdgzoIc79Zx957RSPDC3MFswG863Ms4ZbRdWtB4QAKJzuv841/
-	 xKPWBkOwPsrh1Q5rLBLB/JehuDB2wfCOuEqMN0qiica9VeEVBCxcQXZZg8+UrAQpTew==
+	t=1794204676;
+	b=GBZJSK46OVwLWzHGwgMvHLognKO9/wNo9kO7DmyBeXslIjlt6AC3NTNgt3kMDTAsMaVR
+	 Oaas1ggUdoRU5CYKqp5mkhS8vqY60ebNE443UZDPUGRCTR4rGJ/29o5nof7EpR+iMur/S
+	 m561XOaeJFvVgHwmMbP46wE6LC19DLIV7VoXOsJfMuknpZUptDjLhRFA53lvmFVq29wCr
+	 Ov6SWxkmKmkbd0cI5tfHvLHHIsB4xtSTy2xUlzewkx6c16IesZJ6H3GHh0B8CBGZOQ2SM
+	 8xQGoC6JvC4Tgsvwn70IZPELYySiMTl6L5SY41x0Pvr9tia3YjevitjFelMX3m4Gqvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794204678;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794204676;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=d0+9T6WMMBqwCfVLifFK6dacPPozrHvyz8Xfn7g/UCw=;
-	b=i7EVPmax3GneJMVPXFPofN71EfpIHNZJHK+a8LCxjsR1MDiXtz/Jblpq5d+RRIqviYeE
-	 Ouc+74BPy9Ou0WHDBZTl+AHwlW8n+4CnSpzySQmByjpLwglVsxYmhhvFR6/yMz0jC6HUn
-	 RRlCKeq7b+hmTOQE6WvenEniloSK0FXFe0xmwb9GfOV2wLsbFrEOjxM/1PvCxh/BkgS2y
-	 acngmPkdIGH7ORxhJiMZapk8uE5QFJ7rhMyqpPzn9gma3zSeoxdQsczfVvGzolW/kZ/do
-	 lngG2wc/VFMxDisS8pRIA5b+Wd37sJ0CINP8of/o32QXN+MdfqBRNElON8oDzAL6Ktg==
+	bh=gRO41KkPTWNlu6Ttf4a7LMDPUy2i6YOIbXNUx5+ygKg=;
+	b=xQvtOCKxJYL6gHBnMoaq6Ken5ZNhbyV4UgbrfSIuKrmwVOOIx/1ARGNwJDSX/PAYbirr
+	 44Wg9s9chvizlsBOkqeSd3lZ0tgQXxfIGswkZRXmcdmct/ymmYkROLu44ACDmceuu2fHl
+	 EGIKiaPHb+/wGz73V9C/DH8CO/+wHUAJb98JVBZ45G1tXO1/SqQ0Zt481reIDQXc77KmC
+	 0Nb6XnsL1OZ2QAkM7qMjOfnjdgSsslgH2oTLBsAk0hX8GaRzOjeDHJy4yGrm/Cl5TTC+6
+	 +SaLFJZmY1ugbvtcbXdEfUt5tFKSC6NH7e4cEV+uysWttBg0br45GA/sEJytwLoHK4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CbG3f67H;
-	arc=none smtp.remote-ip=74.125.82.170
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=s78dRQHK;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF66C606A33B
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 06:11:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DF66C606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 508B3606D811
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 06:11:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 508B3606D811
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CbG3f67H
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-36ff9c9da34so901250eec.1
-        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 22:11:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=s78dRQHK
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-36eb1cb7aabso780827eec.0
+        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 22:11:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794204677; x=1794809477; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794204675; x=1794809475; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=d0+9T6WMMBqwCfVLifFK6dacPPozrHvyz8Xfn7g/UCw=;
-        b=CbG3f67H9GUeuN8CRNc5kJQBRsAnWzfsF5ytysEWLD0oDckJ7to9w+mGZ51P+JI0gK
-         mZsG8X1UFhB7aWz6wSl+gvElBeCgseMK9GMdZej8g5yglvAZILYXfTOmlOHuI52QYiFM
-         Cky21RlWHqUQxh/fhTZngLTW958l70dcKIDHIacfIaoapajRzBFJlc1Vy4rjIBd1aPZY
-         P7CSFN1jzfHti1TC32gmJI1j7VhoThfghd/qO1+UmY6TGurTJloY2MEPo2TV8UBlUJ4o
-         GiiWbrhjw686kzrn3W3oo3Yej4w44vnL4be2s7XaRRo2nwamXgWXfFshp8SFPQx2foee
-         MzYg==
+        bh=gRO41KkPTWNlu6Ttf4a7LMDPUy2i6YOIbXNUx5+ygKg=;
+        b=s78dRQHKrmGkbkFTEGhJa1F7eP8rMbI5fU+ouoXkgaEJKTNID9Ltx7lleGGcQfz1Hr
+         lNEYRrkWukUStXb6nCVOzsk4Ug7wkf7D7nWxfCZTt6H+RR3RAbVfEm3lR4yvEQ/HHpcB
+         TZH5vOqyvv2OQoC7NGEEhQ5F5U3dzslZCQMK+f90XhvbOxgPdKUV2fTSJ0k1DaraO1TA
+         kzI3XJCj5C6Bu9CGpxX0DklMj/L4nMLkT6IOXjedx5Zk1DhW1qSUUnuDZybmXBsQmNCB
+         r/vOQF1THKWLJsC2Et2H1fcP5JqHnGRF65dAbzYrOEdn6IlwyModH9Qx3LftIY4UxtwQ
+         DOsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794204677; x=1794809477;
+        d=1e100.net; s=20260707; t=1794204675; x=1794809475;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=d0+9T6WMMBqwCfVLifFK6dacPPozrHvyz8Xfn7g/UCw=;
-        b=Q70kdn9LZuQI0MsgkFkYHELdbeEetW/Guy4zcG7Rlw/fc19Jwn+OfCBCrU42MVdUTU
-         Cj98BOD7+N/0pr8TQ+zzHJHeCvg4+ebJkykvGYE8nlKb2jfeoPaeGnzS9we3VHLB+u+I
-         o4Ka+xuyKZDVquTCxuk/UPVejoKTJFde8CxNT+4olL2wO7/Ii3sfLr5IjOQRU27cdxHB
-         mzOisz24igV9O1xG8MoanXrJfihCWHQaVIB3PtcdE/ZVHQK4eJGkeoPV7pfGDm1Nmg9w
-         8/tUymi8C+fy6ereMxo34OI+6ouyFbajwfAwiF38Q4o8RJHJlQgLNCs+28l6gpR4wtb8
-         1hcw==
-X-Forwarded-Encrypted: i=1; AL+hErELzT5cRTKNQOuY59Z5sXGN5SndgR4HjdAZ1hLr+kfmsk28eMOwvxKbC8/kYIOWykwfzAsi0TQSTpAFMA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+4owURm4YFYWsCOBzmJYapJNJ2ziaAuQgiBAdSXwfsNQFK6gbq
-	1C4k6zSU3BhCZnmR2kaTRjCeS49/WZ/KBSWPphd6qxfa9gKJ0Uh+/12N
-X-Gm-Gg: AYBFou0CkrG3+jGXBzKAD+23YRWnSRvINtrjdwyYhlVyO04F9xhGwj+fHIoE/oJ7tLY
-	2b8Cszo5euuTJPe/9SUHLOluJRCvgXibgzSIV/bBFui0Z/LPRScUtzYpIY3yE3EsvoVcunfurTg
-	L8sYgAUsL3fUcVcnlLlai5NdiSg/qJIunG1TM9d2CQhMEW2vNcXJQKGphg3mGSg+Kzwpl6e5w9x
-	mqaR968xIXR6xStBiclISiBs1bvvgVMIT8KYxVAvl00DBZ4MmmL3a913D3yckgulO9P20OqZBCh
-	cIPCV1wgq1BEju7eowW698TkjjFjY2IP0beSRT2f99diJgXADboslI7m32livks1AST2y4j0Jfr
-	Po49bEXbQKQ6YijPpcNWF1j1NILGofDHTcobRE1RbCRlT0i9cwUx1oFAo+NdN9BktKvCxve6OnC
-	IX+EvVUFGFADXbypbDVSIFMXwT+6Bs/iSB28HZrYju/hv03qmB3eYiTGj/b4k6pmBOygG5c5RS8
-	e6X+Ga2VO/5HLC7iCU9+tD3xzip/4PuaXXWsR68pdOIBvCls8ERsmy/bRtwfXVNsDlS4Mhm9EDs
-	EmeL4y7XC9Nq2N+yqmAHzInMf8F0ncydCEWtkBGEX9nh49D6Kc4pyLUl25owF8aEZ+v98IjHdg4
-	REwF6lyUq4I4P7+Iv
-X-Received: by 2002:a05:693c:835b:b0:373:9551:b971 with SMTP id 5a478bee46e88-3739551c52dmr2920611eec.14.1794204677033;
-        Sun, 08 Nov 2026 22:11:17 -0800 (PST)
+        bh=gRO41KkPTWNlu6Ttf4a7LMDPUy2i6YOIbXNUx5+ygKg=;
+        b=1q5FwZkFVHqZyjh16BpDsran7PO1g/Rve/MnpYvq3MITkF/rZZjc1RSvQMJnlBp2E7
+         UEFMmhFSs1qP8C2N6S6JVuTVtXPXH9RTCdb1Hty68QxSl6H8nznBzTT90zrITvpkLkHp
+         EX1Jb6yRVQejitieBruSrw194+bQGRrM+voSBlHUSSILh/oytQnbLbYV+VX3i/awjC5I
+         mMzNVmOv8ITszgyYiVQlPtzbKWt2+mBV81YPtSyS1SbPvWi2VIhHZqvp6mkbm/rX2mBd
+         jbKwrYXchLj/jOX9+AdhZCJSTVRdfKXbw7/5g+PphR1xktLofWVU/bJtP2JReGAFeI8K
+         vkSw==
+X-Forwarded-Encrypted: i=1; AL+hErFQpUe5qUQl/C9L+vz8BdW/4OS0uSJHrpTI5w7RV2qEOSuW6JoJ02e/0r7sr96qHK/n5kXr0CasmU9xog==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/hfOOL0RrEe4kWZwuG+TIxs2iURkXuKWK24F61Qe+RPcMBmXLj
+	Qd9Q7pUY8yrXcWjJao2C5ApDy4o74UShD6NWVzlq7rIitbrKrz3uRqjn
+X-Gm-Gg: AYBFou2Yq+TD63G1+e4cFxgwJPWOgJTrglhUb0idpIbW9hnlkG8tBsd6F2eSQcgmO2F
+	C3nii31lyGLA7biGaNWn8p3RBrPB4hD5gg3ALcU+yEPortMG4kaO7+aKd5EVQfjiluFT6KoPSrD
+	uWOcR6EkVns5NG3wki2hs0hgDGhVEpHnYi1kp172OCinBzeh+AkaIis0NYqbTR50VXzVgSHonTi
+	j3mEpA/1LbMt+s7ux3tKWJaeaUz9gC0r5IQE3dH/CAGNUTmsHMBvgp5J53ZBIxeA8V7lyWIZ1+0
+	+bMwW0+LcsgDdLwp7BAcjRrVW9BGMDgxGoIYij6rLNLbtECqn9U9atZ1NsSdhiLZAzyIp1baZUX
+	LmVmBSSrq52WvQfppiQwR+V5/BbMX/lZhVCrzCI9K65wcwF64L9dkHeYBn/xmzcWqTjrGSri6D5
+	Xkw8H2uaX5uIdt+1TpptXtXNZRtprbQBLyc2txMtB33dbGvM6YaXtO7XpSkVjQX7Jz9rKF8+hKX
+	x3i9ISL5k6c08eUqA9versXb71aFETRz72X10rCLPanhmnsKi82KtYu16upiSgYkS3/i85T6omG
+	l08lrKJmdxg6t8NW81mY9+n3EEtBUgRJQWh+5FlXxQp7YH8l2yg3nzHrdyVOj1AWvB+ZH6kvPoT
+	o1PpkDc9zgeW3OxuH
+X-Received: by 2002:a05:693c:42dc:b0:36f:4981:da16 with SMTP id 5a478bee46e88-37255a514c7mr6461633eec.25.1794204675440;
+        Sun, 08 Nov 2026 22:11:15 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-372661ede11sm12201192eec.21.2026.11.08.22.11.15
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-372661ede11sm12201192eec.21.2026.11.08.22.11.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 22:11:16 -0800 (PST)
+        Sun, 08 Nov 2026 22:11:14 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -92,9 +92,9 @@ Cc: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH 06/18] HID: logitech-hidpp: avoid NULL subtraction in consumer key report fixup
-Date: Sun,  8 Nov 2026 22:10:50 -0800
-Message-ID: <20261109061103.2887636-7-dmitry.torokhov@gmail.com>
+Subject: [PATCH 05/18] HID: logitech-hidpp: do not store ERR_PTR in battery->ps
+Date: Sun,  8 Nov 2026 22:10:49 -0800
+Message-ID: <20261109061103.2887636-6-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.506.g506a7eabc5-goog
 In-Reply-To: <20261109061103.2887636-1-dmitry.torokhov@gmail.com>
 References: <20261109061103.2887636-1-dmitry.torokhov@gmail.com>
@@ -109,40 +109,59 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Report fixup runs for all 27 MHz devices because the keyboard quirk
-is only determined later after parsing the report descriptor. For mice
-and other devices without the consumer collection, searching for the
-descriptor fragment returns NULL, yet the remaining length calculation
-subtracts the base descriptor pointer from NULL before checking the
-search result, triggering pointer-subtraction undefined behavior.
+When power supply registration fails, storing the error pointer directly
+in the battery supply field leaves it non-NULL. Callers such as the
+connect handler and battery event handlers only check for non-NULL
+before notifying the power supply core, causing an error-pointer
+dereference oops and blocking retries on subsequent reconnect events.
 
-Ensure the search result is non-NULL before computing the remaining
-descriptor length.
+Capture the registered power supply pointer in a local variable and
+publish it to device state only after registration and sysfs linking
+succeed.
 
-Fixes: 42bc4f3129e6 ("HID: logitech-hidpp: add support for HID++ 1.0 consumer keys reports")
+Fixes: a52ec107fa81 ("HID: logitech-hidpp: create the battery for all types of HID++ devices")
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 9f3ae8724dd2..a1a69705338f 100644
+index 4e0758cdae64..9f3ae8724dd2 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3866,11 +3866,9 @@ static u8 *hidpp10_consumer_keys_report_fixup(struct hidpp_device *hidpp,
- 		0x26, 0x00	/* LOGICAL_MAX (...                    */
- 	};
- 	char *consumer_rdesc, *rdesc = (char *)_rdesc;
--	unsigned int size;
+@@ -4327,6 +4327,7 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	struct power_supply_desc *desc = &hidpp->battery.desc;
+ 	enum power_supply_property *battery_props;
+ 	struct hidpp_battery *battery;
++	struct power_supply *ps;
+ 	unsigned int num_battery_props;
+ 	unsigned long n;
+ 	int ret;
+@@ -4407,15 +4408,16 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	desc->type = POWER_SUPPLY_TYPE_BATTERY;
+ 	desc->use_for_apm = 0;
  
- 	consumer_rdesc = strnstr(rdesc, consumer_rdesc_start, *rsize);
--	size = *rsize - (consumer_rdesc - rdesc);
--	if (consumer_rdesc && size >= 25) {
-+	if (consumer_rdesc && *rsize - (consumer_rdesc - rdesc) >= 25) {
- 		consumer_rdesc[15] = 0x7f;
- 		consumer_rdesc[16] = 0x10;
- 		consumer_rdesc[20] = 0x7f;
+-	battery->ps = devm_power_supply_register(&hidpp->hid_dev->dev,
+-						 &battery->desc,
+-						 &cfg);
+-	if (IS_ERR(battery->ps))
+-		return PTR_ERR(battery->ps);
++	ps = devm_power_supply_register(&hidpp->hid_dev->dev,
++					&battery->desc,
++					&cfg);
++	if (IS_ERR(ps))
++		return PTR_ERR(ps);
+ 
+-	power_supply_powers(battery->ps, &hidpp->hid_dev->dev);
++	power_supply_powers(ps, &hidpp->hid_dev->dev);
++	battery->ps = ps;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ /* Get name + serial for USB and Bluetooth HID++ devices */
 -- 
 2.56.0.506.g506a7eabc5-goog
 

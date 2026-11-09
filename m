@@ -1,94 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794219703;
-	b=CTTp0SgUsuAIuOJDqPcnoRSKBO57eGZPAygX550XTFp6+qT9tyUiDuBvTYG01+gRbtEs
-	 p4VyEsCKIsDcGFGksKsmFVm5tQPhKlXvzzZC4QTHWzpklQEdj4GpArw8f6P0UcbpQniBl
-	 0ISRpf/AGwNpynAXzP9bzgqb+EOsxnzrWRMTOYuXMnAEYiJUjysqzgjmEQZUu7mvYGJSl
-	 sYl5PYgLQL/y4/Xkdng4JMPGiCd5qDvqhobBl9PjFOTBTwkgtnH1w62ew0clpMo2pGmcZ
-	 L5ADOLpiHiaBglgxY9FVriC3r7q74R33Cktl57XHGqQGdcUTLAI6w8nkk9tQAsW8j5A==
+	t=1794219717;
+	b=AO/WRU2zRxgL9gMfMHKRE1/J0mmdjeyP97TOzKhgBaJ/jvhNMqPZHsXINMwrX83ARP+x
+	 DdRi0oRF5kK4e0QcJkQjqFV0WvXO0HoSGbvacU77mtCnsYp4K0JxRvXQRqm2IFqrBXe4o
+	 +icxa243AN95+lCB2s42riuUvPxMqLhef6r/jup31gAjMTLqDERNBRm2goYcbPnKgDRLC
+	 CRYy5pwE3tjSgE+VRJjdP+UaUkJ9ME0Yd5diqfuvW/x9+OzFdmXVvBWPw+RSaEbvb5HS/
+	 nDqiHgsM1QByf9az3V3jEKEu0t0X2qLczk3ipX+kDWPp4Ug3CBD5m6NXgBZ2SwNlZkg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794219703;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:
-	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=B+RSLJ75mRpzQv9+fNleUkQU4c8JN8vTMlHhykHdm54=;
-	b=WdO+C9NsUqGwWJfhT4xpBTgpnvleMdYB3ZrnoP1v8LUQEwXVyAkNhiKGVhLB8zdwytCn
-	 VpzIOZW9z/Y+cCl3mAwNWVvAmpmhvzWKNpx1hyVcZ++oaEJ9Hqqu7jVAZB/vMD6a/lRvT
-	 RPx0pvj52YdjosNdBvu395CZQopU7K1yZF5GSnfZWcCtMXSy/MzOZ6baJ2s3pvWnYy1OX
-	 ITLBvvswmPavFO21Pm0ZWuEK0hQFJi6/bTdy49jlUPgqGKImAOpnTRSlN+nvEY5NbkiPo
-	 XfDueh6S+1Guxa+cKcxtgKF764m8YSozwSFyZjMbSRhjeLU51+JW1Yb6doCx0yW6uHg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794219717;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=gnb38iMioXTRRyDwu6iJ5hQqDf5xtzZnOv0zmRB8KY8=;
+	b=5No6J6rIGBdRed2sCgv/UIUcwrsJQuwlS+hTQ3N4tX1sq65YzhhwdyKDHvyClQog3pDR
+	 KI/EqPDs5ytH/y3VWyrZRgZk/gIdsf0HSbPeRT9RbqPJYh1jilfIuffSuPgZLjA0X8/uL
+	 KeZoU9oYR7zViTMmUQMDjY+1KD97B6x4hFNBfNu6hqdj/bYUi+b2xPIvgdatok57uPo1k
+	 SvS/RX/pNVbGM7MVyNMaP0SGX7P6sk9sbok1iq1LsDSmbT9SGzy/Igj6dO3JCwjMjFAQK
+	 gOw8lCLzWbgq4gxPg44R864f+KHbkVy/KVUp9bRUn2N27epzCSUxzMuybDPfO59q+IQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Lasmh0iP;
-	arc=none smtp.remote-ip=209.85.221.41
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DjoCQ9bx;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D02606A31C
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:21:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40D02606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0597606A326
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:21:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Lasmh0iP
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-490f38e9688so536180f8f.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 02:21:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794219701; x=1794824501; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=B+RSLJ75mRpzQv9+fNleUkQU4c8JN8vTMlHhykHdm54=;
-        b=Lasmh0iPZuAacL7/qPnSPWvgAHBmpyL1gvQ5O7MbccmGixGoVMlE68sm6qeRwq6O6n
-         DT/aN+2BBCQ+Gi5PZWUwNwz36bfFs4nNWRY1JmkAhHmeAms3KuevnF2tmqFql9nh1cEQ
-         ycgJhm9/Jd8pW8ZJzNalFTyxrkCzFNn2fqL4IUGHbijsshSoioGvUN2bY+58Pp49atLk
-         sHR7ckDXXZR7+g+nVYYotHritBwoCKG8CO/tEYT+pPcENFnGl3zBFA9f5TRx0ARe7YMV
-         372bcED+cZF7Dtu+1Onye8qdqSsJk41JpsZ5WU0H8eyU6rGc4MvB/Hu1ACTwSTXfBCrq
-         2Hmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794219701; x=1794824501;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=B+RSLJ75mRpzQv9+fNleUkQU4c8JN8vTMlHhykHdm54=;
-        b=NrUd6ri0p4pEzk5XnJcOLG1nY5AXCs1MrsPy0fe+UtzxPqTnLz8el2wWmXkOmO8ulr
-         TzYGNljcU0EJMz+V5ITDmMcQePK0ne3Fuvio1LT+concao8koh3VEQjORN4+Bmv0dsHN
-         ikKYlLN4+TYB1dyG44uM4R3bHfQng1/55g+LsYlaOR2GDnWni5tqxKXap6B9SFj/XagE
-         2xGniOPcKntDWpKaniPqtK5cld+phGhn/Fn8AsaWuDS/nLSDyhphByP6ksMUExgkainK
-         PsT+CF6kGXMj76Cq65dC6EArNT3Cuq9/7mdPcLzm3u2ztzcTV1NibH6cLvWHJJwwY6jV
-         nX5A==
-X-Gm-Message-State: APuU4Z8g0NZB0vk9QOnubTqD2QmWwadKylkM6r2VR/tWfetdU/lAmwiz
-	htrfhDnlUdWNRGWEkZw1tV77WIVKHPXbIsaMuZAXSNzeXpuRuX5skqxKHwbJCYpb
-X-Gm-Gg: AYBFou2PC9UiFzdvG0QZuBvcni6fEa3CsKjXkXPhcKGug0MX3+hkEzxlltsNYM1S9Ij
-	S95kV6pCLAz2gs5M/jbsA8ygj0Rkr/q5EScZtZn0xZNnSlSwUYmwUrDA4aSfvBKik9X+sR2vKmk
-	IxjBiDYcs2fxuD2T+ItUW1NaBE2ROksdfc4FiQroPOtr9g3R6yIteCSRAwZP/KWDx7fsnrD+lqe
-	JWsgfPql09oHU2kV1GC9QL4q9r5/krsayVRVpxvcadaaul8RVKs1fVt0kW5b1tUikZ+hgIEHweb
-	NsU+Fwbm07+1egWFUATmyj9r/31ezNTELlias1F5cIOOx9rlCSMAkC2zBzENtOceDvI3XVR6Omc
-	DpoMpLNYnTNqU2+XvhPm3DnheeFDyjjjiJu7n0eLwwoUvF8BADOjtBx/GObRoTOB6eeTqZ1MO+8
-	wQogiwJMiCjFcDyMDgm9+WrVHCdT5DUUskg50O+gPPbcRQGCEWSeWZULmynYhWjWWoH5SrAMOUv
-	yn9oYuzPDKLQ85y2hCzd94efqB8haAfB090b8N0IA9pr3wD5QMVChyu5BUGuPnhudlmWaE1jKcm
-	+f0WnL7EioT6SMDGPqpJrM0jSY4swbhjc957Gch3SbR8PHUyeQ07U6eyH/up4qvxO3uN3NzKSg=
-	=
-X-Received: by 2002:a05:6000:41d3:b0:491:eb12:e151 with SMTP id ffacd0b85a97d-4941f5733a1mr11983875f8f.4.1794219701331;
-        Mon, 09 Nov 2026 02:21:41 -0800 (PST)
-Received: from acer-gaming (121.red-88-28-14.dynamicip.rima-tde.net. [88.28.14.121])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49592f39899sm8247794f8f.3.2026.11.09.02.21.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 02:21:40 -0800 (PST)
-From: Juan Parrado <jparrado.1817@gmail.com>
-X-Google-Original-From: Juan Parrado <jparrado1817@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	Juan Parrado <jparrado1817@gmail.com>
-Subject: [PATCH v2] xpad.c: Add support for Hyperkin Xenon, Hori Taiko Controller DX, and 8BitDo M30
-Date: Mon,  9 Nov 2026 11:21:27 +0100
-Message-ID: <20261109102127.9417-1-jparrado1817@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <avFwGwoJ45RGvxRH@google.com>
-References: <avFwGwoJ45RGvxRH@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DjoCQ9bx
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECD71F0089F;
+	Mon,  9 Nov 2026 10:21:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794219716;
+	bh=gnb38iMioXTRRyDwu6iJ5hQqDf5xtzZnOv0zmRB8KY8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DjoCQ9bxGTD3207koxcXQ4kPID1oeUh7FVOAaYdh8Tj+twph9PJForArgFkUjH4Uz
+	 KeJbjZvc0RGgODlU0EzLxeZZahy8l3NNUglGCkAWHaRM8muctdUGd1xdzUHhJ+rqID
+	 YI5EODl8m/nap/pYVVigAKIm4jdBziRXZmlCBWXdN7AGVeqQNuLGQdS+l/V/62cnAo
+	 IBHPCX+TiBOql7qo0KkIcof7O3MB+rrfUh7xlXNUA41tMtpJCfGP8M/XRy2KBe9O7r
+	 Bqv0nPjO0rlERiZrrsZf2qpw5BZjlXZEIeSXJnHC5mquYgP02og5XeP3pBy2k46eg/
+	 uRDeXJDf5EzFw==
+Message-ID: <sashiko-outbox-204805@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/4] HID: lg-g15: add LCD pixel-content framebuffer
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Torstein Eide" <torsteine+linux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261109094426.1432465-3-torsteine+linux@gmail.com>
+References: <20261109094426.1432465-1-torsteine+linux@gmail.com>
+ <20261109094426.1432465-3-torsteine+linux@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 09 Nov 2026 10:21:55 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,49 +59,244 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add specific support to various controllers:
-- HORI Taiko Controller DX
-- 8BitDo M30 Wired Controller for Xbox
-- Hyperkin Xenon Controller
+Thank you for your contribution! Sashiko AI review found 3 potential
+issues to consider:
+- [Medium] HID: lg-g15: reversed 1bpp pixel bit order in
+  lg_g15_fb_pack()
+- [Low] HID: lg-g15: no-op lg_g15_fb_blank() breaks fbcon blanking and
+  blank state
+- [Low] HID: lg-g15: race and missed redraw onpar->sent in
+  lg_g15_fb_redraw()
+--
 
-v2: Fixed format
+commit bcb1dfda67b01b4a6f0c45e68ab96dc227cf9166
+Author: Torstein Eide <torsteine+linux@gmail.com>
 
-Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
----
- drivers/input/joystick/xpad.c | 3 +++
- 1 file changed, 3 insertions(+)
+HID: lg-g15: add LCD pixel-content framebuffer
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 810e52782..be81990ce 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -259,6 +259,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0152, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
-+	{ 0x0f0d, 0x01b1, "HORI Taiko Controller DX", 0, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x01b2, "HORI Taiko No Tatsujin Drum Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
-@@ -380,6 +381,7 @@ static const struct xpad_device {
- 	{ 0x294b, 0x3404, "Snakebyte GAMEPAD RGB X", 0, XTYPE_XBOXONE },
- 	{ 0x2993, 0x2001, "TECNO Pocket Go", 0, XTYPE_XBOX360 },
- 	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
-+	{ 0x2dc8, 0x200a, "8BitDo M30 Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2dc8, 0x200f, "8BitDo Ultimate 3-mode Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2dc8, 0x201e, "8BitDo Pro 2 Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2dc8, 0x3106, "8BitDo Ultimate Wireless / Pro 2 Wired Controller", 0, XTYPE_XBOX360 },
-@@ -389,6 +391,7 @@ static const struct xpad_device {
- 	{ 0x2dc8, 0x6001, "8BitDo SN30 Pro", 0, XTYPE_XBOX360 },
- 	{ 0x2e24, 0x0423, "Hyperkin DuchesS Xbox One pad", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
-+	{ 0x2e24, 0x072e, "Hyperkin Xenon Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2e24, 0x1688, "Hyperkin X91 X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x2e95, 0x0504, "SCUF Gaming Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
--- 
-2.56.0
+This commit adds a 160x43 1bpp fbdev framebuffer using deferred I/O for
+the GamePanel LCD on Logitech G15 and G15 v2 keyboards.
 
+> diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
+> index 50abe6c58b10b..35d183787383a 100644
+> --- a/drivers/hid/hid-lg-g15.c
+> +++ b/drivers/hid/hid-lg-g15.c
+
+[ ... ]
+
+> @@ -1051,6 +1081,270 @@ static void lg_g15_setup_led_rgb(struct lg_g15_da=
+ta *g15, int index)
+>  	gled->mcdev.subled_info =3D subled_info;
+>  }
+> =20
+> +/********* G15 LCD framebuffer *********/
+> +
+> +#ifdef CONFIG_HID_LOGITECH_G15_FB
+
+[ ... ]
+
+> +static const struct fb_var_screeninfo lg_g15_fb_var =3D {
+> +	.xres		=3D LG_G15_LCD_WIDTH,
+> +	.yres		=3D LG_G15_LCD_HEIGHT,
+> +	.xres_virtual	=3D LG_G15_LCD_WIDTH,
+> +	.yres_virtual	=3D LG_G15_LCD_HEIGHT,
+> +	.bits_per_pixel	=3D 1,
+> +	.red		=3D { 0, 1, 0 },
+> +	.green		=3D { 0, 1, 0 },
+> +	.blue		=3D { 0, 1, 0 },
+> +	.vmode		=3D FB_VMODE_NONINTERLACED,
+> +};
+> +
+> +/*
+> + * Packs pixels column-major (8 vertically-stacked source rows per
+> + * destination byte), not the row-major layout the linear fb buffer hold=
+s.
+> + *
+> + * fb is LG_G15_LCD_WIRE_SIZE bytes (padded, not just LG_G15_LCD_FB_SIZE=
+) -
+> + * the last of the six 8-row groups only has 3 real pixel-rows (43 isn't=
+ a
+> + * multiple of 8), and this reads past the logical frame into that paddi=
+ng
+> + * for the other 5.
+> + */
+> +static void lg_g15_fb_pack(u8 *wire, const u8 *fb)
+> +{
+> +	unsigned int output_offset =3D LG_G15_LCD_WIRE_OFFSET;
+> +	unsigned int base_offset =3D 0;
+> +	unsigned int row, col;
+> +	unsigned int height_in_bytes =3D DIV_ROUND_UP(LG_G15_LCD_HEIGHT, 8);
+> +
+> +	for (row =3D 0; row < height_in_bytes; row++) {
+> +		for (col =3D 0; col < LG_G15_LCD_WIDTH; col++) {
+> +			unsigned int bit =3D col % 8;
+> +			unsigned int sub;
+> +			u8 packed =3D 0;
+> +
+> +			for (sub =3D 0; sub < 8; sub++) {
+> +				unsigned int pixel_offset =3D
+> +					base_offset + sub * LG_G15_LCD_ROW_BYTES;
+> +
+> +				packed |=3D ((fb[pixel_offset] << bit) & 0x80) >> (7 - sub);
+> +			}
+
+[Severity: Medium]
+Does lg_g15_fb_pack() extract bits from each source byte in reversed
+horizontal order compared to standard 1bpp fbdev drawing helpers?
+
+On little-endian architectures, sys_imageblit(), sys_fillrect(), and
+sys_copyarea() (wired in via FB_GEN_DEFAULT_DEFERRED_SYSMEM_OPS without
+FB_NONSTD_REV_PIX_IN_B) place the leftmost pixel of each 8-pixel group
+(col % 8 =3D=3D 0) in bit 0 (0x01) and col % 8 =3D=3D 7 in bit 7 (0x80).
+Shifting fb[pixel_offset] left by bit and masking with 0x80 reads bit 7
+for col % 8 =3D=3D 0 and bit 0 for col % 8 =3D=3D 7, horizontally mirroring=
+ every
+8-pixel byte group when rendering via fbcon or the sys_* drawing ops.
+Extracting ((fb[pixel_offset] >> bit) & 1) << sub would match standard
+1bpp ordering.
+
+> +
+> +			wire[output_offset] =3D packed;
+> +			output_offset++;
+> +			if (bit =3D=3D 7)
+> +				base_offset++;
+> +		}
+> +		base_offset +=3D LG_G15_LCD_WIDTH - LG_G15_LCD_ROW_BYTES;
+> +	}
+> +}
+> +
+> +/*
+> + * Deferred IO callback, runs when userspace dirtied the framebuffer (th=
+rough
+> + * mmap, write() or the drawing ops). Writes made while a frame is being=
+ sent
+> + * re-arm the deferred work, so no update is lost.
+> + */
+> +static void lg_g15_fb_deferred_io(struct fb_info *info, struct list_head=
+ *pagereflist)
+> +{
+> +	struct lg_g15_fb_par *par =3D info->par;
+> +	struct lg_g15_data *g15;
+> +	u8 *wire;
+> +	int ret;
+> +
+> +	mutex_lock(&par->lock);
+> +
+> +	g15 =3D par->g15;
+> +	if (!g15)
+> +		goto out;
+> +
+> +	wire =3D g15->fbdev.wire;
+> +	memset(wire, 0, LG_G15_LCD_WIRE_OFFSET);
+> +	lg_g15_fb_pack(wire, (const u8 *)info->screen_buffer);
+> +	wire[0] =3D LG_G15_LCD_OUTPUT_REPORT;
+> +
+> +	ret =3D hid_hw_output_report(g15->hdev, wire, LG_G15_LCD_WIRE_SIZE);
+> +	if (ret < 0)
+> +		hid_err_ratelimited(g15->hdev, "Error writing LCD framebuffer: %d\n", =
+ret);
+> +	else
+> +		par->sent =3D true;
+> +
+> +out:
+> +	mutex_unlock(&par->lock);
+> +}
+> +
+> +static void lg_g15_fb_damage_range(struct fb_info *info, off_t off, size=
+_t len)
+> +{
+> +	schedule_delayed_work(&info->deferred_work, info->fbdefio->delay);
+> +}
+> +
+> +static void lg_g15_fb_damage_area(struct fb_info *info, u32 x, u32 y,
+> +				  u32 width, u32 height)
+> +{
+> +	schedule_delayed_work(&info->deferred_work, info->fbdefio->delay);
+> +}
+> +
+> +FB_GEN_DEFAULT_DEFERRED_SYSMEM_OPS(lg_g15_fb,
+> +				   lg_g15_fb_damage_range,
+> +				   lg_g15_fb_damage_area)
+> +
+> +static int lg_g15_fb_blank(int blank, struct fb_info *info)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void lg_g15_fb_destroy(struct fb_info *info)
+> +{
+> +	struct lg_g15_fb_par *par =3D info->par;
+> +
+> +	fb_deferred_io_cleanup(info);
+> +	mutex_destroy(&par->lock);
+> +	vfree(info->screen_buffer);
+> +	framebuffer_release(info);
+> +}
+> +
+> +static const struct fb_ops lg_g15_fb_ops =3D {
+> +	.owner		=3D THIS_MODULE,
+> +	FB_DEFAULT_DEFERRED_OPS(lg_g15_fb),
+> +	.fb_destroy	=3D lg_g15_fb_destroy,
+> +	.fb_blank	=3D lg_g15_fb_blank,
+> +};
+
+[Severity: Low]
+Does providing a no-op lg_g15_fb_blank() that returns 0 prevent fbcon
+from blanking the display?
+
+When fb_ops->fb_blank is populated, do_register_framebuffer() initializes
+info->blank to FB_BLANK_POWERDOWN, and fbcon_blank() only falls back to
+clearing the screen in software via fbcon_generic_blank() when fb_blank()
+returns non-zero.  In addition, because info->bl_dev and info->lcd_dev
+are NULL, returning 0 from fb_blank() causes fb_bl_notify_blank(),
+fb_lcd_notify_blank(), and fb_ledtrig_backlight_notify_blank() to
+broadcast blank events to unrelated backlight and LCD devices on the
+system.  Omitting .fb_blank from lg_g15_fb_ops avoids these side effects.
+
+[ ... ]
+
+> +/* The LCD loses its pixel content across a USB reset or power loss */
+> +static void lg_g15_fb_redraw(struct lg_g15_data *g15)
+> +{
+> +	struct fb_info *info =3D g15->fbdev.info;
+> +	struct lg_g15_fb_par *par;
+> +
+> +	if (!info)
+> +		return;
+> +
+> +	par =3D info->par;
+> +	if (par->sent)
+> +		schedule_delayed_work(&info->deferred_work, 0);
+> +}
+
+[Severity: Low]
+Can lg_g15_fb_redraw() miss redrawing the initial frame across suspend and
+resume?
+
+In lg_g15_fb_deferred_io(), par->sent is only set when
+hid_hw_output_report() succeeds.  If the first frame's deferred I/O work
+runs while the USB device is suspended, fb_deferred_io_work consumes the
+dirty state and hid_hw_output_report() fails with -EHOSTUNREACH, leaving
+par->sent false so lg_g15_fb_redraw() skips rescheduling the update on
+resume.
+
+Also, lg_g15_fb_redraw() reads par->sent without holding par->lock:
+
+kworker                             CPU1
+lg_g15_fb_deferred_io()
+  mutex_lock(&par->lock)
+  hid_hw_output_report(...)
+                                    lg_g15_resume()
+                                      lg_g15_fb_redraw()
+                                        if (par->sent)  <-- reads false
+  par->sent =3D true
+  mutex_unlock(&par->lock)
+
+Setting par->sent =3D true before hid_hw_output_report() in
+lg_g15_fb_deferred_io() and taking par->lock in lg_g15_fb_redraw() would
+ensure the frame is re-sent after resume.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109094426.1432=
+465-1-torsteine+linux@gmail.com?part=3D2

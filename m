@@ -1,98 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794253341;
-	b=KgeGPcY0GwuxeZlBxbdkLXRQoW4e9tdOtp/Dl4jmrD/umYzYFGF6cd3pbvK0nqYykhkW
-	 QV/HSnRdaQyX8ACMUdAqzltUIYaK2zz8Nd/LehqU0xG8VVpEikXpMpoySogKA8ERnGtu0
-	 IaKN+EIWQgNfVc9+wXuGh9wztnypuMqqx77azVM4A9B2pdViHH58GfuVhgSc07IGlSDTy
-	 3yDxqnWuNgMs23w0fo3GDb3GvQFg09OmOMQO27gFpAiGsqBsXSSm3wBiFCnCQCknu/5pg
-	 UB82rYltM2OEbpd8pp3yZy8sgZsMJMNOyc/jdD3szKcd4u0nWhoEUkTB+sAko6L9gPw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794253341;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
-	b=PHzpODnv6tWwu2GrqL+pL67LeWLSVJgk6FvQpdqhE4NlM6X37alfWnDezvcBybvBDDpC
-	 vG9XR97ELUCI1Hfm0FOjnyiJioPipdaUigcljbHXSOVBRklysioufbjaMFg/cUbyIHI2D
-	 gIIaMf9l6xpuh1yKw5t5GrcWQAU2yhHriarpQHUCAe9qS0rrmqvVrWWWXSH0tgq/zMA48
-	 4qRLanqQYthfN3g1dMW16zKDNjtkbpvskqsf5Gxo7j4E2mVd1LsYcPMua/LAr85gVdQqt
-	 eg2Xx7YnKuAQ9KbEdtp/A6pJXn+mXEmNl4ddNJ44nVy5lSr7DMjTbAdo3xZpcgofMyA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n9DI6TLu;
-	arc=none smtp.remote-ip=209.85.128.46
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794253811;
+	b=ekR5Esyq1ARuLvdC+PUHIdbg3WWvKv1CyVF2pj9ZmyD94OCjZJ8AiBRqqunaMmnH+HJd
+	 9cCFaUI/NR7x955K/qUtq6KoxItl8hfOaiiXT5Ithz6kZO90soxMT9y8oss8ga+nTKVm2
+	 ck0ETX7XvMSfJfJO3EAvgemks3rTIfHyqxyQklR5LhhgzysramsYAqKXkZ1Kd8YBXbg+V
+	 yvJ7olwny5jTBn4UH73MQLc3IyrqTK04WAs0BecuO4z14mbKGpu/YJT+xPXdAwGB8cPmd
+	 yY8YA0dlQ5HJajvuAOrFyg0k9hIoq48hZ8TEDYKMr4qaVWQgWbmr6oHb9EYKiZOTtAg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794253811;
+	h=DMARC-Filter:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-ZohoMailClient;
+	bh=jwSlYVV01vT0LPsMlnPQ8WdpgyaMaUzVAi/KKKp40Zc=;
+	b=RfruSh2L6/o9c8oscxoFgjnUWJ2bdJz0DA5M07BCLIvZU+VVAPUsuePkoKdtAUGz2r4a
+	 prZqsReGtXlvCSyqKIpH9r8vVzP8pp82CUlxAbTOSiW/bU277hSKd81gf8m6dAYC8z/YU
+	 AiwaHvQMxUnJDsk8Objkd4IyaFF8Xoo7AP3pFE+J0zkGSL4hFAvhOunKcwBdJLAsU/N7x
+	 2j+UnM5TyaHPI6TT4QVOVq/7TfDnVK2sxTaizFv1fH/rqjmeTRnGAQ5EPPn9qBmv2Dfu4
+	 5d2bfyTvecpqzqzIOJyk/gB/6WeIQ/KIHkXP5e9I3W2R6sEz5x2JZWkjO8xr4WgNiRQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=rong.moe;
+	spf=pass smtp.mailfrom=rong.moe;
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=MvqjyfI1;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1483C60A2633
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 19:42:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1483C60A2633
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 779E0606A31C;
+	Mon,  9 Nov 2026 19:50:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 779E0606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rong.moe
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n9DI6TLu
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a20bde60a0so13830715e9.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 11:42:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794253339; x=1794858139; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
-        b=n9DI6TLuifxiNVwKA4DznhzQkifoSkSXBJTCVttgS74ke6jNV+089dK0UaJbC4oBUt
-         a63pXZLc44ntIvFKJI3V5EtsJ4nNoIpB0BYnkD0T+ETOTGcO86bRxkHso4L0cmgAEyN9
-         IGvNb4c8YlEfmHRCWXtkoobhkSBDGuXvh76wze+orSOlEvUL3E/GcUQPvavtFIYwENz1
-         Wj+RPPvjfMums+bR9OUFs2N5v6a0H5hRE/tXRRf3isFmBTFLF4jwTcbMZFVCv+h5dzTN
-         RkOa+02Y8zJHlhgeD+e3VBUZVVgqZ2bt93eqvrP7sciut89gZAWtDZUlkIMiUNZVbeC+
-         Wu5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794253339; x=1794858139;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=mbBQPOCqIPjbtfPgMbeVngds0pJQUl8FFvkH7QvbAp4=;
-        b=fFfE6oRAGf87CeHCgQoUhCsGEEImWo3Kb+ekCxHNQUyuErgXQjEmRIWqeVRg7YgiMv
-         pgz3tZUzIeW9q/DBj3B8eH0QcW4nmYxeJGkFm7hrLR0JvsZJeAXME+HN6dVaX6Rz7wk7
-         7k7d1d2Vf0HfVBqakp8mn1AQcWxUV0ABaEk6Y1puIkFTUsO8V2ajJzzL/nYFNR8WrrRB
-         AdxAC5UvwCVWJGXnbxh8kSsEPzfUYJtZpz0HFYUkbLj21v/Famuy+tRc6RmVWlmkX79F
-         guJgvCdVbNwhvvOagExynM7S10UEgWz3X6A7iZ+76lGtHnd1xVDWw+ItVMVJKOvoeeic
-         k1JA==
-X-Forwarded-Encrypted: i=1; AL+hErGe/qjtn+VCFxuBenZmbbOLDDZjg/3r/rSmkR80Fz3Kb58A53HX6FtblOHyEfUIxOIlR5s4AfK80SDRKw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8oXobmrekc2P17RcQfPyo2rnTLe3VViFN961B2kIJuyHgx/J+c
-	GB9Ubp//TKjcubwfBtULOed4smrpbXb9PjD4qsvzv5+eO5W8lZyvlV/u
-X-Gm-Gg: AYBFou3+MBd3Kip8f/4Ltza3ODtLWh8WEgy773B30FopUKbUsjQAlqO6ICLaaA8ym+Z
-	mWTmYNJ0DaGD0wSl98m+a0l8zZ5ZJUT0NNpKACqWQKexh61obgYlbnCIp5yCyPf6olCKek+kq6T
-	Z7hvWqXP3oemjshNMm6ac92xdHZY6in69FlKBDnPeDTbsUVSnzqCn8o3msCX6HTgZ/oq9DaOcQf
-	ZTipe+FbWUzdwjt0epKoOIxFQlFc00NgrORCyGhu/uiPkKW828vQwuHAzV0FUqbLglvEBD58mhr
-	vBlCPG9P5aQzG0WqY19g3GB5HPndX6fSXxmNmKO3lSk1jZGRLUuqOtp80gtH+yTbLcyTWkK4VJl
-	KShWktZTu9vdEEUy+rcQuh/jV+KfsywBTTB/17bc7SO8+W0VATd0MsdtCyvJdqWS+2huGe1eJ/5
-	L3xq3H/OzmVm6rvzpGoQnDAPSOHc/AB7ZqEpUbEd+OR+1pbA86Q/am7pDg61F0qSyMBU4M0zYPQ
-	UbIU1a8jSEBscDp6ctWA8TyRSkcG+trWG0c5ZACicXnlLAEnR5U57zIbdvUvx+chhnlhglPgQds
-	SMH1ccJrrZFmmDytElL8m6ceJUBO7FE7akTpfGBWL75F0wrT21ILChmhr5zXfrhPwnEwDI/X1w=
-	=
-X-Received: by 2002:a05:600c:3b2a:b0:4a2:148b:c88c with SMTP id 5b1f17b1804b1-4ba0233f98fmr4406435e9.8.1794253339265;
-        Mon, 09 Nov 2026 11:42:19 -0800 (PST)
-Received: from acer-gaming (121.red-88-28-14.dynamicip.rima-tde.net. [88.28.14.121])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ba01fef675sm9446975e9.14.2026.11.09.11.42.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 11:42:18 -0800 (PST)
-From: Juan Parrado <jparrado.1817@gmail.com>
-X-Google-Original-From: Juan Parrado <jparrado1817@gmail.com>
-To: sashiko-bot@kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	jparrado.1817@gmail.com,
-	linux-input@vger.kernel.org,
-	sashiko-reviews@lists.linux.dev,
-	Juan Parrado <jparrado1817@gmail.com>
-Subject: [PATCH v3] [PATCH v3] xpad.c - Add support to Hori Real Arcade Pro 4
-Date: Mon,  9 Nov 2026 20:41:18 +0100
-Message-ID: <20261109194118.18127-1-jparrado1817@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <sashiko-outbox-204846@kernel.org>
-References: <sashiko-outbox-204846@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=MvqjyfI1
+ARC-Seal: i=1; a=rsa-sha256; t=1794253799; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=ko8rFlWKa/ZBwSrnzRyb3UdGghYJfRvCWOQxmLtT81p91RSb5wtJ1swhGiN1Omxy3Tp2I5GK0rm0yPPydHTu3UU0lGUx6sHWZAKQev5suEsi688JAg69Vfa8S24J1WdgRtAYd4jG9hyGlMwMg12GKBMF4t1wLdk91HfaytTym5c=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1794253799; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=jwSlYVV01vT0LPsMlnPQ8WdpgyaMaUzVAi/KKKp40Zc=; 
+	b=hz/88Tc+2xVqnYSF6yewAEEiIJMsn1RBHQsNDCk6Yg2BOKtmphMMd4hi0rSfzvndpGf2RQoQGVPDARW+KoDGQsIp3kHXDleJCuq3NF7iQITwrA4gVEAO30JQXzyNCbJW5tyirBJgnfriIDrCiMphWX+h7AS2+S7bYHSNA1gNa0A=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=rong.moe;
+	spf=pass  smtp.mailfrom=i@rong.moe;
+	dmarc=pass header.from=<i@rong.moe>
+DKIM-Signature: a=rsa-sha256; b=MvqjyfI1UZyeFLvej/rrEE9hO9AJdy67fLjxUTHzw1GQEz7u6yuaQoT1nK4muHRrdd7wVSATQNRw9q9bp4yPeuNGcd752plYh3Ar3CW4HtxrCQW48iVJsHzdhT/yvQYzu8bnqYN5zEZu8YpiEmokq6mRTY6+Bsk7JESDMRQFT3MoRhxCJumKDIvzvqCLus9HPSksEnJovzZwY37Vj8UMFNEfoy70JlgtQWbhTftVHd3WTI3g3aAOGF24ihJSjDTENWP9qB1yjQohla2d75b0sfRx/eZar/PKp7ANXbiHxWjabBcjy+t6CB74mIDvG3aLGyYr1w6mVX4JRDJcJeX21Q==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=jwSlYVV01vT0LPsMlnPQ8WdpgyaMaUzVAi/KKKp40Zc=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1794253798486822.0962487134203;
+	Mon, 9 Nov 2026 11:49:58 -0800 (PST)
+From: Rong Zhang <i@rong.moe>
+Subject: [PATCH v2 0/9] HID: Add hid-plugin framework & convert haptic into
+ a plugin
+Date: Tue, 10 Nov 2026 03:49:37 +0800
+Message-Id: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,41 +61,109 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WNQQ6CMBBFr0Jm7Zi2lgZccQ/DotKBjgZKWiQaw
+ t0FXLp8yfvvL5AoMiW4ZgtEmjlxGDZQpwwab4eOkN3GUBqttSktenbo7Thxg88+ONRUkFaiLSh
+ vYVuNkVp+H8Vb/eP0uj+omfbMbnhOU4if43KWuwdKKCOlUH/1WaJAe3GUG2WcdVTFMHTnPhDU6
+ 7p+AZlgtIS/AAAA
+X-Change-ID: 9644469a-hid-haptic-kmod-4e8e420f8e5f
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ Angela Czubak <aczubak@google.com>, Henrik Rydberg <rydberg@bitmath.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Rong Zhang <i@rong.moe>
+X-Mailer: b4 0.17-dev-ce4c1
+X-ZohoMailClient: External
 
-The HORI Real Arcade Pro 4 in PC mode is currently recognized by xpad.c as
-a 'Generic X-Box pad' and works out of the box. However, this generic name
-does not match the actual device name, making it difficult for users to
-distinguish this controller when multiple devices are connected.
+Recently I am working on adding HID LampArray support for hid-input [1].
+I would like it to be a loadable plugin module. While looking through
+LKML, I found hid-haptic, which is a plugin-like support code collection
+that must be built into vmlinux. Therefore, I decided to develop a
+generic framework for loadable plugin modules, so that it can be used by
+multiple drivers.
 
-Tested on physical hardware. The proposed change works perfectly as is.
-The MAP_TRIGGERS_TO_BUTTONS parameter does not work here. Other arcade
-sticks use an identical configuration, such as the 'Street Fighter IV
-FightPad' and the 'Hori Real Arcade Pro.EX Premium VLX'.
+This series aims to introduce the said framework and convert hid-haptic
+into the first plugin, as it's easy to convert and perfectly
+demonstrates how the framework works.
 
-Signed-off-by: Juan Parrado <jparrado.1817@gmail.com>
+The first five patches fix pre-existing bugs in hid-haptic and
+hid-multitouch that may become more frigile once the former is
+converted. The last four patches refactor hid-haptic, implement the
+hid-plugin framework and finish the conversion.
+
+The plugin framework is designed for devices with additional HID usage
+pages which enhance their capabilities. The support code for these usage
+pages is called "HID plugin".
+
+The corresponding HID driver calls functions provided by the plugin to
+take the advantage of such enhancements. Without the framework, the HID
+driver must have a linkage dependence on the plugin, which is not
+optimal because the plugin is always loaded into memory even if no
+device actually supports it.
+
+Logically, the dependence should be reversed, i.e., the plugin should be
+an optional component of the HID driver, which is only loaded when the
+driver finds that the device needs it.
+
+Introduce hid-plugin framework for loadable plugin modules to achieve
+the said logical dependence. Each plugin has a unique hid_plugin_id when
+enabled, so that HID drivers can request it accordingly. The framework
+aims to be lightweight. It loads the plugin module when needed. Once
+loaded (or if the plugin is builtin), requesting the plugin is just an
+RCU dereference plusing an module refcount increment.
+
+When a plugin is disabled, its id maps to HID_PLUGIN_DISABLED, and calls
+to the plugin helper functions are eliminated by the compiler.
+
+With it, hid-haptic can be easily converted into a loadable plugin
+module, so that hid-multitouch only requests it on demand.
+
+Thanks Benjamin Tissoires for the inspiration for the implementation.
+
+[1]: I know Texudo folks are working on adding hid-lamparray to connect
+it to hid-generic. I am not in favor of their design, so I decided to
+write a new one. In my local tree, I've had an independent
+implementation with HIDRAW sniff, autonomous mode as an LED trigger,
+RGB/non-RGB LampArray support, per-key LED device support, etc. I will
+submit it once this series settles.
+
+Suggested-by: Benjamin Tissoires <bentiss@kernel.org>
+Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35inqda3exwzs3tk3ff@oagat6g46zto/
+Signed-off-by: Rong Zhang <i@rong.moe>
 ---
-v3:
- - Updated commit subject and description details.
- - Fixed metadata and updated patch version history.
-v2:
- - Fixed truncated code lines in xpad.c.
- 
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+Changes in v2:
+- Reject touchpad applications with non-force units (thanks Sashiko)
+- Only call runtime methods if the event source is the same input device
+  as the stored one (ditto)
+- Rebase on top of v7.4-rc2 due to the devm_kzalloc_obj() changes
+- Link to v1: https://patch.msgid.link/20261102-hid-haptic-kmod-v1-0-a3de5626dade@rong.moe
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 810e52782..2567ea3bd 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -255,6 +255,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
-+	{ 0x0f0d, 0x008c, "Real Arcade Pro 4", 0, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
--- 
-2.56.0
+---
+Rong Zhang (9):
+      HID: haptic: Fix use-after-free when draining workqueue
+      HID: haptic: Get rid of input_ff_destroy() in error paths
+      HID: haptic, multitouch: Check haptic prerequisite properly
+      HID: haptic, multitouch: Fix haptic device double-free and unnecessary allocation
+      HID: haptic: Postpone GET_REPORT to init
+      HID: haptic: Convert simple methods into static inline ones
+      HID: Add hid-plugin framework for loadable plugin modules
+      HID: haptic: Convert into a loadable plugin module
+      HID: haptic: Remove stubs in favor of inlined dead code elimination
+
+ MAINTAINERS                  |   7 ++
+ drivers/hid/Kconfig          |  21 +++-
+ drivers/hid/Makefile         |   4 +-
+ drivers/hid/hid-haptic.c     | 206 ++++++++++----------------------------
+ drivers/hid/hid-haptic.h     | 233 +++++++++++++++++++++++++++++++------------
+ drivers/hid/hid-multitouch.c |  75 ++++++++------
+ drivers/hid/hid-plugin.c     | 108 ++++++++++++++++++++
+ drivers/hid/hid-plugin.h     | 145 +++++++++++++++++++++++++++
+ 8 files changed, 552 insertions(+), 247 deletions(-)
+---
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+change-id: 9644469a-hid-haptic-kmod-4e8e420f8e5f
+
+Thanks,
+Rong
 

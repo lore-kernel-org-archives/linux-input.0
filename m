@@ -1,54 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794242381;
-	b=gLpgqyM5Sa4Uj4PTey1QJzLRwCsp1SMREqMVDRjeuHfYF63aOvFDsxiKs8Qa5ERNYhGC
-	 xMU87bdoW6j+Hrp4Mic+QQam+zyBHmrFD0YEW5KIgzq0jPveqjimcFfNzXiy5Pzncr5nT
-	 22zr+QeJ2OCHYzX5H9UwQnb4sGHqZfIK7FKfK50luWQ9+7x8wL4oIjKqdrTi+8a/PkrdE
-	 rTOLGb70FbDZIof+PTp7bAEhJD2XV/N821Gb2RfKs3oQ9begDPyaP/OqWMxmN2FErqXOu
-	 BEWnL2u3z59A0d6WdvvCldYt+YPKgoSXWURAGUDLgv/O9LYQKzYPzHxpjJjH75TTPPg==
+	t=1794242670;
+	b=3oW/ytBEvnndUJxhAbVNEKR8a2iYeRaBa6mmdPTFvJmD4RrbUj35Nzqm764pUOkJEnQJ
+	 xjPa1SDDGKTxtZk7jiw8Jo3YEDUW39rY2PDJ/xykGN0dypPEFO3pAkUHFAsJlDl7khrpV
+	 PoY1AOAhJFHHUSsDSZLnB6icdA7ipseWbrkuapsEXaTxY3RxpVKQQCrRj7i51T0XzQIRe
+	 jHv5HYbJOWeQZi+cyNcDAW0gCq/8ebi6+xFAVby/Vk02QeGE+R1a+8tyJLaBXBuKckdu1
+	 OheJEz7tLT7qRmUq+GOzs+sJSi5iU1yo5efbLvakHZP24bHG8bZcjrtX931rIlU6uCA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794242381;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794242670;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=XczfXdyyzzvBMaK7H65uC8tHQp56fcZp9lsoW/OvEfE=;
-	b=Eo2zqEh4LWDxCqRao+DY6DI/OMaYwFYVDmOlVL+tFvmsiGWPLn2QkOjYCoLzXVtMX9o9
-	 +bfHtOPTzbOrFz+snW0MCz1K4JSOBKEK+HQXpIN6cVuswxxNAWZhpNMfAVMXtuiCQKwhf
-	 2UHl7NRdGHWqrBdYu30NB+LOKxBtwxPL1hEG59Vb7B1NjcEmiXDY3azCAJPHZVBZWcehA
-	 WxHFPL2oRsBZrygUVxHXIS/MhtQVgyCYLsMn82m3kYyz3xswfgVY1PwDzfYPk68s8Y6ID
-	 YbFYEjN/sL0PHPzEn6FxhlILe3ijah1oXr3ckVp44PQdqXjce5rUnIxpQ5QRR5MYnuQ==
+	bh=pqc2L1WzcvzIZX23ze7NEAQi3S+/FWCxRg0BqVfI6Vg=;
+	b=3GciM4Uj6saNxWVSQ7zh52Mm5pwxA5sbcZONF06Ht1k1/V+OfjmfaAp25OdgO8oDgXUS
+	 4fRmikOcvdGgtxPaud5LZBHpgUKYqSpEyDP7YQXS4OUyIvUMOGiGj1Dts2SN28Bjwp6we
+	 QHVJiBAnzrjOBE+HXr1/2kshM3MnRTOwz2Yc5I97j6RhJD4Y6l6z1xBzXBLTwwVFlHogk
+	 vfBbvZdJUvOMvIKMZ4+8aWeRV/GTsT7Wl5C/h9EA7d7DGrNwoE2pPwszaMz0LzLMTyqWY
+	 2K1U0LA41833FvhplIPgTIYONGZ7crJWQcxEFZ5hwoRRWk1KfkkItZ5tXhXQfFLWx4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dzQCkfBN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RwYrWyq9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64C94606A331;
-	Mon,  9 Nov 2026 16:39:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C29606A321;
+	Mon,  9 Nov 2026 16:44:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dzQCkfBN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ADC11F0089F;
-	Mon,  9 Nov 2026 16:39:39 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RwYrWyq9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB6DB1F0089F;
+	Mon,  9 Nov 2026 16:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794242381;
-	bh=XczfXdyyzzvBMaK7H65uC8tHQp56fcZp9lsoW/OvEfE=;
+	s=k20260515; t=1794242670;
+	bh=pqc2L1WzcvzIZX23ze7NEAQi3S+/FWCxRg0BqVfI6Vg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=dzQCkfBNoJ/MVAxSdeMblCLGbyp28LvZG01v1zKrZrtXTBVis3aecojY4BHBAI+SB
-	 Q/6wVxPELdYDD6h3Q/LQ3/cLXZJL2iG13cY2wqB+16w+S8iGlSZ5sslPD8l7f3vDWJ
-	 kCpMiUqqqSJCQVsAyJkGRnkWXSOhUsZRYQj3gpyzYSlXvzYZtNEwmDvy1N8UGBv0KU
-	 XZkgwntXskeFWHQeWIGoTcqTFBiGGiSCF04ngPGuIl1oN3qXynibboHUHkeV8FAbFJ
-	 jKzflO/PU8SW2T00yhydFwJQJQkJz6vZsCvQ/5bum7BmzY0DkOtMUSy1tKgfj2CP3F
-	 t5LeqTADIH3Ag==
-Date: Mon, 9 Nov 2026 11:39:36 -0500
+	b=RwYrWyq9onaHDWrzcgUAnNT+SCoruSQGm9pYpLkASnNzt+eJw6UaP/20lLzCx53Tg
+	 Wq/fzGQuKca+BL62LT2ecyreaIjmIcz1jp30nfdV++sUhfKFKT63PaTdjKFfDyafEr
+	 98bjeO0KYM4XsracQeh3hGCrUI4SmuGqKunKrLyeAPTyqW9tfaZxcRwJL5ATMQ9lQa
+	 XMSohEDAX5THIp9B+tYk3akCt1kk3PX4zT3DVK50IjlwwQLynszpFmdpQ9R/SUmz4V
+	 uy8S+96lC7Ed1ISDIhV4df+jGQMzks7Ar7XQ/Qm3powg856/HDIl9f5zyAz6yLg+84
+	 zi8dbhTRQ83cw==
+Date: Mon, 9 Nov 2026 11:44:25 -0500
 From: Nathan Chancellor <nathan@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nicolas Schier <nsc@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	linux-input@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] Input: apm-power - Rename to apm-power-input
-Message-ID: <20261109163936.GA1608140@ax162>
-References: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
- <e9cf3745ebc09bf04ce0bf75b67a31f0@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Nicolas Schier <nsc@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+	linux-kbuild@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: apm-power - remove driver
+Message-ID: <20261109164425.GB1608140@ax162>
+References: <20261109080944.3802916-1-dmitry.torokhov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,48 +62,44 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e9cf3745ebc09bf04ce0bf75b67a31f0@gmail.com>
+In-Reply-To: <20261109080944.3802916-1-dmitry.torokhov@gmail.com>
 
-On Mon, Nov 09, 2026 at 12:09:33AM -0800, Dmitry Torokhov wrote:
-> Hi Nathan,
+On Mon, Nov 09, 2026 at 12:09:44AM -0800, Dmitry Torokhov wrote:
+> The apm-power input handler solely listens for EV_PWR KEY_SUSPEND
+> events to queue APM_USER_SUSPEND via legacy APM emulation. The only
+> in-tree platforms generating those events are legacy Sharp Zaurus ARM
+> machines (spitz/borzoi/akita and collie), none of which were converted
+> to Device Tree. Both mach-pxa board files and mach-sa1100 were marked
+> deprecated in v7.3 by commit cc7852314abd ("ARM: PXA: mark remaining
+> board files as deprecated") and commit 7d92e50ceacd ("ARM: mark
+> mach-sa1100 as deprecated"), and are queued for removal in v7.5. None
+> of the remaining ARM platforms or other APM_EMULATION targets
+> (MIPS_ALCHEMY, PMAC_APM_EMU, and SH_HP6XX) emit EV_PWR input events or
+> enable CONFIG_INPUT_APMPOWER, and arch/arm/configs/pxa_defconfig
+> already dropped CONFIG_PXA_SHARPSL at the same time, leaving its
+> CONFIG_INPUT_APMPOWER=m entry inert.
 > 
-> On Mon, Nov 09, 2026 at 01:25:26AM -0500, Nathan Chancellor wrote:
-> > When scripts/modules-check.sh is fixed to normalize the module's name
-> > like name-fix-token does in scripts/Makefile.lib before checking that it
-> > is unique [1], there is an error due to drivers/input/apm-power.ko and
-> > drivers/power/supply/apm_power.ko having the same module name.
-> ...
-> > Rename drivers/input/apm-power.c to apm-power-input.c to make the module
-> > name unique and clear up the error.
-> ...
-> > We would like to take [1] for 7.5 in kbuild-next, so we would appreciate
-> > an ack to take this directly or a stable branch that we can pull in.
+> Normalizing dashes and underscores in scripts/modules-check.sh for v7.5
+> exposes a module name collision (apm_power) between
+> drivers/input/apm-power.ko and drivers/power/supply/apm_power.ko.
+> Remove this obsolete input bridge to resolve the collision rather than
+> renaming a module whose last target platforms are going away in the
+> same cycle.
 > 
-> drivers/input/apm-power.c only reacts to EV_PWR/KEY_SUSPEND input events
-> to queue APM_USER_SUSPEND via APM emulation. The only in-tree users that
-> generate those events are the legacy Sharp Zaurus ARM machines
-> (spitz/borzoi/akita on PXA alongside SHARPSL_PM, and collie on SA1100
-> via locomokbd). None of them were converted to Device Tree, both
-> mach-pxa board files and mach-sa1100 were marked deprecated in 7.3, and
-> Arnd (added to Cc) already has their removal queued up for 7.5 after
-> holding it back from 7.4 LTS:
-> 
-> https://lore.kernel.org/r/e4da2f9d-d3b9-4267-9b64-b0f2cb43402a@app.fastmail.com
-> 
-> None of the remaining ARM platforms or other APM_EMULATION targets emit
-> EV_PWR input events or enable CONFIG_INPUT_APMPOWER (and pxa_defconfig
-> already dropped CONFIG_PXA_SHARPSL in commit cc7852314abd, leaving
-> CONFIG_INPUT_APMPOWER inert there).
+> Reported-by: Sasha Levin <sashal@kernel.org>
+> Closes: https://lore.kernel.org/r/20261108225808.1809266-1-sashal@kernel.org
+> Link: https://lore.kernel.org/r/20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org
+> Link: https://lore.kernel.org/r/e4da2f9d-d3b9-4267-9b64-b0f2cb43402a@app.fastmail.com
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Ah, thanks a lot for doing this archaeology!
+Thanks a lot for helping with this.
 
-> Since you are targeting 7.5 for the modules-check change anyway, let's
-> just drop drivers/input/apm-power.c altogether instead of renaming a
-> module whose last users are going away in the same cycle. I will send
-> out a removal patch shortly, and either you can take it directly through
-> kbuild-next or I can put it on an immutable branch for you to pull.
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 
-Sounds good, I will reply on that patch.
+Nicolas, do you prefer taking this via kbuild-next directly or having
+Dmitry take it via the input tree and giving us an immutable branch? I
+assume the chance of conflicts or follow-ups are low, so we can probably
+just take it directly but I don't want to assume your preference.
 
 -- 
 Cheers,

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209660;
-	b=aGm8pt+VRWk1naiatDjpP+2gCjIy0ST/4xYClsJN4uFAz5PhEliNEXVmZW7IzVl7lHWm
-	 T7uJS579oj3o9aIii2Qu/D1kMHcZFcfrQwCb0RP6S9rw7LgsSRR+EUT6ZyRDaOAXa6sKK
-	 7ogJ/tNaxAlD/lqFJ0/Z+GUX5quFl/8N9gWCb1U4XayC/Q8p4VFdrGovkZP4STNaMQ/nh
-	 +MAguPJ6ehsRGvPwtzy12BJDfbWwyfg5jV7ZjAU5Xl3rx2+4sJvpNd3pbv+aOxryLXGTP
-	 epNcinPCPBM015KYyoftzO+RAXl26jg3ORYeqCVp3GIqVjWFneQCUtug4YHLXJEOq3A==
+	t=1794209659;
+	b=VesPRVtoyKYUbMhD59R7OdN8j70wCxrd6YjuB+NyIT1+TXyR2bFrLvLAoAzpTFGALAwt
+	 qFBt1Q6UAteU5kvLj/jgWM13DDIlKn2pbeo1s5ogR1EeRyKKXPXTbwDCbhRc5WGWXuKg/
+	 M2BjxEVtkif38+QLiHSDeQf4NF8WsCyZfucgleT+3zyHzK7UlI3+YdEqF5QCM8WxtAAOG
+	 hlA7W9qLLCFx/X80dHkspqtdLv6Eme+fdZ96kdv7Bajk1jjunC99FbTT1EGo6Gfehhxdz
+	 r0ZQN52LpDRSkkVFtgFjm2STTgjUry356cA9jd3Ibh/ZNQzNB/O26RYYWw8JGTBBJPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209660;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794209659;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=wh2ChqYF9XmNrt6b8ATpGBOGwb3/qYFuxeZ+hTus5/8=;
-	b=jmGFALX9uzjFWdVunLJ+mqgnHA+1OFJ/ESN02ouCwRM5+gnRNVs63Cd0Bw0YeHdVzqZL
-	 sJO7i7TVBOwfyBNq5fa/N75naqGD4PBgHmX7GBYNiiPQ1y5Ut+3SXAc0OfHHYDKNgNYSc
-	 J4/9XCGmHsS6Ia6nUbBs7ZusSpVBHUZyCipWiFODm65EOwrCTUIA2UawO8HOT3oGcWTV4
-	 yO4/0jZu4fN4o+PZgkcSBKIRNQ3zdHQtNFdLADEUWBXORaR8BizteXK01nf/lnumNSfhu
-	 A2ioqnSNra5EvM5GUHOgFeFYc9TUDCsDB7fK+cCCZQIk1FhW9GeTzhvYTLqZ1mH3bKQ==
+	bh=Y/diz28OtqaYX4DdZb+JhCSN/xAyOePemSvH2IVI+oI=;
+	b=dvqVGHgPtgvNjjetmY6ADqT2djzeP4VTYZnGnmlVhwzI9wM+OE8HKYxBJHzBvgtZ3M1c
+	 TGGlvjNwKROPPQmJki1AT9BMogv0Tz/llpWtVRfnpfrO41Mdq4S1+xsnGm/V5eYhMCJ7Z
+	 nzO6EkVkjbY/I9274z++BS3zJvxFPF7mZoj1rJn/892sanNES03rZFEx87Pay1ogd56FC
+	 5it5AhJKqgIcG6ZnP9K4wfu9emnGX3ozHEAomcYxaHUMm+Yre6ox0Ghwm3i+hhwHLTa4W
+	 quJQnAuIIJtw3+aXL8RVNIdcjUw6RteyrXmlIzMbU+lx38dRAK3a6eYdi897TogWKvg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=laYxnljf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UHZLHWOH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFE236082BD7;
-	Mon,  9 Nov 2026 07:34:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C9C5606D809;
+	Mon,  9 Nov 2026 07:34:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=laYxnljf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CB551F008A1;
-	Mon,  9 Nov 2026 07:34:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UHZLHWOH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8D021F0089F;
+	Mon,  9 Nov 2026 07:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794209659;
-	bh=wh2ChqYF9XmNrt6b8ATpGBOGwb3/qYFuxeZ+hTus5/8=;
+	s=k20260515; t=1794209655;
+	bh=Y/diz28OtqaYX4DdZb+JhCSN/xAyOePemSvH2IVI+oI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=laYxnljfw/dZnl22s4rzHk5vSm7ZDFxtqehSxMhT3r/VinDboZwVpJfyJNhGqjE/h
-	 WCze+Mn1WHl2/tNoC9vojzEpPivRs+6SRkVyF9nygJo3xSduXtKOCloTwRoaB6gbBh
-	 yXAgTbI2MamI/qPYq7pd4M0R/b6UQ39nDW3jvi3Erqp5sU8AeOL2xWsr5HX57guu8k
-	 TFtnF74FBLBk/vmEzDCrXOz+hr4i2BmbSWfck9TU6NWMqQRbnvPbwsP44NFHEHEl1P
-	 aD1hvNkvAXaJoZp1iJYhlSiGiKNI71pRNQdHRiPaSDCvDKCRFsgd6ntWXGf59d1iGm
-	 JCQ+qySHzerAA==
+	b=UHZLHWOHp1FvXUffp1GHRLkENcwBo2yr76PCtrtRtDk1L6zyKdYK7pe45DxDIKhrN
+	 hjdFVbHl7ZSqgKGaAY/r7F7iVP0OEmf4aDbyF6QWnisUryfaon11MfZMitLN41ssuQ
+	 xiTZ237mPQjj5AApZ10s9DwIPHs/VYb3PHjsSC6BWnS/arV8S+SiVSNjair+Xrpwz4
+	 mC2zHujuvXMUg7howtzEEwIZVAIr/ZfHrzT4c6TjPu/X5SWamy1PW7nCkJYfsZQ/dx
+	 vxZlM0krZBNvBtYzJxdAfP1froSzwdqd0jF7P7eGNSH024gvRgux6Tmmx2f4UY+DH2
+	 6lK7yuJzaWfxQ==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -82,9 +82,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-pci@vger.kernel.org,
 	iommu@lists.linux.dev,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v2 06/19] cdx: Propagate DMA configuration errors
-Date: Mon,  9 Nov 2026 09:33:36 +0200
-Message-ID: <20261109-device-trust-core-v2-6-3b12d9a9f861@nvidia.com>
+Subject: [PATCH v2 05/19] PNP: Attach card devices through the driver core
+Date: Mon,  9 Nov 2026 09:33:35 +0200
+Message-ID: <20261109-device-trust-core-v2-5-3b12d9a9f861@nvidia.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
@@ -103,32 +103,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-CDX reports successful DMA configuration when firmware setup defers or
-default-domain acquisition fails. Driver probing can then proceed without
-the required DMA setup or IOMMU ownership.
+Card device requests probe the selected link driver before driver core can
+perform admission and setup.
 
-Return the configuration result so driver core stops or defers probing
-instead of allowing a driver to use a rejected domain.
+Use device_driver_attach() for the normal binding transaction. Keep the
+card link owned by the enclosing card probe until the device is bound, so
+probe cleanup and debug removal cannot free a link still in use by that
+transaction.
 
-Fixes: 2959ab247061 ("cdx: add the cdx bus driver")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/cdx/cdx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pnp/card.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/cdx/cdx.c b/drivers/cdx/cdx.c
-index a118a89a7779d..0a030bf522690 100644
---- a/drivers/cdx/cdx.c
-+++ b/drivers/cdx/cdx.c
-@@ -367,7 +367,7 @@ static int cdx_dma_configure(struct device *dev)
- 			arch_teardown_dma_ops(dev);
- 	}
+diff --git a/drivers/pnp/card.c b/drivers/pnp/card.c
+index df5e3d3cbf6c0..9aaaa03d5ffa9 100644
+--- a/drivers/pnp/card.c
++++ b/drivers/pnp/card.c
+@@ -52,13 +52,17 @@ static const struct pnp_card_device_id *match_card(struct pnp_card_driver *drv,
  
--	return 0;
-+	return ret;
+ static void card_remove(struct pnp_dev *dev)
+ {
+-	dev->card_link = NULL;
++	if (device_is_bound(&dev->dev))
++		dev->card_link = NULL;
  }
  
- static void cdx_dma_cleanup(struct device *dev)
+ static void card_remove_first(struct pnp_dev *dev)
+ {
+ 	struct pnp_card_driver *drv = to_pnp_card_driver(dev->driver);
+ 
++	/* The card probe still owns its link until this device is bound. */
++	if (!device_is_bound(&dev->dev))
++		return;
+ 	if (!dev->card || !drv)
+ 		return;
+ 	if (drv->remove)
+@@ -331,16 +335,12 @@ struct pnp_dev *pnp_request_card_device(struct pnp_card_link *clink,
+ 
+ found:
+ 	dev->card_link = clink;
+-	dev->dev.driver = &drv->link.driver;
+-	if (pnp_bus_type.probe(&dev->dev))
+-		goto err_out;
+-	if (device_bind_driver(&dev->dev))
++	if (device_driver_attach(&drv->link.driver, &dev->dev))
+ 		goto err_out;
+ 
+ 	return dev;
+ 
+ err_out:
+-	dev->dev.driver = NULL;
+ 	dev->card_link = NULL;
+ 	return NULL;
+ }
 
 -- 
 2.56.0

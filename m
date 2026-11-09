@@ -1,102 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794204699;
-	b=s5zJ29hsO0Z30jdtY9hPr8SxyW/9SRpWmi/EEF8gyDenWnrCQw6tI5yqaSXrLyHmL+ZT
-	 Yv2uj6JFI7gs29T+hsa+wAMsZvMC6R9ByYQNtK6xm35suQs8D9/Ac3tG/Tvme84QecFWl
-	 mqihGNZbeBqKJaczR1QalKb9XykN6qeMspinDqQzKtXKoYBlsHlyTggvHud5OP8u6rhh4
-	 4wws+ibWaDSG0V5hD6cp/AEyFF2xv+650UsLbBPJE05rm7psg7kmpSF70Eokzv7sA04tH
-	 DsZHCTyzvzBb+lQgmlrzG4T6hEH3/J2Ut295UyKGN4i5Cxx86MnM74uF6K74B7IidMw==
+	t=1794205536;
+	b=GErA3tU4wK8rtX3PFDcgcn2znMKfEaKthWCuvR/IE/0dkY614RMHu5CyoMPjla4XQjNB
+	 bVplv4kvgJBdDnBagu02C4qWtKJnqo8AjwEX9UcNO/Lp0SeaRhMLZGUujXzya9/T0uFQp
+	 jyUwAPffuvlQ5vgkOFEhdTxJO7VsXLLpXRAsMkPNGOxgLbvcEn39lwzu3QzQEqFmaWUO7
+	 jKSiHGXvz+6yhgxJ/lc5N5Ply7xTG0K9xOtnIar2ivIXpBEyC5noEO9AF6fEAvRNKZT9o
+	 /tNNavuo5ecrfuDUf99YEX+tFEycAE0kRT95+tb1ESKfXzO8PRDO7hESKeC03Lg6Zmg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794204699;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=gH644WbN+LdnH6MmDYYCjv4JulA6E0qcVtYB6UbHl5M=;
-	b=f7sK6fspOUpwxcupuBlQm8Us5BUB07FXdzKN/JfkL2pTw+1yPZf9ogkdvlrBeU3UX2vA
-	 isZaaO3/2+UExLsRrLsZY7BcUb2Qqm2/cawgFcl/KpaeoJXLdKjZIn+qj4Bui5vPXanz1
-	 a1khDflGctoIics/H5CFTB5SjfwibfvAliLOkhtFQOFW53elbOccJZwdLVHcAp+4UCSQN
-	 5vqNSD4KjZnL4HR3D8oO/shValQeDYHRcxpowNJpRN/6/0cFpnT5g37K4tVSJ+eifZXSg
-	 tSpY7477MDFlOemiuc1NTAI0v6xl1myKPSbHnABoTa65HWetm05wHgnwQwCCH9fQLLA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794205536;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=vxR0y8O6Yjfa9xBmupmiYjq0RBrrS/LkXi20mWxNVj4=;
+	b=MqmSNkSECLaCK512kwn1Tyl3nRbFR7H20qWgH7kri25qeaWdhcX4SVFmiJAHQbYQPdtr
+	 4qT0pwFBX/J52DetO92uaSZhWtt6JJCnkXPLF/wQaQCOceWISUlueAh2CRAZ8ZSYsmnSQ
+	 2+MrAXhoz8xaML8L8shzq+FqAFJcwuogWrbN26qiCEsHRFkB6KjD72BRTm1HrW8Mn4pRS
+	 bVJyOLdYHTcfX4t5R3shWL3hW35S3u/3PZcSUADdSKRkOkcLCfMrs+HvFn/lwoRau6EXz
+	 HFs6FYPqfrTl4vwNDf86F3lJvTNkdqxPp9zbiqm2k+JlPoRPNKOn65OL9LeWjb67hyA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wFyaZKK4;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mLSKRX3B;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24221606D824
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 06:11:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 24221606D824
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE951606A31C;
+	Mon,  9 Nov 2026 06:25:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wFyaZKK4
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-33fb4680717so1214462eec.1
-        for <linux-input@vger.kernel.org>; Sun, 08 Nov 2026 22:11:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794204698; x=1794809498; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=gH644WbN+LdnH6MmDYYCjv4JulA6E0qcVtYB6UbHl5M=;
-        b=wFyaZKK4rucwtYMp7L2CkJgKG4Cp88lxhnV7RiTy1OBV4s7cDRknWRPDtj20wLYzws
-         SuTmKyy7hKNAu1ACfPhYmk9PiWLPkRPpO0ATg13LJje53hVh/6B5I6mJuXdV0wpVpfKO
-         D5aj1SgOGVvynNNeyzVCt47n0fW2ZsWxiFpVrOa/75MMjiH+hXnV1Y7wUMVgS7rcM8Uo
-         hZwcRZsdm3DNXvbF+64KFwWB7kNjOXVxKbZ4l1j9kniyB5PLmt4Q9TVwd4c6kvjuKAJF
-         ywFR98i/Ydmo7RwNgmNz/+Eh8FiwFRTal8xqRbrlnyTIHQZ/g88kosqiUHgzr0xfMFhy
-         jtQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794204698; x=1794809498;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gH644WbN+LdnH6MmDYYCjv4JulA6E0qcVtYB6UbHl5M=;
-        b=EZIZTyTvHCkU4ibT9OHsGuc+EXAsStyooyYBwPlkDeHLM7xgSelImEB+U8ByJcGUmC
-         2xFn3wIIuwSsUgLagy0fuAMSESpDj2/IKTMMHHKWrKbVDkifQLCSpIoewuRSwoFyvbI/
-         m61AAYviv7ecIinV+4hDBZNorMVgsAC9YpiG8InwSgSiPRAt6etYampxnXh4xoOuv4V3
-         NlIZmMXAUULY6CKXySlwib2CQRs36NyBWUTt1H2qeJYwuqZZt+zzaibDcj7Cgk1w7ItS
-         lkmynFUoAYghOIJLXjysAMJIydiRTJ192BVQF/fAiek6M+ch7QlcXsLV1dakBvpFqDWU
-         6Nig==
-X-Forwarded-Encrypted: i=1; AL+hErHHr357spKLd8LF1ywP7USBxLuhw7o4YTkY0jNtwckVHXMRSbwzU3441sIFkxbdu+RNPISbhawc7MdGSw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8lI/DVlM57pMGJwldSh0dDarTTysNjjSLW1t/ZfzxkTRqBKRh+
-	DqfG/4WcSzu+/CtX0d4NzWp9KoPPNsa4/DGiC2BWY9aauJDkqmQ2RgeF
-X-Gm-Gg: AYBFou1vC/dX9y/WtYmd5pn8pDOpEyjQbWx3TfZamarN6cD3PKh/2X15arRPIEkgBHa
-	hFuSfXrxTDvrLq9KqcyyegVB5REx0HSGzXp54M573mZEy4S07b3P8BmpCThjiTOaHsBQGavgCJ2
-	jH32S/jYcjt1QF1/0TTO0+qrBtiEig/NyJ+RsBWhvga4z8pVg1b3fjxu/eUcCXz/WzNbvFf5AcL
-	8y4RBtNBuKF9K8ZcN+VMo6HoxwCm9a/ZikQ0ACW0gW+YIYUD7w1PlyLj7K/tW2aHFKsxzk5yFPF
-	37K6QzCt8MOD/hzFUJ61wSi45V4/6y9j80mAaswhgCYTVLhks3XqmI4tDxLS7WUeo6kZGh4z4Ie
-	tuzbPlKiQklpyrOJewBRHDmg+96ULB9Pr3n+67/gzVnralHM0J3ZKmZsJq7DUgGF1yD1kN74ppz
-	hm97WZcWDE1rEaZTfYdW9GXmP6dbV+HGEHpqfrva0LfQTx6UZ7D1pe9neoh8EWfE781BnQGoPo5
-	mrDRjL6W3RdfDBTCePpxSA9Op5o/j9Sz7DEj1MnqbOIwhQhO9SFRTt/xdunj3IykB5Fc+UkXLxZ
-	v9pUeKBHFvgMTwOcKQdUopPK2J3gXoZLZFopxGQqiw/G5UODzBYhriS5czAGAPIbvLlGFUeDteH
-	baayKNEjSuGtzJCpa
-X-Received: by 2002:a05:7301:dd92:b0:36f:26a7:968e with SMTP id 5a478bee46e88-372579ac6ccmr5593616eec.40.1794204698322;
-        Sun, 08 Nov 2026 22:11:38 -0800 (PST)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:3588:b56:78bf:db5e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-372661ede11sm12201192eec.21.2026.11.08.22.11.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 22:11:37 -0800 (PST)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Gideon Heinz <gideonheinz02@gmail.com>
-Cc: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>,
-	Hans de Goede <hansg@kernel.org>,
-	Edwin Velds <e.velds@gmail.com>,
-	Stuart Hayhurst <stuart.a.hayhurst@gmail.com>,
-	Andrey Smirnov <andrew.smirnov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 18/18] HID: logitech-hidpp: manage ps_attribute_group with devm_device_add_group()
-Date: Sun,  8 Nov 2026 22:11:02 -0800
-Message-ID: <20261109061103.2887636-19-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.56.0.506.g506a7eabc5-goog
-In-Reply-To: <20261109061103.2887636-1-dmitry.torokhov@gmail.com>
-References: <20261109061103.2887636-1-dmitry.torokhov@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mLSKRX3B
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F41D1F008A1;
+	Mon,  9 Nov 2026 06:25:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794205535;
+	bh=vxR0y8O6Yjfa9xBmupmiYjq0RBrrS/LkXi20mWxNVj4=;
+	h=From:Date:Subject:To:Cc;
+	b=mLSKRX3BsieLi4GLeZuPq0+ZHK9kVNOPWSfwixBMn4rpaVkA9YsE6GmciW2bwB/GS
+	 jMhza4Hel1F/vyASKGubuDwP+evpOsrc42c52ET8aYW58TE+iULoJrwdd/xy8YfJ8N
+	 vVHhWt2HxsHQ977KH8nX5W7vFaxJgDf3xYqCrtasrntgUjWJobvAVJfeJZA7nlfTs3
+	 J/xwuPkpnRgIxT1U1chNy+FTjmyc+NUb8SvWstd4tbR4OcDpOaKn6V9BiiG7dJf/ue
+	 RCJ/169I/OKMg0/NZSKGz8dvpkuRtJNXMuO3YG8OFfaIlonagAG1jnnis8WrBsuT1p
+	 1AErDaT5zWuvw==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Mon, 09 Nov 2026 01:25:26 -0500
+Subject: [PATCH] Input: apm-power - Rename to apm-power-input
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,71 +52,82 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/yXMQQrCMBBG4auUWTuQpKLoVcTFtPnVEZqGSauF0
+ rsbdfkt3lupwBSFzs1KhpcWHVOF3zXUPyTdwRqrKbhw8N6dWPLAeXzDWFOeJzYkGcASorSudXF
+ /FKpxNtx0+Y0v17/L3D3RT98bbdsHPY5OwHoAAAA=
+X-Change-ID: 20261109-apm-power-input-rename-a2da3030d47a
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Nicolas Schier <nsc@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Sasha Levin <sashal@kernel.org>, 
+ Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2220; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=Zm6n7DvPV/zt+FKqZ0sjzZv/v8rOmXG/Eq1yFEOyh8I=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDFkf06P4DTnV9t09uXaJ3Ke8/TW6Tju3hRusifx3do2Z7
+ aU1wbqbOkpZGMS4GGTFFFmqH6seNzScc5bxxqlJMHNYmUCGMHBxCsBENGQZ/kqICBo7fTRZZ777
+ w4NPJl9Pa0VflHazsZ69OyW15+r9djOG/4lb7zZZdBx9eVbQ4fqZ5YzrDniuiz2t2/D4wI3nwst
+ E5/AAAA==
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-Managing the power-supply sysfs attribute group manually requires
-explicit cleanup in both probe failure paths and device removal, even
-though all surrounding device state uses devres.
+When scripts/modules-check.sh is fixed to normalize the module's name
+like name-fix-token does in scripts/Makefile.lib before checking that it
+is unique [1], there is an error due to drivers/input/apm-power.ko and
+drivers/power/supply/apm_power.ko having the same module name.
 
-Switch to devm_device_add_group() while keeping synchronous creation
-before connecting subdrivers and non-fatal warning behavior on failure.
-Drop the manual removal calls, eliminate the empty start-failure unwind
-label in probe, and simplify device removal accordingly.
+  error: the following would cause module name conflict:
+    drivers/input/apm-power.ko
+    drivers/power/supply/apm_power.ko
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  $ modinfo drivers/input/apm-power.ko drivers/power/supply/apm_power.ko | grep name:
+  filename:       drivers/input/apm-power.ko
+  name:           apm_power
+  filename:       drivers/power/supply/apm_power.ko
+  name:           apm_power
+
+Rename drivers/input/apm-power.c to apm-power-input.c to make the module
+name unique and clear up the error.
+
+Reported-by: Sasha Levin <sashal@kernel.org>
+Closes: https://lore.kernel.org/20261108225808.1809266-1-sashal@kernel.org/
+Link: https://lore.kernel.org/20261103110411.11698-1-info@daylightlinux.ch/ [1]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+We would like to take [1] for 7.5 in kbuild-next, so we would appreciate
+an ack to take this directly or a stable branch that we can pull in.
+---
+ drivers/input/Makefile                           | 2 +-
+ drivers/input/{apm-power.c => apm-power-input.c} | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 7ff7b7d8e2d2..83a408f91d8b 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4739,7 +4739,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
+diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+index 2cd6e1c9a778..842a7e4f7b50 100644
+--- a/drivers/input/Makefile
++++ b/drivers/input/Makefile
+@@ -27,6 +27,6 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
+ obj-$(CONFIG_INPUT_MISC)	+= misc/
+ obj-$(CONFIG_INPUT_KUNIT_TEST)	+= tests/
  
- 	/* indicates we are handling the battery properties in the kernel */
--	ret = sysfs_create_group(&hdev->dev.kobj, &ps_attribute_group);
-+	ret = devm_device_add_group(&hdev->dev, &ps_attribute_group);
- 	if (ret)
- 		hid_warn(hdev, "Cannot allocate sysfs group for %s\n",
- 			 hdev->name);
-@@ -4753,7 +4753,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	ret = hid_hw_start(hdev, 0);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
--		goto hid_hw_start_fail;
-+		return ret;
- 	}
+-obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
++obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power-input.o
  
- 	ret = hid_hw_open(hdev);
-@@ -4811,8 +4811,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hid_hw_close(hdev);
- hid_hw_open_fail:
- 	hid_hw_stop(hdev);
--hid_hw_start_fail:
--	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	return ret;
- }
- 
-@@ -4820,13 +4818,10 @@ static void hidpp_remove(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 
--	if (!hidpp)
--		return hid_hw_stop(hdev);
--
--	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
--
--	disable_work_sync(&hidpp->work);
--	disable_work_sync(&hidpp->reset_hi_res_work);
-+	if (hidpp) {
-+		disable_work_sync(&hidpp->work);
-+		disable_work_sync(&hidpp->reset_hi_res_work);
-+	}
- 
- 	hid_hw_stop(hdev);
- }
--- 
-2.56.0.506.g506a7eabc5-goog
+ obj-$(CONFIG_RMI4_CORE)		+= rmi4/
+diff --git a/drivers/input/apm-power.c b/drivers/input/apm-power-input.c
+similarity index 100%
+rename from drivers/input/apm-power.c
+rename to drivers/input/apm-power-input.c
+
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+base-tree: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
+change-id: 20261109-apm-power-input-rename-a2da3030d47a
+
+Best regards,
+--  
+Cheers,
+Nathan
 

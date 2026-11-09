@@ -1,11 +1,11 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.15
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794254397;
-	b=Jw3sqxC7X8qeEF5EjQ9Ie+XGmMaPFhyaOdBUb35mbDEwRP6x2jxOCFKdSOXa/Og3m+Sf
-	 yxX6y0v6iMOJMZ93h44ctU3BLFIpHf17+AONu55g97opFlarGgsJ+Cfg9rPdKxUBSCwO/
-	 Z+/ZySYz4ifuKQFH2bihwV0/fYxBrU3Z96ENVfHvB/ugd74mDFAQL90Md0DVlNDmlrrEO
-	 zuMPNtAcbahvjq+50ShSjwVaJhkAUB9TPOx4aPxR5R7LQmroROvH79tc5DMhwHKtL94C1
-	 ASIW9IG7Rk+kfcjpQuInaAqn1kwW4pLGDhvbl3v0ybAmKgvT2uVuJz3gmGMqBSWBssw==
+	b=g/QdASxNaMoCA81hopDBewQJNroSPk779LGLncYTGV5HbLkawwvrefJQa++tVyX6t7Nz
+	 kOKqX4Gx/BUZ3nIL075wbUa8aZG9BlUKwuiIwTzmnFJuO120uT5FWwuv0JGdWPIwZUD1M
+	 cWeqnZfPcGxxoA6fg41xNtB8oC8M7u+GNtvEDvar+wImCp5+Dnoxzw5Y5aV1OjukoaAbT
+	 +9KM4WdpSCFqofQ8ZlqzC0rSXByokCF3XVABDuDVTptKhsa1gw7egahyllpps56o/hWMz
+	 7/5k27eUwW7hSCMiKDLqwQBFP6vv7ZaCU9Ws5IHtzGEUemsPAEvkgDPY89a28saFLdg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794254397;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
@@ -13,54 +13,54 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=E6ZM8eCSRqXyF2S7mN6AOzvccTBTYeL/LvlpvXWk/68=;
-	b=WoV7EDtJreHUND+wWqW3Dfqio8QZrSDnbzhCUu9+n7QzI6HbJMuHgObuEsg87a1nZqbu
-	 CUl2OVQRjR6GUaVAPUB+k4bvkfA5nI1qED4QwhAybU1rYIQeupMmGez2aB6do+wKWnQjK
-	 XEow98CAwjv6m+ACRmTK1Wgcd/g2EyPvEjry9nGfemSsbbvH0JCCDrOcxhbiqHlF7ooC+
-	 VpbP0K8NGntZvz2G8EjWbaB0NU+gdzrurXvIgO3tnkl1bBg9tiSuE9QVo+kv6zG07Pkuj
-	 bZtL1xTxPQ+ArXOqMtvUOGZOq91ax3708fqGu0t2mwd3GpmhxuDdCJ+l8wdp/CvemAQ==
+	bh=QQbHee+Nm/vWzn4Wj20Cf7+RfTca8c4wLg/g+T/SLXg=;
+	b=qJDpF4e4EJD5ZCli9N43xX6JA+Yhd5zyREyQRfK7to1HOXFMaCBOzkTwYkC1EsYfTfDk
+	 oNShYfvLyTUCulChZgkY8mN0jrRXQMseoK+mSbfhwjnRanDcTpN/eVqB5rdyd3/18bYn9
+	 ynqscJqtiuIzWmqWgXSZPCDkov7qPvVul93e7Qe+7EolT0GQ0MBBB8whDLRzJqudCSTk4
+	 S+I3jtOOxh1k32q8sz2UZ5iW8fo9Z4RejNK3ZmET8600K4ubgu45NZKLv7QHyn1yqrc5Y
+	 QeqA6U8OyeC2ENSnDrGb9bheHmfo2OklMdOZ+RbpPfJwq6oWJbB1XWHxxL3Ry+biKqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.intel.com;
 	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dBSpOwCn;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=fW3HY1F1;
 	arc=none smtp.remote-ip=198.175.65.15
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B54260A2601;
-	Mon,  9 Nov 2026 19:59:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B54260A2601
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2938606A31C;
+	Mon,  9 Nov 2026 19:59:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A2938606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dBSpOwCn
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=fW3HY1F1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794254398; x=1825790398;
+  t=1794254396; x=1825790396;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=YjAQkNgnqiQWrokfZj4Rbpr1oo88Lx7XNyLDorA28hY=;
-  b=dBSpOwCnjnWfhhgE99eo+fEYDgDCN0wzqSYjNAWUHQj11BxOy9N+kS1e
-   oj7cWYNlyvoTtNxWCt1VH0Nwczy4Xbx7kGKNzkGUnpv1L3HdbmRT7pGQ3
-   MzUMeB2JoxjfffASVXbRi71JX0uMTSvtSdVP6epx9ZLh6M4WVXV1v5DLW
-   eKRf8pWNAKsrQrKPSdwoud476fYH+plP08G/gnygLAXx3i+jPF7OckjO6
-   qNe3Bj+BbuZaQspZRBDqDbuSpeTRc2a1a+ni4bliOBUq1H7ujcMH4qaxd
-   ThdhKgA+HlYP12LXPf+45TU34/hv6guqPogltxHK+MyPAdP3wh8acLj+M
-   Q==;
-X-CSE-ConnectionGUID: 4q3CDqBVSnO1wcVB0nOhWw==
-X-CSE-MsgGUID: yR9d7fwOTt25AJ9gX7SrkA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11961"; a="2986575"
+  bh=pqHXzbOhYuRGj/Bl13+tRoGNuTsjBjBqO7+I+0basQ4=;
+  b=fW3HY1F1+8QI3oLJ2aTZoir4ns4RuVrOl5xNIF9cZkvznlbpfW8QQs9G
+   lgDJDlqYdoKvpDA21BSFatMNNCYBWvZIpgVWW7pPkmEzg2B9/g+2YoY7R
+   oyQ5AQEcO6LWog1FYeMg6KZ3NeBg7hwshiPMj6uqRkrUM7XRd9KkUjkYi
+   uRIi6cyHT6X+ejKyCb7YPbyj1V8NUj08we+xgtZNLyPU/zeeFvmWv3FO/
+   LH5NIc7+qQQyhX8oZ84CVTpkpdgp/qpVvg7rYUWTI6u+O1qskDAzMfnSt
+   2oU9OsqEP2NFOQCRZvHtMEhreFgxaNkLJ9+CpuhmqCnBN8rpXOQWHJ/Mg
+   w==;
+X-CSE-ConnectionGUID: 8nnLC8T+TAq/br4S2g/Ocg==
+X-CSE-MsgGUID: eabRaVcfQN+Z2EQWZRGCtA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11961"; a="2986559"
 X-IronPort-AV: E=Sophos;i="6.27,204,1787036400"; 
-   d="scan'208";a="2986575"
+   d="scan'208";a="2986559"
 Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 11:59:56 -0800
-X-CSE-ConnectionGUID: QHy/Pq64RHij5bJfWNkYcA==
-X-CSE-MsgGUID: HEHWxVx3RfG6LBMqET1oXg==
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 11:59:54 -0800
+X-CSE-ConnectionGUID: MNYuWUt4Qq++68v0QJ94gw==
+X-CSE-MsgGUID: 8pAMkb8tRu+PJqHfW5sNVA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.27,204,1787036400"; 
-   d="scan'208";a="8090670"
+   d="scan'208";a="8090655"
 Received: from spandruv-desk.jf.intel.com ([10.54.55.20])
-  by fmviesa005.fm.intel.com with ESMTP; 09 Nov 2026 11:59:55 -0800
+  by fmviesa005.fm.intel.com with ESMTP; 09 Nov 2026 11:59:53 -0800
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 To: jikos@kernel.org,
 	jic23@kernel.org,
@@ -72,9 +72,9 @@ Cc: linux-input@vger.kernel.org,
 	lixu.zhang@intel.com,
 	crofts@kernel.org,
 	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v3 6/7] HID: sensor: custom: Register enable attribute after misc device
-Date: Mon,  9 Nov 2026 11:59:48 -0800
-Message-ID: <20261109195949.384888-7-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v3 1/7] HID: sensor-hub: Synchronize callback removal with raw events
+Date: Mon,  9 Nov 2026 11:59:43 -0800
+Message-ID: <20261109195949.384888-2-srinivas.pandruvada@linux.intel.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261109195949.384888-1-srinivas.pandruvada@linux.intel.com>
 References: <20261109195949.384888-1-srinivas.pandruvada@linux.intel.com>
@@ -89,52 +89,51 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Register the enable_sensor sysfs group only after misc-device setup
-succeeds. This prevents userspace from opening the sensor hub while
-probe can still fail, which would otherwise leave the hub open reference
-unbalanced on unwind.
+Raw-event processing holds pdata->lock across callback lookup and
+invocation, and takes dyn_callback_lock during lookup. Removal must
+prevent both active callbacks and future lookups before client state can
+be released.
 
-Fixes: 4a7de0519df5 ("HID: sensor: Custom and Generic sensor support")
+Take pdata->lock before dyn_callback_lock, matching raw-event order,
+and unlink the callback while holding both locks. This ensures active
+raw-event callbacks have finished and prevents future lookups.
+
+Fixes: 401ca24fb34a ("HID: sensors: introduce sensor framework")
 Reported-by: Semyon Maryasin <simeon@maryasin.name>
 Closes: https://lore.kernel.org/all/CAM2dg7ewfVJSP4rFyhkCB1Rmd1+X56sAg=eUdbPthG2xrLqwQQ@mail.gmail.com/
+Reviewed-by: Joshua Crofts <crofts@kernel.org>
 Tested-by: Semyon Maryasin <simeon@maryasin.name>
 Tested-by: Zhang Lixu <lixu.zhang@intel.com>
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/hid-sensor-custom.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index 55698dea5b86..8a71e86d247b 100644
---- a/drivers/hid/hid-sensor-custom.c
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -1059,20 +1059,19 @@ static int hid_sensor_custom_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_remove_callback;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 81c8e723f9ba..98ae5352e2b6 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -173,7 +173,9 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
+ 	struct sensor_hub_data *pdata = hid_get_drvdata(hsdev->hdev);
+ 	unsigned long flags;
  
--	ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
--				 &enable_sensor_attr_group);
-+	ret = hid_sensor_custom_dev_if_add(sensor_inst);
- 	if (ret)
- 		goto err_remove_attributes;
- 
--	ret = hid_sensor_custom_dev_if_add(sensor_inst);
-+	ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
-+				 &enable_sensor_attr_group);
- 	if (ret)
--		goto err_remove_group;
-+		goto err_remove_dev_if;
+-	spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
++	/* Serialize callback removal with raw-event callback execution. */
++	spin_lock_irqsave(&pdata->lock, flags);
++	spin_lock(&pdata->dyn_callback_lock);
+ 	list_for_each_entry(callback, &pdata->dyn_callback_list, list)
+ 		if (callback->usage_id == usage_id &&
+ 						callback->hsdev == hsdev) {
+@@ -181,7 +183,8 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
+ 			kfree(callback);
+ 			break;
+ 		}
+-	spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
++	spin_unlock(&pdata->dyn_callback_lock);
++	spin_unlock_irqrestore(&pdata->lock, flags);
  
  	return 0;
- 
--err_remove_group:
--	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
--			   &enable_sensor_attr_group);
-+err_remove_dev_if:
-+	hid_sensor_custom_dev_if_remove(sensor_inst);
- err_remove_attributes:
- 	hid_sensor_custom_remove_attributes(sensor_inst);
- err_remove_callback:
+ }
 -- 
 2.56.0
 

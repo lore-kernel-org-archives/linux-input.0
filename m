@@ -1,56 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794253882;
-	b=UNLUCKDfrZRe833lMvprLcTeozzOAFStSmyNkDT9Ci8fS+bq2dmXzfR5DekmzSHrxAeV
-	 LGQizhgABib8fvMikstZFg4R6f5mpUvVELqj2XOYIyQAW9iJ/v3r+vVQG+opDG3WsuSr9
-	 Ds1hJKV3hnzodw9gDu6JFsX9Z1llm+rmCODgFFZWSHKRNm20RfUrj2hiaWRvlQRWP/hKi
-	 eDlzorKUD3Fn9KXz7sR/Z59mrIMqFc1PcCqgSHiWnXsDnDI3u/TTF9mHMIA913049C9PZ
-	 m1baCcUjKYZ32yVUVKVKohmEt9NUF1dTYX5uB2bDZwKIvF3pvKl9whxeRfSEj1E54YA==
+	t=1794254154;
+	b=Hh6fEVHEz408LP+8rNl5v6X3sEn9my+Hx2D6LFDb6cvCa/NIasHz+vD/8M/sjrDlwLUX
+	 urRMuUmKFp/zhVHiUDvFDVa/EV4IMxCY7AOF/dKR88lpjc9MdglXoZutb12rDYXrnKVPS
+	 PQq0rJx5iyPsGDZr8fQ0jH3FfQ5v4IKBMYvjzsaGSNcgMeNkcNj0CBinHIVGbGsYayQIu
+	 6Ch8xdY8M4enaoOWAShX+RWsIiVfRyTrOZoxkorehVVpxAT3TNKNoe8E+OPSQgI+HSxrD
+	 JHwOvsLb1ZZDOC9Ct+ipDJAbPCJt0egoRzRpEMLC9TlvZPMnQyW2HGiJZ4UruIB1A+g==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794253882;
-	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-ZohoMailClient;
-	bh=6IILC2xu3YWtamZV32PJaIAFJ/CjBf+OCBBfnhJfPOM=;
-	b=ctYie3brkUiEY3LUtrax3bzhgckMfrRvbmlXy+R1jcfZs/A0XuMPhQIxcGm7BJDjY/nl
-	 RCbByay3jcGjp8R5OU/ARttxgSLHU2MzG51G/I1JtnxD0RU9SG0W9RbK547MervzTZh4X
-	 JXRoIxNNnFVkzG69w5ivI7mQtpt594cULYf5RBG6J2tW9nmcz//v+P30DIUnuK7mtubSQ
-	 ZIjFy/XNql8q/qPBg/tqFmPIa5ZYaPs5g2n/6wUUCmQYB1Muv02E6KdXqV2x9oEA6etf6
-	 qYKRcZ29CUUt+czwGR7Jhuuwi8bHLmQt/accQaaKsrCW+GcrCkeAtdMrnPUov887QxQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794254154;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=o6NBk1r/AAcE17Atzf9StQ8uJWcg2yKOH1Jf0XPY8vU=;
+	b=QcoQN/dJKouw+gQyuT3xBtdRC1z3vJPZcmvjPz5SJ+mmc/R6JWcd8+w7XtlS7Eyc7mnf
+	 d6C5/RMR6bnpFQ936JlIYpyMJtd9JtTEyXipSnwAyjTngPLLxA+28+ZEJsvPVAH0dU6gN
+	 /1HvN+VxrRaQcbtO+lzo5x8VWWlwFFZ82KQSK0PLwJdgm7mwuULSvzS764bk1NVKKxQRR
+	 niQN5sS+mg4yG+vcttYRHoi0r7qKH19YyEdWebT03WzBUoRtX4ycg9qCZVHaIhYOz5XVf
+	 3CNpkmA2LvJBFyglWaBM3K8XEFXX5XbEIFLl4HY2HzzMa/iniHEAbUobNnhTG5S98sA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rong.moe;
-	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=HLxAvnT7;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Fed6f0XB;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06131606A339;
-	Mon,  9 Nov 2026 19:51:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 06131606A339
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rong.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3472C606A321;
+	Mon,  9 Nov 2026 19:55:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=HLxAvnT7
-ARC-Seal: i=1; a=rsa-sha256; t=1794253820; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=nnsinw2KyP2v4sL59QqO6riHAGKp0aVF/QHTHNuTHojIUnNqO6MpeU5KIGc1euGrXHB+b+2tJWtwsiuqQvUTjomhNB1sT1R4ysn3B9aqz0TX9ig6KFp0LoXfqRw2s/gdgbtV24FhYhKl5jUWCQqXENy9oRcrEGAZnHb7R6Vb+qA=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794253820; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=6IILC2xu3YWtamZV32PJaIAFJ/CjBf+OCBBfnhJfPOM=; 
-	b=l25FH43q0qx+qY6mRGVeAoxs5Rg1AC25lMXQEle7xeXHeP5X8DWZkw6DFhsoVaANRa/ODrfSpW6fl0vT5IOIfLbfxtynb6Gx9Cqn4Sq9/iOHZ1YzSrggQlSk5z9bRPCSdrM/VvfZHdRT0HBGWJTCtfcLujLF9KV81ZGD2h3hKgE=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=rong.moe;
-	spf=pass  smtp.mailfrom=i@rong.moe;
-	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=HLxAvnT7mU5D5InkISK6MTN4XshBMy4wj4Yw7i1WABn4tTZpuJrMopG7wjZN6i4j1PM902cByk7PLFE9nKMVQokoQ8NHh3W669adycj9ngQergR1I9q/GTOw1CqENqEsWmXlYyPpep3bvDYJ9H3brcdtzwwEMFVw3zivOYMa5260wN3n4FO3/55w2HThnOnZ8te1ZvpLnkvVLXbnM2SniwuO8ixH3UbKFWLPEb01ktsZUZDIXYCIAt55glzxHy5e0HkA9i1/4vqIi/A1VKNQntyyrOOM28H4DOqDPSVNTbaQSNAw9VGnBT9og0KSPXS/V7tiT0Cx0iIW2g2qfhRbsw==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=6IILC2xu3YWtamZV32PJaIAFJ/CjBf+OCBBfnhJfPOM=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794253818808547.8468535492777;
-	Mon, 9 Nov 2026 11:50:18 -0800 (PST)
-From: Rong Zhang <i@rong.moe>
-Date: Tue, 10 Nov 2026 03:49:46 +0800
-Subject: [PATCH v2 9/9] HID: haptic: Remove stubs in favor of inlined dead
- code elimination
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Fed6f0XB
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794254153;
+	b=DO7GDenKUZnpI/P31dPed0NZOlokQR3OpCBpqFpXP7lhtVSvQTM6pkjqLZuEPT7HB4Uv
+	 rrEIZu2sLkAowh33mQth7u0vgLZOTpWf0zo7CDL7VO9VN0n/RNBQeSX7FBfaK5hmFoC6Y
+	 rzX8rDO6i3r95cPG29aw2aiLD2frXe/RbOGqZV+Di8hS9WJTr6Ml0MkFV16diWK0vn+0x
+	 VHO4GiTY/fS2CFbdmZPOCkClvtB7FLFzWQk8gQ5uJVQej7YnRujRoy8CoqwY7sRUzd4mI
+	 KJdKPwccEUwPD335R3U+O19470rVohM47bp3oYToULLA+wcNkwCmLnf5xTyB/ESGYLg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794254153;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=o6NBk1r/AAcE17Atzf9StQ8uJWcg2yKOH1Jf0XPY8vU=;
+	b=CWHg5djVtf25B1rfG25yZvrQ4Xsj9LMSIp2IC8Xdio7ih6JouLCgIgCLaN5j9Vt1MARg
+	 LoJZMdFBhpnjz+wylQFHWBTukhX3qkV6lvA2VlCmsUcX0PYheuqhAuF0Z4+0yLDL4CBBq
+	 w665M4kElmmv2egLeB8FYnk8SbAI5jBxAWJLeTw7XJ8sZIH3zXRoPXmWAVhtq2tPrVsmV
+	 wAwvWeORHanEiTL8jugx7dc1/VTBdWJG0Vaso3qjrQJeJWRua/1TlzlYyCwIxnpaTl/+a
+	 MocCtP4tPbeJEgcEygTYb5cLRZfd5gBFoRyN5CB464qB+GrwPBKPRncLQBpLLHAFNFw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 2D6901F008A1;
+	Mon,  9 Nov 2026 19:55:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794254153;
+	bh=o6NBk1r/AAcE17Atzf9StQ8uJWcg2yKOH1Jf0XPY8vU=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=Fed6f0XBhHTF0T2HKf5ocCn/H9fr8e/rD02uvKRJSZOIKSaiUJEhGmv9bkcVOLYgq
+	 lDUZkjNSGQlT5KkC0N7ChErnX9k/U6nDh6YHo2Snyho7cRYhSo6cQVy213ZqoeHMLv
+	 bYfh9S5HOF2s9pG2WAtU1pa+m1CNlcc56iHgRqPfdeHES3KknRimG51ZLHqJN2fhs/
+	 /crkSvJxAqbpilyQTTpoi3yf6TOBgoO6JVdbggN66ITxNxqMWMOimnFjjbM9npyXwj
+	 ij3O1fbB2v8avlW6pKdodCWa3yb8Psm4o/Ma2dGpc5d/yPdCMOM0HALZqUyePYNsJB
+	 KD2ab6cZ+No/A==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id AFA0F48626;
+	Mon,  9 Nov 2026 19:55:52 +0000 (UTC)
+From: Andreas Claesson via B4 Relay <devnull+andreas.aclaesson.com@kernel.org>
+Date: Mon, 09 Nov 2026 19:55:52 +0000
+Subject: [PATCH] HID: corsair: cancel LED work again after unregistering
+ the LED
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,180 +84,119 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261109-hid-corsair-k90-uaf-v1-1-0621c2c5c451@aclaesson.com>
+X-B4-Tracking: v=1; b=H4sIAEcl8moC/yXMQQqDQAxA0atI1gYmCpXpVUoX0xg1LWhJtAji3
+ R3r8i3+38DFVBzuxQYmP3WdxgwqC+Ahjb2gttlQhepGFCIO2iJP5kkNPzHgkjoM3BBRbFhqgVx
+ +TTpd/9fH87Ivr7fwfK5g3w9+suEldwAAAA==
+X-Change-ID: 20261109-hid-corsair-k90-uaf-0c711197ce3e
+To: Benjamin Tissoires <bentiss@kernel.org>, 
+ Chen Changcheng <chenchangcheng@kylinos.cn>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794254152; l=4132;
+ i=andreas@aclaesson.com; s=20261109; h=from:subject:message-id;
+ bh=OH06v+FHNPldYATurhUtH3EMaR24kIgI5PheNIJyWHI=;
+ b=67wwBo9EE2Opk/wXvX8JtEQkwIRYSLop3Kp9pZzHqtgd7u7iJhkdVOeRUZNfR/gzfDBAxFa7v
+ LusorGfeDgZARwBhZRjKpYuWTAqJa1UuWRwA6PPNg3FwV53Q3grBdpN
+X-Developer-Key: i=andreas@aclaesson.com; a=ed25519;
+ pk=oC+38UX0rqcrEjNMgnKAF1zmrTUMbQ2aH/P5Z4TZOIQ=
+X-Endpoint-Received: by B4 Relay for andreas@aclaesson.com/20261109 with
+ auth_id=1465
+X-Original-From: Andreas Claesson <andreas@aclaesson.com>
+Reply-To: andreas@aclaesson.com
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-hid-haptic-kmod-v2-9-b835a067cb62@rong.moe>
-References: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
-In-Reply-To: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Angela Czubak <aczubak@google.com>, Henrik Rydberg <rydberg@bitmath.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Rong Zhang <i@rong.moe>
-X-Mailer: b4 0.17-dev-ce4c1
-X-ZohoMailClient: External
 
-All stubs in hid-haptic.h can be replaced by equivalent
-!hid_plugin_enabled(HID_PLUGIN_HAPTIC) checks. The compiler will
-eliminate calls to all methods when the plugin is disabled.
+From: Andreas Claesson <andreas@aclaesson.com>
 
-Signed-off-by: Rong Zhang <i@rong.moe>
+Commit eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering
+LED to fix use-after-free") moved cancel_work_sync() in front of
+led_classdev_unregister() in k90_cleanup_backlight() and
+k90_cleanup_macro_functions().
+
+led_classdev_unregister() turns the LED off unless
+LED_RETAIN_AT_SHUTDOWN is set. That calls k90_brightness_set(), which
+unconditionally does schedule_work() on the same work item. The work is
+therefore queued again after it was cancelled, and the structure that
+embeds it is freed right afterwards:
+
+  k90_cleanup_macro_functions()
+    cancel_work_sync(&k90->record_led.work)
+    led_classdev_unregister(&k90->record_led.cdev)
+      led_set_brightness(LED_OFF)
+        k90_brightness_set()
+          schedule_work(&led->work)        <-- re-queued
+    kfree(k90)                             <-- frees the queued work_struct
+
+When the work later runs, the workqueue dereferences the freed
+work_struct and k90_record_led_work() reads led->removed from freed
+memory. A USB device that enumerates as a K90 and is then unplugged
+triggers this reliably. With CONFIG_DEBUG_OBJECTS_WORK it shows up as:
+
+  ODEBUG: free active (active state 0) object: ffff88803b8772c8 object type: work_struct hint: k90_record_led_work+0x0/0x1e0
+  WARNING: lib/debugobjects.c:632 at debug_print_object+0xec/0x230
+  Workqueue: usb_hub_wq hub_event
+  Call Trace:
+   debug_check_no_obj_freed+0x2e3/0x450 lib/debugobjects.c:1201
+   kfree+0x13e/0x650 mm/slub.c:6923
+   k90_cleanup_macro_functions drivers/hid/hid-corsair.c:547 [inline]
+   corsair_remove+0xfd/0x260 drivers/hid/hid-corsair.c:602
+   hid_device_remove+0xc5/0x1c0 drivers/hid/hid-core.c:2897
+   ...
+   usbhid_disconnect+0x9f/0xc0 drivers/hid/usbhid/hid-core.c:1486
+
+(with ODEBUG enabled, work_fixup_free() cancels the work and hides the
+use-after-free. Without it, the freed work item is executed.)
+
+Keep the existing cancel_work_sync() before unregistering, which waits
+for a worker that may already be past the 'removed' check, and cancel
+the work once more after led_classdev_unregister() so the work queued
+by the LED-off request is gone before the memory is freed. A re-queued
+work that manages to run before the second cancel still sees
+'removed == true' while the structure is alive and returns early.
+
+Fixes: eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering LED to fix use-after-free")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Claesson <andreas@aclaesson.com>
 ---
- drivers/hid/hid-haptic.h | 83 +++++++++++++++++++-----------------------------
- 1 file changed, 32 insertions(+), 51 deletions(-)
+Found with syzkaller (USB emulation, KASAN + ODEBUG) on mainline
+f66469d9905b. Both the record LED and the backlight paths reproduce
+(hint: k90_record_led_work / k90_backlight_work); a minimised
+3-call syzkaller reproducer is available on request. With this patch,
+200 probe/removal cycles per path gave no ODEBUG or KASAN reports,
+against ODEBUG on roughly half of removals without it.
+---
+ drivers/hid/hid-corsair.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-haptic.h b/drivers/hid/hid-haptic.h
-index a71ccee569f3..070b56189ccb 100644
---- a/drivers/hid/hid-haptic.h
-+++ b/drivers/hid/hid-haptic.h
-@@ -65,11 +65,18 @@ struct hid_plugin_haptic {
- 		    struct input_dev *dev);
- };
+diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
+index 278c6efb565d..75c862f5f783 100644
+--- a/drivers/hid/hid-corsair.c
++++ b/drivers/hid/hid-corsair.c
+@@ -526,6 +526,8 @@ static void k90_cleanup_backlight(struct hid_device *dev)
+ 		drvdata->backlight->removed = true;
+ 		cancel_work_sync(&drvdata->backlight->work);
+ 		led_classdev_unregister(&drvdata->backlight->cdev);
++		/* unregister turns the LED off, which re-queues the work */
++		cancel_work_sync(&drvdata->backlight->work);
+ 		kfree(drvdata->backlight->cdev.name);
+ 		kfree(drvdata->backlight);
+ 	}
+@@ -542,6 +544,8 @@ static void k90_cleanup_macro_functions(struct hid_device *dev)
+ 		k90->record_led.removed = true;
+ 		cancel_work_sync(&k90->record_led.work);
+ 		led_classdev_unregister(&k90->record_led.cdev);
++		/* unregister turns the LED off, which re-queues the work */
++		cancel_work_sync(&k90->record_led.work);
+ 		kfree(k90->record_led.cdev.name);
  
--#if IS_ENABLED(CONFIG_HID_HAPTIC)
-+static inline bool hid_haptic_enabled(void)
-+{
-+	return hid_plugin_enabled(HID_PLUGIN_HAPTIC);
-+}
-+
- static inline struct hid_haptic_device *hid_haptic_alloc(struct hid_device *hdev)
- {
- 	struct hid_haptic_device *haptic;
- 
-+	if (!hid_haptic_enabled())
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	haptic = kzalloc_obj(struct hid_haptic_device);
- 	if (haptic)
- 		haptic->hdev = hdev;
-@@ -80,6 +87,9 @@ static inline struct hid_haptic_device *hid_haptic_alloc(struct hid_device *hdev
- static inline bool hid_haptic_connected_to_input(struct hid_haptic_device *haptic,
- 						 struct input_dev *input)
- {
-+	if (!hid_haptic_enabled())
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	return haptic->input_dev == input;
- }
- 
-@@ -89,6 +99,9 @@ static inline void hid_haptic_feature_mapping(struct hid_device *hdev,
- {
- 	u16 usage_hid;
- 
-+	if (!hid_haptic_enabled())
-+		return;
-+
- 	if (usage->hid == HID_HP_AUTOTRIGGER) {
- 		if (usage->usage_index >= field->report_count) {
- 			dev_err(&hdev->dev, "HID_HP_AUTOTRIGGER out of range\n");
-@@ -116,6 +129,9 @@ static inline void hid_haptic_feature_mapping(struct hid_device *hdev,
- static inline void hid_haptic_check_pressure_unit(struct hid_haptic_device *haptic,
- 						  struct hid_input *hi, struct hid_field *field)
- {
-+	if (!hid_haptic_enabled())
-+		return;
-+
- 	if (hi->application != HID_DG_TOUCHPAD)
- 		return;
- 
-@@ -155,6 +171,9 @@ static inline int hid_haptic_input_mapping(struct hid_device *hdev,
- 					   struct hid_field *field, struct hid_usage *usage,
- 					   unsigned long **bit, int *max)
- {
-+	if (!hid_haptic_enabled())
-+		return 0;
-+
- 	if (usage->hid == HID_HP_MANUALTRIGGER) {
- 		haptic->manual_trigger_report = field->report;
- 		/* we don't really want to map these fields */
-@@ -169,6 +188,9 @@ static inline int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_dev
- 	struct hid_plugin_haptic *self_plugin;
- 	struct hid_plugin *plugin;
- 
-+	if (!hid_haptic_enabled())
-+		return 0;
-+
- 	plugin = hid_plugin_get(HID_PLUGIN_HAPTIC);
- 	if (IS_ERR(plugin))
- 		return PTR_ERR(plugin);
-@@ -184,6 +206,9 @@ static inline bool hid_haptic_input_configured(struct hid_device *hdev,
- 					       struct hid_haptic_device *haptic,
- 					       struct hid_input *hi)
- {
-+	if (!hid_haptic_enabled())
-+		return false;
-+
- 	if (IS_ERR_OR_NULL(haptic->input_dev) || haptic->input_dev != hi->input ||
- 	    !haptic->auto_trigger_report || !haptic->manual_trigger_report)
- 		return false;
-@@ -195,61 +220,17 @@ static inline bool hid_haptic_input_configured(struct hid_device *hdev,
- 
- static inline void hid_haptic_pressure_reset(struct hid_haptic_device *haptic)
- {
-+	if (!hid_haptic_enabled())
-+		return;
-+
- 	haptic->pressure_sum = 0;
- }
- 
- static inline void hid_haptic_pressure_increase(struct hid_haptic_device *haptic,
- 						__s32 pressure)
- {
--	haptic->pressure_sum += pressure;
--}
--#else
--static inline struct hid_haptic_device *hid_haptic_alloc(struct hid_device *hdev)
--{
--	return ERR_PTR(-EOPNOTSUPP);
--}
--
--static inline bool hid_haptic_connected_to_input(struct hid_haptic_device *haptic,
--						 struct input_dev *input)
--{
--	return false;
--}
-+	if (!hid_haptic_enabled())
-+		return;
- 
--static inline
--void hid_haptic_feature_mapping(struct hid_device *hdev,
--				struct hid_haptic_device *haptic,
--				struct hid_field *field, struct hid_usage
--				*usage)
--{}
--static inline
--void hid_haptic_check_pressure_unit(struct hid_haptic_device *haptic,
--				    struct hid_input *hi, struct hid_field *field)
--{}
--static inline
--int hid_haptic_input_mapping(struct hid_device *hdev,
--			     struct hid_haptic_device *haptic,
--			     struct hid_input *hi,
--			     struct hid_field *field, struct hid_usage *usage,
--			     unsigned long **bit, int *max)
--{
--	return 0;
--}
--static inline
--bool hid_haptic_input_configured(struct hid_device *hdev,
--				 struct hid_haptic_device *haptic, struct hid_input *hi)
--{
--	return false;
--}
--static inline
--int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device *haptic,
--		    struct input_dev *dev)
--{
--	return 0;
-+	haptic->pressure_sum += pressure;
- }
--static inline
--void hid_haptic_pressure_reset(struct hid_haptic_device *haptic) {}
--static inline
--void hid_haptic_pressure_increase(struct hid_haptic_device *haptic,
--				  __s32 pressure)
--{}
--#endif
+ 		kfree(k90);
 
--- 
-2.55.0
+---
+base-commit: f66469d9905b39d2c260a15d7d6db450f4db67c1
+change-id: 20261109-hid-corsair-k90-uaf-0c711197ce3e
+
+Best regards,
+--  
+Andreas Claesson <andreas@aclaesson.com>
+
 

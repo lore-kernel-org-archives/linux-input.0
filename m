@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794217480;
-	b=DbnKVOdrFqx0Nb2Sv2Wt8lgbqHESkmc2XiDEPvyhyCbXKSx0DYXMYaSiNzH/jXzdF1Oz
-	 WDxJCJQbMRyKCZHrOhv4os5UFxoWR5zH06s2+q01pCI9AolwXrOFeg3b8hR6xs8ICKhzA
-	 XUBfIJfWJgDqbH2eZKPfQ1fpc/FJ6wWOYR5c3TCpyGOs8nngD4jcark9MVKsfj47eDMkb
-	 +dd6scAMPxgKeEFe4CsUnLze72pTZF2fOFEYletlcWJ8ps1MsNxCSnKB2kq6jDhlD7wqi
-	 5KEGdjhIto/dUY+6dTB6EyXMahiIMSA4xQZYVB5F0tHiqNNB+H37uVyP7RUQi4Bpt5A==
+	t=1794217483;
+	b=QgJH/qrNnhoT6sYHlc4pbMyoZie4Uw+NifYk4Jz92+rkOnZEFlOV2H2tYxQoCgAKO/aT
+	 tHUYQAIvnVyrbqAFqIHdrJJT1GWHcf4xecDM7iW14r/aEazwMON+LOkA541tsXY2BY46v
+	 rPtzeNQ7Z7NHng9Mvrl0svfJx3FbyA2vHg5YfFIx1oLSdIazbXX3WOnSpYmEiu9G3ElQo
+	 XMXtq90dJasIV0fYhyGrfy9cQi7vIn310QxhcrXoPfIaJi1h0MDa0onmmtg2L9Xtw3/RE
+	 lk/rw0POc8so/xsv5g4NUYlwWCUkXHmcljloAuci+YK4ZGFUY0Tv2P8m5+TmWF8a1lg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794217480;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794217483;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Sender:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding;
-	bh=Q+2ohc4Lxz21adQFaiVr9N7OyfmDicOr8rZAg8df0IE=;
-	b=v2TRcm96HoJUa5wqo8nm9Wq6c/2QKEvRF6TpugjwJhTD+oJ/NelcxtvOaD/sWRNlmjrr
-	 zrSh+lNt2aX9Y1MPCtey9C3SuVEeQJChqqgzBwkg+GVLcb76jGGq0pyfrSVc5LZwnbWKP
-	 OfrycbKXRWI6+8OQ6bX6WlW/F+AfJ4/BN66LCkwZk8WkBtt2a6BTzTyRHr/kvrMzBkWMx
-	 KaGcxRNPGLUlSRBRMDrSaUprZI3xHVLGcaOpKxDLXuYKLTK6Tfw6aPa3uTGi2aBZJe/Iu
-	 xAQaqnAqHqh6EV8ft32P2PMyiPYTQ/uzGjW/ClMtzRlxtF5864dCCSGFurZ5qYCx7kA==
+	bh=W8ajPa61qLbRbu2px572/0QmwG9CerOEFMibBPl4Dkg=;
+	b=DIWqeKkljZp8EY+WClHAnImCkpMqBQDKrfH8OkDJPNClLLUL5x7yUdjOaCcX/TdFYfPq
+	 aElIedye5rum+BKwVN8GZk65bCR9N1+UdCPwScQUNjam1q9qZsot1i9jdqDzy/SJpHCug
+	 Gm84YLGX13gFJ1TO93rOtvRnleIdhc9ew1ehuUvrEl6RkgOLN/9EVz4extv8V/+GFc4RX
+	 0PiOpz+95ps+GQ6XxMK9C/hnviDLpPyQrr7cy17kgpRJuUrFBMvA5Qkq6RNggQUntdV14
+	 KH3tWroXKVbzjvNC2eh4lUcKVO6tlSAxmwAzB9K1PPinXXIsP9Si8le4nB4m7I0yykQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ym+iTu5m;
-	arc=none smtp.remote-ip=209.85.218.51
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uFFOqLjY;
+	arc=none smtp.remote-ip=209.85.218.52
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 626F7606A32A
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 09:44:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 626F7606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F564606D810
+	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 09:44:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F564606D810
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ym+iTu5m
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c3f04e0e65fso88361466b.2
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 01:44:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uFFOqLjY
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c411e139259so61443266b.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 01:44:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794217479; x=1794822279; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794217481; x=1794822281; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Q+2ohc4Lxz21adQFaiVr9N7OyfmDicOr8rZAg8df0IE=;
-        b=Ym+iTu5mmYRwDT/GOtraohnsAgMgwXcVaYecAAg3pHKKKChHeVZFKArXxm88IXIN8q
-         LXS0Riofu6QezvXanMrmJgytVbuSsEo9aBE32K9QjaVpeQL4u8yI+CnjXcvAKWPwi9il
-         SvEDZBfRH3MDrkTf48Bf2nggsg3gP/y/oPhJEGETCbkfaJsnQ3IfrsQFXrWpER+iGElY
-         3oeNXb4CXseA1mz1ArTCsF80zGHXtuXLcfjCOQkdQ0GHdw+neJmpy4EVY7twTyunb4n4
-         2vbojrtoWfuiXuq/J9cFkTn6qqGqKkbnceGjO/N/7Dteu/KhLrqBu/O/yH5Kct7IC1z1
-         Loyw==
+        bh=W8ajPa61qLbRbu2px572/0QmwG9CerOEFMibBPl4Dkg=;
+        b=uFFOqLjYbxtxCdGUrDysJLaT4598O5TrWxQMOBgKxYgAxlnLoAr+qyOieQ6xWhuZZu
+         Pvcmo8biv0U7+AU8vLHPbaRW3pOT2nSC+MGYEEJDDsFNJheGojve2UDbofH00Dk/Isjt
+         5CvyLLUwqX+/W/vLCMl7+2GMpZAHX0gvNzh6NVZi0K0GXQDG9mT4mCvh4oCzCJ6A+m4K
+         sO3JDCyBpx2TXizrTv/mCfIKlsQTbxO/zq1XTXHJGbiFU3p4HPStcGzOVxLS3BqE3AMP
+         NFUeW1MUPNewyGpiyRAJFiroT9sQeV+KloWr07DT8v3ECcxpCiwXZGvJ3YK6F2WoEwH5
+         2TjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794217479; x=1794822279;
+        d=1e100.net; s=20260707; t=1794217481; x=1794822281;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Q+2ohc4Lxz21adQFaiVr9N7OyfmDicOr8rZAg8df0IE=;
-        b=Di29xrkN58siVn46IpQ1vfV86n5BsNMV/SGUBF4BCRRHG6ClMPomFvnlGZobCw6qBA
-         tVBARFxdCkSd/cAag6tFHK9ur8+16Z1Fr6NqigzCxqJGEfJNPW/ZowlnqfcxqEGRk5ma
-         pkgtCudlJ6uHrGdWjSddpfu80PXUV/WsBpSG+etd7Ps8TYRlf4Ovx6/xVCQtTvxEktwh
-         VbWGtghX/Sb0lhcwlbShjftxIsMUJ+ZCtcDwpMR0DffXXf1V2A5cH1kHTqLaSbX59uW3
-         zoGM2od0wsS+pRyfsbRhlECEcfDH7Bt9AWx7MCNDLc34b8sMm67UFhK2leLUYa/vlU+h
-         bsCQ==
-X-Forwarded-Encrypted: i=1; AL+hErFKeNlFLgcH+uJhXzajc2IW17WAGt/7tVt44xTVuCaLS3N6AY6MprZNBOa2vAdrEsiP8NB9R9QEm9r+1w==@vger.kernel.org
-X-Gm-Message-State: APuU4Z85oyHWJEIJzsa6zmsBOdK2mSAidxbqOcWvUHi8he3k15NxusXh
-	BhzKnRUI4WC0HpxKUZI8lalTSULBtgmR14pQbelmp1/ibU899kpZrAP2
-X-Gm-Gg: AYBFou2qpKydoRX2g9OSaNVelA5RrfNPIFUoKHELLV8bU1+TfzXf8k22hp94biZzRC4
-	idhczugikSgu2w/xv5NEY7XmHYY/TJDHOUoHP82F1ZXhEAIUINVBeDSZH+LkpeKkdmPriKDsLh0
-	vUbQCEtLcGgZ2869IKuD/5TnOQ9o61Vx6Qkn/tYLJps7Q5vcQdo4/0DXOylXzXC1uuQ78J/Qc21
-	I3MAXgOfRQzgMFF6BpdooGE8TdT5aHgVxZgJq+jG8Z5IpGjGCbc71f4MRe977Xp+JwFoVJQEXsB
-	CmPck6BYdfs3BNawqhVND1tHQMmSWwd18GmREjCcTHvBle8oj0XAkfRIDPIBqWzmPmNNjLq5zlm
-	wyDdmzjm1BvRRer56Uq4hviPN1pZpusnht1COOoAowwhA8WdBDkspmgYYgVvXidQG8AoNF1NJea
-	WK7FIgT8y6PR17KDirCKmQR8pGVVqsbSANTCe6u+MzjOe2fG3VNLwBNja9sc5cAPhIIufOXb68L
-	XP1qEe+fMa0yuAgDlbwg5OOXLloYZ8KhQEC9ZIi86UuUcLTMTem52thQQWqKOxZLuJSOKgtF8X2
-	1G1K1zevDp6YYNG3K6gK/y4AmYQ2IgEGRndgzqvzdcQSPeM3nUU0uEXd
-X-Received: by 2002:a17:907:9490:b0:c4d:31ad:9de9 with SMTP id a640c23a62f3a-c4d6dd9c233mr316727566b.42.1794217478739;
-        Mon, 09 Nov 2026 01:44:38 -0800 (PST)
+        bh=W8ajPa61qLbRbu2px572/0QmwG9CerOEFMibBPl4Dkg=;
+        b=ksxeZeRL+2Jl1QqYAG7nM1Sesp4yHOVZt0LEe1dCOukW5Q6aEnDmGdFlfvaDiNn7St
+         hSHFcZhFQA7xR5CqCZ9n/zUegS78THGorD6jIwq7Zz+YxrtfSQpL/2Ib7ZjDznJDQ3Sy
+         t2Mig7GFzaXXUAeiUQiV8lErc6Q08kgdYSnJam21z1niZ96L9s+Cpjy3z3DUjZRAUfL/
+         ooqjXjyvKq8sjpXRG6sAfuEHNXz4eoAAVUYVNRWhAMAp4DJ9vuYoLANEeLLIghcMv42k
+         p0JVRS3bznSLrf3vAoGfp17flb5Dp6Ua8HTvSsr170UV056odZ4JyhHo59j4t4ftvRzG
+         F06g==
+X-Forwarded-Encrypted: i=1; AL+hErGcjU5nL6lbwUvFZLVCjEwWApX2+QiiUfl5u4sIgAAUxOJdhRkLPfLxW55nsCD+EXqvISga6d2ISg1/eA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+Vw2gKrWDOK5ohBl0cC49iIov8PRjA8VlAqrstYV2lMp2zV25z
+	hNX2XOUYx49/sbLmTpTqbtKvbYSuTiFHeF4WZBAuUpstK7FPyZJeJnR3
+X-Gm-Gg: AYBFou2bYTbWMpB3c2miWoGlldxCsCbo/D7aqPJYFcYAtbEfZBmj4QNAwwwmUEtoaE/
+	x5tVfdAzWW+D6Lro8TeqfdjRuZNNCIOM68VfCnqknNeCy9g0nginiYRFKObsJHziNuaeuRsZ5JV
+	PuPIPOK30l8XqYS+FKN8F1R5X1TQtZlj0FQxNNl6+B4xGBhL42OvMrc8Oybhs+aSo80BmneIW2m
+	zUx5OZZ2BXNgbX4CLigtQKwuZuWHsBGWLCOXZUR6uTzdDUcF/PQ/SV+D6d8jn0FEzWwZVrt7cqj
+	2ME6Oj4ArU0171lBKyfGyBVNtfZ3h2MeE+qms7kky5DCSvDmfW1eTJRaXdK1frhoPhNb7erjFd7
+	Sbm4m2o56Fp3ee/78y7k1JmAPFfuc1h3b6sYl0DP5qW13wQPn7StpAIH4V2CwAiYzA0vD6zfA9j
+	htpnqUciAXeJlAJrjqTKlKEspzR2d0zEjsrszfiyKWBo5WoNOnBhE49yeU79AYFpt93lMjKAryB
+	s6h1ggmAeaCWRxZZcMbT2/DdTI55Bgw3WvAWJmyl/bJHzGNhwfwGwmjWx7DPXAEbceZZNG4GSYn
+	juIg4HSrp9UL4xb6GT3s7EiEiGln3Y/yziOAgP0vBK6PRV9z+8vNxgfd
+X-Received: by 2002:a17:907:160e:b0:c3e:4f41:e2a6 with SMTP id a640c23a62f3a-c4d6d161e93mr224560466b.6.1794217480921;
+        Mon, 09 Nov 2026 01:44:40 -0800 (PST)
 Received: from torstein-desktop.internal ([2a01:799:3a1:9700:6e3a:d704:53e2:f00e])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c4d6a4753aasm137786866b.45.2026.11.09.01.44.37
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c4d6a4753aasm137786866b.45.2026.11.09.01.44.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 01:44:38 -0800 (PST)
+        Mon, 09 Nov 2026 01:44:40 -0800 (PST)
 Sender: Torstein Eide <torsteine@gmail.com>
 From: Torstein Eide <torsteine+linux@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -87,9 +87,9 @@ Cc: Hans de Goede <hansg@kernel.org>,
 	Maoyi Xie <maoyixie.tju@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] HID: lg-g15: add LCD contrast LED
-Date: Mon,  9 Nov 2026 10:44:23 +0100
-Message-ID: <20261109094426.1432465-2-torsteine+linux@gmail.com>
+Subject: [PATCH 3/4] HID: lg-g15: report Super-key-lock state on G15 v2's keyboard interface
+Date: Mon,  9 Nov 2026 10:44:25 +0100
+Message-ID: <20261109094426.1432465-4-torsteine+linux@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261109094426.1432465-1-torsteine+linux@gmail.com>
 References: <20261109094426.1432465-1-torsteine+linux@gmail.com>
@@ -104,177 +104,311 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Wire values ({2, 32, 129, value}) match libg15's setLCDContrast()
-byte-for-byte.
+The G15 v2 exposes a second USB HID interface (046D:C226) previously
+left to hid-generic, which reports the Super-key-lock ("Game Mode")
+state on report 3. Bind it as LG_G15_V2_KBD: keep default hid-input
+behavior for normal typing, and additionally decode report 3 to expose
+the lock state as a read-only g15::game_mode LED.
 
 Tested on Logitech G15v2.
 
-Based on libg15.c.
-
 Signed-off-by: Torstein Eide <torsteine+linux@gmail.com>
-Based-on-work-by: Philip Lawatsch <philip@lawatsch.at>
-Based-on-work-by: Alex Ibrado <alex@ibrado.org>
-Based-on-work-by: Anthony J. Mirabella <mirabeaj@gmail.com>
-Based-on-work-by: Mike Lampard <mlampard@users.sourceforge.net>
 Assisted-by: Claude:claude-sonnet-5
 ---
- drivers/hid/hid-lg-g15.c | 101 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 99 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ids.h    |   1 +
+ drivers/hid/hid-lg-g15.c | 192 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 189 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa6516d..44ebf2a0accc 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -950,6 +950,7 @@
+ #define USB_DEVICE_ID_LOGITECH_G13		0xc21c
+ #define USB_DEVICE_ID_LOGITECH_G15_LCD		0xc222
+ #define USB_DEVICE_ID_LOGITECH_G11		0xc225
++#define USB_DEVICE_ID_LOGITECH_G15_V2_KBD	0xc226
+ #define USB_DEVICE_ID_LOGITECH_G15_V2_LCD	0xc227
+ #define USB_DEVICE_ID_LOGITECH_G510		0xc22d
+ #define USB_DEVICE_ID_LOGITECH_G510_USB_AUDIO	0xc22e
 diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-index 02ef3e2094b4..50abe6c58b10 100644
+index 35d183787383..592c9747738e 100644
 --- a/drivers/hid/hid-lg-g15.c
 +++ b/drivers/hid/hid-lg-g15.c
-@@ -59,7 +59,16 @@ enum lg_g15_led_type {
- 	LG_G15_MACRO_PRESET2,
- 	LG_G15_MACRO_PRESET3,
- 	LG_G15_MACRO_RECORD,
--	LG_G15_LED_MAX
-+	LG_G15_LED_MAX,
-+	/*
-+	 * LCD contrast uses a different feature-report sub-format than the
-+	 * brightness/macro fields above (see lg_g15_contrast_set()) and has
-+	 * no hardware readback, so it lives outside [0, LG_G15_LED_MAX) to
-+	 * avoid being swept into the G13/macro loops bounded by
-+	 * LG_G15_LED_MAX. G15/G15 v2 only; registered explicitly.
-+	 */
-+	LG_G15_LCD_CONTRAST = LG_G15_LED_MAX,
-+	LG_G15_LED_ARRAY_SIZE
+@@ -63,7 +63,8 @@
+ enum lg_g15_model {
+ 	LG_G13,
+ 	LG_G15,
+-	LG_G15_V2,
++	LG_G15_V2,	/* 046D:C227, GamePanel LCD iface */
++	LG_G15_V2_KBD,	/* 046D:C226, keyboard/consumer-ctrl iface, not the LCD */
+ 	LG_G510,
+ 	LG_G510_USB_AUDIO,
+ 	LG_Z10,
+@@ -134,6 +135,17 @@ struct lg_g15_data {
+ 	bool lcd_contrast_set;		/* LCD contrast written at least once */
  };
- 
- struct g13_input_report {
-@@ -89,9 +98,10 @@ struct lg_g15_data {
- 	struct input_dev *input_js; /* Separate joystick device for G13. */
- 	struct hid_device *hdev;
- 	enum lg_g15_model model;
--	struct lg_g15_led leds[LG_G15_LED_MAX];
-+	struct lg_g15_led leds[LG_G15_LED_ARRAY_SIZE];
- 	bool game_mode_enabled;
- 	bool backlight_disabled;	/* true == HW backlight toggled *OFF* */
-+	bool lcd_contrast_set;		/* LCD contrast written at least once */
- };
- 
- /********* G13 LED functions ***********/
-@@ -365,6 +375,57 @@ static int lg_g15_led_set(struct led_classdev *led_cdev,
- 	return ret;
- }
  
 +/*
-+ * LCD contrast, report 2 field 32: {2, 32, 129, value}, value in
-+ * {18, 22, 26} for low/medium/high. Distinct sub-format from the
-+ * brightness/macro fields (value sits in byte 3, not byte 2, and byte 2 is
-+ * a fixed marker rather than the field selector) and has no GET_REPORT
-+ * readback, so brightness_get just returns the last value we set.
++ * State for the G15 v2's separate keyboard + consumer-control USB device
++ * (046D:C226). Unlike lg_g15_data above, this is not the GamePanel LCD
++ * interface: it carries normal typing (left to generic hid-input) plus one
++ * extra report we care about, so it only needs a small amount of state.
 + */
-+static int lg_g15_contrast_set(struct led_classdev *led_cdev,
-+			       enum led_brightness brightness)
++struct lg_g15_kbd_data {
++	struct led_classdev led;	/* g15::game_mode, read-only */
++	bool super_lock;		/* Cached HW state of the Super/Windows-key lock */
++};
++
+ /********* G13 LED functions ***********/
+ /*
+  * G13 retains no state across power cycles, and always powers up with the backlight on,
+@@ -717,6 +729,8 @@ static int lg_g15_get_initial_led_brightness(struct lg_g15_data *g15)
+ 		 * the LCD and touch keys part of the speakers.
+ 		 */
+ 		return 0;
++	case LG_G15_V2_KBD:
++		break; /* Never reached, this model has no lg_g15_data */
+ 	}
+ 	return -EINVAL; /* Never reached */
+ }
+@@ -981,11 +995,138 @@ static int lg_g510_leds_event(struct lg_g15_data *g15, u8 *data)
+ 	return 0;
+ }
+ 
++/********* G15 v2 keyboard interface functions *********/
++
++/* Report 3, byte 1 bit 0: Super/Windows key lock state ("Game Mode") */
++#define LG_G15_V2_KBD_GAME_MODE_REPORT	0x03
++
++/*
++ * The G15 v2's keyboard device uses struct lg_g15_kbd_data as drvdata, not
++ * struct lg_g15_data. This is the one check used by every entry point to
++ * tell the two apart.
++ */
++static bool lg_g15_is_v2_kbd(struct hid_device *hdev)
 +{
-+	struct lg_g15_led *g15_led =
-+		container_of(led_cdev, struct lg_g15_led, cdev);
-+	struct lg_g15_data *g15 = dev_get_drvdata(led_cdev->dev->parent);
-+	static const u8 contrast_values[] = { 18, 22, 26 };
++	return hdev->vendor == USB_VENDOR_ID_LOGITECH &&
++	       hdev->product == USB_DEVICE_ID_LOGITECH_G15_V2_KBD;
++}
++
++static enum led_brightness lg_g15_v2_kbd_super_lock_get(struct led_classdev *led_cdev)
++{
++	struct lg_g15_kbd_data *kbd = container_of(led_cdev, struct lg_g15_kbd_data, led);
++
++	return kbd->super_lock;
++}
++
++static void lg_g15_v2_kbd_set_super_lock(struct lg_g15_kbd_data *kbd, bool super_lock)
++{
++	if (super_lock == kbd->super_lock)
++		return;
++
++	kbd->super_lock = super_lock;
++	led_classdev_notify_brightness_hw_changed(&kbd->led, super_lock);
++}
++
++/* Fetches the current lock state, which may already be on at probe/resume. */
++static void lg_g15_v2_kbd_read_super_lock(struct hid_device *hdev,
++					  struct lg_g15_kbd_data *kbd)
++{
++	u8 *buf;
 +	int ret;
 +
-+	if (led_cdev->flags & LED_UNREGISTERING)
-+		return 0;
++	buf = kzalloc(2, GFP_KERNEL); /* DMA-able, not on the stack */
++	if (!buf)
++		return;
 +
-+	mutex_lock(&g15->mutex);
++	ret = hid_hw_raw_request(hdev, LG_G15_V2_KBD_GAME_MODE_REPORT, buf, 2,
++				 HID_INPUT_REPORT, HID_REQ_GET_REPORT);
++	if (ret == 2 && buf[0] == LG_G15_V2_KBD_GAME_MODE_REPORT)
++		lg_g15_v2_kbd_set_super_lock(kbd, buf[1] & 0x01);
++	else
++		hid_dbg(hdev, "Error reading Super-key-lock state: %d\n", ret);
 +
-+	g15->transfer_buf[0] = LG_G15_FEATURE_REPORT;
-+	g15->transfer_buf[1] = 32;
-+	g15->transfer_buf[2] = 129;
-+	g15->transfer_buf[3] = contrast_values[brightness];
-+
-+	ret = hid_hw_raw_request(g15->hdev, LG_G15_FEATURE_REPORT,
-+				 g15->transfer_buf, 4,
-+				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+	if (ret == 4) {
-+		g15_led->brightness = brightness;
-+		g15->lcd_contrast_set = true;
-+		ret = 0;
-+	} else {
-+		hid_err(g15->hdev, "Error setting LCD contrast: %d\n", ret);
-+		ret = (ret < 0) ? ret : -EIO;
-+	}
-+
-+	mutex_unlock(&g15->mutex);
-+
-+	return ret;
++	kfree(buf);
 +}
 +
-+static enum led_brightness lg_g15_contrast_get(struct led_classdev *led_cdev)
++/* Decodes report 3 and mirrors the Super-key-lock bit into the game_mode LED. */
++static int lg_g15_v2_kbd_raw_event(struct hid_device *hdev, u8 *data, int size)
 +{
-+	struct lg_g15_led *g15_led =
-+		container_of(led_cdev, struct lg_g15_led, cdev);
++	struct lg_g15_kbd_data *kbd = hid_get_drvdata(hdev);
 +
-+	return g15_led->brightness;
-+}
++	if (!kbd || data[0] != LG_G15_V2_KBD_GAME_MODE_REPORT || size != 2)
++		return 0; /* Not our report, or the non-consumer-control interface */
 +
- static void lg_g15_leds_changed_work(struct work_struct *work)
- {
- 	struct lg_g15_data *g15 = container_of(work, struct lg_g15_data, work);
-@@ -1017,6 +1078,13 @@ static int lg_g15_register_led(struct lg_g15_data *g15, int i, const char *name)
- 		break;
- 	case LG_G15:
- 	case LG_G15_V2:
-+		if (i == LG_G15_LCD_CONTRAST) {
-+			g15->leds[i].cdev.brightness_set_blocking = lg_g15_contrast_set;
-+			g15->leds[i].cdev.brightness_get = lg_g15_contrast_get;
-+			g15->leds[i].cdev.max_brightness = 2;
-+			ret = devm_led_classdev_register(&g15->hdev->dev, &g15->leds[i].cdev);
-+			break;
-+		}
- 		g15->leds[i].cdev.brightness_get = lg_g15_led_get;
- 		fallthrough;
- 	case LG_Z10:
-@@ -1333,6 +1401,14 @@ static int lg_g15_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			goto error_hw_stop;
- 	}
- 
-+	/* The G11 shares the LG_G15 model but has no LCD */
-+	if ((g15->model == LG_G15 && hdev->product != USB_DEVICE_ID_LOGITECH_G11) ||
-+	    g15->model == LG_G15_V2) {
-+		ret = lg_g15_register_led(g15, LG_G15_LCD_CONTRAST, "g15::lcd_contrast");
-+		if (ret)
-+			goto error_hw_stop;
-+	}
-+
- 	return 0;
- 
- error_hw_stop:
-@@ -1389,12 +1465,33 @@ static void lg_g15_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- }
- 
-+/*
-+ * The LCD does not retain its contrast across a USB reset or power loss;
-+ * re-apply the last value userspace set, if any.
-+ */
-+static int lg_g15_resume(struct hid_device *hdev)
-+{
-+	struct lg_g15_data *g15 = hid_get_drvdata(hdev);
-+	struct lg_g15_led *contrast;
-+
-+	if (!g15)
-+		return 0;
-+
-+	contrast = &g15->leds[LG_G15_LCD_CONTRAST];
-+	if (contrast->cdev.dev && g15->lcd_contrast_set)
-+		lg_g15_contrast_set(&contrast->cdev, contrast->brightness);
++	lg_g15_v2_kbd_set_super_lock(kbd, data[1] & 0x01);
 +
 +	return 0;
 +}
 +
- static struct hid_driver lg_g15_driver = {
- 	.name			= "lg-g15",
- 	.id_table		= lg_g15_devices,
- 	.raw_event		= lg_g15_raw_event,
- 	.probe			= lg_g15_probe,
- 	.remove			= lg_g15_remove,
-+	.resume			= lg_g15_resume,
-+	.reset_resume		= lg_g15_resume,
- };
- module_hid_driver(lg_g15_driver);
++/*
++ * The G15 v2's keyboard USB device exposes two HID interfaces of its own
++ * (boot keyboard + consumer control); both match this same USB product ID,
++ * so this probe runs once per interface. Only the consumer-control one
++ * carries report 3, so the LED is only registered there; the other gets
++ * plain generic hid-input and nothing else, same as if hid-generic had
++ * bound it.
++ */
++static int lg_g15_v2_kbd_probe(struct hid_device *hdev)
++{
++	struct hid_report_enum *rep_enum;
++	struct hid_report *rep;
++	bool has_game_mode_report = false;
++	struct lg_g15_kbd_data *kbd;
++	int ret;
++
++	ret = hid_parse(hdev);
++	if (ret)
++		return ret;
++
++	rep_enum = &hdev->report_enum[HID_INPUT_REPORT];
++	list_for_each_entry(rep, &rep_enum->report_list, list) {
++		if (rep->id == LG_G15_V2_KBD_GAME_MODE_REPORT)
++			has_game_mode_report = true; /* This is the consumer-control interface */
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT); /* Plain generic keyboard input */
++	if (ret)
++		return ret;
++
++	if (!has_game_mode_report)
++		return 0; /* Boot-keyboard interface, nothing more to do */
++
++	kbd = devm_kzalloc(&hdev->dev, sizeof(*kbd), GFP_KERNEL);
++	if (!kbd)
++		return 0; /* Non-fatal, keyboard input still works without the LED */
++
++	kbd->led.name = "g15::game_mode";
++	kbd->led.max_brightness = 1;
++	kbd->led.brightness_get = lg_g15_v2_kbd_super_lock_get;
++	kbd->led.flags = LED_BRIGHT_HW_CHANGED; /* Enables the hw_changed notify below */
++
++	ret = devm_led_classdev_register(&hdev->dev, &kbd->led);
++	if (ret)
++		return 0; /* Non-fatal, keyboard input still works without the LED */
++
++	/*
++	 * Only set drvdata once the LED is registered: raw_event may run as
++	 * soon as hid_hw_start() returns, and notifying a brightness change
++	 * on an unregistered LED triggers a WARN.
++	 */
++	hid_set_drvdata(hdev, kbd);
++	lg_g15_v2_kbd_read_super_lock(hdev, kbd);
++
++	return 0;
++}
++
+ static int lg_g15_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			    u8 *data, int size)
+ {
+-	struct lg_g15_data *g15 = hid_get_drvdata(hdev);
++	struct lg_g15_data *g15;
++
++	if (lg_g15_is_v2_kbd(hdev)) /* Separate kbd/consumer-ctrl dev */
++		return lg_g15_v2_kbd_raw_event(hdev, data, size);
+ 
++	g15 = hid_get_drvdata(hdev);
+ 	if (!g15)
+ 		return 0;
+ 
+@@ -1015,6 +1156,8 @@ static int lg_g15_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		if (data[0] == LG_G510_INPUT_KBD_BACKLIGHT && size == 2)
+ 			return lg_g510_leds_event(g15, data);
+ 		break;
++	case LG_G15_V2_KBD:
++		break; /* Never reached, handled via lg_g15_is_v2_kbd() above */
+ 	}
+ 
+ 	return 0;
+@@ -1417,6 +1560,9 @@ static int lg_g15_register_led(struct lg_g15_data *g15, int i, const char *name)
+ 			ret = devm_led_classdev_register(&g15->hdev->dev, &g15->leds[i].cdev);
+ 		}
+ 		break;
++	case LG_G15_V2_KBD:
++		ret = -EINVAL; /* Never reached, this model has no lg_g15_data LEDs */
++		break;
+ 	}
+ 
+ 	return ret;
+@@ -1492,6 +1638,12 @@ static int lg_g15_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct hid_report *rep;
+ 	int ret, i, gkeys = 0;
+ 
++	if (lg_g15_is_v2_kbd(hdev)) /* Not the GamePanel LCD interface */
++		return lg_g15_v2_kbd_probe(hdev);
++
++	if (id->driver_data == LG_G15_V2_KBD) /* e.g. a mismatching new_id */
++		return -ENODEV;
++
+ 	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
+ 
+ 	ret = hid_parse(hdev);
+@@ -1574,6 +1726,8 @@ static int lg_g15_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	case LG_Z10:
+ 		connect_mask = HID_CONNECT_HIDRAW;
+ 		break;
++	case LG_G15_V2_KBD:
++		break; /* Never reached, rejected above */
+ 	}
+ 
+ 	ret = hid_hw_start(hdev, connect_mask);
+@@ -1732,6 +1886,16 @@ static const struct hid_device_id lg_g15_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 			 USB_DEVICE_ID_LOGITECH_G15_V2_LCD),
+ 		.driver_data = LG_G15_V2 },
++	/*
++	 * The G15 v2's keyboard + consumer-control USB device (a separate
++	 * device from the GamePanel LCD one above, on the keyboard's builtin
++	 * hub). Normal typing is handled by generic hid-input; we only bind
++	 * this to also expose the Super/Windows-key-lock ("Game Mode") state,
++	 * see lg_g15_v2_kbd_probe().
++	 */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++			 USB_DEVICE_ID_LOGITECH_G15_V2_KBD),
++		.driver_data = LG_G15_V2_KBD },
+ 	/* G510 without a headset plugged in */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 			 USB_DEVICE_ID_LOGITECH_G510),
+@@ -1750,7 +1914,18 @@ MODULE_DEVICE_TABLE(hid, lg_g15_devices);
+ 
+ static void lg_g15_remove(struct hid_device *hdev)
+ {
+-	struct lg_g15_data *g15 = hid_get_drvdata(hdev);
++	struct lg_g15_data *g15;
++
++	/*
++	 * The G15 v2's keyboard device uses struct lg_g15_kbd_data, not
++	 * lg_g15_data below; it has nothing to clean up beyond hid_hw_stop().
++	 */
++	if (lg_g15_is_v2_kbd(hdev)) {
++		hid_hw_stop(hdev);
++		return;
++	}
++
++	g15 = hid_get_drvdata(hdev);
+ 
+ 	/*
+ 	 * g15->work is only initialized for the models that schedule it
+@@ -1772,9 +1947,18 @@ static void lg_g15_remove(struct hid_device *hdev)
+  */
+ static int lg_g15_resume(struct hid_device *hdev)
+ {
+-	struct lg_g15_data *g15 = hid_get_drvdata(hdev);
++	struct lg_g15_data *g15;
+ 	struct lg_g15_led *contrast;
+ 
++	if (lg_g15_is_v2_kbd(hdev)) {
++		struct lg_g15_kbd_data *kbd = hid_get_drvdata(hdev);
++
++		if (kbd)
++			lg_g15_v2_kbd_read_super_lock(hdev, kbd);
++		return 0;
++	}
++
++	g15 = hid_get_drvdata(hdev);
+ 	if (!g15)
+ 		return 0;
  
 -- 
 2.53.0

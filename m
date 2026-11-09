@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209708;
-	b=nny81q2V4RE87SaPz8Y2CHfyKn+PgylrrTaC3WiZHoj3pysaSuE/p3ovaGWIlP/CkdRa
-	 y5/B1g1Q0hnqKsG6Hf9aazWMw+4vZpzDlzxCc9DNMl5I8VoZP08YH8075zFIm/m0HKxWI
-	 DPUM3a0K2XbYDXkpCXSEUuB6tPw1haueZt8F3tTnHY2yxTyJSaVJT0kNZAOnbW5QRnjEI
-	 qaDPeiy6NzgUWRzwpJ1KoO5Kt8pyPK/PpqgweE2c5co+flscvT8N+6Hg+pYNFlYehyU0m
-	 GkAp9jUgybe4YCaKEIUGSXQ0uLVvh7KBqi1HCyYobuBpeQ6kLPUeBRIFOZ91ER/IZkA==
+	t=1794209704;
+	b=j1BKs1Nz5oSF5TGb1FNouIbNtwa/wNMUXHlRujkr9Ki/Vyd4ZQjRdK8CrGVD5fvfs8yV
+	 1/rs6a0Zx0OAoftkMfv3qdEjXFUXojKNudji0q1bc6rAWgvxdUdn2C6c1+lkVKZyx/gKM
+	 39Y71fjt+VUnCvo3nM0TWrWD5CqW7afHbbpRjqfuXnorCZDvFGkelTGmBFRpbIJXldFwi
+	 HZKnT8iUHZsjOeK2g7GgmrEhTIaDd0Op9khvONkr7nPGxgxQOad00+2DkinuhNZftTPRN
+	 iIhddaVZwIFwJQiA3N7Saf4VBoNIBgErHlvHJVfzEhDuJhGiqHhAxhECp32O2YTiHcA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209708;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794209704;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=DZtKR0Wv8zMTDvWoJ2z2DEWNMSs6Ur/CN1uOT099b+M=;
-	b=0rI4QFwF0oPdzTFn5gstbsg9+EryNsZK5jW2tsMKmic87GatYv81VBk9OJSGOz10SceA
-	 zMe9wtUKKhZTk233BejWzdK96iHUNXBh7dl+hsCLAxPi+RRIV9C4rVQcYCgxQuf9aAQpg
-	 TVNug02X11Olts8FAmAkI9EGEkVyFjQ/SUwcSJwS0J2liitGYTgWDJbR3VhL3ANUSu86z
-	 Szlrks6edraXJD8ENBn9rRofEHT321AHEtdywkYqRXdK687O4fhzX+MZ6JRlpbbpcmn3n
-	 /n/2USLGCGZ0VZFDzTqIhe5tEq/pnQf8G1zZEp2/ltWhy2ML7JC8mS8X5LMbEigGWFA==
+	bh=WD1tmy3UgSAJW1MhiWtCAh8waBml5qRpMehZ0KPIV5o=;
+	b=GaU4x59ieU8BQH5PrfiHBJ64yN8U992r1mTS9StHwazfdWI2L9AIqpL1x4xDAU/CiLB6
+	 OO7Jpk6mYnQh9pA7vGMiKJ6kfco7jlMqAlkRD/CPcB5Nyqj+RklvPfZfUfxEo59WyUjkf
+	 YFlDjF7VAT+GaGUsGExYznsppgSANJuTRrvcrs1UTQ7vumA9X2p5fdcHx5i6r5/2tyacq
+	 1Wstj0zkLxCx451770HuF1WkoscHiH73iYMPRWJceklhjr+CK3dFlKIUr7edIJrRoXhAd
+	 IiIqIiawAhAjaJ8rHpreJd8q6odUafa0OUk2oI/VltxWMcnabvLtm0NivoAFxnjItZA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T6DURrBG;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=muA1K0Rl;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18533606EE8A;
-	Mon,  9 Nov 2026 07:35:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37312606DF12;
+	Mon,  9 Nov 2026 07:35:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T6DURrBG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17DF1F008A6;
-	Mon,  9 Nov 2026 07:35:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=muA1K0Rl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0FFD1F008A1;
+	Mon,  9 Nov 2026 07:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794209707;
-	bh=DZtKR0Wv8zMTDvWoJ2z2DEWNMSs6Ur/CN1uOT099b+M=;
+	s=k20260515; t=1794209703;
+	bh=WD1tmy3UgSAJW1MhiWtCAh8waBml5qRpMehZ0KPIV5o=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=T6DURrBG+MN8GMfv9l0spIDn6NwKCeSVECaLawUjqS8wATGpe34zoJAT16jCZo9BC
-	 m4qxBxKAe+uDti9RN+oudmDElJPF+V94Ru4Jp57y6ubvNfLEz25le0uxU7yEvbHU9X
-	 7v0B0GDrLJQwNSsIvXx//ZCmST9gWt0VTcOzB/NzowCRjYiDVryEFFjCMQVkB6tQAN
-	 Iw8vYVWgzO0Uj+mjJ1GoppQaS22AarXfBjIOociL9raeDh0H2e0SxT71R1GUY2uAyy
-	 yioQvMH2iemBYQvfZVEMLQFNcfxuN6rRlNEwjCAKVvadoTWczqqYk5GeQEZR/ForQS
-	 eazsIRD5TaPbQ==
+	b=muA1K0Rl1hNLH9hZK9zvX6xeVB9XyRBJY11GriElP9glBmQnkZN5y14zXotxNdG+s
+	 3WF2QK2GfShfQc9RfCAIlGvPfD78fdmuJPZ2EglInyzEwrG3IwzDlo36pUMP8mr3F/
+	 ct0xxXSZ0P1Lo6/IYgc7q0Y61EUSZaynOq6yAIiB+A1SGcLqT0BHCCd0hYPnLg6Gac
+	 at1+kY5dN418B1oOecRDovYXpBeB5tMJuWjbjXrvOLyaVj+Hky5/m0/2M57KCYLkEr
+	 puz/mmIbl6nKpK4/kytq5cSHUucHQBOhy0/3eAHFWt6Z0rIy237Ph446nkYhaRbo95
+	 RtZPvyzY5dGkw==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -82,9 +82,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-pci@vger.kernel.org,
 	iommu@lists.linux.dev,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v2 17/19] driver core: Document trust admission and initrd authorization
-Date: Mon,  9 Nov 2026 09:33:47 +0200
-Message-ID: <20261109-device-trust-core-v2-17-3b12d9a9f861@nvidia.com>
+Subject: [PATCH v2 19/19] USB: Authorize devices and interfaces through device trust
+Date: Mon,  9 Nov 2026 09:33:49 +0200
+Message-ID: <20261109-device-trust-core-v2-19-3b12d9a9f861@nvidia.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
@@ -103,328 +103,393 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-Policy agents and bus drivers need a shared definition of authorization,
-commitment and active trust across boot and device lifetime.
+USB authorization is a second gate next to device trust. An unauthorized
+device still binds the generic driver, so trust admission never sees it,
+and boot policy cannot authorize USB devices or interfaces.
 
-Document the admission state machine and disabled-to-authorized initrd
-sequence, including built-in probes and pending work. Explain DMA domain
-preparation, binding restrictions, device replacement and current userspace
-integration requirements. Distinguish attestation and containment from the
-permission to bind a functional driver.
+Make the authorized_default and interface_authorized_default settings the
+initial trust policy, so held devices and interfaces start disabled and do
+not bind. Writing 1 to authorized requests full trust; for a device it
+also binds the generic driver, which configures it. Writing 0 still stops
+it and leaves the committed trust level in place.
 
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- .../driver-api/driver-model/device-trust.rst       | 289 +++++++++++++++++++++
- Documentation/driver-api/driver-model/index.rst    |   1 +
- 2 files changed, 290 insertions(+)
+ Documentation/ABI/testing/sysfs-bus-usb | 11 +++++++++++
+ Documentation/usb/authorization.rst     | 20 ++++++++++++++++++++
+ drivers/usb/core/driver.c               | 10 +++-------
+ drivers/usb/core/generic.c              |  2 +-
+ drivers/usb/core/hub.c                  | 17 ++++++++++++++++-
+ drivers/usb/core/message.c              | 24 +++++++++++++++++++-----
+ drivers/usb/core/sysfs.c                |  9 ++++++---
+ drivers/usb/core/trace.h                |  2 +-
+ drivers/usb/core/usb.c                  |  5 ++++-
+ drivers/usb/core/usb.h                  |  2 +-
+ include/linux/usb.h                     | 29 ++++++++++++++++++++++-------
+ 11 files changed, 104 insertions(+), 27 deletions(-)
 
-diff --git a/Documentation/driver-api/driver-model/device-trust.rst b/Documentation/driver-api/driver-model/device-trust.rst
-new file mode 100644
-index 0000000000000..e23423b7153a9
---- /dev/null
-+++ b/Documentation/driver-api/driver-model/device-trust.rst
-@@ -0,0 +1,289 @@
-+.. SPDX-License-Identifier: GPL-2.0
+diff --git a/Documentation/ABI/testing/sysfs-bus-usb b/Documentation/ABI/testing/sysfs-bus-usb
+index 5213117fd957e..ca66b6a10c054 100644
+--- a/Documentation/ABI/testing/sysfs-bus-usb
++++ b/Documentation/ABI/testing/sysfs-bus-usb
+@@ -12,6 +12,11 @@ Description:
+ 
+ 		A deauthorized interface cannot be probed or claimed.
+ 
++		An interface that is not authorized by default starts with
++		the "disabled" trust policy (see sysfs-devices-trust).
++		Writing 1 then requests the "full" policy. Deauthorizing
++		does not change the committed trust level.
 +
-+============
+ What:		/sys/bus/usb/devices/usbX/interface_authorized_default
+ Date:		August 2015
+ Description:
+@@ -28,6 +33,12 @@ Description:
+ 		drivers, non-authorized one are not.  By default, wired
+ 		USB devices are authorized.
+ 
++		A device that is not authorized by default starts with the
++		"disabled" trust policy (see sysfs-devices-trust). Writing 1
++		requests the "full" policy if the policy is disabled, then
++		binds and configures the device. Writing 0 deconfigures the
++		device without changing its committed trust level.
++
+ What:		/sys/bus/usb/drivers/.../new_id
+ Date:		October 2011
+ Contact:	linux-usb@vger.kernel.org
+diff --git a/Documentation/usb/authorization.rst b/Documentation/usb/authorization.rst
+index 150a14970e951..2e07831876fed 100644
+--- a/Documentation/usb/authorization.rst
++++ b/Documentation/usb/authorization.rst
+@@ -92,6 +92,22 @@ can fake descriptors and device info. Don't trust that. You are
+ welcome.
+ 
+ 
 +Device trust
-+============
++------------
 +
-+Device trust controls how the kernel uses a device. It does not verify the
-+device's identity or firmware. Driver core tracks the requested policy,
-+permission to bind, and active trust level separately.
++Authorization is expressed through device trust, see
++Documentation/driver-api/driver-model/device-trust.rst. A device that the
++authorized_default setting does not authorize starts with the "disabled"
++trust policy and reads 0 in "authorized". Boot options such as
++``device_trust=usb:1-2=full`` replace this initial policy.
 +
-+Policy and active trust
-+=======================
++Writing 1 to "authorized" for such a device requests the "full" policy and
++binds the device, which configures it. To operate it as an adversary,
++write "adversary" to its "trust_policy" attribute before writing 1. The
++choice is fixed for the life of the device: writing 0 deconfigures it, and
++a later 1 configures it again at the same trust level.
 +
-+The writable ``trust_policy`` attribute accepts ``default``, ``disabled``,
-+``adversary``, or ``full``. The bus may set the initial policy; otherwise it
-+starts as ``default``. Boot options can override it for all devices, a
-+named driver, or an individual device. See `Boot policy`_ for precedence.
 +
-+The read-only ``trust`` attribute reports the active trust level:
+ Interface authorization
+ -----------------------
+ 
+@@ -120,6 +136,10 @@ Deny interfaces per default::
+ Per default the interface_authorized_default bit is 1.
+ So all interfaces would authorized per default.
+ 
++As with devices, an interface that is not authorized by default starts
++with the "disabled" trust policy, and writing 1 to its "authorized"
++attribute requests the "full" policy.
 +
-+``DEVICE_TRUST_DISABLED`` (``disabled``)
-+  There is no active driver setup or binding. The requested policy decides
-+  whether a later bind is allowed.
+ Note:
+   If a deauthorized interface will be authorized so the driver probing must
+   be triggered manually by writing INTERFACE to /sys/bus/usb/drivers_probe
+diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+index 04b77691fbd7d..2ebd05d3855f4 100644
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -334,10 +334,10 @@ static int usb_probe_interface(struct device *dev)
+ 	if (usb_device_is_owned(udev))
+ 		return error;
+ 
+-	if (udev->authorized == 0) {
++	if (!usb_device_authorized(udev)) {
+ 		dev_info(&intf->dev, "Device is not authorized for usage\n");
+ 		return error;
+-	} else if (intf->authorized == 0) {
++	} else if (!usb_interface_authorized(intf)) {
+ 		dev_info(&intf->dev, "Interface %d is not authorized for usage\n",
+ 				intf->altsetting->desc.bInterfaceNumber);
+ 		return error;
+@@ -560,13 +560,9 @@ int usb_driver_claim_interface(struct usb_driver *driver,
+ 		return -EBUSY;
+ 
+ 	/* reject claim if interface is not authorized */
+-	if (!iface->authorized)
++	if (!usb_interface_authorized(iface))
+ 		return -ENODEV;
+ 
+-	if (!device_is_registered(dev) &&
+-	    dev->trust_policy == DEVICE_TRUST_POLICY_DISABLED)
+-		return -EPERM;
+-
+ 	dev->driver = &driver->driver;
+ 	usb_set_intfdata(iface, data);
+ 	iface->needs_binding = 0;
+diff --git a/drivers/usb/core/generic.c b/drivers/usb/core/generic.c
+index a48994e11ef3d..bcfc01eefd09c 100644
+--- a/drivers/usb/core/generic.c
++++ b/drivers/usb/core/generic.c
+@@ -242,7 +242,7 @@ int usb_generic_driver_probe(struct usb_device *udev)
+ 	/* Choose and set the configuration.  This registers the interfaces
+ 	 * with the driver core and lets interface drivers bind to them.
+ 	 */
+-	if (udev->authorized == 0)
++	if (!usb_device_authorized(udev))
+ 		dev_info(&udev->dev, "Device is not authorized for usage\n");
+ 	else {
+ 		c = usb_choose_configuration(udev);
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 199d3f535a891..086b8db36f51a 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -2770,7 +2770,7 @@ int usb_new_device(struct usb_device *udev)
+ int usb_deauthorize_device(struct usb_device *usb_dev)
+ {
+ 	usb_lock_device(usb_dev);
+-	if (usb_dev->authorized == 0)
++	if (!usb_device_authorized(usb_dev))
+ 		goto out_unauthorized;
+ 
+ 	usb_dev->authorized = 0;
+@@ -2786,7 +2786,22 @@ int usb_authorize_device(struct usb_device *usb_dev)
+ {
+ 	int result = 0, c;
+ 
++	/* Authorizing a device that its trust policy holds back admits it */
++	if (device_policy_is_disabled(&usb_dev->dev)) {
++		result = device_trust_set_policy(&usb_dev->dev,
++						 DEVICE_TRUST_POLICY_FULL);
++		if (result)
++			return result;
++	}
 +
-+``DEVICE_TRUST_ADVERSARY`` (``adversary``)
-+  The kernel treats the device as potentially malicious. The bus and DMA
-+  layers must enforce the restrictions needed to operate it.
+ 	usb_lock_device(usb_dev);
++	if (!usb_dev->dev.driver) {
++		/* Binding the generic driver configures the device */
++		usb_dev->authorized = 1;
++		usb_unlock_device(usb_dev);
++		result = device_attach(&usb_dev->dev);
++		return result < 0 ? result : 0;
++	}
+ 	if (usb_dev->authorized == 1)
+ 		goto out_authorized;
+ 
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 2d75b85b2d139..ddede900dace8 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1857,7 +1857,7 @@ void usb_deauthorize_interface(struct usb_interface *intf)
+ 
+ 	device_lock(dev->parent);
+ 
+-	if (intf->authorized) {
++	if (usb_interface_authorized(intf)) {
+ 		device_lock(dev);
+ 		intf->authorized = 0;
+ 		device_unlock(dev);
+@@ -1872,16 +1872,27 @@ void usb_deauthorize_interface(struct usb_interface *intf)
+  * usb_authorize_interface - authorize an USB interface
+  *
+  * @intf: USB interface structure
++ *
++ * Return: 0 on success, or the error of the trust policy request.
+  */
+-void usb_authorize_interface(struct usb_interface *intf)
++int usb_authorize_interface(struct usb_interface *intf)
+ {
+ 	struct device *dev = &intf->dev;
++	int ret;
 +
-+``DEVICE_TRUST_FULL`` (``full``)
-+  The device uses the normal privileges allowed by the bus and DMA policy.
++	/* Authorizing an interface that its trust policy holds back admits it */
++	if (device_policy_is_disabled(dev)) {
++		ret = device_trust_set_policy(dev, DEVICE_TRUST_POLICY_FULL);
++		if (ret)
++			return ret;
++	}
+ 
+ 	if (!intf->authorized) {
+ 		device_lock(dev);
+ 		intf->authorized = 1; /* authorize interface */
+ 		device_unlock(dev);
+ 	}
++	return 0;
+ }
+ 
+ static int usb_if_uevent(const struct device *dev, struct kobj_uevent_env *env)
+@@ -2043,7 +2054,7 @@ EXPORT_SYMBOL_GPL(usb_set_wireless_status);
+  * channels are available independently; and choosing between open
+  * standard device protocols (like CDC) or proprietary ones.
+  *
+- * Note that a non-authorized device (dev->authorized == 0) will only
++ * Note that a non-authorized device (see usb_device_authorized()) will only
+  * be put in unconfigured mode.
+  *
+  * Note that USB has an additional level of device configurability,
+@@ -2068,7 +2079,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
+ 	int n, nintf;
+ 
+-	if (dev->authorized == 0 || configuration == -1)
++	if (!usb_device_authorized(dev) || configuration == -1)
+ 		configuration = 0;
+ 	else {
+ 		for (i = 0; i < dev->descriptor.bNumConfigurations; i++) {
+@@ -2173,7 +2184,10 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 		intfc = cp->intf_cache[i];
+ 		intf->altsetting = intfc->altsetting;
+ 		intf->num_altsetting = intfc->num_altsetting;
+-		intf->authorized = !!HCD_INTF_AUTHORIZED(hcd);
++		/* The authorization default is the interface's initial trust policy */
++		if (!HCD_INTF_AUTHORIZED(hcd))
++			intf->dev.trust_policy = DEVICE_TRUST_POLICY_DISABLED;
++		intf->authorized = 1;
+ 		kref_get(&intfc->ref);
+ 
+ 		alt = usb_altnum_to_altsetting(intf, 0);
+diff --git a/drivers/usb/core/sysfs.c b/drivers/usb/core/sysfs.c
+index d22dc78457d79..189fb917b81ee 100644
+--- a/drivers/usb/core/sysfs.c
++++ b/drivers/usb/core/sysfs.c
+@@ -728,7 +728,7 @@ static ssize_t authorized_show(struct device *dev,
+ 			       struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_device *usb_dev = to_usb_device(dev);
+-	return sysfs_emit(buf, "%u\n", usb_dev->authorized);
++	return sysfs_emit(buf, "%u\n", usb_device_authorized(usb_dev));
+ }
+ 
+ /*
+@@ -1213,7 +1213,7 @@ static ssize_t interface_authorized_show(struct device *dev,
+ {
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 
+-	return sysfs_emit(buf, "%u\n", intf->authorized);
++	return sysfs_emit(buf, "%u\n", usb_interface_authorized(intf));
+ }
+ 
+ /*
+@@ -1225,12 +1225,15 @@ static ssize_t interface_authorized_store(struct device *dev,
+ 	struct usb_interface *intf = to_usb_interface(dev);
+ 	bool val;
+ 	struct kernfs_node *kn;
++	int ret;
+ 
+ 	if (kstrtobool(buf, &val) != 0)
+ 		return -EINVAL;
+ 
+ 	if (val) {
+-		usb_authorize_interface(intf);
++		ret = usb_authorize_interface(intf);
++		if (ret)
++			return ret;
+ 	} else {
+ 		/*
+ 		 * Prevent deadlock if another process is concurrently
+diff --git a/drivers/usb/core/trace.h b/drivers/usb/core/trace.h
+index 903e57dc273af..42f9cfcd8b0f2 100644
+--- a/drivers/usb/core/trace.h
++++ b/drivers/usb/core/trace.h
+@@ -27,7 +27,7 @@ DECLARE_EVENT_CLASS(usb_core_log_usb_device,
+ 		__entry->speed = udev->speed;
+ 		__entry->state = udev->state;
+ 		__entry->bus_mA = udev->bus_mA;
+-		__entry->authorized = udev->authorized;
++		__entry->authorized = usb_device_authorized(udev);
+ 	),
+ 	TP_printk("usb %s speed %s state %s %dmA [%s]",
+ 		__get_str(name),
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 2559a180fdeec..8b427209bcc02 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -747,7 +747,10 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
+ 	dev->active_duration = -jiffies;
+ #endif
+ 
+-	dev->authorized = usb_dev_authorized(dev, usb_hcd);
++	/* The authorization default is the device's initial trust policy */
++	if (!usb_dev_authorized(dev, usb_hcd))
++		dev->dev.trust_policy = DEVICE_TRUST_POLICY_DISABLED;
++	dev->authorized = 1;
+ 	trace_usb_alloc_dev(dev);
+ 	return dev;
+ }
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index 293340a48b6c5..00771270db523 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -34,7 +34,7 @@ extern void usb_disable_device(struct usb_device *dev, int skip_ep0);
+ extern int usb_deauthorize_device(struct usb_device *);
+ extern int usb_authorize_device(struct usb_device *);
+ extern void usb_deauthorize_interface(struct usb_interface *);
+-extern void usb_authorize_interface(struct usb_interface *);
++int usb_authorize_interface(struct usb_interface *intf);
+ extern void usb_detect_quirks(struct usb_device *udev);
+ extern void usb_detect_interface_quirks(struct usb_device *udev);
+ extern void usb_release_quirk_list(void);
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index 825f03b290670..2ead3234b1301 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -204,8 +204,8 @@ enum usb_wireless_status {
+  *	has been deferred.
+  * @needs_binding: flag set when the driver should be re-probed or unbound
+  *	following a reset or suspend operation it doesn't support.
+- * @authorized: This allows to (de)authorize individual interfaces instead
+- *	a whole device in contrast to the device authorization.
++ * @authorized: user space has not deauthorized the interface. Whether it may
++ *	be used also depends on its trust policy, see usb_interface_authorized().
+  * @wireless_status: if the USB device uses a receiver/emitter combo, whether
+  *	the emitter is connected.
+  * @wireless_status_work: Used for scheduling wireless status changes
+@@ -276,6 +276,15 @@ struct usb_interface {
+ 
+ #define to_usb_interface(__dev)	container_of_const(__dev, struct usb_interface, dev)
+ 
++/*
++ * An interface is authorized when its trust policy lets it bind and user space
++ * has not deauthorized it since.
++ */
++static inline bool usb_interface_authorized(const struct usb_interface *intf)
++{
++	return intf->authorized && !device_policy_is_disabled(&intf->dev);
++}
 +
-+Policy resolution
-+=================
+ static inline void *usb_get_intfdata(struct usb_interface *intf)
+ {
+ 	return dev_get_drvdata(&intf->dev);
+@@ -609,11 +618,8 @@ struct usb3_lpm_parameters {
+  * @persist_enabled:  USB_PERSIST enabled for this device
+  * @reset_in_progress: the device is being reset
+  * @have_langid: whether string_langid is valid
+- * @authorized: policy has said we can use it;
+- *	(user space) policy determines if we authorize this device to be
+- *	used or not. By default, wired USB devices are authorized.
+- *	WUSB devices are not, until we authorize them from user space.
+- *	FIXME -- complete doc
++ * @authorized: user space has not deauthorized the device. Whether the device
++ *	may be used also depends on its trust policy, see usb_device_authorized().
+  * @authenticated: Crypto authentication passed
+  * @tunnel_mode: Connection native or tunneled over USB4
+  * @usb4_link: device link to the USB4 host interface
+@@ -747,6 +753,15 @@ struct usb_device {
+ 
+ #define to_usb_device(__dev)	container_of_const(__dev, struct usb_device, dev)
+ 
++/*
++ * A device is authorized when its trust policy lets it bind and user space has
++ * not deauthorized it since.
++ */
++static inline bool usb_device_authorized(const struct usb_device *udev)
++{
++	return udev->authorized && !device_policy_is_disabled(&udev->dev);
++}
 +
-+A bus can implement ``bus_type::trust_resolve`` to choose the active level
-+from the device, candidate driver, and requested policy. For ``default``,
-+it may use topology or firmware information. Other policies must resolve
-+to the matching level or fail.
-+
-+The callback must not enable the device or grant DMA access. Those steps
-+belong in setup callbacks, after resolution and before probe.
-+
-+Without this callback, ``default`` and ``full`` resolve to
-+``DEVICE_TRUST_FULL``, and ``adversary`` to ``DEVICE_TRUST_ADVERSARY``.
-+Explicit ``disabled`` blocks binding. The bus remains responsible for
-+enforcing the chosen level's restrictions.
-+
-+Admission and policy writes
-+===========================
-+
-+Authorization is userspace's choice of adversary or full for a disabled
-+device. Commitment happens when the kernel accepts a policy and operating
-+level, before starting driver setup. Both limit later policy changes.
-+
-+With ``device_trust.default=full``, runtime policy changes are unavailable
-+for every device, including devices with a boot policy exception. Writing
-+a different policy returns ``-EBUSY``. Writing the current policy succeeds
-+without changing state or suppressing a pending driver boot rule. Boot
-+device and driver rules retain their precedence.
-+
-+In other global modes, runtime policy writes follow the internal states
-+below; these are not additional sysfs values.
-+``P`` is the requested policy and ``L`` is the committed operating level.
-+
-+.. list-table:: Admission states
-+   :header-rows: 1
-+   :widths: 25 40 35
-+
-+   * - State
-+     - Meaning
-+     - Policy writes
-+   * - SELECTABLE
-+     - The device has not been authorized or committed.
-+     - Any policy is allowed. Selecting disabled enters WAITING.
-+   * - WAITING
-+     - Policy is disabled - no operating level is committed.
-+     - Choose adversary or full to enter AUTHORIZED(P).
-+   * - AUTHORIZED(P)
-+     - Userspace has chosen adversary or full from WAITING.
-+     - The policy cannot change, even before setup begins.
-+   * - COMMITTED(P, L)
-+     - The kernel has accepted P and L for setup.
-+     - Neither the policy nor the operating level can change.
-+
-+Bus defaults and boot options set the initial state: disabled starts in
-+WAITING; other policies start in SELECTABLE. Driver boot rules apply later,
-+when a matching driver attempts to bind. They may still replace this
-+initial state, including WAITING, unless a per-device boot entry or a
-+successful policy write takes precedence.
-+
-+Userspace cannot move WAITING back to SELECTABLE by writing ``default``.
-+Choosing adversary or full from WAITING locks that policy immediately.
-+
-+After boot initialization, the state transitions are::
-+
-+  SELECTABLE ----select disabled----> WAITING
-+      |                                 |
-+      |                             authorize
-+      |                           adversary/full
-+      |                                 |
-+      |                                 v
-+      |                            AUTHORIZED(P)
-+      |                                 |
-+      +------ permitted resolution -----+
-+                       |
-+                       v
-+                 COMMITTED(P, L)
-+
-+Binding and device lifetime
-+============================
-+
-+A manual bind that reaches WAITING returns ``-EPERM`` before driver or DMA
-+setup. Automatic matching skips the rejected driver and tries the next
-+candidate. Except with ``device_trust.default=full``, repeated rejected
-+attempts leave the policy writable for later authorization.
-+
-+Active trust stays at L through DMA setup, probe, operation, removal, and
-+``bus_type::dma_cleanup``. It returns to disabled only after cleanup ends.
-+
-+The state lasts for the device object's lifetime, including the switch
-+from initrd to the root filesystem. Unbinding and rebinding a registered
-+device does not reset it. A removed device cannot be registered again; a
-+new object starts with bus and boot policy.
-+
-+Manual attachment under global full policy
-+==========================================
-+
-+This compatibility API **must not be used in any new code**. Its
-+full-only restriction prevents devices from using the device trust
-+authorization infrastructure. New code must use ``device_driver_attach()``.
-+
-+``device_driver_attach_full()`` supports manual attachment with the
-+caller's existing subsystem serialization. It requires an explicit
-+``device_trust.default=full`` boot option and a policy that resolves to
-+full. It returns ``-EPERM`` in every other global mode, including when
-+the option is absent or set to ``default``, before calling the driver.
-+
-+Per-device boot exceptions still apply: disabled and adversary reject
-+attachment. If a ``device_trust.driver=`` list is configured, the device
-+must also have an explicit ``device_trust=`` entry; otherwise this API
-+returns ``-EPERM``. That entry prevents a concurrent driver rule from
-+changing the policy.
-+
-+The caller serializes attachment and removal. The API takes neither the
-+device nor parent lock, commits full before the probe callback, and
-+publishes the binding after probe succeeds. It does not perform normal
-+driver-core DMA, pinctrl, or power-domain setup. A failed probe or binding
-+clears active trust but retains the full commitment.
-+
-+Boot policy
-+===========
-+
-+Built-in drivers can probe before userspace starts. Use boot options to
-+set their initial policy. All three options accept default, disabled,
-+adversary, and full.
-+
-+``device_trust.default=`` sets policy for all devices. If omitted or set
-+to default, it preserves bus policy. Other values replace bus policy,
-+including topology and removability defaults. The last valid value wins;
-+invalid values are reported and ignored.
-+
-+``device_trust=`` sets policy for individual devices using a comma-separated
-+list of ``<bus>:<device>=<policy>`` entries. Names must match
-+``/sys/bus/<bus>/devices/<device>`` exactly. The first colon separates the
-+bus name; later colons are part of the device name. Names cannot contain
-+whitespace, control characters, commas, equals signs, or double quotes.
-+Wildcards are not supported.
-+
-+A device entry overrides driver rules, the global setting, and bus policy,
-+regardless of option order. Explicit default asks the bus or generic
-+resolver to choose a level, even if the global setting is disabled. The
-+last entry for a device wins. If the option is repeated, the last valid
-+list replaces all earlier lists. A malformed list is ignored in full,
-+with a warning.
-+
-+``device_trust.driver=`` sets policy by driver name using a comma-separated
-+list of ``<bus>:<driver>=<policy>`` entries. Use exact names from
-+``/sys/bus/<bus>/drivers/<driver>``, not module names or aliases. The name
-+restrictions and list handling are the same as for device entries. The
-+two lists are independent. Driver rules cover built-in drivers, modules,
-+and hotplug.
-+
-+The first bind attempt with a matching driver rule applies it before
-+resolution and setup. It overrides bus and global defaults, including
-+global disabled. It cannot override a per-device entry or an existing
-+authorization or commitment. A successful sysfs policy write also takes
-+precedence, except for a no-op write with ``device_trust.default=full``.
-+The rule applies only once per device object, even if resolution or setup
-+fails.
-+
-+After a disabled driver rule applies, rejected probes and driver changes
-+leave the device in WAITING. Userspace can authorize it unless the global
-+mode is full. Before any rule applies, a driver with no matching rule may
-+still bind through normal attachment. Use global or per-device disabled
-+to block every driver.
-+
-+An initrd can hold devices with ``device_trust.default=disabled`` and use
-+boot exceptions for devices and suppliers needed to reach the initrd and
-+perform attestation. These exceptions allow operation before fresh initrd
-+attestation. Devices without an exception stay disabled even if their bus
-+would normally choose adversary or full.
-+
-+Global and per-device rules apply before device registration. Buses that
-+need policy earlier call ``device_trust_init()`` after setting the bus,
-+name, and initial policy. Driver rules apply later, when a candidate driver
-+is known.
-+
-+All boot rules remain available for newly discovered devices. Initialize
-+boot policy before device registration. These options are not runtime
-+controls or proof of hardware identity.
-+Disabled blocks early binding and, outside global full mode, allows later
-+authorization. Adversary and full permit early binding without fresh
-+initrd attestation.
-+
-+DMA containment
-+===============
-+
-+Disabled blocks driver binding, not DMA that hardware starts on its own.
-+The bus and IOMMU must provide containment while a device waits for
-+authorization.
-+
-+Adversary does not require an IOMMU. Without an IOMMU group, or with IOMMU
-+support compiled out, binding uses the platform's normal DMA configuration.
-+Adversary policy alone does not provide DMA isolation.
-+
-+Binding does not check the IOMMU domain. Neither a driver rule nor a sysfs
-+policy write reconfigures it. If a bus uses trust policy during DMA
-+configuration, select the policy before that configuration takes place.
-+A setup failure after commitment leaves the chosen mode fixed; it cannot
-+fall back to full.
-+
-+Drivers that manage DMA themselves must provide their own containment.
-+Drivers that do not use DMA need no domain.
-+
-+Initrd attestation sequence
-+===========================
-+
-+For a device that uses normal driver attachment:
-+
-+1. Boot with ``device_trust.default=disabled`` to hold all devices, or use
-+   a per-device rule to hold an individual device. Add exceptions needed
-+   to reach the initrd and provide DMA containment while waiting. Disabled
-+   attempts remain in WAITING, including attempts by built-in drivers.
-+2. In the initrd, control probing and attest the current device through a
-+   transport that works without its functional driver. Keep policy disabled
-+   during verification and preparation. Leave it disabled if verification
-+   fails or is unavailable. Removal or replacement invalidates the result;
-+   a reused bus address is not proof of identity. Repeat attestation if a
-+   reset or preparation step invalidates the evidence.
-+3. Once all checks and preparation are complete, write adversary or full
-+   to ``trust_policy``. This locks the choice and allows binding.
-+4. Request binding through ``drivers_probe`` or another attach path. The
-+   kernel commits the operating level before setup. Retries keep the same
-+   policy and level. An attachment deferred before the driver's probe
-+   callback returns ``-EAGAIN``; retry later. A successful write does not
-+   guarantee that a driver bound, so check the device's ``driver`` link.
-+
-+Queued or concurrent probes may start as soon as step 3 completes, before
-+step 4. Evidence must still be valid when authorizing the device.
-+Boot exceptions that permit adversary or full allow early operation
-+without fresh initrd attestation.
-+
-+The kernel interface provides neither an attestation transport nor a verifier.
-+
-+Driver use and independent properties
-+=====================================
-+
-+Drivers read active trust with ``device_get_trust_level()`` or
-+``device_is_adversarial()``. They may cache it while bound, but must not
-+change requested policy or treat trust as proof of other security
-+properties. Use the adversary check for paths that bypass the DMA API.
-+General DMA containment belongs in bus and IOMMU code.
-+
-+Discovery code uses ``device_policy_is_adversarial()`` to check requested
-+policy before binding or after unbind. This helper does not resolve
-+default policy or report active trust.
-+
-+Code that needs the level fixed for the device's lifetime can use
-+``device_get_committed_trust_level()``. It returns disabled before
-+commitment and the fixed level afterwards, including after failed setup
-+or unbind. It does not permit operation while unbound.
-+
-+Trust does not describe transport protection, encryption, verified
-+identity, memory privacy, or DMA addressability. Keep these properties
-+independent of the requested policy and active trust level.
-+
-+Policy writes cannot revoke authorization or switch an operating device
-+between adversary and full. Stopping it requires a separate procedure to
-+quiesce the driver, tear down DMA, and contain the device on its bus.
-diff --git a/Documentation/driver-api/driver-model/index.rst b/Documentation/driver-api/driver-model/index.rst
-index abeb4b36636b6..af547cd13b2c4 100644
---- a/Documentation/driver-api/driver-model/index.rst
-+++ b/Documentation/driver-api/driver-model/index.rst
-@@ -9,6 +9,7 @@ Driver Model
-    bus
-    design-patterns
-    device
-+   device-trust
-    devres
-    driver
-    overview
+ static inline struct usb_device *__intf_to_usbdev(struct usb_interface *intf)
+ {
+ 	return to_usb_device(intf->dev.parent);
 
 -- 
 2.56.0

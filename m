@@ -1,57 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.15
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794221016;
-	b=MWPBRlJl84V5rm/n+gVT8FTmCp+rHLE7Fly5tdCiypCix81IZg8ARHhAwyDvAWrU/Mx0
-	 2Tte57QsFNmOHyNB/47DclsH1auaqI7vCK7oeOQaQvShShok/u1SbJJS74x8IHKEvK08F
-	 8KvUvl0ElkznH1UXlQbJQaJBvdC/CvJZzhqwZYdP+E9z2LK9e4Hj5sW3vGzEduZaFs1y6
-	 kxfdGhIvemz8BvprCSBy7z5147noGVwnh78CKm7FuG1glG9RqboSyqDbVXdVg0mJORkt/
-	 HUsRveE5/oCs+UYPYqE9YC+Er8UaI1yhvYDMbsR6djen67xL35XI7X6eiHzY9qwzphA==
+	t=1794221159;
+	b=l7PjTruRU5Ktk6dmvh2L6jVtoU7khiCzshTNadDpABZhk2r7+XAbqU3KaJVfKKZ++Wjv
+	 wGs4u0Oq0JfM5FVN/vvgCCjgQg9vgM1lUY3WjHZUpilyXudALj7tmoW5/DIHioj0LDR7W
+	 ZYpMV3z1v7639ikZ+GwNsGqd7rPIdP7tUfC7cdoMr/kfX+UiM7eslcG4lN26E/HYD8T7L
+	 1HbojORRJSG9Cfgm7dcf8JerEVyxOotwlzPrBi4D1WezpENUXTk0QCQo+AaNHeaVEDy7N
+	 bZx2pmJphANsEQ3g6v6HcSMglUDJZIvnVQjEvr5cPA6FHnZtELp9YOM8KIZHIE1wzbw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794221016;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=9a63u+GKqDfrFWV0R/CWBwp65M56Wr9C/n7xkZeCbjA=;
-	b=cEr5ln7mLQPF1P+PPoSCPArJ+rsHDnCUlHgTdBQ6/9DYVzQE3q5OhzDh45nheoiJtJHo
-	 BuedWDd3928ZmEaQqB/LdVdmUUj/PJ0SOL15hc4oyjTIL0QNq5l6zS5LULbbq9yfrZBaB
-	 h+cgqfpnxSoV3lC7lD2MJPmfoWEmhIJsxyK0HkQYczJZszQ6l/Gk3xpcprk7H7V8Gye+Y
-	 Gu89pGCXkuC6EfPpbG3cWmLhhVSYfyAK/NuU220ecIpKGXHJv160CjUnv7fiqH4LLo16o
-	 YM5YuMQ/yAd9Ybl0yPSazk/rW89OIGVk9tA9xLXYjwyXLVHiWVwwK698Kn6RqdCqK0A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794221159;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=Mli2NzOE9bpY2LuU2SDWnBpzIwjxTbdEEyLHTvMsrGY=;
+	b=hajnfu5lg+cb12KjoUFWzu9Lp2wlwa0acTUJTxUm4bm4z//Xmh7v85PM+Jabp+2FICyI
+	 6Bgl17FcIWxiE6oJB4Exjx6Q4rx1fxJ8aihe/5hgLgnI4wNc/IbTMweBstw7PXM8ZIxkW
+	 8NBmymzVo8PPbD9dtyHcN325gERggcDINYageLedP9Q1zZCge9K/pz7/wZESsa1DT5wLY
+	 EAj9r9RFx3UGuVUCybcCwjog2XdcQnLx3BiA4anydCZnM34AgDtW2U5mNyCiyflK3/HH7
+	 eQytNPifgikBedfhCbl+KWOKuepK6w6byl/RMnKuJ2ljNhveIe1kPEo8c5rJ8YLvxGw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DBjl5PSf;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BpwUsJiC;
+	arc=none smtp.remote-ip=192.198.163.15
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFE5D606A31C
-	for <linux-input@vger.kernel.org>; Mon,  9 Nov 2026 10:43:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ED3B606A322;
+	Mon,  9 Nov 2026 10:45:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9ED3B606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DBjl5PSf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6367D1F008A4;
-	Mon,  9 Nov 2026 10:43:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794221015;
-	bh=9a63u+GKqDfrFWV0R/CWBwp65M56Wr9C/n7xkZeCbjA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DBjl5PSfcujkWidrgYYWk4WuYlJRWGbuYO9/OgtMI0uKv95gB6Mg7zXMPOLPgtyqZ
-	 pkF1tzZ2n5vArUMmrezqGzkbWp7QeTJno94RnQSywiab0+wUiub4hTqmHz0e/MkVMn
-	 3/hccFncJhiv4pMrfGHKOUREU81QnVAuv/NSlOczTvNT8OrN4E15xA8dvP9tmmNAV4
-	 avhRQfRo1Y2yGYidIQ0tRa8bduXhXUXjZk40iyfRLtVYMnPmB8aywiNIRdyM2BhlSD
-	 5r6Z0umhpLimItChZaHd9L1hdYRPyH3LCu+oFVemi059hxewOokvHLuRO5sdW+R6DJ
-	 VSs+XOhfmQH0g==
-Message-ID: <sashiko-outbox-204846@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] [PATCH v2] xpad.c: Add support to Hori Real Arcade
- Pro 4
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Juan Parrado" <jparrado.1817@gmail.com>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261109103715.11017-1-jparrado1817@gmail.com>
-References: <CAFkAFXq-avEh2KP5vdpzK1cxvg9X+5nwc12-5m3NG47Kg7HWcA@mail.gmail.com>
- <20261109103715.11017-1-jparrado1817@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 10:43:34 +0000
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BpwUsJiC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794221157; x=1825757157;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=IVZ2D9+rtI9pK846EPVCPzIiWQqKJR9uRcmCu/AVT1A=;
+  b=BpwUsJiC4N0z+nULCXn49KB1fC9MYoncaSi5SfuSBiUrOJnWCCPIvGp+
+   Elp/jK+5e9TuAM7GFjKKqdUupAkxd70sxXo/vrM2kvzcdzmkzXIpjZa+8
+   ymx0ZNnxj6ha+K37es0j2yDPD5VP77UMPZNfjAi04zEpZkx1AtnjXgRBd
+   fdYIC2JOHFqBe01rERa2xSOVanAghhlpu91DZFTTLJB5UaBRSnZJbaXl2
+   NzBR/0/UhRY+CaQjFlit9LHY7pD2N0eLOU1uBulgK5+CMhY41Bnr8rkF1
+   6vlR8Hk9lBt07roT4DF7ca0aQ508wHE8y7GKbyUa5tV2Wv3zpthdnlN8t
+   g==;
+X-CSE-ConnectionGUID: Gkquja3DTBupI5C+46plFQ==
+X-CSE-MsgGUID: H9Mq9V58QyiyPEHa9D3mdg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2934782"
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="2934782"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 02:45:57 -0800
+X-CSE-ConnectionGUID: 0+QkFJmIRF+hovaGgxvF+g==
+X-CSE-MsgGUID: Sy8aaLyxTQ+pjQFGMT7wsg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="8012326"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by fmviesa003.fm.intel.com with ESMTP; 09 Nov 2026 02:45:55 -0800
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xQMsr-00000000uMR-1WR6;
+	Mon, 09 Nov 2026 10:45:53 +0000
+Date: Mon, 9 Nov 2026 18:45:33 +0800
+From: kernel test robot <lkp@intel.com>
+To: xujiahao <xujiahao@cmss.chinamobile.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	xujiahao <xujiahao@cmss.chinamobile.com>
+Subject: Re: [PATCH v2] Input: sidewinder - use scnprintf() for the port names
+Message-ID: <202611091814.ChpgVgpE-lkp@intel.com>
+References: <20261109010548.438699-1-xujiahao@cmss.chinamobile.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,71 +83,40 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261109010548.438699-1-xujiahao@cmss.chinamobile.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] Input: xpad - missing MAP_TRIGGERS_TO_BUTTONS for Hori Real
-  Arcade Pro 4
-- [Low] Input: xpad - Author/Signed-off-by email mismatch and changelog
-  issues
+Hi xujiahao,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on dtor-input/next]
+[also build test ERROR on dtor-input/for-linus hid/for-next linus/master v7.4-rc2 next-20261105]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/xujiahao/Input-sidewinder-use-scnprintf-for-the-port-names/20261109-090548
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20261109010548.438699-1-xujiahao%40cmss.chinamobile.com
+patch subject: [PATCH v2] Input: sidewinder - use scnprintf() for the port names
+config: arm-randconfig-1000-20261109 (https://download.01.org/0day-ci/archive/20261109/202611091814.ChpgVgpE-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 10.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261109/202611091814.ChpgVgpE-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202611091814.ChpgVgpE-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   arm-linux-gnueabi-ld: drivers/input/joystick/sidewinder.o: in function `sw_3dp_id.constprop.0':
+>> sidewinder.c:(.text+0xa52): undefined reference to `__aeabi_uldivmod'
+>> arm-linux-gnueabi-ld: sidewinder.c:(.text+0xa66): undefined reference to `__aeabi_uldivmod'
+
 --
-
-commit ae6f93fb0a7ea08dae09b3962836f14f01d5f458
-Author: Juan Parrado <jparrado.1817@gmail.com>
-
-> xpad.c: Add support to Hori Real Arcade Pro 4
->
-> Add specific support to Hori Real Arcade Pro 4.
->
-> v2 fixed format
->
-> Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
-
-[Severity: Low]
-The Author address (jparrado.1817@gmail.com) does not match the
-Signed-off-by address (jparrado1817@gmail.com), and the "v2 fixed format"
-revision note should be placed below the "---" separator rather than in the
-commit log.
-
-Also, the commit subject should use the "Input: xpad - ..." prefix, and the
-changelog should explain why an explicit xpad_device[] entry is needed when
-vendor 0x0f0d is already matched by XPAD_XBOX360_VENDOR(0x0f0d) in
-xpad_table[].
-
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 810e52782ae89..2567ea3bd2604 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -255,6 +255,7 @@ static const struct xpad_device {
->  	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_T=
-RIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
->  	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
->  	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_T=
-O_BUTTONS, XTYPE_XBOXONE },
-> +	{ 0x0f0d, 0x008c, "Real Arcade Pro 4", 0, XTYPE_XBOX360 },
->  	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTON=
-S, XTYPE_XBOXONE },
->  	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BU=
-TTONS, XTYPE_XBOX360 },
->  	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, X=
-TYPE_XBOXONE },
-
-[Severity: Medium]
-Should this entry set MAP_TRIGGERS_TO_BUTTONS instead of 0?
-
-The Hori Real Arcade Pro 4 is an arcade fightstick with digital pushbuttons
-for L2/R2 rather than analog triggers, and the other Hori Real Arcade Pro
-entries in xpad_device[] set MAP_TRIGGERS_TO_BUTTONS so LT/RT are reported
-as BTN_TL2/BTN_TR2 instead of ABS_Z/ABS_RZ.  Previously, 0x0f0d:0x008c bound
-via XPAD_XBOX360_VENDOR(0x0f0d) with XTYPE_UNKNOWN, where xpad_probe()
-auto-detected XTYPE_XBOX360 and still honored the triggers_to_buttons module
-parameter; adding an explicit XTYPE_XBOX360 entry with mapping 0 bypasses
-that XTYPE_UNKNOWN fallback in xpad_probe() and prevents overriding the
-trigger mapping via module parameters.
-
-Also, all surrounding 0x0f0d entries in xpad_device[] include the "Hori "
-vendor prefix in the device name string ("Hori Real Arcade Pro 4").
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109103715.1101=
-7-1-jparrado1817@gmail.com?part=3D1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

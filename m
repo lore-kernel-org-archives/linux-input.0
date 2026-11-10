@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794296121;
-	b=UVztYePBn+/+bSv8eVNW4XRzFtpSnn1ml+MrKjoD9IC70dgSfS4MAT9mipYef0PC5xRw
-	 WY1gvQReLpTgWsVQMJGwZ4QP69P5RZsnBvYhDn9KnlkXMylvSnvD4w8aIyi2Nhll1KcS4
-	 SNCR7Z9BvNsd1d8anBTAogxaLSRZgpIhvv1GiZD1XYT6egpPzScGq65DAxR3YLWebOviw
-	 1hHWt98ajR7KN+bU9z9c4CaKm2pZEit7OiBrOjPvVL5j+8bynSOAV2OgipfE0wZt0ntV8
-	 GoN8VA1dH5jG4h6jqfSDpJY+DTph4RpNZcREqU3dCzpknSbWYEiarnLlFp0EdnCwoiQ==
+	t=1794296123;
+	b=OVVMBuT9nTs51M7VSKLilvWr9p7gq9F/dUSNfx0DZ2kZM433uSVUhMz64X2ghgXpl8WS
+	 z8C4Vj4iB2qzmGelmC9i+lqqppirTP78rla68nzvGOC1YgAvCy6Xo2iWtH7elESBsOYqC
+	 f1gXLQNU7FUniJXF4NqwJ2oSYA+jEcGjvO0VwmMevGvaAjjpUgf/Gqk1wBDwJJh3t7xUa
+	 7KY0f8iotuDMcbRUzBiJdH94i7Vgwf8a86ao7WtOE1R0rwnp+jB6Q15vueQ8A+pBNq+1P
+	 EmM8sQHNWlN6E4ci87PMzVGIrxicyQDCryvwPrfr5KIphD0rTPMlqfyXGHS9wscLPCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794296121;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794296123;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=9DMlLWJvde8wccRhIrUuWmQV2u0Aw/z18x+VnGnqLi8=;
-	b=JnCr9vZIjWJ+XqM2HT0iAHsrCCNQ0iDCt1W/PyBKg6m6yj5G+vl+5R8i1kywfitMOL5L
-	 YigfGrUwCF5JqzKE9KQ6ATXE5bAQ2qV9OBPc4Wl7DQIs6FnkI4VCGyzlObstl/8DyzTJi
-	 qUTjVYGLn15eNDUPKo+BMjh4UcW4C0PWuMZXkHF/l1ry4lpFza7DJglvW2TQAg7t+9JVm
-	 VhJcuXIpPJ8nznwjaViCweZmexd8NFgqtz/sMCjjdZQ847TIJCva1PdSPj08sgqz0dg6X
-	 MeYBq7A/yyY5X4ZM2K+jFoDMDn+HIvKs7J4ZM1TdJY7f0tYrScI4puGxeckVCCSlUeA==
+	bh=bAwo+lvZNbmWLTJmqaboGR6hyWG2JKJdmmTG6q3wgsM=;
+	b=KBizbrWgjjL3kZYeSL1YmpE2Hfxby/Azgma5+MXZ6+4alzbc/4yUe7FH0lS/0zWUgqu7
+	 xQ5YscFzC5LykNxHh3VDr7XRc5TxH0oTjuGwhGDewcBRzqGWwdZs4P0bOIVwlkRt8oYSl
+	 HPprUeCseFNR8vusHkln+ERJ03Ib9mThKSWK9Flzn8KzOkg0sGtM7Hdy69/ukKvf56fQs
+	 I6j7cxt/8jCYzf584EFHVrylOl4Wo4bozyV7F64NmBIQlXi54TkdoanFLGVzagO9IDAkR
+	 fAkZb4X1jaGvhPRCI1wwa1i/BetI99YmaVqsAfCyxHIfeQWbDD3O+b57cnTJ0DN0+xw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bB4wca6B;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LA6PySbd;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42F0560A381C;
-	Tue, 10 Nov 2026 07:35:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701C360A3831;
+	Tue, 10 Nov 2026 07:35:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bB4wca6B
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 975CC1F008A3;
-	Tue, 10 Nov 2026 07:35:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LA6PySbd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F07A81F008A2;
+	Tue, 10 Nov 2026 07:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794296120;
-	bh=9DMlLWJvde8wccRhIrUuWmQV2u0Aw/z18x+VnGnqLi8=;
+	s=k20260515; t=1794296123;
+	bh=bAwo+lvZNbmWLTJmqaboGR6hyWG2JKJdmmTG6q3wgsM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bB4wca6Bcls0jWIWpnLtG4cyHOyLwU8FkzM/IdmnxTaSzh+eIYlLJ1mGHBCBIGS6f
-	 D9S6CXq+NZKRoEoVDMtB3cZN151MZ/g+M30Xra7DGarnhjKanUXnSC1tAWKhAd6Cvu
-	 E1qXSoFWWB3mFAzb2tKJvZ7N93XfT+NGHpc2i4wFDXXepF/Rkmemwq0+v4YXRBWTgK
-	 q22GKEYNCd1T7fh3lWS4C6xTA5HI6f7H/CX6BZKcHehqIVeopwv1EvsdiO20FxUhXT
-	 fKRxSCsmh8xD5nrkylPcVtlRNsf7+8NyFW6sIka8q7CBuh4vA1bE4+wn2TG/3E0DlZ
-	 Inpqbvj9O+Abg==
-Message-ID: <sashiko-outbox-206511@kernel.org>
+	b=LA6PySbdQRAI7K4UcGa3MiuC1PE3gawGJASmTyfx4wJD7f85SJYvcg6dr1gw+O9ry
+	 FkgI7M+VwRNWa9Y/xTOeM4pzGAJ/fgD7K8NTYuMsrgjIjJ5u4cY6eZRkuV0VCbmKwN
+	 F0EcCTd6+VE5xzFEqgpCZr/w+WhdjEBOdr6w3MJ1jZO5tQuTPIlzhiReuV1gro5po0
+	 Ak4dEv3+yJUnt8ZORpN2Rnc8EZpcr6Tm0ideusUFa/YwDj6O+yg36lXcWLsP51pntK
+	 nL18nTXuKM+Aihz0WFyKMxs1Un2yYIQzOxKBaB7jXelFrCuJ2+cKwVAuBQsrlquQeE
+	 Iu9847ZXleeVQ==
+Message-ID: <sashiko-outbox-206514@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 11/19] driver core: Introduce a generic device trust
- level
+Subject: Re: [PATCH v2 14/19] driver core: Accept device trust policy by
+ driver name
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
+In-Reply-To: <20261109-device-trust-core-v2-14-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-14-3b12d9a9f861@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 07:35:20 +0000
+Date: Tue, 10 Nov 2026 07:35:22 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,119 +61,58 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [High] driver core: device_trust_prepare_full() breaks default boots
-  with -EPERM
-- [Medium] driver core: device_trust_prepare_full() calls
-  trust_resolve() unlocked
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] usb: core: usb_driver_claim_interface() ignores
+  device_trust.driver=3D
 --
 
-commit cc9d85465ea19f97fc7a0889f6993f37d1a58048
+commit 411f8a29f95104232dcf95e09cd04a0c125becd0
 Author: Leon Romanovsky <leon@kernel.org>
 
-driver core: Introduce a generic device trust level
+driver core: Accept device trust policy by driver name
 
-This commit adds generic device trust admission and a device_trust.default
-boot parameter to resolve a device's trust policy into an active trust
-level before driver probing.
+This commit adds the device_trust.driver=3D kernel command-line parameter to
+configure initial device trust policies by bus and driver name, and checks
+trust policy when claiming unregistered USB interfaces.
 
-> diff --git a/drivers/base/trust.c b/drivers/base/trust.c
-> new file mode 100644
-> index 0000000000000..6a71abf10b3bb
-> --- /dev/null
-> +++ b/drivers/base/trust.c
-> @@ -0,0 +1,132 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include <linux/device.h>
-> +#include <linux/errno.h>
-> +#include <linux/export.h>
-> +#include <linux/init.h>
-> +#include <linux/string.h>
-> +#include <kunit/visibility.h>
-> +
-> +#include "base.h"
-> +
-> +static enum device_trust_policy device_trust_default_policy __ro_after_i=
-nit;
-
-[ ... ]
-
-> +static int __device_trust_prepare(struct device *dev,
-> +				  const struct device_driver *drv, bool full_only)
-> +{
-> +	enum device_trust_policy policy;
-> +	enum device_trust_level level;
-> +	int ret;
-> +
-> +	policy =3D dev->trust_policy;
-> +
-> +	if (policy =3D=3D DEVICE_TRUST_POLICY_DISABLED)
+> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> index ee36eae34bdcc..04b77691fbd7d 100644
+> --- a/drivers/usb/core/driver.c
+> +++ b/drivers/usb/core/driver.c
+> @@ -563,6 +563,10 @@ int usb_driver_claim_interface(struct usb_driver *dr=
+iver,
+>  	if (!iface->authorized)
+>  		return -ENODEV;
+> =20
+> +	if (!device_is_registered(dev) &&
+> +	    dev->trust_policy =3D=3D DEVICE_TRUST_POLICY_DISABLED)
 > +		return -EPERM;
-> +	if (dev->bus && dev->bus->trust_resolve) {
-> +		ret =3D dev->bus->trust_resolve(dev, drv, policy, &level);
-> +		if (ret)
-> +			return ret;
-> +	} else {
-> +		level =3D policy =3D=3D DEVICE_TRUST_POLICY_ADVERSARY ?
-> +			DEVICE_TRUST_ADVERSARY : DEVICE_TRUST_FULL;
-> +	}
-> +	if (level =3D=3D DEVICE_TRUST_DISABLED)
-> +		return -EPERM;
-> +	if (full_only && level !=3D DEVICE_TRUST_FULL)
-> +		return -EPERM;
-> +	if (dev->p->trust_state =3D=3D DEVICE_TRUST_COMMITTED &&
-> +	    dev->trust_committed_level !=3D level)
-> +		return -EINVAL;
 > +
-> +	WRITE_ONCE(dev->trust_committed_level, level);
-> +	dev->p->trust_state =3D DEVICE_TRUST_COMMITTED;
-> +	WRITE_ONCE(dev->trust_level, level);
-> +	return 0;
-> +}
-> +
-> +int device_trust_prepare(struct device *dev, const struct device_driver =
-*drv)
-> +{
-> +	device_lock_assert(dev);
-> +	return __device_trust_prepare(dev, drv, false);
-> +}
-> +
-> +int device_trust_prepare_full(struct device *dev, const struct device_dr=
-iver *drv)
-> +{
-> +	if (device_trust_default_policy !=3D DEVICE_TRUST_POLICY_FULL)
-> +		return -EPERM;
+>  	dev->driver =3D &driver->driver;
+>  	usb_set_intfdata(iface, data);
+>  	iface->needs_binding =3D 0;
 
 [Severity: High]
-Does requiring device_trust_default_policy =3D=3D DEVICE_TRUST_POLICY_FULL
-here cause device_driver_attach_full() to fail with -EPERM on every
-default boot where device_trust.default=3D is not passed on the command
-line?
+Does usb_driver_claim_interface() ignore device_trust.driver=3D rules when
+checking an unregistered sibling interface?
 
-When device_trust.default=3D is omitted, device_trust_default_policy remains
-DEVICE_TRUST_POLICY_DEFAULT, even though that policy resolves to
-DEVICE_TRUST_FULL on buses without trust_resolve.  Callers converted to
-device_driver_attach_full(), such as phy_attach_direct() when attaching
-the generic PHY fallback driver and serio_bind_driver(), will then fail
-with -EPERM unless the kernel is booted with device_trust.default=3Dfull.
+In usb_set_configuration(), device_trust_init() sets each interface's
+dev->trust_policy from device_trust.default=3D and device_trust=3D before t=
+he
+device_add() loop, whereas device_trust.driver=3D is only evaluated in
+__device_trust_prepare() during registration.
 
-> +
-> +	return __device_trust_prepare(dev, drv, true);
-> +}
+With device_trust.default=3Ddisabled and device_trust.driver=3Dusb:<drv>=3D=
+full,
+probing interface 0 succeeds, but claiming an unregistered sibling from
+probe() still sees DEVICE_TRUST_POLICY_DISABLED and fails with -EPERM.
 
-[Severity: Medium]
-Can device_trust_prepare_full() end up calling dev->bus->trust_resolve()
-without holding the device lock?
-
-The kernel-doc for struct bus_type::trust_resolve requires the device lock
-to be held, and the kernel-doc for device_driver_attach_full() states that
-buses with a trust resolver must use device_driver_attach().  Unlike
-device_bind_driver(), which rejects dev->bus->trust_resolve with
--EOPNOTSUPP, device_trust_prepare_full() calls __device_trust_prepare()
-unlocked without checking dev->bus->trust_resolve.
+Conversely, if device_trust.driver=3Dusb:<drv>=3Ddisabled is set and interf=
+ace
+0 is allowed by a device_trust=3D entry, usb_driver_claim_interface() does
+not reject the unregistered sibling claim with -EPERM.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-device-tru=
-st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D11
+st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D14

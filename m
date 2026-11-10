@@ -1,78 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794340563;
-	b=2ujy/mVZN78cxyofrCVPtwgR8Us+ofzj2ihN0aNCDQctU27bzr/jFR6ju449nqLi593t
-	 4pD/kMB8upjr8kX9MzkNu7r2Z48oydio4U1DDixbkg2PnjQ83/0c5lTifK6Dhi//Y7/uT
-	 aSgT/2/HJBsn8An0NTCUaqHiLB0ikBb5c9JBCP2tORkNy7O+7xUTVTXVoOygepizsVeQR
-	 7ULTDz+rt2fXC1qNoMMUKMGSHpE4wtu8wCP/3nhTC80KWrT78Q6FtM3U6zRyK+Rz9WW68
-	 1i6J+hxHF/csd/f6/omvRwXNhX/2ZtPaLniHKatjL90g62eX56Qtndr7n+yCr+zR8/A==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794340563;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=EvDHKFgV8ZaR6tQMOPWNUyoThgdxDYzb5iXOrSl5e8U=;
-	b=K8Ro9beGS9upmBxB+uWZVnIG5Wf2EJEVoPAVzSAS4jUwPcGskmtlmMFLPIOs2pOLR58v
-	 Gxc8uLPMdGhoFw6EDD0bPjAStUMG7gwESaqEagRFrXQAPDR6Ka0Vas2DYJ0ZZrTT9Xy+3
-	 +2EudXKDtcBAUYXaMufagmJXPBUkiUprvCuZVX3XhzlH6lPEn8Z7OlRBwnYwNxSIOSn21
-	 AaT6AzyxZ7plr5cyYlB7CbaXGZWShHq541rjVySW5xl8UKW/1eUhDlrjjJfvN1MQHayR+
-	 GOn6SKp1nQ9A4r+JjDszldk2e2NPvAzcRspdGPumOFVKp2wJ0h/NChtvYOEl4VLga+A==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="k4BC/V6X";
-	arc=none smtp.remote-ip=198.175.65.9
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794342678;
+	b=p9gvGPB3BXm2q92fm972wz2izDfukZRKRmVgrS06b48EjhuJzW+VvRjEAg1AnWT82Neb
+	 43ZNKOPZiGjCHmkKAWXaOSntKapIVo4kN1VddU6U1hHQi2A5Ufnie5LNMVFukNMcE75yF
+	 kmLX60CYt7swWLco47K0tQ3rGDxX32IxWZXAjaz902as2YmvblJqlwxz1Nn58j7fIQNza
+	 xEGh6AD0ucHIHYaCipxYoiD22Qx5Tru+6f5mZAmgR5n9tuyzhqo1TktrN2DqIZMehamtK
+	 1j1k9ckLojBbcZBWPYmrfYy+L1aPSkK2SgR+SQ6uLnVRuMX1HfW/wOvuZjw/lGUcB3Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794342678;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=cv5mF2464SBHTiAoMjr7bBOGuhBF89SUOb0DI22+wZ0=;
+	b=jPKA7Km+t3G8cbk1kdFCatEgdX7LmMpZDouHABKg4pXLfVKsSdgedkrRaXg9AmAdKPXV
+	 G7u2EZgXw5Xt6Kvd1/EoksRFceeZ0LjUEGgK6snnpxpvqvdjUd0KP0katTCf7RHvcGgP0
+	 el5780wkG3ljdTY7b2zSVs8OxnxWzj+J/49rRIeTVsvmscA3uOP+0zxCjujPpRmQ6Wi5g
+	 rpXAvBdsBMOMEKwyDgG9n6bi3z0ZUPeAJwBnwfIwrSuIhWgJ22xy9zmRkLUiweXeuCSBA
+	 dqf2OsP8DzBnzGflOD/r2UGAVx3ko4we/enjZ0nbCxSU2NMvTtDR7WpKEA+HXRg6aEQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IkOlAHNk;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E242E606A320
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 19:56:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E242E606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F6D4606A331;
+	Tue, 10 Nov 2026 20:31:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=k4BC/V6X
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794340562; x=1825876562;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=m2q7AnzczYOYpAe+axWWNA1iiCjtiSlvZAa2pLt/beM=;
-  b=k4BC/V6XAUpg5s5K177BDT27refgQgjZjTaUH5usjsaYEqOPWyj1C/zo
-   Dky54yT0kuMGahMYHi1BXcFIyMXtBxXq4mHx8jljO+S3dL5mszlMUgWcD
-   6LMUlXO5QbT/DI1G0Nxr80mM2QaMcSGN2ir6BkqBh43PwYKNEMK7/Jk5I
-   ylD8sm8o7UZSVjOck16slUyJbIE8so2ilHgzGpcnq/jx7W2aX66R1gL+4
-   JIP/v7dlEaHR/LtBHMrc92oHiIGlRcLghVm/jcyj6PNEmotUj+e49fLeu
-   pcWs76weMk8haugOhdLEmRo7K3LYpTe7d2pMS4vHv+7FFaho+ltyn3cGH
-   A==;
-X-CSE-ConnectionGUID: SjLsnzUWQvaDSlOqFu76OQ==
-X-CSE-MsgGUID: N+2sZmGkQdCW242aiiut0g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11962"; a="3007763"
-X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
-   d="scan'208";a="3007763"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 11:56:01 -0800
-X-CSE-ConnectionGUID: 1oz1SDdtRJKzbxYwW4DAQg==
-X-CSE-MsgGUID: +9GbqhM2QMm1g8OhlfpJyw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
-   d="scan'208";a="8135397"
-Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.78])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 11:56:00 -0800
-Date: Tue, 10 Nov 2026 21:55:57 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Danny Kaehn <danny.kaehn@plexus.com>
-Cc: Jiri Kosina <jkosina@suse.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Subject: Re: Firmware Support for USB-HID Devices and CP2112
-Message-ID: <avN2zfSvXs3OOFX4@ashevche-desk.local>
-References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
- <autpMnQT8t0Ecu-m@ashevche-desk.local>
- <20261110185603.GA102891@LNDCL34533.neenah.na.plexus.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IkOlAHNk
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794342677;
+	b=IvN2KYs82hgwTegB/ljZOJmNkRCwvfv53ebLbcV7AxpOnf8Fuc8Zr+UkA6Kcw4bBui6w
+	 gIKRH9Hfx3CKE3F8mDIKG+AMleRXPAx9gYw9CYU7Tvs+VgbKuxEhn2HUkir/RmQCYuQCt
+	 BNHIALH63MSfthNBybHzn3wK5+jumdXnfwzIHideH1DDnz9Y+Q2JblnLwEtstsOsFEum0
+	 dMHBo9btuqKN/l0tWyUeHlWKnDbJZEnvLPQChe6qXX+2p5YTncLOdAlKC6UBurKGD0mwj
+	 yEQFndtVPOaYGj6YkUsaZ5/RI1/t5HXmJxS0TOcVDWWmLapd5aA/WLOcTUbh4AbygYQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794342677;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=cv5mF2464SBHTiAoMjr7bBOGuhBF89SUOb0DI22+wZ0=;
+	b=uKVFVs0Zr+Evf+B2Y+etP9tUnKyuy1egNElcGtv05XG+GD3o+/7VNjehX1ABAfoRumwW
+	 DGrMwyxoJ6RK8gwJT2BVkD5Stw39LYjqjUoi4ZZ6GlkdmtDXWkjU8izMebLYu6Wvx4VlS
+	 X6fWtYUFuCKvU9NAW2+69aM/N5MOIKSSjTOqVi/ReNEduD27p2vDkzVmrG2lQEaOYiQ6Q
+	 UJTn6X1JzDwZnyYoaVqA9PDaiIlsjEidR33AYyAGmCWuRLqcr44sd7vx4p7fTkbJPyGYK
+	 HMJv2yZFo6YKwEVy3M+80db6g+pey0Jpm4jXtGK4kiXhV36e9Z1JR+L+vu1KfXN0D1Q==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 1C4621F008A2;
+	Tue, 10 Nov 2026 20:31:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794342677;
+	bh=cv5mF2464SBHTiAoMjr7bBOGuhBF89SUOb0DI22+wZ0=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=IkOlAHNkHVlGy2FeejfoY1htQvKsdWj76kTzYPWdqhXjn8r1WuSIqM80OTpDlZukH
+	 xWU5Cm/WRZ4N6/3vyBDi7StQXcSiekKrQ7G/zML+U0AXnV8RrLaUwPAX9/fmIQFhz2
+	 aw1h6GJrUYf7aS+gG+QLMi8jf59Fhry4iZ4DzxywZ5G/ENvh6XP4oW3gGpUd2wVlId
+	 IaNoDoNWjljsaxU26y99JAvQXeML3LBhEyqot4NjuI8JXYYAdv6shTQaEizTUfNzW4
+	 SvCpaBROMqqrAZb3Vy8TSZ9ISnRkPt8lunjiSfNctBd91cZ7M1GtdWGHPXHeCxCGRG
+	 hxBSROdQE3JzQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 8329248C7A;
+	Tue, 10 Nov 2026 20:31:16 +0000 (UTC)
+From: Ciro Pedrini via B4 Relay <devnull+ciro.pedrini.gmail.com@kernel.org>
+Date: Tue, 10 Nov 2026 20:29:47 +0000
+Subject: [PATCH v2 1/2] platform/x86: ideapad-laptop: Ignore keyboard
+ backlight hotkeys
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,42 +83,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110185603.GA102891@LNDCL34533.neenah.na.plexus.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261110-legion-lighting-rfc-v2-1-845726afb71c@gmail.com>
+References: <20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com>
+In-Reply-To: <20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com>
+To: Mark Pearson <mpearson-lenovo@squebb.ca>, 
+ "Derek J. Clark" <derekjohn.clark@gmail.com>, Rong Zhang <i@rong.moe>, 
+ Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Werner Sembach <wse@tuxedocomputers.com>, 
+ Aaron Erhardt <aer@tuxedocomputers.com>, 
+ platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, Ciro Pedrini <ciro.pedrini@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794342675; l=1858;
+ i=ciro.pedrini@gmail.com; h=from:subject:message-id;
+ bh=7AFCuFhOORimBVaTct9i1sflefhIhf8+Hwo+UNCUras=;
+ b=8psn2DxjjhsetxBvgzeTC4Jlsdo/RpQvtlFN0LLWfRg7WQR4okgyYI7GsAGxAs3Gs31DcU+7K
+ kmTEIaljSx+D5Ihim4mT+uTBn4VVr8GuUwnx/73uS/hd4T8BUwFWPZE
+X-Developer-Key: i=ciro.pedrini@gmail.com; a=ed25519;
+ pk=TOSFlPBon1xBHfTrhODxatabgwEJdgKEzG3jMoMQcbc=
+X-Endpoint-Received: by B4 Relay for ciro.pedrini@gmail.com/default with
+ auth_id=1468
+X-Original-From: Ciro Pedrini <ciro.pedrini@gmail.com>
+Reply-To: ciro.pedrini@gmail.com
+Content-Transfer-Encoding: 7bit
 
-On Tue, Nov 10, 2026 at 12:56:03PM -0600, Danny Kaehn wrote:
-> On Wed, Nov 04, 2026 at 07:19:46PM +0200, Andy Shevchenko wrote:
-> > In lieu of this discussion [1] I just realised that CP2112 misses the
-> > documentation piece under Documentation/firmware-guide/acpi/ on how
-> > it's supposed to be enumerated. Danny, can you add a such, please?
-> > 
-> > [1]: 20261003095924.1370238-1-thierry.reding@kernel.org
+From: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-> Apologies about the delay here -- getting an environment set up to send
-> kernel email always takes some time :)
-> 
-> I will target getting something sent out for this by the end of the
-> week.
-> 
-> This can wait for the review of course, but since it seems like
-> this is a relatively unblazed trail (ACPI "binding" documents for
-> specific drivers), do you have opinions on whether a directory tree
-> should be started for driver documents like this? (i.e. an i2c
-> subdirectory?), or would you prefer it just be added to the top-level
-> directory? It seems like there also isn't yet a naming convention for
-> these -- presumably the "silabs,cp2112.rst" name would be too
-> "DeviceTree-ish"... maybe "i2c-silabs-cp2112.rst" if kept at the
-> top-level...
+On the Legion Pro 7 16IAX10H, Fn+Space (backlight effect), Fn+Up and
+Fn+Down (backlight brightness) emit WMI fn-key events 0x21, 0x1a and
+0x19, which the keymap does not cover, so they reach userspace as
+KEY_UNKNOWN. The keyboard's USB controller handles these keys itself: it
+switches the effect or changes the brightness, and reports the new level
+on its own HID interface. Ignore the three events, as is already done for
+FnLock and Esc, rather than mapping them to KEY_KBDILLUM*, which would
+make userspace change the brightness a second time.
 
-Hmm... Since you rose this topic, I think we can move i2c-mux ACPI
-documentation to i2c folder and create there the support for that specific
-hardware in DTish naming schema.
+Tested on the 16IAX10H with 7.2: with the change, evtest shows no events
+for the three keys, and the keyboard still switches the effect and the
+brightness.
+
+Signed-off-by: Ciro Pedrini <ciro.pedrini@gmail.com>
+---
+Prepared with Claude Code (Claude Opus 5.5) from evtest on the laptop's
+"Ideapad extra buttons" device; I reviewed and tested it.
+---
+ drivers/platform/x86/lenovo/ideapad-laptop.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/platform/x86/lenovo/ideapad-laptop.c b/drivers/platform/x86/lenovo/ideapad-laptop.c
+index 91a8d11c79c5..8b6c08b21c8d 100644
+--- a/drivers/platform/x86/lenovo/ideapad-laptop.c
++++ b/drivers/platform/x86/lenovo/ideapad-laptop.c
+@@ -1336,6 +1336,10 @@ static const struct key_entry ideapad_keymap[] = {
+ 	{ KE_IGNORE,	0x02 | IDEAPAD_WMI_KEY },
+ 	/* Esc (handled by the firmware) */
+ 	{ KE_IGNORE,	0x03 | IDEAPAD_WMI_KEY },
++	/* Keyboard backlight down, up and effect (handled by the keyboard) */
++	{ KE_IGNORE,	0x19 | IDEAPAD_WMI_KEY },
++	{ KE_IGNORE,	0x1a | IDEAPAD_WMI_KEY },
++	{ KE_IGNORE,	0x21 | IDEAPAD_WMI_KEY },
+ 	/* Customizable Lenovo Hotkey ("star" with 'S' inside) */
+ 	{ KE_KEY,	0x01 | IDEAPAD_WMI_KEY, { KEY_FAVORITES } },
+ 	{ KE_KEY,	0x04 | IDEAPAD_WMI_KEY, { KEY_SELECTIVE_SCREENSHOT } },
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.56.0
 
 

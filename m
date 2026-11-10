@@ -1,84 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.136
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794291237;
-	b=QqCpiboRxri1jdnTnWuKz1yGQg7Ids6P8oWvJoz2VB9bgIaWWpWa1UcN740NMAa1oezb
-	 IxA0XOwacYM/7uoiQDY0XfoRrz85PsYQMyhpgjMpuANIHcYAo/+CSskPemTt+RfFLxuf0
-	 H9j/wjPdULkfU2/ya/QZ4FErlm3Gnurp/jpUa/S7eXDPvfG1w1P5N2v4+A4Ip7h1Zl3LU
-	 em+KhicoML/sJS2dUyuVePRWkX1X/bOm72P1u8pJLhGybVSnjOBj+/qTPA+j/CH0bfwCl
-	 ggR8e3ph42LNG6TnQnZ0dHzduTC7gy9nLbctEZ2GUzw8eruc1fFwTFavdcDwchcUG+w==
+	t=1794291946;
+	b=Y2imxo/KhzkDM/g2iXNs5hKfIKpF1EQrIl4Lwz5wGBk5sg0F0swUGhOjHuyT8g67R2Sj
+	 lpq8dIBzP/jONlBYrknybRRYWyBXZ5bquc9lVKeo/Wtf4qfk/sCkSAfn8B7p++Z3DjyqI
+	 07+ea1+0eeWchRgiQLR5RTLUz1gID8jd13gnYly7nbTmQqldvT6Zt5pyUitVvmoaAQnDo
+	 5QMOrGdanz/yFTP9ooIDAVqxiaVTDMf6oGHY6c8V//EHNjXAWosAtGNCK6svahRbM8fA2
+	 1QkCP18WLfm1D3HzL+vkCSD+KMCK134YN79Rw7OlYj2DfDJ8gt6icrnEwa6SHGwFbrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794291237;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Subject:From:Date:Message-Id:
-	 To:Cc:In-Reply-To:References:X-Mailer;
-	bh=CKmiWAIPJ5ecsAdCtmUhDOFxTZUdFDSXgzTc1zGfnFk=;
-	b=zWAPSQrcCdUR5CE8hW7ef+16mVVcFea3LjfRX8M9nyj3hi/WY0Sxwqz+3YI04Bp0nekp
-	 DMlbiMQgGbKRtWY3QmnbeIH5gbsphxB11bFPt/AJ0ROFh5QLgU9d3hGy5L1dKv7wtsFuY
-	 cTorTjd0sDwAgi7NID1EA+P1oKS/cWgOEfu8Cbedqe8wu14dtiub6xcR3aI+EgGdclICC
-	 hWcj/kzLjrGfx7A0ytlRFdYiqeWlKhv5uFbw6JUZDQmpx86TxQ4wpma2hgrvbUMmUXexc
-	 dSymLeY2YOOQDgAH5m+f/p3DAHzY8dkBVMETcpH5dCLavwG7sq0DlupSSmhGnw4bmRw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794291946;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=BOK+rYjyV+z1yxqqh1YiuCbJZFvJ0kG/2jZctJFxWVs=;
+	b=gNh/tho3etSop/OphP0afvAf96kVxXOwZa7iTEaF55bSDkD6zRQhd00h63geuMf0lNKk
+	 e9g+diu/EDn5Ddch3C1vdxnDrXuzrK4mY1+8l2r6j8M/kUguyKiM3LSdA0nMQlhVipTQm
+	 JiWj1XsNyj24WiP0raIhULTkQ6GnO+I+bPQXm5uNYAa1rYJZBDbJDfHdC1dFI6ccH6Yjk
+	 64EiyjLzjNV+VHd/doQ6eBa3r6EK6d8aTiVF4XOuGPM8dbIA0bFICjHgzjuBDPLj8ryKS
+	 BquITgw642FrToLxiHn/s+uYb3E3hRy3484OU1Y4RO8LWGP1+0nPzcFwHkp1G2ngOEw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vchUYvl6;
-	arc=none smtp.remote-ip=74.125.227.136
-Received: from mail-pj2-f8.google.com (mail-pj2-f8.google.com [74.125.227.136])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UaL3P/pP";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7599E606A31C
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 06:13:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7599E606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3CD606A31C;
+	Tue, 10 Nov 2026 06:25:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vchUYvl6
-Received: by mail-pj2-f8.google.com with SMTP id 98e67ed59e1d1-3ae93a86008so985764a91.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 22:13:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794291237; x=1794896037; darn=vger.kernel.org;
-        h=references:in-reply-to:cc:to:message-id:date:from:subject
-         :content-transfer-encoding:content-type:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=CKmiWAIPJ5ecsAdCtmUhDOFxTZUdFDSXgzTc1zGfnFk=;
-        b=vchUYvl6AlTS7wM1EznmJY+nfZxWtdq8+R7SZ9UXj8vNyftztxmm+I58IVqkP1vvME
-         0FdPO3a/lzcisHOL2xs6Kc+jBflC/sDg23X7Q5f45m89reQE5Hxa8DqvqGQmxAR5WJ2T
-         FfGymah8pyoPXWzTVSIQmwkwO0RDjaXaW0jxzcqmpxfchUey3uej74ejHeVNFk+XVlLN
-         8k4BJlZO+nrd5q2g0unGJaSWwTweUJ3LBnELBnscuNyIko6hfiMAeosKhTVy1QX5IuMb
-         cJ8eLefvUbqk7R7YWIwoXNxS/ceckQ0td+Sl67TB2HSebFx3arRE/Ox/q4ZNUSnhTNte
-         D8PQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794291237; x=1794896037;
-        h=references:in-reply-to:cc:to:message-id:date:from:subject
-         :content-transfer-encoding:content-type:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CKmiWAIPJ5ecsAdCtmUhDOFxTZUdFDSXgzTc1zGfnFk=;
-        b=BLfZ+HBRWgjJV0rcLte/yPX1gEf9mblH6w823BODHh9dhyKZzQG4aljX7aP6txS6Tw
-         yYYAp5t0eEDvGcIsBy5Xp2Tt3h6WWmoai8RXkeGA1SJMhGbPx/Xi/JThqgMRWnZ+8Et4
-         MiMExMW+bxq9qYUFr+hO7+c3RXSb02f7EZAZGcPHCFq9KbNUZAybdWhdjBflaCXfaggg
-         R9TOA6C/VvHCmjngovdlIQ5w3q2oJDdY2lVUVf+46oslrOet8hFozR3UaqBMxLavowFq
-         0FFNB1Ybi6zzKjYRvGwFMfjHTvyfuyAR+0WhtzBr1eWHdASPsBQBTpIHE4hEAyH7QByf
-         zW1Q==
-X-Gm-Message-State: APuU4Z+iuGxpsofc0Zf22qkQ7Eh4RnniwVUvodFkJXXBXdP/X7ur+oRx
-	bEwP6XKdvHPRyEl8ybFAEkywBQOKiK6Ym45DnQVwn1yXfkQkls2JdPqp
-X-Gm-Gg: AYBFou3Dy1/TNYkLx4Pc28vXDOdUcq+mFyBlKwPnxtNX/zAK4IUfT/Xgu3lu2sw0717
-	LRpjgooiGCBuOxRv4pX1n0DExmHzs5mtHG5enGY7Gfsh5jgFFbxB8wUxH5AepW9V5G8jJTau8Kh
-	fLjRMhOP9AkGEWPDB988k1d1jv2BxiljTaV5gkc2SHypx190oIwyjQmgRQyZsnPccqxS5eejbB5
-	IdvGTLcdo+v9mAQtuwk5M0v7hgKTvp3reYDVCGClUzjICtgugIuVAwUqwNisZ3kQFQ+wW/vStq0
-	ud9qYt6UaWpvHOEY+JAsQVSL6gaAEzDr/ixUvrKNh3qhtTvzPYwA9mfEEdcI2/lMLNBtDurKzUs
-	VIf2mkzxL4loD0x+qq9PZrSCQFZNif3oeEmiUV6BDxVmEe4EWnmPsV/2l2zZEi2gmw5b+WSw4lk
-	VwD7K71AI9GurFqhgBYMdRuna/CplKKHruS2NqioSpyYvCfseFn+gsZ6DUd30+DqAXkFvdOf65/
-	7M/h+7/8/2pWchqperrFZ76aSiBXm4T6zZslxzr7rsAKg/WM9itIoVCj6UR1R5s/PeBb4rSmUI+
-	Xm7m3Ja+NHJ9zpOvh1CHsj5unB4IDm1vIryK3OQeG09uWmwofNQykCdCeaB27pEGApJKiyCdTwg
-	P0YNls1QbIQNdsac0sAoYVj3oDuI2PEDJ
-X-Received: by 2002:a17:90b:3c86:b0:3b0:ae41:2706 with SMTP id 98e67ed59e1d1-3b166cb9b6dmr1857937a91.4.1794291236670;
-        Mon, 09 Nov 2026 22:13:56 -0800 (PST)
-Received: from [100.64.227.9] (n106-71-19-159.sun21.vic.optusnet.com.au. [106.71.19.159])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b166f542edsm2510720a91.0.2026.11.09.22.13.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 22:13:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UaL3P/pP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86DE51F0089F;
+	Tue, 10 Nov 2026 06:25:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794291945;
+	bh=BOK+rYjyV+z1yxqqh1YiuCbJZFvJ0kG/2jZctJFxWVs=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UaL3P/pPjtvL2zOvb9zXBUzzpf2TR6RRcyZ1YLYG/pBtektp8JFeExTfCE08TP2+y
+	 BoYAo87BRh1yENokyXVEU89sgGbdEBcWAu9bsEsxFidRK5j6/+s231UY0WEKZzArFP
+	 XZu9XClKLeRqSUsTY7JXVG21/HtUrurupizfUpp4iWi6HcMIixH49FDOWKrcMeaxOF
+	 oiIkLRS8mmYLC6kQrBl+D+PaK8sqVZ7fBv+QbKCGPvNixOBIvRDW2u23FszD83wXWS
+	 9CJUF/8MjKVqxGVtSMo8yaze3atsRFw6C27A2hbJ3h+WFvUCRi5g+h3A5MYtJNy3oy
+	 VvAZgRw3kgN8Q==
+Message-ID: <sashiko-outbox-206414@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: apm-power - Rename to apm-power-input
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Nathan Chancellor" <nathan@kernel.org>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Nicolas
+ Schier" <nsc@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kbuild@vger.kernel.org, "Sasha Levin" <sashal@kernel.org>
+In-Reply-To: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
+References: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 10 Nov 2026 06:25:45 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -87,31 +59,70 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: HID: picolcd: maintainer address in MAINTAINERS is bouncing
-From: Aveline Noir <jm5905938@gmail.com>
-Date: Tue, 10 Nov 2026 17:11:54 +1100
-Message-Id: <179429111488.2.10039575148973146335.b4-reply@b4>
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org
-In-Reply-To: <CANOyQmHU_aynnHxDwiGPp_jRBB+ZEK_stZGfix-7=kRx67a6-Q@mail.gmail.com>
-References: <CANOyQmH4EU=6kb+d2ELL68FLj8yvtq8McHtUMWthQ3WUJQTuWQ@mail.gmail.com>
- <CANOyQmHU_aynnHxDwiGPp_jRBB+ZEK_stZGfix-7=kRx67a6-Q@mail.gmail.com>
-X-Mailer: b4 0.16.0
 
-Hi Jiri, Benjamin,
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Low] Input: apm-power-input - update module name in INPUT_APMPOWER
+  Kconfig help
+- [Low] Input: apm-power-input - missing Fixes trailer for module name
+  conflict
+--
 
-On Thu, 29 Oct 2026 06:07:09 -0700 Aveline Noir wrote:
+commit 8f18f8cadb4c04ceefb13fb63bb9751daa2db15a
+Author: Nathan Chancellor <nathan@kernel.org>
 
-> Is there an updated contact address for Bruno, or should
-> the MAINTAINERS entry be updated?
+> Input: apm-power - Rename to apm-power-input
 >
-> I'd also be happy to help with PicoLCD maintenance if needed.
+> When scripts/modules-check.sh is fixed to normalize the module's name
+> like name-fix-token does in scripts/Makefile.lib before checking that it
+> is unique [1], there is an error due to drivers/input/apm-power.ko and
+> drivers/power/supply/apm_power.ko having the same module name.
+>
+>   error: the following would cause module name conflict:
+>     drivers/input/apm-power.ko
+>     drivers/power/supply/apm_power.ko
+>
+>   $ modinfo drivers/input/apm-power.ko drivers/power/supply/apm_power.ko =
+| grep name:
+>   filename:       drivers/input/apm-power.ko
+>   name:           apm_power
+>   filename:       drivers/power/supply/apm_power.ko
+>   name:           apm_power
+>
+> Rename drivers/input/apm-power.c to apm-power-input.c to make the module
+> name unique and clear up the error.
+>
+> Reported-by: Sasha Levin <sashal@kernel.org>
+> Closes: https://lore.kernel.org/20261108225808.1809266-1-sashal@kernel.or=
+g/
+> Link: https://lore.kernel.org/20261103110411.11698-1-info@daylightlinux.c=
+h/ [1]
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-Just following up on this. Have you had a chance to look into
-Bruno's contact address and the PicoLCD maintainer entry?
+[Severity: Low]
+Since drivers/power/supply/apm_power.c already existed when
+drivers/input/apm-power.c was added, should this include:
 
-Thanks,
-Aveline Noir
+  Fixes: e17bb1de3b7f ("Input: add input event to APM event bridge")
+
+> diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+> index 2cd6e1c9a7784..842a7e4f7b508 100644
+> --- a/drivers/input/Makefile
+> +++ b/drivers/input/Makefile
+> @@ -27,6 +27,6 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+=3D touchscreen/
+>  obj-$(CONFIG_INPUT_MISC)	+=3D misc/
+>  obj-$(CONFIG_INPUT_KUNIT_TEST)	+=3D tests/
+> =20
+> -obj-$(CONFIG_INPUT_APMPOWER)	+=3D apm-power.o
+> +obj-$(CONFIG_INPUT_APMPOWER)	+=3D apm-power-input.o
+> =20
+>  obj-$(CONFIG_RMI4_CORE)		+=3D rmi4/
+
+[Severity: Low]
+Should the help text for INPUT_APMPOWER in drivers/input/Kconfig also be
+updated to say that the module will be called apm-power-input instead of
+apm-power?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-apm-power-=
+input-rename-v1-1-0609e7b91825@kernel.org?part=3D1

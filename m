@@ -1,62 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794283933;
-	b=YulGxmWYFjR9Q0nv/ye2Tj9/WC3e9NTM1w+89TYAYjFOBTkQzJyktD4kCZUYNTnC9qHM
-	 /5ET2nFLg8u5lghh6n4YK/bS1Quu7hN9IQSHb7jUhZ2VlXDDdx9hl9OQc+xROgStqbXiN
-	 8Ns5krHgbhNcxLj74+Me7EUyFLUA5822FBKSnkWfug0OCGhdQmpjzwYeAutRsXPTes2Hd
-	 PJCYfMnYJXNJBHb8aTRlLKYbsreJ9L+k2T+YYdfeDE9hhPKUDDWCpgZDZNRFr9riF7C7O
-	 zcbiRb8EX2EJmvmJ8MmWDq7DuT5E3U9Pae3efXHZj115IbSKxWqIHxWLFTqNdylaUDg==
+	t=1794285005;
+	b=SmPNyI1G85Wqx1WiawXAMwTWzMMFpheAxM7psljhogInQvlv/sQyJsQbEKbXFxaMFNfO
+	 TbQ8trGsGHKNPGNQG3aZdQMSkEvX1XNNic17dv4r8LN5zjpbjbyH+GohVAvtS8BmRgvz6
+	 FAhhjWE/o9oAmuUxUMtv0MZdn6ZCrTxViLlQhaBRGJfL5ROm9IyXAmh6mH/i6J3LG2yP5
+	 VbbfLBf25Bo0Zd401xWNET594eSYBYR65SG+YSd+TVGkSMRRaCopypwUE2MsnLCHKyjJX
+	 DgFeuNyO6fhMdp/fTFyRcACihFET3AIYPjy4t3LPAY1VkylCHLNyZfDWjkMD3D/d1qA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794283933;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=xM/qy0LDmGAX2gldlTS/zKbKhse2bwRxfBsg2sK9AYs=;
-	b=eDZHmz8l+XP9VyF8P3NHui6TTWBOj2STK/DbFsQoQc+o1fOmdY08ebVFcbxgghKgTTtO
-	 /gvmPP3tG0XkAhEkXz1s2XF6clKVARO5OhLPMILfjdI39vY7nJiPDcjfv1XAviyOMLT60
-	 Bq/09y/0bh1LF/hNZnKdA2JWd9deujqxSixK3AqwwcZCIT1lSl3uk6PPKZf6ZWQK2bSv8
-	 u9wzUF3uVaZvpxF44fhUZM9q12oFSwNRM6fN4PcFHBaI7VyFC183NKrIjPpsQRZFSKNRo
-	 laaY06VZCAhmGKpF7Z5iCGa9SPsp31+P5Ua/gxq2h8Ith1roZuf9Y0JN7akThTwKyBQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794285005;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=stxCnrlGC2A4AcV24vYYzmqcDrFf7sMGldsWecvMla0=;
+	b=G7/s8mTkadqel3USUgEVwxpzmTsfCjNN7F9l4+3nac+3bO/KT4H/QAH55rL/Kurfwpp3
+	 dJntqbdp807FqcvMTk3JmvaH0yiX/NF+kJocvzlSipr2tjWqJ2lEOSL9otAwH8Sp80kRR
+	 4TfEmsQuTKkSWf7+/hb588GE172Yk2oD35/GGiAdvstNlQL63Q4xcC/2wiGl54+J8G0LW
+	 3ZY8/rk0Tg8i0gHgUoIZ7niUdL2jmck2+ySRQjbe3Fete3vQpBWHfFhdsGMFxr5294b4x
+	 hr8+ROvBWQdP1fLxlXbuG0VCuIePLzBNiFhu6klN6Pez3ICgagfcSO7G9W67tz4c5kg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BhM521TZ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nYmDBB+e;
+	arc=none smtp.remote-ip=209.85.160.169
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A907606A33F;
-	Tue, 10 Nov 2026 04:12:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCC4E606A326
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 04:30:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DCC4E606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BhM521TZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC1A01F0089F;
-	Tue, 10 Nov 2026 04:12:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794283932;
-	bh=xM/qy0LDmGAX2gldlTS/zKbKhse2bwRxfBsg2sK9AYs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BhM521TZv3m4O2TAooWY912f0uaCJrfkgK4cXlg6AbKE3eLmvdFpbmynhiXL1QqKy
-	 A1AIDCJkZE8gE8ngKX6CENCqjUENkyKHfO5mwy9J7tibQcMhO5ateddHrvkweujjkS
-	 OB7nb3YnYQ0B3Kh+EFTva8bTLmap+S9WBIwxPIqPLU+EzmWNUz9QiPjTNdfUhDk120
-	 jVHajcTu8rJIB3EZ9PSSVps1uaIa8ennFiwdPC+DwO5nnHMYUHf9k3KlkTfUcZBcFp
-	 RoeHCHzB+Be4JDekknEwOBZ62IN6unukUNYk7Z5yQcy5nS372JN2QSe1XIMOSpfNAw
-	 J+QzQVz+6Ve5A==
-Date: Mon, 9 Nov 2026 22:12:07 -0600
-From: Bjorn Andersson <andersson@kernel.org>
-To: david@ixit.cz
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Petr Hodina <petr.hodina@protonmail.com>, 
-	linux-input@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	phone-devel@vger.kernel.org, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, Abel Vesa <abel.vesa@oss.qualcomm.com>
-Subject: Re: [PATCH v8 5/5] arm64: dts: qcom: sdm845-google: Add STM FTS
- touchscreen support
-Message-ID: <avKYaYOdaeSn2YoN@zenbook>
-References: <20260925-stmfts5-v8-0-0fcf49e2c85f@ixit.cz>
- <20260925-stmfts5-v8-5-0fcf49e2c85f@ixit.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nYmDBB+e
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-53665358476so15231071cf.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 20:30:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794285004; x=1794889804; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=stxCnrlGC2A4AcV24vYYzmqcDrFf7sMGldsWecvMla0=;
+        b=nYmDBB+e2zfOChsZe2iLOKg2FPKLIJNpck+WFm4vCEJ/ef1hnNs8QkFka3ynthr63F
+         XkwSDVUzJGTtRKa9ISBP+st+PuxJDVkmiReawGH6EbqP3guYafPvURfWj4NKl5EFrzrj
+         N1Hn+gS81a+aOmqtFusyfiZVtWq8JM2Lr4djeSL8gK0OVZ0w3lZoVONXEX6bM7swBqCI
+         P5zdgv10O3qxD1/R8L8KFucKU5GH+3BFa3eTdH5JzGjv7Y4pjAqWse7JEMKVtpPo4Jo5
+         kVe2f75kDhj2ihNcHbD5iaglHiinfEul4e9qSjYiEQ2KvyF3mMQu7LeSMJT+D1p0RTH5
+         zN0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794285004; x=1794889804;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=stxCnrlGC2A4AcV24vYYzmqcDrFf7sMGldsWecvMla0=;
+        b=J/PmgKdxsb2cYNM8gw1rr8fihQkjyEAlrQsjUu+fH48u7PBj5Gc/Y8a1kUwfs7Exj4
+         tGMxbrzu86DF4px9gsFecRO0ourf3Kj8lTnpuwsKTN38CDnHLksaJCNQLMRRPzeMT3i6
+         1N3UEf1cnkVPt87eNQWPutvhOl6YLD/GHuh/bJgfdH1mpWUhH6VMdezVivE42HQJy9Wt
+         iRP5PtaRSLX7Edj17h7jRY4QFdW/og21iJR/xMrGPRi1fzReYvUND0bD4MDNifCNSTTs
+         fjJt0vVF5BBeI2s/e3p1aTRA6FzPOgC/iOo6+Bl2DgcWpeGPxKGlbtCzHmkWGtERF1cX
+         Bjzw==
+X-Gm-Message-State: APuU4Z/NzsSX2KOKvpC6DX3gzXFk1AFCyjNlxhj8G3vt5aFZuC0AWe0m
+	b6/WsLkHaiIn4Hd3HKwBmr6ne4iYf70KI+uGD3p6pvh1AGiLf3V0fo4=
+X-Gm-Gg: AYBFou1/djBBD2UCzWGxDnIayaftypdYLMmaReT/f8foCUcFAMLj2eX3DIK8JHKbr9m
+	DH/QhR3jf0z0vEolX3/moNl2Cxjkm18fBsgcd3opBqDjjFavDGQZAJtpIT4j8WwO4GLOUnaiTwV
+	+089P1A6jmWo6+O55owhcKaAfrgscCu6T0bg9QDi2wo4fuMflqsR+s0CZWXF0KRWkOp0Ff41ofu
+	JJfIpxlbK53pLev4he/px+kQqXMrsT8FGGhsI2JU+hBimsh6CxBzFvW0vMIbCeNyCd1EYH71XRM
+	phE03dMKp8jUEnPkpGMK67rB4W8Pp81hXoskxvNPPR0nEh7ltV8RNztTXZVVB2ZZN1txJb/A5+w
+	xau+hrGrTOB9BmOM64MvImQl8w2Bp/hWDQfGSSNPQrOtoYPc2HQ3SpYg4ligrA/mRnNaSNsfTNW
+	GpEXLdlE+tCN5z1ToK/G/zN0h4Xm3ScT7lqZlERpQjAG4CSpJ9zAGaPfngL/XBYxRT+3wX4cS1G
+	NmmlhwxT05EGtNW07u+lMYIve83eOCj4DocJGLKwVFTHrZQv6F/BXA4F4dkUlWMU9G6OU9Qabko
+	iTIq7AG9j0owifc/A7oZyzqdAQgJG0Tp5OZSk5u2ovQA/KvbysGoAa9XIUARQ+s0ZbG5Vq4luYx
+	BqNsLl9asuO3jKBuxn0yCsr7WY/iG0T6CZbUfg2GhsVsrF8xAtnvFnkmclKZs47rt
+X-Received: by 2002:ac8:5f12:0:b0:536:8843:c2bf with SMTP id d75a77b69052e-5552a76da88mr20758921cf.67.1794285003678;
+        Mon, 09 Nov 2026 20:30:03 -0800 (PST)
+Received: from localhost.localdomain ([104.39.152.7])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5550b44e6fcsm14363231cf.10.2026.11.09.20.30.02
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 09 Nov 2026 20:30:03 -0800 (PST)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ijae Kim <ae878000@gmail.com>
+Subject: [PATCH] HID: magicmouse: disable the multitouch work on removal
+Date: Mon,  9 Nov 2026 23:30:01 -0500
+Message-ID: <20261110043001.56615-1-mhun512@gmail.com>
+X-Mailer: git-send-email 2.47.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -66,102 +95,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260925-stmfts5-v8-5-0fcf49e2c85f@ixit.cz>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 25, 2026 at 11:22:23PM +0200, David Heidelberg via B4 Relay wrote:
-> From: Petr Hodina <petr.hodina@protonmail.com>
-> 
-> Basic touchscreen connected to second i2c bus.
-> 
-> Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
-> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-> Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
-> Co-developed-by: David Heidelberg <david@ixit.cz>
-> Signed-off-by: David Heidelberg <david@ixit.cz>
-> ---
->  arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts | 19 ++++++++++++++++++-
->  arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi  |  2 +-
->  2 files changed, 19 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-> index fa89be500fb85..51c835dca43f1 100644
-> --- a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-> +++ b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-> @@ -21,17 +21,34 @@ &framebuffer0 {
->  	stride = <(1080 * 4)>;
->  };
->  
->  &i2c2 {
->  	clock-frequency = <1000000>;
->  
->  	status = "okay";
->  
-> -	/* ST,FTS @ 49 */
-> +	touchscreen@49 {
-> +		compatible = "st,stmfts5";
-> +		reg = <0x49>;
-> +
-> +		pinctrl-0 = <&touchscreen_irq_n>, <&touchscreen_reset>;
-> +		pinctrl-names = "default";
-> +
-> +		interrupts-extended = <&tlmm 125 IRQ_TYPE_LEVEL_LOW>;
-> +
-> +		mode-switch-gpios = <&tlmm 136 GPIO_ACTIVE_HIGH>;
+During USB runtime reset-resume, usbhid can call magicmouse_reset_resume()
+without serialization against HID driver unbind. The USB interface
+remains bound to usbhid, so this callback can queue msc->work after
+magicmouse_remove() cancels it. The delayed work can then run after
+devres frees msc.
 
-It's not clear to me how this worked or when it started failing, but due
-to a conflict with the reboot-mode binding dt-validate crashes when we
-reach this property.
+Use disable_delayed_work_sync() to drain the work and reject later
+queueing. Probe initializes fresh work on rebind.
 
-I opened a PR to handle it here:
-https://github.com/devicetree-org/dt-schema/pull/212
+Found by a static analysis tool under development.
 
-Regards,
-Bjorn
+Fixes: 4253fe22b137 ("HID: magicmouse: re-enable multitouch after reset-resume")
+Co-developed-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 
-> +		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
-> +
-> +		avdd-supply = <&vreg_l19a_3p3>;
-> +		vdd-supply = <&vreg_l14a_1p8>;
-> +
-> +		touchscreen-size-x = <1080>;
-> +		touchscreen-size-y = <2160>;
-> +	};
->  };
->  
->  &mdss_dsi0 {
->  	vdda-supply = <&vdda_mipi_dsi0_1p2>;
->  
->  	status = "okay";
->  
->  	panel@0 {
-> diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-> index f1379857e2742..6ae1973aa8ac7 100644
-> --- a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-> @@ -504,17 +504,17 @@ firmware-pins {
->  
->  	touchscreen_reset: ts-reset-state {
->  		pins = "gpio99";
->  		function = "gpio";
->  		drive-strength = <8>;
->  		bias-pull-up;
->  	};
->  
-> -	touchscreen_pins: ts-pins-gpio-state {
-> +	touchscreen_irq_n: ts-irq-n-gpio-state {
->  		pins = "gpio125";
->  		function = "gpio";
->  		drive-strength = <2>;
->  		bias-disable;
->  	};
->  
->  	touchscreen_i2c_pins: qup-i2c2-gpio-state {
->  		pins = "gpio27", "gpio28";
-> 
-> -- 
-> 2.55.0
-> 
-> 
+---
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index a01e84a18ded..525ffc64a2f0 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -1032,7 +1032,7 @@ static void magicmouse_remove(struct hid_device *hdev)
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+ 
+ 	if (msc) {
+-		cancel_delayed_work_sync(&msc->work);
++		disable_delayed_work_sync(&msc->work);
+ 		if (is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+ 		    is_usb_magictrackpad2(hdev->vendor, hdev->product))
+ 			timer_delete_sync(&msc->battery_timer);
+
+base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
+-- 
+2.43.0
+

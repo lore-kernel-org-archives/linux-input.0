@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794296127;
-	b=3RZ9NIZXs+EFp2GNHacA0CELwCIpA7pXfA4vun1ZgX0wezA3okcP7RpE9ngUzxdJrqU5
-	 C/uqxG6OlUd89WEYZ+AQ615sqeRQ4aTuUR2w6G1fmMoc8RosH4ns+IcrK8ANg6exFb1sN
-	 udAtJnUBrmCxtvLbbz9Td5R0Uhr+3/Mhx0ZCdquXTWP+2ifZUwhYI9B0Uu9PLjxRNlPry
-	 X2BhiH+OdUJOm4JceB87pHpHgiwyKCK2jYfQgS09h7ychxTmgNlS/ntphYgGfWXZvBCmP
-	 wA06PoiFkE0u1MmD6vunTh31576H2zn55sI3cokg50vtePKfNaXQG1+hc7xVYpF9lVg==
+	b=h+QrOyrylwPE2D0J58ZnpEfpmjamRokG7R5SgfSBrUxPEuaCXP76tJZGpNngZPU67iAc
+	 O4VJcpJvsRwjpp9voDVqPqHAWAs3MqBsqhwQu/Dhxj/GbcQC8qIvk74deJPbzhPxETZgU
+	 BaZzCmoZ/dbHMA3p/UK/Wt0g/r9UfRrR63m8HQNJhUU2ZlmwYNx8UJCKcCBMGy8z5hcvk
+	 ZRPlNHQrmeGcw+yqv9lPhZGunoITVV5WIQ5ha3ajZZmAzOzw0r5+WaIKVXyKLT1ne41JI
+	 9JKBILty2hjSL6OI5SS9MUIaZgJCJI9uVPlkqNFHLMj1kjc3ZKAJzcUIJQXycatgIXA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794296127;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=5zAUHZbIQn/FmPE6LMNqEqfMmdzBT3LM8gMR4UsTGWc=;
-	b=f7stGt41dYkqG99ZRAbcvdFV0E4wSVZCu0sfAtDEa0+7rPkFzwU6StulJVjlRN2BGc7N
-	 JdaLZawDPaLzM0yAy9AovWIyY+LPeYhRfG5EEKm490ztEJysq4t6ZTWLZkYfFwFgWa40B
-	 0zZmVEUYKEZ3Yxhj6CHB7Yak6Qpu1tvzecJ6h4mPcOtk7PdomIylBGKUXVqlxuXpc8HXj
-	 FBDph/ofdvfweTIToCOdy8S9O8oqIpxweZbm/Ngd7jVDFICWdIB/k8kYH/47skoq8nKp5
-	 +N8XsXiSFAMpYQ3EkFEHe6oYiGIV2CJxDf+1mBy09DyAu8dmutWLjU7DSAzL6GJPmKA==
+	bh=lZBatUg3AqKfmKBWuOMTcsEx7PNjRPr/IuDOXemiadc=;
+	b=iG0eqmP4a5SQq4mnZh0+Y2PPgl8j/1/4e3CDV9JkLet57LIwG/fapJOC+bzexjEKTg9q
+	 CIdK5Gn8SFfgyw5Br4cg4F6YyDhBZ911BU7b90BS3nEuh4t77Yai+Hv82qgKzQAGX0wYP
+	 lczPk5mmHMAKCW4TJYscW6r++O6NCxzGgQymv3PnI3NRzip/dfVBxk/bjMNHrSq3vrlWI
+	 pQKWizGggbEYGvgLrSEZM3LzWiLNjkENU6nKKJy5/Xd8KWkXXkHMY1VkaDvqzJMHhni97
+	 SYVTssfciL19Qa1EEWDZ8seBI8r1rwQxvrKeTi1Htt4/bz66VqN9xEAU+/2mm91CeXQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KhnZKvmy;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SW/LeAS7";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6183A60A5BDE;
-	Tue, 10 Nov 2026 07:35:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4569606A330;
+	Tue, 10 Nov 2026 07:35:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KhnZKvmy
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD981F008A4;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SW/LeAS7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 288801F008A6;
 	Tue, 10 Nov 2026 07:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794296127;
-	bh=5zAUHZbIQn/FmPE6LMNqEqfMmdzBT3LM8gMR4UsTGWc=;
+	s=k20260515; t=1794296126;
+	bh=lZBatUg3AqKfmKBWuOMTcsEx7PNjRPr/IuDOXemiadc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KhnZKvmyxBVn9Rah8jrnuUyfbe54EfBwtLO4nL8x0Nh9bM2y5cuBe3g3+mkRS1Vty
-	 OlY1IIFX38+UFMwKWduitfaY30K+ieZwTV7DK9W0QIPS/A2vXACeINWBP+f20BfUHA
-	 fjsv40cMasdh2JCcam9aj6xVgtGQmSqmhBqVvIvUTALL8dVuN5/6/KxZSNOjJd5R61
-	 k3ckXKdQQmI+bPEdYav1g7T4nRmKRXK0MwOkjBPchN0qpwCAKsT6JgUnkg/xgs4KsZ
-	 jVV2xyUfjTpg5KejwWDEEJIDO+gCNwO/XGEJ0C7uKWNhW6jxY3pCIufkaz1kIJuZPS
-	 KGJlNFMK3DopQ==
-Message-ID: <sashiko-outbox-206519@kernel.org>
+	b=SW/LeAS7CjE+EQchxT4q+0cp2Md/AZQEXjZ5Wt2er4mxP5+kN7xpnGk/jY3gx4enk
+	 +JgYfGikjoubbwvNOyhYbLbHohenp7s6As9fPNqcGI7GEdv56lahQ2xue99bukVe53
+	 wrpJP4mTp3OS7pUbMQ9gSr52XDa2w6ErP7xY6sH+31c30OfITDoMUhfeY7Za72bwlT
+	 YRwehNrqxYcjyYaM74voOqZdtKLtwQmDTIdPq1h3gMmoVP7xnbUOnhspBBqqvFIxLP
+	 W7s5s1KXYIxAI86x6COc/eNiC/3gnqha1OIpw25GX9xwO1fUXu3VHoZw+cJr+ozxl/
+	 I3OpGbO0I8jhQ==
+Message-ID: <sashiko-outbox-206518@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 19/19] USB: Authorize devices and interfaces through
- device trust
+Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109-device-trust-core-v2-19-3b12d9a9f861@nvidia.com>
+In-Reply-To: <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-19-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 07:35:26 +0000
+Date: Tue, 10 Nov 2026 07:35:25 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,393 +60,254 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 9 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issues to consider:
-- [High] usb: core: usb_resume_device() fails with -ENOTCONN on
-  trust-disabled devices
-- [High] usb: core: missing usb_notify_remove_device() on unbound
-  disconnect
-- [Medium] usb: core: probing deauthorized device or interface
-  prematurely commits trust
-- [Medium] usb: core: usb_driver_claim_interface() rejects disabled
-  sibling before driver rule
-- [Medium] usb: core: usb_authorize_device() drops device lock and races
-  with deauthorize
-- [Medium] usb: core: usb_device_authorized() true before driver
-  admission
-- [Medium] usb: core: usb_set_configuration() drops parent adversarial
-  policy
-- [Medium] usb: core: race in usb_authorize_interface() with
-  deauthorization
-- [Low] usb: core: missing device_trust_init() in usb_alloc_dev()
+- [High] PCI: broken adversarial trust inheritance in
+  pci_set_default_trust_policy()
+- [High] PCI: default trust policy overwrites adversarial default on
+  removable devices
+- [Medium] PCI: pci_enable_acs() and pci_ats_init() break
+  disabled-to-full trust policy
+- [Medium] PCI: pci_dev_ats_permitted() drops PCI_ACS_TB after full
+  authorization
+- [Medium] PCI: of_create_pci_dev() skips pci_set_default_trust_policy()
+  before ATS init
 --
 
-commit b35772e1cb354ec9df9404c1711878235a7ba8c8
+commit 7c55633025e040b3c2b6b2f31a6d205ea496c0f7
 Author: Leon Romanovsky <leon@kernel.org>
 
-USB: Authorize devices and interfaces through device trust
+PCI: Replace untrusted state with device trust
 
-This commit integrates USB device and interface authorization with device
-trust by mapping the default authorization policies to
-DEVICE_TRUST_POLICY_DISABLED and requesting DEVICE_TRUST_POLICY_FULL when
-authorizing via sysfs.
+This commit replaces pci_dev::untrusted with the generic device trust policy
+and trust level helpers across the PCI and IOMMU subsystems.
 
-> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> index 04b77691fbd7d..2ebd05d3855f4 100644
-> --- a/drivers/usb/core/driver.c
-> +++ b/drivers/usb/core/driver.c
-> @@ -334,10 +334,10 @@ static int usb_probe_interface(struct device *dev)
->  	if (usb_device_is_owned(udev))
->  		return error;
-> =20
-> -	if (udev->authorized =3D=3D 0) {
-> +	if (!usb_device_authorized(udev)) {
->  		dev_info(&intf->dev, "Device is not authorized for usage\n");
->  		return error;
-> -	} else if (intf->authorized =3D=3D 0) {
-> +	} else if (!usb_interface_authorized(intf)) {
->  		dev_info(&intf->dev, "Interface %d is not authorized for usage\n",
->  				intf->altsetting->desc.bInterfaceNumber);
->  		return error;
-
-[Severity: Medium]
-Does rejecting a deauthorized device or interface inside
-usb_probe_interface() (or usb_generic_driver_probe()) happen too late to
-avoid committing its trust level?
-
-When an interface starts with interface_authorized_default enabled
-(trust_state =3D=3D DEVICE_TRUST_SELECTABLE) and is deauthorized before any
-driver binds, intf->authorized is cleared to 0 while intf->dev.trust_policy
-stays DEVICE_TRUST_POLICY_DEFAULT.  Because usb_device_match() does not che=
-ck
-authorization, a subsequent driver load or reprobe enters really_probe() and
-runs device_trust_prepare() before usb_probe_interface() is called:
-
-drivers/base/dd.c:really_probe() {
-    ...
-re_probe:
-	ret =3D device_trust_prepare(dev, drv);
-	if (ret) {
-    ...
-}
-
-device_trust_prepare() permanently sets dev->p->trust_state to
-DEVICE_TRUST_COMMITTED before usb_probe_interface() returns -ENODEV, and
-device_trust_clear() in the probe failure path does not revert trust_state.
-User space can then no longer change trust_policy on the deauthorized
-interface and gets -EBUSY.
-
-> @@ -560,13 +560,9 @@ int usb_driver_claim_interface(struct usb_driver *dr=
-iver,
->  		return -EBUSY;
-> =20
->  	/* reject claim if interface is not authorized */
-> -	if (!iface->authorized)
-> +	if (!usb_interface_authorized(iface))
->  		return -ENODEV;
-> =20
-> -	if (!device_is_registered(dev) &&
-> -	    dev->trust_policy =3D=3D DEVICE_TRUST_POLICY_DISABLED)
-> -		return -EPERM;
-> -
->  	dev->driver =3D &driver->driver;
->  	usb_set_intfdata(iface, data);
->  	iface->needs_binding =3D 0;
-
-[Severity: Medium]
-Does checking usb_interface_authorized(iface) here break claiming sibling
-interfaces when interfaces start disabled by default and a driver is
-authorized via a device_trust.driver=3D boot rule?
-
-When interface_authorized_default is 0 or device_trust.default=3Ddisabled is
-set, each interface starts with iface->dev.trust_policy set to
-DEVICE_TRUST_POLICY_DISABLED.  Driver rules from device_trust.driver=3D are
-only applied when device_trust_prepare() runs inside device_bind_driver() or
-device_add() later in usb_driver_claim_interface().  Testing
-usb_interface_authorized(iface) up front sees DEVICE_TRUST_POLICY_DISABLED =
-on
-the sibling interface and returns -ENODEV before device_trust_prepare() can
-evaluate the driver rule.
-
-> diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-> index 199d3f535a891..086b8db36f51a 100644
-> --- a/drivers/usb/core/hub.c
-> +++ b/drivers/usb/core/hub.c
-
-[ ... ]
-
-> @@ -2786,7 +2786,22 @@ int usb_authorize_device(struct usb_device *usb_de=
-v)
+> diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+> index 9cb23780093dd..c8c96acc26343 100644
+> --- a/drivers/pci/ats.c
+> +++ b/drivers/pci/ats.c
+> @@ -21,7 +21,7 @@ void pci_ats_init(struct pci_dev *dev)
 >  {
->  	int result =3D 0, c;
+>  	int pos;
 > =20
-> +	/* Authorizing a device that its trust policy holds back admits it */
-> +	if (device_policy_is_disabled(&usb_dev->dev)) {
-> +		result =3D device_trust_set_policy(&usb_dev->dev,
-> +						 DEVICE_TRUST_POLICY_FULL);
-> +		if (result)
-> +			return result;
-> +	}
-> +
->  	usb_lock_device(usb_dev);
-> +	if (!usb_dev->dev.driver) {
-> +		/* Binding the generic driver configures the device */
-> +		usb_dev->authorized =3D 1;
-> +		usb_unlock_device(usb_dev);
-> +		result =3D device_attach(&usb_dev->dev);
-> +		return result < 0 ? result : 0;
-> +	}
->  	if (usb_dev->authorized =3D=3D 1)
->  		goto out_authorized;
-
-[Severity: Medium]
-Can a concurrent usb_deauthorize_device() race with usb_authorize_device()
-across the unlocked windows between device_trust_set_policy(),
-usb_lock_device(), and device_attach()?
-
-Because usb_alloc_dev() initializes usb_dev->authorized to 1,
-usb_device_authorized(usb_dev) becomes true as soon as
-device_trust_set_policy() sets DEVICE_TRUST_POLICY_FULL and drops the device
-lock:
-
-CPU0                                  CPU1
-usb_authorize_device(usb_dev)
-  device_trust_set_policy(..., FULL)
-    device_lock(&usb_dev->dev)
-    usb_dev->dev.trust_policy =3D FULL
-    device_unlock(&usb_dev->dev)
-                                      usb_deauthorize_device(usb_dev)
-                                        usb_lock_device(usb_dev)
-                                        usb_dev->authorized =3D 0
-                                        usb_set_configuration(usb_dev, -1)
-                                        usb_unlock_device(usb_dev)
-  usb_lock_device(usb_dev)
-  if (!usb_dev->dev.driver)
-    usb_dev->authorized =3D 1
-    usb_unlock_device(usb_dev)
-    device_attach(&usb_dev->dev)  <-- configures deauthorized device
-
-A deauthorization that completed on CPU1 is silently overwritten, leaving t=
-he
-device authorized and configured.  If usb_deauthorize_device() instead runs
-between usb_unlock_device() and device_attach(), device_attach() still binds
-usb_generic_driver and commits DEVICE_TRUST_FULL on the deauthorized device.
-
-> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-> index 2d75b85b2d139..ddede900dace8 100644
-> --- a/drivers/usb/core/message.c
-> +++ b/drivers/usb/core/message.c
-
-[ ... ]
-
-> @@ -1872,16 +1872,27 @@ void usb_deauthorize_interface(struct usb_interfa=
-ce *intf)
->   * usb_authorize_interface - authorize an USB interface
->   *
->   * @intf: USB interface structure
-> + *
-> + * Return: 0 on success, or the error of the trust policy request.
+> -	if (pci_ats_disabled() || dev->untrusted)
+> +	if (pci_ats_disabled() || pci_dev_default_is_restricted(dev))
+>  		return;
+> =20
+>  	pos =3D pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ATS);
+> @@ -40,7 +40,7 @@ void pci_ats_init(struct pci_dev *dev)
 >   */
-> -void usb_authorize_interface(struct usb_interface *intf)
-> +int usb_authorize_interface(struct usb_interface *intf)
+>  bool pci_ats_supported(struct pci_dev *dev)
 >  {
->  	struct device *dev =3D &intf->dev;
-> +	int ret;
-> +
-> +	/* Authorizing an interface that its trust policy holds back admits it =
-*/
-> +	if (device_policy_is_disabled(dev)) {
-> +		ret =3D device_trust_set_policy(dev, DEVICE_TRUST_POLICY_FULL);
-> +		if (ret)
-> +			return ret;
-> +	}
+> -	if (!dev->ats_cap || dev->untrusted)
+> +	if (!dev->ats_cap)
+>  		return false;
 > =20
->  	if (!intf->authorized) {
->  		device_lock(dev);
->  		intf->authorized =3D 1; /* authorize interface */
->  		device_unlock(dev);
->  	}
-> +	return 0;
+>  	if (dev->is_virtfn)
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index 7c6f2aba81443..b08adba03f96b 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -1016,8 +1016,9 @@ static void pci_std_enable_acs(struct pci_dev *dev,=
+ struct pci_acs *caps)
+>  	/* Upstream Forwarding */
+>  	caps->ctrl |=3D (dev->acs_capabilities & PCI_ACS_UF);
+> =20
+> -	/* Enable Translation Blocking for external devices and noats */
+> -	if (pci_ats_disabled() || dev->external_facing || dev->untrusted)
+> +	/* Enable Translation Blocking when ATS is unavailable or restricted. */
+> +	if (pci_ats_disabled() || dev->external_facing ||
+> +	    !pci_dev_ats_permitted(dev))
+>  		caps->ctrl |=3D (dev->acs_capabilities & PCI_ACS_TB);
 >  }
 
 [Severity: Medium]
-Can usb_authorize_interface() race with a concurrent
-usb_deauthorize_interface() when device_trust_set_policy() and
-intf->authorized =3D 1 run in separate critical sections without
-device_lock(dev->parent)?
+Does a device that starts with DEVICE_TRUST_POLICY_DISABLED (for example via
+device_trust.default=3Ddisabled before initrd authorization or a driver tru=
+st
+rule) keep ATS disabled and PCI_ACS_TB enabled even after it is authorized =
+for
+DEVICE_TRUST_FULL?
 
-CPU0                                  CPU1
-usb_authorize_interface(intf)
-  device_trust_set_policy(..., FULL)
-    device_lock(dev)
-    dev->trust_policy =3D FULL
-    device_unlock(dev)
-                                      usb_deauthorize_interface(intf)
-                                        device_lock(dev->parent)
-                                        device_lock(dev)
-                                        intf->authorized =3D 0
-                                        device_unlock(dev)
-                                        usb_forced_unbind_intf(intf)
-                                          intf->needs_binding =3D 1
-  if (!intf->authorized)
-    device_lock(dev)
-    intf->authorized =3D 1  <-- clobbers deauthorization and races on bitfi=
-eld
-    device_unlock(dev)
-                                        device_unlock(dev->parent)
+During pci_device_add(), pci_ats_init() sees pci_dev_default_is_restricted()
+return true and skips initializing dev->ats_cap; nothing re-runs
+pci_ats_init() when the device later transitions to DEVICE_TRUST_FULL.
+Likewise, device_add() -> iommu_probe_device() -> pci_dma_configure() ->
+pci_enable_acs() runs while the device is still unbound
+(DEVICE_TRUST_DISABLED), so !pci_dev_ats_permitted(dev) is true and
+pci_std_enable_acs() (as well as pci_quirk_enable_intel_spt_pch_acs()) sets
+PCI_ACS_TB in hardware.  When really_probe() later sets DEVICE_TRUST_FULL a=
+nd
+calls pci_dma_configure() -> pci_enable_acs() a second time, pci_enable_acs=
+()
+reads the existing PCI_ACS_CTRL register value into caps.ctrl and only ORs
+bits into it, never clearing PCI_ACS_TB.
 
-Because intf->authorized starts at 1, usb_interface_authorized(intf) becomes
-true as soon as device_trust_set_policy() drops device_lock(dev).  If
-usb_deauthorize_interface() runs at that point, usb_authorize_interface()
-then sees !intf->authorized and sets intf->authorized back to 1 without
-holding device_lock(dev->parent), undoing the deauthorization and racing wi=
-th
-usb_forced_unbind_intf() writing intf->needs_binding in the same bitfield
-word.
-
-[ ... ]
-
-> @@ -2173,7 +2184,10 @@ int usb_set_configuration(struct usb_device *dev, =
-int configuration)
->  		intfc =3D cp->intf_cache[i];
->  		intf->altsetting =3D intfc->altsetting;
->  		intf->num_altsetting =3D intfc->num_altsetting;
-> -		intf->authorized =3D !!HCD_INTF_AUTHORIZED(hcd);
-> +		/* The authorization default is the interface's initial trust policy */
-> +		if (!HCD_INTF_AUTHORIZED(hcd))
-> +			intf->dev.trust_policy =3D DEVICE_TRUST_POLICY_DISABLED;
-> +		intf->authorized =3D 1;
->  		kref_get(&intfc->ref);
-
-[Severity: Medium]
-When a USB device is authorized with the "adversary" trust policy, does
-usb_set_configuration() fail to propagate that policy to its child
-interfaces?
-
-Documentation/usb/authorization.rst explains that writing "adversary" to a
-device's trust_policy before writing 1 to authorized operates the device as
-an adversary, and boot rules such as device_trust=3Dusb:1-2=3Dadversary set=
- the
-policy on the struct usb_device as well.  However, usb_set_configuration()
-leaves intf->dev.trust_policy at DEVICE_TRUST_POLICY_DEFAULT whenever
-HCD_INTF_AUTHORIZED(hcd) is set, and usb_bus_type does not propagate parent
-adversarial trust to child interfaces.  As a result, USB interface drivers
-bind to intf->dev with DEVICE_TRUST_FULL and device_is_adversarial(&intf->d=
-ev)
-returns false.
-
-> diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
-> index 2559a180fdeec..8b427209bcc02 100644
-> --- a/drivers/usb/core/usb.c
-> +++ b/drivers/usb/core/usb.c
-> @@ -747,7 +747,10 @@ struct usb_device *usb_alloc_dev(struct usb_device *=
-parent,
->  	dev->active_duration =3D -jiffies;
->  #endif
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index 5b6960bbb35bc..607569c31b5b9 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -1738,24 +1738,24 @@ static void set_pcie_cxl(struct pci_dev *dev)
 > =20
-> -	dev->authorized =3D usb_dev_authorized(dev, usb_hcd);
-> +	/* The authorization default is the device's initial trust policy */
-> +	if (!usb_dev_authorized(dev, usb_hcd))
-> +		dev->dev.trust_policy =3D DEVICE_TRUST_POLICY_DISABLED;
-> +	dev->authorized =3D 1;
+>  }
+> =20
+> -static void set_pcie_untrusted(struct pci_dev *dev)
+> +static void pci_set_default_trust_policy(struct pci_dev *dev)
+>  {
+> -	struct pci_dev *parent =3D pci_upstream_bridge(dev);
+> +	struct pci_dev *parent =3D pci_physfn(dev);
+> +
+> +	if (parent =3D=3D dev)
+> +		parent =3D pci_upstream_bridge(dev);
+> =20
+>  	if (!parent)
+>  		return;
+> -	/*
+> -	 * If the upstream bridge is untrusted we treat this device as
+> -	 * untrusted as well.
+> -	 */
+> -	if (parent->untrusted) {
+> -		dev->untrusted =3D true;
+> +
+> +	if (device_policy_is_adversarial(&parent->dev)) {
+> +		dev->dev.trust_policy =3D DEVICE_TRUST_POLICY_ADVERSARY;
+>  		return;
+>  	}
+> =20
+>  	if (arch_pci_dev_is_removable(dev)) {
+> -		pci_dbg(dev, "marking as untrusted\n");
+> -		dev->untrusted =3D true;
+> +		pci_dbg(dev, "setting adversarial trust policy\n");
+> +		dev->dev.trust_policy =3D DEVICE_TRUST_POLICY_ADVERSARY;
+>  	}
+>  }
 
 [Severity: High]
-When a USB device is held with DEVICE_TRUST_POLICY_DISABLED so
-usb_generic_driver does not bind, does usb_resume_device() fail with
--ENOTCONN after the device is suspended?
+Can downstream devices behind a removable PCIe switch or SR-IOV VFs on a
+removable PF lose their adversarial default policy when the parent's
+trust_policy is overridden?
 
-Previously, an unauthorized USB device still bound usb_generic_driver during
-device_add(), so udev->dev.driver was non-NULL.  With udev->dev.driver now
-NULL on a trust-disabled device, usb_suspend_device() falls back to
-usb_generic_driver and suspends the port, setting udev->state to
-USB_STATE_SUSPENDED, but usb_resume_device() rejects unbound devices:
+In pci_setup_device(), device_trust_init(&dev->dev) runs on the parent brid=
+ge
+before child buses are scanned (or before SR-IOV VFs are created).  If the
+parent port or PF has its trust_policy changed to disabled or full (for
+example via device_trust.default=3Ddisabled, a per-device rule, or sysfs),
+device_policy_is_adversarial(&parent->dev) is false for its children.  On x=
+86
+ACPI systems, arch_pci_dev_is_removable() only returns true for the switch
+upstream port directly beneath an integrated USB4/Thunderbolt root port and
+returns false for the switch's downstream ports, endpoints below them, and
+VFs:
 
-drivers/usb/core/driver.c:usb_resume_device() {
-    ...
-	/* Can't resume it if it doesn't have a driver. */
-	if (udev->dev.driver =3D=3D NULL) {
-		status =3D -ENOTCONN;
-		goto done;
-	}
-    ...
+arch/x86/pci/acpi.c:arch_pci_dev_is_removable() {
+	...
+	/* Anything directly behind a "usb4-host-interface" is tunneled */
+	if (pcie_has_usb4_host_interface(parent))
+		return true;
+
+	if (pcie_switch_directly_under(root, pdev))
+		return false;
+	...
 }
 
-System sleep resume and runtime resume therefore fail with -ENOTCONN, leavi=
+Those child devices therefore stay at DEVICE_TRUST_POLICY_DEFAULT and resol=
+ve
+to DEVICE_TRUST_FULL, bypassing IOMMU DMA domain enforcement, ATS and ACS
+restrictions, and SWIOTLB bounce buffering.  Running pci_set_removable(dev)
+before pci_set_default_trust_policy(dev) and checking dev_is_removable() wo=
+uld
+preserve the hardware removability state across parent policy overrides.
+
+> @@ -2082,7 +2082,7 @@ int pci_setup_device(struct pci_dev *dev)
+> =20
+>  	set_pcie_cxl(dev);
+> =20
+> -	set_pcie_untrusted(dev);
+> +	pci_set_default_trust_policy(dev);
+>  	device_trust_init(&dev->dev);
+> =20
+>  	/* "Unknown power state" */
+
+[Severity: Medium]
+On PowerPC and SPARC systems where of_create_pci_dev() creates PCI devices
+directly without calling pci_setup_device(), does pci_ats_init() run before
+the device trust policy is initialized?
+
+of_create_pci_dev() calls pci_device_add(), which runs
+pci_init_capabilities() -> pci_ats_init() before device_add() calls
+device_trust_init(), and never calls pci_set_default_trust_policy().  Becau=
+se
+pci_ats_supported() no longer checks the device state at runtime, dev->ats_=
+cap
+is populated while trust_policy is still DEVICE_TRUST_POLICY_DEFAULT, leavi=
 ng
-the upstream port suspended and udev->state stuck in USB_STATE_SUSPENDED, a=
-nd
-subsequent authorization via usb_authorize_device() fails when trying to
-configure the device over the suspended port.
+ATS enabled even when a boot trust policy restricts the device.
 
-[Severity: High]
-Does leaving udev->dev.driver NULL on a trust-disabled USB device also skip
-usb_notify_remove_device() when the device is disconnected before being
-authorized?
-
-usb_disconnect() relies on the bound device driver's disconnect callback to
-invoke the remove-device notifier chain during device_del(&udev->dev), and
-usb_generic_driver_disconnect() is the only caller of
-usb_notify_remove_device(udev).  While a device is held back by device trus=
-t,
-its /dev/bus/usb/BBB/DDD node still exists and can be opened via
-usbdev_open().  If the device is unplugged without ever binding
-usb_generic_driver, usb_notify_remove_device() and usbdev_remove() are never
-called, so processes blocked in poll() or usbfs ioctls on that file
-descriptor are never woken up and hang indefinitely.
-
->  	trace_usb_alloc_dev(dev);
->  	return dev;
->  }
-
-[Severity: Low]
-Should usb_alloc_dev() call device_trust_init(&dev->dev) before
-trace_usb_alloc_dev(dev)?
-
-trace_usb_alloc_dev() and the early trace_usb_set_device_state() calls prior
-to device_add() record usb_device_authorized(udev).  Because
-device_trust_init(&dev->dev) has not been called yet, those tracepoints log
-the HCD default policy rather than any boot policy from device_trust.defaul=
-t=3D
-or device_trust=3D.
-
-> diff --git a/include/linux/usb.h b/include/linux/usb.h
-> index 825f03b290670..2ead3234b1301 100644
-> --- a/include/linux/usb.h
-> +++ b/include/linux/usb.h
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index aa3765a20a96c..087c63b177c85 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
 
 [ ... ]
 
-> @@ -747,6 +753,15 @@ struct usb_device {
-> =20
->  #define to_usb_device(__dev)	container_of_const(__dev, struct usb_device=
-, dev)
-> =20
-> +/*
-> + * A device is authorized when its trust policy lets it bind and user sp=
-ace has
-> + * not deauthorized it since.
-> + */
-> +static inline bool usb_device_authorized(const struct usb_device *udev)
+> @@ -616,6 +608,28 @@ static inline struct pci_dev *to_pci_dev(const struc=
+t device *dev)
+>  {
+>  	return container_of(dev, struct pci_dev, dev);
+>  }
+> +
+> +static inline bool
+> +pci_dev_default_is_restricted(const struct pci_dev *pdev)
 > +{
-> +	return udev->authorized && !device_policy_is_disabled(&udev->dev);
+> +	enum device_trust_policy policy =3D READ_ONCE(pdev->dev.trust_policy);
+> +
+> +	return policy =3D=3D DEVICE_TRUST_POLICY_DISABLED ||
+> +	       policy =3D=3D DEVICE_TRUST_POLICY_ADVERSARY;
+> +}
+
+[Severity: High]
+If a removable PCI device is configured with an explicit "default" trust
+policy (via device_trust=3D, device_trust.driver=3D, or sysfs trust_policy)=
+, does
+that overwrite DEVICE_TRUST_POLICY_ADVERSARY with DEVICE_TRUST_POLICY_DEFAU=
+LT
+and grant the external device DEVICE_TRUST_FULL?
+
+In pci_setup_device(), device_trust_init() runs after
+pci_set_default_trust_policy() and overwrites dev->dev.trust_policy with
+DEVICE_TRUST_POLICY_DEFAULT when a per-device default rule matches.  Because
+pci_dev_default_is_restricted() only checks for DISABLED and ADVERSARY, and
+pci_bus_type does not implement .trust_resolve, DEVICE_TRUST_POLICY_DEFAULT
+bypasses pci_dev_default_is_restricted() during discovery and resolves to
+DEVICE_TRUST_FULL in __device_trust_prepare() at bind time.
+
+> +static inline bool pci_dev_ats_permitted(const struct pci_dev *pdev)
+> +{
+> +	enum device_trust_level level =3D device_get_trust_level(&pdev->dev);
+> +	enum device_trust_policy policy =3D READ_ONCE(pdev->dev.trust_policy);
+> +
+> +	if (level =3D=3D DEVICE_TRUST_DISABLED)
+> +		return policy !=3D DEVICE_TRUST_POLICY_ADVERSARY &&
+> +		       policy !=3D DEVICE_TRUST_POLICY_DISABLED;
+> +
+> +	return level =3D=3D DEVICE_TRUST_FULL;
 > +}
 
 [Severity: Medium]
-Does usb_device_authorized() report true as soon as trust_policy is changed
-from disabled, even before the device has been authorized or bound to a
-driver?
+Can a device discovered with DEVICE_TRUST_POLICY_DISABLED lose PCI_ACS_TB in
+hardware after being authorized for DEVICE_TRUST_FULL and undergoing a PCI
+reset or D3cold transition?
 
-Because usb_alloc_dev() initializes udev->authorized to 1, writing
-"adversary" to trust_policy (as Documentation/usb/authorization.rst instruc=
-ts
-before writing 1 to authorized) makes device_policy_is_disabled(&udev->dev)
-false and usb_device_authorized(udev) true while udev->dev is still unbound
-and unadmitted.  At that point, reading sysfs authorized already returns 1,
-and writing to bConfigurationValue (or issuing USBDEVFS_SETCONFIGURATION)
-passes the !usb_device_authorized(dev) check in usb_set_configuration() and
-configures the device and binds interface drivers while udev->dev.driver is
-still NULL and udev->dev's trust level is still DEVICE_TRUST_DISABLED.
+At discovery, pci_ats_init() skips setting dev->ats_cap and pci_enable_acs()
+sets PCI_ACS_TB because !pci_dev_ats_permitted(dev) is true.  Once the devi=
+ce
+is authorized and bound with DEVICE_TRUST_FULL, pci_dev_ats_permitted()
+returns true even though dev->ats_cap is 0.  Because ACS registers are not
+saved in saved_cap_space, a subsequent reset or D3cold resume clears the
+hardware register and runs pci_restore_state() -> pci_enable_acs() ->
+pci_std_enable_acs(), which sees pci_dev_ats_permitted() return true and
+leaves PCI_ACS_TB cleared.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-device-tru=
-st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D19
+st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D18

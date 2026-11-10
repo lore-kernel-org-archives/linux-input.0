@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794287214;
-	b=IxnlSYpo7DabVBO5rJ8PYLQ+bT4GYnHZwIBjODRuczuzQLwb/pGh8rVRmGxRLg5siakb
-	 HKrIz3CYc4Yqns8KOl0LAFdf3R2y4SBgIraLJgLeCSM9Jm/EPBbWNflh01vh79Hce/gqO
-	 V1mSXLMrZi45guPxxW5hyo38mc6T3Ci7lv4b2VjAo0Al+ZssyPZq0aV64F917JCpQtEmV
-	 AXY/9BBlsUQ06EjgFb9bZ72b0xqLjeDzS8YQcPFbM7CZYhem2BKe+5+4SWTG7bBMzygUg
-	 O4YKUIHyLZSFh1wnf9ca0H2VKLkIzcbE3z25eEMkTKqkOeAs2gGPWasgO4VSILSdY7g==
+	t=1794287505;
+	b=ziejlh5BFXheGjpPLciCSvXIW20Bmjw91LboyeRyiKa3gNGyEJbuI4YBJ4zqsbxcPmWG
+	 B2Y3VH3F3LSgirFMAVhVZ4hDb7nNe3SR3e4zKri17ivPzfrOfspYY2FyAj6YuVRDcwmtb
+	 Ra4P3LQPN/fILPUpUDg5LOSJEzJNtehthzy9qMSaVCgvWvZfB/aFUK5DhZE+KdYJTPaYK
+	 dHzbMZ1y6Zb7rjDobMowO7IEwrkTQqm99ZhSO+mxNIG7hg5+z3ugcw3qyk9gtFRFsVaps
+	 x+3VRVoAtlBrOu8LVvOQsgSGQz+64fjqMmr+G62vtx+lPkATEU8KGn7qP1TJJ2j/cBw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794287214;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794287505;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=tUt+HWVux+gZPHG3KzGKmlAZSFClq01XOf9Y/FH+404=;
-	b=B9ltUvgh07ZgnarsE+/c/CpYviPyiIDZZ0n4soI6VN/u1GAHDbPkHKCfEx7wLOdgvYby
-	 0pD8OykARTMQKJjWAfcdQEiIS/VFXNPWR1XYBMM+4UQXuLLLaF/Y/IRFmr7IIqZ3N/AbW
-	 qIbBJrDkGm8FruYnFHvxK3NMbyEW0kf3vTObM1BYjxupP1NNglXa+3xCijc31oT4YQn0m
-	 N5BWgEdPQpnXHfV0ZvpELc63iKmTD/aLY4f/OhuQ2cuLRcpImERZQ7iRr3pZU1A11ZPaN
-	 MWnwfU3j30PZ3KZi5c3mmSIJN+OpShm/IIX8CWHrGulfqV/EGxtnlXMnn8DUy2EQzJA==
+	bh=6OFrbBHBxIVPOYUrR23H2976j8z4XMEES6X4irA2Xno=;
+	b=UF5407ycretcGnr7aUrKx436HoSKtgfZSb5R+/45E8lL8nDsVhAzfWt23dgGftBFLm27
+	 JwrSsxEONlGloZBKkcVXSC+1UpelGMJyl8kZ57+piUMNRrCBVfqocIX0idPVoW2eEqFr2
+	 fS2A9MnPC/nGlgokO2ELPsRaxz92nxBd135/nEcB+VKK9Aa6+Fbgik84aEANnM/RRI9ga
+	 8uDcKrCXL/Oynhp85Nr8TNiEu5DhtcG9yh/X2m7uLBz29G26q/0JF1yJzJAMMF6SYSojP
+	 CeaMfMesJszzwu3wGbD2sLu8CnBALKQe9zrP2jS4hyxiGKKkoyCz1XD4qGKD9XqkYzA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LwxGKFNM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HgY13Lbp;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59763606A325
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 05:06:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D23D606A32E
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 05:11:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LwxGKFNM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C68341F008A1;
-	Tue, 10 Nov 2026 05:06:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HgY13Lbp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0307D1F0089F;
+	Tue, 10 Nov 2026 05:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794287214;
-	bh=tUt+HWVux+gZPHG3KzGKmlAZSFClq01XOf9Y/FH+404=;
+	s=k20260515; t=1794287505;
+	bh=6OFrbBHBxIVPOYUrR23H2976j8z4XMEES6X4irA2Xno=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LwxGKFNMxg6w6tuzL7dOEhrNMZPBS6FhfGaI4jc2bcw0C+xYLu1jZSpv9avQDfY8c
-	 OGTUJRQFBn+qSpc3rS43mkq9sQaFl1hCayJbqRWUjNIRerdJ3FBa4kQcn0yX/wlbUU
-	 8wZWKbDB+1/7D71fnlvBSLL4MorVmLcjj96U0TU9senjyGjS2ft5ZhjTOo91nWFooQ
-	 X2D432a4VWXSgCMKaU49x/oErWg/K664q9YcqtlvEhjITB4Xo+2KDaJybzKsAXNnOY
-	 aaS/f46E+pzjyZu5QjkLMI/k5Ad0d3yP7kOK9A6Wu2HFhqjkzAGnyey/BsU0k3cz8e
-	 WlM8etXWTOiEw==
-Message-ID: <sashiko-outbox-206258@kernel.org>
+	b=HgY13LbpbBGHtUjjiWvIace03LGSONeYtHlbuN1S4Ac93DByQuomQQNKCmKRwsvIH
+	 twprjoltDtgCPmV3TjAXCGdXhvmDLGG8owE574iog/8qtMbjfZcj3yrcMscfHavllX
+	 q/fagjgSs+nv5Nmypto9sAlRLY7lbclCO97S5PLw24dFM6lx/TdWy/+2A14PWXztK7
+	 KwesY6SoyjE+vCy64b+tPYMiteBH2dq2DU8HPSyyTIZBlP+4wvHO0aMQ+uNOK6+moq
+	 hJ3L0ZL6Azjiy0nFOyinWDKK7PiL6WgbLmhW6a4yqffbnroF/W0FalKPfvHjnPYc1Q
+	 sOpBQI2IYHpig==
+Message-ID: <sashiko-outbox-206266@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] HID: intel-thc-hid: quicki2c: quiesce IRQs
+Subject: Re: [PATCH v2 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs
  during teardown
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Myeonghun Pak" <mhun512@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109-thc-rebase-v2-2-mhun512@gmail.com>
+In-Reply-To: <20261109-thc-rebase-v2-1-mhun512@gmail.com>
 References: <20261109-thc-rebase-v2-0-mhun512@gmail.com>
- <20261109-thc-rebase-v2-2-mhun512@gmail.com>
+ <20261109-thc-rebase-v2-1-mhun512@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 05:06:53 +0000
+Date: Tue, 10 Nov 2026 05:11:44 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,90 +63,62 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [High] HID: intel-thc-hid: quicki2c: premature IRQ/dev teardown in
-  quicki2c_remove()
+- [Medium] HID: intel-thc-hid: quickspi: broken HID teardown in
+  quickspi_remove()
 --
 
-commit 91b9650f43556a025a9bb311fa9a30624bcb700a
+commit fefc2e678efd20341c68b06e3be50ff1570c6a3b
 Author: Myeonghun Pak <mhun512@gmail.com>
 
-HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
+HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
 
-This commit disables and frees the device IRQ, cancels recovery work, and
-quiesces THC interrupts during probe error unwind, removal, and shutdown.
+This commit disables and frees the device IRQ and stops recovery work
+before tearing down HID and DMA resources during probe error unwind,
+driver removal, and shutdown.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
-ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> index 29319b6227f3f..a3e98e0faff83 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index bf49d8ce5f07b..acb4d2716ea74 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
 
 [ ... ]
 
-> @@ -788,9 +798,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
->  	if (!qcdev)
+> @@ -721,9 +731,12 @@ static void quickspi_remove(struct pci_dev *pdev)
+>  	if (!qsdev)
 >  		return;
 > =20
-> -	quicki2c_hid_remove(qcdev);
+> -	quickspi_hid_remove(qsdev);
 > -
-> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	WRITE_ONCE(qsdev->recovery_disabled, true);
 > +	disable_irq(pdev->irq);
->  	quicki2c_dev_deinit(qcdev);
-> +	devm_free_irq(&pdev->dev, pdev->irq, qcdev);
+>  	quickspi_dev_deinit(qsdev);
+> +	devm_free_irq(&pdev->dev, pdev->irq, qsdev);
 > +
-> +	quicki2c_hid_remove(qcdev);
+> +	quickspi_hid_remove(qsdev);
 > =20
->  	quicki2c_dma_deinit(qcdev);
+>  	quickspi_dma_deinit(qsdev);
 
-[Severity: High]
-Does disabling and freeing pdev->irq and calling quicki2c_dev_deinit()
-before quicki2c_hid_remove() break synchronous HID report transfers issued
-while unregistering qcdev->hid_dev?
+[Severity: Medium]
+Does moving quickspi_hid_remove() after disable_irq(),
+quickspi_dev_deinit(), and devm_free_irq() break synchronous HID requests
+issued during hid_destroy_device()?
 
-While hid_destroy_device() runs, bound HID drivers and open hidraw clients
-still invoke quicki2c_hid_raw_request() or quicki2c_hid_output_report().
-For example, when an input device is open during removal, hid-multitouch
-calls hid_hw_close() -> mt_on_hid_hw_close() -> mt_set_modes(), which sends
-HID_REQ_SET_REPORT and HID_REQ_GET_REPORT via thc_dma_write() and
-thc_swdma_read().
+When a hid-multitouch input device is open during unbind,
+hid_destroy_device() closes it synchronously via mt_on_hid_hw_close() ->
+mt_set_modes(), which calls quickspi_hid_raw_request() ->
+quickspi_set_report() -> write_cmd_to_txdma() -> thc_dma_write(). Because
+neither quickspi_hid_raw_request() nor thc_dma_write() checks qsdev->state
+and THC_TXDMA remains enabled until quickspi_dma_deinit(), thc_dma_write()
+starts hardware TxDMA and stalls until timeout waiting for a THC_TXDMA_INT
+completion interrupt that can no longer fire.
 
-Because pdev->irq is already disabled and freed and THC interrupts are
-masked, wait_event_interruptible_timeout() on dev->write_complete_wait and
-dev->swdma_complete_wait can never be woken, stalling each transfer for 1
-second until it fails with -ETIMEDOUT.
-
-On timeout, thc_swdma_read() also skips thc_swdma_read_completion(), and
-thc_dma_unconfigure() only clears THC_M_PRT_READ_DMA_CNTRL_START on
-THC_RXDMA1 and THC_RXDMA2, leaving THC_SWDMA or THC_TXDMA started when
-thc_dma_release() unmaps and frees the DMA buffers:
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_swdma_read() {
-	...
-	ret =3D thc_swdma_read_start(dev, write_buff, write_len, prd_tbl_len);
-	if (ret)
-		goto end;
-
-	ret =3D wait_event_interruptible_timeout(dev->swdma_complete_wait, dev->sw=
-dma_done, 1 * HZ);
-	if (ret <=3D 0 || !dev->swdma_done) {
-		dev_err_once(dev->dev, "timeout for waiting SWDMA completion\n");
-		ret =3D -ETIMEDOUT;
-		goto end;
-	}
-	...
-	ret =3D thc_swdma_read_completion(dev);
-	...
-}
-
-Conversely, if an in-flight hidraw GET_REPORT receives its THC_SWDMA_INT
-wake-up just before disable_irq(), thc_swdma_read_completion() runs without
-serialization against quicki2c_dev_deinit() and restarts THC_RXDMA2 and
-unquiesces device interrupts after quicki2c_dev_deinit() has completed.
-
-Calling quicki2c_hid_remove() before disabling the IRQ and running
-quicki2c_dev_deinit() avoids starting or completing HID transfers after the
-interrupt and hardware have been torn down.
+In addition, when thc_dma_write() times out or is interrupted by a signal,
+its error path calls thc_interrupt_quiesce(dev, false) if dev->perf_limit
+is set (re-enabling external touch interrupts after quickspi_dev_deinit()),
+and quickspi_dma_deinit() then unmaps and frees the TxDMA scatterlist and
+PRD table while hardware TxDMA may still be active.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-thc-rebase=
--v2-0-mhun512@gmail.com?part=3D2
+-v2-0-mhun512@gmail.com?part=3D1

@@ -1,61 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794344387;
-	b=Ni7kaHx6cMZzit/qg1xyov5o+xsvvh72iu7Ff7c18B9UnENwhVHDK3TgaW8NqIMdW7x5
-	 FfkZHPxeFkDlzVtMzoPvDnmeDxzpqE25OHDmuWW7id4r1G10p309IyEKCKqzDvHP7fyoh
-	 8wzKjGwl2n27L0UU5npkbWO7abXJIL42KDrxttx+DrhL7UwCoPdlZgOkAEk//Tdy4VnAZ
-	 BeW+2ghd4zw4efkB0sgAjLy8svkM4BSovi9LXKJYSw7Vh1uKYs/qhTZkExcNx6JEW8s55
-	 ieYrlHWCUxXnwm8aPSXKdFEkX8kzxlkkIpTqP2Ix+LQJ4JkdTjVSiGqzaibxeHaGsTQ==
+	t=1794344389;
+	b=R8r2a6wQIrveomB1GIVV3+8/5w/ckfFYBYwZlCftzfyThlkbqKIwtvJreu4+WsXzL+Rw
+	 Tc3taoUIUTqpauD4fpw4ukBzbQINQRDcuK3KyjXl74mu0ifdDSE4fNJhfLesbamwZeG0n
+	 xGhOOZbORfceTqDwaUz3lBNPrlmLEqtxpqJ45ARt0eJFr1U55cdJiKDbPKFlEpawiBwyg
+	 g2yTqxyaROofmuryyD5b2OcyqsDSdc23SWHmY3CPAXvTmiOltMyxWoNwEGVNAANwcRgSo
+	 NwtcFrinRGn/34yZkOQxtfNl2DyP7ezvwQL8Wxm/0sW2QGNnyruBLX/fVBfhsC6qKeA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794344387;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794344389;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=Q6iBI7zqeM0OeyRTOU1qQ31c4JsN2FpYw3fXt+uTseo=;
-	b=LbBZUY963F/vNYqONFdCiUNYpiOwNXzQ7u7480psEletfABYX2bIx31iYO8ye5Qo+e79
-	 TQpnZdsi//FZX+tN1Vv3U3WOFH5iDTM8xxdsMVjEWs389Q07i6TctcUuxmvHhhMcxJxcm
-	 aU5SOOU3h8DxZISypAi+Hb/36iVJ2A1snYNhEx2r5MQlPRUn9UIhqKCxrglqG3zJ12A1v
-	 m/O55QB+toCQaYTn/ByBloHM4irUH8nRLh4YxW8clBiZ7QuO492Td7s8QIJ1Rdm9xL6PY
-	 ttt0UGqBVxNH52WFz2dETirY2ACZT8kITWNG3W8imbVDUM/T1IEszX+tBQkvi87uhbw==
+	bh=KXkLHPKKMwh+wJqwZbfSQVngruDSkDumTVZRSX/szaA=;
+	b=hoOkJqy+7ANfeiFY/eiL2+220bPMHBYPYxrLwvCgMWsJdz6KIO++c64mAsO422mGMUuQ
+	 4tniVhGqSNxk27Go4fzWDLhvFGPDtXnzXclgJ+FHs3G5TyOFmw/kxt3+mXRFxsVI2xc+t
+	 uCpGVP1k5nUfSVZy6pAUzkxfPczKN0PmU/WAmjVBepupLymnDrYMEwhXyUwcn37/KxYsM
+	 zjIOfkCpVHZsiR9mNMpxGdj+Qe+H+z4wdkhXR0y2EL0Q4OfDsV057+oocsd/8n7Xs8RGx
+	 1MnHo2UV57TtJEKBRkJC5xERrUYKq0Z3Ry+hIrLGL6bMKvCgSm/Rj4dPglOhYyYaDug==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="YlfX9Z/E";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YZv3WHoO;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A644C606A31C;
-	Tue, 10 Nov 2026 20:59:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA385606A331;
+	Tue, 10 Nov 2026 20:59:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YlfX9Z/E
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579A51F008A1;
-	Tue, 10 Nov 2026 20:59:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YZv3WHoO
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A03791F008A6;
+	Tue, 10 Nov 2026 20:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794344387;
-	bh=Q6iBI7zqeM0OeyRTOU1qQ31c4JsN2FpYw3fXt+uTseo=;
+	s=k20260515; t=1794344388;
+	bh=KXkLHPKKMwh+wJqwZbfSQVngruDSkDumTVZRSX/szaA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=YlfX9Z/EnToUaigqV2Ou+Hp1Aaj+NxK0K139fjog6ecwJDIMjVREC7Ghf1w45mcHn
-	 3/VZUOJHBdacuUHmOhD1nCv0Z7bcf3cBHBnp3kLfw8fBm3Ungd4DPojmvoJy4fLhbs
-	 DFJi7EB8TJkMtElE+7nNvgqKYIDvsTWMb6UlnVBmJ3eSt65P7Ypx9zM+T3FJnKgdjf
-	 PYdbTS/VZQFLBLuzMA+2U8U7fdiyIdhvzWiuVwl//GyRXoJTRezHtE+qpU4Nu1fc1C
-	 a0y8TkkPG3q8z4M57zsNlbhGpEZqt5zyBUAqBmrJJRWAyFCyMCISFbmzO2dVrIU2w7
-	 bgvif9PhT3Hvg==
+	b=YZv3WHoOXrbtvRQtSRy5iGPjPfF3kjShadC2NwjxcE0uxOaQPa5TyeM5GKoE4DP+h
+	 IsgtcTarsLty4EktTgQmKwx+kCLP/F/x5+i8My9LtzlmiNOyzWQn3L+7Tl/Ewfd8C1
+	 4M2e0+pknD7TdBQKaffccY3rfZlUn6Tqwpt2FYPUEHEjq9hOyGvkHqAHEtNJImHd+/
+	 YCdAUhv5fmQc6znt4UD1PLSItnkO6F9Kd9oMToimowppYJYBVc1bJslzOsHSCemBub
+	 qf9Kv9axSIgLrfU0gWs0HG2kOoLA3mfHXKCaE5WMhpKgAlepTRnhevhxjH+JZj4Z2K
+	 fP1sTsnKZaY5g==
 From: Sasha Levin <sashal@kernel.org>
 To: lee@kernel.org
 Cc: Sasha Levin <sashal@kernel.org>,
 	stable@vger.kernel.org,
-	Aaron Skomra <aaron.skomra@wacom.com>,
 	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Jiri Kosina <jikos@kernel.org>,
 	Peter Hutterer <peter.hutterer@who-t.net>,
 	Ping Cheng <ping.cheng@wacom.com>,
 	linux-input@vger.kernel.org
-Subject: Re: [STABLE v5.10 0/5] HID: wacom: Fix Use-After-Free vulnerabilities and SW_MUTE_DEVICE registration
-Date: Tue, 10 Nov 2026 15:59:10 -0500
-Message-ID: <2026-11-10-1-daily-reply-0014-wacom-5.10-series@kernel.org>
+Subject: Re: [STABLE v5.15 0/2] HID: wacom: Fix Use-After-Free vulnerabilities in Wacom pad handling
+Date: Tue, 10 Nov 2026 15:59:11 -0500
+Message-ID: <2026-11-10-1-daily-reply-0015-wacom-5.15-series@kernel.org>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261109133911.3026622-1-lee@kernel.org>
-References: <20261109133911.3026622-1-lee@kernel.org>
+In-Reply-To: <20261109133854.3026082-1-lee@kernel.org>
+References: <20261109133854.3026082-1-lee@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -67,9 +66,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> HID: wacom: Fix Use-After-Free vulnerabilities and SW_MUTE_DEVICE registration
+> HID: wacom: Fix Use-After-Free vulnerabilities in Wacom pad handling
 
-Queued the series for 5.10, thanks.
+Queued the series for 5.15, thanks.
 
 -- 
 Thanks,

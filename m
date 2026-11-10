@@ -1,69 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.157.77
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794337107;
-	b=e6r2H4gKWiuvwwP0SvJ7xJvKDsXbJ28mzmRkq8ZwmFMAXsYtWSSLZDeomqtx/pJXjZY9
-	 xk/ulA8l0TS+YfSQUNkR9+Pu/tFrG3oQQ8Fi6zQqE2us4cyMaCIstDJoLdlAzxXxYt/zj
-	 W3cpavpQYqnnwhlkOgXK5HklJXEVwZah/udFG0jmhzvzEP42DVJjJXP/Tkl5T1MfHlaM7
-	 zyLdHecL7TCuzlf8GvcmzFBUMMsyNipdyzE5akt81wr2o+HJt/3sGBHCYreT1l0Y7EtQO
-	 q6vMFU8oBjW+Q3xnBx1M/6gK12rXBbbCKiV3p9rWirNlTsRc68iRWtoUEs5jA13sNmw==
+	t=1794340563;
+	b=2ujy/mVZN78cxyofrCVPtwgR8Us+ofzj2ihN0aNCDQctU27bzr/jFR6ju449nqLi593t
+	 4pD/kMB8upjr8kX9MzkNu7r2Z48oydio4U1DDixbkg2PnjQ83/0c5lTifK6Dhi//Y7/uT
+	 aSgT/2/HJBsn8An0NTCUaqHiLB0ikBb5c9JBCP2tORkNy7O+7xUTVTXVoOygepizsVeQR
+	 7ULTDz+rt2fXC1qNoMMUKMGSHpE4wtu8wCP/3nhTC80KWrT78Q6FtM3U6zRyK+Rz9WW68
+	 1i6J+hxHF/csd/f6/omvRwXNhX/2ZtPaLniHKatjL90g62eX56Qtndr7n+yCr+zR8/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794337107;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Reason;
-	bh=b9yAerH+ikZFGWSwPjO2qvwJ9ahUuJgsCQeCRgJ5H1c=;
-	b=khoDbrExHTFzyxYo5Nv8p+RNTyy1+27/dkx29IxI3Tlxc7xBiE3X5OyLdxfkj5yv1f98
-	 ghgLRKusdnFdnIztIC55gSli2m0IlN8axDXA39r10w+Xb5pBp3b8sLbMAFwS1cIwx9vbW
-	 XkWgzMEm1eI9FEcBu9Tm5UpKWmlb75SHWZR1qIY8wqBMJjHbUh6w3TOTI4JB60lePmGwG
-	 Oo+UzVjWgT9DgIRcGix3UaIhO8n/Xn9jkoi6Z8mBSFrVrC2GT0k/3y+lShmTiOZJBESox
-	 onetfabWBtQvBtQ9QVH5/9RoGb5Y46r2SQn4EshkOi2slNlQL1vFhwRAGLlWjMRwfRQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794340563;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=EvDHKFgV8ZaR6tQMOPWNUyoThgdxDYzb5iXOrSl5e8U=;
+	b=K8Ro9beGS9upmBxB+uWZVnIG5Wf2EJEVoPAVzSAS4jUwPcGskmtlmMFLPIOs2pOLR58v
+	 Gxc8uLPMdGhoFw6EDD0bPjAStUMG7gwESaqEagRFrXQAPDR6Ka0Vas2DYJ0ZZrTT9Xy+3
+	 +2EudXKDtcBAUYXaMufagmJXPBUkiUprvCuZVX3XhzlH6lPEn8Z7OlRBwnYwNxSIOSn21
+	 AaT6AzyxZ7plr5cyYlB7CbaXGZWShHq541rjVySW5xl8UKW/1eUhDlrjjJfvN1MQHayR+
+	 GOn6SKp1nQ9A4r+JjDszldk2e2NPvAzcRspdGPumOFVKp2wJ0h/NChtvYOEl4VLga+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=plexus.com;
-	spf=pass smtp.mailfrom=plexus.com;
-	dkim=pass header.d=plexus.com header.i=@plexus.com header.a=rsa-sha256 header.s=pps1 header.b=hHd6Uej+;
-	arc=none smtp.remote-ip=67.231.157.77
-Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="k4BC/V6X";
+	arc=none smtp.remote-ip=198.175.65.9
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8C24606A31C
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 18:58:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8C24606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E242E606A320
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 19:56:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E242E606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=plexus.com header.i=@plexus.com header.a=rsa-sha256 header.s=pps1 header.b=hHd6Uej+
-Received: from pps.filterd (m0425992.ppops.net [127.0.0.1])
-	by mx0b-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AAIq0eC3579382;
-	Tue, 10 Nov 2026 12:58:09 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps1; bh=b9yAerH+ikZFGWSwPjO2qvwJ9ahUu
-	JgsCQeCRgJ5H1c=; b=hHd6Uej+yswqAdhIWKFNeoXQXC4YC+jAATi9DO6RA2Qye
-	TI8cVy1iprnWy9TRG6FnLFBymiSV9RdtvoHbg5i32zMNDz6TdkQ6SHCQY1XF0Hq/
-	gkbOSFXmT1isD60knhR93ohY6or6bD6UU/TKQteftAw6LDWl2+GggEGWhUiHCg6p
-	P6MwiJuSZRgJyiPDjeCOGib51Al76/hWfA4Bke8mNPE9DcFq8nB6dV2r2uLoNfFS
-	riwPEkaOFyt9VuJSMes6tTERUuTCi19kXmibCDQ1cOhoiB7Djgev9jsSBGcke3Hp
-	U2T8lOl6479DJK8vQ9b4evOAw7zdbiX3f1qYnomdw==
-Received: from intranet-smtp.plexus.com ([64.215.193.254])
-	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 4htpdmmt2t-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 10 Nov 2026 12:58:09 -0600 (CST)
-Received: from localhost (unknown [10.255.48.203])
-	by intranet-smtp.plexus.com (Postfix) with ESMTP id E1BE03C841;
-	Tue, 10 Nov 2026 12:58:08 -0600 (CST)
-Date: Tue, 10 Nov 2026 12:56:03 -0600
-From: Danny Kaehn <danny.kaehn@plexus.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=k4BC/V6X
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794340562; x=1825876562;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=m2q7AnzczYOYpAe+axWWNA1iiCjtiSlvZAa2pLt/beM=;
+  b=k4BC/V6XAUpg5s5K177BDT27refgQgjZjTaUH5usjsaYEqOPWyj1C/zo
+   Dky54yT0kuMGahMYHi1BXcFIyMXtBxXq4mHx8jljO+S3dL5mszlMUgWcD
+   6LMUlXO5QbT/DI1G0Nxr80mM2QaMcSGN2ir6BkqBh43PwYKNEMK7/Jk5I
+   ylD8sm8o7UZSVjOck16slUyJbIE8so2ilHgzGpcnq/jx7W2aX66R1gL+4
+   JIP/v7dlEaHR/LtBHMrc92oHiIGlRcLghVm/jcyj6PNEmotUj+e49fLeu
+   pcWs76weMk8haugOhdLEmRo7K3LYpTe7d2pMS4vHv+7FFaho+ltyn3cGH
+   A==;
+X-CSE-ConnectionGUID: SjLsnzUWQvaDSlOqFu76OQ==
+X-CSE-MsgGUID: N+2sZmGkQdCW242aiiut0g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11962"; a="3007763"
+X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
+   d="scan'208";a="3007763"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 11:56:01 -0800
+X-CSE-ConnectionGUID: 1oz1SDdtRJKzbxYwW4DAQg==
+X-CSE-MsgGUID: +9GbqhM2QMm1g8OhlfpJyw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
+   d="scan'208";a="8135397"
+Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.78])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 11:56:00 -0800
+Date: Tue, 10 Nov 2026 21:55:57 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Danny Kaehn <danny.kaehn@plexus.com>
 Cc: Jiri Kosina <jkosina@suse.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-        Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
 Subject: Re: Firmware Support for USB-HID Devices and CP2112
-Message-ID: <20261110185603.GA102891@LNDCL34533.neenah.na.plexus.com>
+Message-ID: <avN2zfSvXs3OOFX4@ashevche-desk.local>
 References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
  <autpMnQT8t0Ecu-m@ashevche-desk.local>
+ <20261110185603.GA102891@LNDCL34533.neenah.na.plexus.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -75,53 +84,40 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <autpMnQT8t0Ecu-m@ashevche-desk.local>
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEwMDA3NSBTYWx0ZWRfX2cUd9o0rL4qt
- jMAArdGnWdvb01McI1h2q5VX8X7CJHExK5+R+iNrCu7AcUe14ZsKgF/xR3MXFftaU0zjkXs2FZ9
- HRFmWF17l3xZS09/Aihm49hpNfHRlI5Ybwkl9Nw8hCZuNwmdc8Hj
-X-Proofpoint-GUID: kvZfZ5EBQBMIvZvRA6GrNBICZOYkNfi8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEwMDA3NSBTYWx0ZWRfX+/lOAou2Qgpy
- dIG6X/pZl2RzM/Wg86tDeg2663FygcOjVbjxK64QCHvcl/vt9dvYbZ7ubcLo4IG/2rvsbcc2Uwe
- TXkHLI76fTbThvskbK/ZLBGtLCl03sz3Ue7YjSwWVhN30AQCEjDe1vXIN4gTHv31aXLFU1WMKS4
- zQASETdtBcZukAFkQawPmtWPQSRyHiWzk6v1pdhxc+E1H7xxST0RC/vGDZ/5uqYKqEdefMLU+Yv
- SwX0I8oh7gaN39wvFAmfTuHMo11fs9/K/SwXtdRHcxh/ARyDS8sewL6kPY64K0dThOneFIrjghq
- sQM4iOsCG1FqeYHeST9pDWGJcpY2szO74Qxm1PE37kywHbuaGg/2AnsikI8K1296Aqo7ZZhTdU2
- 80G+nwOuFYiIWkq4f3y8Q+M8BP4pdlW2OMJc4Pwn5CT13Ij2hcBW6dXA1m1RK15Fl7aCxGZoQJe
- Z2G+BBj7Nc/GXHAn2jA==
-X-Proofpoint-ORIG-GUID: kvZfZ5EBQBMIvZvRA6GrNBICZOYkNfi8
-X-Authority-Analysis: v=2.4 cv=DvvDa2/+ c=1 sm=1 tr=0 ts=6af36941 cx=c_pps
- a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=SL0Da4cj2IsybHzvybfz:22 a=6wD_j1z14G4eGgT9AmLd:22 a=VwQbUJbxAAAA:8
- a=9FNMe90RfxhSya4oBPgA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Reason: orgsafe
+In-Reply-To: <20261110185603.GA102891@LNDCL34533.neenah.na.plexus.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Wed, Nov 04, 2026 at 07:19:46PM +0200, Andy Shevchenko wrote:
-> In lieu of this discussion [1] I just realised that CP2112 misses the
-> documentation piece under Documentation/firmware-guide/acpi/ on how
-> it's supposed to be enumerated. Danny, can you add a such, please?
+On Tue, Nov 10, 2026 at 12:56:03PM -0600, Danny Kaehn wrote:
+> On Wed, Nov 04, 2026 at 07:19:46PM +0200, Andy Shevchenko wrote:
+> > In lieu of this discussion [1] I just realised that CP2112 misses the
+> > documentation piece under Documentation/firmware-guide/acpi/ on how
+> > it's supposed to be enumerated. Danny, can you add a such, please?
+> > 
+> > [1]: 20261003095924.1370238-1-thierry.reding@kernel.org
+
+> Apologies about the delay here -- getting an environment set up to send
+> kernel email always takes some time :)
 > 
-> [1]: 20261003095924.1370238-1-thierry.reding@kernel.org
->
+> I will target getting something sent out for this by the end of the
+> week.
+> 
+> This can wait for the review of course, but since it seems like
+> this is a relatively unblazed trail (ACPI "binding" documents for
+> specific drivers), do you have opinions on whether a directory tree
+> should be started for driver documents like this? (i.e. an i2c
+> subdirectory?), or would you prefer it just be added to the top-level
+> directory? It seems like there also isn't yet a naming convention for
+> these -- presumably the "silabs,cp2112.rst" name would be too
+> "DeviceTree-ish"... maybe "i2c-silabs-cp2112.rst" if kept at the
+> top-level...
 
-Hi Andy,
+Hmm... Since you rose this topic, I think we can move i2c-mux ACPI
+documentation to i2c folder and create there the support for that specific
+hardware in DTish naming schema.
 
-Apologies about the delay here -- getting an environment set up to send
-kernel email always takes some time :)
+-- 
+With Best Regards,
+Andy Shevchenko
 
-I will target getting something sent out for this by the end of the
-week.
 
-This can wait for the review of course, but since it seems like
-this is a relatively unblazed trail (ACPI "binding" documents for
-specific drivers), do you have opinions on whether a directory tree
-should be started for driver documents like this? (i.e. an i2c
-subdirectory?), or would you prefer it just be added to the top-level
-directory? It seems like there also isn't yet a naming convention for
-these -- presumably the "silabs,cp2112.rst" name would be too
-"DeviceTree-ish"... maybe "i2c-silabs-cp2112.rst" if kept at the
-top-level...
-
-Thanks,
-
-Danny Kaehn

@@ -1,56 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794320944;
-	b=fRHhPMhMnVfqTw4ayhnmLBVtbjA0v1Q/WdvO/MOrzOfKtA84wpMPgriM599kwGTSiOEY
-	 m3z6rCLImAa3KBBWMVUM9+Y2xzigVnSQ9EMlFv7+AoWobe3IzHgVAI9MZiZRYCqAssnEs
-	 zEiASQ4ovCZrB4JUyuJTcqSIY6IN/lneYJodERObFj+hinPi4sm3/oVBdABNSqirvnLbp
-	 yFi9n40+KkJJHBbstu6UCrzj+oYqaq3fVmjfRjxCdSHnxlRvjaslB3RQQWuxCrDkuUc0Z
-	 +KR6oznjsOcHNn5HBoI3L5oR/8XCXpeCDqIbiAilBzMwCGY8Lkf4H2Xe8+4/6+422YA==
+	t=1794321111;
+	b=3udwM/MdUqUeERQFkK/hu8a+wYsEQ13+lcbtbBb8S/N1Erzg5pjt/WlG4M/HVRKFZOQ8
+	 os5voYtelyo+qsE4EMkljhqAuhrr+1bNuCz4s4cfdXfWrUxhr1Vqz1SgmkrZsISHT3EYp
+	 f9LXqHvn3mGuJTYUlHwqHOg403+7UQjABbaB3NloQnwyEKMnTl6OqvdP1JkXwRUZr6nls
+	 ay+ugmsqUEsmSQjUfyB0IYPcuQtAXo1xGcWAjotgCT6S0HohFfNFD0scqri6bNZzmklHa
+	 dU4JaggoZhSpI7BJ30gxwVux/LauRgKBp8TT9JO0+/jNkX2+nUg4dC5OCUIUwqH2N7Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794320944;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
+	a=rsa-sha256; c=relaxed/relaxed; t=1794321111;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
 	 Content-Transfer-Encoding:In-Reply-To;
-	bh=Y0ZCT4BLnmetwE993QplctN6lfal0N89naXDUyrvjcM=;
-	b=eZfOWCAlRVxDQ+RX/0nCoPiNsZzQy81L8QGmSnkRKkqBa/B5LxBanWECEB0b3+KClWEz
-	 IVQEQb6/IgAHys29hZMHErnDRZbmCuZpF8BFDG4YYAJU24yigJH6OyRpUZ9YVw+aJVSKp
-	 iD5YM/Ns7JGdcP4BVgyGw82LLxqUSO+E1g9+X4JpuTUgER241v1JKmeg4qIFsNqiqouA5
-	 9HJOhGRFKW1mSFNUOopHay/3UuXxhehZNGeTXqdqdQVCmMWQ0sbn3bTUCMSrxyfTNa3lQ
-	 M6D6QSjzGf676FTdsaAVOiJUuI0L4Q0YcZI4KPj2VJDmWKuP1f78h/Y8vY3NlIj2/TQ==
+	bh=oF4ltqac0ezbbEs6TWdN65bvPsCRJbHWS/4qDcsLy5I=;
+	b=U2U1iMZBhQoHK0XsVx7mwAm8X8r6y51wnxYII+yDerlAhVPguasvBDLIJmNh4vxsRsGe
+	 HFf6HWsGxLzFHo8jeWG4Tvjjx8rSZ+ZJTpWCnU2yggu+98uIEi+i2A7CmmyXXZT20XiCc
+	 B8UZAgazgGfpzok7akf60DwA1ELVV9XmZ8D6jYzqoQ0WVVVsplvtJwJipMWTkJGmU7yuv
+	 ydP/sW6uCLlktseva5x4ht2JLX0TD9RHVxbITLWTQNMYVuBbWxu3EWcIeNaIUHbSP2Va6
+	 RSrOagFA84zc31uHO8SxPYML4AAzEeAU1UfH9NffSCYDp7hRyqyzi1IwKXw+T+aYlFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="g/nC+X8y";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=lunn.ch;
+	spf=pass smtp.mailfrom=lunn.ch;
+	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=2cqNPi16;
+	arc=none smtp.remote-ip=156.67.10.101
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18D0606A331;
-	Tue, 10 Nov 2026 14:29:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06D6C606A32A;
+	Tue, 10 Nov 2026 14:31:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 06D6C606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g/nC+X8y
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6E51F008A1;
-	Tue, 10 Nov 2026 14:29:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794320943;
-	bh=Y0ZCT4BLnmetwE993QplctN6lfal0N89naXDUyrvjcM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=g/nC+X8ypIowiT5ms+iK6osSDYwKAxDOjrYUncLmxvaon0kSYGVitnBTMS1izmeAU
-	 e3/Y9Gt278aWiDJhlT4aB1njTfYo3LwMq3+y8nmpgA2rwTlLsCZAbV9JaNktJ76d+b
-	 IxPBUQqXNe/EoDOhUJkPs++d88R1BB1LHfLcVg45C+Iqoh/fhdLgqDT96Ha7LdYIp+
-	 WiJY+Od/C+1zmiTghQEfMSovx0H1qQ5A1SiHCIVopn9IYmIbcPp/4wpaNXCjCHE+dA
-	 wyCDgnXaIXO3mjko9cyjH77smZJaKdOiGQ52YbpIRZUFN9CLPVY5OeETLWyLDPTvI1
-	 LYceNWi9CgEIg==
-Date: Tue, 10 Nov 2026 16:29:00 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v2 09/19] Input: serio - use the compatibility driver
+	dkim=pass (1024-bit key, unprotected) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=2cqNPi16
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Transfer-Encoding:Content-Disposition:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:From:
+	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Content-Disposition:
+	In-Reply-To:References; bh=oF4ltqac0ezbbEs6TWdN65bvPsCRJbHWS/4qDcsLy5I=; b=2c
+	qNPi16R2xVUs4julQG+1vayBeJpg57S7y/aevBMNVTA5Qu67bt0LjGyw28PR7vzH66PzaVwk21xLh
+	QhFrRP59c3ctKZEnHp2gF1VgLMD74gWHfuR4O5IHLp3cXIesp5ul7cxaD7syNLMLNA+auvVZu+RdX
+	Vu8XU63Tu4DEEn4=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xQmsV-00FVDj-4w; Tue, 10 Nov 2026 15:31:15 +0100
+Date: Tue, 10 Nov 2026 15:31:15 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH v2 10/19] net: phy: Use the compatibility driver
  attachment API
-Message-ID: <20261110142900.GJ8635@unreal>
+Message-ID: <019fceab-1b0b-44a5-8cef-1f77d7d6ac07@lunn.ch>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-9-3b12d9a9f861@nvidia.com>
- <sashiko-outbox-206509@kernel.org>
+ <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+ <ab062469-ece0-495e-8486-78404c580cdb@lunn.ch>
+ <20261110073919.GF8635@unreal>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,85 +95,114 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <sashiko-outbox-206509@kernel.org>
+In-Reply-To: <20261110073919.GF8635@unreal>
 
-On Tue, Nov 10, 2026 at 07:35:18AM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue to consider:
-> - [High] Input: serio: serio_bind_driver() fails with -EPERM under
->   default boot policy
-> --
+On Tue, Nov 10, 2026 at 09:39:19AM +0200, Leon Romanovsky wrote:
+> On Mon, Nov 09, 2026 at 02:45:35PM +0100, Andrew Lunn wrote:
+> > > @@ -1956,11 +1958,10 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
+> > >  	}
+> > >  	phydev->drv_owner = drv_owner;
+> > >  
+> > > -	if (phydev->is_genphy_driven) {
+> > > -		err = d->driver->probe(d);
+> > > -		if (err >= 0)
+> > > -			err = device_bind_driver(d);
+> > > -
+> > > +	if (bind_genphy) {
+> > > +		err = device_driver_attach_full(drv, d);
+> > > +		if (err == -EBUSY)
+> > > +			irq = phydev->irq;
+> > 
+> > Just looking at this, it is not clear where the EBUSY can from? 
 > 
-> commit 3fd95316c0bff9166a7d599c0aa06fa861dbf4de
-> Author: Leon Romanovsky <leon@kernel.org>
-> 
-> Input: serio - use the compatibility driver attachment API
-> 
-> This commit replaces the manual driver connect and bind sequence in
-> serio_bind_driver() with device_driver_attach_full().
-> 
-> > diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-> > index 54dd26249b027..b54072769ab68 100644
-> > --- a/drivers/input/serio/serio.c
-> > +++ b/drivers/input/serio/serio.c
-> > @@ -81,28 +81,10 @@ static int serio_match_port(const struct serio_device_id *ids, struct serio *ser
-> >  
-> >  static int serio_bind_driver(struct serio *serio, struct serio_driver *drv)
-> >  {
-> > -	int error;
-> > -
-> > -	if (serio_match_port(drv->id_table, serio)) {
-> > -
-> > -		serio->dev.driver = &drv->driver;
-> > -		if (serio_connect_driver(serio, drv)) {
-> > -			serio->dev.driver = NULL;
-> > -			return -ENODEV;
-> > -		}
-> > +	if (!serio_match_port(drv->id_table, serio))
-> > +		return 0;
-> >  
-> > -		error = device_bind_driver(&serio->dev);
-> > -		if (error) {
-> > -			dev_warn(&serio->dev,
-> > -				 "device_bind_driver() failed for %s (%s) and %s, error: %d\n",
-> > -				 serio->phys, serio->name,
-> > -				 drv->description, error);
-> > -			serio_disconnect_driver(serio);
-> > -			serio->dev.driver = NULL;
-> > -			return error;
-> > -		}
-> > -	}
-> > -	return 0;
-> > +	return device_driver_attach_full(&drv->driver, &serio->dev);
-> >  }
-> 
-> [Severity: High]
-> As reported by Dmitry Torokhov on v1 [1], serio_bind_driver() is only
-> called for explicit user-initiated binding via the drvctl sysfs attribute,
-> and it was requested that this patch be dropped from the series.
-> 
-> In addition, does switching serio_bind_driver() to
-> device_driver_attach_full() break manual binding via drvctl on default
-> boots?  Later in this series (commit "driver core: Introduce a generic
-> device trust level" and commit "driver core: Accept device trust policy on
-> the kernel command line"), device_driver_attach_full() calls
-> device_trust_prepare_full(), which returns -EPERM unless
-> device_trust.default=full was passed on the kernel command line.  When
-> userspace writes a driver name such as serio_raw to drvctl, drvctl_store()
-> disconnects the existing driver via serio_disconnect_port() and then
-> serio_bind_driver() fails with -EPERM, leaving the port unbound.
+> I relied on the comment above: “Assume that if there is no driver, ...”.
+> Since PHYs do not use the standard automatic probing mechanism, I have no
+> way to tell whether a driver is already bound.
 
-No. serio was converted to the compatibility API intentionally. Anyone who
-needs serio must use the "full" trust level.
+They do use the automatic probe mechanism. But also extend it.
 
-Thanks
+Maybe some background will help.
 
+IEEE 802.3 specifies how PHYs should operate, it list all the
+registers which are needed for basic operation etc. If a PHY follows
+the standard, genphy is sufficient to drive the PHY.
+
+Now. Networking vendors like to do two things:
+
+1) Do more than what the standard specifies, like interrupts and
+blinking LEDs.
+
+2) Don't closely read the standard, and break their implementation
+
+These two cases require a specific driver.
+
+There is a lot of history to phylib, from before my time. It seems
+like the current model was retrofitted around earlier code. The result
+is that when the MDIO bus is enumerated, PHYs can be found on the bus
+and are registered to the bus in the normal way. The driver core will
+look to see if there is a driver which matches the ID values in
+registers 2 and 3, and if so probe that driver. If there is no
+matching driver, a call is made to user space to ask it to load the
+driver with the given IDs.  That operates asynchronous, when such a
+driver is loaded, the driver core will run the match again and probe
+the device with the driver.
+
+Because there can be up to 32 devices on the MDIO bus, the MAC driver
+often knows which PHY device it should use. If not, MAC drivers
+sometimes use the first PHY on the bus. It does not really matter, the
+point is, we know the device exists, even if it has not been probed
+yet, so we can get a reference to it.
+
+The MAC most often connects to its PHY during open(). At that point,
+if the driver core has bound a PHY driver to the PHY device, it is
+good to go.
+
+If however, there is no PHY driver for the PHY device, it can mean a
+few different things:
+
+There is no driver of that PHY because it follows 802.3, and genphy is
+expected to be used. However, genphy does not have a list of IDs it
+can drive, so the usual probing mechanism does not match it to the
+device. It would be nice if it did actually have such a list, but it
+does not.
+
+There is driver, but it has not been built, or is missing from the
+initramfs, or is not part of the image, etc. So we just use the genphy
+driver and hope for the best.
+
+So, if we have got this far, there is no driver for the PHY, we make
+use of genphy.
+
+> > And why set irq to phydev->irq?
 > 
-> [1] https://lore.kernel.org/r/auy2plYVi723Qt42@google.com
-> 
-> -- 
-> Sashiko AI review � https://sashiko.dev/#/patchset/20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com?part=9
-> 
+> If the above operation can fail with -EBUSY, the wrong IRQ was restored.
+
+How has it got the wrong interrupt?
+
+genphy cannot use interrupts, because interrupts are not part of
+802.3. Device tree can list an interrupt for the device, and if the
+device specific driver is used, phylib can use that
+interrupt. However, since interrupts are optional, phylib defaults to
+polling.  phydev->irq is over powered and set to PHY_POLL to indicate
+polling should be used. The phylib core will look at the PHY driver,
+see if it supports interrupts, and if not, set phydev->irq ==
+PHY_POLL.
+
+The binding of genphy to the device cannot fail, at least in the
+current phylib code. So up until recently, setting phydev->irq to
+PHY_POLL was fine. However, that is changing. There is a use case,
+because of bad hardware design, that genphy is initially used to get
+the device up. But later, the real driver module becomes available and
+gets loaded. /sysfs is then used to unbind genphy and bind the
+specific driver. Because phylib has set phydev->irq to PHY_POLL, the
+specific driver cannot use interrupts. So on unbind, phydev->irq is
+set back to the value in the MDIO bus.
+
+As is said, this code is fragile, and complex. You have to assume your
+LLM is producing slop, and really take a close look at the code, if
+you want to get it correct.
+
+    Andrew

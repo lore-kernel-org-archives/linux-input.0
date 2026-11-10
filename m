@@ -1,83 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794313362;
-	b=Zi6sJdV+RPeq9ZpXLd7plq0v0gAOLZqj/Px69Rx8CFX3wnw9xiWNq0DPXEpIdP8VYMig
-	 EvWxiB2+4qIXbq33APJGOJnnoo/UDLmmxHjsWGoOzp8dFXQ67U0AjUKLT0SWNjgTyG+sT
-	 97j3AUMdlp9SwHHHrjtRr5HFFG+rXfqPNyJxQ4FMYVL13kTMy1BNpYw5BsAbNns47ka2s
-	 I/sw9aBbF+WSwB7oXPOcgHbMgjiwkYgNJEHSvppOBQUenqKgLNInt1xwLNWKxKQWcHAgL
-	 g7W4I9uGDDV34ZSFiVFTYqp+y+7gyXoD1rnFZFyEPunJHbT0NERibt0J1MUyql6rQpA==
+	t=1794313533;
+	b=myf9LpHz78mn06VUM9GfX++RTHklBJALeY+7/sTq/6p4lS3Q957p9hoLDycQUr9tc2m9
+	 LbVFytoxvhVvSfKTEdui8X7bjSh/TrEAqXzGeve6OB4L5R8SAGi8ghyYZJfFuL/PxuT0F
+	 5gv3+LgPKA2zibZ4ckqt4Ehjv9diNc4Uxm+UhMMidZHibgP5ilTOIPQESCtdW6+27q3kE
+	 7VEpRQBeA7+DzZj/ThtSgpJZhWv2TR0Gj7fH3I9NLBchdi/W1yin8YUmrRMqOSWnb9Xc4
+	 RWedDtYIf/NzkwtLwaFoNk6+u5bgvstQOQuk7qg1oAl4Y9ZP5faZ3ByoiW7OJjcsKBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794313362;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=hGl7nmxQkT5vba1RqxCfKXkqe6DTt+rPNJp2pMu6m5k=;
-	b=EM0v49TgYhp9txmwtx9N2pjgEVJHiIk8hEnfHUBCHafLyS1TnVH1HCslXkPnV4aRqI+A
-	 DsP1fp/J8l0YlQJMYet5CzYMHZmI+lMTtK8y1C/xrbOALyuDSc4JFWJsRM1NKTuIJbKaT
-	 SFzSAT35JDhrcbS92Ntk8hL+MQ3cv6L+cMK34MOPvE28JvXPPESTPD8s/vUzOvAHMYPni
-	 7D3P/jw4Ky46O645609ESN0JFqVbDfZXycsuyGQ7G8qVwZb0T2PZ7GXm5zfYmpHOLfGgj
-	 4M0yA19Hkf4P9FPQ395YCOWTyGiDlBxSbQNKtmd1ZceEjV+hfBo2WmMejC73wJ2o8mw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794313533;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:From:
+	 Subject:To:Cc:References:Content-Language:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=o8vOqPjQp+qIgT4SjBM1vuuP9NkLzsqzq4almCwh0ns=;
+	b=oFQ1RvRXS406PJsCj+QZ3nmxN4FQMJSwNxDmPp6y0MI4P1A5rNsJpOXT7zMx1yhYn1aW
+	 Ci3fTwyfSCCcjN+Ib0ST0u4abDM9kFBhWClJP9SipalzSk5A4awWWuN7lSY3tKe0M7lR0
+	 lCmQCCHc1ZiijrSbRRx8ph3E/tCsQd9NTnKuIuqMZ/rJifKpCus2ssalM55pkKz2k5pfZ
+	 uZFaEt4ZE3VcWZP/K76qrRY1b5QDNC90wsSWaMCo4F5Tr5q+ymQQ+aI6waPkb+wOeHxaJ
+	 Hte7eSR3a3y/++xAGCiYdTr2mYxDhyRQh6JRw8xK3vw6YIGSfCDJG2cCI2AJVW/+29A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="k/co0YoI";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gr5nohgX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CE6F606A330;
-	Tue, 10 Nov 2026 12:22:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9AC606A32A;
+	Tue, 10 Nov 2026 12:25:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k/co0YoI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06431F008A3;
-	Tue, 10 Nov 2026 12:22:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gr5nohgX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A651F008A2;
+	Tue, 10 Nov 2026 12:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794313361;
-	bh=hGl7nmxQkT5vba1RqxCfKXkqe6DTt+rPNJp2pMu6m5k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=k/co0YoIuiKLXr7WyXUtAA3pWaow2/ThCpywVER/G9aHTuINfpPRlsNOpNeL6eA3/
-	 D5sZv/XI4weWMAEFMkPnaDXkHY2UHv8Cdj7T/MIPQB22hzafVwXl2t+9X4IMEyPgpr
-	 F0ULBbRJhBETzW0sC9499EvstL1a01e1JBff+474UeAj3qIpzZreFtMDiNmPvYB/v0
-	 DQ6uDL9B11Sn02jp3cV2DD6qnO+2jQITqeM+wfh8YW38tXvXhBbJX3qjL6QtqUpij7
-	 siAlaQEibl/CLeXTc5YbwPyy9yrA2KiEY8qTX0k5buBizyNTN0MjlMDpBRy18qmjhy
-	 RbXwSrQ5cyugw==
-Date: Tue, 10 Nov 2026 14:22:37 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
-Message-ID: <20261110122237.GG8635@unreal>
-References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
- <d0999161-3b27-4c3b-9d66-1d117c4836fd@arm.com>
+	s=k20260515; t=1794313532;
+	bh=o8vOqPjQp+qIgT4SjBM1vuuP9NkLzsqzq4almCwh0ns=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=Gr5nohgXHm1YYyj6tvLEZ2lSM8AwTngl7Y9YhcAEKBH+Qk95txebAZ9NtKzrDhbMu
+	 /kcVhI4wBuCa61a001FzAROnBPqNtiO/ytzlzOWo7XJ5chQlrrTZ0jAur7hkGa2Dea
+	 9e8VcncC+5ovHWHZPm9Udas/YhDeQJz+/Hw/DgiFOKQphYC3tCbIwtuUfnQDwnkr0A
+	 NlkNf0d03csKo9TcHJmIS39u4zkv/CzH2xeQIMrUlC8N+o3OuHRReJJo3cYKVKlsnW
+	 Ok7Bxat5Tx0PnCcbiQSm1rkYigOOsx53IhuLC4CVONUmhMnelBCuvRRROviPHPq5B4
+	 hzmGl2iyPjB0A==
+Message-ID: <69a3552e-1fca-49e9-a9c0-66963319d2a9@kernel.org>
+Date: Tue, 10 Nov 2026 13:25:23 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -87,139 +51,89 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0999161-3b27-4c3b-9d66-1d117c4836fd@arm.com>
+User-Agent: Mozilla Thunderbird
+From: Hans Verkuil <hverkuil+cisco@kernel.org>
+Subject: Re: [PATCH 03/14] mfd: remove unused si476x driver
+To: Arnd Bergmann <arnd@kernel.org>, Lee Jones <lee@kernel.org>,
+ mfd@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ Arnd Bergmann <arnd@arndb.de>, Daniel Thompson <danielt@kernel.org>,
+ Jingoo Han <jingoohan1@gmail.com>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Jonathan Cameron <jic23@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek
+ <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
+ Support Opensource <support.opensource@diasemi.com>,
+ Sebastian Reichel <sre@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org, linux-media@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev
+References: <20260909132153.1596191-1-arnd@kernel.org>
+ <20260909132153.1596191-4-arnd@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <20260909132153.1596191-4-arnd@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Nov 09, 2026 at 01:53:02PM +0000, Robin Murphy wrote:
-> On 09/11/2026 7:33 am, Leon Romanovsky wrote:
-> [...]
-> > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> > index b486b8bbd1fcd..8be2a246d4903 100644
-> > --- a/drivers/iommu/iommu.c
-> > +++ b/drivers/iommu/iommu.c
-> > @@ -1879,7 +1879,7 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
-> >   static int iommu_get_default_domain_type(struct iommu_group *group,
-> >   					 int target_type)
-> >   {
-> > -	struct device *untrusted = NULL;
-> > +	struct device *restricted = NULL;
-> >   	struct group_device *gdev;
-> >   	int driver_type = 0;
-> > @@ -1901,14 +1901,15 @@ static int iommu_get_default_domain_type(struct iommu_group *group,
-> >   		driver_type = iommu_get_def_domain_type(group, gdev->dev,
-> >   							driver_type);
-> > -		if (dev_is_pci(gdev->dev) && to_pci_dev(gdev->dev)->untrusted) {
-> > +		if (dev_is_pci(gdev->dev) &&
-> > +		    pci_dev_default_is_restricted(to_pci_dev(gdev->dev))) {
+On 09/09/2026 15:21, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> I think this should be the generic device_is_adversarial(gdev->dev) now - in
-> fact probably all the dev_is_pci()/to_pci_dev() stanzas aren't conceptually
-> PCI-specific, just an artefact of the current "untrusted" flag being so.
-
-I wanted to do the same, but iommu_get_default_domain_type() may be called
-before the PCI device's trust level has been set. At that point, we are
-still in "disabled" mode, whereas device_is_adversarial() checks for
-"adversarial" mode.
-
-The below is from AI, I asked to present me the path for that:
---------------------------------------------------------------------------------
-For a newly discovered PCI device with an available IOMMU and a new IOMMU group:
-pci_scan_single_device()
-  pci_device_add()
-    device_add()
-      bus_notify(dev, BUS_NOTIFY_ADD_DEVICE)
-        blocking_notifier_call_chain()
-          notifier_call_chain()
-            iommu_bus_notifier()
-              iommu_probe_device(dev)
-                __iommu_probe_device(dev, NULL)
-                  iommu_setup_default_domain(group, 0)
-                    iommu_get_default_domain_type(group, 0)
-
-For a device whose initial policy is adversary, its state during that call is:
-dev->trust_policy          = DEVICE_TRUST_POLICY_ADVERSARY
-dev->trust_level           = DEVICE_TRUST_DISABLED
-dev->trust_committed_level = DEVICE_TRUST_DISABLED
-dev->driver               = NULL
-
-device_is_adversarial(dev) = false
-
-The active level changes later, during binding:
-really_probe()
-  device_trust_prepare()
-    __device_trust_prepare()
-      WRITE_ONCE(dev->trust_level, DEVICE_TRUST_ADVERSARY)
-  dev->bus->dma_configure()
-  call_driver_probe()
-
+> The si476x driver was added in linux-3.9 without devicetree
+> support, and has always failed the probe function in the
+> absence of a si476x_platform_data definition.
 > 
-> >   			/*
-> > -			 * No ARM32 using systems will set untrusted, it cannot
-> > -			 * work.
-> > +			 * No ARM32 using systems select a restricted trust
-> > +			 * policy; it cannot work.
-> >   			 */
-> >   			if (WARN_ON(IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)))
-> >   				return -1;
-> > -			untrusted = gdev->dev;
-> > +			restricted = gdev->dev;
-> >   		}
-> >   	}
-> [...]
-> > @@ -616,6 +608,28 @@ static inline struct pci_dev *to_pci_dev(const struct device *dev)
-> >   {
-> >   	return container_of(dev, struct pci_dev, dev);
-> >   }
-> > +
-> > +static inline bool
-> > +pci_dev_default_is_restricted(const struct pci_dev *pdev)
-> > +{
-> > +	enum device_trust_policy policy = READ_ONCE(pdev->dev.trust_policy);
-> > +
-> > +	return policy == DEVICE_TRUST_POLICY_DISABLED ||
-> > +	       policy == DEVICE_TRUST_POLICY_ADVERSARY;
-> > +}
-> 
-> Unless I've wildly misunderstood, I'm not sure this is right - if the user
-> has set DEVICE_TRUST_POLICY_DISABLED to explicitly override the bus-default
-> behaviour, but that leads to the IOMMU layer special-casing all PCI devices
-> as adversarial and thus force-*enabling* all their trust-model restrictions,
-> isn't that pretty much the complete opposite of what was asked for?
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-We have two levels: policy - that describes the default of all devices
-for that bus. level - actual decision on how that device is going to be
-operated.
+For drivers/media/radio, include/media/drv-intf/si476x.h,
+Documentation/admin-guide/media and include/uapi/linux/v4l2-controls.h:
 
-"Disabled" prevents driver probing until the device is authorized,
-"Adversary" permits probing and requests the available protections
-for operating an untrusted device.
+Acked-by: Hans Verkuil <hverkuil+cisco@kernel.org>
 
-Both need conservative initial IOMMU setup: a disabled device may later
-be authorized as adversary, and authorization does not rebuild its IOMMU
-domain.
+Regards,
 
-Thanks
+	Hans
 
-> 
-> Thanks,
-> Robin.
-> 
-> > +
-> > +static inline bool pci_dev_ats_permitted(const struct pci_dev *pdev)
-> > +{
-> > +	enum device_trust_level level = device_get_trust_level(&pdev->dev);
-> > +	enum device_trust_policy policy = READ_ONCE(pdev->dev.trust_policy);
-> > +
-> > +	if (level == DEVICE_TRUST_DISABLED)
-> > +		return policy != DEVICE_TRUST_POLICY_ADVERSARY &&
-> > +		       policy != DEVICE_TRUST_POLICY_DISABLED;
-> > +
-> > +	return level == DEVICE_TRUST_FULL;
-> > +}
-> > +
-> >   #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
-> >   #define for_each_pci_dev_reverse(d) \
-> >   	while ((d = pci_get_device_reverse(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
-> > 
+> ---
+>  .../admin-guide/media/radio-cardlist.rst      |    1 -
+>  Documentation/admin-guide/media/si476x.rst    |  160 --
+>  .../admin-guide/media/v4l-drivers.rst         |    1 -
+>  drivers/media/radio/Kconfig                   |   17 -
+>  drivers/media/radio/Makefile                  |    1 -
+>  drivers/media/radio/radio-si476x.c            | 1523 ----------------
+>  drivers/mfd/Kconfig                           |   13 -
+>  drivers/mfd/Makefile                          |    3 -
+>  drivers/mfd/si476x-cmd.c                      | 1543 -----------------
+>  drivers/mfd/si476x-i2c.c                      |  861 ---------
+>  drivers/mfd/si476x-prop.c                     |  233 ---
+>  include/linux/mfd/si476x-core.h               |  532 ------
+>  include/linux/mfd/si476x-platform.h           |  256 ---
+>  include/linux/mfd/si476x-reports.h            |  154 --
+>  include/media/drv-intf/si476x.h               |   28 -
+>  include/uapi/linux/v4l2-controls.h            |    4 +-
+>  sound/soc/codecs/Kconfig                      |    5 -
+>  sound/soc/codecs/Makefile                     |    2 -
+>  sound/soc/codecs/si476x.c                     |  263 ---
+>  sound/soc/fsl/fsl-asoc-card.c                 |    8 -
+>  20 files changed, 2 insertions(+), 5606 deletions(-)
+>  delete mode 100644 Documentation/admin-guide/media/si476x.rst
+>  delete mode 100644 drivers/media/radio/radio-si476x.c
+>  delete mode 100644 drivers/mfd/si476x-cmd.c
+>  delete mode 100644 drivers/mfd/si476x-i2c.c
+>  delete mode 100644 drivers/mfd/si476x-prop.c
+>  delete mode 100644 include/linux/mfd/si476x-core.h
+>  delete mode 100644 include/linux/mfd/si476x-platform.h
+>  delete mode 100644 include/linux/mfd/si476x-reports.h
+>  delete mode 100644 include/media/drv-intf/si476x.h
+>  delete mode 100644 sound/soc/codecs/si476x.c
 > 

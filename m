@@ -1,60 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=46.235.229.95
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794271828;
-	b=t9HjsA73HxnMlh1mfvP5v7hP5zWtcEuiEaT2s8p2As0YtiVs4DyjU0xPp4n1+8aO7QUb
-	 M8P+iTQGFA9VrsPik/AroyvQHWE8ujIWPrvPdXq03gwQCU4AI0xdI69qY9FqUNQGHfe8H
-	 oRdewTITApTB9cbFR7FuiNDHQivT42rhzjqcK+e9BVrg07T0ql9Psxborf/B0fL1LbwNG
-	 BPq5640yQVaR3/foGzv35rt+XfHYmmDrpV6x9Jj1jv1U7QDprg6VT++86jBitxMd/mDmC
-	 5wmBREU9cmyNgmyTrLkTki6pDYdTAmdp8nGTzMM2DMJ38zFV+1ZmmDyKkTPbkeHIOaA==
+	t=1794273280;
+	b=eg8JPY/LjarLVnwPfL74yjs0KfnMXrLZ0T6EY5DyMqNpnXpCLHvsF7S12GSCTKMl0P4m
+	 Wam6y+VDRsilyRq8HgDegSy4GWyZYg13DXrPly4RmE8AIOfmK5UFKp4ZKLUF1HfKwmAwu
+	 7w22B7gDPZkKAFMIqW4UYyjSj2l50AP+qqEqMz1VTSZe2csDZX9++P0GcrjyrMB9740nN
+	 lSQ5/LVMLnui8QRfwXiR3QpwCADaFPqWKXSd9TMDJAqrjKEuFTuG4r1h3UQqkJ62riGAV
+	 PxGN5cg6Y9Sr7/tPx6+XdG5fIvjj4BzSww4s4xNspp6LHhVDG40+ymncD9WYzWcQv7w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794271828;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Chocolate:X-Operating-System:X-Uptime:User-Agent;
-	bh=ldQ3qeBmydFhieFaL8KfkuaD+7PjtokDguyKmldrn+Y=;
-	b=Gi6RPVnu/2ifOlfCTQu3QDViuk5o72RxX/5UBdOz3tm4ZTTa94SZmQpq6N2pnHxexFN2
-	 kW0q8eHrn1XbuMVCg5OBPCFGny3dmR1a8+M9btOfqf3/LnT34/mpJ1MfmbXjOa07uZPLW
-	 0WrNNgKkCVgfsIBxg7cgo/QU6i0VwNnER5ePn5mqGMXwfrtEnCvXp/CYl8n/sV+lMfAlt
-	 JmKIZGkVnWpt9bvOLm0BndqhSDtiHvXxRQoavCSb5WykrDCILWppGeeEw5MT1dL4fSR8v
-	 PSNfiPzfuJpCf662eaSe4Eu5Gf1Iw7cJUHjFo0bm/4bPHbRoc9rKc9L1Aqv7uBsgu+A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794273280;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
+	b=dNGhpcomhgOO140dfuHMlJFMh9xdU0t/oiEKSQbCzb5hFfGPdEkefEDTtAvs80VLzKO2
+	 2PAJZcLWTtZ/pnSCefTY4mr+I0p8WGyuu1dThVr4pRAMXDmBQDY8wVbl65bjE4dO1xn6t
+	 rRMhBfrBYlinTwL1DFw/9cuSJVR1568U04yt4nXog+Wx3LRX31wKPITq2hGvuoTJA2eAh
+	 JQWPe5uA6Uuy1e8+t6JWkDVnwxxTxJ6QcT60zbyudbXswmQx4aGAAn9zKPSph1PzGuxXy
+	 Tkp4iujiidvu3jKKn8uL05543RJ53aDfSs0scUfh1p+NqT1sNFwP0JMRsmovm6Uzt+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=treblig.org;
-	spf=pass smtp.mailfrom=treblig.org;
-	dkim=pass header.d=treblig.org header.i=@treblig.org header.a=rsa-sha256 header.s=bytemarkmx header.b="Ozhe/Xs+";
-	arc=none smtp.remote-ip=46.235.229.95
-Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=c3HPZ9w3;
+	arc=none smtp.remote-ip=209.85.128.52
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 243D5606A321;
-	Tue, 10 Nov 2026 00:50:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 243D5606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B248C606A330
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 01:14:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B248C606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=treblig.org header.i=@treblig.org header.a=rsa-sha256 header.s=bytemarkmx header.b=Ozhe/Xs+
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
-	; s=bytemarkmx; h=Content-Type:MIME-Version:Message-ID:Subject:From:Date:From
-	:Subject; bh=ldQ3qeBmydFhieFaL8KfkuaD+7PjtokDguyKmldrn+Y=; b=Ozhe/Xs+A9vQzn5n
-	QAZvsAbHW0aCCLnu7jPmOVxYwqwzMsfkTDCq11sdynkVB4YjlNRoCe1f2UjMdlgekJFq+57t8qIkf
-	OMr9q8kldJ89QAfNPcuk7phEOFd+doeEP3jWDdHUwXkzEnWyehFNX/oQvlpoB8WFxyaJmeU+EEWJE
-	6ygugV7P1/4FOv5awrGEbHrys/9dWctZreqMSoSUwy30/duF4FyvuoV9BSi8Jhy/Z2DGZwjAII0Wd
-	Pz7vicfKx7H2zfTjLJD+6/RhGldkyLE3b9GO7iiJT2iPFHTquP7rSGU0XQcIToTOHaqeje3jHD1cY
-	RGJJSGftD0ZHBpYa/Q==;
-Received: from dg by mx.treblig.org with local (Exim 4.98.2)
-	(envelope-from <dg@treblig.org>)
-	id 1xQa43-00000002uth-0bHs;
-	Tue, 10 Nov 2026 00:50:19 +0000
-Date: Tue, 10 Nov 2026 00:50:19 +0000
-From: "Dr. David Alan Gilbert" <dave@treblig.org>
-To: "Jesper B. Christensen" <jaytersen@gmail.com>,
-	jens.glathe@oldschoolsolutions.biz
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-	jikos@kernel.org, bentiss@kernel.org
-Subject: Re: [PATCH] HID: asus: support the Zenbook A14 (UX3407RA) keyboard
- backlight
-Message-ID: <avJqS5WjagHUo84q@gallifrey>
-References: <20261031215710.11126-1-jaytersen@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=c3HPZ9w3
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4a2153c8525so11415115e9.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 17:14:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1794273278; x=1794878078; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
+        b=c3HPZ9w3X3vdF/+J+vaP+PQYAUd2+9JOKWwj6JMce2A8a3XTTDedjlXPO55cC45zjl
+         2hZf2gArAaC7b2VANcAz9siQ8hXOL0yOpee0+28IQ4U11h71kiwdUMjW00TOftz1OChD
+         IA4Fb2sqqSoZR8rQ6NvDOj7SKOizFmF/BfqF0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794273278; x=1794878078;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
+        b=nE/i7JPN6kusRNtgwbMBPX38MwTIHvlkuBX9tYkcg0D3GwxR9oDhOIFW+iueM1q/sY
+         bsUPQKCJ6mdh+9iTTEuG9sEU6+hwZRGaFkpIhSQsl8Xn/UvM8iAwGDnUXeZ1+H+CMsoK
+         rVH2vv7691i8HeiUv5d5o0jn3KOyMANxzbvbIuV5FfFcojTm0jFVJFXVGbzDUO6EHEQs
+         V59J1YEvofSKKcqMWAMhOzAo3x1PULoDNBoFFJbtwdZ+9BHKk8VBeFzVcfoVeQrVer3l
+         TVGoXo2dNk3qxoYeDzbuDs67/LavHOUC3VQ2jun7Pj4A6cNzil5en5NvgwwtAbJAAlTQ
+         IYCA==
+X-Forwarded-Encrypted: i=1; AL+hErF9QL1IMAth59T294uDOsA2jxtuiLwhQQjzulQS/A3/mAjpIDVv3gYP2Kfm+44o+cc83YgZY23515jPMg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z89uaipTboxQITF/mQKvjKHz+maiLnjI2VjItU8qIeXV0m2I7KG
+	fQaJOJ2M2cRIW04Y6+DKTC9SAfYOFFYAbB3BdCB1aSOljcoKuw81WrD+u4gE3+Ux9V5dC0nxLsw
+	duOOjhVpacg==
+X-Gm-Gg: AYBFou0Sp4QltSuSyV5/3ekuynl5mU+3IUCgOl5HSyuwYmmWY47oHGpeH+0ZYBtDb49
+	TqYxBLuRLnOh9Cc1Iqy29W4KzJ93qFIz0C8p3IHWF99a1P6xT4EBcizFqL1ZRUPRZOqHhuRxNMV
+	oswYxjx/3P/phmA5PmHJmnhixk4s2XZwSEjmHof2UOjB4ydDorKklRab2191S3vKtBnBFV0yJYZ
+	Of/XsooA57aQh4uTxtxj2H9GGm9POSg5bKrHvBAeILrarouG9flxr0MK+hahCeKy7Btq1L7mrus
+	NQ8EuMUbFayVPoHQt1iRCB66DxmCOW2K7jl/gpoZLNNRuF19K9k8P3oAcPBjTcdjiVkUISDuBdJ
+	kvH/RGiOTt+rFB3Rj2x7mNd0kv/+EB3566D5ZLLRx91W1PWLIknBpXxv61Hkg485odaOW/7m5Ax
+	hhZXaUz10iYhayM40OhmbKlgc630y0AI6BjXLQe+9XKYN0NetdSnAWN6+dt2PB5sdF/3sfgJoiB
+	K4LCy0xTwYX5zYf0tyw4sejWcUioxBvoeb5DtImqEIpabORB8GK4tF7S+AtVAiLvO2w8NioSpj2
+	bYu/xH80tMk9ta3XzQvFFeTiTZd2zyCUeaWdam8hQCfpjpmXh7WnL7c4Lmyb/o5jUzdCkErIi3p
+	lxw==
+X-Received: by 2002:a05:600c:8b88:b0:4a2:47:b79c with SMTP id 5b1f17b1804b1-4ba0235632cmr13228385e9.32.1794273278198;
+        Mon, 09 Nov 2026 17:14:38 -0800 (PST)
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com. [209.85.208.43])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ba01fdac9csm41414005e9.0.2026.11.09.17.14.36
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Nov 2026 17:14:37 -0800 (PST)
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6b6e7a05225so2026689a12.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 17:14:36 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErGi9lU2yrmeCYvdUu7X1cjkSxYDkpiB1yy9swxg0xtwBiIjREJqUZ8gqMKGAtqqZmE2m2aMHhS88UnvgA==@vger.kernel.org
+X-Received: by 2002:a17:907:9451:b0:c41:1750:59a2 with SMTP id
+ a640c23a62f3a-c50495dfbd5mr87253466b.12.1794273275844; Mon, 09 Nov 2026
+ 17:14:35 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,260 +94,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20261031215710.11126-1-jaytersen@gmail.com>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/6.12.115+deb13.1-amd64 (x86_64)
-X-Uptime: 00:48:01 up 7 days,  3:26,  3 users,  load average: 0.00, 0.00, 0.00
-User-Agent: Mutt/2.2.13 (2024-03-09)
+References: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
+ <CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
+ <20261107-akteur-gemieden-eckdaten-21304d085e35@brauner> <20261108185953.28054fb3@pumpkin>
+ <alpine.DEB.2.21.2611090504170.17804@angie.orcam.me.uk> <20261109214558.0d9d5228@pumpkin>
+In-Reply-To: <20261109214558.0d9d5228@pumpkin>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 9 Nov 2026 17:14:19 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whsA3tKcUCBJDj_vmJ11rVGT9rivgnKjGRgMO21CPmCxg@mail.gmail.com>
+X-Gm-Features: AclHuK-x8jcOOQUqd2amGoGEAKER9jIFGaeL4LxxWAd0cGV7dz_RR64PtDogpPU
+Message-ID: <CAHk-=whsA3tKcUCBJDj_vmJ11rVGT9rivgnKjGRgMO21CPmCxg@mail.gmail.com>
+Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
+ pinning the entry
+To: David Laight <david.laight.linux@gmail.com>
+Cc: "Maciej W. Rozycki" <macro@orcam.me.uk>, Christian Brauner <brauner@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, linux-fsdevel@vger.kernel.org, 
+	Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, 
+	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, 
+	Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, 
+	kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
+	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, 
+	samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-* Jesper B. Christensen (jaytersen@gmail.com) wrote:
-> The ASUS Zenbook A14 (UX3407RA), a Qualcomm Snapdragon X2 Elite
-> (Hamoa)-based laptop, carries its main keyboard on an I2C-HID device
-> with the ID 0B05:0220. Its Fn/media hotkeys are emitted as vendor-page
-> (HID_UP_ASUSVENDOR) usages on report 0x5A.
+On Mon, 9 Nov 2026 at 13:46, David Laight <david.laight.linux@gmail.com> wrote:
+>
+> Just that the cast would have to be:
+>         u8 *foo = (u8 *)bar;
+> where 'bar' is 'char *', and I don't think you need a cast there when
+> char is unsigned.
 
-Hi Jesper,
-  Just to let you know this also works on my X1 Zenbook A14 UX3407QA.
-Very nice!
+.. and just to clarify: 'char' is always unsigned in the kernel on all
+architectures since commit 3bc753c06dd0 ("kbuild: treat char as always
+unsigned") back four years ago...
 
-Dave
-
-> In addition to the the standard I2C keyboard quirks and the keyboard
-> backlight quirk, a few new have been added:
-> 
->   QUIRK_KBD_REPORT_SIZE: The UX3407RA seems to only accept 64 byte
->    reports
->   QUIRK_KBD_OOBE: Refactor existing Out-Of-Box mitigation into a
->    quirk.
-> 
-> The keyboard backlight is software controlled. Since WMI is not
-> available on Snapdragon based platforms this change registers a
-> separate led device that sends hid reports to the Embedded Controller
-> (EC).
-> 
-> Signed-off-by: Jesper B. Christensen <jaytersen@gmail.com>
-> ---
->  drivers/hid/hid-asus.c | 88 ++++++++++++++++++++++++++++++++++++++++--
->  drivers/hid/hid-ids.h  |  1 +
->  2 files changed, 85 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index c38a2b3b33d9..072df9816e50 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -66,6 +66,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->  #define ASUS_FAN_CTRL_KEY_CODE 0xae
->  
->  #define SUPPORT_KBD_BACKLIGHT BIT(0)
-> +#define EC_KBD_MAX_BACKLIGHT 3
->  
->  #define MAX_TOUCH_MAJOR 8
->  #define MAX_PRESSURE 128
-> @@ -100,6 +101,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->  #define QUIRK_ROG_ALLY_XPAD		BIT(13)
->  #define QUIRK_HID_FN_LOCK		BIT(14)
->  #define QUIRK_FILTER_CAMERA_COMPANION	BIT(15)
-> +#define QUIRK_KBD_REPORT_SIZE           BIT(16)
-> +#define QUIRK_KBD_OOBE			BIT(17)
->  
->  #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
->  						 QUIRK_NO_INIT_REPORTS | \
-> @@ -169,10 +172,12 @@ struct asus_drvdata {
->  	bool battery_in_query;
->  	unsigned long battery_next_query;
->  	struct asus_hid_listener listener;
-> +	struct led_classdev kbd_led_cdev;
->  	bool fn_lock;
->  };
->  
->  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
-> +static void asus_kbd_illum_toggle(struct asus_drvdata *);
->  
->  static const struct asus_touchpad_info asus_i2c_tp = {
->  	.max_x = 2794,
-> @@ -469,6 +474,7 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
->  		case KEY_KBDILLUMDOWN:
->  			return !asus_hid_event(ASUS_EV_BRTDOWN);
->  		case KEY_KBDILLUMTOGGLE:
-> +			asus_kbd_illum_toggle(drvdata);
->  			return !asus_hid_event(ASUS_EV_BRTTOGGLE);
->  		case KEY_FN_ESC:
->  			if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
-> @@ -576,15 +582,23 @@ static int asus_raw_event(struct hid_device *hdev,
->  
->  static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t buf_size)
->  {
-> -	u8 *dmabuf __free(kfree) = kmemdup(buf, buf_size, GFP_KERNEL);
-> +	size_t alloc_size = buf_size;
-> +
-> +	if (QUIRK_KBD_REPORT_SIZE)
-> +		alloc_size = (buf_size > FEATURE_KBD_REPORT_SIZE) ?
-> +			buf_size : FEATURE_KBD_REPORT_SIZE;
-> +
-> +	u8 *dmabuf __free(kfree) = kzalloc(alloc_size, GFP_KERNEL);
->  	if (!dmabuf)
->  		return -ENOMEM;
->  
-> +	memcpy(dmabuf, buf, buf_size);
-> +
->  	/*
->  	 * The report ID should be set from the incoming buffer due to LED and key
->  	 * interfaces having different pages
->  	 */
-> -	return hid_hw_raw_request(hdev, buf[0], dmabuf, buf_size, HID_FEATURE_REPORT,
-> +	return hid_hw_raw_request(hdev, buf[0], dmabuf, alloc_size, HID_FEATURE_REPORT,
->  				  HID_REQ_SET_REPORT);
->  }
->  
-> @@ -702,6 +716,38 @@ static void asus_kbd_set_brightness(struct hid_device *hdev, u8 brightness)
->  		hid_err(hdev, "Asus failed to set keyboard backlight: %d\n", ret);
->  }
->  
-> +static void asus_kbd_set_brightness_cdev(struct led_classdev *led_cdev,
-> +				    enum led_brightness brightness)
-> +{
-> +	struct asus_drvdata *drvdata = container_of(led_cdev, struct asus_drvdata, kbd_led_cdev);
-> +	u8 level = (u8)brightness;
-> +
-> +	if (level > EC_KBD_MAX_BACKLIGHT)
-> +		level = EC_KBD_MAX_BACKLIGHT;
-> +
-> +	asus_kbd_set_brightness(drvdata->hdev, level);
-> +	drvdata->kbd_backlight_brightness = level;
-> +}
-> +
-> +static enum led_brightness asus_kbd_get_brightness_cdev(struct led_classdev *led_cdev)
-> +{
-> +	struct asus_drvdata *drvdata = container_of(led_cdev, struct asus_drvdata, kbd_led_cdev);
-> +
-> +	return (enum led_brightness)drvdata->kbd_backlight_brightness;
-> +}
-> +
-> +static void asus_kbd_illum_toggle(struct asus_drvdata *drvdata)
-> +{
-> +	if (!drvdata->kbd_led_cdev.brightness_set)
-> +		return;
-> +
-> +	u8 current_level = drvdata->kbd_backlight_brightness;
-> +	u8 max_level = EC_KBD_MAX_BACKLIGHT;
-> +	u8 next_level = (current_level + 1) % (max_level + 1);
-> +
-> +	asus_kbd_set_brightness_cdev(&drvdata->kbd_led_cdev, next_level);
-> +}
-> +
->  static void asus_kbd_wmi_fan(struct hid_device *hdev, struct hid_raw_event_data *data)
->  {
->  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-> @@ -956,7 +1002,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
->  	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
->  		return -ENODEV;
->  
-> -	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
-> +	if (drvdata->quirks & QUIRK_KBD_OOBE) {
->  		ret = asus_kbd_disable_oobe(hdev);
->  		if (ret < 0)
->  			return ret;
-> @@ -972,10 +1018,28 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
->  	drvdata->listener.brightness_set = asus_kbd_backlight_set;
->  	ret = asus_hid_register_listener(&drvdata->listener);
->  	if (ret < 0) {
-> -		hid_err(hdev, "Unable to register kbd brightness listener: %d\n", ret);
-> +		if (ret != -ENODEV) {
-> +			hid_err(hdev, "Unable to register kbd brightness listener: %d\n", ret);
-> +		}
->  		drvdata->listener.brightness_set = NULL;
->  	}
->  
-> +	// Non-x86 architectures do not have WMI, just register a led
-> +	// device directly
-> +	if (ret == -ENODEV) {
-> +		drvdata->kbd_led_cdev.name = "asus::kbd_backlight";
-> +		drvdata->kbd_led_cdev.brightness_set = asus_kbd_set_brightness_cdev;
-> +		drvdata->kbd_led_cdev.brightness_get = asus_kbd_get_brightness_cdev;
-> +		drvdata->kbd_led_cdev.max_brightness = EC_KBD_MAX_BACKLIGHT;
-> +		ret = led_classdev_register(&hdev->dev, &drvdata->kbd_led_cdev);
-> +		if (ret < 0) {
-> +			hid_err(hdev, "Unable to register kbd brightness led: %d\n", ret);
-> +			drvdata->kbd_led_cdev.brightness_set = NULL;
-> +		}
-> +
-> +		asus_kbd_set_brightness_cdev(&drvdata->kbd_led_cdev, 1);
-> +	}
-> +
->  	return ret;
->  }
->  
-> @@ -1372,6 +1436,9 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
->  	if (drvdata->listener.brightness_set)
->  		asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
->  
-> +	if (drvdata->kbd_led_cdev.brightness_set)
-> +		asus_kbd_set_brightness_cdev(&drvdata->kbd_led_cdev, drvdata->kbd_backlight_brightness);
-> +
->  	return 0;
->  }
->  
-> @@ -1502,6 +1569,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		}
->  	}
->  
-> +	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16"))
-> +		drvdata->quirks |= QUIRK_KBD_OOBE;
-> +
->  	/* Laptops keyboard backlight is always at 0x5a */
->  	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
->  	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
-> @@ -1539,6 +1609,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (drvdata->listener.brightness_set)
->  		asus_hid_unregister_listener(&drvdata->listener);
->  
-> +	if (drvdata->kbd_led_cdev.brightness_set)
-> +		led_classdev_unregister(&drvdata->kbd_led_cdev);
-> +
->  	asus_worker_stop(drvdata->worker);
->  	hid_hw_stop(hdev);
->  	return ret;
-> @@ -1551,6 +1624,9 @@ static void asus_remove(struct hid_device *hdev)
->  	if (drvdata->listener.brightness_set)
->  		asus_hid_unregister_listener(&drvdata->listener);
->  
-> +	if (drvdata->kbd_led_cdev.brightness_set)
-> +		led_classdev_unregister(&drvdata->kbd_led_cdev);
-> +
->  	asus_worker_stop(drvdata->worker);
->  	hid_hw_stop(hdev);
->  }
-> @@ -1673,6 +1749,10 @@ static const struct hid_device_id asus_devices[] = {
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  		USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD),
->  	  I2C_KEYBOARD_QUIRKS | QUIRK_FILTER_CAMERA_COMPANION },
-> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-> +		USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_A14_KEYBOARD),
-> +	  I2C_KEYBOARD_QUIRKS | QUIRK_USE_KBD_BACKLIGHT | QUIRK_KBD_REPORT_SIZE |
-> +	  QUIRK_KBD_OOBE},
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  		USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index cb7f16d75fce..a992c0aabd45 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -221,6 +221,7 @@
->  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
->  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
->  #define USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD	0x4b42
-> +#define USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_A14_KEYBOARD	0x0220
->  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
-> -- 
-> 2.53.0
-> 
-> 
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
-\        dave @ treblig.org |                               | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+            Linus

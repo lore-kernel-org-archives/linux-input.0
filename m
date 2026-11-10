@@ -1,56 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794277612;
-	b=Pk1M+FBJ7ZVGfRzOv/vvxjEWylvCQbVUkQ80c+KkwJVwLNSwv9IOcgL0d4IOfjHKCjSD
-	 pMAut43nmY641MlMVlJ5ZPQfHbgzBHsIspmar+LOQeVc1FuLb8MTXSf7Wfw84M1rUMPX1
-	 bDlFGYPhfbGbs8VKVX871Q47hhxGtnI/xYil3OYQXUS1l0D+qOPSagwbNAG7i9vbmH4Gi
-	 MntcMQo9owkKSwhFOvFl4hXIWDs5UfFp9GXqLezgQ8lxQjHSEkLEqUNexgFQi/T+W83C8
-	 B9AsYxlFhjj7xd5a2oluccwwkqQGSxQgIIp8n02sNy3qav9EkQuXzu2U6kDVBiWOaGA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794277612;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=pGOLXfbJoZpGjYl0Tap4GTUEfcKyTrcCqnjrO/UmhOA=;
-	b=Whax1+wn04QmHgrv9ueCs5J5Bvx8xzvhm3v6wcTf2hddpbAGec+nrl9D3Z3kJpjwTrkO
-	 /1c4R274uzv2tkvP1MXZ1Q6Itsdze1DxVZH1njUhV/Cg75cJxZ3eWckBgSsroEIuMbZdZ
-	 L4j7idDxYl1M+e/tHbHfnwJR8+jQTyB62wdo1U2db5hNFU8a6LJMSqSIL+3ojgbHJsRN5
-	 HVxhBWa9vh0ogBWq1w0EJ4JPv4c5aFhLkAX+Kp4ut0Zb9y+Uw+7aw6/w0bFsaC37SnFID
-	 cOq09q/t9kub/lRv87rsmAHSfc9I+iE3Xe5hkXE95ixLcTHFw7GGSu794nkoVvsDebA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVL+Y4V2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.45
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794277973;
+	b=Js5QKaOmmSpAs/RbVqAyFXxvMUZlX1II6EnqQ/HH3By+Ocn0NyFWXtxMHDtaeTcaifZ1
+	 UcoCMBT3Gp5WVlVbAlZQ7TGOnj1YcGEWqszeZiACoxERxJQcCom4jmbdAxjH8rg3LzIIK
+	 zra5N5eVvSyaJvIRglUTBNo3ti+qEFYjwb6TFKGaExBkZfECU2lou/YQAQoL1UNu9oUyk
+	 40OLV6DltMyNZ5yHzLYIkwdBAKE5XTxkI3H4SqenlNWEHV0Eagm1UWKxDtliXS975xWRy
+	 cjinOGuuDeBK4e+gh+p82ScTnDIBroJ8aonDSqnnxTQ+B+RW5NeknXNSCDa+8BeFwPA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794277973;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 MIME-Version:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type;
+	bh=+UEXnv8sO59biXTVUGJWsxHSY+X/qyvekpO21DXG97s=;
+	b=RNZa4JsNPQpoIJFfPQEnOUI1c6AG+NBegHrLA+3SEDAOYg4SsxMdY8CJ87pWIXfFZmln
+	 sdQmx9SWr2AZG6Dmky7ZiFW5nimi9r1+B+qP1VXGVnIJ34xIEzeSCTshLZJdCJyI1KOVV
+	 gxOrnLr8NO+Kj+83fRlb2E2yTagSu75EeoWg2tPOiH8I/ZF85bvmvqJc3Sk5Lk7G6ungf
+	 nDScPvU1DRRdea+eZ5cafl/DgC4RlKmujeTtdDbb3TWPxOajtWqZ18LhQVjP/x1WJpcld
+	 5crMfHL1lLhr9rJMn72mu50t0VING18Bidy9XQwPhNTBIJm9mUu4MsbjcmG8kKSmqhQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kN8usH9I;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.45
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7986606A31C
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:26:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C6B606A31C
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:32:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53C6B606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVL+Y4V2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6AA1F0089F;
-	Tue, 10 Nov 2026 02:26:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794277611;
-	bh=pGOLXfbJoZpGjYl0Tap4GTUEfcKyTrcCqnjrO/UmhOA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fVL+Y4V2V9Y4v77EQj1ea37Y4S5SsZFDNgpJnrDjCGXUVp2hxfS5tdtzECjHoITu4
-	 4kFLlYx8EWt73/NF7qkVuNJM3M7j3AAkRIq0A1AirXJz8thDpUXxUZmVXt7IZgr5w1
-	 VsVfjQpqCcOzdRuBYneHVi97gZ528pXRceOuXaVSIZxm+vrnxKXV8olacCUj15cspf
-	 8E3q9Qbox/UF1jNruznrpaKAFLE2ySQI1uH5nmIhqDgaw5dmUQUDSt4594IkPCrRcZ
-	 Pe9TkEtiEyVLX/w0i/Q9qiyV8oYigSzESpHDiwm2g/I36kI53gqc22/UN5YgkdX08/
-	 909Md/39XbUkw==
-Message-ID: <sashiko-outbox-206045@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v15 02/18] HID: asus: add support for ROG Ally handhelds
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261110020036.112884-3-denis.benato@linux.dev>
-References: <20261110020036.112884-1-denis.benato@linux.dev>
- <20261110020036.112884-3-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 02:26:50 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kN8usH9I
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6b633ddfad6so2012775a12.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 18:32:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794277972; cv=none;
+        d=google.com; s=arc-20260327;
+        b=qqxviLd2efBtqWUU6UTr6V3aDYur3ouJQBcguwGDYjdYS+qNvuU9LMQHkfLPuq9Qds
+         HGF8DlFdU7pvbDnwRB/rqBwjT+Yma0ipcQz+RYTRA5fxLqEGPxm5H6zpdqlTUqs0cqo8
+         Z7ZMF1+4k2VXJneg43WlX2CM4BimIDjXShtTtyNVxTsANwAfNsVHIgfwY7MxQsvySH7g
+         CGUfpoMtSmapnRpg+6+2tTlk4srnDm+bbNB6Qwcs1vLKFoAUp53Q8qOCUJ2jZu9dUoJm
+         XK1a2eh2f/04Ckft9oerSzXjBdguhR+YlsLH1yW+sZs4iDotTd4ROxS68y/PVImDyYJJ
+         YctA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=+UEXnv8sO59biXTVUGJWsxHSY+X/qyvekpO21DXG97s=;
+        fh=hQS1xU6lO8uC26t180K4E859wxipZZ5x+ddCY9jXcMM=;
+        b=PEPW9CVsXovvyOO7WxEwvxXMwdNSjTFwXCQjK+oykeb/5dURqj+M9v4L51LUdcy23v
+         ZyjDuRxfdt3vmoSacLVyj23ncIC9Do87z1XfWkNZsV1YW35/nky9LoqjHss4w48dbekL
+         g9ALacjKKjvYsa0k0CnbQey+myFvH3uddZ2MznHeaIlro5onvTuZOGhD02XrA/cPVM0b
+         pf5OJREUVVqZaT2WOIli+DzEMND93Xhn3W9lXRUgOaxB7r78AG+HDXLGsc0u3zIwDaXR
+         DCH/yfLbyDEEZ0gu3c2i1pTRnCJhIiCJ8hMzxD9ObJl4cq80AxYJsR3VhwbG6vhcPksm
+         EC0g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794277972; x=1794882772; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+UEXnv8sO59biXTVUGJWsxHSY+X/qyvekpO21DXG97s=;
+        b=kN8usH9IU49ojTSFWxPbJVZ+ZPL9HfmyxBuwCulgrTZp/vIkQ2G69w6Y2yovNv946E
+         bJzgBQHvSOFygF+KiU2KfzjtI0OAeGZi9VL3lKD+AvhAVGOQmot95xbnAbg2A4CaqsCf
+         eTZ8KFJ96l3FwkAU/lwTHaXnrTtHfa2PYj99p6cQOQJSjiD4KSRMNhMDCcuyLBKNz9Os
+         tSQbuty+GYOY4ZQ2vek1GcljQVgKSwQkRuubGXyLCTQolhUdTNTRmgmjxNwLUn2vfeXd
+         12WP15h/MMthSPTaba6ldVBkatiFdKp89KUiyAAfiQLjEErfYKq0VKNkyG5HIpvzN859
+         aeqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794277972; x=1794882772;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=+UEXnv8sO59biXTVUGJWsxHSY+X/qyvekpO21DXG97s=;
+        b=ezgtIK6JCIhPuxVyUqX6B4kGQpTRS5C2YhI1hRo8cytBh3VwBY3t3se3Ddfw8U3ZBh
+         rRWN8Ks6EFlQOSP11Ddf93LClwjiHg9LhdbVfQ10Caenyz2kG4YVrIgsX+ZRp2A4AvEI
+         s9HbaFkOOT9Y20lMkZeQ9Gz3Sa2UtJ9xgN4P6/H8U1l1FFn8xnl2Ha2rbCNrd5UC+Prp
+         W73Ua3OGC0UKwmMyHPr/AHHf6HJAFCvzoJzMYAM6GdSNOy3B90VUeGDHxme3Umy1nUdx
+         uH5xI8WG+83SZrDEzOux3f4TTeztuiHzluWRtVmILLzA9b22Mb0U1AxlwQ798SSfV5rr
+         k/rg==
+X-Forwarded-Encrypted: i=1; AL+hErG6mwUuNRdKoi17S2oqgPrlCpuBdGmRji62ft4zxgsIHA8QQG3ighdITAsB951T4ihjzqDdtG8/iAFU1Q==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8aBLS0SCkax0c72RCvjKpxwee7DCazzq6LGvpVjun5zaE7MQ0/
+	tItJROO/Sa21ky7oCbJxnSYdtet2l2rb4mKtjXoOHF7021ye4jsQKUwPhin7q3lM4aTnvUy1Mxq
+	ghYMrwMSn5aaN6msuOG5BgEu02Nfu9g==
+X-Gm-Gg: AYBFou0Dp+qyeU2XcmgOrFfH72WfcUjnyb3EKltFBqMtxlDYAkGzeV9r8m0+sYd7jJ8
+	4Twteq+eMKAKk7zwNpN1xRJhWLJHd6o8P0MRr1waclL2rDn6ajAwPu39j9JkqPBIrKkYx3K6bXv
+	MBzqPsmY3Q+8CM77zvguQUNfa8tlhV0m6Ojdao8fmIFROOJ8Wea1K4nVLyyxN8gJq8QH3EKXNMK
+	ckQPFW34jKFAWR1gpttmoa5Akjg2Z7h4X/gwPhEH8i5GXQZJYYSPIJlHIio4OiVM6pYVuPpuVWm
+	91WpMWJCGkomdUsO18zGKYYw7BncBTBhBXIor1rFtTQ4JShNDn04fT4N0QwRKzLFj8bsV8rAF89
+	QRtJxrvkXKtp7Lfc0Jun4vgGm79HnJsIPA7yQTikbAY4aL3XzAqWWP1FRXLV3ypIrv5Nr9OJS7A
+	1sl0EeR+DLIOeujuHHgWccBX+dkdyAHBbIzw8WUhXEid03
+X-Received: by 2002:a05:6402:a507:10b0:6b1:8818:1090 with SMTP id
+ 4fb4d7f45d1cf-6b7568dc1e7mr684976a12.22.1794277971764; Mon, 09 Nov 2026
+ 18:32:51 -0800 (PST)
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Tue, 10 Nov 2026 02:32:49 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,181 +103,41 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+From: Myeonghun Pak <mhun512@gmail.com>
+Date: Tue, 10 Nov 2026 02:32:49 +0000
+X-Gm-Features: AclHuK8AIkgNRXamUPSojUGsIPAwgEr26dHrd-qWTZA7kFbE804fLktH5iFVef4
+Message-ID: <CAGEsz8Gb=4JS4OAFKppe=LW6JYa2ssJ8APdJJX2Ou_BhzEvZxg@mail.gmail.com>
+Subject: [PATCH v2 0/2] mfd: wm831x: Fix IRQ mapping and cleanup
+To: Lee Jones <lee@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Charles Keepax <ckeepax@opensource.cirrus.com>, Ijae Kim <ae878000@gmail.com>, 
+	patches@opensource.cirrus.com, mfd@lists.linux.dev, 
+	linux-input@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [Medium] HID: asus: unignored report 0x0B in asus_input_mapping()
-  duplicates gamepad
-- [Medium] HID: asus: wrong report type and interface for FF off in
-  hid_asus_ally_init()
-- [Medium] HID: asus: missing resume_work scheduling in
-  asus_reset_resume()
---
+Hi Lee and Dmitry,
 
-commit 31ea255aca65ddd5d73673198b56e960840e1aa1
-Author: Denis Benato <denis.benato@linux.dev>
+This series fixes WM831x IRQ resource mismatches and follows Dmitry's
+request for managed onkey IRQ/work cleanup and MFD-provided mapped IRQs.
+The provider and consumers are converted together to keep their IRQ
+resources consistent.
 
-HID: asus: add support for ROG Ally handhelds
+Changes since v1:
+- Use managed IRQ/work cleanup instead of storing the onkey IRQ.
+- Move IRQ mapping into MFD and update all platform consumers.
+- Reject failed mappings and unwind consumers before removing the domain.
+- Retain polling for release detection; the chip only interrupts on assertion.
+- Drop the previous Reviewed-by tag because the implementation changed
+  substantially.
 
-This commit adds ROG Ally and ROG Ally X handheld support to hid-asus,
-including per-interface state management, MCU readiness checks, Ally X
-gamepad input device registration, and vendor/Ctrl+Alt+Del key handling.
+Compile-tested with LLVM, W=1 (arm64), for all 11 changed C objects.
+No hardware testing.
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 46643022b68d0..123ed945ea77c 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
+Previous discussion:
+https://lore.kernel.org/r/atJycIEnUZKVdTjW@google.com
 
-[ ... ]
-
-> @@ -129,121 +164,965 @@ struct asus_work_action {
-
-[ ... ]
-
-> +static const u8 ally_force_feedback_off[] =3D {
-> +	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
-> +};
-
-[ ... ]
-
-> +static int hid_asus_ally_init(struct hid_device *hdev)
-> +{
-> +	int ret;
-> +
-> +	/* Failure at this point is non-critical. The packet goes to this inter=
-face. */
-> +	ret =3D ally_gamepad_send_packet(hdev, ally_force_feedback_off,
-> +				       sizeof(ally_force_feedback_off));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does hid_asus_ally_init() send ally_force_feedback_off as the wrong report
-type on the wrong interface?
-
-hid_asus_ally_init() runs on endpoint 0x83 (HID_ALLY_INTF_CFG_IN) and calls
-ally_gamepad_send_packet() -> ally_dev_set_report() ->
-asus_kbd_set_report(), which looks up buf[0] (0x0D) in HID_FEATURE_REPORT
-via asus_report_len().  Report 0x0D is an output report on the gamepad
-interface (endpoint 0x87, HID_ALLY_X_INTF_IN), as later added in commit
-"HID: asus: add support to force feedback", rather than a feature report on
-the configuration interface.  As a result, asus_kbd_set_report() fails with
--EINVAL (or sends a zero-padded feature report to the wrong interface) and
-logs hid_err() on every probe and reset_resume.
-
-[ ... ]
-
-> @@ -512,6 +1393,25 @@ static int asus_raw_event(struct hid_device *hdev,
->  	if (drvdata->quirks & QUIRK_MEDION_E1239T)
->  		return asus_e1239t_event(drvdata, data, size);
-> =20
-> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-> +		/*
-> +		 * Return -1 to suppress further processing by the generic HID
-> +		 * input parser for reports we fully handle. The interface is
-> +		 * published with rcu_assign_pointer() only after its fields
-> +		 * are set, and is kept alive by the RCU read-side lock even
-> +		 * if it races with the teardown in asus_remove(). Letting
-> +		 * report 0x0B reach the default parser creates a generic
-> +		 * gamepad and Steam Input overlaps.
-> +		 */
-> +		rcu_read_lock();
-> +		intf =3D rcu_dereference(drvdata->ally); /* fields are published */
-> +		stop_parsing =3D hid_asus_ally_raw_event(hdev, intf, data, size);
-> +		rcu_read_unlock();
-> +
-> +		if (stop_parsing)
-> +			return -1;
-> +	}
-
-[Severity: Medium]
-Does returning -1 in asus_raw_event() actually prevent hid-core from
-creating a duplicate generic gamepad input device for report 0x0B
-(HID_ALLY_X_INPUT_REPORT)?
-
-Returning -1 from asus_raw_event() only drops incoming reports at runtime.
-The generic hid_input device is created and registered earlier during
-hid_hw_start(hdev, HID_CONNECT_DEFAULT) via hidinput_connect() ->
-asus_input_mapping().  Because asus_input_mapping() does not return -1 when
-field->report->id =3D=3D HID_ALLY_X_INPUT_REPORT on QUIRK_ROG_ALLY_XPAD dev=
-ices,
-hid-core maps the standard Generic Desktop and Button usages in report 0x0B
-onto hi->input and registers a second, non-functional gamepad evdev node
-alongside intf->gamepad.
-
-In addition, if report 0x0B arrives before drvdata->ally is published in
-asus_probe(), or is truncated (size < 1 + sizeof(*in_report)),
-ally_x_raw_event() returns false and lets the report reach the generic HID
-parser.
-
-[ ... ]
-
-> @@ -1578,12 +2382,25 @@ static int __maybe_unused asus_resume(struct hid_=
-device *hdev)
->  	if (drvdata->listener.brightness_set)
->  		asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brig=
-htness);
-> =20
-> +	/*
-> +	 * Published with rcu_assign_pointer() after the fields are set. The
-> +	 * RCU read-side lock keeps @intf alive even if the resume races with
-> +	 * the teardown in asus_remove(): a work that got quiesced in the
-> +	 * meantime is disabled and schedule_delayed_work() just drops it.
-> +	 */
-> +	rcu_read_lock();
-> +	intf =3D rcu_dereference(drvdata->ally);
-> +	if (intf)
-> +		schedule_delayed_work(&intf->resume_work, msecs_to_jiffies(500));
-> +	rcu_read_unlock();
-> +
->  	return 0;
->  }
-> =20
->  static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
->  {
->  	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int ret;
-> =20
->  	if (!drvdata->tp)
->  		asus_initialize_reports(hdev);
-> @@ -1591,6 +2408,22 @@ static int __maybe_unused asus_reset_resume(struct=
- hid_device *hdev)
->  	if (drvdata->tp)
->  		return asus_start_multitouch(hdev);
-> =20
-> +	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-> +		/*
-> +		 * hid_asus_ally_reset_resume() only NULL-tests the interface,
-> +		 * it never dereferences it: rcu_access_pointer() suffices and
-> +		 * does not need an RCU read-side section, which would be
-> +		 * illegal here anyway as the reset resume sleeps in the raw
-> +		 * request it sends to the device.
-> +		 */
-> +		ret =3D hid_asus_ally_reset_resume(hdev,
-> +						 rcu_access_pointer(drvdata->ally));
-> +		if (ret) {
-> +			hid_err(hdev, "Failed to resume ROG Ally HID extensions: %d\n", ret);
-> +			return ret;
-> +		}
-> +	}
-> +
->  	return 0;
->  }
-
-[Severity: Medium]
-Should asus_reset_resume() also schedule intf->resume_work?
-
-When a USB device is reset across system suspend/resume, the USB core calls
-.reset_resume instead of .resume, not both.  Because neither
-asus_reset_resume() nor hid_asus_ally_reset_resume() schedules
-intf->resume_work, ally_release_vendor_keys() will not run after a
-reset-resume, which is the exact USB reset/re-probe case the workaround
-targets and can leave KEY_F16, KEY_F17, KEY_F18, or KEY_PROG1 stuck
-pressed.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110020036.1128=
-84-1-denis.benato@linux.dev?part=3D2
+Thanks,
+Myeonghun

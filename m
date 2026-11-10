@@ -1,64 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.240.6.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.142
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794326887;
-	b=FCmGlhUUpEJ3+jkmcOtxWcFHItCucy+r0i6pgZMYvAWlMsg28NO7wnJ0+OU8/cx6AjuP
-	 0ATNaFAguvswHu5YssFYO+BzIacxHvzapzhGZRnf81iz/9HB0vMO3MtL/kAaUqMBEQVs5
-	 mIHVI7eBcNPSxO7VbqsNjIjJBmodk9YtQs9UEYCmoFR43rfEm/BxjeHdwWDlU9nZlvAFG
-	 D6BM9oQlZkqfUidrz4NV7fLB5SmPH9X+fbIaoUKseQzbbD3kIFVSalOZwlbx9Tzth7noo
-	 HpOk1ONubcaMVoMRZDtGkZFhWEvzn5P1DIl665jPYod7QFPnZ0E909v76WL1hooutlw==
+	t=1794327195;
+	b=wjrOLbJVy5N1czC0Iza7ivANMb0n59kufpVzQ/7jH3dlC+T6qk4yszIAQO8/vpB0kWR8
+	 z4DQcibsc+iPUQWEooF2AhO7UwoFo1JKR05GieducaPEiNJttpOvOWRh1nQDuMBzEewKH
+	 bipNlqL1zAUvZF2j8Sg8QegNvnNpiz5Qfqaa0ETODbsyeLq+M9mrTp5ju2Ps75uUyQLX9
+	 iZc9yF5Tty/RAsuOzJQmgGbY9rA0s9bo+FrFFgjDnwslXx7qmLAjokbrORdHzWDc+/OXV
+	 iDxFIa7k3ShAUd9NWqtq+hylqe8nt0RCxNp5wa0kX1fjDy3TDl6CwCjlTrnlIpuiOqw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794326887;
-	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:X-Mailer:From:To:Cc:
-	 Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:
-	 Content-Type:Feedback-ID:X-SES-Outgoing;
-	bh=nXZaAGBRf4UciZRAV97Kr7EaxvMvbLbdrcoBmt2p9Q0=;
-	b=oetjsQYJhCvS40995FazNWvxBpOUSfxj9Z7goHACXcVaA7VPFUPj3izKsDn5XOmKMIzx
-	 yhMKuyWbLw7DcJ3uHzFWIT+64prvoLZl4bIKdPHZ7IB1CdVJLU7dCu4yZRgcsC4UbaKDi
-	 p1OroD1/mVvIa4Q0Qr60dkPUVnNThZKrwac+Ub/t1LlIR0+nKNoRl/oh728+lpSQPTDmk
-	 /Em9KD+/RFZdXMR/xS9zr0ISy6AKzRcNsOtZ4PoosCPhoo9gucmTjGutHQXZiG1ZgH1aT
-	 Xb1VjIQCjtQOvyTnwZrxwe1ePDlqp6ZDzlCy9dzpnvmZSqcrg2yQvXSNU2wva3w3RlQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794327195;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=;
+	b=qXPymC1Or74svGQ5KbXL/l5CvE4G85fhHOqufLs2dHdHrsTVyuWmC2zGG8pAY7UPbJts
+	 5c3qon3ot31Rn+G9fCzcAWiLPQNYUy09HSkshVBlF7rgj4OYJg7wX0dNxknOkWrMYhF1k
+	 ByFkaoVFHmWbp3TRG6lhHZXeqM0vguOtzrOLocNhYhpqzVn7E69EMSl7X56bQLKklFTRp
+	 rxYYoduEATBz4icAtst+XP3sNZaXR8MPdZ7K98M18SpC8+hTBWDbXb3LL4yZ5Ut7jR81J
+	 sPDiVWJzwwMnvp7XtDub/F1CDvZw1UGFb6SofQw+HD3aXvaKwAqOO3jysajAEZBA9Dg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=horotw.dev;
-	spf=pass smtp.mailfrom=send.horotw.dev;
-	dkim=pass header.d=horotw.dev header.i=@horotw.dev header.a=rsa-sha256 header.s=resend header.b=f6hSg4qS;
-	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=shh3fegwg5fppqsuzphvschd53n6ihuv header.b=OeYmvbrq;
-	arc=none smtp.remote-ip=54.240.6.53
-Received: from a6-53.smtp-out.eu-west-1.amazonses.com (a6-53.smtp-out.eu-west-1.amazonses.com [54.240.6.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW;
+	arc=none smtp.remote-ip=103.168.172.142
+Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 898AA606A31C;
-	Tue, 10 Nov 2026 16:08:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 898AA606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=horotw.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.horotw.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EB87606A337
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 16:13:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6EB87606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=horotw.dev header.i=@horotw.dev header.a=rsa-sha256 header.s=resend header.b=f6hSg4qS;
-	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=shh3fegwg5fppqsuzphvschd53n6ihuv header.b=OeYmvbrq
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=horotw.dev; t=1794326885;
-	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=Q7jGvzifsBcjfG0e/820Z33fDAwfuKWyt8nRK8W513c=;
-	b=f6hSg4qSrO5v8T63h4dNX5gUXDuyWSz4dnnjs2kBcbMby0CboGFBsjRM8/rcCsrF
-	iwUbTJK7hYVNhZiF4fC7EokTjgzI6t5T+biXxO0b/rdHij+vLFM58bvb7qHlQNonni9
-	Q2RHjQKIRJwmR6nX2AAFkDfuhST5zAsjmvlnc9AI=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=shh3fegwg5fppqsuzphvschd53n6ihuv; d=amazonses.com; t=1794326885;
-	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=Q7jGvzifsBcjfG0e/820Z33fDAwfuKWyt8nRK8W513c=;
-	b=OeYmvbrqAXXW7V1SBHLKB6sCV4TNMbf9ngN5GUDKrYLeTjXfr+sOYLefPFBKlv0p
-	3rm2Gc9j+a8dpRpexGTuRksbHurzXwfXh1iS2HEYoytgvMCj78xVBv++dKfWgUTbvQy
-	DwF0KBLjLMN+VbCA9r+p704mS65RevnsQVp+K5gE=
-X-Mailer: git-send-email 2.43.0
-From: HoroTW <git@horotw.dev>
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	mika.westerberg@linux.intel.com, andy@kernel.org, git@horotw.dev
-Subject: [PATCH] HID: i2c-hid: acpi: Add Dell Latitude 7400 2-in-1
- touchscreen power quirk
-Message-ID: <010201a1c63771e5-dbbba1f2-8a9f-4dbc-8901-c60927cf5a56-000000@eu-west-1.amazonses.com>
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 16:08:04 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.phl.internal (Postfix) with ESMTP id A08B213813D7
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 11:13:14 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Tue, 10 Nov 2026 11:13:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1794327177;
+	 x=1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=
+	asQC+qHDAv/I83EYngLJ0bkBe+uuEnPcLg0jrc2OX9kVtaPYAd/md3quox9jqmy4
+	S/jELTpXjA2k1IxJWtdK3HZW4IriVAHis0xufJR256BBPAzbfZ5QsGw2eqYq1k/I
+	S4qzaUtb3Ob4GAV2mxThnKp0r/zG0TfcXAK+eUmyQOHhHqtyGONG7gkgzRBQG2d0
+	/gzJT11LHsGNvLKSZnn9JL3iytYjrT3V7KZt2FZsHfjjQeZHywjaesrjJhD0e7vN
+	Y6/iN3Jg7w8xS8OVdYMBSUZOfxDnVhVfPJGqKe/oSxsAZXPn7y2e4GOOItdMLZ2R
+	LLVckhHoSzC+MGE1iJu5eg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794327177; x=
+	1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=p
+	jDZKFBWlX484yfO06iZThedU7MnSaqyMkXKHKaXomC5/xVavgZU65SsCjokZJWML
+	GjeTj8Lq4+LWeI1CWzzxuQj2m4isbVa0ssa9g7eZhXilCypVINe5kxTBiobUF6uZ
+	Gtle0jaTmJtlAyGlrtNmbTTDPt9uAjbADo1dgbyzsDA47ykOoKjYt1o87LKBSqHb
+	mP2YIbspjWDiF2EJOgZRHTKT7VhzsY0TtBEN2nWcPAnRSw5Q7HRlPmorpTONvfpP
+	auvP37j94bGeH1y2GQ4LwX12DjFEZi+3xGQave3kINRA2PBRPI5FXxcFzbhhhvXR
+	Tsc8Y3Jb1FgwsS6Y0dcjg==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1794327177; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:f28Pz8cLCSx7Wwe2+27r/4ZU5f7purqnxMx+yjoyRekrejy
+	oaGcbzlLj3YZSc66aZn1x9zZQNNZkX5aSIDglRZ1tWorFP+W0AiJfxcfBSKOlCp8
+	AM/x9kbWFgSB0LZQgqDQ80leIlIt5Dn+0j2SqHamDtsv6Bqvj9ty4KU1JmzC0J1U
+	dgZ6vV4Xg77MiVXcQbDAKmy+WxH1wKips4r14voEOXMg8TLsiV0Q7IQ3J3uBIxog
+	0PysyS0Pj0jULgXZcAWv0+Azk9P7fTBc3wEGNtdUDzIqaGNHXZmZ9/FtzvPn284K
+	a0s3mYVXcijwUOW4+JtjMkmSo4jr7qRqlK1W9Ng==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:NY+qH6VFe1gb9eaYka4u3Pju9dQg6z2rB5jHAxzea+M=:YUoKa4y1cAE3r8AhMFawDzVW7orX9AEZ4cmB97mmTGA=;
+X-ME-Sender: <xms:gELzat-KhdG49YOXD28knxP-wmxhvouurLuqg65ijoK_1PztTiM67w>
+    <xme:gELzashOw3MORHNRaj5VZYoHPjgRatChT2__Hps4-a7QS4ExIju8qL8_9B3SiDtB2
+    sGKQug7JFF_lfIFqrxv09JzfzrzZWKrRlvdLjWPWqavJafwb6XI9q0tBA>
+X-ME-Proxy-Cause: dmFkZTEwJqmeu88i0D1P4NSr1o0RdeyL0ncQrpwlZpsRiyH4mGhKK76jqiY9/AURvmAyKQ
+    Xh2LjT8fovpOgpIQnvH5QYWZs5UCg8lDhPsbwXo4GfEZeWp/aOvfLOYPWjqnmAFI1BwG/q
+    XyZG43p0HoLIgnysLFo6MzsLlgysOWgB08DJdha5yxDuEjeXR7MU6VvvNb4tgDJLpz9WaL
+    DOmlUn0Mje4CQssJm+pxYVCWPCE7uxZNBjliBSIc14Pa1+Q+euFKNdLxxVitjY9vJ+1g1T
+    +rig9iVkFuoti3t+qEcHMM2vh4+G+ag1IzrG3We9+FcQnC6cOfB1bItA6vAPi6A+u1KULf
+    wxoJ36bIqa+kM9OWApvgKo4MId3H8RRe0FCkMwp8Cj2i2hPzQqFijO+zALFklT7XBp4yQ4
+    D0Bsmvzif3sMMCJY2OSk1bwCPIIRPEFuJI4Mi/vpw7sfUa+jfrhN159tiieQQE7aztSV43
+    DlSawBFw+hJYm5oAPkD2NlBoL/gRh3vgmwf+Y/GbihlHM/o3EcsWCertLTOcD6iStWXR7G
+    LAS2aVSdVtxoGSiZj2/kYUSfLhEBFCn05KpxcrFYCW/FmzT2YT72YPVx3p0wR8sMiJ3lAW
+    x+8+3z8XttowLJjfinG9ew4R0xJsilSkEkmhmN5AqofFDl0uTCDo7P0ixMQQ
+X-ME-Proxy: <xmx:hkLzak2BPEyGi10FxxkrY3byRVHSjq_0wLclV2jUuSmkyRE3xcj4fw>
+    <xmx:hkLzakkySXPgYGwh_r1Ql-VHDAdYXcQ3p0tjVOV29OCOWQo8MbFMmw>
+    <xmx:hkLzavloJp1yUj6WriMMnPneQ8pVgU9Ew-sH84r-kdZ-OdXPheHDYw>
+    <xmx:hkLzarPnZB-B1EOixQtLefzjQeDp3wnHNrTbJ3SPpTKyjOvpO-EsFA>
+    <xmx:iULzajThipr-UxTyuQQEJ7jWDCsE73KlfzXTf41eZRpd8Rpi4a2MNCT2>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id AC32432A0097; Tue, 10 Nov 2026 11:12:48 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -68,301 +115,97 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+X-ThreadId: AK-jVwBtQCQR
+Date: Tue, 10 Nov 2026 17:12:28 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
+ "Jonathan Cameron" <jic23@kernel.org>
+Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>,
+ "Arnd Bergmann" <arnd@kernel.org>,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>, "Mark Brown" <broonie@kernel.org>,
+ "Conor Dooley" <conor+dt@kernel.org>, "Daniel Thompson" <danielt@kernel.org>,
+ "Helge Deller" <deller@gmx.de>, devicetree@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ "Liam Girdwood" <lgirdwood@gmail.com>, "Linus Walleij" <linusw@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
+ llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
+ mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
+ "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
+ "Support Opensource" <support.opensource@diasemi.com>
+Message-Id: <991009b6-e62b-46bd-9a0b-43c3b7a6d10a@app.fastmail.com>
+In-Reply-To: <avM5EnC9yujUZcCO@nsa>
+References: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+ <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+ <20260912232047.19c4cb10@jic23-hlaptop> <avM5EnC9yujUZcCO@nsa>
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
 Content-Type: text/plain; charset=utf-8
-Feedback-ID: :1.eu-west-1.OH8L+a2j9VuJMq9Utm7y7N5SZIBUCzGuSCa3PL2C3F9T7RvQnZ1WsPUpJmIAhzgtiQw73eHenzuz9dr01UwDVSVgYd7eFRHl3azv1IlcMxwID9WFheHWTU6HvPuLbPTkJYw4kFg+q28gLw45+PEMDiK6tT0BxCRKqGL3o1b8OL4=:1.eu-west-1.KEYBhYy5skZtLAf2ooWkoQwfhj0g1VAvm2T4fzvEpSk=:AmazonSES
-X-SES-Outgoing: 2026.11.10-54.240.6.53
+Content-Transfer-Encoding: quoted-printable
 
-On the Dell Latitude 7400 2-in-1, the Wacom touchscreen (WCOM48CA) does
-not work after resume from S3. Resume runs into I2C timeouts for 4 to 37
-seconds and then fails:
+On Tue, Nov 10, 2026, at 16:39, Nuno S=C3=A1 wrote:
+> On Sat, Sep 12, 2026 at 11:20:47PM +0100, Jonathan Cameron wrote:
+>> On Thu, 10 Sep 2026 20:14:15 +0200 "Arnd Bergmann" <arnd@arndb.de> wr=
+ote:
 
-  [37928.985861] i2c_designware i2c_designware.0: =
-controller timed out
-  [37928.986100] i2c_hid_acpi i2c-WCOM48CA:00: failed =
-to change power setting.
-  [37928.986340] i2c_hid_acpi i2c-WCOM48CA:00: PM:=
- dpm_run_callback(): acpi_subsys_resume returns -110
+>> > drivers/iio/adc/ad7793.c
+>> Maybe. Analog devices ack needed.
+>>=20
+>> Production part but this one indeed fails to probe.  Analog
+>> folk, do you want to fix this one up?
+>
+> Given it's production we should fix. Looking at platdata seems to nice=
+ly
+> fir in DT. Issue is that I don't have HW with me to test. So I'll maybe
+> just remove platdata and assume some defaults.
 
-The controller has a power enable on GPP_B21 and an active-low reset on
-GPP_B15. The firmware sets both up at boot, but ACPI does not describe
-them: TPL0's _CRS only lists the I2C bus and the interrupt, and there is
-no _PS0, _PS3 or _PR0. After S3 the firmware leaves both pads low, so
-the controller stays unpowered and in reset. pinctrl-intel does not
-restore them either, as it only saves pads that the kernel has requested.
+Sounds good. I already dropped my removal patch for this one.
 
-Add a DMI quirk that provides the two GPIOs through a GPIO lookup table,
-and power_up()/power_down() callbacks that sequence them like i2c-hid-of
-does: power on, wait, release reset, wait. Holding the GPIOs from probe
-makes pinctrl-intel save and restore the pads, and power_down() drives
-them low first, so power_up() always starts from the powered-down state.
+>> > drivers/iio/frequency/ad9523.c
+>> Maybe. Analog Devices ack needed.
+>>=20
+>
+> Hmm we definitely use this one and we have OF support out of tree with
+> likely some DT abuse of what can be in DT or not. Not sure if I have
+> some HW around but we'll need to fix it.
+>
+> In general for ADI parts, I think we can drop the ones that are not
+> recommended for new designs. All the others I tempted to say we should
+> keep. Naturally we need to fix all the drivers that do not compile
+> without platdata. And for the ones with defaults we can also just remo=
+ve
+> platdata and use the plain defaults.
 
-As far as I can tell from the BIOS image, the firmware waits about 9 ms
-after enabling power before pulsing reset, so use 10 ms. Starting the
-first transfer less than 3 ms after releasing reset makes SET_POWER fail
-with -121, while 100 ms and 1000 ms both work; use 200 ms for some
-margin, as I could not find a datasheet value.
+Ok, I'll leave it alone as well now.
 
-As the touchscreen is not a=
- wakeup source, the controller is now also
-powered down in s2idle and for =
-hibernation.
+I currently still have patches to remove adp8860/8870 (backlight), ad7877
+(touchscreen), ad714x (touch) and adxl34x (input, not the iio one), which
+are currently unusable with DT but are all listed as in production.
 
-Tested on a Latitude 7400 2-in-1 (BIOS 1.39.1) in S3, s2idle =
-and
-hibernation (pm_test=3Ddevices).
+I assume you want to fix all of these and keep them in the kernel,
+but possibly still remove the adxl34x and only keep the IIO driver for
+that part?
 
-AI notice: I threw an AI coding agent=
- against it which wrote most of
-the initial patch, I reviewed everything, =
-directed the investigation
-and ensured this is a minimal patch. The agent =
-ran the initial tests
-(via a KVM switch), and I tested it on the device =
-myself as well.
+I also have patches to remove platform_data probing from ad5761, adf4350,
+ad5791, ad5421 and ad5504, these all have DT support.
 
-Signed-off-by: HoroTW <git@horotw.dev>
----
+See=20
+https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/=
+?h=3Dboard-remove-7.4
+for the updated series. I hope to slowly get through that. Let
+me know if you want me to skip any more of those patches.
 
-Notes:
-    This is my first kernel patch, so sorry in advance for anything I got
-    wrong; I would be glad about any feedback.. I tried hard to match the
-    required ettiquete.
-   =20
-    Background: the Latitude 7400 2-in-1 is =
-a nice device, but it has
-    issues with S3 sleep. As I did not have much =
-time, I threw an AI coding
-    agent on it and steered it in the directions=
- that looked promising,
-    until it found out what goes wrong and how it =
-could be fixed.
-    I reviewed all of the code and tried to keep the patch =
-minimal,
-    while keeping it readable and oriented me on how similar cases=
- were
-    handled before.
-   =20
-    - I looked at i2c-hid-dmi-quirks.c and=
- tried to follow its pattern (DMI
-      match, then device name), but kept =
-the table in i2c-hid-acpi.c, as
-      only this driver uses it, and did not=
- add a bigger structure for a
-      single device. My thought was that if =
-more models need this, the
-      delays could move into the DMI match data,=
- as i2c-hid-of-elan keeps
-      them per compatible. I'm happy to rework it=
- if you would prefer it
-      differently, e.g. in i2c-hid-dmi-quirks.c or =
-drivers/platform/x86.
-   =20
-    - The GPIOs are only requested for the =
-quirked device and with named
-      con_ids, so as far as I understand, =
-gpiolib-acpi will not fall back
-      to _CRS and pick up the touchscreen's=
- GpioInt.
-   =20
-    - I did not add checks for the return values of the =
-GPIO writes in
-      power_up(), following i2c-hid-of; =
-i2c_hid_core_resume() ignores the
-      return value of power_up() anyway.
-   =20
-    - Only the Wacom WCOM48CA panel was tested. The DSDT can also =
-describe
-      other panels in the TPL0 node; this quirk does not cover =
-them.
-   =20
-    - Test setup: Latitude 7400 2-in-1 (SKU 08E2, board 0HCNR3=
-, Core
-      i5-8365U, touch controller 056A:48CA), BIOS 1.39.1. S3 works =
-with the
-      BIOS "Sleep Mode" set to "Force S3" as well as "OS Automatic
-      Selection". Kernel v7.2.14 with i2c-hid.ko and i2c-hid-acpi.ko =
-rebuilt
-      with this patch: 7 S3 and 5 s2idle cycles, hibernation =
-freeze/restore
-      (pm_test=3Ddevices) and a driver reload. After every =
-resume the touch
-      resume callback returned 0 in about 315 ms and the =
-controller answered
-      HID GET_REPORT; finger input worked after S3. =
-Without the patch, one
-      S3 cycle reproduced the failure. The patch =
-builds cleanly on v7.4-rc2
-      with W=3D1 and sparse.
-   =20
-    - I was not sure whether this is suitable for stable... (I think it is?=
-),
-      so I did not add a Cc: stable tag and would leave that to you.
+Thanks,
 
- drivers/hid/i2c-hid/i2c-hid-acpi.c | 98 ++++++++++++++++++++++++++++++
- 1 file changed, 98 insertions(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid=
--acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-index 4362c85dfa7e..=
-4ff5b4913e78 100644
---- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-@@ -20,11 +20,17 @@
-  */
-=20
- #include <linux/acpi.h>
-+#include <linux/delay.h>
- #include <linux/device.=
-h>
-+#include <linux/dmi.h>
-+#include <linux/err.h>
-+#include =
-<linux/gpio/consumer.h>
-+#include <linux/gpio/machine.h>
- #include <linux/i2c.h>
- #include <linux/kernel.h>
- #include <linux/module.=
-h>
- #include <linux/pm.h>
-+#include <linux/string.h>
-=20
- #include "i2c-hid.h"
- #include "i2c-hid-acpi.h"
-@@ -32,6 +38,8 @@
- struct i2c_hid_acpi {
- 	struct i2chid_ops ops;
- 	struct acpi_device *adev;
-+	struct gpio_desc *power_gpio;
-+	struct gpio_desc *reset_gpio;
- };
-=20
- static const struct acpi_device_id i2c_hid_acpi_blacklist[] =3D {
-@@ -48,6 +56,92 @@ static const struct acpi_device_id =
-i2c_hid_acpi_blacklist[] =3D {
- 	{ }
- };
-=20
-+/*
-+ * Dell Latitude 7400 =
-2-in-1: the touch controller's power enable (GPP_B21)
-+ * and active-low reset (GPP_B15) are missing from ACPI, and the firmware
-+ * leaves both low after resume from S3. GPIO offsets use pinctrl-intel's
-+ * 32-per-group numbering.
-+ */
-+static struct gpiod_lookup_table =
-dell_latitude_7400_2in1_touch_gpios =3D {
-+	.dev_id =3D "i2c-WCOM48CA:00",
-+	.table =3D {
-+		GPIO_LOOKUP("INT34BB:00", 53, "power", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("INT34BB:00", 47, "reset", GPIO_ACTIVE_LOW),
-+		{ }
-+	},
-+};
-+
-+static const struct dmi_system_id i2c_hid_acpi_gpio_quirks[] =3D {
-+	{
-+		.matches =3D {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Latitude 7400 2-in-1"),
-+		},
-+		.driver_data =3D &dell_latitude_7400_2in1_touch_gpios,
-+	},
-+	{ }
-+};
-+
-+static int i2c_hid_acpi_power_up(struct i2chid_ops *ops)
-+{
-+	struct i2c_hid_acpi *ihid_acpi =3D container_of(ops, struct i2c_hid_acpi,=
- ops);
-+
-+	gpiod_set_value_cansleep(ihid_acpi->power_gpio, 1);
-+	fsleep(10 * USEC_PER_MSEC);
-+	gpiod_set_value_cansleep(ihid_acpi->reset_g=
-pio, 0);
-+	msleep(200);
-+
-+	return 0;
-+}
-+
-+static void =
-i2c_hid_acpi_power_down(struct i2chid_ops *ops)
-+{
-+	struct i2c_hid_acpi =
-*ihid_acpi =3D container_of(ops, struct i2c_hid_acpi, ops);
-+
-+	gpiod_set_value_cansleep(ihid_acpi->reset_gpio, 1);
-+	gpiod_set_value_cansleep(ihid_acpi->power_gpio, 0);
-+}
-+
-+static int i2c_hid_acpi_setup_power_seq(struct device *dev,
-+					struct i2c_hid_acpi *ihid_acpi)
-+{
-+	struct gpiod_lookup_table =
-*gpios;
-+	const struct dmi_system_id *id;
-+
-+	id =3D =
-dmi_first_match(i2c_hid_acpi_gpio_quirks);
-+	if (!id)
-+		return 0;
-+
-+	/* GPIO lookup tables are keyed by device name */
-+	gpios =3D id->driver_data;
-+	if (strcmp(dev_name(dev), gpios->dev_id))
-+		return 0;
-+
-+	/*
-+	 * Hold the controller in reset until power_up() =
-releases it. Leave
-+	 * power as the firmware set it up, so the reset =
-happens with stable
-+	 * power. Owning the GPIOs also makes pinctrl-intel =
-save and restore
-+	 * them across suspend; power_down() drives both low =
-first. The lookup
-+	 * table is only needed while requesting them.
-+	 */
-+	gpiod_add_lookup_table(gpios);
-+	ihid_acpi->reset_gpio =3D =
-devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
-+	ihid_acpi->power_gpio =3D =
-devm_gpiod_get(dev, "power", GPIOD_OUT_HIGH);
-+	gpiod_remove_lookup_table(g=
-pios);
-+
-+	if (IS_ERR(ihid_acpi->reset_gpio))
-+		return dev_err_probe(dev, =
-PTR_ERR(ihid_acpi->reset_gpio),
-+				     "failed to get reset GPIO\n");
-+	if (IS_ERR(ihid_acpi->power_gpio))
-+		return dev_err_probe(dev, =
-PTR_ERR(ihid_acpi->power_gpio),
-+				     "failed to get power GPIO\n");
-+
-+	ihid_acpi->ops.power_up =3D i2c_hid_acpi_power_up;
-+	ihid_acpi->ops.power_down =3D i2c_hid_acpi_power_down;
-+
-+	return 0;
-+}
-+
- static void i2c_hid_acpi_restore_sequence(struct i2chid_ops *ops)
- {
- 	struct i2c_hid_acpi *ihid_acpi =3D container_of(ops, struct i2c_hid_acpi,=
- ops);
-@@ -86,6 +180,10 @@ static int i2c_hid_acpi_probe(struct i2c_client =
-*client)
- 	ihid_acpi->ops.shutdown_tail =3D i2c_hid_acpi_shutdown_tail;
- 	ihid_acpi->ops.restore_sequence =3D i2c_hid_acpi_restore_sequence;
-=20
-+	ret =3D i2c_hid_acpi_setup_power_seq(dev, ihid_acpi);
-+	if (ret)
-+		return ret;
-+
- 	acpi_device_fix_up_power(adev);
-=20
- 	return i2c_hid_core_probe(client, &ihid_acpi->ops,
-
-base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
---=20
-2.43.0
-
+    Arnd

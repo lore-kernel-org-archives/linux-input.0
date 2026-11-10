@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794296120;
-	b=EK9YOIcOjanYP8Om6OSYBebciOgUS9gsGrRte+6PWbkJ2Cr0FPtyUbDRgv+riE3yzv1z
-	 EGVjLB7j+76Hgg4qumeWzK8PRkyqUt9Wuff5zjMzOQRwzHleJsi/grqtm9E7neIN95Emp
-	 nXuiX/7NJoBZTBlAqdgeoqM1iYSl4sKTKZlfARGzwh0x1MRm+guFS5hAZ7R03cLPodISt
-	 nfCMU4XhgGHOldX7zHsVIqOaD1P6T3B9uyKctwU/OX/SvxzOmnpCQej/hQ8luDO7ovPeO
-	 v9vIk5S3O5DrVq0KMqKQ1KdXa8zEaHhsAhNXhEQdrgx1liYhKtVFBSLvkFXrbIqPs0A==
+	t=1794296115;
+	b=A+8OxOF8S/g6LEPv0VW7IDKKrOgicp5M7nFgprZ18CM0Hn2gEjNKDl9rXNSK9bFnRDVh
+	 pIJF66XHsSBSn1xJKn2uQ+AbBsgvgrNhMc3wwjfmYV8llThsypqzSgU5aZq8DCEAPj6O4
+	 3/kVzErHLFbH7WgJL8DLy9b6TRdNtDP67cLQdPCru46VhVBf7p+cjJF2QWy8NCbMfjYIM
+	 7F+04mrDFz+0HstsZIr9e0EWDnwwY2v44g6KqXcQrRZPmfS3zFGzjCGLRlQVnnu5ihLyK
+	 Fg+IVDNBBH7RvNvFS50k5KTbnh972LBuAU0RB+kO2M/2wkstJhbIQ6G4Sakk9P3Ps/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794296120;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794296115;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=XzYQ2P2qESFquLsq+VAwcCYsFqoXagWZzEGdZMaZt+Y=;
-	b=Dopur9KCixPD07Ypimxm8ycSRRSva3YlUz8i5dQOw32fI3UCuWzp/QC0G68F5WsNJY2F
-	 xUBQLPU8lHzMewFu6ODTLft8ZUqT8qC8ri6MuhHZ88L6BBl57ADGoqKF81FPeqFg+gL5X
-	 SXc1y4LgtdPjWqrX8OTibeKZ16vW7CLrqqDGQPAReNqJrB01ArDnDIqrUf9pYVgmCXgTj
-	 O9/V4DEuX4XmZkxlEqTlR7lT0bcxSgkxjd+bXg8bo/z/NnC1HT3JgXCJlVUzphxugtAox
-	 3eZLIYzSYIPeaeo65YNFv3WTsEjQi/KjKMbrJrqmrF0Kc+1j1oQvC2r8ArzigC8JCow==
+	bh=L4wZJyQPyTVS35HwhEdrXS1F0O3J/fvnZmTfPrPMDiA=;
+	b=BK6IWYv0jumIwATQY6ovWET8HKRMLLqP6VTLJXvOIfHWgaWkDevpX8IMKisJsjzwhQ2H
+	 5idP8W0Kw34FWDsioPxv74g+w+pFB3e35dfbyj+v+4V/cinFlyuUfrd5XVdH5/tRMMMVp
+	 qQGOxSV3LvO4HpnarFbpB68C4mHoU5pWEit1DSLefZWJRO/LxqqF2efpKWX71v6T33w0S
+	 Es9t7SBEi9SjfxA3MbGWiCg3liIaaZtDNRdov/vjxqYo5pQXst8Cdl9f0PUIKvUwr5Vcp
+	 s+JwroRpXTh93IoLfTGi/O7ZzLXjVMeyoMjhZpXngy/7ZW6NdyLmAHHsAJHnfZFdw2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=abk7kMV0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="m8/wkRMj";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4888F60A3803;
-	Tue, 10 Nov 2026 07:35:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C73460A2608;
+	Tue, 10 Nov 2026 07:35:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=abk7kMV0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9646A1F0089F;
-	Tue, 10 Nov 2026 07:35:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m8/wkRMj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E72521F008A1;
+	Tue, 10 Nov 2026 07:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794296119;
-	bh=XzYQ2P2qESFquLsq+VAwcCYsFqoXagWZzEGdZMaZt+Y=;
+	s=k20260515; t=1794296115;
+	bh=L4wZJyQPyTVS35HwhEdrXS1F0O3J/fvnZmTfPrPMDiA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=abk7kMV0D0wtpjoM7OSKUrLf555j1qiZh/TAqEqq01hG498b6UOcedjLXkeRw1CYp
-	 5V76V0Lx3aiGNQFMWRwUybWZHdm/Hq4Z3c5dm3k2PZVHWYY91DfBA4zF2wxDqteEkc
-	 YTlxMjByoPwwNMoTWUX30sXUuVpsydiIWXbpJjuBI69L1FcGTBEmiM6kBN2SStQ7YB
-	 +3kKhKSgVMNkICM2N+YYc9yjhvRPiqwDkNGzUUBfHL0LZLOzpR6JhupoYwht2dkySH
-	 1OCCH4i2lzoVyaPPO9qlsMQ2uLkts4MrnDLzbDsZh5es5T+BHo6toOV0BLUDvv2MpY
-	 AdgIaL1DpvAbQ==
-Message-ID: <sashiko-outbox-206510@kernel.org>
+	b=m8/wkRMjP+lVKbJIRKhqEXCvZeAGeyera2YGXhwcKeD4e9/Y8ZwHmrlUE31V/YA/9
+	 ilkjbJHC8kmLm6bWWzPtXVys6Zm+cJZfKm8G2S9AmhlSUkmqt7j29Gu6v8EYin1lLu
+	 SH4uYGrjnc6gKRnVvdDKJfcef9p2KBlMEhT+mGHNzygswxq8ryzORjELCCHN+OFp+L
+	 bvnSmlblp0pzAJTj+YxXhNfn/oWAptico9ZbBnO4iYYKsBTBcC6M5OLKq3OtB3u6Yd
+	 1oFD037mKasMptcuny3n0Kj4pr1loMj6x3UBqDDOwilaE9QLuDTI03V5DncmldxHwd
+	 h4fkcItkx4OwQ==
+Message-ID: <sashiko-outbox-206504@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/19] net: phy: Use the compatibility driver
- attachment API
+Subject: Re: [PATCH v2 04/19] USB: Release interface claims refused during
+ registration
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+In-Reply-To: <20261109-device-trust-core-v2-4-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-4-3b12d9a9f861@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 07:35:19 +0000
+Date: Tue, 10 Nov 2026 07:35:14 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,92 +61,101 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] net: phy: loss of phydev->irq in phy_attach_direct() on
-  -EBUSY probe failure
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] usb: core: unreleased interface claim when device_add() fails
+  or skips probe
+- [Medium] usb: core: skipped claim release when try_module_get() fails
+  in usb_set_configuration()
 --
 
-commit 89d719155ade2a67c02be5cec992ec1828452066
+commit fe8ed7c8ae2a463fe7346f0944a52ef057b538c6
 Author: Leon Romanovsky <leon@kernel.org>
 
-net: phy: Use the compatibility driver attachment API
+USB: Release interface claims refused during registration
 
-This commit switches generic PHY driver attachment in phy_attach_direct()
-to device_driver_attach_full() and updates phy_probe() and phy_remove() to
-manage phydev->is_genphy_driven.
+This commit tracks pre-registration interface claims across device_add() in
+usb_set_configuration() and invokes usb_driver_release_refused_claim() to
+unbind the interface if the driver core drops the claim during registration.
 
-> diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-> index 5d4508bcfbe99..5f0ca981644ec 100644
-> --- a/drivers/net/phy/phy_device.c
-> +++ b/drivers/net/phy/phy_device.c
-> @@ -1912,7 +1912,9 @@ int phy_attach_direct(struct net_device *dev, struc=
-t phy_device *phydev,
->  	struct device *d =3D &phydev->mdio.dev;
->  	struct module *ndev_owner =3D NULL;
->  	struct module *drv_owner;
-> +	struct device_driver *drv;
->  	int irq =3D phydev->irq;
-> +	bool bind_genphy;
->  	int err;
-> =20
->  	/* For Ethernet device drivers that register their own MDIO bus, we
-> @@ -1939,16 +1941,16 @@ int phy_attach_direct(struct net_device *dev, str=
-uct phy_device *phydev,
->  	/* Assume that if there is no driver, that it doesn't
->  	 * exist, and we should use the genphy driver.
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index a738d03c23eac..d35a7710c8ef4 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -2264,6 +2264,7 @@ int usb_set_configuration(struct usb_device *dev, i=
+nt configuration)
 >  	 */
-> -	if (!d->driver) {
-> +	drv =3D d->driver;
-> +	bind_genphy =3D !drv;
-> +	if (bind_genphy) {
->  		if (phydev->is_c45)
-> -			d->driver =3D &genphy_c45_driver.mdiodrv.driver;
-> +			drv =3D &genphy_c45_driver.mdiodrv.driver;
->  		else
-> -			d->driver =3D &genphy_driver.mdiodrv.driver;
-> -
-> -		phydev->is_genphy_driven =3D 1;
-> +			drv =3D &genphy_driver.mdiodrv.driver;
->  	}
+>  	for (i =3D 0; i < nintf; ++i) {
+>  		struct usb_interface *intf =3D cp->interface[i];
+> +		struct device_driver *claimant;
 > =20
-> -	drv_owner =3D d->driver->owner;
-> +	drv_owner =3D drv->owner;
->  	if (!try_module_get(drv_owner)) {
->  		phydev_err(phydev, "failed to get the device driver module\n");
->  		err =3D -EIO;
-> @@ -1956,11 +1958,10 @@ int phy_attach_direct(struct net_device *dev, str=
-uct phy_device *phydev,
->  	}
->  	phydev->drv_owner =3D drv_owner;
-> =20
-> -	if (phydev->is_genphy_driven) {
-> -		err =3D d->driver->probe(d);
-> -		if (err >=3D 0)
-> -			err =3D device_bind_driver(d);
-> -
-> +	if (bind_genphy) {
-> +		err =3D device_driver_attach_full(drv, d);
-> +		if (err =3D=3D -EBUSY)
-> +			irq =3D phydev->irq;
->  		if (err)
->  			goto error_module_put;
->  	}
+>  		if (intf->dev.of_node &&
+>  		    !of_device_is_available(intf->dev.of_node)) {
+> @@ -2277,7 +2278,14 @@ int usb_set_configuration(struct usb_device *dev, =
+int configuration)
+>  			dev_name(&intf->dev), configuration,
+>  			intf->cur_altsetting->desc.bInterfaceNumber);
+>  		device_enable_async_suspend(&intf->dev);
+> +		claimant =3D intf->dev.driver;
+> +		if (claimant && !try_module_get(claimant->owner))
+> +			claimant =3D NULL;
 
 [Severity: Medium]
-Can this overwrite the saved irq with PHY_POLL when phy_probe() fails with
--EBUSY?
+Does clearing claimant to NULL when try_module_get() fails skip releasing
+the refused claim if the claimant module is concurrently unloading?
 
-At the start of phy_probe(), !phy_drv_supports_irq(phydrv) sets phydev->irq
-to PHY_POLL for the generic PHY drivers.  If a later step in phy_probe()
-returns -EBUSY (for example via phy_setup_ports() -> of_phy_ports() ->
-phy_add_port(), or an MDIO bus read returning -EBUSY),
-device_driver_attach_full() propagates -EBUSY after unbinding the driver.
-Overwriting irq =3D phydev->irq on -EBUSY then causes the error_module_put
-path to write PHY_POLL back to phydev->irq instead of restoring the
-original interrupt number, leaving the PHY in polling mode on subsequent
-attachments.
+Binding a USB driver to an interface does not take a module reference on
+claimant->owner.  If delete_module() races with usb_set_configuration(),
+try_stop_module() sets MODULE_STATE_GOING (causing try_module_get() to fail)
+before mod->exit() -> usb_deregister() -> driver_detach() blocks on
+device_lock(&dev->dev) while detaching the already-bound sibling interface.
+
+If device_add() then fails to bind intf and clears intf->dev.driver to NULL,
+usb_driver_release_refused_claim() is skipped because claimant is NULL, and
+the sibling's later usb_driver_release_interface() call returns early becau=
+se
+intf->dev.driver is already NULL.  That leaves intf registered with
+intf->condition =3D=3D USB_INTERFACE_BOUND and intf->dev.driver =3D=3D NULL=
+, which
+causes a NULL pointer dereference in usb_suspend_interface().
+
+>  		ret =3D device_add(&intf->dev);
+> +		if (!ret && claimant && !intf->dev.driver)
+> +			usb_driver_release_refused_claim(intf, claimant);
+
+[Severity: Medium]
+Can a pre-claimed interface also be left in USB_INTERFACE_BOUND state witho=
+ut
+a bound driver when device_add() returns an error or skips probing?
+
+If dpm_sysfs_add() fails in device_add(), its DPMError path calls
+device_set_driver(dev, NULL) and returns a non-zero ret:
+
+drivers/base/core.c:device_add() {
+    ...
+ DPMError:
+	device_set_driver(dev, NULL);
+	bus_remove_device(dev);
+    ...
+}
+
+Because usb_set_configuration() logs the device_add() error and continues,
+skipping usb_driver_release_refused_claim() when ret !=3D 0 leaves intf in
+dev->actconfig->interface[i] with intf->condition =3D=3D USB_INTERFACE_BOUN=
+D and
+intf->dev.driver =3D=3D NULL, which crashes in usb_suspend_interface() and
+prevents usb_driver_release_interface() from cleaning it up.  If device_add=
+()
+fails before DPMError, intf remains unregistered in USB_INTERFACE_BOUND
+state, so usb_disable_device() also skips unbinding it on teardown.
+
+Similarly, if bus autoprobe is disabled when device_initial_probe() runs,
+device_add() returns 0 without calling device_bind_driver() or clearing
+intf->dev.driver, leaving intf->dev.driver set while !device_is_bound(&intf=
+->dev).
+Checking !device_is_bound(&intf->dev) instead of !ret && !intf->dev.driver
+would cover all of these cases.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-device-tru=
-st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D10
+st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D4

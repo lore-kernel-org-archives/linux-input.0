@@ -1,56 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=117.135.210.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794291946;
-	b=Y2imxo/KhzkDM/g2iXNs5hKfIKpF1EQrIl4Lwz5wGBk5sg0F0swUGhOjHuyT8g67R2Sj
-	 lpq8dIBzP/jONlBYrknybRRYWyBXZ5bquc9lVKeo/Wtf4qfk/sCkSAfn8B7p++Z3DjyqI
-	 07+ea1+0eeWchRgiQLR5RTLUz1gID8jd13gnYly7nbTmQqldvT6Zt5pyUitVvmoaAQnDo
-	 5QMOrGdanz/yFTP9ooIDAVqxiaVTDMf6oGHY6c8V//EHNjXAWosAtGNCK6svahRbM8fA2
-	 1QkCP18WLfm1D3HzL+vkCSD+KMCK134YN79Rw7OlYj2DfDJ8gt6icrnEwa6SHGwFbrA==
+	t=1794293012;
+	b=tTqKQlJ2WDw4AAdb2HwIPPaQKlUSiTCaDldUFFAeB3vrHscK/RtHxuwrsd3jcvePBdW0
+	 X4SksF+YSz2lW355juPoGyGLN0ysRmoI+IbFPNXAjHNBIVJnTFQyfgJBNDN2EvRXXbxhA
+	 g/pupSEVD71nVslOkGPiGiPKRsGN6Zy6TllFpB0wxWP0bT5V2m38E9drcOP+t6Rp09KzT
+	 5FHUgbZ9d/E0PrmRhMMrkaZeExFA4ONj6c/4/2ilisE5sUn9w8wfXapgViLAPLQevmUSq
+	 TCPNHWCmUERsUAvaZGPyRhMqPp+VLw33KDmLoL/QO73+pG8tSaEX9rvQ5bH2nu+HEzg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794291946;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=BOK+rYjyV+z1yxqqh1YiuCbJZFvJ0kG/2jZctJFxWVs=;
-	b=gNh/tho3etSop/OphP0afvAf96kVxXOwZa7iTEaF55bSDkD6zRQhd00h63geuMf0lNKk
-	 e9g+diu/EDn5Ddch3C1vdxnDrXuzrK4mY1+8l2r6j8M/kUguyKiM3LSdA0nMQlhVipTQm
-	 JiWj1XsNyj24WiP0raIhULTkQ6GnO+I+bPQXm5uNYAa1rYJZBDbJDfHdC1dFI6ccH6Yjk
-	 64EiyjLzjNV+VHd/doQ6eBa3r6EK6d8aTiVF4XOuGPM8dbIA0bFICjHgzjuBDPLj8ryKS
-	 BquITgw642FrToLxiHn/s+uYb3E3hRy3484OU1Y4RO8LWGP1+0nPzcFwHkp1G2ngOEw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794293012;
+	h=DMARC-Filter:DKIM-Signature:Date:From:To:Cc:Subject:X-Priority:
+	 X-Mailer:X-NTES-SC:Content-Transfer-Encoding:Content-Type:
+	 MIME-Version:Message-ID:X-Coremail-Locale:X-CM-TRANSID:
+	 X-CM-SenderInfo:X-Coremail-Antispam;
+	bh=AHUwN/nH0PPuEC6CSqNWG/eemyUpNYMNWAvelBWwzMg=;
+	b=WbUUso4rkza5vWSc7T6R+55yCPo3nuJreqWPzixiAPlV7nF6x5qdJuD1xcCxSRrmrCsa
+	 ujA3CCSud4maJc+QN3HUcDE6kN9CMeQYqPaKZUKPMVzsZgKXCNvFppnkq0YEcvt0Jq17x
+	 onNi+U2KEkH9WY00bnhCoLgjrwRBjFl3k1byr5lKc0fzlxf6+60C9512VF1lN0vyukJBs
+	 QAe6Fkzs528vtvt45JxjQItXKSdM5j15ZMKhQe0PesEsjfFS4cvZNj+EXDYMdek0H2hJH
+	 Xa7ISrLHLGRc8ihg2ND2a+WkKjfV9Z3pzY+jTOvd+b7Kd7RgPAHEGmK3C1qinbdU59w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UaL3P/pP";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=163.com;
+	spf=pass smtp.mailfrom=163.com;
+	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=A4P3AWGy;
+	arc=none smtp.remote-ip=117.135.210.5
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3CD606A31C;
-	Tue, 10 Nov 2026 06:25:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD343606A332;
+	Tue, 10 Nov 2026 06:43:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD343606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UaL3P/pP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86DE51F0089F;
-	Tue, 10 Nov 2026 06:25:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794291945;
-	bh=BOK+rYjyV+z1yxqqh1YiuCbJZFvJ0kG/2jZctJFxWVs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UaL3P/pPjtvL2zOvb9zXBUzzpf2TR6RRcyZ1YLYG/pBtektp8JFeExTfCE08TP2+y
-	 BoYAo87BRh1yENokyXVEU89sgGbdEBcWAu9bsEsxFidRK5j6/+s231UY0WEKZzArFP
-	 XZu9XClKLeRqSUsTY7JXVG21/HtUrurupizfUpp4iWi6HcMIixH49FDOWKrcMeaxOF
-	 oiIkLRS8mmYLC6kQrBl+D+PaK8sqVZ7fBv+QbKCGPvNixOBIvRDW2u23FszD83wXWS
-	 9CJUF/8MjKVqxGVtSMo8yaze3atsRFw6C27A2hbJ3h+WFvUCRi5g+h3A5MYtJNy3oy
-	 VvAZgRw3kgN8Q==
-Message-ID: <sashiko-outbox-206414@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: apm-power - Rename to apm-power-input
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nathan Chancellor" <nathan@kernel.org>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Nicolas
- Schier" <nsc@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kbuild@vger.kernel.org, "Sasha Levin" <sashal@kernel.org>
-In-Reply-To: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
-References: <20261109-apm-power-input-rename-v1-1-0609e7b91825@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 06:25:45 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=A4P3AWGy
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=AHUwN/nH0PPuEC6CSqNWG/eemyUpNYMNWAvelBWwzMg=; b=A
+	4P3AWGybYkjh7jx2fH6vg6kjRQjDscvZlSMEne90YNZ8W5QNc0Kw8Xu1oDzWhC27
+	TtWS/ff1vXv+gNJNP9NjgQir+1wJw1fykhksu+fpX/ajcbTaEBC/8RlS3Lcc4evQ
+	vjSl+MBlEd831/vEO5DjY+rc+gX0+xJiveRO+uLOSM=
+Date: Tue, 10 Nov 2026 14:43:17 +0800 (CST)
+From: CJ <firefly0158@163.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: WARNING in cm109_urb_irq_callback/usb_submit_urb on v7.2-rc3
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
+X-NTES-SC: AL_Qu2SBv6SvUEi4SSYYOkdmEsTju82UcS4ufQl245Xc+0Gpx/uxxgFbWVuH1zqy+aKERKnoRu9TDlC8s9YbKt+y62I+JZmkBw7KBQQsLYA8A==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,70 +59,92 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Message-ID: <4ffee3ca.5062.1a1c4325d29.Coremail.firefly0158@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:kigvCgD3__MFvfJqPBJrAA--.49W
+X-CM-SenderInfo: piluvw1o1qikqy6rljoofrz/xtbC3QXHeWryvQXLrAAA3h
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Low] Input: apm-power-input - update module name in INPUT_APMPOWER
-  Kconfig help
-- [Low] Input: apm-power-input - missing Fixes trailer for module name
-  conflict
---
-
-commit 8f18f8cadb4c04ceefb13fb63bb9751daa2db15a
-Author: Nathan Chancellor <nathan@kernel.org>
-
-> Input: apm-power - Rename to apm-power-input
->
-> When scripts/modules-check.sh is fixed to normalize the module's name
-> like name-fix-token does in scripts/Makefile.lib before checking that it
-> is unique [1], there is an error due to drivers/input/apm-power.ko and
-> drivers/power/supply/apm_power.ko having the same module name.
->
->   error: the following would cause module name conflict:
->     drivers/input/apm-power.ko
->     drivers/power/supply/apm_power.ko
->
->   $ modinfo drivers/input/apm-power.ko drivers/power/supply/apm_power.ko =
-| grep name:
->   filename:       drivers/input/apm-power.ko
->   name:           apm_power
->   filename:       drivers/power/supply/apm_power.ko
->   name:           apm_power
->
-> Rename drivers/input/apm-power.c to apm-power-input.c to make the module
-> name unique and clear up the error.
->
-> Reported-by: Sasha Levin <sashal@kernel.org>
-> Closes: https://lore.kernel.org/20261108225808.1809266-1-sashal@kernel.or=
-g/
-> Link: https://lore.kernel.org/20261103110411.11698-1-info@daylightlinux.c=
-h/ [1]
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-
-[Severity: Low]
-Since drivers/power/supply/apm_power.c already existed when
-drivers/input/apm-power.c was added, should this include:
-
-  Fixes: e17bb1de3b7f ("Input: add input event to APM event bridge")
-
-> diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-> index 2cd6e1c9a7784..842a7e4f7b508 100644
-> --- a/drivers/input/Makefile
-> +++ b/drivers/input/Makefile
-> @@ -27,6 +27,6 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+=3D touchscreen/
->  obj-$(CONFIG_INPUT_MISC)	+=3D misc/
->  obj-$(CONFIG_INPUT_KUNIT_TEST)	+=3D tests/
-> =20
-> -obj-$(CONFIG_INPUT_APMPOWER)	+=3D apm-power.o
-> +obj-$(CONFIG_INPUT_APMPOWER)	+=3D apm-power-input.o
-> =20
->  obj-$(CONFIG_RMI4_CORE)		+=3D rmi4/
-
-[Severity: Low]
-Should the help text for INPUT_APMPOWER in drivers/input/Kconfig also be
-updated to say that the module will be called apm-power-input instead of
-apm-power?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-apm-power-=
-input-rename-v1-1-0609e7b91825@kernel.org?part=3D1
+CkhpLAoKCnN5emJvdCByZXBvcnRlZCAiV0FSTklORyBpbiBjbTEwOV91cmJfaXJxX2NhbGxiYWNr
+L3VzYl9zdWJtaXRfdXJiIiBvbiBsaW51eC01LjE1LiBUaGUgc2FtZSBmYWlsdXJlIGlzIHN0aWxs
+IHJlcHJvZHVjaWJsZSBvbiB2Ny4yLXJjMyB3aXRoIHRoZSByZXByb2R1Y2VyIGJlbG93LgoKClRl
+c3RlZCBrZXJuZWw6CsKgIExpbnV4IHY3LjItcmMzCsKgIEhFQUQgYTEzYzE0MGNjMjg5YzBiN2Iz
+NzcwYmNlNWIzYWQ0MmFiMzUwNzRhYQoKCk9ic2VydmVkIGZhaWx1cmU6ClsgICA0Ny4yMjAzOTdd
+WyAgICBDMF0gV0FSTklORzogZHJpdmVycy91c2IvY29yZS91cmIuYzozNzkgYXQgdXNiX3N1Ym1p
+dF91cmIrMHgxNWFiLzB4MThlMCwgQ1BVIzA6IGMvODk5OQpbICAgNDcuMjIyMDMwXVsgICAgQzBd
+IE1vZHVsZXMgbGlua2VkIGluOgpbICAgNDcuMjIyNzI1XVsgICAgQzBdIENQVTogMCBVSUQ6IDAg
+UElEOiA4OTk5IENvbW06IGMgTm90IHRhaW50ZWQgNy4yLjAtcmMzICMxIFBSRUVNUFQoZnVsbCnC
+oApbICAgNDcuMjI0MTU3XVsgICAgQzBdIEhhcmR3YXJlIG5hbWU6IFFFTVUgVWJ1bnR1IDI0LjEw
+IFBDIChpNDQwRlggKyBQSUlYLCAxOTk2KSwgQklPUyAxLjE2LjMtZGViaWFuLTEuMTYuMy0yIDA0
+LzAxLzIwMTQKWyAgIDQ3LjIyNTk0MV1bICAgIEMwXSBSSVA6IDAwMTA6dXNiX3N1Ym1pdF91cmIr
+MHgxNWFlLzB4MThlMApbICAgNDcuMjI2OTAzXVsgICAgQzBdIENvZGU6IDhjIDQ4IGM3IGM2IGUw
+IGZmIDFhIDhjIDg5IGRhIDQ4IDhkIGI4IGIwIDAwIDAwIDAwIGU4IDg2IGFhIGQ3IGZlIGU5IDlh
+IGYxIGZmIGZmIGU4IDZjIGE5IGFlIGZhIDQ4IDhkIDNkIGE1IDZkIDRlIDA5IDQ4IDg5IGVlIDw2
+Nz4gNDggMGYgYjkgM2EgNDEgYmYgZjAgZmYgZmYgZmYgZTkgZjcgZjIgZmYgZmYgZTggNGQgYTkg
+YWUgZmEgNjYKWyAgIDQ3LjIzMDEyNF1bICAgIEMwXSBSU1A6IDAwMTg6ZmZmZmM5MDAwMDAwN2Iy
+MCBFRkxBR1M6IDAwMDEwMDQ2ClsgICA0Ny4yMzExNTNdWyAgICBDMF0gUkFYOiAwMDAwMDAwMDAw
+MDAwMDAwIFJCWDogZmZmZjg4ODAyNDk1OTAwMCBSQ1g6IGZmZmZmZmZmODc5NGU1ZjcKWyAgIDQ3
+LjIzMjQ3Nl1bICAgIEMwXSBSRFg6IDFmZmZmMTEwMDNmOGNiMjEgUlNJOiBmZmZmODg4MDFmYzY1
+OTAwIFJESTogZmZmZmZmZmY5MDVlNDAyMApbICAgNDcuMjMzODA4XVsgICAgQzBdIFJCUDogZmZm
+Zjg4ODAxZmM2NTkwMCBSMDg6IDAwMDAwMDAwMDAwMDAwMDAgUjA5OiBmZmZmZjUyMDAwMDAwZjY0
+ClsgICA0Ny4yMzUxNTFdWyAgICBDMF0gUjEwOiBmZmZmZjUyMDAwMDAwZjYzIFIxMTogMDAwMDAw
+MDAwMDAwMDAwMyBSMTI6IDAwMDAwMDAwMDAwMDAwNDYKWyAgIDQ3LjIzNjQ3M11bICAgIEMwXSBS
+MTM6IGZmZmY4ODgwMjQ5NTkwNTggUjE0OiAwMDAwMDAwMDAwMDAwMDBmIFIxNTogMDAwMDAwMDAw
+MDAwMDAwMQpbICAgNDcuMjM3ODA4XVsgICAgQzBdIEZTOiAgMDAwMDdmYmYzZGFkYzc0MCgwMDAw
+KSBHUzpmZmZmODg4MDk4MTlhMDAwKDAwMDApIGtubEdTOjAwMDAwMDAwMDAwMDAwMDAKWyAgIDQ3
+LjIzOTMwNV1bICAgIEMwXSBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAw
+MDgwMDUwMDMzClsgICA0Ny4yNDA0MDddWyAgICBDMF0gQ1IyOiAwMDAwMjAwMDAwMDAyMDNjIENS
+MzogMDAwMDAwMDA0NjUyNzAwMCBDUjQ6IDAwMDAwMDAwMDAwMDA2ZjAKWyAgIDQ3LjI0MTczMV1b
+ICAgIEMwXSBDYWxsIFRyYWNlOgpbICAgNDcuMjQyMzEzXVsgICAgQzBdICA8SVJRPgpbICAgNDcu
+MjQyODA2XVsgICAgQzBdICA/IF9fc2FuaXRpemVyX2Nvdl90cmFjZV9wYysweDIwLzB4NTAKWyAg
+IDQ3LjI0Mzc2N11bICAgIEMwXSAgPyBfX19yYXRlbGltaXQrMHgxODUvMHg5ZTAKWyAgIDQ3LjI0
+NDYwOF1bICAgIEMwXSAgY20xMDlfdXJiX2lycV9jYWxsYmFjaysweDQ3MS8weGI5MApbICAgNDcu
+MjQ1NTMwXVsgICAgQzBdICA/IF9fc2FuaXRpemVyX2Nvdl90cmFjZV9wYysweDIwLzB4NTAKWyAg
+IDQ3LjI0NjQ3OF1bICAgIEMwXSAgX191c2JfaGNkX2dpdmViYWNrX3VyYisweDJlYy8weDVmMApb
+ICAgNDcuMjQ3NDAxXVsgICAgQzBdICA/IGR1bW15X3RpbWVyKzB4MTM1OS8weDM1YTAKWyAgIDQ3
+LjI0ODIzN11bICAgIEMwXSAgdXNiX2hjZF9naXZlYmFja191cmIrMHgzOTEvMHg0NTAKWyAgIDQ3
+LjI0OTE0NV1bICAgIEMwXSAgZHVtbXlfdGltZXIrMHgxMzZiLzB4MzVhMApbICAgNDcuMjQ5OTQz
+XVsgICAgQzBdICA/IF9fc2FuaXRpemVyX2Nvdl90cmFjZV9wYysweDIwLzB4NTAKWyAgIDQ3LjI1
+MDg5MV1bICAgIEMwXSAgPyBkb19yYXdfc3Bpbl9sb2NrKzB4MTIyLzB4MjkwClsgICA0Ny4yNTE3
+NDldWyAgICBDMF0gID8gZmluZF9oZWxkX2xvY2srMHgyYi8weDgwClsgICA0Ny4yNTI1NjZdWyAg
+ICBDMF0gID8gZGVidWdfb2JqZWN0X2RlYWN0aXZhdGUrMHgyYWQvMHgzOTAKWyAgIDQ3LjI1MzUz
+MV1bICAgIEMwXSAgPyBkb19yYXdfc3Bpbl91bmxvY2srMHg1NC8weDIzMApbICAgNDcuMjU0NDIw
+XVsgICAgQzBdICA/IGRlYnVnX29iamVjdF9kZWFjdGl2YXRlKzB4MmFkLzB4MzkwClsgICA0Ny4y
+NTUzODVdWyAgICBDMF0gID8gX19wZnhfZHVtbXlfdGltZXIrMHgxMC8weDEwClsgICA0Ny4yNTYy
+MzldWyAgICBDMF0gID8gX3Jhd19zcGluX3VubG9ja19pcnFyZXN0b3JlKzB4NTgvMHg3MApbICAg
+NDcuMjU3MjM0XVsgICAgQzBdICBfX2hydGltZXJfcnVuX3F1ZXVlcysweDE4My8weGExMApbICAg
+NDcuMjU4MTMyXVsgICAgQzBdICA/IF9fcGZ4X2R1bW15X3RpbWVyKzB4MTAvMHgxMApbICAgNDcu
+MjU4OTg1XVsgICAgQzBdICBocnRpbWVyX3J1bl9zb2Z0aXJxKzB4MTdmLzB4MmQwClsgICA0Ny4y
+NTk4ODddWyAgICBDMF0gIGhhbmRsZV9zb2Z0aXJxcysweDFiZS8weDhlMApbICAgNDcuMjYwNzA3
+XVsgICAgQzBdICA/IGlycXRpbWVfYWNjb3VudF9kZWx0YS5pc3JhLjArMHg5Zi8weDExMApbICAg
+NDcuMjYxNzMxXVsgICAgQzBdICBpcnFfZXhpdF9yY3UrMHgxNjYvMHgyMDAKWyAgIDQ3LjI2MjUx
+Nl1bICAgIEMwXSAgc3lzdmVjX2FwaWNfdGltZXJfaW50ZXJydXB0KzB4YTYvMHhkMApbICAgNDcu
+MjYzNDczXVsgICAgQzBdICA8L0lSUT4KWyAgIDQ3LjI2Mzk4OF1bICAgIEMwXSAgPFRBU0s+Clsg
+ICA0Ny4yNjQ0OTBdWyAgICBDMF0gIGFzbV9zeXN2ZWNfYXBpY190aW1lcl9pbnRlcnJ1cHQrMHgx
+YS8weDIwClsgICA0Ny4yNjU1MDhdWyAgICBDMF0gUklQOiAwMDEwOl9yYXdfc3Bpbl91bmxvY2tf
+aXJxcmVzdG9yZSsweDNjLzB4NzAKWyAgIDQ3LjI2NjYwMF1bICAgIEMwXSBDb2RlOiA3NCAyNCAx
+MCBlOCAwNiA3ZSA2YiBmNiA0OCA4OSBlZiBlOCA1ZSBkNSA2YiBmNiA4MSBlMyAwMCAwMiAwMCAw
+MCA3NSAyOSA5YyA1OCBmNiBjNCAwMiA3NSAzNSA0OCA4NSBkYiA3NCAwMSBmYiBiZiAwMSAwMCAw
+MCAwMCA8ZTg+IGZmIDQyIDVhIGY2IDY1IDhiIDA1IDU4IDkxIDM5IDA4IDg1IGMwIDc0IDBlIDVi
+IDVkIGMzIGNjIGNjIGNjClsgICA0Ny4yNjk4MTBdWyAgICBDMF0gUlNQOiAwMDE4OmZmZmZjOTAw
+MDI3MTdiNTggRUZMQUdTOiAwMDAwMDIwNgpbICAgNDcuMjcwODM1XVsgICAgQzBdIFJBWDogMDAw
+MDAwMDAwMDAwMDAwNiBSQlg6IDAwMDAwMDAwMDAwMDAyMDAgUkNYOiAwMDAwMDAwMDAwMDAwMDA2
+ClsgICA0Ny4yNzIxNzFdWyAgICBDMF0gUkRYOiAwMDAwMDAwMDAwMDAwMDAwIFJTSTogMDAwMDAw
+MDAwMDAwMDAwMSBSREk6IDAwMDAwMDAwMDAwMDAwMDEKWyAgIDQ3LjI3MzQ5M11bICAgIEMwXSBS
+QlA6IGZmZmZmZmZmOGY0Y2I1ODAgUjA4OiAwMDAwMDAwMDAwMDAwMDAxIFIwOTogMDAwMDAwMDAw
+MDAwMDAwMQpbICAgNDcuMjc0ODE1XVsgICAgQzBdIFIxMDogMDAwMDAwMDAwMDAwMDAwMSBSMTE6
+IGZmZmZmZmZmOTA1MTA5ZDcgUjEyOiAxZmZmZjkyMDAwNGUyZjcxClsgICA0Ny4yNzYxNjJdWyAg
+ICBDMF0gUjEzOiBmZmZmODg4MDI0MTU1MjM0IFIxNDogZmZmZmM5MDAwMjcxN2JhOCBSMTU6IGZm
+ZmY4ODgwMjAzZTUzMDAKWyAgIDQ3LjI3NzQ5MV1bICAgIEMwXSAgdXNiX2hjZF9wb2xsX3JoX3N0
+YXR1cysweDQ2ZC8weDYyMApbICAgNDcuMjc4NDEyXVsgICAgQzBdICA/IF9fcGZ4X3VzYl9oY2Rf
+cG9sbF9yaF9zdGF0dXMrMHgxMC8weDEwClsgICA0Ny4yNzk0MTVdWyAgICBDMF0gID8gX3Jhd19z
+cGluX3VubG9ja19pcnFyZXN0b3JlKzB4NTgvMHg3MApbICAgNDcuMjgwNDA2XVsgICAgQzBdICBk
+dW1teV9wdWxsdXArMHgxMzIvMHgxNzAKCgpUaGlzIGlzIHRoZSBhc3NlcnRpb24gc2l0ZSByZXBv
+cnRlZCBieSBzeXpib3Q7IEkgYW0gbm90IGNsYWltaW5nIGEgc3BlY2lmaWMgcm9vdCBjYXVzZS4K
+CgpUaGlzIGlzIGEgcmVwb3J0IG9mIGEgc3RpbGwtcmVwcm9kdWNpYmxlIGZhaWx1cmUsIG5vdCBh
+IGJpc2VjdGVkIHJvb3QgY2F1c2UuCgoKUmVwcm9kdWNlcjoKwqAgQyByZXByb2R1Y2VyOiBodHRw
+czovL3Bhc3RlYmluLmNvbS9yYXcvWjJrSkJLSzQKCgpBcnRpZmFjdHM6CsKgIGNvbnNvbGU6IGh0
+dHBzOi8vcGFzdGViaW4uY29tL3Jhdy92SkZnZDBGawrCoCBrZXJuZWwgY29uZmlnOiBodHRwczov
+L3N5emthbGxlci5hcHBzcG90LmNvbS90ZXh0P3RhZz1LZXJuZWxDb25maWcmeD0zNTNhZTI4YzQw
+YjM1YWY1CgoKVGhhbmtzLgoK

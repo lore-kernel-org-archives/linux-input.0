@@ -1,68 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794299670;
-	b=dH28MdCgKLQ+k1B2vKg1/xsmIjKFP4YZfWEV83nXZSlVhkG6XsTNtmv84IKd4vZxyqB6
-	 XHLmN3zHZbKqsjmFAiXKSgz8EufzePJxNu97Sa1R153FiRqaUYgnEmfm5xAeJsMlOsiJ3
-	 BX8nKJQ0juFeAAkbMbT3RvFVAe6F0uWOotXIl8qBw2hhU9hyJpnosclFtBdV9CPU14WE2
-	 oiU89mAK+0tzl7ILkIWqM8r0pD6BXjzTJiAqnwUv/9L35ekz5ArC+vUMdp0ItuUk6Zf+v
-	 wpcaGm2caXGfc1Jae5yf8jbv6i0EGu1Wj3RLS9GPMQSJCaLP48g+hWrlfQwOjqAx2HA==
+	t=1794302428;
+	b=AcflF8C9tLHuujxerfPRArGxbMvb1SR3JqG8US3kav9C9idOKqpt8VxQj6mKUXltzXZu
+	 juyHqdYqfReEOMwT7cLGGCd6nmLlMOpup9MBs2olE9gi2zHEIsdafdq8pGqjX1Usmwt+S
+	 xHvpoSFr08chlGzv7Q7tth4w4zaLTWOudkIjUVEa9d5miylwvs93Ff1Kcl5gvRwUyAgKf
+	 XWBhxMaG8zm9YBCXWZmmL9M6ugiGFllJGavdCFFn2AiY8BxwLeYUMwO3t5unYTVv+7i02
+	 uhLGP9+VGJeAgrDEnHGxpVIJXRySggvdeW7v+rY0xTfVt1gKM90KLO03Dx+Dal7EfqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794299670;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Date:
-	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
-	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=+0DFsat6HGEG0Ui1VpQrxBAhenhjb9E7KcBuhAvNLeY=;
-	b=nL7g7p8HABVJIsNVnIcUactKdj4rpblS7DqnU9UQ4p7yCFWKEYvYeaqFRrwdgLgo9nr5
-	 l95CFYJGiaywBKcG7wwbcw8J0JmN1BnCePQdBvw7HFwGHJ0qKSMR8ClTv8XfafkNpoNPt
-	 6r9FionxfzKxZfeu9GXtmbXYaCTCElBTtC0OdBWvlM/GzP0CtRNFFmB7KN5CGQN3HdmUj
-	 O96kViMSkqI44YGScYj1VNXBpQiJM/f3pGexByInVM0Oq9kwTKgsTet1rqbNreirAzDCb
-	 rHJ+8s6BjgrCSBOFNNPooRyAu2QmHckjmRmSm6/T49aK5Nzn6dKU4MprTgTm9hyCAcg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302428;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=cSWIafk7ikiCCY+OyvdNor7sWV+uHSYsERPSHy5tkIM=;
+	b=3vRccQB+mPAwcn5XI+Weac9T1SwIDbuX3qPn94+a+BmJeq0pe9+VGnUwg8QLNdnrUz+u
+	 5b1NDqD1U1rki/53ShW1vbPBjFc0A3K/ADq+Dn/PU/u4MlWSaif+yg0a8OiqCNEhV6i0h
+	 hxBgZ5Okcu0nbyEIVqwmEOT1XLRizenfzoCsmgdLdfuWT63BnpkVijyDEegSRUD+BdCr9
+	 hwVzZ8zzujalAb/Pav6nS/sqX0KF8ZHM57QMrh5lcNiWYbzjv4x2qNBEAfzq7V91unWEU
+	 2vmuGdRTGjyYA4LFRCBRk3tT81ESjBeSmHyM9gN8C38TP6PqORq5ynVHXCgJee3o7Vw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bfy6FPpM;
-	arc=none smtp.remote-ip=198.175.65.14
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WEdAJIaY;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5A95606A325;
-	Tue, 10 Nov 2026 08:34:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C5A95606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 070DA607FB5A;
+	Tue, 10 Nov 2026 09:20:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bfy6FPpM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794299669; x=1825835669;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=B3p61jrf+nsQC7sIOAEE7VMzoMSJIUaY/w/demMcwOU=;
-  b=bfy6FPpM9kl9HMQU35kwjQymfj3M9gvavf7gmdCS0TO5SLFs6zV4qBFz
-   mE+bDtRCEJxexMJsJk6FiZy1WOERl2QCUy0DeaTz/t6g5Q/B/7OAVVD1j
-   PogCgIqCIHSekw95eeNx4N7fcJC6JO0T7RKXtEZhk1FHnffS15RHDh4Cx
-   2Qwt0BZoIbGGbNpDf12fPaWDovDnSOjKbZjSnJUiE3GjZpZv9DlTAj5pB
-   CDn/T4OhHqQExh2ugqKDxVF1rBdYGGrXwSQ7fKkbG0+FNkzzw1fK+YopM
-   TiywJ1wjLTwGdlupI9Zvsr6GzRMK/hRd4amOMuviXXlXSa5o4II2J5eT0
-   g==;
-X-CSE-ConnectionGUID: Nla0e7YTTIaixBnwVsUWnA==
-X-CSE-MsgGUID: YufTclOJSLGvEbQlablDxg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11961"; a="2931172"
-X-IronPort-AV: E=Sophos;i="6.27,205,1787036400"; 
-   d="scan'208";a="2931172"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 00:34:29 -0800
-X-CSE-ConnectionGUID: Dys+fUCcQEyOupHilPHr7w==
-X-CSE-MsgGUID: UY7VI49FRUy7l0bZ9JjQWg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,205,1787036400"; 
-   d="scan'208";a="7918904"
-Received: from smoticic-mobl1.ger.corp.intel.com (HELO [10.245.245.1]) ([10.245.245.1])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 00:34:27 -0800
-Message-ID: <079cf13d-542b-4084-9023-06a89fa4ea97@linux.intel.com>
-Date: Tue, 10 Nov 2026 10:34:24 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WEdAJIaY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4AC1F0089F;
+	Tue, 10 Nov 2026 09:20:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794302427;
+	bh=cSWIafk7ikiCCY+OyvdNor7sWV+uHSYsERPSHy5tkIM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WEdAJIaYOybMdnxp8lc5A/tcQ1/l8K75skGyY/pa5rMXczpT03UtV/cTttuq/Uesf
+	 UhydKLbscaLxCGDmtfoibbmWWRc9x0IP4cxao7rCCYhRzPoNwPkuwLem4eljHoi9Lo
+	 wnLaBje8gtyfehzvLux2So3ofm5WIwEmH+1wZWJXiNWtU/INDo9fmWiyl3EPuxSkKf
+	 gwdSSJWD9WW38Sl+GZtqEPEDRXHMdxJmTNdEfyYoal9dG7NKf5mdWl0XSs5eiLEDk9
+	 yKCqZ/nFz1B52u7+axUPmWeELgGsbe39k2vv6hLItpHhCYbs3Ur0H7xZv+Ya1UMxHY
+	 0aLhi1hftZd0A==
+Date: Tue, 10 Nov 2026 10:20:23 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Michael Reeves <michael.reeves077@gmail.com>
+Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
+	Neal Gompa <neal@gompa.dev>, Jassi Brar <jassisinghbrar@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH v5 2/8] dt-bindings: input: apple: Add DockChannel HID
+ transport
+Message-ID: <20261110-accurate-unselfish-cockle-3a39bd@quoll>
+References: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
+ <20261108-b4-apple-mtp-keyboard-v5-2-e2c97b82669a@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -72,167 +63,126 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Fwd: [BUG] HID: steelseries-arctis: NULL deref in
- xhci_urb_enqueue from status timer during resume from suspend (Arctis 9) ->
- system hang
-To: Olli Salenius <opsalenius@gmail.com>, linux-input@vger.kernel.org,
- bentiss@kernel.org, jikos@kernel.org
-Cc: linux-usb@vger.kernel.org, git@mayer-bgk.de,
- "hadess@hadess.net" <hadess@hadess.net>,
- "srimanachanta@gmail.com" <srimanachanta@gmail.com>,
- "mathias.nyman@intel.com" <mathias.nyman@intel.com>,
- =?UTF-8?Q?Micha=C5=82_Pecio?= <michal.pecio@gmail.com>
-References: <CACQx0bG8+c9+CjLRa-tbgGkc5_4Wxhmanbd2vToo8Aj8k_WUYw@mail.gmail.com>
- <CACQx0bG4bvt4bHa+WG4u2UGmUc_YMUnhpWovz5+rzp76Jpb9ZA@mail.gmail.com>
-Content-Language: en-US
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-In-Reply-To: <CACQx0bG4bvt4bHa+WG4u2UGmUc_YMUnhpWovz5+rzp76Jpb9ZA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261108-b4-apple-mtp-keyboard-v5-2-e2c97b82669a@gmail.com>
 
-Hi
+On Sun, Nov 08, 2026 at 07:25:07AM +0000, Michael Reeves wrote:
+> +description:
+> +  HID transport for keyboard and trackpad devices connected via the
+> +  DockChannel FIFO mailbox on Apple Silicon SoCs. The endpoint includes a
+> +  small RTKit coprocessor called MTP which must be booted before the HID
+> +  transport becomes available.
+> +
+> +properties:
+> +  compatible:
+> +    oneOf:
+> +      - items:
 
-On 11/8/26 09:35, Olli Salenius wrote:
-> Hi,
-> 
-> The hid-steelseries-arctis driver reliably-but-intermittently freezes the
-> whole machine on resume from suspend (S3 and s2idle). The battery/status
-> polling work submits a HID control request to the Arctis 9 dongle while
-> the device is still being reset/re-enumerated by the xHCI controller after
-> resume, which oopses in xhci_urb_enqueue(). The oops happens in a context
-> that takes down the system (keyboard dead, no log reaches disk); I could
-> only capture it via efi-pstore.
-> 
-> Blacklisting hid_steelseries_arctis fixes the hang completely.
-> 
-> Environment
-> -----------
-> Kernel:   7.3.1-1-cachyos (CachyOS build, x86_64, PREEMPT(full))
-> Board:    ASUS TUF GAMING B550-PLUS, BIOS 3645 09/10/2026
-> CPU/GPU:  AMD Ryzen 7 5800X3D, AMD Radeon RX 9070 (Navi 48)
-> Headset:  SteelSeries Arctis 9 wireless
->            1038:12c2 (HID interface, bcdDevice 1.01) -> bound to
->                       hid-steelseries-arctis
->            1038:12c4 (audio + HID, bcdDevice 0.03)  -> snd-usb-audio
->            both behind an Alcor Micro hub (058f:9254), on the AMD 500
->            series chipset xHCI controller (0000:02:00.0, 1022:43ee)
-> 
-> Steps to reproduce
-> ------------------
-> 1. Arctis 9 dongle plugged in, hid-steelseries-arctis loaded.
-> 2. systemctl suspend (deep/S3; also reproduced with s2idle).
-> 3. Wake. In roughly half or more of the attempts the machine hangs: black
->     screen (occasionally the desktop appears and then freezes), keyboard
->     LEDs unresponsive, hard reset required.
-> 
-> Every resume on this controller logs:
->    xhci_hcd 0000:02:00.0: xHC error in resume, USBSTS 0x401, Reinit
->    usb usb1: root hub lost power or was reset
-> after which the dongle is reset/disconnected and re-enumerated, sometimes
-> with "device descriptor read/64, error -71" retries taking ~2 s. The crash
-> happens inside that window.
-> 
-> Oops (captured via efi_pstore)
-> ------------------------------
-> [  116.909249] PM: suspend entry (deep)
-> [  119.777239] ACPI: PM: Waking up from system sleep state S3
-> [  119.920603] xhci_hcd 0000:02:00.0: xHC error in resume, USBSTS 0x401, Reinit
-> ...
-> [  123.275980] usb 1-3.1: WARN: invalid context state for evaluate
-> context command.
-> [  123.300361] BUG: kernel NULL pointer dereference, address: 0000000000000020
-> [  123.300363] #PF: supervisor read access in kernel mode
-> [  123.300365] #PF: error_code(0x0000) - not-present page
-> [  123.300367] PGD 0 P4D 0
-> [  123.300369] Oops: Oops: 0000 [#1] SMP NOPTI
-> [  123.300372] CPU: 1 UID: 0 PID: 287 Comm: kworker/1:2 Not tainted
-> 7.3.1-1-cachyos #1 PREEMPT(full)
-> [  123.300375] Hardware name: ASUS System Product Name/TUF GAMING
-> B550-PLUS, BIOS 3645 09/10/2026
-> [  123.300377] Workqueue: events steelseries_status_timer_work_handler
-> [hid_steelseries_arctis]
-> [  123.300381] RIP: 0010:xhci_urb_enqueue+0x1c8/0x350
-> [  123.300386] Code: 0f 84 58 ff ff ff 48 8d bb 48 02 00 00 49 8b 44
-> 24 40 8b 88 70 05 00 00 48 8b 83 a0 03 00 00 48 8b 04 c8 48 8b 90 88
-> 12 00 00 <f6> 42 20 01 0f 85 c9 00 00 00 f6 83 d8 03 00 00 01 0f 85 f1
-> 00 00
-> [  123.300388] RSP: 0018:ffffcde6417d3cd8 EFLAGS: 00010002
-> [  123.300390] RAX: ffff89fb0b84a000 RBX: ffff89fb01eb8800 RCX: 0000000000000002
-> [  123.300391] RDX: 0000000000000000 RSI: ffff89fb015f9800 RDI: ffff89fb01eb8a48
-> [  123.300392] RBP: 0000000000000000 R08: 0000000000000001 R09: ffffffffb8810860
-> [  123.300394] R10: 0000000000000001 R11: ffffffffb6e6a730 R12: ffff89fcb89bc780
-> [  123.300395] R13: ffff89fb01eb8800 R14: ffff89fd2854ee00 R15: 00000000ffffff94
-> [  123.300399] CR2: 0000000000000020 CR3: 00000002d7e75000 CR4: 0000000000f50ef0
-> [  123.300401] Call Trace:
-> [  123.300402]  <TASK>
-> [  123.300405]  usb_hcd_submit_urb+0x91/0x190
-> [  123.300408]  usb_start_wait_urb+0x8f/0x1d0
-> [  123.300412]  usb_control_msg+0xdd/0x150
-> [  123.300415]  usbhid_raw_request+0x11e/0x140
-> [  123.300419]  steelseries_arctis_9_request_status+0x63/0xb0
-> [hid_steelseries_arctis]
-> [  123.300422]  steelseries_status_timer_work_handler+0x21/0x70
-> [hid_steelseries_arctis]
-> [  123.300424]  process_scheduled_works+0x21f/0x650
-> [  123.300428]  worker_thread+0x193/0x3b0
-> [  123.300432]  kthread+0xfd/0x130
-> [  123.300436]  ret_from_fork+0xec/0x2b0
-> [  123.300441]  ret_from_fork_asm+0x1a/0x30
-> [  123.300446]  </TASK>
-> [  123.300527] CR2: 0000000000000020
-> [  123.300532] WARNING: kernel/printk/printk.c:4631 at
-> wake_up_klogd+0x64/0x80, CPU#1: kworker/1:2/287
->                 (console_irqwork_blocked)
-> 
-> Analysis
-> --------
-> The status timer/work keeps running across system suspend/resume and
-> fires while the USB device is being reset after the xHC "Reinit". The
-> control request then reaches xhci_urb_enqueue() for a device whose
-> endpoint state has not been rebuilt yet (NULL at offset 0x20).
-> 
-> Looking at drivers/hid/hid-steelseries-arctis.c (new in v7.3; unchanged
-> in current master, hid.git for-next and linux-next), the driver has no
-> .suspend/.resume/.reset_resume callbacks:
-> 
->    static struct hid_driver steelseries_arctis_driver = {
->            .name = "hid-steelseries-arctis",
->            .id_table = steelseries_arctis_devices,
->            .probe = steelseries_arctis_probe,
->            .remove = steelseries_arctis_remove,
->            .raw_event = steelseries_arctis_raw_event,
->    };
-> 
-> and steelseries_status_timer_work_handler() unconditionally re-arms
-> status_work (for non-async devices such as the Arctis 9); it is only
-> cancelled in remove. So the poll keeps firing across system sleep.
-> 
-> Suggested fix: cancel_delayed_work_sync(&sd->status_work) in a .suspend
-> callback, and re-schedule it from .resume and .reset_resume. Separately,
-> it may be worth a look from the USB side whether xhci_urb_enqueue()
-> should reject rather than dereference in this state.
-> 
-> Possibly related: on the 6.18 LTS kernel, where the Arctis 9 (1038:12c2)
-> is handled by hid-steelseries instead, I also saw identical resume hangs,
-> but I did not capture a trace there.
-xhci should not crash even if something is misbehaving and sending URBs during
-resume. The timer should also be fixed, but I'm now only looking at the xhci side
+Just an enum instead of items and const below.
 
-There are some pending xhci fixes in this area. Michal just posted a patch that
-touches the "WARN: invalid context state for evaluate context command" case in
-your log.
+> +          - const: apple,t8112-dockchannel-hid
 
-I added another patch for the NULL pointer deref.
 
-All relevant patches for this case are now in a test branch named
-"fix_null_deref_reset_resume" in my tree. (based on Greg's usb-linus branch)
 
-git://git.kernel.org/pub/scm/linux/kernel/git/mnyman/xhci.git fix_null_deref_reset_resume
-https://git.kernel.org/pub/scm/linux/kernel/git/mnyman/xhci.git/log/?h=fix_null_deref_reset_resume
+> +      - items:
+> +          - enum:
+> +              - apple,t6020-dockchannel-hid
+> +              - apple,t6030-dockchannel-hid
+> +              - apple,t6031-dockchannel-hid
+> +              - apple,t8122-dockchannel-hid
+> +          - const: apple,t8112-dockchannel-hid
+> +
+> +  reg:
+> +    items:
+> +      - description: Coprocessor ASC registers
+> +      - description: Coprocessor SRAM/mailbox registers
+> +
+> +  reg-names:
+> +    items:
+> +      - const: asc
+> +      - const: sram
+> +
+> +  mboxes:
+> +    items:
+> +      - description: ASC mailbox used for RTKit control
+> +      - description: DockChannel FIFO mailbox used for HID packets
+> +
+> +  mbox-names:
+> +    items:
+> +      - const: asc
+> +      - const: dockchannel
+> +
+> +  iommus:
+> +    maxItems: 1
+> +
+> +  apple,has-stm:
+> +    type: boolean
+> +    description:
+> +      Specifies that the coprocessor provides STM device and serial
+> +      number query endpoints that must be ready before registering HID devices.
 
-Much appreciated if you can give that a try
+Isn't this implied by the compatible?
 
-Thanks
-Mathias
+> +
+> +  hid-country-code:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    description:
+> +      HID country code for the keyboard layout variant.
 
+What is the meaning of values? Do they map to any existing ABI? Like USB
+HID? Otherwise, why country code is 32 bit integer instead of ISO3166
+codes? As pointed last time, this should go probably to a common hid
+schema.
+
+No default? Not required?
+
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - reg-names
+> +  - mboxes
+> +  - mbox-names
+> +  - iommus
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    soc {
+> +        #address-cells = <2>;
+> +        #size-cells = <2>;
+> +
+> +        hid@24e400000 {
+> +            compatible = "apple,t8112-dockchannel-hid";
+> +            reg = <0x2 0x4e400000 0x0 0x4000>,
+> +                  <0x2 0x4ec00000 0x0 0x100000>;
+> +            reg-names = "asc", "sram";
+> +            mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
+> +            mbox-names = "asc", "dockchannel";
+> +            iommus = <&mtp_dart 1>;
+> +            apple,has-stm;
+> +            hid-country-code = <0>;
+
+Which country is 0? Isn't this just a default?
+
+
+> +        };
+> +    };
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 0c1963150f04..41b12717c657 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2714,6 +2714,7 @@ F:	Documentation/devicetree/bindings/gpio/apple,smc-gpio.yaml
+>  F:	Documentation/devicetree/bindings/gpu/apple,agx.yaml
+>  F:	Documentation/devicetree/bindings/hwmon/apple,smc-hwmon.yaml
+>  F:	Documentation/devicetree/bindings/i2c/apple,i2c.yaml
+> +F:	Documentation/devicetree/bindings/input/apple,t8112-dockchannel-hid.yaml
+>  F:	Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml
+>  F:	Documentation/devicetree/bindings/interrupt-controller/apple,*
+>  F:	Documentation/devicetree/bindings/iommu/apple,dart.yaml
+> 
+> -- 
+> 2.56.0
+> 

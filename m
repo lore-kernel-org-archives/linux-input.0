@@ -1,99 +1,127 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794318513;
-	b=Dgoq0kNzpgojeH0025tkqz/6Soc64b8Onbp+DIjiImsvg2UYG4neGHPSbKydT8exUhtL
-	 gDdJtCuQKBnm5An9n42YBhquQIvUIbsSGBhjBz+uW3M4OeOS++cVX+3iP4IDGcs9VckNH
-	 bqwZHtFBiaOEGugiJ/o6J5Yr6Y8eXGDyK9HF90940wB+fDJbM5Uwrqss/hUVHeXlFgfKE
-	 pNC4jrJ99j3yUDBeJZgnCYCc0Eide6kedhYL7VfhHE+XEzMhYxHT7eG9YXTvi5JPY/LB4
-	 l/hSKj72a28cSGACdYptSn2PEkQ6KD75h+BtvvTjAgaESaC5azJjCQMWtqttvPng/jg==
+	t=1794320381;
+	b=O5UKtiXL+6Fp+O+CPC7uiRPXVzn9L+9fmYUFTPmc32TKLaW+ejOhaJ3c7kqTjrsHiCvS
+	 sEpDjNLxlKVumLXHTjtyKTft8I3bIhZCHIo1J2bMipFS6YqV8Ew+DEkzLaBFDIUQhAjfQ
+	 0I3ehZh1/6MItQLQoQfbwtrNBcBQD/sEQCVmKh/rMfIzm8Kg9gLwjMPNWhD8Fxt94yifp
+	 S3FQW1Q8C8BrazquNij9zedOO2LLc7LX6Adh8yFvaXogcSdWlggA+oA3Qy7NOvSuxy2YP
+	 /Q23yBAWZXAtiTRYzMco6E3cfcWmKj6vK3PoCyFDrFDr0SZh1VoW+M7OHJGcuvd5YpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794318513;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To;
-	bh=Co4X+lJ4cTnZFILI0kHUCUVHOUrsje27fDkW0QWbJgw=;
-	b=0hnkE6I7fOoLeOMrSaVTudFs1jFhzY8V5k7pB8ruWOa1ygq80jAPGz3nwSeEB4031tMU
-	 sWWGHS/Hf29ZMIi6e6meX3LDMuDtOsj+KiDdiy4gM7BkGtlwzMjsDRewWqdIU3vozHbCd
-	 RAbcZ479z5tYd8yokJLSy8ACbHpSOoIAAGpELr8K+usp6xLlwvABtgW1m0Dri7xLSZqUE
-	 3GiKvLdydwZpKqWBGJlgmfA6JavqJU30uhHaxqQMzcq4k+JsOoqM6zlz+DIPiiJ7TixYF
-	 fiEpFFsNyAFbC9HNQPfeKvZuTijjJeYa1/k3P3aMilSZmnhZaXHbi6SoZuIkzIPg+MA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794320381;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-Spam-Flag:X-Spam-Level:X-Spamd-Result:X-Spam-Score;
+	bh=ey86SkVvx7i9NDOgarxUx2o/w+Rx/Wx0u51qrIOGmpM=;
+	b=JeLsbqWiMjdzG6+TgWbDK+u6VONvVQ4vS5lnJDT7W4Ih4MDUjRWkT9qu/byT7EGI7UuI
+	 cdbG6X8Unr5z0g8QBK83y3RqybhhT43ewiDOsxj5UHne7T3bnJ+xr/hfa5TYfMkIB0r/x
+	 Rnw42/0aMcwAIwN7t2eD2RcQ5oU7kWFSRRc2PkP5tRNglsCelBSF7HZnm+G+LY8jAJJRx
+	 AmwHPUbl8AVaEB2NUlZ8tJREGPFjvSbcPbfuIu5iU4PSdT+4YK26NLAMnxgrgzsnOO5Cf
+	 +bo9l1mpnzyCUDZUziUnTSJk+ouoWbVWWXqf7XmzEgAjw7z0BjiWdZvl9zoHRvaGlkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zXfyOBZh;
-	arc=none smtp.remote-ip=74.125.82.176
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=none header.from=suse.cz;
+	spf=pass smtp.mailfrom=suse.cz;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=24m00Mxy;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=gWL5bCh6;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=24m00Mxy;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=gWL5bCh6;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 094B1606A326
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 13:48:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 094B1606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D7A560A262B;
+	Tue, 10 Nov 2026 14:19:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9D7A560A262B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zXfyOBZh
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-36f8cdd30beso2901925eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 05:48:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794318512; x=1794923312; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Co4X+lJ4cTnZFILI0kHUCUVHOUrsje27fDkW0QWbJgw=;
-        b=zXfyOBZhxWw8SbZHBTmtB7CK3cXMr5ykrNBzXsVqyPwfiXoq2qlPajWzAsD6cViDQ+
-         xLnCjZ3r2COxxasXvuG0aLpIX4Ij+/1n7Zxgdp5EYg13S2G+aEWityyQBnVdnnUeenMI
-         dIWK30BRw/QdBLVFotB6sVO7MeskSSCjCIZUB0BDT+GsUJ6lKysY+SAjIU5uKdaAzQ7/
-         7x+CxASPVSv+tS+A5gr785g2JnbaP81hq3QwGUWYkU870jmmJ3P/ULCeMeabVH0HXuCV
-         NNppmBkf3+bTvRulsZoBM5VU19AjeSuxWLQCeDmuf9cmhLoeFOZY1V8begZ+VjTwJnbq
-         NOxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794318512; x=1794923312;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=Co4X+lJ4cTnZFILI0kHUCUVHOUrsje27fDkW0QWbJgw=;
-        b=1ksRPoKLWhsrIQS5exzUlt3nwE0TiYgooPXcuRKHHL+ycbpPXHojWL1Hcj0/EoBwud
-         pmE3bOI6FbV5JdpvU1QlcxmShIBAc4SDKRzwftJabh22xaKjqX42GpKuI7uh2fmDCw6y
-         8PM4kyaiLRsvEvuh1MA+ZJcZZZtYsL3xkKHiHecszhjh5SSnHvgH/HNIvyF7Rq31J1VD
-         ZuadQbzmVywzZXu58QxiLJOJ64GX19X+35N3l84fXQvwUyjHEiUa5ZZXNSa+IWky2yHE
-         tdRciAauJ3wFA3uSx6vw14dm/J+fhRDONCTZC8fc+Yo6z0kAh7vc+iI08rY30MTDB+qc
-         8B6Q==
-X-Forwarded-Encrypted: i=1; AL+hErH/W+dIIk2tIpeSGOfTP/fryrjvZAFJBvWbvi+i9orGDzj8J7iV8kPmYE63T0xYzMHtbqr2CqXaOJuf+g==@vger.kernel.org
-X-Gm-Message-State: APuU4Z813csMIMMuIQH/dRPUn2kTYTYV7wkGHJpvdOp8fDUKsoVEAE3a
-	JHDpClsXCkcKfT6eocdXZ41eqdVXUh7nlPjsKIl9JUSqUH0ftvxtkkvb
-X-Gm-Gg: AYBFou06QKISufONMp2eKiba4s/yYn1VTJBnD1rnB+0AJvPSOxTxIxkIu+t1y4YcSZO
-	8LgBlaNKh19hN19waPac9vHtjuSR0lsYKpoV685PGY2E14t3NNY+kr0VbMbh4QbTVv7u0aue+4I
-	O8Yp/9ReJmuuaark1Li1aEUdHC/H5mxClnUCuQnQkv7UHzUDfX/VD20rrLHDO7WqbOw51s6zD1d
-	p8iEgnlqWjdWW3u7XgmQsBq1KMktcxiJulbI1Djpgr7Lh7axXZU/eIqya0tcLAwWgv9iVoM8Zfm
-	6oi1PP7pk/zQ9sbB+refbGg1m09FjSZnj6senz/3Dkj0ddYDtQJVxbtKOeQAfAEW4Si5GOgiqLp
-	nPw9rpj3JQXf7bVCNaHBFY4bEh4H6ZTuEAkO32uM8Yne3jTJ7ZDG9zlUIExMphfxNZtqzG/ry4w
-	uTN7hAUNeJ+jkLtJ3Ld6LSF+vpjclIh9yck7RPL6q+J5q4SEx/ZHGE7wdsHWgU1KkzdT2N4Q4yx
-	+OLkUQsBZI6Xk+JUIK6Dy8j8yzaH47YbtSIW2ZW6bDC9i/d/cXi45dYH8PkzsmrtO7AfVe5jgpe
-	ipKSt29MCjP5PLOioDuLWYQfas8=
-X-Received: by 2002:a05:7301:648b:b0:36f:3da8:dbc8 with SMTP id 5a478bee46e88-3751f946c28mr3807038eec.31.1794318511934;
-        Tue, 10 Nov 2026 05:48:31 -0800 (PST)
-Received: from localhost ([154.21.93.22])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520608b52sm6663679eec.13.2026.11.10.05.48.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 05:48:31 -0800 (PST)
-Date: Tue, 10 Nov 2026 21:48:28 +0800
-From: Yao Yuan <yaoyuan0329os@gmail.com>
-To: Jingle Wu =?utf-8?B?5ZCz6YeR5ZyL?= <jingle.wu@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Vishnu Sankar <vishnuocv@gmail.com>, 
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	Phoenix Huang =?utf-8?B?6buD5LiW6bWs?= <phoenix@emc.com.tw>, Stanley Chen =?utf-8?B?6Zmz5bu657at?= <stanley.chen@emc.com.tw>
-Subject: Re: [PATCH 1/1] Input: trackpoint - Add new ELAN trackpoint device
- variant id 7
-Message-ID: <avMcB0q7wF9oP5X8@sapienza>
-References: <20261102130836.11863-1-yaoyuan0329os@gmail.com>
- <20261102130836.11863-2-yaoyuan0329os@gmail.com>
- <avKBsi-E7IeUgsSY@google.com>
- <TY0PR0101MB4786C8CF42ED66617BD9DA1EDC722@TY0PR0101MB4786.apcprd01.prod.exchangelabs.com>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=24m00Mxy;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=gWL5bCh6;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=24m00Mxy;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=gWL5bCh6
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 8A12F21E31;
+	Tue, 10 Nov 2026 14:19:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1794320377; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ey86SkVvx7i9NDOgarxUx2o/w+Rx/Wx0u51qrIOGmpM=;
+	b=24m00MxyS14C4kCTYYtxKWJP25EBVNVIxLRshWhDnl2XZwRpRipDNZJw4Avu/J2svsqCMy
+	VTYT/SHAlqxbP0FIU7B9V7eV3/1rBXkEe/Lcm9f8ja9SENmigoj1MKRmnopRtQWBaY3OFh
+	eux20BDfQ6AJqBojuMAzQiJJg3QKDxU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1794320377;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ey86SkVvx7i9NDOgarxUx2o/w+Rx/Wx0u51qrIOGmpM=;
+	b=gWL5bCh6bmxfDaClyKTxrGr/cthAMhYHhVBSAgTvyrROUNgpSm1do5CLIUVQzQAzFJlTzk
+	zIhImlSyPcZvZwDQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1794320377; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ey86SkVvx7i9NDOgarxUx2o/w+Rx/Wx0u51qrIOGmpM=;
+	b=24m00MxyS14C4kCTYYtxKWJP25EBVNVIxLRshWhDnl2XZwRpRipDNZJw4Avu/J2svsqCMy
+	VTYT/SHAlqxbP0FIU7B9V7eV3/1rBXkEe/Lcm9f8ja9SENmigoj1MKRmnopRtQWBaY3OFh
+	eux20BDfQ6AJqBojuMAzQiJJg3QKDxU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1794320377;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ey86SkVvx7i9NDOgarxUx2o/w+Rx/Wx0u51qrIOGmpM=;
+	b=gWL5bCh6bmxfDaClyKTxrGr/cthAMhYHhVBSAgTvyrROUNgpSm1do5CLIUVQzQAzFJlTzk
+	zIhImlSyPcZvZwDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5517613479;
+	Tue, 10 Nov 2026 14:19:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id I5aLDPkn82qLGgAAD6G6ig
+	(envelope-from <jack@suse.cz>); Tue, 10 Nov 2026 14:19:37 +0000
+Received: by quack.suse.cz (Postfix, from userid 1000)
+	id D0CEC22536; Tue, 10 Nov 2026 15:19:36 +0100 (CET)
+Date: Tue, 10 Nov 2026 15:19:36 +0100
+From: Jan Kara <jack@suse.cz>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
+	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	netdev@vger.kernel.org, ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+	coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, 
+	Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 29/51] proc: don't walk through a non-directory when
+ resolving a name
+Message-ID: <okuebbxuf5q6xy452dlnxaqwainsafs5waulvn54j3vqxg2dhx@hh6ql7sg3pte>
+References: <20261104-work-procfs-bugfixes-v2-0-bbf7d5546809@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-29-bbf7d5546809@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,91 +131,105 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <TY0PR0101MB4786C8CF42ED66617BD9DA1EDC722@TY0PR0101MB4786.apcprd01.prod.exchangelabs.com>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-29-bbf7d5546809@kernel.org>
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spamd-Result: default: False [-11.30 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_LAST(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCVD_COUNT_THREE(0.00)[3];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL63fqwwx8ot6gmekemcs76f9d)];
+	MISSING_XM_UA(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[60];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,imap1.dmz-prg2.suse.org:helo,suse.cz:email]
+X-Spam-Score: -11.30
 
-On Tue, Nov 10, 2026 at 05:26:21AM +0000, Jingle Wu 吳金國 wrote:
+On Wed 04-11-26 18:47:15, Christian Brauner wrote:
+> __xlate_proc_name() walks the components of a name like "a/b/c" and
+> takes whatever it finds for "a" and "b" as the directory to go on in.
+> It never checks that they actually are directories. So
+> proc_create("file/x") hangs x into the subdir tree of the regular file
+> "file". Nobody can look x up there, but remove_proc_subtree() on the
+> file removes and frees x along with it, behind the back of whoever
+> registered x.
+> 
+> pktgen passes the name the writer of "add_device" picks to
+> proc_create_data(), and only the part in front of the '@' has to name
+> a network device:
+> 
+>   echo "add_device lo@"   > /proc/net/pktgen/kpktgend_0
+>   echo "add_device lo@/x" > /proc/net/pktgen/kpktgend_1
+>   echo "rem_device_all"   > /proc/net/pktgen/kpktgend_0
+>   echo "rem_device_all"   > /proc/net/pktgen/kpktgend_1
+> 
+> The third write frees both entries and the fourth one makes kpktgend_1
+> call proc_remove() on the freed second one:
+> 
+>   BUG: KASAN: slab-use-after-free in proc_remove+0x8f/0xa0
+>   Read of size 8 at addr ff110001134c8e70 by task kpktgend_1/243
+>   Call Trace:
+>    proc_remove+0x8f/0xa0
+>    pktgen_remove_device.isra.0+0x118/0x500
+>    pktgen_rem_all_ifs+0xeb/0x1a0
+>    pktgen_thread_worker+0x1b42/0x7280
+> 
+> The files of a network namespace belong to the root of its user
+> namespace and these writes don't require a capability. So once pktgen
+> is loaded an unprivileged user can do this in namespaces of its own.
+> 
+> Treat a component that isn't a directory like one that doesn't exist.
+> All names with a '/' that the tree passes in as literals only walk
+> through directories. pktgen is fixed separately to not pass such names
+> in the first place.
+> 
+> Reported-by: Chris Mason <mason@kernel.org>
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Hi Wu,
+Looks good. Feel free to add:
 
-> Hi Dmitry/Yuan:
->
-> We have confirmed that FW A1 was never released by Elan. The Elan Variant ID has always been 3.
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-Thanks for your information, Let me share more details:
+								Honza
 
-The trackpoint has driver from "ELAN
-Microelectronics Corp." in windows 11 on same device.
-
-In Linux I found the device is probed as generic mouse
-device but not trackpoint device, it's hard to use due to
-no sensitivity setting from sysfs. I found the reported id
-0x7 is not in drivers/input/mouse/trackpoint.c's
-trackpoint_start_protocol() after debugging, the trackpoint
-is probed and works well after add the id 0x7 there.
-
-So I thought this should be a ELAN device w/ ID 0x7 and
-cooked this patch.
-
-
->
-> THANKS
-> JINGLE
->
-> -----Original Message-----
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Sent: Tuesday, November 10, 2026 10:36 AM
-> To: Yuan Yao <yaoyuan0329os@gmail.com>; Jingle Wu 吳金國 <jingle.wu@emc.com.tw>
-> Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>; Vishnu Sankar <vishnuocv@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Phoenix Huang 黃世鵬 <phoenix@emc.com.tw>; Stanley Chen 陳建維 <stanley.chen@emc.com.tw>
-> Subject: Re: [PATCH 1/1] Input: trackpoint - Add new ELAN trackpoint device variant id 7
->
-> ⚠ External Email: This email originated from outside the organization. Please use caution when opening links or attachments.
-> ⚠ 外部郵件： 此郵件來自公司外部，請謹慎開啟連結或附件。
->
-> Hi Yuan,
->
-> On Mon, Nov 02, 2026 at 09:08:36PM +0800, Yuan Yao wrote:
-> > The new ELAN trackpoint variant id 7 is found on thinkpad
-> > X14 Gen1 laptop(Product Name: 21XMA006CD), it's now incorrectly probed
-> > as Generic or Logitech PS/2 mouse.
-> >
-> > Add ELAN variant id 7 to match the TP_READ_ID command return value,
-> > probe the device as trackpoint correctly.
-> >
-> > BEFORE:
-> > input: PS/2 Generic Mouse as
-> > /devices/platform/i8042/serio1/input/input63
-> >
-> > AFTER:
-> > psmouse serio1: trackpoint: Elan_variant7 TrackPoint firmware: 0xa1,
-> > buttons: 3/3
-> > input: TPPS/2 Elan_variant7 TrackPoint as
-> > /devices/platform/i8042/serio1/input/input65
-> >
-> > Signed-off-by: Yuan Yao <yaoyuan0329os@gmail.com>
-> > ---
-> >  drivers/input/mouse/trackpoint.c | 2 ++
-> > drivers/input/mouse/trackpoint.h | 1 +
-> >  2 files changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/input/mouse/trackpoint.c
-> > b/drivers/input/mouse/trackpoint.c
-> > index 3bd8fdf56cd3..f46fc1665c96 100644
-> > --- a/drivers/input/mouse/trackpoint.c
-> > +++ b/drivers/input/mouse/trackpoint.c
-> > @@ -25,6 +25,7 @@ static const char * const trackpoint_variants[] = {
-> >       [TP_VARIANT_NXP]                = "NXP",
-> >       [TP_VARIANT_JYT_SYNAPTICS]      = "JYT_Synaptics",
-> >       [TP_VARIANT_SYNAPTICS]          = "Synaptics",
-> > +     [TP_VARIANT_ELAN_ID_7]          = "Elan_variant7"
->
-> I wonder if we really need to say "Elan_variant7" or if we should simply say "Elan" here as well.
->
-> Jingle, is this your part? What is the difference from Elan trackpoint reporting 0x03 as its variant?
->
-> Thanks.
->
-> --
-> Dmitry
+> ---
+>  fs/proc/generic.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+> index 4c3fcaf68ef4..6ac9c4c13897 100644
+> --- a/fs/proc/generic.c
+> +++ b/fs/proc/generic.c
+> @@ -170,7 +170,7 @@ static int __xlate_proc_name(const char *name, struct proc_dir_entry **ret,
+>  	de = *ret ?: &proc_root;
+>  	while ((next = strchr(cp, '/')) != NULL) {
+>  		de = pde_subdir_find(de, cp, next - cp);
+> -		if (!de) {
+> +		if (!de || !S_ISDIR(de->mode)) {
+>  			WARN(1, "name '%s'\n", name);
+>  			return -ENOENT;
+>  		}
+> 
+> -- 
+> 2.53.0
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR

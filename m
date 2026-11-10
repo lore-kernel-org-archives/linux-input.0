@@ -1,102 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.180
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794286045;
-	b=OmUD4pewJN+L7vft1DrL6J+nyU7zYGxpy23KOYdyXKBJa6+YWu0OuV5K5udeCHBdtSO/
-	 LIXWMcVjCQ7DNjtgm8QssHD+8KDk3tX69qpnNQilKkzu7EJsRxsCtYLHz9qFAwjGnr45O
-	 JzYGPHubFy8DCcowDHQ99rl1ArVekdypk/OULcciFdzzb8SyxF/JccADjO5DfrYI0vH4/
-	 7dgeZHLzywC5k+sZbfVRIkHo9ww4RuZ+d6PDagijtZMzSRcjisujcZR6BcwF8a1g+BEGg
-	 pqFDAkyUlYE/F4675DKcnqNSmlaS3/Wc04l2e2iigD3/eCcwHqkTqc0NtVsJAsQVeMQ==
+	t=1794286189;
+	b=xs8GgbFV4YAa7odH7TDn0pOxs0hhGIkp8bzEsleFWtVAPFaKgYnntNmZiVp9YDPbXhOP
+	 StPLdNk6InCT1Y55UlFEnHbv/9D2Qzj/DoIlUF0ElraUJHTwQ4sL2FOZLPR7tdp8CK84D
+	 SUrvPsEzelfN4+z+WKJoq0TNlEzRXxD6xz6/4ZLju32W48HCItsG+lcsmwdPcijIXPxmI
+	 FcK5QwduEi6LaQAaTg4uz0CpLF8I209GBZdFFaKqI+v0mwe8rvtCPTDmLb9zEI9ReLRWl
+	 +XC2MjMx/qHhFEjN7p8HYzOCGY4kNGKUicGpqlNSOYN+x0SKl1h0VUr799RNPgVQlyQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794286045;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=wC4bjhOhhN40eUTNX01dcV9nWNkEq784qFI5/5FUXkY=;
-	b=t1yZ115BRCgIG4s6tftHEFeKDplo8U8YYgfZWVXSzXcUQMy/pSQD22d0o9OPgLc0MgJG
-	 /NHB6W0y5yCp1N38ePWp0+PPf7d4YymgDLBgtMmxr1XS3WTzaUEpvJubOei1ADnw579Bx
-	 Qn4XasLy3CpBChF6OuQEaZYw0b6S4AQPcbn7joOo13lDuHR/MqmR1kUQD5jFvkXhwbj+h
-	 acCVW0eMAdmWe04lHSCDKi9tEj1MiHktrjgbeuUOs0d0aLrxsVzmjTwWoVP0GqJGojuJP
-	 Yu9++SyTk7M7LCSh0SiHSzq+I30aeZyzObWqpGCllGDkRB1dBikbeWum4N+vboQ9WYw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794286189;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=+a8xJqaZ2FrloWoI5/p9kiGgRLtDGADq3jrqIbjmYO8=;
+	b=NzNu9c42RzGK6x0i3/Qct9/l9i+H7RqnBXgLW32SAUbMtOQMBFwOGw28KdFyh89cCgFn
+	 9P8jeY2TaKfT6QX8jJvq9jfJUGjZd3n3hSOutxAKrO6Vyoa4jKrb6kBsVgu2CiZcvpdgs
+	 MRBaaiO6yim8Ei7aYEfY3csBcIzyaRch/xmrkBeP17SEk74jGxfrXhO3XBX2exQYJEVoQ
+	 xzVuWbrqESL14fkzWZ1pF2Xg/JL7OPiChcDfX+76LGV/84B6wLAtW7hYSuAYUOv9nhVGn
+	 bTYyQ1xlW2iCI8QBjTBQZIqT/lToV1EzJBJ5xNVUgcd6sb2Oo2pKae9ClyNRakYdOzQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BOKtYxA2;
-	arc=none smtp.remote-ip=209.85.160.180
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VMXJvyOI;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2302F606A333
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 04:47:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2302F606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB9AA606A321
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 04:49:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BOKtYxA2
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-5365f9a04c5so20965591cf.1
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 20:47:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794286044; x=1794890844; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wC4bjhOhhN40eUTNX01dcV9nWNkEq784qFI5/5FUXkY=;
-        b=BOKtYxA2Y/d5AExMzrRrxYGrgfAuorC3jD7qH8yibGS3P6VdbCYINFUliHco6MPMES
-         7Bplz6JmAKdCJPtQJppbrc0Re04zFtI8Da5jrQraEQ82Ljm9WihiXnZxZxPZjY9VKMn2
-         PqQblg1npSaPIa50xOLOTvjw1FaAAAsg5glHi+dUCvWBaXxWqbvhSpd1FcdXszL/DR9H
-         ieOiHYslvG/vZmMHkmSVc0MYCvdEg+NtLwdr2wVjeMYK+0ex/nNGrWyOYDbrTq7t8t/T
-         mX64h7WhF+YERyg/UkTCLMrR/YF7rnY8TU6OAnhvDPA1/SSA2PM8h/OoQs4/w2Ndsg8a
-         VxWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794286044; x=1794890844;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wC4bjhOhhN40eUTNX01dcV9nWNkEq784qFI5/5FUXkY=;
-        b=Nh4OPkD8orT9cXhI7/bqyMp4S30oivTEKqeOE2vzYx9pNV6xEtQdHCBOOQURxXQ3M3
-         h7/MTag5RPLmsYuaF9rA6j9pabXje+JZFFR2G+epD4Zyt+bhWupSrYxO7V1DJdEmdOGV
-         AnQyLOLxWxu4agaO3zLk0HBbUcNQkPl97PAmIS3gskMSylkIWLu0JuzL4QePVidlpTDY
-         7xwKn6ALzqYimGaiWlg3+svJ37dXJCLOvjjyTtuvqr2uU3A4Wn6y1822byIgA7jkEF/Z
-         ZYE2ck93eTpScgvMM4zLckhs/i/I99hyZj0HRx/xqjrZZ/xN0PhsUxEEFH+qf5o2b91G
-         GjGQ==
-X-Forwarded-Encrypted: i=1; AL+hErEXsH6K70hvqKp1fpzXp2mr5khC3qz6Nf4boomsoCoJUgb+mCqb/yVzVMr5kn0d83l0p+w8+NhITNn2Ug==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8fiCypkJcpD9tq1WaAYfDJVbcB2OsGV2yRwcsGa8nhl3/Cfr2D
-	JxYyR4ZQUrqsJl+9qAprJ8rP8cdJohcaCS9YqfBHOrU87aKblRbn0MQ=
-X-Gm-Gg: AYBFou3oPrqJBNWMQ7qy7NAVv+UhM16Xxd574bjuTCz8YbJDis+ZcUYOrFcr9kCv2JO
-	r7WyfLsiAyy5+HSrZFOak0fzxx+5fmcgJDUm8O8FO80QyFRmGdWidrl2vkDGSXpin+oDBDJx73K
-	wRRfC88sR0E8GetIH9YlY/ij/gJZ39yPmz4RALlK7RyDUDbNmhYh/rka07cJXsUNkQPoX80tfPV
-	gq9kA2SiTouU9H1dGnWR2LvKRWVobYl93R2X0/64J5t/GZqNznzaO+26MpmZnKh1tLv1tDAuKji
-	10Pd8WMAQwwAtq5gw+oKXXnrww6HvtIPo+yL5IHIG5vMapDbbpjilMNh7oLD8953WGGn4v7DFCo
-	yHMoW/8H3pz3RKyk79u2xcGmlWpxSKcXmkEZNXrXtK4kwixppPFn4v1332YgaNRviakLko72sZ8
-	dPuKHKEreYUuhGSE35T/3dTWEkThrbXutdg6iMYozA3RWxWhAhad5nZNBsvFvgTyjwgdvDM6xmS
-	vXhedITQO4M9hW90GvKWL+RtT12WtbV76Tw1e1iYlNRaoAo7FlzfuatLpSNf4QvAlzqwjbGxWTz
-	lGaBORC4GbR6/PQCwqb4MJZbQMPrBJ71KU6Py/CtJe8GnSdnEo8Dt3xszsA0tndUBRUsU4o571R
-	peXh0S1i8WAjEkbS1OS75ETzLjUnhwf7JjjDBI7eIgqiZwjR6ONRdO2zDW1+RFp6/
-X-Received: by 2002:a05:620a:468d:b0:93f:611d:a18e with SMTP id af79cd13be357-9479f376a49mr271245385a.55.1794286044122;
-        Mon, 09 Nov 2026 20:47:24 -0800 (PST)
-Received: from localhost.localdomain ([104.39.152.7])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9479e73ab4bsm137920185a.14.2026.11.09.20.47.22
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 09 Nov 2026 20:47:23 -0800 (PST)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Myeonghun Pak <mhun512@gmail.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ijae Kim <ae878000@gmail.com>
-Subject: [PATCH v2 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
-Date: Mon,  9 Nov 2026 23:47:18 -0500
-Message-ID: <20261109-thc-rebase-v2-1-mhun512@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20261109-thc-rebase-v2-0-mhun512@gmail.com>
-References: <20261109-thc-rebase-v2-0-mhun512@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VMXJvyOI
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11DB61F0089F;
+	Tue, 10 Nov 2026 04:49:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794286188;
+	bh=+a8xJqaZ2FrloWoI5/p9kiGgRLtDGADq3jrqIbjmYO8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VMXJvyOIusvRDPCVtM0BkYv5QQx2AGzF+tAzfq7GRtnoHlwNQ4q3w6aaajan6S80p
+	 GKvJxnfOyM3RUN+j/QHOD+KwkGfr04/Yu+PftkFDrZf8AgDq924RLvMzlLKbw13Tah
+	 fjdyHb6hUStaYF6g2wEB75Dd8fcOO7UXvz/TDE2H+BzLmZQ7C1fktxiUWO9uU1tID3
+	 aclCEKS3oFPxiYt1hewkCXH3YGMErjOWJ/n/zMdb7bU+hB6ZbukIEMWp7pgsbog3BI
+	 XgY1QwW8Kn8zcRnzhbMf619c/lcniWDl15xurRZQBhm9/4mA4/d6/hfJWhTlKovw3S
+	 9JRr3xoqQWpnQ==
+Message-ID: <sashiko-outbox-206244@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: magicmouse: disable the multitouch work on removal
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Myeonghun Pak" <mhun512@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261110043001.56615-1-mhun512@gmail.com>
+References: <20261110043001.56615-1-mhun512@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 10 Nov 2026 04:49:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -105,122 +58,82 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-The managed IRQ can access HID/DMA buffers or queue recovery work while
-remove or probe unwind tears down those resources.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] HID: magicmouse: UAF on msc in magicmouse_reset_resume()
+  during unbind
+--
 
-Disable and synchronize the IRQ, drain recovery work, then mask THC
-interrupts before freeing the IRQ and releasing HID/DMA resources.
-Track IRQ/DMA initialization for conditional probe cleanup.
+commit 6b44c69f3cb297be7e3753fa8262ad83f2724078
+Author: Myeonghun Pak <mhun512@gmail.com>
 
-Disable the IRQ before shutdown deinit as well. Keep IRQ disabling and
-release outside the shared hibernation helper.
+HID: magicmouse: disable the multitouch work on removal
 
-This issue was found by our static analysis tool under development.
+This commit replaces cancel_delayed_work_sync() with
+disable_delayed_work_sync() in magicmouse_remove() to prevent
+magicmouse_reset_resume() from queueing msc->work during unbind.
 
-Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC QuickSPI driver")
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
----
-No hardware testing.
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index a01e84a18dede..525ffc64a2f02 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -1032,7 +1032,7 @@ static void magicmouse_remove(struct hid_device *hd=
+ev)
+>  	struct magicmouse_sc *msc =3D hid_get_drvdata(hdev);
+> =20
+>  	if (msc) {
+> -		cancel_delayed_work_sync(&msc->work);
+> +		disable_delayed_work_sync(&msc->work);
+>  		if (is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+>  		    is_usb_magictrackpad2(hdev->vendor, hdev->product))
+>  			timer_delete_sync(&msc->battery_timer);
 
-Changes in v2:
-- Rebase on mainline b3dfbde62cf1. No source changes from v1.
+[Severity: Medium]
+Can magicmouse_reset_resume() still cause a use-after-free on msc after
+magicmouse_remove() returns?
 
- .../intel-thc-hid/intel-quickspi/pci-quickspi.c    | 28 +++++++++++++++++-----
- 1 file changed, 22 insertions(+), 6 deletions(-)
+disable_delayed_work_sync() records the disabled state in
+msc->work.work.data, which lives inside the devm-allocated msc.  In
+hid_device_remove(), devres_release_group() frees msc right after
+hdrv->remove() returns, before hdev->driver or driver_data is cleared:
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index bf49d8ce5f07bed092339e46c444538d78cffe26..acb4d2716ea7450d2852a900c3f0acc1d7570421 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -600,6 +600,8 @@ static int quickspi_probe(struct pci_dev *pdev,
- 			  const struct pci_device_id *id)
- {
- 	struct quickspi_device *qsdev;
-+	bool dma_initialized = false;
-+	bool irq_requested = false;
- 	void __iomem *mem_addr;
- 	int ret;
- 
-@@ -652,6 +654,7 @@ static int quickspi_probe(struct pci_dev *pdev,
- 					qsdev);
- 	if (ret)
- 		goto dev_deinit;
-+	irq_requested = true;
- 
- 	ret = reset_tic(qsdev);
- 	if (ret) {
-@@ -670,17 +673,18 @@ static int quickspi_probe(struct pci_dev *pdev,
- 		dev_err(&pdev->dev, "Setup THC DMA failed, ret= %d\n", ret);
- 		goto dev_deinit;
- 	}
-+	dma_initialized = true;
- 
- 	ret = quickspi_get_report_descriptor(qsdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Get report descriptor failed, ret = %d\n", ret);
--		goto dma_deinit;
-+		goto dev_deinit;
- 	}
- 
- 	ret = quickspi_hid_probe(qsdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register HID device, ret = %d\n", ret);
--		goto dma_deinit;
-+		goto dev_deinit;
- 	}
- 
- 	qsdev->state = QUICKSPI_ENABLED;
-@@ -695,10 +699,16 @@ static int quickspi_probe(struct pci_dev *pdev,
- 
- 	return 0;
- 
--dma_deinit:
--	quickspi_dma_deinit(qsdev);
- dev_deinit:
-+	if (irq_requested) {
-+		WRITE_ONCE(qsdev->recovery_disabled, true);
-+		disable_irq(pdev->irq);
-+	}
- 	quickspi_dev_deinit(qsdev);
-+	if (irq_requested)
-+		devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-+	if (dma_initialized)
-+		quickspi_dma_deinit(qsdev);
- disable_pci_device:
- 	pci_clear_master(pdev);
- 
-@@ -721,9 +731,12 @@ static void quickspi_remove(struct pci_dev *pdev)
- 	if (!qsdev)
- 		return;
- 
--	quickspi_hid_remove(qsdev);
--
-+	WRITE_ONCE(qsdev->recovery_disabled, true);
-+	disable_irq(pdev->irq);
- 	quickspi_dev_deinit(qsdev);
-+	devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-+
-+	quickspi_hid_remove(qsdev);
- 
- 	quickspi_dma_deinit(qsdev);
- 
-@@ -750,6 +763,9 @@ static void quickspi_shutdown(struct pci_dev *pdev)
- 	if (!qsdev)
- 		return;
- 
-+	WRITE_ONCE(qsdev->recovery_disabled, true);
-+	disable_irq(pdev->irq);
-+
- 	quickspi_dev_deinit(qsdev);
- 
- 	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
+drivers/hid/hid-core.c:hid_device_remove() {
+	...
+		if (hdrv->remove)
+			hdrv->remove(hdev);
+		else /* default remove */
+			hid_hw_stop(hdev);
 
-base-commit: b3dfbde62cf1981c4638939c159dfd087b7a72e9
--- 
-2.53.0
+		/* Release all devres resources allocated by the driver */
+		devres_release_group(&hdev->dev, hdev->devres_group_id);
+
+		hid_close_report(hdev);
+		hdev->driver =3D NULL;
+	...
+}
+
+Because hid_driver_reset_resume() does not serialize against
+hid_device_remove(), a concurrent reset-resume can still touch msc->work
+after msc is freed:
+
+CPU0                                  CPU1
+hid_device_remove()
+  magicmouse_remove()
+    disable_delayed_work_sync(&msc->work)
+                                      hid_driver_reset_resume()
+                                        magicmouse_reset_resume()
+                                          msc =3D hid_get_drvdata(hdev)
+  devres_release_group() -> frees msc
+                                          schedule_delayed_work(&msc->work,=
+ ...)
+                                            <-- use-after-free on msc->work
+
+queue_delayed_work_on() performs atomic bit operations on
+msc->work.work.data to test and clear the pending bit when disabled,
+modifying freed or reallocated slab memory (or queueing the work if
+reallocation cleared the disable count).
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110043001.5661=
+5-1-mhun512@gmail.com?part=3D1

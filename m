@@ -1,101 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.216.51
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794285823;
-	b=L1928U5gsW7cvVhaOrjS+VptquWIUepNX7hJ7JMhMlNCRuR1MxW7LTkFAkiQOT2XaC7F
-	 SeBadqS6L6J9w/cICOrd6l6CjWlrOIsRqCzWzcdHROWlNd2COxPw5ohUnnTeOPhCDwHMx
-	 XkY64205g2foPKdXugdJr7ieqtOkHmKTmNWRdjoN6DKZ9CLKI+uTq7Zww4Yi+b8g+HvAe
-	 nTi3LFaDuhlrf3AD8k5Hkmc9vfYKcFlsb8RhwScYJjlA616uYihS8dW82tYu7OSJ5SZJ0
-	 w6O0CfRiDnU6fck95fJiBg+6rJcc8uRtclXmjXVNqgifG81sIelqm4mO4gcKmM71o8w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794285823;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.49
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794286044;
+	b=zYx4XyFoArivf8vvf4VAeby1XWgJqvhdPXdkCW6Gq7pjpxDVc7HmfRlHbzibGjBzytG2
+	 nfJWibn9y02wYuTIUzhccthtetrAJaLEn4QeZcJB9QbePDxexyXVYYQI0z9GKqODYqgGz
+	 38TahKdoVa68epyrO4KZxlmK3i1s/DbBKoY1Z6a4T5G19or0TJWUeTVUA0farNZLnNaNR
+	 13uewSKyOESy2dizyJ0IFTH9GNZui103ShS7PFQl66TPQiMhGyBxW+WoOlHpCR+2dSEPD
+	 RH4h0siQMaHop3a33xiSp3ffpBoYukjN8RRggNd3zJ6MnOBHVrpp7eOOjAPbnQaGXEg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794286044;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=fjct4Yqe2Yjqkmyxgvaofu3ga8YzMvdjgNfUmi9Z8E8=;
-	b=SrWd7iTNkJqQDgdCQbV061xbIrgvc5K+t+4n5SAshL4Q+q3X2pJqV5P7b7gzpFXPs3Sx
-	 kUrj90efZIgR8iWwR3lDkXU246obQsAUst2QzuErtVAVZeRh1S7y0te2yfTSf7ZimVtNW
-	 P2Y23BZ94ddH/S/z9OWJOIS7kZFr5YrNFHk9L70dveL0N2HIZgxmCi15ShFADTw9tnh2R
-	 HG7h3iKDus90i8hP/DO97o5qwgJ1DpHAlFQbyssGlRIGLCmHfN9xif1/TF/Nn9NRAp6gk
-	 uudWgb4WMfjhzQY01affS9g7af5Tb98XU56gioUweNNa5mmFMYFwT4KQtK1uVWTsi0w==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=XG0VksmSfVKTtdSN1LbjQIB6bZPmaQKbfPiHZ6IjJLw=;
+	b=Ur8YE7lEDGYfGlMB1elO3DEazyUs55xwN/cly0wAUnqXXmZWimbPewsL5g7tZELhaAKQ
+	 332nIebi79nk9EWeYQpFKjcWJ5ZW3XNQr31CWZOfYZpsvdGunaiqgNrJCC1E0CBPMu7Gi
+	 BJ2F0/+SMZlHlKgk68wdnkuRdTQbNVhlx1DO9KiIa4cJOjywXSgV7diJ3Q3gbyOcJlva9
+	 rhly7nidg2sl3iisXfi1FRNEsav5ZSTP9Mnj5evy8zNA38yfkO1CcEj3y3lEsz2EXa02q
+	 sGH/75KVXrEcl0jHPWSzt+tUhzxgESWwjvXoGWSttnvzdCtnGkYGzXeTNfQc+iwayLw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ebABcTVV;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.216.51
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wci7ijoM;
+	arc=none smtp.remote-ip=209.85.219.49
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EF35606A31C
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 04:43:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2EF35606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34824606A321
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 04:47:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34824606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ebABcTVV
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3ac9f49b984so904758a91.1
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 20:43:43 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794285822; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bOvzM5Y7ivD2in4O938L2m/0n4mISJ0QAQJ3Rlf/olmffhtEJoGOrXvh/gAiEeqf1c
-         EVkq6R8ytiwul3u1hjhxKXzes80h/vngPdAWR8hhxhyFCmTItFStZqN1QEsBKF0D5wY4
-         0Ikmb4Zl4bah8ueJFZmSl1orOdVx71SAQKE1lptpnoTNWJ+9il2CZuw2jQGn/SJgjgiu
-         5UAcUCHIxnTK0lSr6rH6qVyMmGMhOy6redWiV83TzoCs9njI1LurGGdbJ+qUsaRdbBX2
-         5ex/N1vDBUpLkxGwiQiN4JEjXUOEGzD6T0ylyrzNFqCBCE3I6oKTrDGO28n9PrQ0Rcjc
-         crhA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=fjct4Yqe2Yjqkmyxgvaofu3ga8YzMvdjgNfUmi9Z8E8=;
-        fh=RGdN+T5UCH7qo7E+qoS111YpUj9zi9RQErTJhS3evA4=;
-        b=HCLSiPCLq06GjG6zleKUpjalUJ4Nb5WF8f+bIIG8p/aqtLOkDedt51QZ164LQYA4W7
-         pI98Ut3DPsaMNxx3Ru3ZfVoGuFMEVBrQLe3m0eyjpTKtMgHy7uBbI+hpQTwCGlioJBbW
-         cscVDHSw7Jiw6hWltzUeVfyx1548UhhwRg/visRrWq4v2sztITCrGmvHrONyy4T2q2US
-         1vppaan1SWLJmYES/8FM+T4HrsUyGCnOXXRmJjYjJSzQ+MFoKHu+SVjALoRPjNYA6sx/
-         DEgnEpXM0fsrjGccMeLzchpXLKKfiFoLNf4K5mS46B6Ih9GjlBxHD65e6JKp3H8UpwZt
-         wUZA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wci7ijoM
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-91ec2d42231so17559296d6.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 20:47:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794285822; x=1794890622; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=fjct4Yqe2Yjqkmyxgvaofu3ga8YzMvdjgNfUmi9Z8E8=;
-        b=ebABcTVVo0JLd7uap5mXB31hZOAY5OM7LOIjdoTRJxnhHMuzGNipJ32WJeuHKMv5CM
-         RB8dff5x9E8CvvVJvjQaTiDB/Q3ql8trymLoq27ooEnxLkCAi/p2y9akjIyj8SzoiqB9
-         zURvGWlmbZhbM+8FKzZl55lKPsqMoqpsjfehCasfpmwKvWZAt/3Ilqs2BjAJaIxVjMlT
-         OxtMXuIvMZ7VCf/SeWy07rEABCWGYaylIb9N8+95lgTzKTGFy02dMYjshnPo3P64rX8a
-         zBo9LBWexpICgniFDnOE4L5Rb+5lXxQj1BxYcD08g3R7YmY/mufscnPxSdLqjeDjpRFC
-         dVKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794285822; x=1794890622;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20260707; t=1794286042; x=1794890842; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=fjct4Yqe2Yjqkmyxgvaofu3ga8YzMvdjgNfUmi9Z8E8=;
-        b=KCTnCQrEY+MyfW2PtEgoqd8uTyxbQ29k/3FfLnJANLhRIAAl0yCzNnzk+sF8oXjfT4
-         /Ro08eMujhtK42nqvbcFQxikB6rz/sGWonGgri0tZNAl7JPe1Ga5VVzxR+F1EOSgTb75
-         /JsaVxCCf/iHcebNMTrz1sYhAcS+7ILyqdK3D+Kl921TuLAqOT8cI57EsJjU1n/Uf/5t
-         PZ3UGdjDqBJwWjTyoNVETHxhduBpGFRO5s/f5eWqMTnWwRT7xlQ7cj0TDFC/A5x60P7f
-         izX6QJHtjfImyrf6mDGtJ5jzSPJZJkUfnkHOL/fZgQNcfucvqdCoagag6llnatsmDDDP
-         FTcw==
-X-Forwarded-Encrypted: i=1; AL+hErH+aR2ek3FIyy9EJUTc1jQgmTjeUXnbc+sq4eqofcolEfpFBe0xDo4h1SAgxLb3/p+3bmrccDNyU+/Wkw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9NAC2/j7oogMjaRbYh3j9/lUWYJhDekrhW3Q7Ng7t8zpFwQvu5
-	6IQvLmBBYxRzjTNOE7ayK1xIK4WD1zLKg7EFrHdFOCIw6s4/KPnxF7e96DeNGeKnkaXMOiWaN1i
-	u2wgCX247xFr4jKwdKSfGFOlv5pe2Lg==
-X-Gm-Gg: AYBFou18dAw/S4msULC8o4cd9mxtlzzNTLX9ea/NtVZPJgqSUNjWA8T1QWhj4iXbyyg
-	UxS96aiS702jYt45PGo+Lof9Te0HmfCWNzSi34Ft4cLRhCgKBGQG82J0sotZRiyUIqjrY71YJqT
-	+TU0/Bfo+X5B/tIA5Ih2x1mRUsWuzaRi1JiIW3ofaeb2b/b94b9qODvV+VrY4VbHuatXKJdUwq9
-	KLLrBMCUolrgCmdE6v8XaWX6vNmmLZJIjEMI+iAly4icMqi2ycg9RIs95ly0OM9e/Gw+rP60dGk
-	wbQPwLKTKI7Cjzqidq9ZlQtbJ9wrbZpW/qr2AKdZCs4bCD1OsH1GeOOrpxFPX2IJyAVAtcgX4iB
-	vY0BdhE4McTFSnqr44acRNhLb5fZLMqJrVkdb4CZ8Q9+1/V+JWtFgzAwnt406pej+mPW4hltiyi
-	sM6KJnjFSMQ+vaLf7vA5O/ds464u7zyfQaT3cmPysZ3mzTskIs5AGKuyHJsNcg/D1ZsHoW
-X-Received: by 2002:a17:90b:5105:b0:3ac:928a:68ce with SMTP id
- 98e67ed59e1d1-3b1679f3453mr998185a91.33.1794285822393; Mon, 09 Nov 2026
- 20:43:42 -0800 (PST)
+        bh=XG0VksmSfVKTtdSN1LbjQIB6bZPmaQKbfPiHZ6IjJLw=;
+        b=wci7ijoMJ3lK7M7H1VgZd/BhKNO0ynHkaqiv4EhkkwgSVCCdpyqdPNxzKTzOhhbD3z
+         zmw5o8CpYMGtSgCGbmkt7csgw4X54zPgwIdCorS5eJ66Cv31ckBjsXKHJbJSSaJFrAcT
+         48IgtBwMLoo6HGKZCB5MrnLezUPgECN5E8PQ2C10uADwgb3X/+PluYknJBPs2m68pXM7
+         yFoLPzpNgNnhcvjyTx+8o31OUmeD9KIQ+ayrF9lf/tshib3EZKkB/Yq/h/tQfnRwvaZt
+         zmSJ5PJRSDC9NND/Tlraez7PbP5B6he7qfxrMjdwXPwTnKoOvywETkQFoAmHKcc8IpTb
+         xt2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794286042; x=1794890842;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=XG0VksmSfVKTtdSN1LbjQIB6bZPmaQKbfPiHZ6IjJLw=;
+        b=X4BXCiGlC8porNB9Ddvjaq9Z+tZtk4mebbM44TNVTpje1vGOybofbVt22L2FiNt5oe
+         QsjLvUEKjycq0t0+yQhoh174Zvgl4EKrQ9LSMmnwseo81Dgm85Rf8Y+Emlk/ouS8JukP
+         MBSSet/PXPFsO9kplHEvDQB58erKCvISg8AZTbSRyG2kqs3/22sqAoDs/T181WK2SM1a
+         20RtRBWi+bh8IciLkJmsyj8+b8J5L4UygOWxZJqD9ltLTzGg1RBG4/QrNQy97UQ1jwGi
+         p6HeTN2+fM6YKpSJV/GieJ0cu5fppCram7xEkKmMqX2Rnztm7pAWK8f80vXXeuP0ii7B
+         Fj2Q==
+X-Forwarded-Encrypted: i=1; AL+hErHlJ0jnMtDRD1oTBywKbLiQSEY7KHGYN7VhpCzx24FLtakOTQ8O4/km/iy7K3DG8L5wQJg4n5k+E3wjJQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/S+TnZr+Aah55059RWf3G3WgKGHBQLawXrxfkchGhy8KjtFbmn
+	tMOxGve19kr4WGSEx7up9EhPcJEyr9Wkt3T34e4ALqhkH26dW/vU7a8=
+X-Gm-Gg: AYBFou1zoT3Nml1DS55mvA+Im0TkB690+tj/jAmMbY/+vn6D67iU7q/caJg/DluQRlJ
+	2+bScY1t+79WUw+g8hqq9zH+WPO5PoLfOw/wMe+TV1wxT5pHc+YK41dBJtLdwMbdPOgL02NJozx
+	8JhXDqgOvmuZUyjLuIRNE9GNE4EA/2jS1CaHplOUL7c+/9/czo7IEzZBjqMR9TcsFAhKSMIzMZM
+	t0jCl4lYVHnsVlZ6hUQjdb+YNOwUwwq6PR3FSrkRertRsx8On3TwnklCwHDIpXY8NjQmX0jZVeg
+	o3RmmvLTNcjCNHFfMarEiuYfpTQxUBvkE6wkGe2H6zmh5gt/qGcR1k0j92abcoFYASsIUD+HCq5
+	JdLgfXOxQBuXEjCHR1zano/ZvS/OaTqDEgQMOFvnxOYa/SLcMCXmpnIEmwLQAbRM6pDcZ5HRhFm
+	9VwPgAxTLqRgpPPPF9MC+GEUDhWXDQgDLIw5u0M1R5d461phLqN23af0vSmKnApHUWHatte5lGa
+	SzBRqrlUw3KDXX2A/vWHgq5QfkzVOxGr0Ny0E4YmR9TiwP1DmvlNufwS4b6feewHwp5KG8Qqu8x
+	V4gnEUvGWQFOuCDbfRU6LRv1D9eZJKE54yVGYa7EZlzfpTl9YUdwYISj/ck7Q/47ABOH7vTryA6
+	rSKgN5sTMOH2NHnAhtolBzwflUEpo/ozS4nNGYLJV1vtkKKabHF9kNx3egijse5iFKt4accC1FD
+	Q9q3f1kCXLPA==
+X-Received: by 2002:a05:620a:3914:b0:947:9410:f076 with SMTP id af79cd13be357-9479f2f6069mr234609985a.55.1794286042116;
+        Mon, 09 Nov 2026 20:47:22 -0800 (PST)
+Received: from localhost.localdomain ([104.39.152.7])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9479e73ab4bsm137920185a.14.2026.11.09.20.47.20
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 09 Nov 2026 20:47:21 -0800 (PST)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Myeonghun Pak <mhun512@gmail.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ijae Kim <ae878000@gmail.com>
+Subject: [PATCH v2 0/2] HID: intel-thc-hid: quiesce IRQs during teardown
+Date: Mon,  9 Nov 2026 23:47:17 -0500
+Message-ID: <20261109-thc-rebase-v2-0-mhun512@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -105,256 +104,22 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261011220531.2073892-1-mhun512@gmail.com> <20261011220531.2073892-2-mhun512@gmail.com>
- <SJ0PR11MB770448ECA655129850E63866F49E2@SJ0PR11MB7704.namprd11.prod.outlook.com>
- <CAGEsz8H4z7cpJQkmFGcqnCT+H56OuUHQDch6kh13TiOo0b-TFA@mail.gmail.com>
- <SJ0PR11MB7704B813C9011D9478BA2BF4F49C2@SJ0PR11MB7704.namprd11.prod.outlook.com>
- <SJ0PR11MB77049F097D7061D769DE08A5F4602@SJ0PR11MB7704.namprd11.prod.outlook.com>
-In-Reply-To: <SJ0PR11MB77049F097D7061D769DE08A5F4602@SJ0PR11MB7704.namprd11.prod.outlook.com>
-From: Myeonghun Pak <mhun512@gmail.com>
-Date: Mon, 9 Nov 2026 23:43:27 -0500
-X-Gm-Features: AclHuK-S2CyrpHDzG1B48T1dkrk9jP5XLxGwtN3GaVGIEXLXaMOXgB2Dn-VQ2hQ
-Message-ID: <CAGEsz8HNs-bqB8we8+J8dHci9okethftp3tLbOv-b6Pu_FivuA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
-To: "Xu, Even" <even.xu@intel.com>
-Cc: "Sun, Xinpeng" <xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
-	Mark Pearson <mpearson-lenovo@squebb.ca>, 
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ijae Kim <ae878000@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Even,
+Rebase the original QuickSPI and QuickI2C teardown patches on mainline
+b3dfbde62cf1981c4638939c159dfd087b7a72e9. The source additions and deletions
+are unchanged from the original submission.
 
-Thanks for testing. I've rebased both patches onto the latest mainline
-with no other code changes.
+No hardware testing.
 
-Best regards,
-Myeonghun
+Changes in v2:
+- Rebase on latest mainline.
 
-2026=EB=85=84 10=EC=9B=94 26=EC=9D=BC (=EC=9B=94) =EC=98=A4=ED=9B=84 10:05,=
- Xu, Even <even.xu@intel.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
->
-> Hi, Myeonghun,
->
-> Validation passed, but I suppose you need rebase your patches on top of l=
-atest mainline kernel.
->
-> Best Regards,
-> Even Xu
->
-> > -----Original Message-----
-> > From: Xu, Even
-> > Sent: Thursday, October 15, 2026 9:53 AM
-> > To: 'Myeonghun Pak' <mhun512@gmail.com>
-> > Cc: Sun, Xinpeng <Xinpeng.Sun@intel.com>; Jiri Kosina <jikos@kernel.org=
->;
-> > Benjamin Tissoires <bentiss@kernel.org>; Srinivas Pandruvada
-> > <srinivas.pandruvada@linux.intel.com>; Mark Pearson <mpearson-
-> > lenovo@squebb.ca>; linux-input@vger.kernel.org; linux-kernel@vger.kerne=
-l.org;
-> > Ijae Kim <ae878000@gmail.com>
-> > Subject: RE: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs dur=
-ing
-> > teardown
-> >
-> > Hi, Myeonghun,
-> >
-> > Then let me test it, it may take several days.
-> > Will feedback once test finished.
-> >
-> > Best Regards,
-> > Even Xu
-> >
-> > > -----Original Message-----
-> > > From: Myeonghun Pak <mhun512@gmail.com>
-> > > Sent: Thursday, October 15, 2026 8:36 AM
-> > > To: Xu, Even <even.xu@intel.com>
-> > > Cc: Sun, Xinpeng <xinpeng.sun@intel.com>; Jiri Kosina
-> > > <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>; Srinivas
-> > > Pandruvada <srinivas.pandruvada@linux.intel.com>; Mark Pearson
-> > > <mpearson- lenovo@squebb.ca>; linux-input@vger.kernel.org;
-> > > linux-kernel@vger.kernel.org; Ijae Kim <ae878000@gmail.com>
-> > > Subject: Re: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs
-> > > during teardown
-> > >
-> > > Hi Even,
-> > >
-> > > Thanks for reviewing the patch.
-> > >
-> > > No, I haven't tested it on actual hardware. I have only compile-teste=
-d
-> > > it with GCC and W=3D1 on x86_64.
-> > >
-> > > Best regards,
-> > > Myeonghun
-> > >
-> > > 2026=EB=85=84 10=EC=9B=94 12=EC=9D=BC (=EC=9B=94) =EC=98=A4=ED=9B=84 =
-8:52, Xu, Even <even.xu@intel.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
-> > > >
-> > > >
-> > > > > -----Original Message-----
-> > > > > From: Myeonghun Pak <mhun512@gmail.com>
-> > > > > Sent: Monday, October 12, 2026 6:06 AM
-> > > > > To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng
-> > > > > <xinpeng.sun@intel.com>; Jiri Kosina <jikos@kernel.org>; Benjamin
-> > > > > Tissoires <bentiss@kernel.org>
-> > > > > Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>;
-> > > > > Mark Pearson <mpearson-lenovo@squebb.ca>;
-> > > > > linux-input@vger.kernel.org;
-> > > > > linux- kernel@vger.kernel.org; Ijae Kim <ae878000@gmail.com>
-> > > > > Subject: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs
-> > > > > during teardown
-> > > > >
-> > > > > The managed IRQ can access HID/DMA buffers or queue recovery work
-> > > > > while remove or probe unwind tears down those resources.
-> > > > >
-> > > > > Disable and synchronize the IRQ, drain recovery work, then mask
-> > > > > THC interrupts before freeing the IRQ and releasing HID/DMA resou=
-rces.
-> > > > > Track IRQ/DMA initialization for conditional probe cleanup.
-> > > > >
-> > > > > Disable the IRQ before shutdown deinit as well. Keep IRQ disablin=
-g
-> > > > > and release outside the shared hibernation helper.
-> > > > >
-> > > > > This issue was found by static analysis.
-> > > >
-> > > > Thanks for your patch!
-> > > >
-> > > > I think this patch is still necessary. It can prevent some extremel=
-y
-> > > > unlikely but
-> > > problematic cases, such as an interrupt already being queued in the
-> > > thread before the THC interrupt is disabled. Have you tested this cod=
-e on actual
-> > hardware?
-> > > >
-> > > > Best Regards,
-> > > > Even Xu
-> > > >
-> > > > >
-> > > > > Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complet=
-e
-> > > > > THC QuickSPI
-> > > > > driver")
-> > > > > Assisted-by: LLM
-> > > > > Co-developed-by: Ijae Kim <ae878000@gmail.com>
-> > > > > Signed-off-by: Ijae Kim <ae878000@gmail.com>
-> > > > > Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
-> > > > > ---
-> > > > > Compile-tested with GCC, W=3D1 (x86_64). No runtime testing.
-> > > > >
-> > > > > Related recovery-work review and series:
-> > > > > https://lore-kernel.gnuweeb.org/linux-input/20260717035609.387401=
-5
-> > > > > -1
-> > > > > -
-> > > > > even.xu@intel.com/T/
-> > > > > https://patchew.org/linux/20260729050145.2272597-1-even.xu@intel.=
-c
-> > > > > om
-> > > > > /
-> > > > >
-> > > > >  .../intel-quickspi/pci-quickspi.c             | 28 +++++++++++++=
-++----
-> > > > >  1 file changed, 22 insertions(+), 6 deletions(-)
-> > > > >
-> > > > > diff --git
-> > > > > a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> > > > > b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> > > > > index 89226f5ce45e..0bd22f285c78 100644
-> > > > > --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> > > > > +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> > > > > @@ -597,6 +597,8 @@ static int quickspi_probe(struct pci_dev *pde=
-v,
-> > > > >                         const struct pci_device_id *id)  {
-> > > > >       struct quickspi_device *qsdev;
-> > > > > +     bool dma_initialized =3D false;
-> > > > > +     bool irq_requested =3D false;
-> > > > >       void __iomem *mem_addr;
-> > > > >       int ret;
-> > > > >
-> > > > > @@ -649,6 +651,7 @@ static int quickspi_probe(struct pci_dev *pde=
-v,
-> > > > >                                       qsdev);
-> > > > >       if (ret)
-> > > > >               goto dev_deinit;
-> > > > > +     irq_requested =3D true;
-> > > > >
-> > > > >       ret =3D reset_tic(qsdev);
-> > > > >       if (ret) {
-> > > > > @@ -667,17 +670,18 @@ static int quickspi_probe(struct pci_dev *p=
-dev,
-> > > > >               dev_err(&pdev->dev, "Setup THC DMA failed, ret=3D %=
-d\n", ret);
-> > > > >               goto dev_deinit;
-> > > > >       }
-> > > > > +     dma_initialized =3D true;
-> > > > >
-> > > > >       ret =3D quickspi_get_report_descriptor(qsdev);
-> > > > >       if (ret) {
-> > > > >               dev_err(&pdev->dev, "Get report descriptor failed,
-> > > > > ret =3D %d\n", ret);
-> > > > > -             goto dma_deinit;
-> > > > > +             goto dev_deinit;
-> > > > >       }
-> > > > >
-> > > > >       ret =3D quickspi_hid_probe(qsdev);
-> > > > >       if (ret) {
-> > > > >               dev_err(&pdev->dev, "Failed to register HID device,
-> > > > > ret =3D %d\n", ret);
-> > > > > -             goto dma_deinit;
-> > > > > +             goto dev_deinit;
-> > > > >       }
-> > > > >
-> > > > >       qsdev->state =3D QUICKSPI_ENABLED; @@ -692,10 +696,16 @@
-> > > > > static int quickspi_probe(struct pci_dev *pdev,
-> > > > >
-> > > > >       return 0;
-> > > > >
-> > > > > -dma_deinit:
-> > > > > -     quickspi_dma_deinit(qsdev);
-> > > > >  dev_deinit:
-> > > > > +     if (irq_requested) {
-> > > > > +             WRITE_ONCE(qsdev->recovery_disabled, true);
-> > > > > +             disable_irq(pdev->irq);
-> > > > > +     }
-> > > > >       quickspi_dev_deinit(qsdev);
-> > > > > +     if (irq_requested)
-> > > > > +             devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-> > > > > +     if (dma_initialized)
-> > > > > +             quickspi_dma_deinit(qsdev);
-> > > > >  disable_pci_device:
-> > > > >       pci_clear_master(pdev);
-> > > > >
-> > > > > @@ -718,9 +728,12 @@ static void quickspi_remove(struct pci_dev *=
-pdev)
-> > > > >       if (!qsdev)
-> > > > >               return;
-> > > > >
-> > > > > -     quickspi_hid_remove(qsdev);
-> > > > > -
-> > > > > +     WRITE_ONCE(qsdev->recovery_disabled, true);
-> > > > > +     disable_irq(pdev->irq);
-> > > > >       quickspi_dev_deinit(qsdev);
-> > > > > +     devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-> > > > > +
-> > > > > +     quickspi_hid_remove(qsdev);
-> > > > >
-> > > > >       quickspi_dma_deinit(qsdev);
-> > > > >
-> > > > > @@ -747,6 +760,9 @@ static void quickspi_shutdown(struct pci_dev
-> > *pdev)
-> > > > >       if (!qsdev)
-> > > > >               return;
-> > > > >
-> > > > > +     WRITE_ONCE(qsdev->recovery_disabled, true);
-> > > > > +     disable_irq(pdev->irq);
-> > > > > +
-> > > > >       quickspi_dev_deinit(qsdev);
-> > > > >
-> > > > >       /* Must stop DMA before reboot to avoid DMA entering into
-> > > > > unknown state */
+ .../intel-thc-hid/intel-quicki2c/pci-quicki2c.c    | 28 +++++++++++++++++-----
+ .../intel-thc-hid/intel-quickspi/pci-quickspi.c    | 28 +++++++++++++++++-----
+ 2 files changed, 44 insertions(+), 12 deletions(-)
+
+base-commit: b3dfbde62cf1981c4638939c159dfd087b7a72e9
+-- 
+2.53.0

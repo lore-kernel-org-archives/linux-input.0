@@ -1,146 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=148.163.135.77
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794325120;
-	b=yI/0WpBTVFBqtEJFbGIZhGhsP01NaU/fZamvW80EmBk9mrCnfTI9ERn8SAd2gu9e6Num
-	 4PQelN5KsNgainoTlxRyMmk1CldLnoG3KWEgg1d/ZWH8wRSN6yuQjhiHQYvhBkykusBXC
-	 yVG1/ZiS+xdxXOPXX38L9KTo4oIOZL2/3lOSz2DaDNle6qyL2cyWznq+VkEg1ikXn44cJ
-	 2frrQNzMtZuse5oXM6DNOHVc3SBEyLc9xfndhQrtAy82YIXM3QS5HBsAVlkA7sLnLdlVj
-	 IKYpP5ir4yY01ofY2ND73DCRtbCy5MyI4i6vUxqap4nM2cjFSSDxjv7DAUf18Sq3/WQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794325120;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:Received:
-	 Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To:X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-Exchange-RoutingPolicyChecked:
-	 X-OriginatorOrg:X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=NKYT9g5PeHo9rz1Xs7oNrSVftCpyKqKw0cqdvwF/aHM=;
-	b=jMy8xxaNr2GBrCsUyIkgmNkzl87SLDlHaa3XG00ULAakgSkhtR0VmetabGvGTU9P/T5X
-	 I4ur/luDy81wu8TsrqqSC1GRn5K8FmtX3Boub1iiFNr9+ylD6Vp25ZulC0Xpfhbso1jPU
-	 MExaDWwIVhbKTNHKrCpOfnKFobzh+WIi9rXuQ0A/iWDN3lzOR3Y//9ewJ7y0mhWN7Gs5K
-	 kwUHmYIKEcMKs/3IkFJoxZ0GyrlbCz7K69SpdW7UOkSwU7y0Aca/49B2H4jbANvSH2Guf
-	 pLtJIIED2VO7ebWWXBPGMlSyaIcQ0YY0WVTej8FArXlcIvCful03MzVRzoZ7eMKUwlQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=analog.com;
-	spf=pass smtp.mailfrom=analog.com;
-	dkim=pass header.d=vtelectron.com header.i=@vtelectron.com header.a=rsa-sha256 header.s=DKIM header.b=OQVSB9Gh;
-	dkim=pass header.d=analog.com header.i=@analog.com header.a=rsa-sha256 header.s=DKIM header.b=QDWlZPPv;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=148.163.135.77
-Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.240.6.53
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794326887;
+	b=FCmGlhUUpEJ3+jkmcOtxWcFHItCucy+r0i6pgZMYvAWlMsg28NO7wnJ0+OU8/cx6AjuP
+	 0ATNaFAguvswHu5YssFYO+BzIacxHvzapzhGZRnf81iz/9HB0vMO3MtL/kAaUqMBEQVs5
+	 mIHVI7eBcNPSxO7VbqsNjIjJBmodk9YtQs9UEYCmoFR43rfEm/BxjeHdwWDlU9nZlvAFG
+	 D6BM9oQlZkqfUidrz4NV7fLB5SmPH9X+fbIaoUKseQzbbD3kIFVSalOZwlbx9Tzth7noo
+	 HpOk1ONubcaMVoMRZDtGkZFhWEvzn5P1DIl665jPYod7QFPnZ0E909v76WL1hooutlw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794326887;
+	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:X-Mailer:From:To:Cc:
+	 Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:
+	 Content-Type:Feedback-ID:X-SES-Outgoing;
+	bh=nXZaAGBRf4UciZRAV97Kr7EaxvMvbLbdrcoBmt2p9Q0=;
+	b=oetjsQYJhCvS40995FazNWvxBpOUSfxj9Z7goHACXcVaA7VPFUPj3izKsDn5XOmKMIzx
+	 yhMKuyWbLw7DcJ3uHzFWIT+64prvoLZl4bIKdPHZ7IB1CdVJLU7dCu4yZRgcsC4UbaKDi
+	 p1OroD1/mVvIa4Q0Qr60dkPUVnNThZKrwac+Ub/t1LlIR0+nKNoRl/oh728+lpSQPTDmk
+	 /Em9KD+/RFZdXMR/xS9zr0ISy6AKzRcNsOtZ4PoosCPhoo9gucmTjGutHQXZiG1ZgH1aT
+	 Xb1VjIQCjtQOvyTnwZrxwe1ePDlqp6ZDzlCy9dzpnvmZSqcrg2yQvXSNU2wva3w3RlQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=horotw.dev;
+	spf=pass smtp.mailfrom=send.horotw.dev;
+	dkim=pass header.d=horotw.dev header.i=@horotw.dev header.a=rsa-sha256 header.s=resend header.b=f6hSg4qS;
+	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=shh3fegwg5fppqsuzphvschd53n6ihuv header.b=OeYmvbrq;
+	arc=none smtp.remote-ip=54.240.6.53
+Received: from a6-53.smtp-out.eu-west-1.amazonses.com (a6-53.smtp-out.eu-west-1.amazonses.com [54.240.6.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EA32606A321;
-	Tue, 10 Nov 2026 15:38:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7EA32606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=analog.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=analog.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 898AA606A31C;
+	Tue, 10 Nov 2026 16:08:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 898AA606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=horotw.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.horotw.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vtelectron.com header.i=@vtelectron.com header.a=rsa-sha256 header.s=DKIM header.b=OQVSB9Gh;
-	dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.a=rsa-sha256 header.s=DKIM header.b=QDWlZPPv
-Received: from pps.filterd (m0516787.ppops.net [127.0.0.1])
-	by mx0a-00128a01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AAFBALJ4188857;
-	Tue, 10 Nov 2026 10:38:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vtelectron.com;
-	 h=cc:content-transfer-encoding:content-type:date:from
-	:in-reply-to:message-id:mime-version:references:subject:to; s=
-	DKIM; bh=NKYT9g5PeHo9rz1Xs7oNrSVftCpyKqKw0cqdvwF/aHM=; b=OQVSB9G
-	hW55mimjtsBJnYSwTyX0+38NthMKQBRTo3jyz/NZ41Zk4bFBPrzV0bApMQQLBE1l
-	Vb6BzMB1WUuWsQM3cRxOVpln2fyTkyeRdoyntaV39cv+xVtZuyM0OwtWaukTJU9c
-	iRI1QpoeqFiOKjtoTpqhLB3sOf6BrLCL1cagh5IAaywUAqqm09JCsz/+TNXXmO6+
-	fv07AT+gtI/QjdIZrqbVzw+Ablqa35nXM0LELKWnTC6To0pRIlNTjIC1hrCp42BJ
-	Y6J3PyZHFWaztWkpd05rmypyPfzKGbI7qgrV9zLcQEV3oq/BJAPbc9npL6WVYIyp
-	jnhs9bEUcjNWV0w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=analog.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=DKIM; bh=NKYT9
-	g5PeHo9rz1Xs7oNrSVftCpyKqKw0cqdvwF/aHM=; b=QDWlZPPvfcOTa1AqqdFS9
-	02kPpHJoRdmoOhlgqjTY92woEQVfyoeMXCJm1te4gN9Kum1NUB+Qp9c1bM5b3otc
-	13iWVqiYaw9pklZDDpUVBuI0kn7atPZ+nfUgLZ3H0rZ+L+gyuYkwMu+b0mSeckwA
-	GSQOMgRl5tkSKiMso5zMxmPy7EdqT2Yv5x4QC3XwqMygeu6/o9A+VCcuAZ/NRS+5
-	KiXTiQdydXCqkZzNkz19DFQoBcI1WWDwIBLzKOHizLXSZcvQiQQdJkvnblA7/sWh
-	qwT/mfH82aGxaRL1f9A5F+Jz/Zrz/rKCW7rP0INpNeExoQplcq9GpjRieeQwOygJ
-	w==
-Received: from sa9pr02cu001.outbound.protection.outlook.com (mail-southcentralusazon11013014.outbound.protection.outlook.com [40.93.196.14])
-	by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 4hv5pdr6rk-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 10 Nov 2026 10:38:01 -0500 (EST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=NonMVmbxe8RNspZkfxL0t+i63k5Q4iPNq0X7QmsKoezGKIzq72QPFS8gI2ChFhWZ8njvGblPP7hTexO/g8zxw+AOL+4jwhKv1p6I+q1UKK3VqpBAfpyQ09COJYe5RDKDaXQAPuqd7XAVubXz4HtA1lTGsh26g2QdsbngCJIrGe75Gkj4KlRGkYSfP1ZMICY/tNmnUmyhgJP71zHwKzTn1FmYbWoRV6rDWMXzKSdHMcexJ6o0XD2HS3g9B1dYC1NcoJGqecBJ87q+4Slm+J62MMNOIxSVN/xskHgUubdqRezEAkBOw4H5oUfe5bjcB7G82YsOeq6s29bPAohVO5McKg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NKYT9g5PeHo9rz1Xs7oNrSVftCpyKqKw0cqdvwF/aHM=;
- b=rjcDdK6vng8EdPq89KIXo0gmbqwnLRaX4UnH3HRgZSlGft8u/xY3Bmh4jww6B9gw3xrKqp9B6QyqnuuFHys+nSuv3XZgy6dsz02VUfaHcF9sdM9gZuLsY7BZweOUkTF+nbfOKdCRA/BkChYVWjS/x6s+kDItr58efZkdW5FiAY43xgoiNOe3YjkXI8rzdMFlJ2Z/BfPxcl8q2oFnVz+Fa2WPoPsZRc56Qu5VKatcR5JpPkTwYthnW+gU1ZiopM9k1qi1nTImGhf1N6nknGrjWVJY1kq8LKOaRRkQ7L1R3krxnM8l5eGgqNB8Kjsg92ZZ3Ty5aiCCsa4FdiSvXW/uEQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=analog.com; dmarc=pass action=none header.from=analog.com;
- dkim=pass header.d=analog.com; arc=none
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=analog.com;
-Received: from SJ0PR03MB5469.namprd03.prod.outlook.com (2603:10b6:a03:28a::17)
- by CH5PR03MB7862.namprd03.prod.outlook.com (2603:10b6:610:216::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.13; Tue, 10 Nov
- 2026 15:37:54 +0000
-Received: from SJ0PR03MB5469.namprd03.prod.outlook.com
- ([fe80::2a19:76b2:e731:8c5a]) by SJ0PR03MB5469.namprd03.prod.outlook.com
- ([fe80::2a19:76b2:e731:8c5a%6]) with mapi id 15.21.0592.012; Tue, 10 Nov 2026
- 15:37:53 +0000
-Date: Tue, 10 Nov 2026 15:39:12 +0000
-From: Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Svyatoslav Ryhel <clamor95@gmail.com>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Bartosz Golaszewski <brgl@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Daniel Thompson <danielt@kernel.org>, Helge Deller <deller@gmx.de>,
-        devicetree@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        dri-devel@lists.freedesktop.org, Jingoo Han <jingoohan1@gmail.com>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
-        linux-fbdev@vger.kernel.org,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
-        llvm@lists.linux.dev, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        mfd@lists.linux.dev, Michael Hennerich <michael.hennerich@analog.com>,
-        patches@opensource.cirrus.com, Pavel Machek <pavel@kernel.org>,
-        Rob Herring <robh@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>
-Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
-Message-ID: <avM5EnC9yujUZcCO@nsa>
-References: <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
- <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
- <20260912232047.19c4cb10@jic23-hlaptop>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260912232047.19c4cb10@jic23-hlaptop>
-X-ClientProxiedBy: MA3P292CA0069.ESPP292.PROD.OUTLOOK.COM
- (2603:10a6:250:49::9) To SJ0PR03MB5469.namprd03.prod.outlook.com
- (2603:10b6:a03:28a::17)
+	dkim=pass (1024-bit key, unprotected) header.d=horotw.dev header.i=@horotw.dev header.a=rsa-sha256 header.s=resend header.b=f6hSg4qS;
+	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=shh3fegwg5fppqsuzphvschd53n6ihuv header.b=OeYmvbrq
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
+	d=horotw.dev; t=1794326885;
+	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=Q7jGvzifsBcjfG0e/820Z33fDAwfuKWyt8nRK8W513c=;
+	b=f6hSg4qSrO5v8T63h4dNX5gUXDuyWSz4dnnjs2kBcbMby0CboGFBsjRM8/rcCsrF
+	iwUbTJK7hYVNhZiF4fC7EokTjgzI6t5T+biXxO0b/rdHij+vLFM58bvb7qHlQNonni9
+	Q2RHjQKIRJwmR6nX2AAFkDfuhST5zAsjmvlnc9AI=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=shh3fegwg5fppqsuzphvschd53n6ihuv; d=amazonses.com; t=1794326885;
+	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=Q7jGvzifsBcjfG0e/820Z33fDAwfuKWyt8nRK8W513c=;
+	b=OeYmvbrqAXXW7V1SBHLKB6sCV4TNMbf9ngN5GUDKrYLeTjXfr+sOYLefPFBKlv0p
+	3rm2Gc9j+a8dpRpexGTuRksbHurzXwfXh1iS2HEYoytgvMCj78xVBv++dKfWgUTbvQy
+	DwF0KBLjLMN+VbCA9r+p704mS65RevnsQVp+K5gE=
+X-Mailer: git-send-email 2.43.0
+From: HoroTW <git@horotw.dev>
+To: jikos@kernel.org, bentiss@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	mika.westerberg@linux.intel.com, andy@kernel.org, git@horotw.dev
+Subject: [PATCH] HID: i2c-hid: acpi: Add Dell Latitude 7400 2-in-1
+ touchscreen power quirk
+Message-ID: <010201a1c63771e5-dbbba1f2-8a9f-4dbc-8901-c60927cf5a56-000000@eu-west-1.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 10 Nov 2026 16:08:04 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -150,172 +68,301 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ0PR03MB5469:EE_|CH5PR03MB7862:EE_
-X-MS-Office365-Filtering-Correlation-Id: 44c1e083-4b3b-45a2-3c13-08df3f409584
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|376014|7416014|18002099003|22082099003|10067099003|11063799006|261021135927099003|261028144727099003|261026121527099003|261009223027099003|261022075727099003|261022105027099003|261026140227099003|56012099006|261009221227099003|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	r4iYqk8EHHH+i/qgK9yrK95M6PAOmp2cwmEY2M8D/7Tkj3vz75/Y+CUeY2I0RNhZNltTDfbsPLz3HvFd02ePt8rInHyMSvjQZ/KQ1Ored1Za4tGaJSCPCgAy52OC9JfRAhp3k7J9bRd8YWpXetCpGvBqofsp04YkOB7cDMtvD269OZYKA75g3kGuo2unSg27ZqKHwzqSKLZmsEnTShOux+3o/J8cnlzVN0gnkKS8nmKWYwKuequdVi+4d5g6foMugkmocOayYO0Ax3bqTeiPPfy8Z7+oi1UCZK+buvIp7am5Q40BxdK9rLDXnawlaUd5mFGn2OhISsPKiU3rveCVWpmAlvofcKUKd11L1BUx/dSKI/ir7vV3tal3MKADfg4sJeFMT1iKH7h+qIdoztNnRWYII9ZGec9eAzHliRZV7NKCmcv4IVpQ3pvDzN5n0Lt2Ole71quqeAnpJ9nn7nsrS7W1NjEGWDkEIX++ZwRruHLpdRts2yCrl5qYQJLqtKrtZogkL3oM7Ab8OyzNR/0Dm2F+ukXoO3eHcH5E/IHrODaFQ10ydnVni3tewcSL/4yvIuwiyIOs12S71RuwlPw7T1Z5H7hnH0KHZ8xzCzLF3UfO0td9rs4fPxgeXpSJ34Ek
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR03MB5469.namprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(376014)(7416014)(18002099003)(22082099003)(10067099003)(11063799006)(261021135927099003)(261028144727099003)(261026121527099003)(261009223027099003)(261022075727099003)(261022105027099003)(261026140227099003)(56012099006)(261009221227099003)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?SkJuTGZWZDhzdnoyb3BSeUd6Q2xTbnBGeTBUQ1l6THdoNjVWTXpwblVMK1h6?=
- =?utf-8?B?eWJXbkh2WHZvSENJRjNZRWFjVzRzTTh5OWJZNGthM0lydFVSenFuT0UrNUlx?=
- =?utf-8?B?Y1ZqQ1JjNWJIWFIrT3BQMHgzc1lHNkRKRnRKVHpxVkxQNk5zZDhqVW5lS0JZ?=
- =?utf-8?B?TXRFbmowSlA4emlpZG9PMjVSRkxHM1l1SWFhaFRRa0Z3MHMwRUFNZWZrQ1JZ?=
- =?utf-8?B?YzNNWFlTeW5wNE9BUzhnNWpOY2lWWERzeEZEMEFjbFNINEpyZkhGbE9HZ3g5?=
- =?utf-8?B?YXhlaThBTkd0TzFHdDFKMk9GOGs1YXczNUdZRFQvc0Vwb1JBTDZwd0U1TDVG?=
- =?utf-8?B?ckZmcjV3dlc2WDFMWCtoMlhQZGNtalZWZlpqcFlNTEtHb09MNGVPelA2dzEy?=
- =?utf-8?B?K1c1TFNPem53aThEaUJRZEVYZTNId2prRW9GOHFLb1dpcXgwcWVCZWF3TG4v?=
- =?utf-8?B?L1BUTTFZUk5rZUNFMS81eUt5ZnJ1Qjdpa0lIT0ZnSUNialI1NVgrZW9pTW1i?=
- =?utf-8?B?eGRENEEyM2F5dFMwQU12VEZIRHJ5SHdOcFBGMzhuS245OW5YUUR0VFNLL3o3?=
- =?utf-8?B?T25JRTRSeXlLRmx1aXErVzRZY29QRy8vNXJ1bFdNYU4zS25DYXlIV1daenRK?=
- =?utf-8?B?Q1dYUHFFeUtVRUlwUmR5bTJRdHcrYTBZcTFmaGJXc1Y5M3BWTTgrdUJyUERt?=
- =?utf-8?B?OVdmYjI3T0xOREdOQUtXcmZPazdOd3lEVmhwU20rTlNtMFNtOE92VHhvdUJV?=
- =?utf-8?B?dk1Dc1NRSzcrdDZTYWYyQSs5VDFldVRWTG56VXVEY0NoSG9Bb0ZMcGlLelp2?=
- =?utf-8?B?N0pzYkRGWXQ5NGZJNFZlSGI4Y0xGRjNqT01Cc0FqSDl5N0tBb2Q0RjY0WnBX?=
- =?utf-8?B?SDlwODNNY1NjRHJSVDJ0cGNodUtvWndiNzQ1cm5aSFh6eTk4RHVPQi9KR3Fz?=
- =?utf-8?B?YmNGVkRkRWlpUDU5TEYxdERNdTc1V2ZQV2xZdUxvSXBIK21SNGkwSnphOHVE?=
- =?utf-8?B?WE1wV1NTcU5NOWZkR1VNUGdLOFFYWXlQdkxxTHlhekFUbW5wSTc2bDVYZk5N?=
- =?utf-8?B?dE1MR3FyUDFWYjBxZkJXbXAwZXRheHFnM1Q2RXU4VHg1ZGZpWHdpaGtIaTAr?=
- =?utf-8?B?TmZQZ1hoajhhbnNBN0ZpTWlEY3dMNWQ1ZjVuMWw5NEQwVHZTZ01YN1JjYmNF?=
- =?utf-8?B?SU1yZmwra3UybWw0TXRCMXM4cDhmMUlZWHBLSWVzM1ZMU0xLWTk4SWxsSWxm?=
- =?utf-8?B?MUZXZkRFcytXTS9vR1QxTjRsQTcwN0thMFJIYmFibjA2clVPOWQyOW1mZ0s4?=
- =?utf-8?B?NDR4M2ZSczFWZWttaEVqcnMwTUVWZFFtRWNUZnlsM3cwSFc3dzJqNFNUR0xS?=
- =?utf-8?B?VDZVM01sQk5ZS1lZcTZCUjdlVkxZRFc3VDB2ZjlFRDIrZW9YcWhpOE1SY2tw?=
- =?utf-8?B?b2kxWUhiZ2paZjdsTXhoSkFNYkl1Wm42MmgycHp1d0JGNVI3VHk4SGVxSHJF?=
- =?utf-8?B?Y0dQdXIvZkVzb0t3MENRbmVzZldMd3p2UDViTGtKdkpDeE4yWUFoTDRoZUF2?=
- =?utf-8?B?ZTZsK296N0xaSVdWb0VWbkNyL3pHL2lBdFNhaWNoS2IydnFxRW0vQ01DcEI5?=
- =?utf-8?B?YXpIYjVtWDNDZmZraWR0RlJ1cmFNekIxQVRDM3RXWDEwMjRWOUN3VzYwU2tq?=
- =?utf-8?B?OVByeEpOcmJ3cTlpVlVXQXZWZnhKaU1yejhUWHh0YzY3c0wxSmdISjVEQ1cy?=
- =?utf-8?B?c1dDY3F6QnluQVJvbndWeDNyemhSZWsvQ2greFBpZFIxNkUvRWg4RHVHMldI?=
- =?utf-8?B?K0NkUWMzRy9zMGNtYU1CeElKcXUzZllNSWdiQ3ZjQldPM1FhdWdPSFBwOXo3?=
- =?utf-8?B?ZGRDMENzTTc0ZlBtL0N4bEJJS2FWem1ldFpTKzZtNnRWV1N5ZnpXRk0reUx1?=
- =?utf-8?B?cjJlTnpJRVgzZHZZRk43ZC9CTjdONnlLL09CVzBuQjduUjg5WjllazJOMW9t?=
- =?utf-8?B?cVlEVnBmSFZDQmlXa0lteWFOUGRtZ2ZrRmljTXZLZkhDVDV5VGJZQzU1S21T?=
- =?utf-8?B?cjNyMWNmOW1SeWV4cGt1THZRUU1yQkFoUUl1VGtMRUYzYWFLd29lQjJHVDF5?=
- =?utf-8?B?dkU1MjgzQ1dCTjMwL1BoWDRpTHM3YmRyQXNwZTV0ZEptTVdneTNUNWZ3akNz?=
- =?utf-8?B?dkJyeFdqaHVwR1BhUWE2VUlHRFlMVE96Q2JnK2ZxQVVDN21IQ0U2dHdMTFdJ?=
- =?utf-8?B?SlJacFV2NHNZNU4rNEM3a3g4Qko3NmRGNTNZejhtcFJnVkk4d0x0S0RIT1U1?=
- =?utf-8?B?ZlhLSlVlWExhT1dtMTkrVkVNRld6a3N5UTUwdXZTUG9FY1EwYzl2dz09?=
-X-Exchange-RoutingPolicyChecked:
-	Fg+4odflvOVg/qC3P0jcHuVvFP05frllrULlxzqWiA0rjJRtOCB7laUbrOKmNBlsobPk6qqFYc5dNMGNPTIMv3D9n/qaajEBGPKmXvJhW5QXfY1uVHj1qtBfl3RiZdF4/mKbbi3VPSkVjvVM23s8jn8TDewGkCV/2ocCz+x35DA4TP4SxxKHQkU/MvWGyy4cRDgd0NV01hdpyaZIqcd9cC2YEM0w7X1HD2CTlrLzahoEM9lGAhYtTbhjq94SILROlt98EzbW0Y7es9uujk7YF8jjl8RdFFsJrKbN7yKiJDjoNlnYOa0ZAEHbMrRNNio/Kvsn+rmDPPeKCUoAbq8cvw==
-X-OriginatorOrg: analog.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 44c1e083-4b3b-45a2-3c13-08df3f409584
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR03MB5469.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2026 15:37:53.1789
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: eaa689b4-8f87-40e0-9c6f-7228de4d754a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 40YI0i0n9DrLFb8UnBhArvkQDq0TmY2CwSLUQ8JKLyyb0aZ0I5O5Jh5q9aRWmNPNDh68oDSdthtG2UlYbXpZcQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH5PR03MB7862
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEwMDA2MiBTYWx0ZWRfX8Buy1TM7wQUd
- xaUZRKo88Fv4gDL1P/kcE4ud+LRnchUcG1Zf3RHHLpTdUrWKTqqierVfwn3Iz2HoN8EbmHptBAY
- QnDzbghGPHXTXD01aZp5SO7vqUGC28ic+Cl7MUd8le7PQqzk09xw
-X-Authority-Analysis: v=2.4 cv=W/qtxhWk c=1 sm=1 tr=0 ts=6af33a59 cx=c_pps
- a=hwAR686YzpmZ7aH69gEPcA==:117 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19
- a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19
- a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M51BFTxLslgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=0sLvza09kfJOxVLZPwjg:22 a=OmVn7CZJonkx5R5zMQLL:22
- a=VwQbUJbxAAAA:8 a=bolBC-KKTCpxfz2DwocA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEwMDA2MiBTYWx0ZWRfXw6vgjpF5SlYK
- hHALji/BXTTq3OrYRC7QNQpd0MF3ibX/2RoazbDeK1k4NOtrAkvyDwr6CRK/yDegrLSMMCNKnps
- kkb4VfGCuCn6k9PkFcgkMVLhW6B2babWEodJYRdUQ61t0f/3VXdqQKuhPeLwzcHIl+vry61AZCt
- DjZLqDn187P8b6rAKCrNHWtvjl8Ycl+hewFd4soUdJfIkvRzU5GRu125hmGKTDnUlZQcbsZKhl7
- FC2JOEx8JiIA6KikLDXaSHb5vjle9Hys4GkGUWcQrlt6E+MViszgVcG3YWO4CvU0Jn6+QfhKEAu
- p4cUh/b0F4i+YCK9dwSFSiFXPnYJB0a+mob2xIeHQW9zIB73ZdZRBiD96RKCzqy+7iNAe/4rmAd
- s6XsK0X9NU/+pxAhluumGHJ4kfPiGTGcPWeSQSw5HorW/quUKOXVwjC5YjVDTKVeh5LH/+d51iV
- i6bZBurNd/goH3iiS2g==
-X-Proofpoint-GUID: xguw2edFALpIk2drdCtE7HoauRhX0SQQ
-X-Proofpoint-ORIG-GUID: xguw2edFALpIk2drdCtE7HoauRhX0SQQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-10_05,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 impostorscore=0 bulkscore=0 adultscore=0 priorityscore=1501
- spamscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611100062
+Content-Type: text/plain; charset=utf-8
+Feedback-ID: :1.eu-west-1.OH8L+a2j9VuJMq9Utm7y7N5SZIBUCzGuSCa3PL2C3F9T7RvQnZ1WsPUpJmIAhzgtiQw73eHenzuz9dr01UwDVSVgYd7eFRHl3azv1IlcMxwID9WFheHWTU6HvPuLbPTkJYw4kFg+q28gLw45+PEMDiK6tT0BxCRKqGL3o1b8OL4=:1.eu-west-1.KEYBhYy5skZtLAf2ooWkoQwfhj0g1VAvm2T4fzvEpSk=:AmazonSES
+X-SES-Outgoing: 2026.11.10-54.240.6.53
 
-On Sat, Sep 12, 2026 at 11:20:47PM +0100, Jonathan Cameron wrote:
-> On Thu, 10 Sep 2026 20:14:15 +0200
-> "Arnd Bergmann" <arnd@arndb.de> wrote:
-> 
-> > On Thu, Sep 10, 2026, at 18:40, Svyatoslav Ryhel wrote:
-> > > __ 
-> > > Hello Arnd! May you please spare AAT2870 from being removed? I have a 
-> > > device which uses aat2870 (LG Optimus 2X P990 Tegra 2, not upstreamed 
-> > > yet, but in process as well) and atm I am working on converting this 
-> > > driver to use OF. Thank you!  
-> > 
-> > Sure, I have removed this patch from my series now.
-> > 
-> > > P. S. If you are planning to remove more old drivers, please CC me in 
-> > > since I may be interested in some additional driver upgrades for 
-> > > devices I own.  
-> > 
-> > Please have a look at
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove-7.3
-> > 
-> > I tried to be careful about figuring out exactly which drivers are
-> > unused, but I'm sure there are still a few false positive and false
-> > negative ones in there. I've added the current list of driver files below,
-> > let me know if you see something that shouldn't be there.
-> Hi Arnd
-> 
+On the Dell Latitude 7400 2-in-1, the Wacom touchscreen (WCOM48CA) does
+not work after resume from S3. Resume runs into I2C timeouts for 4 to 37
+seconds and then fails:
 
-...
+  [37928.985861] i2c_designware i2c_designware.0: =
+controller timed out
+  [37928.986100] i2c_hid_acpi i2c-WCOM48CA:00: failed =
+to change power setting.
+  [37928.986340] i2c_hid_acpi i2c-WCOM48CA:00: PM:=
+ dpm_run_callback(): acpi_subsys_resume returns -110
 
-> 
-> > drivers/iio/adc/ad7793.c
-> Maybe. Analog devices ack needed.
-> 
-> Production part but this one indeed fails to probe.  Analog
-> folk, do you want to fix this one up?
+The controller has a power enable on GPP_B21 and an active-low reset on
+GPP_B15. The firmware sets both up at boot, but ACPI does not describe
+them: TPL0's _CRS only lists the I2C bus and the interrupt, and there is
+no _PS0, _PS3 or _PR0. After S3 the firmware leaves both pads low, so
+the controller stays unpowered and in reset. pinctrl-intel does not
+restore them either, as it only saves pads that the kernel has requested.
 
-Given it's production we should fix. Looking at platdata seems to nicely
-fir in DT. Issue is that I don't have HW with me to test. So I'll maybe
-just remove platdata and assume some defaults.
+Add a DMI quirk that provides the two GPIOs through a GPIO lookup table,
+and power_up()/power_down() callbacks that sequence them like i2c-hid-of
+does: power on, wait, release reset, wait. Holding the GPIOs from probe
+makes pinctrl-intel save and restore the pads, and power_down() drives
+them low first, so power_up() always starts from the powered-down state.
 
-> 
-> > drivers/iio/adc/ad7887.c
-> No to dropping this.
-> 
-> Production part - should work fine with defaults in driver.
-> Could like the others drop the platform data handling.
-> 
-> > drivers/iio/adc/lp8788_adc.c
-> Probably
-> 
-> Sub driver of an MFD.  I'm fine with that going if we know
-> the mfd is no longer in use.
-> 
-> > drivers/iio/adc/lpc18xx_adc.c
-> > drivers/iio/dac/lpc18xx_dac.c
-> Probably
-> 
-> Likewise these two.
-> 
-> > drivers/iio/frequency/ad9523.c
-> Maybe. Analog Devices ack needed.
-> 
+As far as I can tell from the BIOS image, the firmware waits about 9 ms
+after enabling power before pulsing reset, so use 10 ms. Starting the
+first transfer less than 3 ms after releasing reset makes SET_POWER fail
+with -121, while 100 ms and 1000 ms both work; use 200 ms for some
+margin, as I could not find a datasheet value.
 
-Hmm we definitely use this one and we have OF support out of tree with
-likely some DT abuse of what can be in DT or not. Not sure if I have
-some HW around but we'll need to fix it.
+As the touchscreen is not a=
+ wakeup source, the controller is now also
+powered down in s2idle and for =
+hibernation.
 
-In general for ADI parts, I think we can drop the ones that are not
-recommended for new designs. All the others I tempted to say we should
-keep. Naturally we need to fix all the drivers that do not compile
-without platdata. And for the ones with defaults we can also just remove
-platdata and use the plain defaults.
+Tested on a Latitude 7400 2-in-1 (BIOS 1.39.1) in S3, s2idle =
+and
+hibernation (pm_test=3Ddevices).
 
-- Nuno Sá
+AI notice: I threw an AI coding agent=
+ against it which wrote most of
+the initial patch, I reviewed everything, =
+directed the investigation
+and ensured this is a minimal patch. The agent =
+ran the initial tests
+(via a KVM switch), and I tested it on the device =
+myself as well.
+
+Signed-off-by: HoroTW <git@horotw.dev>
+---
+
+Notes:
+    This is my first kernel patch, so sorry in advance for anything I got
+    wrong; I would be glad about any feedback.. I tried hard to match the
+    required ettiquete.
+   =20
+    Background: the Latitude 7400 2-in-1 is =
+a nice device, but it has
+    issues with S3 sleep. As I did not have much =
+time, I threw an AI coding
+    agent on it and steered it in the directions=
+ that looked promising,
+    until it found out what goes wrong and how it =
+could be fixed.
+    I reviewed all of the code and tried to keep the patch =
+minimal,
+    while keeping it readable and oriented me on how similar cases=
+ were
+    handled before.
+   =20
+    - I looked at i2c-hid-dmi-quirks.c and=
+ tried to follow its pattern (DMI
+      match, then device name), but kept =
+the table in i2c-hid-acpi.c, as
+      only this driver uses it, and did not=
+ add a bigger structure for a
+      single device. My thought was that if =
+more models need this, the
+      delays could move into the DMI match data,=
+ as i2c-hid-of-elan keeps
+      them per compatible. I'm happy to rework it=
+ if you would prefer it
+      differently, e.g. in i2c-hid-dmi-quirks.c or =
+drivers/platform/x86.
+   =20
+    - The GPIOs are only requested for the =
+quirked device and with named
+      con_ids, so as far as I understand, =
+gpiolib-acpi will not fall back
+      to _CRS and pick up the touchscreen's=
+ GpioInt.
+   =20
+    - I did not add checks for the return values of the =
+GPIO writes in
+      power_up(), following i2c-hid-of; =
+i2c_hid_core_resume() ignores the
+      return value of power_up() anyway.
+   =20
+    - Only the Wacom WCOM48CA panel was tested. The DSDT can also =
+describe
+      other panels in the TPL0 node; this quirk does not cover =
+them.
+   =20
+    - Test setup: Latitude 7400 2-in-1 (SKU 08E2, board 0HCNR3=
+, Core
+      i5-8365U, touch controller 056A:48CA), BIOS 1.39.1. S3 works =
+with the
+      BIOS "Sleep Mode" set to "Force S3" as well as "OS Automatic
+      Selection". Kernel v7.2.14 with i2c-hid.ko and i2c-hid-acpi.ko =
+rebuilt
+      with this patch: 7 S3 and 5 s2idle cycles, hibernation =
+freeze/restore
+      (pm_test=3Ddevices) and a driver reload. After every =
+resume the touch
+      resume callback returned 0 in about 315 ms and the =
+controller answered
+      HID GET_REPORT; finger input worked after S3. =
+Without the patch, one
+      S3 cycle reproduced the failure. The patch =
+builds cleanly on v7.4-rc2
+      with W=3D1 and sparse.
+   =20
+    - I was not sure whether this is suitable for stable... (I think it is?=
+),
+      so I did not add a Cc: stable tag and would leave that to you.
+
+ drivers/hid/i2c-hid/i2c-hid-acpi.c | 98 ++++++++++++++++++++++++++++++
+ 1 file changed, 98 insertions(+)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid=
+-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+index 4362c85dfa7e..=
+4ff5b4913e78 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
++++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+@@ -20,11 +20,17 @@
+  */
+=20
+ #include <linux/acpi.h>
++#include <linux/delay.h>
+ #include <linux/device.=
+h>
++#include <linux/dmi.h>
++#include <linux/err.h>
++#include =
+<linux/gpio/consumer.h>
++#include <linux/gpio/machine.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
+ #include <linux/module.=
+h>
+ #include <linux/pm.h>
++#include <linux/string.h>
+=20
+ #include "i2c-hid.h"
+ #include "i2c-hid-acpi.h"
+@@ -32,6 +38,8 @@
+ struct i2c_hid_acpi {
+ 	struct i2chid_ops ops;
+ 	struct acpi_device *adev;
++	struct gpio_desc *power_gpio;
++	struct gpio_desc *reset_gpio;
+ };
+=20
+ static const struct acpi_device_id i2c_hid_acpi_blacklist[] =3D {
+@@ -48,6 +56,92 @@ static const struct acpi_device_id =
+i2c_hid_acpi_blacklist[] =3D {
+ 	{ }
+ };
+=20
++/*
++ * Dell Latitude 7400 =
+2-in-1: the touch controller's power enable (GPP_B21)
++ * and active-low reset (GPP_B15) are missing from ACPI, and the firmware
++ * leaves both low after resume from S3. GPIO offsets use pinctrl-intel's
++ * 32-per-group numbering.
++ */
++static struct gpiod_lookup_table =
+dell_latitude_7400_2in1_touch_gpios =3D {
++	.dev_id =3D "i2c-WCOM48CA:00",
++	.table =3D {
++		GPIO_LOOKUP("INT34BB:00", 53, "power", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("INT34BB:00", 47, "reset", GPIO_ACTIVE_LOW),
++		{ }
++	},
++};
++
++static const struct dmi_system_id i2c_hid_acpi_gpio_quirks[] =3D {
++	{
++		.matches =3D {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Latitude 7400 2-in-1"),
++		},
++		.driver_data =3D &dell_latitude_7400_2in1_touch_gpios,
++	},
++	{ }
++};
++
++static int i2c_hid_acpi_power_up(struct i2chid_ops *ops)
++{
++	struct i2c_hid_acpi *ihid_acpi =3D container_of(ops, struct i2c_hid_acpi,=
+ ops);
++
++	gpiod_set_value_cansleep(ihid_acpi->power_gpio, 1);
++	fsleep(10 * USEC_PER_MSEC);
++	gpiod_set_value_cansleep(ihid_acpi->reset_g=
+pio, 0);
++	msleep(200);
++
++	return 0;
++}
++
++static void =
+i2c_hid_acpi_power_down(struct i2chid_ops *ops)
++{
++	struct i2c_hid_acpi =
+*ihid_acpi =3D container_of(ops, struct i2c_hid_acpi, ops);
++
++	gpiod_set_value_cansleep(ihid_acpi->reset_gpio, 1);
++	gpiod_set_value_cansleep(ihid_acpi->power_gpio, 0);
++}
++
++static int i2c_hid_acpi_setup_power_seq(struct device *dev,
++					struct i2c_hid_acpi *ihid_acpi)
++{
++	struct gpiod_lookup_table =
+*gpios;
++	const struct dmi_system_id *id;
++
++	id =3D =
+dmi_first_match(i2c_hid_acpi_gpio_quirks);
++	if (!id)
++		return 0;
++
++	/* GPIO lookup tables are keyed by device name */
++	gpios =3D id->driver_data;
++	if (strcmp(dev_name(dev), gpios->dev_id))
++		return 0;
++
++	/*
++	 * Hold the controller in reset until power_up() =
+releases it. Leave
++	 * power as the firmware set it up, so the reset =
+happens with stable
++	 * power. Owning the GPIOs also makes pinctrl-intel =
+save and restore
++	 * them across suspend; power_down() drives both low =
+first. The lookup
++	 * table is only needed while requesting them.
++	 */
++	gpiod_add_lookup_table(gpios);
++	ihid_acpi->reset_gpio =3D =
+devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
++	ihid_acpi->power_gpio =3D =
+devm_gpiod_get(dev, "power", GPIOD_OUT_HIGH);
++	gpiod_remove_lookup_table(g=
+pios);
++
++	if (IS_ERR(ihid_acpi->reset_gpio))
++		return dev_err_probe(dev, =
+PTR_ERR(ihid_acpi->reset_gpio),
++				     "failed to get reset GPIO\n");
++	if (IS_ERR(ihid_acpi->power_gpio))
++		return dev_err_probe(dev, =
+PTR_ERR(ihid_acpi->power_gpio),
++				     "failed to get power GPIO\n");
++
++	ihid_acpi->ops.power_up =3D i2c_hid_acpi_power_up;
++	ihid_acpi->ops.power_down =3D i2c_hid_acpi_power_down;
++
++	return 0;
++}
++
+ static void i2c_hid_acpi_restore_sequence(struct i2chid_ops *ops)
+ {
+ 	struct i2c_hid_acpi *ihid_acpi =3D container_of(ops, struct i2c_hid_acpi,=
+ ops);
+@@ -86,6 +180,10 @@ static int i2c_hid_acpi_probe(struct i2c_client =
+*client)
+ 	ihid_acpi->ops.shutdown_tail =3D i2c_hid_acpi_shutdown_tail;
+ 	ihid_acpi->ops.restore_sequence =3D i2c_hid_acpi_restore_sequence;
+=20
++	ret =3D i2c_hid_acpi_setup_power_seq(dev, ihid_acpi);
++	if (ret)
++		return ret;
++
+ 	acpi_device_fix_up_power(adev);
+=20
+ 	return i2c_hid_core_probe(client, &ihid_acpi->ops,
+
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+--=20
+2.43.0
 

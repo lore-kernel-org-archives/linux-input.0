@@ -1,70 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.45
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794336614;
-	b=brzsaqLGaCGU8J3YvTJAZm1HUEZOgUCUT43LF9eUsLvqc1YRHmdg7xOfHxyoLXG1whEy
-	 mhF792he5148CMQFIge+XyI//2KSCtv0mUKvHOIl6TCSGXXN3mvFDFmRqFM0xfkWyflV0
-	 zEHSRE3sNSv8OTrFjyGMUAAoftpGEmfCQNdJruXszXolgLhZ1zYaRIZN7qg6stwhD+zPI
-	 KxrJSFa9BUHRzmSGJH/8mmSqwwPCwgJcY6utvVUuJVY8vXcczK+yFKYBVAmk98K53mWL/
-	 mdL1hqgXEifeDMtslUmGGczHJ/CT0ecjWP05mR+YLl6tpVxJ0JFLo5ZtBvvyH1iJA9g==
+	t=1794337070;
+	b=UBNlm6rdLyHGSJ9ajvcLJKYlTgFj/rqrJY7W+JSL75eXSi3OQHxU00z9dGcWqKQxUafp
+	 Z0QXyEE/LJHi9MQG2SsKMR377wTFn84hmU6ey3Z6rCL9EWAW05UI+VFZ3JQLgLAJr+Jvn
+	 mMCn0yWutgKHqwg3pSqAmaqei7yviz8ydayJjiPfezGsmSrEjr50TCTu3FOz9wDYoKrxY
+	 lfQfLi+Y8VURwVY+KFyI9HErU8xnoFKzoA9Gpfz1NRv6hKyM8/cNCHjN/p4mmxBPigoz6
+	 1PuX7Nht+Cbt8gGaIlWp4rEbAvQWnpPuLTHd68J1CMqLXeoJ4ieOjQKxYRnjVzkvFgg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794336614;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
-	 MIME-Version:User-Agent:X-ZohoMailClient;
-	bh=p2IbextAHNaW3yc1BxVBn2/aGRXQasAMIeuG3rdCjBk=;
-	b=5km2jG0imW0Q4vjlaScHit/frfhgXNlu6PmxCEZvJsmLDrmpqwNnZ2TA+B0MlAW8YWuM
-	 TrCOHQ3zmeI4eNjUvsATjC6Fxv5L/hSOrEdI8BW96Sq/3xfhe7MWerNyz6Q+pLDPGyjH6
-	 Imd7mFl8ylz55n18Yb3iWJ8ZhrQH+QhweUK49TXpn553W31/aB7Wf8XXkJcoYZgd7KDAl
-	 u8tAeF2GhbpT18v2X5on5reFZU1QvDVitjD5Zz/L/R7OOsSKI8AUPojwiIuQ8uYV1AeJg
-	 7QqNSlLRUREWQcbMoAGd1+VXkXoX7/HDOrKeD+b5ECSvW6l/oEmKbP6X+qv7YWBMivQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794337070;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=jZ2q7zCDeh9+qJcv+PdbfEkMzzuX6IJChiSNXNctPLA=;
+	b=A9tYe9o+z+sGOykaby5ErjQl7d/lU5pYhvW055sX1Dn52eBlX63jBRTmkbAC+1hRxVHf
+	 8/9u+n2oCJiFkfO0RUFrV/jWZvnGNw0vUy2Pss9MfeuHMPxVjUxH13dfXHUka6+ArIWQx
+	 zvJzWjxzRrcO2v+eDP9Ngb+sQk1GjcBXCiO5tasEMn5bL0RIkH3eurBO1kYAldVUIlBdF
+	 6AEjmqlIhHyeVxcl6qAE0SjAPKkm5C8JB0mJ22aoeC5mkqUMuX29SskbE0xV9rhw6itMf
+	 L7OohrVW5CoXZ48a9XKwD38zIn/0QqUzKgi+aIOhc36dX7QyMgwKKj3mUFJaFMfH9Jw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rong.moe;
-	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=a1KoB3Dw;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=iQtu1cWh;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.45
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13FBA606A326;
-	Tue, 10 Nov 2026 18:50:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 13FBA606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1676760A2606
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 18:57:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1676760A2606
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=a1KoB3Dw
-ARC-Seal: i=1; a=rsa-sha256; t=1794336601; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=grDPv7SKgQrSFE9gJixDo7BJDMd+dbW4ThlRpU+fB1bESKAja6qLRVdJ9bn0J7hbxJgcjHAWAthHyjjwFOKQF621UX8qRkUwo6U6QNpf0h9YyyNgsvZZ1lNp39OAGKRjV11hwQKTaOdrMmAtgCCUEQW4df9iteJcEL2Dv0emwIY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794336601; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=p2IbextAHNaW3yc1BxVBn2/aGRXQasAMIeuG3rdCjBk=; 
-	b=C2LfQDYpC2Dcm32kzPNBz+sVr43JZN8VYpopXy/y/OfDktTLANEc/8ORuEmE5Bafvk/MjSSg4G7cCu9dIqP0fVORos7VZB/6/UeOVy0qvUvtPARCnTjKsLDt0LazHPU2CEYPv9vf+oAvipFEviLh/dRiAOIwMQ+UMu4DLehIHEU=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=rong.moe;
-	spf=pass  smtp.mailfrom=i@rong.moe;
-	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=a1KoB3DwCGJyzDX5CqezHEy2zXPS02WcBI4SE2OmYdMAnlDH1gwcBNgZ0es5Uj80j5SzvvuMgrCwybXxAaErw/U/mMhnUV0WIursHzH0DUFZ96JEkOltmcFN44R5OHjOW4MGXcOIUSf/S7NDBKZfk3Pw3gxOts44J57wX3Goyzhs8ahuwMCI6XwY+qT6Gb38rTEzvh8HUPfPcR0uFQr90XEebzfwr5XxdVmX1+SN2YFSc/5ZjtLhfXsV+CsvJcWej9D4ZNHUofUDcGQX45AlECBz9N4DsCIqt9/OuH+UMNp2O+mMO3oDUvrsR5exc8g1yQ91x15UUxh7jjKnE7mbTA==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=p2IbextAHNaW3yc1BxVBn2/aGRXQasAMIeuG3rdCjBk=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794336598712503.7128319877977;
-	Tue, 10 Nov 2026 10:49:58 -0800 (PST)
-Message-ID: <4d0153a209a7c54ff513eabd3fd87445269279f0.camel@rong.moe>
-Subject: Re: [PATCH RFC 1/2] platform/x86: ideapad-laptop: Ignore keyboard
- backlight hotkeys
-From: Rong Zhang <i@rong.moe>
-To: ciro.pedrini@gmail.com, Mark Pearson <mpearson-lenovo@squebb.ca>,
- "Derek J. Clark" <derekjohn.clark@gmail.com>, Ike Panhc
- <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>,  Ilpo
- =?ISO-8859-1?Q?J=E4rvinen?=	 <ilpo.jarvinen@linux.intel.com>, Jiri Kosina
- <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Werner Sembach <wse@tuxedocomputers.com>, Aaron Erhardt
-	 <aer@tuxedocomputers.com>, platform-driver-x86@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20261109-legion-lighting-rfc-v1-1-a87e1db8c5e3@gmail.com>
-References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
-	 <20261109-legion-lighting-rfc-v1-1-a87e1db8c5e3@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 02:44:53 +0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=iQtu1cWh
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5c14f7768acso1794654e87.3
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 10:57:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794337068; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hmh0LtIKQ8eYVp3XXPSmlB2NGJ/ADELv927Vs1E+OlXkpscQ+c6xjn9K5oHzTHPCcr
+         XzlmnMleM3Dv3XapjnNCzV1sUUx7SDjXk580a7QluVkeQWeHrTbyIeDmHBVVf2DuCMid
+         LxDbzfuXszabwo7VJOB5r3cZ22kwPRaQoEahM4PH1E0deYnD2hct082glYGhV/bvU5Ns
+         Cohn//TEkAQEfNdSf6Sv4hyHYWkmoJjQjtfQKtnCNRF0t1p8aHm4Z6cyGeW3MSJFp+mw
+         x3lttwecWxosadJoMfOwcRqU+4sARwluUP+pyMpYHQF4mr5mDeOMqQ9johgEHC6PBWwa
+         NqqA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=jZ2q7zCDeh9+qJcv+PdbfEkMzzuX6IJChiSNXNctPLA=;
+        fh=/Jt1ImzeOMu5yZW4PYLAcWnunmvUN54JsWS+s/qFWa0=;
+        b=kyh11n/lFRtSNe9e6sliAsgrMQx5fKDdRPyT4LMc7HBU8V/Xom7JG42mhv7Ax2lDGz
+         QbuQ6Q7pabZDF/8mpQEsSDixc7psqySOOd7G9wGDbEjUZcN5OvSS1t6N+jUiJ/87YHbm
+         0ASoqx/o8ya8hLGU+zgCh2Nnkrayn1QXscoGhHVmI/fgjuAyaDPpL6EMNWOzMAEgN/f+
+         MvtSYc/SkD4zWnjkc+9JZS0tAH3ugRi7879UClV22NJcwgpVhF8+Tb5E/2zmMW72bx+9
+         F88BCPLWZ4BkZN6p37BIy6lwTbIGabqPD9e2U4uxPKmHdSEyVXPVYPdrNf9uBL8O1ERC
+         KkNA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1794337068; x=1794941868; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=jZ2q7zCDeh9+qJcv+PdbfEkMzzuX6IJChiSNXNctPLA=;
+        b=iQtu1cWhnOLMlZ4E5YGX7Tg7W/m3OqQiapHg7wYxHLF4F3LmarjWo6O16g6NCVP5/I
+         h6lLQXA8mKzDp5HNFA9ezPw+Tk1ftzV65/nweBFK3hRTbq033BeSICNH87SZNvN82II0
+         0EeyQkE0DJCwIV0l+fpETv1vCCLzlYomtS/Yu5c6H3KuAUuoIqraEm5UbUjQ+MV51/ap
+         jVFX2bWotbz5ty/PLs9cHOlrEqSpBmipZNsED4BQ1rTcPZ5pkNwj+Cl3nmOmqax7QAkn
+         Sz1ONCybN7zHEfCjN3TqINbLN0oKsSnEwQCRRXCwiULshPoqjwdcVXaT+s9TW3i96tUN
+         U5nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794337068; x=1794941868;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=jZ2q7zCDeh9+qJcv+PdbfEkMzzuX6IJChiSNXNctPLA=;
+        b=vlN8fF1gE78YJuking+K5UW71vrX48eV/6kftKqqbEDA7GSA8G8gbKXnX7UelEmumN
+         yUgD0ZuAOHwDq/vNlzBNp/mtp3uCOO7IJ+jV63cCOpNrDYgy8Ajl0CUv3u8EweoVvRBM
+         6FCYTOfMLHEvdKw0J3qMNzaNmCw8B4dVgRJMc4XBoxg28Bk6yoidUZ3Fi7XzbkgDUZ1u
+         fnPSr/lhU2BR+TIEbUN8UL16EMuKXNrduDfYhbF9N4ZtdHQi21yg/UEaSiq47ebvGqKJ
+         8VwFP/6qWtEh6ueZfVT9y4XLUkmizAfqdHob0d16H5SxJD9+J1d9NddgXRhK0f21A98T
+         oQ0Q==
+X-Forwarded-Encrypted: i=1; AL+hErG96RjjyPdGvV3YkQ2FfM7DntB+MFKvisi8S1OqeyF31Fdzg1ocH2+0d80m2T2/kDHXL2IXKXxNAMiqQQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+8kPBqFzgZvWHpjwZuIZkVmX/qcYGAgaT3QaZ04RNrUTzdcv+P
+	ObPDKlqsXEh97hf4OVTIfueCj3eZLBle2uwtaV7EYN0o30bX3cav8abeK9EbFkWs2oXISdIwF1B
+	4QOcaf6uA2Ds7ZIjOoV9hOG3qF+YUYnMMtQa37J+n
+X-Gm-Gg: AYBFou1mNbTy5kMWyByIehFUIf7I2T0NunB51jiBbLBib0b5Mq29QCej9C6dOobLus/
+	vaQOU1H5hgHBaZvcXuGzsgVj2qx0OG4vgMsqCNhzp9vIyx53KCBpd6q1W9JYB/xj9bumV2O5oLL
+	k7Ww+NFN0dUvDgHpL6bq5uzUP4P/VyLcQDhlKflc7UtqZOv65aQiPdM854akh5RPSGIWIZUfiz+
+	AeWRiRJsCJHsnoQI6uSrIg78JTZ0Y2Q0eVT7g3dTK9BB922MjchO6bjC8x1Vq3vZzCnW4vDwKhY
+	r3Dgifa1vaQPjoRP+IUZ+vG5lnqAflQWQZ8B6UoZrghCswcJUgoBKT7MhiswI+4MG78rNbaVi+B
+	EHHAjqWhHHJmFL42WJy78royGiCnq+OibWXBb+aqU1dZvlHVT0mMvNtSIYIZVvPJgdR0=
+X-Received: by 2002:a05:6512:2381:b0:5c0:a80:2837 with SMTP id
+ 2adb3069b0e04-5c156ea57c8mr1243048e87.45.1794337067799; Tue, 10 Nov 2026
+ 10:57:47 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,56 +104,71 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Evolution 3.62.1-3 
-X-ZohoMailClient: External
+References: <20261110020632.4003499-1-svv@google.com> <avKAaJxlxE8gOYVV@google.com>
+In-Reply-To: <avKAaJxlxE8gOYVV@google.com>
+From: Siarhei Vishniakou <svv@google.com>
+Date: Tue, 10 Nov 2026 10:57:31 -0800
+X-Gm-Features: AclHuK_Y7tuYVtqC14Xyd8VRbI_P-1UHcUvd0-bsysWD1j_K221SrIMS6_jP6lg
+Message-ID: <CAKF84v00nJ_+2Tf8m66LhGEKvqnHb26YD6p+FRUXK5juYEPQZA@mail.gmail.com>
+Subject: Re: [PATCH 0/3] Input: add ABS_TWIST and support it in HID and Wacom
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2026-11-09 at 22:50 +0000, Ciro Pedrini via B4 Relay wrote:
-> From: Ciro Pedrini <ciro.pedrini@gmail.com>
->=20
-> On the Legion Pro 7 16IAX10H, Fn+Space (backlight effect), Fn+Up and
-> Fn+Down (backlight brightness) emit WMI fn-key events 0x21, 0x1a and
-> 0x19, which the keymap does not cover, so they reach userspace as
-> KEY_UNKNOWN. The keyboard's USB controller handles these keys itself: it
-> switches the effect or changes the brightness, and reports the new level
-> on its own HID interface. Ignore the three events, as is already done for
-> FnLock and Esc, rather than mapping them to KEY_KBDILLUM*, which would
-> make userspace change the brightness a second time.
->=20
-> Tested on the 16IAX10H with 7.2: with the change, evtest shows no events
-> for the three keys, and the keyboard still switches the effect and the
-> brightness.
->=20
-> The change and this changelog were prepared with Claude Code (Claude
-> Opus 5.5), from measurements on the laptop (evtest on the "Ideapad
-> extra buttons" device); I reviewed and tested them.
->=20
-> Assisted-by: Claude:claude-opus-5-5
-> Signed-off-by: Ciro Pedrini <ciro.pedrini@gmail.com>
+=D0=BF=D0=BD, 9 =D0=BD=D0=BE=D1=8F=D0=B1. 2026=E2=80=AF=D0=B3. =D0=B2 18:25=
+, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>
+> Hi Siarhei,
+>
+> On Mon, Nov 09, 2026 at 06:06:29PM -0800, Siarhei Vishniakou wrote:
+> > Some styli can report rotation along their long ("barrel") axis,
+> > commonly referred to as "twist". While the HID specification defines
+> > this usage as HID_DG_TWIST (0x000d0041) in the Digitizers page, there i=
+s
+> > currently no corresponding evdev axis code to expose it to userspace.
+> >
+> > Because evdev has no MSC_SCAN equivalent for axes, drivers and OEMs
+> > currently work around this by mapping stylus twist onto unrelated axes
+> > such as ABS_Z or ABS_RZ. As a result, userspace input stacks must
+> > maintain device-specific workarounds to know which axis carries twist.
+>
+> How is it different from orientation?
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-Acked-by: Rong Zhang <i@rong.moe>
+ABS_MT_ORIENTATION describes the 2D angle of the contact ellipse (or
+tool projection) on the surface of the touchscreen. Looking strictly at tha=
+t
+initial sentence in multi-touch-protocol.rst, it sounds promising:
 
-Thanks,
-Rong
+> ABS_MT_ORIENTATION ... The value should describe a signed quarter of a
+> revolution clockwise around the touch center.
 
-> ---
->  drivers/platform/x86/lenovo/ideapad-laptop.c | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/drivers/platform/x86/lenovo/ideapad-laptop.c b/drivers/platf=
-orm/x86/lenovo/ideapad-laptop.c
-> index 91a8d11c79c5..8b6c08b21c8d 100644
-> --- a/drivers/platform/x86/lenovo/ideapad-laptop.c
-> +++ b/drivers/platform/x86/lenovo/ideapad-laptop.c
-> @@ -1336,6 +1336,10 @@ static const struct key_entry ideapad_keymap[] =3D=
- {
->  =09{ KE_IGNORE,=090x02 | IDEAPAD_WMI_KEY },
->  =09/* Esc (handled by the firmware) */
->  =09{ KE_IGNORE,=090x03 | IDEAPAD_WMI_KEY },
-> +=09/* Keyboard backlight down, up and effect (handled by the keyboard) *=
-/
-> +=09{ KE_IGNORE,=090x19 | IDEAPAD_WMI_KEY },
-> +=09{ KE_IGNORE,=090x1a | IDEAPAD_WMI_KEY },
-> +=09{ KE_IGNORE,=090x21 | IDEAPAD_WMI_KEY },
->  =09/* Customizable Lenovo Hotkey ("star" with 'S' inside) */
->  =09{ KE_KEY,=090x01 | IDEAPAD_WMI_KEY, { KEY_FAVORITES } },
->  =09{ KE_KEY,=090x04 | IDEAPAD_WMI_KEY, { KEY_SELECTIVE_SCREENSHOT } },
+However, the rest of the section clarifies that this is the alignment of
+the contact ellipse with the X/Y axes, not the "twist" of the finger
+itself. In fact, the docs note that orientation can be omitted if the
+contact area is circular - even though a circular finger or stylus tip
+could still spin in place, and that rotation would not be conveyed.
+
+For a stylus, orientation is equivalent to the tilt
+projected onto the touchscreen plane (which single-tool stylus drivers alre=
+ady
+capture via ABS_TILT_X / ABS_TILT_Y).
+By contrast, the proposed ABS_TWIST can be thought of as keeping the
+stylus at a fixed position and tilt angle, and using two fingers to roll
+it in place like a pencil.
+
+This also matches the HID Digitizers specification, which defines
+Azimuth (0x3f, rotation of the tool projection around the surface Z
+axis) separately from Twist (0x41, clockwise rotation of the tool around
+its own major axis), and hid-multitouch already maps HID_DG_AZIMUTH to
+ABS_MT_ORIENTATION. Since styli can report tilt/azimuth and twist at the
+same time (and single-tool pen devices don't use ABS_MT_* events), twist
+needs a dedicated axis.

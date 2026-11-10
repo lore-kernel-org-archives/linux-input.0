@@ -1,110 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794303369;
-	b=v2YyI/0GQ+bBJXap4IBrvbbWbh9oHUKIFJU36vfwf+U4EJs7Ysq62FjK5hElv4HFoP96
-	 Wf11C+Go3HhfUYODSI+ewNlAwg4fKdBKWJFkRkaq32r+EePgoU3v/3+a6Q+Up/Dvs8uwb
-	 JQP2RVJxDI00dD7TcqzTzaFXrwkmm7ZECIrgi35Pr1fxtaocfTP+Ezzpq9HLl7QT+I2uE
-	 5kXwAIW+RpobbAY9sVzGfxb9OCX4yqNES65SP2E5SCciTOQzO2N0RJlX5MFjRKe65zEg4
-	 FgouOzs5B929qFXu8XYt5eq8hzKLZuM+2EaQQAdsFzNaR52UCtuXPxTqQpiL3t/avdQ==
+	t=1794304636;
+	b=30pLnqNckcXJRYGX7fYRyhElcdumzKKIQF5+XNLXvAFyLUMR7LOywhGnjrfgFgYpfpdR
+	 oDZ63Id0eJPcblZnUaBIddKqnlpO/llBrgE4B3ScxpNhlchjMzqwGIqLGjHDaIdR1mxOA
+	 x0EDx/0x6j3KCADmsmLW+HlkipU9A5TWXipPh4p+q5QMhNfthA1v1Lb7h2cz01Pjam586
+	 bzrQ4kxRrz9AKS17j/LdgSAA+Ou4rjs9FwFEhZlF5BlzXrMMVnzDicC15CPvn9mGSx1/H
+	 zJir2wp8Yml1xjEOT6JJApCTfT8yFFx97FBk1Vm/lI/L9Tv5mOgO+DMOPueCI7AJvNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794303369;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Gm-Message-State:X-Gm-Gg:
-	 X-Received:X-Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:From:Subject:To:Cc:References:Content-Language:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Proofpoint-GUID:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=KWpsyFS5zmqpu6fidEJLwk7XXELkfysy/CkXhYTqYPk=;
-	b=yQUVliTzVCcwHY5Hr4EmM8CeP8oAtfvsetltL5btsHKeGggZq+vgLCVf+C3kMJyzgPG+
-	 td4ynNA8oB4Oib69zAurvA7LRe9qM0It6+hZBBca8zuxI0ghT+9+cn4KKzCFTLxQEbJvZ
-	 7sAyUBzb77nc1Qx02oPCIzVLM/5ZXsaD2nx7umR7ccvigSAMLot0QcHlUIx1A26KejaTs
-	 YRe87UM0mR0irvAa+Y840+jCsEJ+0AoOY/OGn79jlPzSeEkSgtXj1XOH2R84XbHpbw9Xa
-	 YkB8vsAaTYm0jSxRShxIatix5xwxyK72tX3G4IuljOMa01G/vlM6uPKTFWPrtzlgeYg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794304636;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=dlNXIhv6eqGscBTk6V4oYMM/cSYpSBGcNmWx8Y14Imc=;
+	b=xexrwJGRyEpmiDugoZCM6u8yTYGy97wOkq6CVTF9icpmW2OpbVj0sovP0XlKxZA0C3ii
+	 MqMXT5bYN3fwJ74GmH7w55C4Rgb/VoqM93+Xrbqd08EgP9Q5bu0jquAz77pZU0HStlMfW
+	 9PLDjVAXEZHqS1VCNsY2pimpHwiRdMDXv/e0ByUoYrEGEhpTB5PrP04JvHF651Om319vG
+	 VheoWCkhPA50nDmf9rqJ6SKZdhn0Ps2lcxHdX2EX7lbOndjgjGYDjo9nyHRr1MJwd4phb
+	 GDRBu0AS55bXLDxXmf5gVyMCareI+Ag7MuUmp3nWaK7/mffgaVr6N9CSNe7PQ9GExEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=Kufu+Jp6;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=OCafPhRm;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QbIewryO;
+	arc=none smtp.remote-ip=209.85.221.52
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D8A4606DA0E
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 09:36:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2D8A4606DA0E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C326606A33E
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 09:57:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4C326606A33E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=Kufu+Jp6;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=OCafPhRm
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AA8WCEj2833758
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 09:36:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	KWpsyFS5zmqpu6fidEJLwk7XXELkfysy/CkXhYTqYPk=; b=Kufu+Jp6a7+GNsJW
-	3ScuQg+AGVrejBQL/2+FcKCmGA6ixVY1zb4SyaTVPLey6yjNm/6Zn7hzCZOsFOAe
-	9jRwBe7tvcZgUoglxl8XfFp+I5HuL0QEfxmFQYdxMDA4x9WKSmQr4opad8StKuJB
-	s/hfj/J1LmEveaV/XIT1uNc4ztwOfgL7mZbTeWe9Amqj1MQz3cmmPBQVaOFOrW6z
-	fVrZsDntpSdq5wE79DRgtg9DojA5kGvG8zEep2jL+7QoCt7WupoTAy9izZHG3NFa
-	VaXHReH4Cd+TqwSdFJig+dghv/rUYSiEETHuddb4EEVKwFU4emEEeiE/ufRi98mQ
-	Q/MxBQ==
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4huyufr8c6-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 09:36:08 +0000 (GMT)
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-9308eafb465so341866385a.2
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 01:36:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QbIewryO
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-48e46e449e8so1200612f8f.3
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 01:57:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1794303367; x=1794908167; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KWpsyFS5zmqpu6fidEJLwk7XXELkfysy/CkXhYTqYPk=;
-        b=OCafPhRmVWtGbTkAcKCmtAJA9zgD3Q9e1evDVpjPN067MaID3/ONJ9kwdQbbNNsaM1
-         /cStoT39lsD+72As2qsiYLgbazuTYsg4k7uzle1hWeHq0sxDFc8QOUrAtym9yvvr2AwC
-         N8lIzA+HNkYzaK4VLA9EhjASc1KlqSTSd/uRwr6enwx3l+nGVb+uwX86ulpaM2dhhbOk
-         iDh4fQz6h61Fgq5tPLwsDtPSmHp0rAUrlsEDi5vh3JnOlH4gmeGLE+Om16HxYmQ63OWt
-         SrHnfPhDbQJgjhTuh+8GoPD5YD/ZwJYWlTyclYDyZ1iJKrT+YNzIrgXzLTKAYqR32e14
-         YpxQ==
+        d=gmail.com; s=20260707; t=1794304635; x=1794909435; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=dlNXIhv6eqGscBTk6V4oYMM/cSYpSBGcNmWx8Y14Imc=;
+        b=QbIewryOXADThCJKESyB/mEZaODTY3TSpRho1nFLWL0pAx0MO221phtDSk3mI0m4Sq
+         RadYaAh/mMG3AP+YzNkkvIiNbuL1St4FgJ8bMNOo2E26RF1OveTbRlUA2CV1y6f56K6v
+         HcvzqleQ8XOmmJ72FMS455THY26dKCJt6rIoqneEM9yKZ4ocvTNgobEYbtJ51REZWp6S
+         53LtokTK8iz3fAfQaKqHxRYEJp6yNbcU91qY5za8cwCigkalrlk3eY2cjUWU+Pzrcqi9
+         +Tj7tiCjBjGvItC/4/w/HAAippFWyrZH6BBu8W4bamEe1rFrdJCwOv/bxfTVEC8llMkd
+         HLAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794303367; x=1794908167;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=KWpsyFS5zmqpu6fidEJLwk7XXELkfysy/CkXhYTqYPk=;
-        b=mPxD53hIVEfPDtOL4mR6DK/+yXL6yewWUWrojEf3v+xN1zJBDun1jE261YwV7ENNwl
-         WmU+5SjG89hsFIl66weF3dtleMDAJYHC9Cv7HSs8oXTla7duNl/E8xPDdDCnpSu9VOzY
-         Dx2P/JLgbdeqJEMRQ3L+L86n3Kpn67z3IZrdcmhcuBucxlKVHKfkLtAbS3ZcEmZTP22f
-         eUJ8HIN3GPMEz5YuE9EtWuQu3uN2VaOB/GTASZC6LXVhHvLJUcMVJbYiiAE8sm7Qw9G7
-         9bAAZ0alN2ExB63yFDEtW2cKsozMZ5Dq9lif1jzqra8fMGdb/0DFzYyUgTJiirO6zQqn
-         3pGQ==
-X-Gm-Message-State: APuU4Z9kFFhjGUineM3dg/KjLSVCO1K2dvOKT9fhn2BBJHh7gQnr4tBn
-	B9ATy594b3pRa+tDI7QeGHFfj3QFqlW0FzwPMnXo25Zt2BH7+/XsKHICPj1qmD9QNZOy/rfj+Ti
-	1jKUDMApuIOsULe5nRiNYokVuZIqXZ56NFVaxsGLPaypFdf7KxRXxaC3bAU971ACvFQ==
-X-Gm-Gg: AYBFou3D+zTvv1nKBtsDRzGgBR5hwJyKDID85GCbFy+VxgsiP5UkBOzKpRp8LvftopB
-	axBLN41rBFCvBeHHNb8yLVXyKMymFtsrg51SNCuwpNrWvPFg3bMKK5h/CmXZTD9iJUxs46V96AS
-	K6nkpp1y/W45xmgSYakB0g+G2OkKYOIZLbIj9Bz8JACbTJJ75R6MDUv7BE49w0VgtEpud5l08vi
-	JmVabrahEVUFTjARvVFyUsNwOxsPelYsbZAVVsaVjvIK19crqhSmwBXPRBN6pJiz4XoPCuW3w/G
-	rFZSHvfII1NHlBhONk4RI0NlPIqgyXjUJ/uXSrUUxVo0/U2wyh76l2Kl++mKtB6vhD3hiuozi3F
-	418GRtGWxrIrI17zPf6IBA+830KSUku2BJ7Od6G64QDD/WxWQaU1jbbz7UlbZBtgSF0EQ9WSvLQ
-	vm4gdXPNNwbcUnfgI58GEvVdSR7Q58mCI5fFXOVr5TBppDZlWuuPNK1qdbVyIKo/CoCgChXJQyV
-	C6gb6CGPCe+1vNvOXpeCoqpaNS6ZSioHwCyrxa07kw=
-X-Received: by 2002:a05:620a:450c:b0:93f:1ca9:f2f6 with SMTP id af79cd13be357-9479f3f113emr321727885a.77.1794303367108;
-        Tue, 10 Nov 2026 01:36:07 -0800 (PST)
-X-Received: by 2002:a05:620a:450c:b0:93f:1ca9:f2f6 with SMTP id af79cd13be357-9479f3f113emr321725985a.77.1794303366649;
-        Tue, 10 Nov 2026 01:36:06 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b757823d01sm930032a12.2.2026.11.10.01.36.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Nov 2026 01:36:05 -0800 (PST)
-Message-ID: <032eb56b-89b8-4b5e-b291-4d4955e87009@oss.qualcomm.com>
-Date: Tue, 10 Nov 2026 10:36:05 +0100
+        d=1e100.net; s=20260707; t=1794304635; x=1794909435;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dlNXIhv6eqGscBTk6V4oYMM/cSYpSBGcNmWx8Y14Imc=;
+        b=x/cOqv+htXRB2p4ns1xDm/pzVQuDjnULgei3bEghbJscG3fgMLoCoSTRt3tuPkKgVC
+         gi7/bKYvr7J6pbUXBNCASAv2gvKYklX9MaEU2R6bBIHccIn7FKYrUJnaOhoB7CaaPew7
+         ShgyRuej/FKfG4r6vwIFgrfdg7peFGbrX1d4KNaNmFguMDGzdkLz2Pmtt9/1olt67Qpa
+         U/tR26ArarVG3bvPHEMdUEWCzoN9Frf9J1/JR8kJacwoYXaRJC9AnyJTlpPYyQLcBBc4
+         dEQX/vHQkqLKHbXhLDjfPgv1BAByO9Kfz+04g224iQBVg4T7WeX4F2tKL1vf0DYiNOBd
+         MphQ==
+X-Forwarded-Encrypted: i=1; AL+hErFIcm2caL4IYRt3ryekyZpFL+UBV1dcHDbUyfxnvGSX+sG9X1WPhafmtM5p02EDQOwrhF9rVV3KNQ1KxQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9bNtZVdUKUOx04jR3gpFnny4Uddzl1MCV84OM48SBPzXkvO0yw
+	Ep+hf0yQu6Zcg2rzucx4e+/39TmEgWnZ5ofTAUDQBGQaEoPMl92gM1WaidJ+uk7+
+X-Gm-Gg: AYBFou3JrG8r3YXiL0PV9JiKntsXh0cvosfHWcQsYqcfMoxDq3tYovLROi3eKzFPVH6
+	vx7hYvwwRTvxvG0pFPUdbMzYvu8Ftgy+O4Ki69beB1l5TzXBJ7dONcCH+8LI3l3iB1Y0v83ZakA
+	TWlBF5V3YihgadoIwj2mb6quyxSE/Is3QkMU59a0wpfRV0fvhV4oSuJfDMzoeSus2AFXp64Syhb
+	mt2SfV5gCqIMLEdMR4jTO1ygzdmP1/4R7qTeFe54CvTnDuj2YQPND6mYLQFwMOJHwmGkcAKyXVy
+	QHcAstPpdLRw5jTFSJb1YYR7/mroNm9+YLnzPqshDzEsq6VcqoCXDHHhXFvSzKZ+rTr+Fa8Dfff
+	S7GLDOeyRuTv0gLfPLD1lDWp2SVsUjGEtcBCBQ7rpDFKH9iI/0nMTXCJVnnXEdaGVpyjRQt1F/1
+	ITCMjqtJn8Yx10r/fAcH8IEVyUoGVR7wo5XcgFnldahG6tVLKdzovYSz1TkZZzmVk961zsy4KVn
+	R9GQE0tbgFr+MifhO45xAZsmrEF1R9hzySbZgod8XgP3VCjr5mXPBrlEmyz//Yx0CJtHLEkNr36
+	vaGqNNMPQKp3l8QeLMIiPCC8vZGeUozNYCJZcw==
+X-Received: by 2002:a05:6000:38b:b0:491:620b:b60f with SMTP id ffacd0b85a97d-4983133e775mr4115106f8f.48.1794304634600;
+        Tue, 10 Nov 2026 01:57:14 -0800 (PST)
+Received: from foxbook (bfj76.neoplus.adsl.tpnet.pl. [83.28.47.76])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-498367ba82csm4367740f8f.50.2026.11.10.01.57.13
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Tue, 10 Nov 2026 01:57:14 -0800 (PST)
+Date: Tue, 10 Nov 2026 10:57:09 +0100
+From: Michal Pecio <michal.pecio@gmail.com>
+To: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: Olli Salenius <opsalenius@gmail.com>, linux-input@vger.kernel.org,
+ bentiss@kernel.org, jikos@kernel.org, linux-usb@vger.kernel.org,
+ git@mayer-bgk.de, "hadess@hadess.net" <hadess@hadess.net>,
+ "srimanachanta@gmail.com" <srimanachanta@gmail.com>,
+ "mathias.nyman@intel.com" <mathias.nyman@intel.com>
+Subject: Re: [BUG] HID: steelseries-arctis: NULL deref in xhci_urb_enqueue
+ from status timer during resume from suspend (Arctis 9) -> system hang
+Message-ID: <20261110105709.5fdec4a9.michal.pecio@gmail.com>
+In-Reply-To: <079cf13d-542b-4084-9023-06a89fa4ea97@linux.intel.com>
+References: <CACQx0bG8+c9+CjLRa-tbgGkc5_4Wxhmanbd2vToo8Aj8k_WUYw@mail.gmail.com>
+	<CACQx0bG4bvt4bHa+WG4u2UGmUc_YMUnhpWovz5+rzp76Jpb9ZA@mail.gmail.com>
+	<079cf13d-542b-4084-9023-06a89fa4ea97@linux.intel.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -114,174 +103,124 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Subject: Re: [PATCH] HID: lenovo: suppress spurious F23 key events on ThinkPad
- T14s gen6/7 snapdragon
-To: Mark Pearson <mpearson-lenovo@squebb.ca>,
-        "Derek J . Clark" <derekjohn.clark@gmail.com>,
-        Jiri Kosina
- <jikos@kernel.org>,
-        Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org
-References: <20261109214349.391853-1-johannes.goede@oss.qualcomm.com>
- <d66407e5-a057-4149-9ad8-1f0dd0c2d6a8@app.fastmail.com>
-Content-Language: en-US, nl
-In-Reply-To: <d66407e5-a057-4149-9ad8-1f0dd0c2d6a8@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-GUID: 8qA5RPiK2MNHpNW8VJNOSEv5yI1aZyWC
-X-Authority-Analysis: v=2.4 cv=S6lMU4sP c=1 sm=1 tr=0 ts=6af2e588 cx=c_pps
- a=50t2pK5VMbmlHzFWWp8p/g==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22 a=NEAV23lmAAAA:8
- a=EUspDBNiAAAA:8 a=w4lYrviVjwiVwymeGf8A:9 a=QEXdDO2ut3YA:10
- a=IoWCM6iH3mJn3m4BftBB:22
-X-Proofpoint-ORIG-GUID: 8qA5RPiK2MNHpNW8VJNOSEv5yI1aZyWC
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEwMDAzOCBTYWx0ZWRfXwjepf2805kpn
- sJyporzYQhtOarE1k9IPzDsWuC+tUrfXMsB/BK3fH8Lzh5Rt0IphMzaaehjMG0nf6i7RdFs3eag
- w8+svmFQROgq/S3EMD0+bVVxaIlJva8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEwMDAzOCBTYWx0ZWRfXz5AuPnvLBnyy
- NV87JCKcoKb6gGhDWype9iT50l9CU0V/8htqDc5VptkLpU0NXWWUeoIVre6aOBLZRL4FYfS2Xzf
- WsDhqXoBwiO7S10eD/dMDDK9yboSpV9aQCLfY+xK66rO8mVoQoDfMODOJbablJ1Z2wF0RO+KkZN
- MApaLogrM26t6tNuE4fuM1YhEGsteNvmp9egWEudbcKu1+KisSZqmZLXVkNwNlbEi/+5SX7qBLH
- 2wHBz3SVAywRXCef6kcCI+J2rhBQtDFMv/pk9Z081MbdCt9rvbSkT0APA+jbkKx2KWkKHMav+kU
- 0JGH4ZaYKIfmH48d6vFZQ3Gr2f5kaKVOfHC/JlcpXvQnx011/Ozfn1TPLtCasEvkj3c/Ppy+OC1
- VjgRg9tDvyY/hYjXyWs7RsGQBgTRu2UKdhYQBM4+EdfCwnMpOUUjMa/8o+xQZ8ioblnPOZTkSXI
- t/KdIWYi3LVXq6W/fMg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-10_03,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- spamscore=0 clxscore=1015 malwarescore=0 bulkscore=0 adultscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611100038
 
-Hi,
+On Tue, 10 Nov 2026 10:34:24 +0200, Mathias Nyman wrote:
+> On 11/8/26 09:35, Olli Salenius wrote:
+> > The hid-steelseries-arctis driver reliably-but-intermittently freezes the
+> > whole machine on resume from suspend (S3 and s2idle). The battery/status
+> > polling work submits a HID control request to the Arctis 9 dongle while
+> > the device is still being reset/re-enumerated by the xHCI controller after
+> > resume, which oopses in xhci_urb_enqueue(). The oops happens in a context
+> > that takes down the system (keyboard dead, no log reaches disk); I could
+> > only capture it via efi-pstore.
 
-On 10-Nov-26 01:49, Mark Pearson wrote:
-> Hi Hans
+This driver should stop submitting URBs to suspended devices.
+
+> > Steps to reproduce
+> > ------------------
+> > 1. Arctis 9 dongle plugged in, hid-steelseries-arctis loaded.
+> > 2. systemctl suspend (deep/S3; also reproduced with s2idle).
+> > 3. Wake. In roughly half or more of the attempts the machine hangs: black
+> >     screen (occasionally the desktop appears and then freezes), keyboard
+> >     LEDs unresponsive, hard reset required.
+> > 
+> > Every resume on this controller logs:
+> >    xhci_hcd 0000:02:00.0: xHC error in resume, USBSTS 0x401, Reinit
+> >    usb usb1: root hub lost power or was reset
+
+We are resetting the host controller, all devices will be reset-resumed,
+all xhci-hcd per-device state is being freed now.
+
+(BTW, this happening to AMD chipsets every time should be fixed soon.)
+
+> > after which the dongle is reset/disconnected and re-enumerated, sometimes
+> > with "device descriptor read/64, error -71" retries taking ~2 s. The crash
+> > happens inside that window.
+
+At this point xhci_resume() should have completed and USB core is
+performing those reset-resumes. The device has been resumed and reset,
+its xhci-hcd state should have been reallocated, and now it's being
+enumerated again (with mixed success, apparently).
+
+> > Oops (captured via efi_pstore)
+> > ------------------------------
+> > [  116.909249] PM: suspend entry (deep)
+> > [  119.777239] ACPI: PM: Waking up from system sleep state S3
+> > [  119.920603] xhci_hcd 0000:02:00.0: xHC error in resume, USBSTS 0x401, Reinit
+> > ...
+> > [  123.275980] usb 1-3.1: WARN: invalid context state for evaluate
+> > context command.
+
+This bug is unrelated and likely harmless here. But this tells us that
+xhci-hcd device state may be freed and recreated a few more times.
+
+> > [  123.300361] BUG: kernel NULL pointer dereference, address: 0000000000000020
+> > [  123.300363] #PF: supervisor read access in kernel mode
+> > [  123.300365] #PF: error_code(0x0000) - not-present page
+> > [  123.300367] PGD 0 P4D 0
+> > [  123.300369] Oops: Oops: 0000 [#1] SMP NOPTI
+> > [  123.300372] CPU: 1 UID: 0 PID: 287 Comm: kworker/1:2 Not tainted
+> > 7.3.1-1-cachyos #1 PREEMPT(full)
+> > [  123.300375] Hardware name: ASUS System Product Name/TUF GAMING
+> > B550-PLUS, BIOS 3645 09/10/2026
+> > [  123.300377] Workqueue: events steelseries_status_timer_work_handler
+> > [hid_steelseries_arctis]
+> > [  123.300381] RIP: 0010:xhci_urb_enqueue+0x1c8/0x350
+> > [  123.300386] Code: 0f 84 58 ff ff ff 48 8d bb 48 02 00 00 49 8b 44
+> > 24 40 8b 88 70 05 00 00 48 8b 83 a0 03 00 00 48 8b 04 c8 48 8b 90 88
+> > 12 00 00 <f6> 42 20 01 0f 85 c9 00 00 00 f6 83 d8 03 00 00 01 0f 85 f1
+> > 00 00
+> > [  123.300388] RSP: 0018:ffffcde6417d3cd8 EFLAGS: 00010002
+> > [  123.300390] RAX: ffff89fb0b84a000 RBX: ffff89fb01eb8800 RCX: 0000000000000002
+> > [  123.300391] RDX: 0000000000000000 RSI: ffff89fb015f9800 RDI: ffff89fb01eb8a48
+> > [  123.300392] RBP: 0000000000000000 R08: 0000000000000001 R09: ffffffffb8810860
+> > [  123.300394] R10: 0000000000000001 R11: ffffffffb6e6a730 R12: ffff89fcb89bc780
+> > [  123.300395] R13: ffff89fb01eb8800 R14: ffff89fd2854ee00 R15: 00000000ffffff94
+> > [  123.300399] CR2: 0000000000000020 CR3: 00000002d7e75000 CR4: 0000000000f50ef0
+> > [  123.300401] Call Trace:
+> > [  123.300402]  <TASK>
+> > [  123.300405]  usb_hcd_submit_urb+0x91/0x190
+> > [  123.300408]  usb_start_wait_urb+0x8f/0x1d0
+> > [  123.300412]  usb_control_msg+0xdd/0x150
+
+Offending URB is submitted to ep0, which generally "always exists".
+
+> xhci should not crash even if something is misbehaving and sending
+> URBs during resume. The timer should also be fixed, but I'm now only
+> looking at the xhci side
 > 
-> On Mon, Nov 9, 2026, at 4:43 PM, Hans de Goede wrote:
->> The Lenovo ThinkPad T14s gen6/7 snapdragon version I2C-HID keyboard sends
->> spurirous F23 key-events when the Fn key is pressed/released. Leading to
+> There are some pending xhci fixes in this area. Michal just posted a
+> patch that touches the "WARN: invalid context state for evaluate
+> context command" case in your log.
 > 
-> Minor - typo (spurirous)
-
-Ack.
-
->> e.g. garbage ESC-sequences in the terminal when doing FN key combos.
->>
->> A hwdb entry was added to map these to KEY_UNKNOWN [1], but this also maps
->> the F23 part of the left-meta + left-shift + F23 combo send by the co-pilot
->> key to KEY_UNKNOWN making that key unusable.
->>
->> Add a raw_event filter which removes any 0x72 codes from the 6 scancodes
->> reported in the standard HID keyboard boot protocol report, but only when
->> the report's modifier byte is not 0x0a to preserve the F23 press event
->> when the co-pilot key is pressed.
->>
-> Interesting - I'd missed that.
+> I added another patch for the NULL pointer deref.
 > 
-> Should I be flagging this to the FW team? I think I'm unlikely to get anything fixed at this point realistically - so don't want to block the patch...but if there's something we can learn from this for maybe the next generation?
-
-For future hw it would be nice if just pressing Fn by itself would not send
-any spurious keypresses. Or at least not on the I2C-HID side. If this is
-an EC event instead we can just filter it in the EC driver.
-
-
->> Link: https://github.com/systemd/systemd/pull/44733 [1]
->> Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
->> ---
->>  drivers/hid/hid-ids.h    |  1 +
->>  drivers/hid/hid-lenovo.c | 21 +++++++++++++++++++++
->>  2 files changed, 22 insertions(+)
->>
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 994e8bc69924..70d18d32fe3c 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -473,6 +473,7 @@
->>  #define USB_DEVICE_ID_EDIFIER_QR30	0xa101	/* EDIFIER Hal0 2.0 SE */
->>
->>  #define USB_VENDOR_ID_ELAN		0x04f3
->> +#define I2C_DEVICE_ID_ELAN_LENOVO_T14S_KEYBOARD	0x000d
->>  #define USB_DEVICE_ID_SB974D            0x0400
->>  #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
->>  #define USB_DEVICE_ID_HP_X2		0x074d
->> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
->> index 30bd3f794243..e997d0cf2672 100644
->> --- a/drivers/hid/hid-lenovo.c
->> +++ b/drivers/hid/hid-lenovo.c
->> @@ -812,6 +812,22 @@ static int lenovo_raw_event(struct hid_device *hdev,
->>  		      size >= 4 && report->id == 0x03))
->>  		return lenovo_raw_event_TP_X12_tab(hdev, get_unaligned_le32(data));
->>
->> +	/*
->> +	 * Lenovo ThinkPad T14s gen6/7 snapdragon version filter out spurious
->> +	 * F23 events when Fn key is pressed. F23 cannot be unmapped because of
->> +	 * the copilot key sending left-meta + left-shift + F23. Filter report 8
->> +	 * (keyboard) scancode 0x72 (F23) when the modifier byte is not 0x0a.
->> +	 */
->> +	if (unlikely(hdev->product == I2C_DEVICE_ID_ELAN_LENOVO_T14S_KEYBOARD &&
->> +		     size == 9 && data[0] == 8 && data[1] != 0x0a)) {
->> +		for (int i = 3; i < 9; i++)
->> +			if (data[i] == 0x72) {
->> +				memmove(&data[i], &data[i + 1], 8 - i);
->> +				data[8] = 0;
->> +				break;
->> +			}
->> +	}
->> +
->>  	return 0;
->>  }
->>
->> @@ -1393,6 +1409,10 @@ static int lenovo_probe(struct hid_device *hdev,
->>  {
->>  	int ret;
->>
->> +	/* Make the T14s  keyboard trackpoint a separate input-device */
->> +	if (hdev->product == I2C_DEVICE_ID_ELAN_LENOVO_T14S_KEYBOARD)
->> +		hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
->> +
+> All relevant patches for this case are now in a test branch named
+> "fix_null_deref_reset_resume" in my tree. (based on Greg's usb-linus
+> branch)
 > 
-> Shouldn't this be in a separate commit?
+> git://git.kernel.org/pub/scm/linux/kernel/git/mnyman/xhci.git fix_null_deref_reset_resume
+> https://git.kernel.org/pub/scm/linux/kernel/git/mnyman/xhci.git/log/?h=fix_null_deref_reset_resume
 
-No this "quirk" is the default behavior of the hid-generic driver. This driver
-now will take over control from the hid-generic driver because of the device-id
-addition below.
+The log looks like core switched to "old scheme" enumeration after
+getting a few -EPROTO on "new scheme" attempts to read the device
+descriptor (maybe device isn't ready yet).
 
-So setting this quirk preserves the existing default behavior.
+If core were submitting URBs concurrently with xhci_resume() we would
+probably know about it already. Core should have called reset_device(),
+which allocates a slot and recreates vdev. This should exist now.
 
-> 
->>  	ret = hid_parse(hdev);
->>  	if (ret) {
->>  		hid_err(hdev, "hid_parse failed\n");
->> @@ -1558,6 +1578,7 @@ static const struct hid_device_id 
->> lenovo_devices[] = {
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_IBM, 
->> USB_DEVICE_ID_IBM_SCROLLPOINT_800DPI_OPTICAL_PRO) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, 
->> USB_DEVICE_ID_LENOVO_SCROLLPOINT_OPTICAL) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, 
->> USB_DEVICE_ID_LENOVO_TP10UBKBD) },
->> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 
->> I2C_DEVICE_ID_ELAN_LENOVO_T14S_KEYBOARD) },
->>  	/*
->>  	 * Note bind to the HID_GROUP_GENERIC group, so that we only bind to 
->> the keyboard
->>  	 * part, while letting hid-multitouch.c handle the touchpad and 
->> trackpoint.
->> -- 
->> 2.56.0
-> 
-> Mark
+Hard to tell why urb_enqueue() crashes here without debug info and
+line numbers, but I would guess it's something like:
 
+1. It crashes if URBs are submitted after reset_device() but before
+   enable_device() or address_device(). That normally doesn't happen.
+2. The HID driver submits URB concurrently with xhci_setup_deice()
+   which frees vdev, possibly after the NULL check in urb_enqueue().
+
+If 2 is possible it may be tricky to protect from.
 
 Regards,
-
-Hans
-
-
+Michal

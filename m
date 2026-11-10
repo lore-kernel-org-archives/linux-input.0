@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794296115;
-	b=X6pZvGYEiY8ETfMMEP7kSquUpEgSw6Wzj4if9lTLoT9n+7M0/7V/2DgtI97S/QllfNmf
-	 hytiNMxABhb+GfdHA5AKkvwBKWkSy7f8jpB+2Ap8ON8QQsUbDg1vrN3kWOlnerdXvDplF
-	 MvLWrItzEGn1tFA+ZT7jQEjEmjBEv/lUQho9kGr6LiejWSSN6BemuKtracDpHfJop2dd6
-	 TgTQWHHxUQNtVnkYHqRvxotznbVlZU72Gg52/YnvtXiNVLEJpPMkXorzVrdxh7aqe2dez
-	 PXYyJ6xuuGZQvXsZonOnTCBx7V6q30PLn80OjKzvihtsxfdD0d0ryGRgN6oQ/gUuFfw==
+	t=1794296121;
+	b=UVztYePBn+/+bSv8eVNW4XRzFtpSnn1ml+MrKjoD9IC70dgSfS4MAT9mipYef0PC5xRw
+	 WY1gvQReLpTgWsVQMJGwZ4QP69P5RZsnBvYhDn9KnlkXMylvSnvD4w8aIyi2Nhll1KcS4
+	 SNCR7Z9BvNsd1d8anBTAogxaLSRZgpIhvv1GiZD1XYT6egpPzScGq65DAxR3YLWebOviw
+	 1hHWt98ajR7KN+bU9z9c4CaKm2pZEit7OiBrOjPvVL5j+8bynSOAV2OgipfE0wZt0ntV8
+	 GoN8VA1dH5jG4h6jqfSDpJY+DTph4RpNZcREqU3dCzpknSbWYEiarnLlFp0EdnCwoiQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794296115;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794296121;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=weUd2KkK+Td2wOHM6SUBvzIuwXjKcDMMXmQN7dO05+8=;
-	b=0M9XTedzN2zQ+R8T4De19mhCBnmzmVaFvghy7BXSnixwQOK8cmm5U+UwZ+rTP3MtnSbX
-	 dPtF/H8lx/cYjVADjQR5ICuEjonh34PAFuAbjcodRBHxcJi3lY1v5N4T36ygEIk7ubi72
-	 7hndM/x3LlWNggPZmgZ+FSSCNvWk/6b/Ef8aOhpQATsMCWBAHg8w8cKAp/RNuis3qn4vW
-	 r+RbBsULCeJOkv2NMnFrYHadeoKKYZxVnjewKGSY1dWdpf/MBbRkHqoJtKa9pW7j06N5A
-	 yP6nrG6CH3Nk/jKBBQqQkxBZ8t34MrAmXwCN/EIpwkCNQyGlzrOCf2iD+iii3tC/6aA==
+	bh=9DMlLWJvde8wccRhIrUuWmQV2u0Aw/z18x+VnGnqLi8=;
+	b=JnCr9vZIjWJ+XqM2HT0iAHsrCCNQ0iDCt1W/PyBKg6m6yj5G+vl+5R8i1kywfitMOL5L
+	 YigfGrUwCF5JqzKE9KQ6ATXE5bAQ2qV9OBPc4Wl7DQIs6FnkI4VCGyzlObstl/8DyzTJi
+	 qUTjVYGLn15eNDUPKo+BMjh4UcW4C0PWuMZXkHF/l1ry4lpFza7DJglvW2TQAg7t+9JVm
+	 VhJcuXIpPJ8nznwjaViCweZmexd8NFgqtz/sMCjjdZQ847TIJCva1PdSPj08sgqz0dg6X
+	 MeYBq7A/yyY5X4ZM2K+jFoDMDn+HIvKs7J4ZM1TdJY7f0tYrScI4puGxeckVCCSlUeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Rm6h1j0q;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bB4wca6B;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C477260A2601;
-	Tue, 10 Nov 2026 07:35:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42F0560A381C;
+	Tue, 10 Nov 2026 07:35:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Rm6h1j0q
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BB71F008A2;
-	Tue, 10 Nov 2026 07:35:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bB4wca6B
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 975CC1F008A3;
+	Tue, 10 Nov 2026 07:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794296114;
-	bh=weUd2KkK+Td2wOHM6SUBvzIuwXjKcDMMXmQN7dO05+8=;
+	s=k20260515; t=1794296120;
+	bh=9DMlLWJvde8wccRhIrUuWmQV2u0Aw/z18x+VnGnqLi8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Rm6h1j0qYePgp6t4TbvQng9CM5UmW7/ujSZFHgUIF2JIUEV4PgE272SCZmuJ5G015
-	 Pgz/NmyzccX2Oi5Mqo0fXNWsyI4sI8QUWFx+fFnYrvU3bD8yWwqweE7vMD56jF3QrF
-	 H5Y/agnCrpc2CJupo5QWhtmwYBhh6L4zBijBHOiKeyhsopWmR/vmLr4lay7aSo+YQf
-	 ynEZvjAaK1lLPZeIfRMC5lAoCqEB8SN8lIYU10XOK1JCYe9uhIxQiIB8cbugDfaz57
-	 7EPnl2Ez8eudjZaFuj3uHdqkHiLGgLXff+3/8ZV0MgvGNYPYrxbNxoa6O/eRE7nvIz
-	 EZtGd3U7xQ6Lw==
-Message-ID: <sashiko-outbox-206503@kernel.org>
+	b=bB4wca6Bcls0jWIWpnLtG4cyHOyLwU8FkzM/IdmnxTaSzh+eIYlLJ1mGHBCBIGS6f
+	 D9S6CXq+NZKRoEoVDMtB3cZN151MZ/g+M30Xra7DGarnhjKanUXnSC1tAWKhAd6Cvu
+	 E1qXSoFWWB3mFAzb2tKJvZ7N93XfT+NGHpc2i4wFDXXepF/Rkmemwq0+v4YXRBWTgK
+	 q22GKEYNCd1T7fh3lWS4C6xTA5HI6f7H/CX6BZKcHehqIVeopwv1EvsdiO20FxUhXT
+	 fKRxSCsmh8xD5nrkylPcVtlRNsf7+8NyFW6sIka8q7CBuh4vA1bE4+wn2TG/3E0DlZ
+	 Inpqbvj9O+Abg==
+Message-ID: <sashiko-outbox-206511@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 03/19] USB: Lock registered interfaces during manual
- driver binding
+Subject: Re: [PATCH v2 11/19] driver core: Introduce a generic device trust
+ level
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261109-device-trust-core-v2-3-3b12d9a9f861@nvidia.com>
+In-Reply-To: <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
 References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-3-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 07:35:13 +0000
+Date: Tue, 10 Nov 2026 07:35:20 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,87 +61,119 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] usb: core: unlocked dev->driver updates in
-  usb_driver_claim_interface()
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [High] driver core: device_trust_prepare_full() breaks default boots
+  with -EPERM
+- [Medium] driver core: device_trust_prepare_full() calls
+  trust_resolve() unlocked
 --
 
-commit aa47d25b59fe6dc15ab05e899c754ff4b6a72894
+commit cc9d85465ea19f97fc7a0889f6993f37d1a58048
 Author: Leon Romanovsky <leon@kernel.org>
 
-USB: Lock registered interfaces during manual driver binding
+driver core: Introduce a generic device trust level
 
-This commit locks registered USB interfaces around device_bind_driver() in
-usb_driver_claim_interface() and updates btusb_mtk_claim_iso_intf() to acqu=
-ire
-the USB device lock instead of the target interface lock.
+This commit adds generic device trust admission and a device_trust.default
+boot parameter to resolve a device's trust policy into an active trust
+level before driver probing.
 
-> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> index d3a61ebc6afb0..ad5d9d5fc7598 100644
-> --- a/drivers/usb/core/driver.c
-> +++ b/drivers/usb/core/driver.c
-> @@ -584,8 +584,11 @@ int usb_driver_claim_interface(struct usb_driver *dr=
-iver,
->  	/* if interface was already added, bind now; else let
->  	 * the future device_add() bind it, bypassing probe()
->  	 */
-> -	if (device_is_registered(dev))
-> +	if (device_is_registered(dev)) {
-> +		device_lock(dev);
->  		retval =3D device_bind_driver(dev);
-> +		device_unlock(dev);
+> diff --git a/drivers/base/trust.c b/drivers/base/trust.c
+> new file mode 100644
+> index 0000000000000..6a71abf10b3bb
+> --- /dev/null
+> +++ b/drivers/base/trust.c
+> @@ -0,0 +1,132 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +
+> +#include <linux/device.h>
+> +#include <linux/errno.h>
+> +#include <linux/export.h>
+> +#include <linux/init.h>
+> +#include <linux/string.h>
+> +#include <kunit/visibility.h>
+> +
+> +#include "base.h"
+> +
+> +static enum device_trust_policy device_trust_default_policy __ro_after_i=
+nit;
+
+[ ... ]
+
+> +static int __device_trust_prepare(struct device *dev,
+> +				  const struct device_driver *drv, bool full_only)
+> +{
+> +	enum device_trust_policy policy;
+> +	enum device_trust_level level;
+> +	int ret;
+> +
+> +	policy =3D dev->trust_policy;
+> +
+> +	if (policy =3D=3D DEVICE_TRUST_POLICY_DISABLED)
+> +		return -EPERM;
+> +	if (dev->bus && dev->bus->trust_resolve) {
+> +		ret =3D dev->bus->trust_resolve(dev, drv, policy, &level);
+> +		if (ret)
+> +			return ret;
+> +	} else {
+> +		level =3D policy =3D=3D DEVICE_TRUST_POLICY_ADVERSARY ?
+> +			DEVICE_TRUST_ADVERSARY : DEVICE_TRUST_FULL;
 > +	}
-> =20
->  	if (retval) {
->  		dev->driver =3D NULL;
+> +	if (level =3D=3D DEVICE_TRUST_DISABLED)
+> +		return -EPERM;
+> +	if (full_only && level !=3D DEVICE_TRUST_FULL)
+> +		return -EPERM;
+> +	if (dev->p->trust_state =3D=3D DEVICE_TRUST_COMMITTED &&
+> +	    dev->trust_committed_level !=3D level)
+> +		return -EINVAL;
+> +
+> +	WRITE_ONCE(dev->trust_committed_level, level);
+> +	dev->p->trust_state =3D DEVICE_TRUST_COMMITTED;
+> +	WRITE_ONCE(dev->trust_level, level);
+> +	return 0;
+> +}
+> +
+> +int device_trust_prepare(struct device *dev, const struct device_driver =
+*drv)
+> +{
+> +	device_lock_assert(dev);
+> +	return __device_trust_prepare(dev, drv, false);
+> +}
+> +
+> +int device_trust_prepare_full(struct device *dev, const struct device_dr=
+iver *drv)
+> +{
+> +	if (device_trust_default_policy !=3D DEVICE_TRUST_POLICY_FULL)
+> +		return -EPERM;
 
 [Severity: High]
-Does taking device_lock(dev) only around device_bind_driver() leave
-dev->driver and the interface binding state unprotected on a registered
-interface?
+Does requiring device_trust_default_policy =3D=3D DEVICE_TRUST_POLICY_FULL
+here cause device_driver_attach_full() to fail with -EPERM on every
+default boot where device_trust.default=3D is not passed on the command
+line?
 
-Callers of usb_driver_claim_interface() hold the parent USB device lock, not
-the target interface lock.  When device_is_registered(dev) is true,
-usb_driver_claim_interface() checks dev->driver and iface->authorized and
-writes dev->driver, intfdata, iface->needs_binding, and iface->condition
-before acquiring device_lock(dev), and rolls them back after releasing
-device_unlock(dev) if device_bind_driver() fails.
+When device_trust.default=3D is omitted, device_trust_default_policy remains
+DEVICE_TRUST_POLICY_DEFAULT, even though that policy resolves to
+DEVICE_TRUST_FULL on buses without trust_resolve.  Callers converted to
+device_driver_attach_full(), such as phy_attach_direct() when attaching
+the generic PHY fallback driver and serio_bind_driver(), will then fail
+with -EPERM unless the kernel is booted with device_trust.default=3Dfull.
 
-Readers that synchronize using only the interface lock, such as
-supports_autosuspend_show(), can race with the unlocked rollback and
-dereference a NULL dev->driver:
+> +
+> +	return __device_trust_prepare(dev, drv, true);
+> +}
 
-drivers/usb/core/sysfs.c:supports_autosuspend_show() {
-	s =3D device_lock_interruptible(dev);
-	if (s < 0)
-		return -EINTR;
-	/* Devices will be autosuspended even when an interface isn't claimed */
-	s =3D (!dev->driver || to_usb_driver(dev->driver)->supports_autosuspend);
-	device_unlock(dev);
-}
+[Severity: Medium]
+Can device_trust_prepare_full() end up calling dev->bus->trust_resolve()
+without holding the device lock?
 
-CPU0                                  CPU1
-usb_driver_claim_interface()
-  dev->driver =3D &driver->driver
-  device_lock(dev)
-  device_bind_driver(dev) -> fails
-  device_unlock(dev)
-                                      supports_autosuspend_show()
-                                        device_lock_interruptible(dev)
-                                        !dev->driver (false)
-  dev->driver =3D NULL
-                                        to_usb_driver(dev->driver)
-                                          ->supports_autosuspend
-                                          <-- NULL pointer dereference
-
-Setting dev->driver outside device_lock(dev) also allows
-device_trust_set_policy() and usb_authorize_interface() to observe a
-transient non-NULL dev->driver before admission completes or after it fails,
-races with __driver_attach() checking !dev->driver under device_lock(dev),
-and modifies struct usb_interface bitfields (needs_binding,
-needs_remote_wakeup) without serializing against iface->authorized updates.
+The kernel-doc for struct bus_type::trust_resolve requires the device lock
+to be held, and the kernel-doc for device_driver_attach_full() states that
+buses with a trust resolver must use device_driver_attach().  Unlike
+device_bind_driver(), which rejects dev->bus->trust_resolve with
+-EOPNOTSUPP, device_trust_prepare_full() calls __device_trust_prepare()
+unlocked without checking dev->bus->trust_resolve.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-device-tru=
-st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D3
+st-core-v2-0-3b12d9a9f861@nvidia.com?part=3D11

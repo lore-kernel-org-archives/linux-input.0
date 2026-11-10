@@ -1,111 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.142
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=88.99.165.17
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794327195;
-	b=wjrOLbJVy5N1czC0Iza7ivANMb0n59kufpVzQ/7jH3dlC+T6qk4yszIAQO8/vpB0kWR8
-	 z4DQcibsc+iPUQWEooF2AhO7UwoFo1JKR05GieducaPEiNJttpOvOWRh1nQDuMBzEewKH
-	 bipNlqL1zAUvZF2j8Sg8QegNvnNpiz5Qfqaa0ETODbsyeLq+M9mrTp5ju2Ps75uUyQLX9
-	 iZc9yF5Tty/RAsuOzJQmgGbY9rA0s9bo+FrFFgjDnwslXx7qmLAjokbrORdHzWDc+/OXV
-	 iDxFIa7k3ShAUd9NWqtq+hylqe8nt0RCxNp5wa0kX1fjDy3TDl6CwCjlTrnlIpuiOqw==
+	t=1794329006;
+	b=2enhPpp+pzArdJeIhFgBNli2To6+FzsOCtdTRRX5Lu0aen7XftreeSKytBm9JJPPOKIi
+	 Wpffva4imd3cx0qqf433rsQwUlgLIb2aeJjM11pP+kLShLyyP96eG7aYiquvUgUl+LOIR
+	 VgWTNeBF0lgQ1Q6sASaSOPxG2hzRGtbngPmC3OAB0gR+sQ2kSY4US4w19op9ZOons92NW
+	 Xgf/nbHyjWooUAWNgQclWHtHS1Anh7glTc9jRxAjXAYqWpGMl2wUsO+NgKHotxkh4HZM1
+	 uFYGpW0+DWFwKkmtR0gRxhxbIIrjF9Ol+la4F4zLfOvGyY07dcHveDxDM+mTmAEuudQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794327195;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=;
-	b=qXPymC1Or74svGQ5KbXL/l5CvE4G85fhHOqufLs2dHdHrsTVyuWmC2zGG8pAY7UPbJts
-	 5c3qon3ot31Rn+G9fCzcAWiLPQNYUy09HSkshVBlF7rgj4OYJg7wX0dNxknOkWrMYhF1k
-	 ByFkaoVFHmWbp3TRG6lhHZXeqM0vguOtzrOLocNhYhpqzVn7E69EMSl7X56bQLKklFTRp
-	 rxYYoduEATBz4icAtst+XP3sNZaXR8MPdZ7K98M18SpC8+hTBWDbXb3LL4yZ5Ut7jR81J
-	 sPDiVWJzwwMnvp7XtDub/F1CDvZw1UGFb6SofQw+HD3aXvaKwAqOO3jysajAEZBA9Dg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794329006;
+	h=DMARC-Filter:Received:Date:From:To:Cc:Subject:Message-ID:
+	 MIME-Version:Content-Type:Content-Disposition;
+	bh=bLbK4RyTHrGaMTL/mYzTyoq/LlxoNjEHqJkmXP8R00E=;
+	b=m75UBFQJ3viFRtyKXQQjNClzkYua3SH5vKh8F9Cpd4c6b8mMLTl2SU7hUPp8gOiqVqKB
+	 WKJoN8J6SJH3PoBlfuwpR0FIpRoK7bQwa/WFYrlVMlXUQT0sBypahGzgh2KakpOLh55uG
+	 bq12p3gkme2UkOcSI7EYkwV9AR144mbh4EDB76TtClvKruRNBrqi13OIzND4gDwGqAxP6
+	 Cwc6BzfVLd8c2YXgv4I7M9JcTIiFvgbHjnTQdEqbtPFI1SVkSV46Omwf6DuChwaHKPwPz
+	 IyCiBxQZjvLSPunHMST0BdlqKDpJSUo475OYvYMzeyOQV1jQUKU0Alz5Vlji49FR61Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW;
-	arc=none smtp.remote-ip=103.168.172.142
-Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+	dmarc=pass header.from=octaplex.net;
+	spf=pass smtp.mailfrom=octaplex.net;
+	arc=none smtp.remote-ip=88.99.165.17
+Received: from cloud.octaplex.net (cloud.octaplex.net [88.99.165.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EB87606A337
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 16:13:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6EB87606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailflow.phl.internal (Postfix) with ESMTP id A08B213813D7
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 11:13:14 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 10 Nov 2026 11:13:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794327177;
-	 x=1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=
-	asQC+qHDAv/I83EYngLJ0bkBe+uuEnPcLg0jrc2OX9kVtaPYAd/md3quox9jqmy4
-	S/jELTpXjA2k1IxJWtdK3HZW4IriVAHis0xufJR256BBPAzbfZ5QsGw2eqYq1k/I
-	S4qzaUtb3Ob4GAV2mxThnKp0r/zG0TfcXAK+eUmyQOHhHqtyGONG7gkgzRBQG2d0
-	/gzJT11LHsGNvLKSZnn9JL3iytYjrT3V7KZt2FZsHfjjQeZHywjaesrjJhD0e7vN
-	Y6/iN3Jg7w8xS8OVdYMBSUZOfxDnVhVfPJGqKe/oSxsAZXPn7y2e4GOOItdMLZ2R
-	LLVckhHoSzC+MGE1iJu5eg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794327177; x=
-	1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=p
-	jDZKFBWlX484yfO06iZThedU7MnSaqyMkXKHKaXomC5/xVavgZU65SsCjokZJWML
-	GjeTj8Lq4+LWeI1CWzzxuQj2m4isbVa0ssa9g7eZhXilCypVINe5kxTBiobUF6uZ
-	Gtle0jaTmJtlAyGlrtNmbTTDPt9uAjbADo1dgbyzsDA47ykOoKjYt1o87LKBSqHb
-	mP2YIbspjWDiF2EJOgZRHTKT7VhzsY0TtBEN2nWcPAnRSw5Q7HRlPmorpTONvfpP
-	auvP37j94bGeH1y2GQ4LwX12DjFEZi+3xGQave3kINRA2PBRPI5FXxcFzbhhhvXR
-	Tsc8Y3Jb1FgwsS6Y0dcjg==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794327177; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
-	s=fm2:rsa-sha256:f28Pz8cLCSx7Wwe2+27r/4ZU5f7purqnxMx+yjoyRekrejy
-	oaGcbzlLj3YZSc66aZn1x9zZQNNZkX5aSIDglRZ1tWorFP+W0AiJfxcfBSKOlCp8
-	AM/x9kbWFgSB0LZQgqDQ80leIlIt5Dn+0j2SqHamDtsv6Bqvj9ty4KU1JmzC0J1U
-	dgZ6vV4Xg77MiVXcQbDAKmy+WxH1wKips4r14voEOXMg8TLsiV0Q7IQ3J3uBIxog
-	0PysyS0Pj0jULgXZcAWv0+Azk9P7fTBc3wEGNtdUDzIqaGNHXZmZ9/FtzvPn284K
-	a0s3mYVXcijwUOW4+JtjMkmSo4jr7qRqlK1W9Ng==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:NY+qH6VFe1gb9eaYka4u3Pju9dQg6z2rB5jHAxzea+M=:YUoKa4y1cAE3r8AhMFawDzVW7orX9AEZ4cmB97mmTGA=;
-X-ME-Sender: <xms:gELzat-KhdG49YOXD28knxP-wmxhvouurLuqg65ijoK_1PztTiM67w>
-    <xme:gELzashOw3MORHNRaj5VZYoHPjgRatChT2__Hps4-a7QS4ExIju8qL8_9B3SiDtB2
-    sGKQug7JFF_lfIFqrxv09JzfzrzZWKrRlvdLjWPWqavJafwb6XI9q0tBA>
-X-ME-Proxy-Cause: dmFkZTEwJqmeu88i0D1P4NSr1o0RdeyL0ncQrpwlZpsRiyH4mGhKK76jqiY9/AURvmAyKQ
-    Xh2LjT8fovpOgpIQnvH5QYWZs5UCg8lDhPsbwXo4GfEZeWp/aOvfLOYPWjqnmAFI1BwG/q
-    XyZG43p0HoLIgnysLFo6MzsLlgysOWgB08DJdha5yxDuEjeXR7MU6VvvNb4tgDJLpz9WaL
-    DOmlUn0Mje4CQssJm+pxYVCWPCE7uxZNBjliBSIc14Pa1+Q+euFKNdLxxVitjY9vJ+1g1T
-    +rig9iVkFuoti3t+qEcHMM2vh4+G+ag1IzrG3We9+FcQnC6cOfB1bItA6vAPi6A+u1KULf
-    wxoJ36bIqa+kM9OWApvgKo4MId3H8RRe0FCkMwp8Cj2i2hPzQqFijO+zALFklT7XBp4yQ4
-    D0Bsmvzif3sMMCJY2OSk1bwCPIIRPEFuJI4Mi/vpw7sfUa+jfrhN159tiieQQE7aztSV43
-    DlSawBFw+hJYm5oAPkD2NlBoL/gRh3vgmwf+Y/GbihlHM/o3EcsWCertLTOcD6iStWXR7G
-    LAS2aVSdVtxoGSiZj2/kYUSfLhEBFCn05KpxcrFYCW/FmzT2YT72YPVx3p0wR8sMiJ3lAW
-    x+8+3z8XttowLJjfinG9ew4R0xJsilSkEkmhmN5AqofFDl0uTCDo7P0ixMQQ
-X-ME-Proxy: <xmx:hkLzak2BPEyGi10FxxkrY3byRVHSjq_0wLclV2jUuSmkyRE3xcj4fw>
-    <xmx:hkLzakkySXPgYGwh_r1Ql-VHDAdYXcQ3p0tjVOV29OCOWQo8MbFMmw>
-    <xmx:hkLzavloJp1yUj6WriMMnPneQ8pVgU9Ew-sH84r-kdZ-OdXPheHDYw>
-    <xmx:hkLzarPnZB-B1EOixQtLefzjQeDp3wnHNrTbJ3SPpTKyjOvpO-EsFA>
-    <xmx:iULzajThipr-UxTyuQQEJ7jWDCsE73KlfzXTf41eZRpd8Rpi4a2MNCT2>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id AC32432A0097; Tue, 10 Nov 2026 11:12:48 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17452606A31C;
+	Tue, 10 Nov 2026 16:43:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17452606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=octaplex.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=octaplex.net
+Received: from localhost (ip-178-027-246-237.vkd86.pools.vodafone-ip.de [178.27.246.237])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by cloud.octaplex.net (Postfix) with ESMTPSA id DC241A0071;
+	Tue, 10 Nov 2026 17:43:22 +0100 (CET)
+Date: Tue, 10 Nov 2026 17:43:22 +0100
+From: Tobias Dyckerhoff <tobias.dyckerhoff@octaplex.net>
+To: linux-input@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Subject: i2c-hid: Synaptics 06CB:CD97 (Dell Latitude 7300) - touchpad failure
+ modes: post-resume/mid-session IRQ storm, silent idle stall, coordinate
+ jumps discarded by libinput; wedge captured at the raw-HID level
+ (2026-11-10)
+Message-ID: <avNI9_rElXTp48Mn@ferret>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -115,97 +54,179 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AK-jVwBtQCQR
-Date: Tue, 10 Nov 2026 17:12:28 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
- "Jonathan Cameron" <jic23@kernel.org>
-Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>,
- "Arnd Bergmann" <arnd@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Bartosz Golaszewski" <brgl@kernel.org>, "Mark Brown" <broonie@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, "Daniel Thompson" <danielt@kernel.org>,
- "Helge Deller" <deller@gmx.de>, devicetree@vger.kernel.org,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
- "Liam Girdwood" <lgirdwood@gmail.com>, "Linus Walleij" <linusw@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-fbdev@vger.kernel.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
- "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
- llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
- mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
- patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
- "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
- "Support Opensource" <support.opensource@diasemi.com>
-Message-Id: <991009b6-e62b-46bd-9a0b-43c3b7a6d10a@app.fastmail.com>
-In-Reply-To: <avM5EnC9yujUZcCO@nsa>
-References: 
- <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
- <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
- <20260912232047.19c4cb10@jic23-hlaptop> <avM5EnC9yujUZcCO@nsa>
-Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, Nov 10, 2026, at 16:39, Nuno S=C3=A1 wrote:
-> On Sat, Sep 12, 2026 at 11:20:47PM +0100, Jonathan Cameron wrote:
->> On Thu, 10 Sep 2026 20:14:15 +0200 "Arnd Bergmann" <arnd@arndb.de> wr=
-ote:
+Hello,
 
->> > drivers/iio/adc/ad7793.c
->> Maybe. Analog devices ack needed.
->>=20
->> Production part but this one indeed fails to probe.  Analog
->> folk, do you want to fix this one up?
->
-> Given it's production we should fix. Looking at platdata seems to nice=
-ly
-> fir in DT. Issue is that I don't have HW with me to test. So I'll maybe
-> just remove platdata and assume some defaults.
+recurring touchpad failures on a Dell Latitude 7300, Synaptics I2C-HID pad,
+HID v1.00:
 
-Sounds good. I already dropped my removal patch for this one.
+    vendor 06cb product cd97  ("DELL08E0:00 06CB:CD97 Touchpad")
+    bus: i2c_designware.1, IRQ 17 (shared idma64.1 + i2c_designware.1)
+    Dell BIOS 1.43.0 (newest LVFS release; Dell's Synaptics touchpad
+        firmware utility does not list the Latitude 7300)
+    userspace: xf86-input-libinput, libinput 1.25 (Ubuntu noble)
 
->> > drivers/iio/frequency/ad9523.c
->> Maybe. Analog Devices ack needed.
->>=20
->
-> Hmm we definitely use this one and we have OF support out of tree with
-> likely some DT abuse of what can be in DT or not. Not sure if I have
-> some HW around but we'll need to fix it.
->
-> In general for ADI parts, I think we can drop the ones that are not
-> recommended for new designs. All the others I tempted to say we should
-> keep. Naturally we need to fix all the drivers that do not compile
-> without platdata. And for the ones with defaults we can also just remo=
-ve
-> platdata and use the plain defaults.
+The behaviour is identical on 6.8.0-147 (Ubuntu noble base),
+7.0.0-42 (noble HWE) and 7.3.1 mainline (currently running, 6.5
+days up).  There is no 06CB:CD97 entry in any i2c-hid quirk table through
+v7.4-rc1 (RESET_ON_RESUME currently covers only the ALPS_JP
+any-product and SYNA2393 cases).  This is not a regression - it
+behaves the same on every kernel I have run on this machine.
 
-Ok, I'll leave it alone as well now.
 
-I currently still have patches to remove adp8860/8870 (backlight), ad7877
-(touchscreen), ad714x (touch) and adxl34x (input, not the iio one), which
-are currently unusable with DT but are all listed as in production.
+Three distinct failure modes
 
-I assume you want to fix all of these and keep them in the kernel,
-but possibly still remove the adxl34x and only keep the IIO driver for
-that part?
+(1) IRQ storm.  IRQ17 fires at hundreds to thousands per second with
+    no usable input events.  First seen after a partially-failed
+    suspend + resume; later occurrences mid-session with no power
+    transition involved (measured via /proc/interrupts deltas:
+    ~480/s on one occasion, ~900/s, and ~3400/s on others).
+    Driver state looks healthy otherwise.  Recovery: unbind/bind of
+    i2c_hid_acpi (i.e. a HID RESET) restores the device within
+    seconds.  One occurrence was rebind-resistant (the rebind ran,
+    the pad re-probed, but the storm intensified); a full
+    suspend/resume cycle recovered that one.
 
-I also have patches to remove platform_data probing from ad5761, adf4350,
-ad5791, ad5421 and ad5504, these all have DT support.
+(2) Silent idle stall.  After some minutes of idle, the pad stops
+    responding; IRQ17 goes completely silent while touching (zero
+    interrupts over seconds of finger contact) while the driver
+    still considers the device healthy (X-level props normal).  No
+    kernel log message at all.  Recovery: unbind/bind as above.
+    This matches in shape the 2026-04 report for 06CB:CE65
+    (Latitude 7420, unsolicited 0x0c sleep-notify report suspected;
+    I have no hidraw trace of my device doing the same - analog,
+    not confirmed for CD97).
 
-See=20
-https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/=
-?h=3Dboard-remove-7.4
-for the updated series. I hope to slowly get through that. Let
-me know if you want me to skip any more of those patches.
+(3) Coordinate-jump discard state.  IRQ17 fires at normal touch
+    report rates, the kernel delivers events, but libinput discards
+    every motion event:
 
-Thanks,
+      (EE) event5 - DELL08E0:00 06CB:CD97 Touchpad: kernel bug:
+      Touch jump detected and discarded.
 
-    Arnd
+    (84 occurrences in the current Xorg.0.log as of 2026-11-10, up
+    from 71 on Nov 8 and 31 the day before; libinput rate-limits the
+    message to 5/24h, but every user-space recovery re-opens the
+    evdev stream and re-arms the limit, so the true frequency is
+    higher).
+
+    The pad is functionally dead.  Recovery:
+    `xinput disable <id>; xinput enable <id>` - i.e. merely
+    reopening the evdev stream - restores motion in ~1 s, no kernel
+    rebind needed.
+
+Recurrence is multiple times per day. The local recovery log counts
+53 user-side resets since the mitigation was installed on Nov 2
+(7/6/0/6/6/15/11/1/1 per day, Nov 2 through Nov 10), eight of them
+within one hour on Nov 8 - roughly one wedge every seven minutes.
+(Full log in the evidence bundle; a one-day follow-up snapshot with
+re-measured counters, evidence/03-persistence-20261108.txt, is part
+of the bundle; the Nov-10 episode below was captured end-to-end.)
+
+
+An odd baseline observation
+
+On the current boot (6.5 days, mostly idle desk work) /proc/interrupts
+shows 97.2 million interrupts on IRQ17 - a sustained ~173/s average -
+while the sibling i2c_designware controllers sit at 0-2 interrupts
+each, and the pad works normally meanwhile.  An early re-measurement
+(89.2M at 4.9 days, then ~430/s over the previous 31 h) first read as
+an accelerating baseline; a further 39-hour follow-up on the same boot
+disproved that: the counter only rose to 97.2M, ~56/s across those 39
+hours despite one wedged episode inside them.  The background rate is
+episode-coupled: near zero while the pad sits untouched and healthy,
+and erupting during wedge states (captured at ~1.2 kHz wedged but
+idle, see below).  dmesg for this boot contains ZERO i2c-hid errors
+(no "incomplete report" lines at all) - including during the captured
+storm.  So even in its "working" state the device keeps the IRQ line
+far busier than its siblings do.
+
+
+Instrumented episode (2026-11-10; all traces in the bundle)
+
+After an unremarkable s2idle suspend 09:24 -> resume 10:18 (no
+i2c-hid messages at all) the pad wedged again within ~20 minutes.
+Captured BEFORE recovery, twice, six minutes apart:
+
+  * IRQ17 while touching the dead pad: 2421/s then 1598/s
+    (capture I), 3142/s then 3606/s (capture II); wedged but not
+    being touched it sustained ~1.2 kHz - that is roughly 20-30
+    interrupts per delivered report.
+  * hid-recorder on the wedged device ran flawlessly: the full
+    669-byte report descriptor plus 3,812 raw input reports (16 s
+    + 18 s captures).  Every single one is a standard 48-byte
+    ReportID 3 touch report: smooth coordinates (max step 57 of
+    1196 x-units = ~5 mm per 7.2 ms report), monotonic device
+    scan-time.  No truncated reports, no error reports, no
+    vendor report 0x0c.
+  * evemu-record shows the kernel delivering that same stream
+    (~80-140 reports/s) as perfectly normal MT events.
+  * Yet Xorg logged three fresh "Touch jump detected and
+    discarded" lines in those same minutes, and the cursor stayed
+    dead for the user throughout.
+  * Recovery was, once more, the evdev reopen alone (xinput
+    disable/enable).  Minutes later, idle, IRQ17 read literally
+    0 interrupts per 10 s.
+
+So during this wedge the I2C transport, the HID layer and evdev all
+look healthy and quiet - zero kernel errors - while IRQ17 storms at
+~25x the report rate and userspace discards every motion event.
+
+
+What works / what I could not fix
+
+  * unbind/bind (HID RESET): reliable for (1) and (2), except the
+    one rebind-resistant case described above
+  * evdev reopen (xinput disable/enable): reliable instant fix for (3)
+  * BIOS 1.15.1 -> 1.43.0 upgrade: did not change anything
+  * no Dell touchpad firmware update exists for this device
+
+
+Questions
+
+  1. Would an
+        { I2C_VENDOR_ID_SYNAPTICS, 0xCD97, I2C_HID_QUIRK_RESET_ON_RESUME }
+     entry be the right direction (cf. the Sep 2026 SYNA32A4 06CB:CE17
+     post-resume IRQ-storm discussion, where that quirk was proposed)?
+     The Nov-10 episode struck ~20 min after a clean resume, which
+     would fit that trigger.  I'm happy to build and test such a
+     patch for a week of real use.
+  2. The bundle now contains hid-recorder and evemu traces of a live
+     wedge (Nov 10, see above).  Is a deeper capture worth adding at
+     the next occurrence - i2cdump of the designware controller, an
+     i2c trace via ftrace, or something else?  Failures recur daily
+     here, so follow-ups are cheap.
+  3. The interrupts-per-report mismatch during a wedge (~25x, all
+     reports well-formed) - where would you want that looked at:
+     driver, controller, or firmware?  I can measure in whatever
+     form is useful (ftrace, i2c trace points, counters).
+
+References to threads with the same signature family (other
+Synaptics 06CB devices):
+
+  * Sep 2026, linux-input: "i2c-hid: IRQ storm from Synaptics
+    SYNA32A4 (06CB:CE17) after resume"
+  * Apr 2026, linux-i2c: 06CB:CE65 (Latitude 7420) - touchpad dies
+    after ~6 min idle, unsolicited report 0x0c suspected, driver
+    never answers, firmware locks up; rebind recovers
+
+Evidence bundle (happy to send inline or as attachments, tell me
+what you prefer):
+
+  environment       DMI, kernel config of the running 7.3.1, device
+                    stanzas, IRQ snapshot + counter math
+  recurrence        local reset log (53 resets over 9 days), plus a
+                    one-day persistence follow-up snapshot (IRQ17
+                    re-measured; episode-coupled, see above)
+  libinput-jumps   all "Touch jump" lines of the current boot
+  journal-samples   dmesg excerpts of the probe + one storm night
+  wedge-traces      the full Nov-10 instrumented episode: report
+                    descriptor + 3,812 raw reports + 2,812 evdev
+                    records + IRQ deltas + clean kernel logs
+                    (evidence/wedges/20261110-*/)
+
+Best regards,
+Tobias
+

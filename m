@@ -1,90 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794273280;
-	b=eg8JPY/LjarLVnwPfL74yjs0KfnMXrLZ0T6EY5DyMqNpnXpCLHvsF7S12GSCTKMl0P4m
-	 Wam6y+VDRsilyRq8HgDegSy4GWyZYg13DXrPly4RmE8AIOfmK5UFKp4ZKLUF1HfKwmAwu
-	 7w22B7gDPZkKAFMIqW4UYyjSj2l50AP+qqEqMz1VTSZe2csDZX9++P0GcrjyrMB9740nN
-	 lSQ5/LVMLnui8QRfwXiR3QpwCADaFPqWKXSd9TMDJAqrjKEuFTuG4r1h3UQqkJ62riGAV
-	 PxGN5cg6Y9Sr7/tPx6+XdG5fIvjj4BzSww4s4xNspp6LHhVDG40+ymncD9WYzWcQv7w==
+	t=1794275796;
+	b=2gB/fERyLxFtPY0ZlIiRKZA3CPCi+3HJU+8MMVgOCrC+fUuEnZG/luadMRshcIfhtMgy
+	 NpOJTU2qdpCNzbo/Z3317jAWKHcEo1pVcJX36i3/GA/AuG6b5TO/LLjr4F66a+nDahsMt
+	 YNL9tkPUGHy/zCovxa+KZO6op75x5WV9wjbIQsOADVfRPMkcGZE4IVVYy94QPSMV9S8Y5
+	 6YuZBBqb6TTJMTe9FQQuAZnQBO70e1ZrmNPx3p2fYd2rHbvaCq/W59wEIjiIQzt3Q1fZs
+	 3H+hgAw0Zj403vIGqf8455pXLrNJlqMW+zrl4KEmFR0YEccwk+HUSsEWl4+j03teUIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794273280;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
-	b=dNGhpcomhgOO140dfuHMlJFMh9xdU0t/oiEKSQbCzb5hFfGPdEkefEDTtAvs80VLzKO2
-	 2PAJZcLWTtZ/pnSCefTY4mr+I0p8WGyuu1dThVr4pRAMXDmBQDY8wVbl65bjE4dO1xn6t
-	 rRMhBfrBYlinTwL1DFw/9cuSJVR1568U04yt4nXog+Wx3LRX31wKPITq2hGvuoTJA2eAh
-	 JQWPe5uA6Uuy1e8+t6JWkDVnwxxTxJ6QcT60zbyudbXswmQx4aGAAn9zKPSph1PzGuxXy
-	 Tkp4iujiidvu3jKKn8uL05543RJ53aDfSs0scUfh1p+NqT1sNFwP0JMRsmovm6Uzt+g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794275796;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=y9g0+FWAkEii2LxI1Ms1cBFNUWBMR8wGiqD3Z1aURg8=;
+	b=4IEQ37su2J5DauE6mC7+ymtztj4WGc2q3yK1o66FyISfkx3m907NTVvbIXNQkBQ6Hh3f
+	 It7WHI/6809YsHe6+btC5pWDFJDtBUxTXLbj+pS5SU0+42uGfEy54X5Yya9Eo/U656v0z
+	 Zz+iZxIzBJkchviSzGCstT1eHhEIDM7VvRYEbySgOhungxXDWpme2jhnRLMahuVRvpNZP
+	 vBjasxdgPOyMItQ6wSOvImPyEioBSNqaPBhljgGP+8W19Zj51OahT0RenuM/GJfZimoDJ
+	 rnACRwDmQb9BqgYjdF81+gRW40vrruam1NJrbxCNmgAqQnAiDjRCpZDMpYdpOcJ5kEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-foundation.org;
-	spf=pass smtp.mailfrom=linuxfoundation.org;
-	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=c3HPZ9w3;
-	arc=none smtp.remote-ip=209.85.128.52
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B248C606A330
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 01:14:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B248C606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=rB1iyXXy;
+	arc=none smtp.remote-ip=111.22.67.139
+Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B3C41606A31C;
+	Tue, 10 Nov 2026 01:56:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B3C41606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=c3HPZ9w3
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4a2153c8525so11415115e9.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 17:14:39 -0800 (PST)
+	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=rB1iyXXy
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1794273278; x=1794878078; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
-        b=c3HPZ9w3X3vdF/+J+vaP+PQYAUd2+9JOKWwj6JMce2A8a3XTTDedjlXPO55cC45zjl
-         2hZf2gArAaC7b2VANcAz9siQ8hXOL0yOpee0+28IQ4U11h71kiwdUMjW00TOftz1OChD
-         IA4Fb2sqqSoZR8rQ6NvDOj7SKOizFmF/BfqF0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794273278; x=1794878078;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=m2qXctBTC0OPADf0V2KkMb6r2GA0JgabIuFAMe6ERzQ=;
-        b=nE/i7JPN6kusRNtgwbMBPX38MwTIHvlkuBX9tYkcg0D3GwxR9oDhOIFW+iueM1q/sY
-         bsUPQKCJ6mdh+9iTTEuG9sEU6+hwZRGaFkpIhSQsl8Xn/UvM8iAwGDnUXeZ1+H+CMsoK
-         rVH2vv7691i8HeiUv5d5o0jn3KOyMANxzbvbIuV5FfFcojTm0jFVJFXVGbzDUO6EHEQs
-         V59J1YEvofSKKcqMWAMhOzAo3x1PULoDNBoFFJbtwdZ+9BHKk8VBeFzVcfoVeQrVer3l
-         TVGoXo2dNk3qxoYeDzbuDs67/LavHOUC3VQ2jun7Pj4A6cNzil5en5NvgwwtAbJAAlTQ
-         IYCA==
-X-Forwarded-Encrypted: i=1; AL+hErF9QL1IMAth59T294uDOsA2jxtuiLwhQQjzulQS/A3/mAjpIDVv3gYP2Kfm+44o+cc83YgZY23515jPMg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z89uaipTboxQITF/mQKvjKHz+maiLnjI2VjItU8qIeXV0m2I7KG
-	fQaJOJ2M2cRIW04Y6+DKTC9SAfYOFFYAbB3BdCB1aSOljcoKuw81WrD+u4gE3+Ux9V5dC0nxLsw
-	duOOjhVpacg==
-X-Gm-Gg: AYBFou0Sp4QltSuSyV5/3ekuynl5mU+3IUCgOl5HSyuwYmmWY47oHGpeH+0ZYBtDb49
-	TqYxBLuRLnOh9Cc1Iqy29W4KzJ93qFIz0C8p3IHWF99a1P6xT4EBcizFqL1ZRUPRZOqHhuRxNMV
-	oswYxjx/3P/phmA5PmHJmnhixk4s2XZwSEjmHof2UOjB4ydDorKklRab2191S3vKtBnBFV0yJYZ
-	Of/XsooA57aQh4uTxtxj2H9GGm9POSg5bKrHvBAeILrarouG9flxr0MK+hahCeKy7Btq1L7mrus
-	NQ8EuMUbFayVPoHQt1iRCB66DxmCOW2K7jl/gpoZLNNRuF19K9k8P3oAcPBjTcdjiVkUISDuBdJ
-	kvH/RGiOTt+rFB3Rj2x7mNd0kv/+EB3566D5ZLLRx91W1PWLIknBpXxv61Hkg485odaOW/7m5Ax
-	hhZXaUz10iYhayM40OhmbKlgc630y0AI6BjXLQe+9XKYN0NetdSnAWN6+dt2PB5sdF/3sfgJoiB
-	K4LCy0xTwYX5zYf0tyw4sejWcUioxBvoeb5DtImqEIpabORB8GK4tF7S+AtVAiLvO2w8NioSpj2
-	bYu/xH80tMk9ta3XzQvFFeTiTZd2zyCUeaWdam8hQCfpjpmXh7WnL7c4Lmyb/o5jUzdCkErIi3p
-	lxw==
-X-Received: by 2002:a05:600c:8b88:b0:4a2:47:b79c with SMTP id 5b1f17b1804b1-4ba0235632cmr13228385e9.32.1794273278198;
-        Mon, 09 Nov 2026 17:14:38 -0800 (PST)
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com. [209.85.208.43])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ba01fdac9csm41414005e9.0.2026.11.09.17.14.36
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Nov 2026 17:14:37 -0800 (PST)
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6b6e7a05225so2026689a12.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 17:14:36 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErGi9lU2yrmeCYvdUu7X1cjkSxYDkpiB1yy9swxg0xtwBiIjREJqUZ8gqMKGAtqqZmE2m2aMHhS88UnvgA==@vger.kernel.org
-X-Received: by 2002:a17:907:9451:b0:c41:1750:59a2 with SMTP id
- a640c23a62f3a-c50495dfbd5mr87253466b.12.1794273275844; Mon, 09 Nov 2026
- 17:14:35 -0800 (PST)
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=rB1iyXXyaZgh2UvBVqJTzRFp7+I1k/+1uM63YzDCump6oZ+OW1mp3ooWsV90628yBlJmD93YhO/y/
+	 BQXakveYdh+mKV0yZqHVSrbS0bUEGEmQE0JVNnPZdsO3u8mouO0HAoNUmtZfh/daTW2M2tb0B/QRxZ
+	 8EHcq5lUuoLsPoRM=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app05-12005 (RichMail) with SMTP id 2ee56af279cd208-c6760;
+	Tue, 10 Nov 2026 09:56:30 +0800 (CST)
+X-RM-TRANSID:2ee56af279cd208-c6760
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from [25.255.2.225] (unknown[10.55.1.70])
+	by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee86af279cc1f3-a1e53;
+	Tue, 10 Nov 2026 09:56:30 +0800 (CST)
+X-RM-TRANSID:2ee86af279cc1f3-a1e53
+From: xujiahao <xujiahao@cmss.chinamobile.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	kernel test robot <lkp@intel.com>,
+	xujiahao <xujiahao@cmss.chinamobile.com>
+Subject: [PATCH v3] Input: sidewinder - use scnprintf() for the port names
+Date: Tue, 10 Nov 2026 09:48:42 +0800
+Message-ID: <20261110014842.884394-1-xujiahao@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261109010548.438699-1-xujiahao@cmss.chinamobile.com>
+References: <20261109010548.438699-1-xujiahao@cmss.chinamobile.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -94,56 +71,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261104-work-procfs-core-v2-14-76ace653a773@kernel.org>
- <CAMuHMdVfakapgBK6TBhO1iWX8qzvLDk8jzRS=t2MVa5G=MCUeg@mail.gmail.com>
- <20261107-akteur-gemieden-eckdaten-21304d085e35@brauner> <20261108185953.28054fb3@pumpkin>
- <alpine.DEB.2.21.2611090504170.17804@angie.orcam.me.uk> <20261109214558.0d9d5228@pumpkin>
-In-Reply-To: <20261109214558.0d9d5228@pumpkin>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 9 Nov 2026 17:14:19 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whsA3tKcUCBJDj_vmJ11rVGT9rivgnKjGRgMO21CPmCxg@mail.gmail.com>
-X-Gm-Features: AclHuK-x8jcOOQUqd2amGoGEAKER9jIFGaeL4LxxWAd0cGV7dz_RR64PtDogpPU
-Message-ID: <CAHk-=whsA3tKcUCBJDj_vmJ11rVGT9rivgnKjGRgMO21CPmCxg@mail.gmail.com>
-Subject: Re: [PATCH RESEND v2 14/23] proc: let procfs copy in writes before
- pinning the entry
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "Maciej W. Rozycki" <macro@orcam.me.uk>, Christian Brauner <brauner@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, linux-fsdevel@vger.kernel.org, 
-	Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, 
-	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
-	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, 
-	Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, 
-	kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
-	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
-	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
-	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
-	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, 
-	samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
-	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
-	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
-	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
-	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Mon, 9 Nov 2026 at 13:46, David Laight <david.laight.linux@gmail.com> wrote:
->
-> Just that the cast would have to be:
->         u8 *foo = (u8 *)bar;
-> where 'bar' is 'char *', and I don't think you need a cast there when
-> char is unsigned.
+sw_connect() composes the physical path of each port as "%s/input%d"
+from gameport->phys into a 32-byte array, and sw_3dp_id() builds
+" [PnP %d.%02d id %s rev %s]" into the 40-byte comment buffer of
+sw_connect().  GCC reports that both formats can overflow their buffers
+in a W=1 build:
 
-.. and just to clarify: 'char' is always unsigned in the kernel on all
-architectures since commit 3bc753c06dd0 ("kbuild: treat char as always
-unsigned") back four years ago...
+  drivers/input/joystick/sidewinder.c:538:58: warning: '%s' directive output may be truncated writing up to 8 bytes into a region of size between 5 and 21 [-Wformat-truncation=]
+  drivers/input/joystick/sidewinder.c:727:29: warning: '/input' directive output may be truncated writing 6 bytes into a region of size between 1 and 32 [-Wformat-truncation=]
 
-            Linus
+The values seen in practice fit these buffers, and a truncated name is
+harmless, so keep the sizes as they are and switch to scnprintf() to
+make the truncation explicit instead of letting the compiler warn about
+a possible one.
+
+Link: https://lore.kernel.org/all/20261106033300.3439313-1-xujiahao@cmss.chinamobile.com/
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202611091814.ChpgVgpE-lkp@intel.com/
+Closes: https://lore.kernel.org/oe-kbuild-all/202611100328.QAelfSpD-lkp@intel.com/
+Signed-off-by: xujiahao <xujiahao@cmss.chinamobile.com>
+---
+v3:
+ - The PnP id computation is untouched again.  v2 moved the (int) cast
+   behind the division, which made it a 64-bit division and broke 32-bit
+   builds (ld: undefined reference to __aeabi_uldivmod / __udivdi3 /
+   __umoddi3), as reported by the kernel test robot.  Only the snprintf()
+   calls change now.
+---
+ drivers/input/joystick/sidewinder.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+index 7f37d18c8..78dc70964 100644
+--- a/drivers/input/joystick/sidewinder.c
++++ b/drivers/input/joystick/sidewinder.c
+@@ -535,12 +535,12 @@ static void sw_3dp_id(unsigned char *buf, char *comment, size_t size)
+ 
+ 	pnp[7] = rev[8] = 0;
+ 
+-	snprintf(comment, size, " [PnP %d.%02d id %s rev %s]",
+-		(int) ((sw_get_bits(buf, 8, 6, 1) << 6) |		/* Two 6-bit values */
++	scnprintf(comment, size, " [PnP %d.%02d id %s rev %s]",
++		  (int)((sw_get_bits(buf, 8, 6, 1) << 6) |	/* Two 6-bit values */
+ 			sw_get_bits(buf, 16, 6, 1)) / 100,
+-		(int) ((sw_get_bits(buf, 8, 6, 1) << 6) |
++		  (int)((sw_get_bits(buf, 8, 6, 1) << 6) |
+ 			sw_get_bits(buf, 16, 6, 1)) % 100,
+-		 pnp, rev);
++		  pnp, rev);
+ }
+ 
+ /*
+@@ -723,8 +723,8 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 
+ 		snprintf(sw->name, sizeof(sw->name),
+ 			 "Microsoft SideWinder %s", sw_name[sw->type]);
+-		snprintf(sw->phys[i], sizeof(sw->phys[i]),
+-			 "%s/input%d", gameport->phys, i);
++		scnprintf(sw->phys[i], sizeof(sw->phys[i]),
++			  "%s/input%d", gameport->phys, i);
+ 
+ 		sw->dev[i] = input_dev = input_allocate_device();
+ 		if (!input_dev) {
+-- 
+2.43.0
+
+
+

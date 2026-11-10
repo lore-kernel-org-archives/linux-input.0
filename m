@@ -1,56 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794277022;
-	b=V4d6c7HFwO8SNGlb6V4FzfSiM4CA1aI8hh5HjNgWj6uWchI+BglvZZobnz3qGluKhgx3
-	 p14Nqvy1DRL4YHwzAMNwMgeGbozXtwxAS7khdwy4QmvxuXFZqjCQdfHQsDSTuFxKsHfyS
-	 dDUj9jUgXZJusgBKVNuScdT3DxDjn+vD6edUs/sDTI72LbkQ+PQDsjgPfz74xcPI62XKD
-	 /VKEyp4OhNW86ij8UVmM/85hh5LrNrIp8NnpFaJJ33bzNmK+ETqWTEQD27nhttpvYH9NP
-	 5s5Ivosn3klQIOwVaJeokc2uBgS1zgmy2SOU+PeKRCJUCULTCgs3lUO+kxPxGBoZQsA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794277022;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Q+h4TOOduiBrsUe1FNHdwbfuIn0FvX5JggZl4fXeuQI=;
-	b=Alik7LQzzSOcb9kP7+ZKCOw/NW6QoNBEUDxqSYiG4WVTYv05cuu7ET4TGGu+Hij4tT9w
-	 6tAEtfADGX3mtDcfMtv1gReGqny20RwouW3Swcv6ElSjqFIDFf5wwh92EN3iSu6ZKllEZ
-	 GjbKVsDT4tL8D3RigG0UmeUeen31+L5MMHUvTs8FQwlfgFPhnAK5b6nEmVhYpKIz8vwFt
-	 B/w4kgxesN5Oe6MtnIS1iZJfJTlpSox8OpSAtv7MDaQF+XU83gXQkv+is+QaXq1+WUkMJ
-	 FjC2lD1J9jb5V7QhQ7rlfetzUw1kA1JAzEMx8DiRPYnEdorKFWZCNJ96BlrqNMMwzmw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FBBtanRS;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.52
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794277347;
+	b=pAtVl5OYj40dmw0whjKWPsVi3K1fr9AbTzntQVePRKwq7mc6AtDRb4sn1BRkPOlpeLNN
+	 orE4aBP+sTRil8JZYc4kJu5lEv1b+M1+Zd+I/O21aQqFlF371eVqOTZdy3bKNtI1UrkFL
+	 mWQF1kHPoACFJLJbnPA0Kayq6rKpLVguOptgPFt/2vQUBG3ICoqG5WbK2PGE3tBhlRMcv
+	 pkUu1fxiWi0gc6F4fOlS4mT+uEsuh/E6mhHe3MpmaXw/kn0dbc0p2mch5vaWxQDOcxZM0
+	 rUv22lPFcUK0hTuYmHSkzA3enJz09En9T/qF7mL6esB7Mm5mt7HMdGoXPEnYcqqeLNQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794277347;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=4Wpwa4XVyGqQGugMaR06HSk6F68APSi1+DRWGbuhVww=;
+	b=1fptb/tz8tzUFrvQSMdrOPWU7JlFOIdf8zeHeIlVoOv6QtBjt7qIbaGdB9lyGPtPfEhU
+	 RGAb2dJ79YJWQMikndMc9uy3+gZKKYPDEcfeGfgPBBeUynFoUCH8nYzRGX5Uwr1rjF7LX
+	 OM2IKiW6cfJWIlLNcAHT/OpOqUWvdAcU80aHE3XXtwoGpctarulcwqVj7M/25G19+1taO
+	 UMdbv4gMjAYbIGqc1VT3mhoYZIlFzaHRQ2GgsNuDnx8IMFZvAJEuRIYwpSFHKLSxYl4CO
+	 Xr3sG4kKXVQlheBBOu2RuO7a/ATUTwqQ4ol0MmNew99R2Fm5iWrLqYpc6ZfBh1qqxDQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DXxmrQJ1;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.52
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2073606A326
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:17:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB07606A321
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:22:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3AB07606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FBBtanRS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F691F0089F;
-	Tue, 10 Nov 2026 02:17:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794277021;
-	bh=Q+h4TOOduiBrsUe1FNHdwbfuIn0FvX5JggZl4fXeuQI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FBBtanRSj2F4lbFIvXtv3CXvS8SpRRNvmI8vgHgup8tGz+jYCg8YPaa5lECg0/uTa
-	 f+9C+dfd/bsIzrWFyfsu7ZaLmvq2o3yuspmJ67M0mBtZXkcYSsKwOhHtWU0+YuCag8
-	 3sKQxX7UGn5IBQmcJLh6p1s8lNTOy7X1t9N9EaGU+amevXAbsMtiHeDY3nv1v7MgSC
-	 7+LXKQ0c3PGHvw8Pi2dSsi70Rlpcu7CHgQFX7RWuGEs0lSBM1wLxdsf4n12qusXen/
-	 W4i6xjRtXlmLLeNK0blfMsSFS7NPt7GZyOmDxWhC/i45K8iBHOa5tGiVuJCihUXktc
-	 odRo/fcNd9kkQ==
-Message-ID: <sashiko-outbox-206038@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v15 12/18] HID: asus: add support for btn remapping
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261110020036.112884-13-denis.benato@linux.dev>
-References: <20261110020036.112884-1-denis.benato@linux.dev>
- <20261110020036.112884-13-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 02:17:00 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DXxmrQJ1
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-6afbc363efeso2265217a12.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 18:22:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794277345; cv=none;
+        d=google.com; s=arc-20260327;
+        b=dUyjHB92cNK61tj6IVoGShey3ECuKdFNcvznIdLhDs9eKO/5eN/o6kAc2pFgNQueyK
+         O0YvW7urBHONbAwNJUJlR2j7dvKxUjkPCSZkmjLgnftJzdSBTY+Ul1cvIi4bwUEILxxI
+         QqKVHt93kRhLxsTql2YKg34qAsWAAVKv81lwl5CBDuXpbkqFi4csEG3hl+BPbeyjPjHC
+         JyFKeGiJh1gAGIyZHoluaS6NNxwFLdsqpaf/0CSxwgyx4R7EyuMzrkvArAtIbffFTIz6
+         ZvwrV9U01MEujMILe7UKlvLBWZgW3Kog9UhaPWp5MdwzqRUeifcwHn+/Cy7+2+TgdnD3
+         fHYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4Wpwa4XVyGqQGugMaR06HSk6F68APSi1+DRWGbuhVww=;
+        fh=wdPd41xtOzwamEmE86f/+Hpoiy9Qk6qpB8YZYXXMKRc=;
+        b=DxVJqCr/J/VQnFxFaF+ID9xN/L425Eo8MeoEVvAC0OLsD1em3EapRIjeOsLIU+bl46
+         LtknPneHpqMpPjD/eMwksi926yPSm4kxKQ45uWg51HK3uRzRPe659/ZwM9fANJ58nsz3
+         x79PSYzHAnDeygyzvIHO+nbwRbVV3OwREsUBmVsB8WjUjs6SRNpsrOeTG+Pt1UsUxOJm
+         tDJAFikkP9nwP3Qj0Ule5tL2CAA8R+JYh+JQuxY7YiLqf/YZGavUVXlpqtaDKDiO7YmM
+         BMMljku3yTSredfeBp4O+fPS0C8ypCEXYU4LrZntqHSe0YAgjspaPQ1UMC80fNMaCILH
+         ESJQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794277345; x=1794882145; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4Wpwa4XVyGqQGugMaR06HSk6F68APSi1+DRWGbuhVww=;
+        b=DXxmrQJ1EsrbNPhnqwrQVNpTjUWu3R+XkOju7bOqwzLAFQ4aJEYNYEuRKtTFVzrafc
+         TRsT3xfuGj8ve+klCotLBnHjKaA17A6q4XDSC9dMCz40tRqF47pZYp5Ag53oJTP7T9f/
+         hj+N/lw7OOEabRXog1qAKnaDpekqnGZSpfnXOpHw0xp+edy6LYuEXxzNXULArO5QivLv
+         aRY2W4L9PPiEGTTCDMYq1EuH3NXDwzseOaYNs0JP/U6aBMD0XU6Ziz8U6EOCpInaH3nG
+         uiTa9XHHo6xbD4JkoX92UtFPAr9it0WAdF/ywG4HjwaCLkd7SYzVIKYlYwb5AdqPlA/L
+         UhUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794277345; x=1794882145;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4Wpwa4XVyGqQGugMaR06HSk6F68APSi1+DRWGbuhVww=;
+        b=SczecEXVIj87giFdHX/YOiW0fXyGsoINP+VevmBUHhodxaa4pXl+0JY2+9Rx+tS0ry
+         cajs8o4XCtBgB7CN9zan7qB11KOuG3KepVNdHINdVf3BugtI9ieVhspk4T+CPlHfGnFe
+         zHxmuqPw9uNr2C0/KW+HOG9VhSNwbG6HG7eX8ixpfhk5aPtFN4lXoSlLY3EGbU7qwkhg
+         eDu99c9tPRMOcD8OnAemsauUnxN/Z1lV+FVdq6k/akj9Bd4FQdw1OikzxFikaKtK6v//
+         X7OXCUPr7rs7X1xT7l5CDzVICPC/f4FYhvjDoItNx431c6xSjihKEap0PHIIync+hnNQ
+         gZsg==
+X-Forwarded-Encrypted: i=1; AL+hErE2lFVoIi/UTJovdNOiXVNB/1z2PAghu8adA3pYdDti1ASltmGG5CPfzQY4DuIULY+9DTSug//lJhSVow==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9dHGr91d1byNz6ZTza0RDMb5SFA/LDwTcid7SKQdCbZALHwKKQ
+	00ybpYgJ419wsYfUwgaTjKW7hLWvyFriEvQmzJyjBFRLPVSOpD9l/bCZePyeZlyUXI/g38IiGbj
+	B+hnVJCQU8wS5s+grEm08flAcSZ7Dig==
+X-Gm-Gg: AYBFou3TnSZoFIiXCxE6SR5jkJwgQjEWjpNLilFfRoq/GqNpL6T5jfavcv9NEhpz4eW
+	6dvF8bAMpjIXhoQwEohyFPZcIfvLwlrKPpHbN+iSsdW/w8z49N0Dxaa312JwoWBo1jRd4vgC8Ei
+	qDmRy8/XP5Y7lgoWDl1KLS65VsRu3aNEsKomrUW0gdjy4ehYLRmR68DY/J4AZYMtJwIn7NlneXx
+	fIXf1PcKAr8YUHRKjfXnNQoL6ovF3E+wCts2GFzqpw/4HSFFA6zgqKL0xMM+rUR+n+NsyydAipA
+	wSssnhmztA29BlWdC4nv1tQzAhh5Mw+/Qismy9fRVpIw1FnCCjBjNcxCLqzh/PkIMCSzUVvjW5X
+	l+OMk0PHcjI0scTzRI6F+HVbuEiozzrmgSiXS9ZbiYuURhlKVdUc0K66KG+HzNrBMq33xUcHbXK
+	8E/YzIyz++rEgX1lsEiBmSckhZ9ChHD9/Hv5y0hB83zl0Iq4I=
+X-Received: by 2002:a17:906:ef0c:b0:c40:91fb:b76 with SMTP id
+ a640c23a62f3a-c50495f09f8mr89856066b.33.1794277345504; Mon, 09 Nov 2026
+ 18:22:25 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,199 +104,60 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261016024300.3660850-1-mhun512@gmail.com> <atJycIEnUZKVdTjW@google.com>
+In-Reply-To: <atJycIEnUZKVdTjW@google.com>
+From: Myeonghun Pak <mhun512@gmail.com>
+Date: Mon, 9 Nov 2026 21:22:13 -0500
+X-Gm-Features: AclHuK8xZhpHzpn9-AplnHcwkAVpxz6Qptfxkr2G4Zkv10w3cEkBO82uL0JlSd8
+Message-ID: <CAGEsz8GKNh2K=22+_C-HWPFv6QUpSXbFWT6WmFX5gTSO-e9NtQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: wm831x-on - free the mapped IRQ on removal
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: patches@opensource.cirrus.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Ijae Kim <ae878000@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [Medium] HID: asus: inconsistent pair update and rollback in
-  button_remap_store()
-- [Low] HID: asus: unlocked read of turbo_support in
-  ally_create_button_attributes()
-- [Low] HID: asus: mixed cleanup helpers and goto in
-  button_remap_store()
---
+Hi Dmitry,
 
-commit 6cb0aa69d532f45691d60b1b758a8ac7ec0bc31a
-Author: Denis Benato <denis.benato@linux.dev>
+Thanks for the review. I've updated the patch to use managed IRQ/work
+cleanup and MFD-provided mapped IRQs.
 
-HID: asus: add support for btn remapping
+Polling is retained for release detection, since the chip only
+interrupts on assertion.
 
-This commit adds sysfs attributes and MCU command support for remapping
-physical buttons and macro assignments on ROG Ally handhelds.
+Thanks,
+Myeonghun
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index b5a1466d327bf..8f9695b54e2a5 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -998,10 +1206,586 @@ static struct ally_prefs {
-[ ... ]
-> +static ssize_t button_remap_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t count)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct button_remap_attr *btn_attr =3D to_button_remap_attr(attr);
-> +	enum ally_button_id button_id =3D btn_attr->button_id;
-> +	const struct btn_code_map *old_code, *code;
-> +	const struct btn_code_map **target_map;
-> +	struct ally_button_mapping *mode_map;
-> +	enum btn_pair_index pair_idx;
-> +	struct button_pair_map *pair;
-> +	struct button_map *btn_map;
-> +	bool is_first;
-> +	int ret, i;
-> +
-> +	code =3D find_button_by_name(buf);
-> +	if (!code)
-> +		return -EINVAL;
-> +
-> +	ret =3D get_button_pair_info(button_id, &pair_idx, &is_first);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	guard(mutex)(&ally_prefs.lock);
-> +
-> +	/*
-> +	 * Validate the remap target while holding the lock: the
-> +	 * gamepad mode can change concurrently, and the check must
-> +	 * be done against the very mode the mapping is written to.
-> +	 */
-> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
-> +				   btn_attr->is_macro))
-> +		return -EINVAL;
-> +
-> +	/* Access the mapping for current gamepad mode */
-> +	pair =3D &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
-> +	btn_map =3D is_first ? &pair->first : &pair->second;
-> +
-> +	target_map =3D btn_attr->is_macro ? &btn_map->macro : &btn_map->remap;
-> +	old_code =3D *target_map;
-> +	*target_map =3D code;
-> +
-> +	/* Update pair index */
-> +	pair->pair_index =3D pair_idx;
-> +
-> +	/*
-> +	 * Send mapping to device with the caveat that first
-> +	 * generation devices require individual button pair updates.
-> +	 */
-> +	if (ally_prefs.is_ally_x) {
-> +		ret =3D ally_set_button_mapping(hdev, pair);
-> +		if (ret < 0)
-> +			goto err_restore;
-> +	} else {
-> +		mode_map =3D &ally_prefs.button_mappings;
-> +		for (i =3D 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
-> +			mode_map->button_pairs[i].pair_index =3D i + 1;
-> +			ret =3D ally_set_button_mapping(hdev,
-> +						      &mode_map->button_pairs[i]);
-> +			if (ret < 0) {
-> +				/*
-> +				 * Pairs are pushed one at a time. This pair
-> +				 * already reached the hardware when a later
-> +				 * pair is the one that failed.
-> +				 */
-> +				if (i > pair_idx - 1)
-> +					goto err_restore_hw;
-> +				goto err_restore;
-> +			}
-> +		}
-> +	}
-> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
-> +		     btn_attr->is_macro ? "macro" : "remap");
-> +	return count;
-> +
-> +err_restore_hw:
-> +	*target_map =3D old_code;
-> +
-> +	/* Try to recover the mapping presented to the user. */
-> +	ally_set_button_mapping(hdev, pair);
-> +	goto err_out;
-> +
-> +err_restore:
-> +	*target_map =3D old_code;
-> +
-> +err_out:
-> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
-> +	return ret;
-> +}
+2026=EB=85=84 10=EC=9B=94 16=EC=9D=BC (=EA=B8=88) =EC=98=A4=ED=9B=84 2:57, =
+Dmitry Torokhov <dmitry.torokhov@gmail.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=
+=84=B1:
 
-[Severity: Medium]
-Is the ally_prefs.is_ally_x condition or the err_restore_hw rollback
-inverted here?
-
-The comment says first-generation devices require individual button pair
-updates, yet the ally_prefs.is_ally_x branch sends a single pair while the
-!ally_prefs.is_ally_x branch loops over all 9 pairs.  And if first-gen
-devices actually require all 9 pairs to be sent in sequence, err_restore_hw
-(which is only reachable when !ally_prefs.is_ally_x) only sends the single
-pair instead of all 9, leaving the hardware with the failed mapping.
-
-[Severity: Low]
-This isn't a bug, but button_remap_store() mixes guard(mutex) with goto
-error labels and holds ally_prefs.lock across sysfs_notify().  Using
-scoped_guard(mutex, &ally_prefs.lock) like gamepad_mode_store() does would
-avoid mixing cleanup styles and move sysfs_notify() outside the lock.
-
-[ ... ]
-> @@ -2420,11 +3220,11 @@ static void ally_btn_turbo_init_attrs(struct ally=
-_btn_sysfs_entry *entry)
-> =20
->  static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct=
- hid_device *hdev)
->  {
-> +	size_t entries_attr_index;
->  	int i, ret;
-> =20
->  	scoped_guard(mutex, &ally_prefs.lock)
-> -		if (!ally_prefs.turbo_support)
-> -			return NULL;
-> +		entries_attr_index =3D ally_prefs.turbo_support ? 4 : 0;
-> =20
->  	struct ally_btn_sysfs_entry *entries __free(kfree) =3D kzalloc_objs(*en=
-tries, ALLY_BTN_MAX);
->  	if (!entries)
-> @@ -2433,13 +3233,33 @@ static struct ally_btn_sysfs_entry *ally_create_b=
-utton_attributes(struct hid_dev
->  	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
->  		entries[i].btn =3D i;
-> =20
-> -		if (!ally_btn_param(i)) {
-> -			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> -			ret =3D -EINVAL;
-> +		if (ally_prefs.turbo_support) {
-> +			if (!ally_btn_param(i)) {
-> +				hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> +				ret =3D -EINVAL;
-> +				goto ally_btn_err_cleanup;
-> +			}
-> +
-> +			ally_btn_turbo_init_attrs(&entries[i]);
-> +		}
-
-[Severity: Low]
-Should this check entries_attr_index (or a local bool snapshotted under
-ally_prefs.lock) instead of re-reading ally_prefs.turbo_support without
-holding ally_prefs.lock?
-
-[ ... ]
-> @@ -2457,6 +3277,11 @@ static struct ally_btn_sysfs_entry *ally_create_bu=
-tton_attributes(struct hid_dev
->  	while (i--)
->  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-> =20
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +		kfree(entries[i].remap_attr);
-> +		kfree(entries[i].macro_attr);
-> +	}
-> +
->  	return ERR_PTR(ret);
->  }
-
-[Severity: Low]
-This isn't a bug, but ally_create_button_attributes() also mixes
-__free(kfree) on entries with goto ally_btn_err_cleanup.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110020036.1128=
-84-1-denis.benato@linux.dev?part=3D12
+>
+> Hi Myeonghun,
+>
+> On Thu, Oct 15, 2026 at 10:43:00PM -0400, Myeonghun Pak wrote:
+> > Probe requests the Linux IRQ returned by wm831x_irq(), but remove
+> > passes the untransformed MFD IRQ resource to free_irq(). The two number=
+s
+> > are not guaranteed to match. If they differ, the ON handler remains
+> > registered and can queue polling work after the input device and driver
+> > data have been released.
+> >
+> > Store the requested IRQ and free it before cancelling polling work on
+> > removal. Also cancel already queued work after free_irq() when input
+> > registration fails; free_irq() waits for the handler but does not cance=
+l
+> > its work.
+>
+> Why don't we switch to devm_delayed_work_autocancel() and
+> devm_request_irq() (or maybe use devm_request_threaded_itq() and get rid
+> of the delayed work)?
+>
+> Also we need to get rid of wm831_irq() and make MFD give us already
+> mapped interrupt.
+>
+> Thanks.
+>
+> --
+> Dmitry

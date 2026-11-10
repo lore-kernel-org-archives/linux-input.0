@@ -1,95 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794278181;
-	b=5SzWg6lf5UP080wTLeOl6+Ilht/zFvCOpkp4SFMVNCeTb0F9JDcr2lPDhw5i7M14xMic
-	 niHAMbMuEs5sU01e8XdE4H0FyFv0XJ8r+CFB1PvBjCsmZaOLT7W0t8zOCrRq8eMFlsW0W
-	 +3ARq7bRGhuyROOnDeaMZalIMDYkW2ysVcdoIPb/dxMaEf6Zuk7+ZuMDTOcjtokS4bqW5
-	 VYbN9BcEj/iFXJY+DopESS0JqwrQ5uyNFxIJoUL5DA5lVLEdMW7IlcKpQNeuNN5Xue8HP
-	 IbMlUAIeBdvtqSmxUMbnjksjY/xRAPCbxZDGISPNv0/C5LCcaA8r1cyYqNtFPf5Siqg==
+	t=1794278228;
+	b=4v1Jhh9BIgCTZIQK4aI0+qZ8WwQnO4QQFpLZlIxeizOFMQRyWY3DbR5jPiOTNpvF3xvL
+	 t2S65pfev6JWsyaZD/DqPCjI9dnfCZDNZuQ9WSSvV5clbPB1kNoAFSv102kjLT567ybnX
+	 M0HN94ep6gnpZGz8ajkrEJKstViMAXJYZ4O/G9kfNaxVGNRHQlY0aIffIG9jwRbhdtYU7
+	 xSJsYwyHGSaBEub/Q4xPlwV9wNSZmMI0Qig8pXpqjCCjl+K/tPz/Nnrs/LvFXt7+Gfop6
+	 kT83oC6ygpSNHKyCc4C37YRYTALvgRGIpap7xtDuYXvkRPNqd5NjFYUKGeiwFX3HH9A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794278181;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794278228;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=I3vLkJZQD0rVpmgjfOcaWg93t6TdJv+fzjBvHDBOP/c=;
-	b=Bekz/vjKtcJdf6mzxNEzwHFrRptxFfxtXW/0qGkWzq2wkYUHaPItTnc8RbJVI/JU2tQ9
-	 AoY5/GWTiyQTEy1BEYXmcF/3gLH4l6KezgCzKoxpT/Je8jW1QbfaRUwuXsK2EZkmjSFkV
-	 hyJLP5N2XCj7pwGGjFrYUoKrcbjP9cXAitsAXNDAMiF1UtQ82Y0yVokwKpEGVjKzgOX/R
-	 nj2DTady9LhmQHOMQ9EvKjwH8WEIhlo6BsbVZY83YBi6dt5rfiXPE/9fnRLmYS5/BhwQH
-	 Eo31Igz75BobXRXlrDhugbrG7PTAaXbJeXp5cnGicJ0bzRZZy4FO8GTvjf8aPqgiaBw==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=0u5+rYT3YoQNdVRNVHLrVHwDAgcFZg+rCZy8HXjrq9A=;
+	b=DKhnNJ3XjrnLREWAqEoYbSzuEegxQLqIqUV/Kp8HYeG6uV8BCdUBhml2dFSfnkj2efaH
+	 KEFL3NnBT0yxXRRh77YL2K0bqCZcRnbtgGVruLtIOU4r5SoEWGzgFxD3+Envqiu2C/hGT
+	 a+NabrKMGnHg1oom+bdOrOvHx6xGdqtDfPof9W79GCsjYX46SE5WL8iBLptDcf879MET0
+	 tY4BYfGVmKt7t7VWFT6Up5b3Q41ydQcH/aH1EjSk2bfRJUB1u8uF8Wc3/8HCdRIg3BU7d
+	 3yniyaF4PjupzPsBDwyJ/7IDcyeF8kw282bdXbXrSRxMzMcdaUCo4tQ+bbeWK4eoJzA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NjnZ5oMH;
-	arc=none smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=e6dAaECO;
+	arc=none smtp.remote-ip=74.125.82.178
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F9D2606A31C
-	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:36:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F9D2606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3862606A31C
+	for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 02:37:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E3862606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NjnZ5oMH
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1a3c08d6928so2772912c88.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 18:36:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=e6dAaECO
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-3720addb068so2574454eec.1
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2026 18:37:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794278180; x=1794882980; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794278227; x=1794883027; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=I3vLkJZQD0rVpmgjfOcaWg93t6TdJv+fzjBvHDBOP/c=;
-        b=NjnZ5oMHIPP1eMYOkel3mxmL4O+4lh4UavbGQ0x8iYv3OBu0P3R21QBlmc035MYJ1P
-         ScvcDc5YjSV32zsFbIUqfQ5AE8OGXPY+J4TL24K272+Ea8f1dIUC6MYLiSpmQBaDrbYd
-         IJ4pFpwrdAnQdyDk6q939qMuc3gTOsGyywSWTjysvOv8uFs1XcozEw6YiDdFnAzmODiQ
-         YjEYCpl9izC3klbEchDFgsc3ppbyQrCnIra9jbB1uDPU6SieieVUVPoK/1f4uOnL8Uwm
-         g68WbK8QP7kstdYvMDW+oFuODtfNDmYakQiS/8VXLuGgptyQxL1+3EGYzsgh3gBJP6I9
-         kBqQ==
+        bh=0u5+rYT3YoQNdVRNVHLrVHwDAgcFZg+rCZy8HXjrq9A=;
+        b=e6dAaECOn/6gjR2Epz2CWid96qChCp53Z4CgbtaMyQ+W+NwKINxO3pjQfAUo6NyRrL
+         EN4eirkn3aLrUaoUa0D5mGHhuLF5P3fVJMs7Ds2d4RU1Tunyku8W7hKwmru4fjkjp9RK
+         yFj646Kl2OvjWCjW7yxCwmbiexnul1G2rD1McGaBGz+zVgC4e+Z6wYhdzuQdcxViWGSp
+         BqMVTh2Mw5VBtAH+IbP27510ujT3adz7DHBWYE7niju0zIjTmIAXW61UHbc7jLOXUIcz
+         MntNYL6rNA25khniZsfSMhG1cxULTnAllpZBTXP+qzhuTT6JGalA3D1JLn8JDd2CExU0
+         X3xQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794278180; x=1794882980;
+        d=1e100.net; s=20260707; t=1794278227; x=1794883027;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=I3vLkJZQD0rVpmgjfOcaWg93t6TdJv+fzjBvHDBOP/c=;
-        b=dH8SseERpckm2ks+qz9Pj4dyvePalLZeFLlEblqxuuRlcWFkQ/qeN6ggGV2OnZ3YsH
-         1LLBcXFq+mjmdhh4fURXdl68XAJ6Nwk+U5oTX2Q5+c9IxU4gz8nziHvCy50nlnE1MXQG
-         69rAr/aMJTE9Y35JlZiDxQEckP6+1EIdcMWDZ+0pfeDYBDaZcKPQ+snyed7aCNeoGxZ5
-         A8PoIOR5Cg+HsDk+FkhdYObt2uXSMJ6W49qEE7/XnLSvvd30HEhVz2AcDawcPVLN/3X2
-         5vpQQht2rPnjyPp8nTiE1kckRNFVj6j1ygkaP72w1NUaEN1rj8aJsOkQ+VoGzMIcGpgm
-         VMcw==
-X-Forwarded-Encrypted: i=1; AL+hErHpC/q3eS+EBbezGSMlRot7SH7OM+wzM8ZqII8xJfyNY3Ty5EFy30jsQ5BpNR/EbU6AxH1OSRgVamI/4Q==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/V8Bfbf739CGta5zjBmZW9GoggcQZDNMMPHF6PFbVcK4TDfMWD
-	5pQJaaOmt4JlRaLXrLF/XwO0y5RUc1eCVfaMcHYub+WgBj9ObQRFGIIx
-X-Gm-Gg: AYBFou2EeZdBJegV4lNPfZBYxPwJIIo0zbYYgAITJO9gIIlzokAiqBc/07OViguip9r
-	2iRSR0GmN7wcKRn8Z8vtN8pcdsQKhEVMlmZTTswxxzZ92Gt6eQgh6ZuCZUBp0wU4VPH4zwTQTra
-	HCwECPXf64BSGg2EpOu6vQtExwhAn0ysDuKhln3WbQgjGKYdkUJCBFq9N1/xHf0GlAWY2fEpUmb
-	VJ4Vics9nzzXBd9V9Dcp1plOwjewulQpdRrIKqQgPEHQOXjqTM2rJNNVjDZR0+etTnqakhyCmn4
-	JD5LUSIIDzeAz5Nf9XYIR4NlQ+KRTD2bQ00sZKrYjOIFq2xejzzagzGRiXubd8ZJOmlUkDJRaBT
-	y7JxiiItRnm3cAV3R3H8w4AVPnqUCkMPzi9P9Ji9rJNxMQDXrSQSCc7E1O5BAw3TPFOHsTks/6e
-	azsaOvryfs7qiLCKk/7yFXa9DsKJ7evmyK4LiQPYu4XXgcrUV/72uOb3y7op4XUW2U6lNC8Izb/
-	Xg97/SZQEqUU+l5R++nftexkIvieUkKwLmpJ0OcJRyv1lzyavkm34IIIdhMWhOrKEyuToNvZICF
-	i1uDnuraTBaUWsIjmntHkKJ6r6ROmAqIN3K2Vgs74902mm2yIsUU4u/VcB6grAFGRWiP/A==
-X-Received: by 2002:a05:7022:1717:b0:1ac:1022:b60c with SMTP id a92af1059eb24-1b3b5e6709fmr1555709c88.1.1794278179655;
-        Mon, 09 Nov 2026 18:36:19 -0800 (PST)
+        bh=0u5+rYT3YoQNdVRNVHLrVHwDAgcFZg+rCZy8HXjrq9A=;
+        b=ZSxVFN4sjAo7G+oG3T+9Hz1KF287oGdoJ+oKVa8FYwZbq66YdKJzwgrUJBfgFgPSMi
+         DCjlrlUGvygyA7nZcg2YA88mi3wcuoltIGCVdeYCcBquNFP79FYFQAldTED+GQ/Rrdbt
+         RmbqAnL13A/s1V1dN8P9c/Nl6+GbebV/ZsT/fPu6f+UuH1qio3KdGvhqGaM0WjEo68B8
+         AeMkiu4Fh/AVXy3pS4F69v0aErMfVYSGI86LIjMYDFhEYVdPpQnsbCYS5vMsqUSJs62i
+         yHAta4l8PtgECvx1XiihCMYBHSuhuO9c/S4rWC4J7LR+vKZyeHGOALUPxVJel1/VUsv5
+         3gDw==
+X-Gm-Message-State: APuU4Z8aGQkE/6ZaCB0jZmk8KrC/YU6NlqhrM1r2WKXQj30KOlXNB+bI
+	f0ejaMOoIjxKGN3r9zTmPsirHiw2xi64fNOBrNSs9/N90knJjmQztMg6
+X-Gm-Gg: AYBFou0JHXiPFUThi+WtsNsDtGF6HOL5en8gblecnD15HmZPulIDeHLSt45Vk0KTYqv
+	cvatb502x5+EAHGkMeca1ym6ZzG2XUS5/JFQaMjYzTNUS0O4BHoCMg6uPy8HgVPhSvxxAH5/gvV
+	tkSRJ9cQO9l1bGzUjCw6y6ni+9n48wUFb0t1iqSWPfvWWOTyKP12GMLVngszq2tWnrE4ZgTMyg+
+	XWx024EXmRk1c5aHWd1WPR7r1O0OIlxE3i84ZjmkxXgTNM9D3PBDzAxg+nlWnlj9LljH/cNqhdh
+	jWgY2M/f9BsZYc8c7xL/QpWs8VFUFRq0OgRbI3IxkIN/HEWZul9dUeMZkwg4MwiTJiGBp6qMPm5
+	+snb5C5k9nqerc6XubY01EU0lT/ssli7pCF7fADE/fOMgJ3vpYrURIppsmVeJQK1MRBbMKNe7c5
+	W8WsQ6NvVOfVPyI1jELFJWoyTzjxUeezxH7yxsjv13f9MW6Zwfy1vQnk6sWiBgldVtTuMWLe1NR
+	91/8WTcTedWMJ6wnX4ERqwC37pclAGDJiFZx0qpNUkfSTuscET2ngQZXQB/CGwJVdmr1wJqBLbt
+	sObwBVjJZtUDQarauZJ81nQvNOwJhiW1BgFCpkib+4vV+nVE5QRQ0XFYVLnbU1ZHGQQrDA==
+X-Received: by 2002:a05:693c:4144:10b0:369:f05d:6c67 with SMTP id 5a478bee46e88-3751fb324aamr1768458eec.12.1794278226862;
+        Mon, 09 Nov 2026 18:37:06 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:856b:460b:b522:14ec])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11346sm3608596c88.7.2026.11.09.18.36.17
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3751dae63a6sm2617313eec.1.2026.11.09.18.37.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 18:36:18 -0800 (PST)
-Date: Mon, 9 Nov 2026 18:36:15 -0800
+        Mon, 09 Nov 2026 18:37:05 -0800 (PST)
+Date: Mon, 9 Nov 2026 18:37:03 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Yuan Yao <yaoyuan0329os@gmail.com>, Jingle Wu <jingle.wu@emc.com.tw>
-Cc: Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
-	Vishnu Sankar <vishnuocv@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Phoenix Huang =?utf-8?B?6buD5LiW6bWs?= <phoenix@emc.com.tw>, Stanley Chen =?utf-8?B?6Zmz5bu657at?= <stanley.chen@emc.com.tw>
-Subject: Re: [PATCH 1/1] Input: trackpoint - Add new ELAN trackpoint device
- variant id 7
-Message-ID: <avKBsi-E7IeUgsSY@google.com>
-References: <20261102130836.11863-1-yaoyuan0329os@gmail.com>
- <20261102130836.11863-2-yaoyuan0329os@gmail.com>
+To: Tristan Madani <tristmd@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Tristan Madani <tristan@talencesecurity.com>
+Subject: Re: [PATCH v3] Input: applespi - validate ACPI property buffer length
+Message-ID: <avKDS9x8NVLeizVP@google.com>
+References: <20261029002227.2002174-1-tristmd@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,48 +97,23 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261102130836.11863-2-yaoyuan0329os@gmail.com>
+In-Reply-To: <20261029002227.2002174-1-tristmd@gmail.com>
 
-Hi Yuan,
+On Thu, Oct 29, 2026 at 12:22:27AM +0000, Tristan Madani wrote:
+> From: Tristan Madani <tristan@talencesecurity.com>
+> 
+> applespi_get_spi_settings() reads three ACPI _DSD properties
+> (spiCSDelay, resetA2RUsec, resetRecUsec) as u64 values from their
+> buffer pointers without verifying that the buffer is at least 8
+> bytes long.  If a firmware implementation provides a shorter buffer,
+> the u64 dereference reads beyond the allocated object.
+> 
+> Add buffer length checks before each u64 dereference.
+> 
+> Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
+> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 
-On Mon, Nov 02, 2026 at 09:08:36PM +0800, Yuan Yao wrote:
-> The new ELAN trackpoint variant id 7 is found on thinkpad
-> X14 Gen1 laptop(Product Name: 21XMA006CD), it's now
-> incorrectly probed as Generic or Logitech PS/2 mouse.
-> 
-> Add ELAN variant id 7 to match the TP_READ_ID command
-> return value, probe the device as trackpoint correctly.
-> 
-> BEFORE:
-> input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input63
-> 
-> AFTER:
-> psmouse serio1: trackpoint: Elan_variant7 TrackPoint firmware: 0xa1, buttons: 3/3
-> input: TPPS/2 Elan_variant7 TrackPoint as /devices/platform/i8042/serio1/input/input65
-> 
-> Signed-off-by: Yuan Yao <yaoyuan0329os@gmail.com>
-> ---
->  drivers/input/mouse/trackpoint.c | 2 ++
->  drivers/input/mouse/trackpoint.h | 1 +
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> index 3bd8fdf56cd3..f46fc1665c96 100644
-> --- a/drivers/input/mouse/trackpoint.c
-> +++ b/drivers/input/mouse/trackpoint.c
-> @@ -25,6 +25,7 @@ static const char * const trackpoint_variants[] = {
->  	[TP_VARIANT_NXP]		= "NXP",
->  	[TP_VARIANT_JYT_SYNAPTICS]	= "JYT_Synaptics",
->  	[TP_VARIANT_SYNAPTICS]		= "Synaptics",
-> +	[TP_VARIANT_ELAN_ID_7]		= "Elan_variant7"
-
-I wonder if we really need to say "Elan_variant7" or if we should simply
-say "Elan" here as well.
-
-Jingle, is this your part? What is the difference from Elan trackpoint
-reporting 0x03 as its variant? 
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

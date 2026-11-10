@@ -1,127 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794321775;
-	b=zKbYOyvbhRGJOow4z0dtREn9OUmACY2ZlhfN0TcamaRHjpyJoztC6/OIDEl1vzvFER5e
-	 sVv64zKZNTGAKKkj4fwoMrP4oBXSJtqVq6MdTZ5zGw0g7hqYkLCJ7dbgj1gfTpitdY1EA
-	 jsN/QrjWE5x48ucxVZ/+6MDPyCa12WMfpXWIdmlB2Xv/D+FAadMnPeHckCmBbbUraHGfU
-	 IXT9oNk6Nj/LR+V7Oq7lBop39Sq/qbAV+JM+jwL9judk6srKrqWD7+O64suSK4ydqK3xa
-	 VuiJrCbjMeXKom06rqZ6PKj5AKZYrfVig/l2oAStpVsQkDOhDv2eqBJoxLTqWv9v9QQ==
+	t=1794322724;
+	b=lWnrTLMsksh/elxxGURgrZyMWybzeqxhyiNpaIuGzqRzYSRnk6M13jDaXojI46qq+efb
+	 qMTlIch+ml5jHZ4fb8DmqkR0cJFmfNyXlcELEGT6Tf1fYM1+JPUh4GconFAedB5JrHbHj
+	 R3nBBtdkpYBamCntJrdi1UCaERFqDS45sdPclsfIGdxSFoDsPLzzlEZjCn6GioCpfsab0
+	 yTV0C903vUnjwDfgOKcRAt2Xwg6o4M4gMKJh/UQQqNecD+EWpV5dNVo6PS9fAENBkoVzA
+	 UUvGWy6qq0x5oA1GXo14AZIt2HnzggKwZgPf495Ph4zAzD6qJ9h7s/tW8YErhIo/uCA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794321775;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Flag:X-Spam-Level:X-Spamd-Result:X-Spam-Score;
-	bh=0B4qA1TkglN4OMx2OOtGC+4WxOgjbuwo6ZjpoXcLiI0=;
-	b=3kRmgwTVV/T6acYbxPBtt5mu+bAM9FDK7j9zyJsUy6KTSW0lGShfCyZbT4ZMY/IfzKin
-	 js/uTbCmeRyPcifM+G4aIhY/b1uTiUtQojshMvTWO1cdwgCJ/RAFRqN6DKktPKsnVRTgn
-	 OW8Hb7XZ/KAZvLASVD92NdgqnOKf+rnyeTaixH11nB1C60UJ8virZTBUv7tXl4iHbYpFR
-	 /B/htZXAYUb0r+XqHV2tKk4GFqGJU+NfK5Cez0kABoJPnISRNkpHEvkNr1rbsf/5qCGTq
-	 aCThOyXTZY8qdUPFm3uyEimVGMcWwNpjLPI0ls6ku0Gu9LlOkH5ZIkPEidAdHtoMdEg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794322724;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=tM0VlaEE8Hm4AV2LmNn9XxetntusdncCzYCV4dQnv+I=;
+	b=I8XogMkJxcxvfDQbyuy9mWKmHXbssvct/ZwPGnkby4RqoVA22pHbstNTqJnvuL+64cCS
+	 qKuEa3lrVZJmwA5VrX4oy4PBM8vROl31639mKmoyyx6ix7RtJHInMoEuLevrj71H5/Vps
+	 aLQn/6Gl/Yytp7BccV5btZUNYVBxpMS/ej+FQJXl/WJ8oH2CJCNoLhcko4ME4JbFgr5Oa
+	 GaIP3hRlarlsfYcC8fuV56VB6z3td8VM4k85/4ioJXswxD+s3uY106/5w59gV8F+1B0QB
+	 coatnUgKJNJSIoRlx3O1acdzb4Tbn8G/Duq4/0oPPZ4HfDwpHKtuWghTmaWaDcA8lJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=suse.cz;
-	spf=pass smtp.mailfrom=suse.cz;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b="KX3USKj/";
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="/2pLOUfc";
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b="KX3USKj/";
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="/2pLOUfc";
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQA9PJv0;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E75360A260D;
-	Tue, 10 Nov 2026 14:42:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1E75360A260D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A7D60A2624;
+	Tue, 10 Nov 2026 14:58:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=KX3USKj/;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=/2pLOUfc;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=KX3USKj/;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=/2pLOUfc
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 598A91F769;
-	Tue, 10 Nov 2026 14:42:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1794321773; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0B4qA1TkglN4OMx2OOtGC+4WxOgjbuwo6ZjpoXcLiI0=;
-	b=KX3USKj/BuUCPazH8t3noRkhKvNyS5Vl2sfPRRfBrVBNp1j8KEsgjtdwoDEfs+Fi37nQ68
-	vnsR7ycg2OeYqigI5LNHLalsHJ9KCDX9IcBSdyT+NAc3WsyWV3FKF78iAL2OBmuxWV0Xwz
-	g2i8xSSiqPdjbp3ohRC0gvCg0kyAyjo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1794321773;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0B4qA1TkglN4OMx2OOtGC+4WxOgjbuwo6ZjpoXcLiI0=;
-	b=/2pLOUfcw4Ranr2A4Pwh/sC+sB848L9X9w962zn/48Fcdt+Sh4cEXY+LMMlgvMsVazsfNO
-	Ql9bUyzc9/d9uBDA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1794321773; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0B4qA1TkglN4OMx2OOtGC+4WxOgjbuwo6ZjpoXcLiI0=;
-	b=KX3USKj/BuUCPazH8t3noRkhKvNyS5Vl2sfPRRfBrVBNp1j8KEsgjtdwoDEfs+Fi37nQ68
-	vnsR7ycg2OeYqigI5LNHLalsHJ9KCDX9IcBSdyT+NAc3WsyWV3FKF78iAL2OBmuxWV0Xwz
-	g2i8xSSiqPdjbp3ohRC0gvCg0kyAyjo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1794321773;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0B4qA1TkglN4OMx2OOtGC+4WxOgjbuwo6ZjpoXcLiI0=;
-	b=/2pLOUfcw4Ranr2A4Pwh/sC+sB848L9X9w962zn/48Fcdt+Sh4cEXY+LMMlgvMsVazsfNO
-	Ql9bUyzc9/d9uBDA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 137DD1339F;
-	Tue, 10 Nov 2026 14:42:53 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id pC/yM2wt82q8MwAAD6G6ig
-	(envelope-from <jack@suse.cz>); Tue, 10 Nov 2026 14:42:53 +0000
-Received: by quack.suse.cz (Postfix, from userid 1000)
-	id 7821722550; Tue, 10 Nov 2026 15:42:48 +0100 (CET)
-Date: Tue, 10 Nov 2026 15:42:48 +0100
-From: Jan Kara <jack@suse.cz>
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, 
-	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
-	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
-	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
-	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
-	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	netdev@vger.kernel.org, ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
-	coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
-	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
-	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
-	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
-	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
-	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
-	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
-	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, 
-	Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 37/51] proc/vmcore: don't let vmcore_cleanup() run
- twice at once
-Message-ID: <q4w6yd2pk7g6uzqva7sivfusaavqfwsgh3f4m2y7lbp74dfgvr@unclx56ulwys>
-References: <20261104-work-procfs-bugfixes-v2-0-bbf7d5546809@kernel.org>
- <20261104-work-procfs-bugfixes-v2-37-bbf7d5546809@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQA9PJv0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4BDE1F0089F;
+	Tue, 10 Nov 2026 14:58:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794322723;
+	bh=tM0VlaEE8Hm4AV2LmNn9XxetntusdncCzYCV4dQnv+I=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AQA9PJv0ksr0R09Jj0CUrcfkHSXYBK4F28o8m6CiMYTG/g9/KCHzw3ScFpsl8KHBn
+	 IqR5F+5PdZW/FmiQE5hyG29Lzeqw+6oVbvf/T66VmVbH6qX4xDQsmnQP4JL1Zxz1cG
+	 HcVR6UVWB0lPyXOuO2W13chI8iBCDoJd9h9o6HPo0VeGfRKefSE8g3rzFtW3SMz0ih
+	 SzoL60sWHcZpYx9A8pICN24SG9Tfxgo9VRI3IPRWNgLxW2qBUU3IN0fzxr85x+mxlk
+	 gJ8kIj0CwgkJ7pNfVNYYt2T2RfA/IEeZ9/nu+9CpJ89HiVlO9DCubyth7h4DhZygs9
+	 tG+SC80+N19Dg==
+Date: Tue, 10 Nov 2026 16:58:39 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH v2 10/19] net: phy: Use the compatibility driver
+ attachment API
+Message-ID: <20261110145839.GL8635@unreal>
+References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-10-3b12d9a9f861@nvidia.com>
+ <ab062469-ece0-495e-8486-78404c580cdb@lunn.ch>
+ <20261110073919.GF8635@unreal>
+ <019fceab-1b0b-44a5-8cef-1f77d7d6ac07@lunn.ch>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -131,88 +91,126 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-37-bbf7d5546809@kernel.org>
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spamd-Result: default: False [-11.30 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	ARC_NA(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_COUNT_THREE(0.00)[3];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL63fqwwx8ot6gmekemcs76f9d)];
-	RCVD_TLS_LAST(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCPT_COUNT_GT_50(0.00)[60];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.com:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Score: -11.30
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <019fceab-1b0b-44a5-8cef-1f77d7d6ac07@lunn.ch>
 
-On Wed 04-11-26 18:47:23, Christian Brauner wrote:
-> vmcore_cleanup() has a single caller, fadump's release_mem_store() on
-> powerpc. That checks fw_dump.dump_active without a lock and calls
-> vmcore_cleanup() without one, and kernfs only serializes the writers of
-> one open file. So two tasks that write to
-> /sys/kernel/fadump/release_mem through different files run
-> vmcore_cleanup() at the same time.
+On Tue, Nov 10, 2026 at 03:31:15PM +0100, Andrew Lunn wrote:
+> On Tue, Nov 10, 2026 at 09:39:19AM +0200, Leon Romanovsky wrote:
+> > On Mon, Nov 09, 2026 at 02:45:35PM +0100, Andrew Lunn wrote:
+> > > > @@ -1956,11 +1958,10 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
+> > > >  	}
+> > > >  	phydev->drv_owner = drv_owner;
+> > > >  
+> > > > -	if (phydev->is_genphy_driven) {
+> > > > -		err = d->driver->probe(d);
+> > > > -		if (err >= 0)
+> > > > -			err = device_bind_driver(d);
+> > > > -
+> > > > +	if (bind_genphy) {
+> > > > +		err = device_driver_attach_full(drv, d);
+> > > > +		if (err == -EBUSY)
+> > > > +			irq = phydev->irq;
+> > > 
+> > > Just looking at this, it is not clear where the EBUSY can from? 
+> > 
+> > I relied on the comment above: “Assume that if there is no driver, ...”.
+> > Since PHYs do not use the standard automatic probing mechanism, I have no
+> > way to tell whether a driver is already bound.
 > 
-> The first one removes /proc/vmcore and waits for its readers in
-> proc_remove(). The second one finds the entry already unlinked, returns
-> from proc_remove() right away and frees vmcore_list, the ELF headers
-> and the device dumps while those readers still walk them. Or both of
-> them free the same lists at once.
+> They do use the automatic probe mechanism. But also extend it.
 > 
-> Serialize vmcore_cleanup() with a mutex of its own. It can't be
-> vmcore_mutex, removing /proc/vmcore calls release_vmcore() which takes
-> it. The second caller then finds nothing left to free.
+> Maybe some background will help.
 > 
-> Reported-by: Chris Mason <mason@kernel.org>
-> Fixes: b500afff11f6 ("fadump: Invalidate registration and release reserved memory for general use.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> IEEE 802.3 specifies how PHYs should operate, it list all the
+> registers which are needed for basic operation etc. If a PHY follows
+> the standard, genphy is sufficient to drive the PHY.
+> 
+> Now. Networking vendors like to do two things:
+> 
+> 1) Do more than what the standard specifies, like interrupts and
+> blinking LEDs.
+> 
+> 2) Don't closely read the standard, and break their implementation
+> 
+> These two cases require a specific driver.
+> 
+> There is a lot of history to phylib, from before my time. It seems
+> like the current model was retrofitted around earlier code. The result
+> is that when the MDIO bus is enumerated, PHYs can be found on the bus
+> and are registered to the bus in the normal way. The driver core will
+> look to see if there is a driver which matches the ID values in
+> registers 2 and 3, and if so probe that driver. If there is no
+> matching driver, a call is made to user space to ask it to load the
+> driver with the given IDs.  That operates asynchronous, when such a
+> driver is loaded, the driver core will run the match again and probe
+> the device with the driver.
+> 
+> Because there can be up to 32 devices on the MDIO bus, the MAC driver
+> often knows which PHY device it should use. If not, MAC drivers
+> sometimes use the first PHY on the bus. It does not really matter, the
+> point is, we know the device exists, even if it has not been probed
+> yet, so we can get a reference to it.
+> 
+> The MAC most often connects to its PHY during open(). At that point,
+> if the driver core has bound a PHY driver to the PHY device, it is
+> good to go.
+> 
+> If however, there is no PHY driver for the PHY device, it can mean a
+> few different things:
+> 
+> There is no driver of that PHY because it follows 802.3, and genphy is
+> expected to be used. However, genphy does not have a list of IDs it
+> can drive, so the usual probing mechanism does not match it to the
+> device. It would be nice if it did actually have such a list, but it
+> does not.
+> 
+> There is driver, but it has not been built, or is missing from the
+> initramfs, or is not part of the image, etc. So we just use the genphy
+> driver and hope for the best.
+> 
+> So, if we have got this far, there is no driver for the PHY, we make
+> use of genphy.
+> 
+> > > And why set irq to phydev->irq?
+> > 
+> > If the above operation can fail with -EBUSY, the wrong IRQ was restored.
+> 
+> How has it got the wrong interrupt?
+> 
+> genphy cannot use interrupts, because interrupts are not part of
+> 802.3. Device tree can list an interrupt for the device, and if the
+> device specific driver is used, phylib can use that
+> interrupt. However, since interrupts are optional, phylib defaults to
+> polling.  phydev->irq is over powered and set to PHY_POLL to indicate
+> polling should be used. The phylib core will look at the PHY driver,
+> see if it supports interrupts, and if not, set phydev->irq ==
+> PHY_POLL.
+> 
+> The binding of genphy to the device cannot fail, at least in the
+> current phylib code. So up until recently, setting phydev->irq to
+> PHY_POLL was fine. However, that is changing. There is a use case,
+> because of bad hardware design, that genphy is initially used to get
+> the device up. But later, the real driver module becomes available and
+> gets loaded. /sysfs is then used to unbind genphy and bind the
+> specific driver. Because phylib has set phydev->irq to PHY_POLL, the
+> specific driver cannot use interrupts. So on unbind, phydev->irq is
+> set back to the value in the MDIO bus.
 
-A bit sad but OK. Feel free to add:
+Thanks for the explanation, I definitely lack knowledge in phylib
+history.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+> 
+> As is said, this code is fragile, and complex. You have to assume your
+> LLM is producing slop, and really take a close look at the code, if
+> you want to get it correct.
 
-								Honza
+The problem is that I also assume that the code preceding the change is wrong
+too. People often produce code that's even worse than what a properly guided
+LLM produces.
 
-> ---
->  fs/proc/vmcore.c | 5 +++++
->  1 file changed, 5 insertions(+)
+Thanks
+
 > 
-> diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-> index 1fe70c4ecc54..ccb795b85509 100644
-> --- a/fs/proc/vmcore.c
-> +++ b/fs/proc/vmcore.c
-> @@ -1764,6 +1764,11 @@ fs_initcall(vmcore_init);
->  /* Cleanup function for vmcore module. */
->  void vmcore_cleanup(void)
->  {
-> +	/* Not vmcore_mutex, removing /proc/vmcore calls release_vmcore(). */
-> +	static DEFINE_MUTEX(vmcore_cleanup_mutex);
-> +
-> +	/* Two writers of fadump's release_mem can get here at once. */
-> +	guard(mutex)(&vmcore_cleanup_mutex);
->  	if (proc_vmcore) {
->  		proc_remove(proc_vmcore);
->  		proc_vmcore = NULL;
-> 
-> -- 
-> 2.53.0
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+>     Andrew

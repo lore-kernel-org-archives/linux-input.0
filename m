@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794385369;
-	b=uX49tH7iCo7y8dJynfDNtSXJL824IN7f+eVm5d4KyePweEGSs7w6E664go3iEfgEPogb
-	 en+ATpvzje4gvvhV7DSTXtoZiKgq0efiHIlzA/n81REEOE04e53FV8QcqqaYKtd3g49cF
-	 9mqmqA8ZEi8PAR6z+DLx7ltq1pGQyl6sTRhM+nz1pAdhEEIQFnqwH+ePVcSsSJdW6Ho1K
-	 4bXIuzRBa5Idb+FkHEElIn2PUfrnCLm+p/3FhuJHGaz+ZlSt+KO2KyPfFQ37vs5QvgeVC
-	 pGMPcd6p6OmUXlbSc0VXzn5SnKbclXT0NTYpyxXseISANnr7OBOHOeYJK2QyfL6ZZxw==
+	t=1794386368;
+	b=xhwS7DuAQDbo1MYr0X8WXPcIoyHOp/P3gMOCvOEPyi18//pZs1bi1bGIPFyJHVhz+/Zg
+	 Jqz1EpQIGiLkea7hg4RLgP8Ezw29O4kQ5waaTLX+5oFBDJvyrfySkjzs/4maPZhO1VZhr
+	 kuOV1sd7DZ1V1ydNE5RnKhylXnfdwzpGCT2ua0niJhApqbUa/Xg1mkKXHbTFXxQQqfqTM
+	 +CO2slIh5Pcav2Ii1V3wvdcWOy9kYRi8gOOKVmSMf0UsNz7DDC6DdHw7aWiagaHwDdCPB
+	 E5IcY0RKYeimWfqQG6i5/d5G7EMIbw0vyXpSWwqFIwEovecvsEGhZAQ4iDYG1hqQapw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794385369;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794386368;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZsJpIKQTB4bE4FVcTJDVCLkgvRJ1S+zErpW4oZinJCc=;
-	b=GkvhxPrBNngSSBlM+n6ptJPNyrPcbzrW4nqvv5/vxSu/sDn5lsP0W2qUfygC+AU6gUla
-	 NthMNAsL+TbPwkEitVNUfR3PbKqvocIpuJPBt3JHLm3qwDjDMrli3AL/ieJ9fcYwKM7E3
-	 KbCf1Jyn5Uc06+MJ5LQmC9mxW+JVLxqOfnaEE93v5wHd3WaJ35HR61Xbdv4G8Z8B/nwHu
-	 xN8YY4Qcd1UuCPBaUbw0VTpowbW8c8NUHbqaAbgNrqVb9+ko+yo3vJh/PHDRk4odot6ny
-	 z3u4Z7dlfgKWqdBXGLmz5T89QRypzl1FUpAYPlN2DfY/yt9v3Su0VbEdnpBNsfJIf5Q==
+	bh=ZnLdybdYEPaJGP7kHfFmC0d0eZzo8Oz12yT1Bs2/f/c=;
+	b=U7HkKCYNdPHDKaX3MokbNO4OWTd73WML8hhNPVq6ifWRwARLVi7voLdp26LBPXa6FeJV
+	 iiuI42FosBFf89LzkLr59cD7t/Biuy8JWL8HZ4Z0UuNndpBRGxFq766QlATsqqQ7gfeG/
+	 CyVy61YK7pXD8yyemErF1JMSi6Y65GveBsY/LIRyNIk9bkRfEAGOqKzM5Ae/rX+mnhOcb
+	 44qGRlVn/vqxnIdbdJUVeRLCtBoU9N11nuY7oDpIYchADMC+LLwpDHKyJuIPbPSjHJ1hD
+	 SlhneUwCTb0eswkWq77w6M+ndSlvup5RVQKQtIu7jcpZrgIfyHU6nmEqqTpaBQ76+8w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QDuaax2s;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QZ2HI57J;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE05860A2627
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 08:22:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5C1606A31C
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 08:39:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QDuaax2s
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A332C1F00A06;
-	Wed, 11 Nov 2026 08:22:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QZ2HI57J
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB371F00A05;
+	Wed, 11 Nov 2026 08:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794385368;
-	bh=ZsJpIKQTB4bE4FVcTJDVCLkgvRJ1S+zErpW4oZinJCc=;
+	s=k20260515; t=1794386368;
+	bh=ZnLdybdYEPaJGP7kHfFmC0d0eZzo8Oz12yT1Bs2/f/c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QDuaax2s1potX3lHev520cmj6wAW/LSVtLrTxIZloV00vpQAlgrimjRqjPsEKz7Gk
-	 h+p6B+Xxy3Kn+Ps+0ddugtSLJ2VgY/F1vp9pimhQ1m2IViUSVSHHK4g/rxM82s8/oO
-	 fXW9v13MdYpn5TrBBhi3VzV8o78IOdFHh1HCz9OdlI+OVBY/idPlIJihCsdFLSqWfY
-	 4xP9r3UXnOdqJQaauG/Q9utU9WAwQzj+JKPGQufcyYnla49AlS9LED2neMiIsYmuHD
-	 zdIXJm5W/lqnqxzrdXoLYn3aEBxMDZizaQ1+Le0uYCBG1hX/YiDuUQHX8sxZoq5Na1
-	 2VNITih0pQz3Q==
-Message-ID: <sashiko-outbox-208598@kernel.org>
+	b=QZ2HI57JOrGJ6del7ZfFiM4JtS01pkCEHPwoXuKQrrDWJM5gifBJ+tNfd6Q6Tzjqv
+	 mIe21WWcglXqFLE7EnAIWTyZ5GNwtV4CJ0uSNRWgKk+StWHPATs0hBsrNRNxzGwKQl
+	 dR3xMIsNq1WeaJnKT2MH8s7cfErt7jqVqJTqib/H3E9j1dTTUssf4T4M8rJc7r+I5i
+	 fsYeK1rITR+DTSBlctiefY79XZP9f/k8Htw7lyPT/micN+CtHj/M3rLAnXmtsF35XS
+	 3PQ52xepkwsdnwO9C4wcBS+xZK0zUhxMhbwGIdaa8DZmX/TVgNFdhsFWR3wJYmIBWc
+	 XAFOPHSrnaRUg==
+Message-ID: <sashiko-outbox-208625@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 12/33] HID: logitech-hidpp: mark device online on
- unified battery 0x1004 events
+Subject: Re: [PATCH v2 14/33] HID: logitech-hidpp: expose charge_type
+ property for battery voltage feature
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261110-hid-logitech-hidpp-v2-12-30743e91d83b@gmail.com>
+In-Reply-To: <20261110-hid-logitech-hidpp-v2-14-30743e91d83b@gmail.com>
 References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
- <20261110-hid-logitech-hidpp-v2-12-30743e91d83b@gmail.com>
+ <20261110-hid-logitech-hidpp-v2-14-30743e91d83b@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 08:22:48 +0000
+Date: Wed, 11 Nov 2026 08:39:27 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,83 +63,66 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [High] HID: logitech-hidpp: 0x1000/0x1004 collision in
-  hidpp20_battery_event_1004()
+- [Medium] HID: logitech-hidpp: wrong charge_type in
+  hidpp20_battery_map_status_voltage()
 --
 
-commit ac0aae22ff219439085bc6982cf3dda4b4fdc13a
+commit 17c7938d8f03bfe4c24215899bd92a24290ce9f0
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-HID: logitech-hidpp: mark device online on unified battery 0x1004 events
+HID: logitech-hidpp: expose charge_type property for battery voltage feature
 
-This commit marks hidpp->battery.online as true and includes
-!hidpp->battery.online in the changed check when handling unified battery
-status events in hidpp20_battery_event_1004().
+This commit registers POWER_SUPPLY_PROP_CHARGE_TYPE in
+hidpp_initialize_battery() for devices with the 0x1001 battery voltage
+feature and checks level and charge_type for changes in
+hidpp20_battery_voltage_event().
 
 > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
 hidpp.c
-> index 28402baf04fb6..f717f03084548 100644
+> index cdeb1b3c2f219..fb9ad4cfc5832 100644
 > --- a/drivers/hid/hid-logitech-hidpp.c
 > +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -1761,12 +1761,15 @@ static int hidpp20_battery_event_1004(struct hidp=
-p_device *hidpp,
->  	status =3D hidpp20_unifiedbattery_map_status(hidpp, params[2], params[3=
-]);
->  	level =3D hidpp20_unifiedbattery_map_level(hidpp, params[1]);
+[ ... ]
+> @@ -4416,6 +4420,10 @@ static int hidpp_initialize_battery(struct hidpp_d=
+evice *hidpp)
+>  		battery_props[num_battery_props++] =3D
+>  			POWER_SUPPLY_PROP_VOLTAGE_NOW;
 > =20
-> -	changed =3D status !=3D hidpp->battery.status ||
-> +	changed =3D !hidpp->battery.online ||
-> +		  status !=3D hidpp->battery.status ||
->  		  (state_of_charge !=3D hidpp->battery.capacity &&
->  		   hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE) ||
->  		  (level !=3D hidpp->battery.level &&
->  		   hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS);
-> =20
-> +	hidpp->battery.online =3D true;
-> +
->  	if (changed) {
->  		hidpp->battery.capacity =3D state_of_charge;
->  		hidpp->battery.status =3D status;
+> +	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
+> +		battery_props[num_battery_props++] =3D
+> +				POWER_SUPPLY_PROP_CHARGE_TYPE;
 
-[Severity: High]
-Does this cause a regression on feature 0x1000 devices by overwriting
-hidpp->battery when a charging event arrives, and corrupt 0x1004 events by
-running hidpp20_battery_event_1000() first?
+[Severity: Medium]
+Does exposing POWER_SUPPLY_PROP_CHARGE_TYPE here cause sysfs to report an
+active charging rate even when the device is unplugged and discharging?
 
-Both feature 0x1000 and feature 0x1004 store their index in
-hidpp->battery.feature_index and use event ID 0x00, and
-hidpp_raw_hidpp_event() calls both handlers unconditionally:
+hidpp20_battery_map_status_voltage() unconditionally sets *charge_type to
+POWER_SUPPLY_CHARGE_TYPE_STANDARD (or FAST / TRICKLE if bits 3 or 4 are
+set) regardless of whether external power (flags & 0x80) is present or
+status is POWER_SUPPLY_STATUS_CHARGING:
 
-drivers/hid/hid-logitech-hidpp.c:hidpp_raw_hidpp_event() {
-	...
-	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_BATTERY) {
-		ret =3D hidpp20_battery_event_1000(hidpp, data, size);
-		if (ret !=3D 0)
-			return ret;
-		ret =3D hidpp20_battery_event_1004(hidpp, data, size);
-		if (ret !=3D 0)
-			return ret;
-	...
+drivers/hid/hid-logitech-hidpp.c:hidpp20_battery_map_status_voltage() {
+    ...
+	} else
+		status =3D POWER_SUPPLY_STATUS_DISCHARGING;
+
+	*charge_type =3D POWER_SUPPLY_CHARGE_TYPE_STANDARD;
+	if (test_bit(3, &flags)) {
+		*charge_type =3D POWER_SUPPLY_CHARGE_TYPE_FAST;
+	}
+	if (test_bit(4, &flags)) {
+		*charge_type =3D POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
+	}
+    ...
 }
 
-On a 0x1000 device, a charging report sets hidpp->battery.online to false
-in hidpp20_battery_event_1000() and returns 0.  With this change,
-hidpp20_battery_event_1004() then sees !hidpp->battery.online, forces
-changed to true, sets hidpp->battery.online back to true, and overwrites
-capacity, status, and level using 0x1004 decoding, which also prevents the
-0 to 1 online transition needed to schedule reset_hi_res_work when the
-charging cable is unplugged.
-
-Conversely, on a 0x1004 device, hidpp20_battery_event_1000() runs first on
-every 0x1004 event and mutates hidpp->battery.online before
-hidpp20_battery_event_1004() checks !hidpp->battery.online, setting online
-to false on every charging event and true on discharging or full reconnect
-events.
-
-Gating hidpp20_battery_event_1000() and hidpp20_battery_event_1004() on
-HIDPP_CAPABILITY_UNIFIED_BATTERY would avoid both handlers matching the
-same event.
+When a device operates wirelessly on battery power, is full, or is not
+charging, reading charge_type from sysfs returns Standard (or Fast/Trickle)
+instead of N/A (POWER_SUPPLY_CHARGE_TYPE_NONE).  Also, when a wireless
+device disconnects, hidpp_connect_event() resets online, status, and level
+to unknown, but leaves hidpp->battery.charge_type at its previous active
+value instead of POWER_SUPPLY_CHARGE_TYPE_UNKNOWN.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-hid-logite=
-ch-hidpp-v2-0-30743e91d83b@gmail.com?part=3D12
+ch-hidpp-v2-0-30743e91d83b@gmail.com?part=3D14

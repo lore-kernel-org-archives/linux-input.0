@@ -1,101 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794366705;
-	b=IHHN1SZExDFaNEDMDtP+rIMz2UR+ygvXt9GQXnBW9AhlOAD6xyxF7zZou7h+qB1bbvAD
-	 VKdmIINeIUMw3l99pkWY8deVN6jeWJ5m5EbYCeQpUuj/MgQjBeEggr4zD8qW3BXJW7a8M
-	 3f4/brY0ZtbNHsxNFhenmaMYWzBhIPyNCC78zC0R0bJAp1Fq1mJnveSc5rQdNhINTpDAX
-	 S5uK5QrNjHsjD7DxfrOR0b5FDt4iKPo5/mboKH+NpJlhnyt3Hs76Vmrw9eN2nH9ZZLz5B
-	 ZSCuQOxiIcnLBqtEJP4qumWhYTNKj5hctyanisEJAsH+TIkkl9m2Uv01DGpvQM/YM/A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794366705;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=r+temhaowl0XJ/anU239LQ8gF9cvIIzxMmHoQ4oEdHg=;
-	b=uGNFTYolOe2SFMd79iSMhACl0Q5/EmO7cMOPvPWdllYGirwW23tK4t+n2h1fL9IwGaSN
-	 BUhHRs2nYcioZjfC4yyg0qPN4TTfLGnp326+Xeb/Upa8jrhcTSsa70FKnBtLJgJy6Dcp3
-	 0Qvk1+Pe6TBAZYBFcGeHGOOa19z/wROj++yUeQVrfh3GlY4sQdL6nWrBXC2A0+Z1x9n4A
-	 JnTZoj2U7dexjI9WrE8plbC9VMy3OyD+AyXsz+46vVtiRIAL8cEcyp80ZazRJqPS6PGq6
-	 l/UIgzQBLdGyQEv/B3XxF9L09wytLRQRnmHX04IXnZCXHZYa/Pcq8fGtVzYMm0rb9/A==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=murgatroid.com;
-	spf=pass smtp.mailfrom=murgatroid.com;
-	dkim=pass header.d=murgatroid.com header.i=@murgatroid.com header.a=rsa-sha256 header.s=google header.b=ahr0TwL5;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=173.255.198.10
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794367317;
+	b=xmSwj1VhtmYG1URS8aP044Zcecwx/ZwhJvsCwN20h5eASS827UxWGNErVurKmNcOye/I
+	 BZZOwIW1yPzbbda1r30uHcdmg97P8OMi0GKsFhyVR09K2beaznvOqLaNtud0Yn6vmuYKg
+	 Ggby6QlgyEMThPKgsNlldLa64xHCtLyDfKoV07G38jELvYvLDEdeznrIAepGdfHqaxUP/
+	 5+64681Fjjtg6NLVeMtgGrEocZqgUtMYy6MbOEWtfTtsfUX/Nle47zUqwLzNyITZQ/8Xk
+	 FFDiTSd4JRtC3TMdgVM0DhLMmocIT+f3z7J5ReTCkBXYia/WvZgABQDQ2eDcwRTy5AQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794367317;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=xRgSWDpjE8xBjvUslQtDw7piraYXwlb85ckzRO7XchM=;
+	b=v68En3AZjX+1nGJeqG7SX/Y9Zl6kAWeS/kfeARtQeTN9zHrZrC8n0lAIbmVQFxKdILU8
+	 hoH7iyetoq1jcCzokcq9QDVoLhpUOiNhlHV9kTOaBvhZq1xp+xB8hyjtQsA6u1bwXMIcB
+	 DvE1MpP7RoXeY8ZzuXiZ/dTZLBYLvC6EyX8HEUICSwFPhVjQ2ZcIX31eeCeDmKxifwoRR
+	 N8oJCOtcOjNcNUZ8S8NAVb7c0vUckhbc10HoBofulbFBl3FwpAXIKmqonjflFqzK2txl4
+	 DGS2WacMGnQfvlWUeqZb/RjQkRX/lXwvedmP/wzZNqiu6Kh5haKzQuwFq+mNcbaWnbQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=endrift.com;
+	spf=pass smtp.mailfrom=endrift.com;
+	dkim=pass header.d=endrift.com header.i=@endrift.com header.a=rsa-sha256 header.s=2020 header.b=FV6wvRUB;
+	arc=none smtp.remote-ip=173.255.198.10
+Received: from endrift.com (endrift.com [173.255.198.10])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C35B9606A320
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 03:11:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C35B9606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=murgatroid.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=murgatroid.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A8D260A2618
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 03:21:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9A8D260A2618
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=murgatroid.com header.i=@murgatroid.com header.a=rsa-sha256 header.s=google header.b=ahr0TwL5
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-3720addb068so4966728eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 19:11:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794366704; cv=none;
-        d=google.com; s=arc-20260327;
-        b=iLEj/8xeJuzgmPfgcMfRElZ9rQJ4WK2pG16lmWz0l76UCGIzrXWnK/mChdyiB1OFm+
-         aCRJY9FlZ25Kg1equzQugn1UKOBp7Y8qbEbUJgi3XMM8jgHHhS0k0HamdY5ul8pOorn+
-         L/nCjuwmOt61zkGkj48FZCQcL4yOc/SSsp1QZIxNyFqNgID2YmDBvx/EbMFVE/D9mIh9
-         HghoZ6yLcqM79M1caQoF/XGkelS+yGnAoMx8OMzgn1htEmra7do82oqvXCz5fGjW/Yr8
-         RJYL4/IUNUpamF/tBQrPFno3164SUn7QgwQ+LKXkq4eFotIZGvF7FLMOXkfyMMgZlq+g
-         2G+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=r+temhaowl0XJ/anU239LQ8gF9cvIIzxMmHoQ4oEdHg=;
-        fh=HArRTnl7A5AirnzrqQw+KkQ3XgD2MBzXnU0admc7I2U=;
-        b=KQqUP3Uh4yX9dpyY5cN4aetDskuvs/7WEp4vCXcuuPgoDAnz2mmLha539IDvq9Fimk
-         B4yXe8OkISIAV/+bfIp7NIQXJrQg1XsElvfqezE5FEPsRdPe/knRO6e6SO0KijqcBr6P
-         4RVlU5kyoz8ZzizNazWYToYg9k8txOai7+MuHrofMEx5MP2p+kko4ib7Rctnw5eYPU9X
-         43VX/09Xvhwdm4Jiy03kk+6DLXPDWjREuhdWsIl9FQY8mWrqN5knO6JTB/g0oXS5gWts
-         jakjRWYPMIYNijOMqS7mnJWliwCKtfuV1K2U663W67gYvjYwTt2RvNQg/PU8et3gP2Jx
-         RXcA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=murgatroid.com; s=google; t=1794366704; x=1794971504; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=r+temhaowl0XJ/anU239LQ8gF9cvIIzxMmHoQ4oEdHg=;
-        b=ahr0TwL5sXnss274qbskTXY5FmMPs2iFVD9HrT9uVudzZC/sj3d3unabJNQluhywMS
-         IvwccBvLRok01eX2qO82HTDDomSYhoyPMh4DVYh4JUEedevvW4Q7zJF2roHE4t6Oggb+
-         27lTmfSdauf3vipbuS5bHQ30aln7L9wdI/2ml8wSBxrFMZ4e4jmTtlLd9UQsn7CjCPiZ
-         cczTGkTBsnontIFnTY2gMoVLM//Iu+c9ehsJLjsSFQTi+3SLn6n2jQteNUXruqMrPmGg
-         dM64JYzmtir8m3mD5NZpr6HrHxJ5/OO63w0zFiRg/p884P3aPhqo58cOA6hdMpDB87l4
-         ex3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794366704; x=1794971504;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=r+temhaowl0XJ/anU239LQ8gF9cvIIzxMmHoQ4oEdHg=;
-        b=Z6u3fCmY9Pnbf9JY81YH3c93Tu6z981lsfxB6NRL6MFqp5X49hA0DyB+sM3TwCwID2
-         X2wymnCY8JQtroPSlHpsO7hr4XwWWJVutP64dTwDGG5eJZh6STTfoNzjE5FgxGK6oQ7F
-         OAqI6BccfJPZAAB/PaNDGhRtwuUvuyXCOcKfgQx9BoizyoOuJ/pqaEnnLhS1vsAgiIn+
-         2tMD8XGhgGpqwVK95bh0E0QBMAlBwZq/uvkOjxZtKpK83nPZiggkYptnyV+u86NL5ZY7
-         6MSSiVS6UJDupSrT/8G3TPr0laid28WOW9KQda6Jb9nusDFgimp3IxIOsWjlHCoL2BiI
-         cDaA==
-X-Forwarded-Encrypted: i=1; AL+hErEgXRj9YpNBXlvsbzgEvx0SMFOT4b2PIuOTfiAUFYd0b3AKrgUtS5/BWpbsp5dX0Ula8F3ChB97Wd+ADQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+pdrIY2Xm/tTfCy6OnYX4V5nyx7A8xqsVFcCtnhVSgV7a4BegK
-	5tHY4OjOhVkjT26enN4GduTn2LGCkubAUuO/7A7gcC0STp1+CKyFB6XFglEhnXPjfAyQpNg+Ulx
-	CxqaYUlKQD3yc5k3n8FdwwZb2O4fYgiE/hSK2PHhq
-X-Gm-Gg: AYBFou0TO0uZ3pOx2o71II9PYa0c9vT+qQBJLC4jt1HUKK6MbUhROwPrnC9UcBnuADf
-	uWdQlGvR67fbNO06BwQ0pxOsYp38+lhIeMD3pxM9NUBT9HLxJjwFd/9FDMaLaJ5y2paKkmXimrf
-	X1nYd7kJgXQ7oUtEROt5SDvTUWK0Gl9Joz0plsiQ1pTLV+PQgWwyVYQT0U+F/YPWgLPQr8wEmYw
-	t2+RdsdZFiYGNGAqrgWzNtbuO0dxDa3HrW0pQy5N+nSma9WDPN8HF9W9f5z43lLx6nvqjFqqVIj
-	TIjHNsf5AnaAwreBp3EfDg6k0KU39oaI9Iw4yEErx5FwBugfmFBzRPqCx5773xejzpdRcFDE2Vq
-	ODWVSgBzNIBXeX8m7P7mKWL49dv8WXzTZeIRuuFgVBp7G2G499Y7W62Z6dseFPOlEC4cYDW7GLw
-	9JhC8BVKi6QSzAOgo51Ofqy1nunp30hTFmNIPn6tx+qbwp9FUn04pc/8Ly
-X-Received: by 2002:a05:693c:42d1:b0:36e:c9e5:33aa with SMTP id
- 5a478bee46e88-376854ba4b9mr1792132eec.13.1794366703578; Tue, 10 Nov 2026
- 19:11:43 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=endrift.com header.i=@endrift.com header.a=rsa-sha256 header.s=2020 header.b=FV6wvRUB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1794367310; bh=NjTYDVeWqjqsLD96ZMaOjaXin2VXC7+Xya3LKXfquDE=;
+	h=From:To:Cc:Subject:Date:From;
+	b=FV6wvRUB66xSy98b0du+zoAVlx5EyGUmXt7YQgNa2nvDMOJ3wDoO7zG6wduddnBkp
+	 gudXKP07sAoINAahuZv5Wg4WFCFuuDUou4p+DzTWHb88R4EWWpZKPYIACYIK44zji8
+	 ZkI2xTTqgF33gWfciuu7/Asp2L18WEOoj3J9U0RMupdyDnaOjObmZFkdEVziV7gnYe
+	 ePiL3PsR5c8fGaGf37PfQnsSfsOwd2wq6g1V1lAgSOQn7ClqtBEGWcvCZp7RuaMpMT
+	 Z/+V3UtoYwzmQq/6WRnXURTvEuwHRNJQNBWEnxlTpZd4jjwj44O6oCGcBwZkJ3w8vD
+	 pJgqIvMh/VB0w==
+Received: from microtis.vulpes.eutheria.net (unknown [97.126.138.172])
+	by endrift.com (Postfix) with ESMTPSA id C8731A021;
+	Tue, 10 Nov 2026 19:21:49 -0800 (PST)
+From: Vicki Pfau <vi@endrift.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Vicki Pfau <vi@endrift.com>,
+	Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH 1/2] HID: nintendo-switch2-usb: Fix potential deadlock on teardown
+Date: Tue, 10 Nov 2026 19:20:31 -0800
+Message-ID: <20261111032125.2888320-1-vi@endrift.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -105,101 +63,60 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261019023420.83976-1-ch@murgatroid.com> <20261102215606.5e36a2a2@jic23-hlaptop>
- <20261111025336.051fbbcb@jic23-hlaptop>
-In-Reply-To: <20261111025336.051fbbcb@jic23-hlaptop>
-From: Christopher Hoover <ch@murgatroid.com>
-Date: Tue, 10 Nov 2026 19:11:31 -0800
-X-Gm-Features: AclHuK-SGhvKm-m3dPF7X4f2O9KsRDzR0B5VWRGLdjPvi8wmwehWFpB8zvORHv4
-Message-ID: <CACw0PsZ43YAQUcPuP7ec6gjd03Srn5QYUWp74SMZ0gzPLUp71A@mail.gmail.com>
-Subject: Re: [PATCH v3 0/3] iio: hid-sensors: fix shared callbacks in
- temperature and humidity
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Lixu Zhang <lixu.zhang@intel.com>, 
-	Joshua Crofts <joshua.crofts1@gmail.com>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
->> Dropped patch 1, that should go via the hid tre
+As reported by Sashiko, there is a narrow window in which cancel_work_sync
+on the message in work can block due to the work waiting on the mutex that
+the canceling thread holds. We work around this by replacing it with a
+non-sync cancel and a sync cancel later on, to ensure it's actually exited.
 
-Do i need to do that ?    Sorry for the possibly dumb question -- I'm
-well out of practice with the process.
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Link: https://sashiko.dev/#/message/20261006063000.A0B821F000FF%40smtp.kernel.org
+Fixes: 9417132df63e ("HID: nintendo: Add preliminary Switch 2 controller driver")
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ drivers/hid/hid-nintendo-switch2-usb.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
--ch
+diff --git a/drivers/hid/hid-nintendo-switch2-usb.c b/drivers/hid/hid-nintendo-switch2-usb.c
+index 8b3b6841035d..d747000336dc 100644
+--- a/drivers/hid/hid-nintendo-switch2-usb.c
++++ b/drivers/hid/hid-nintendo-switch2-usb.c
+@@ -217,7 +217,7 @@ static void switch2_usb_free_in_urbs(struct switch2_usb *ns2_usb)
+ 	ns2_usb->shutdown = true;
+ 	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+ 
+-	cancel_work_sync(&ns2_usb->message_in_work);
++	cancel_work(&ns2_usb->message_in_work);
+ 
+ 	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
+ 	for (i = 0; i < NS2_IN_URBS; i++) {
+@@ -276,7 +276,7 @@ static void switch2_usb_shutdown(struct switch2_cfg_intf *intf)
+ 	ns2_usb->shutdown = true;
+ 	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+ 
+-	cancel_work_sync(&ns2_usb->message_in_work);
++	cancel_work(&ns2_usb->message_in_work);
+ 
+ 	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
+ 	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+@@ -447,6 +447,7 @@ static int switch2_usb_probe(struct usb_interface *intf, const struct usb_device
+ 	switch2_usb_free_out_urbs(ns2_usb);
+ err_free_in:
+ 	switch2_usb_free_in_urbs(ns2_usb);
++	cancel_work_sync(&ns2_usb->message_in_work);
+ 	devm_kfree(&intf->dev, ns2_usb);
+ 
+ 	return ret;
+@@ -466,6 +467,8 @@ static void switch2_usb_disconnect(struct usb_interface *intf)
+ 		switch2_controller_detach_cfg(ns2_usb->cfg.parent);
+ 
+ 	switch2_usb_free_out_urbs(ns2_usb);
++
++	cancel_work_sync(&ns2_usb->message_in_work);
+ }
+ 
+ #define SWITCH2_CONTROLLER(vend, prod) \
+-- 
+2.54.0
 
-On Tue, Nov 10, 2026 at 6:53=E2=80=AFPM Jonathan Cameron <jic23@kernel.org>=
- wrote:
->
-> On Mon, 2 Nov 2026 21:56:06 +0000
-> Jonathan Cameron <jic23@kernel.org> wrote:
->
-> > On Sun, 18 Oct 2026 19:34:17 -0700
-> > Christopher Hoover <ch@murgatroid.com> wrote:
-> >
-> > > hid-sensor-temperature and hid-sensor-humidity share one static
-> > > struct hid_sensor_hub_callbacks across instances and overwrite its pd=
-ev
-> > > on every probe. With two temperature sensors, reports for one go to
-> > > the other's pdev; once that device is removed,
-> > > temperature_capture_sample() dereferences NULL. I hit this on 7.0
-> > > with two uhid-created sensors.
-> > >
-> > > Patches 2-3 make the callbacks per instance, as the other HID sensor
-> > > drivers do. Patch 1 makes sensor_hub_remove_callback() take
-> > > pdata->lock, as sensor_hub_raw_event() does, so a report racing an
-> > > unbind cannot call through the freed callbacks.
-> > Applied to the fixes-togreg branch of iio.git with the ordering tweaks =
-Andy suggested.
->
-> One day I'll remember some bits of this driver are in hid.
->
-> Dropped patch 1, that should go via the hid tree.
->
-> Sorry Jiri / Christopher.
->
-> I only seem to notice I've done this whilst writing pull requests :(
->
-> Jonathan
->
->
->
-> >
-> > Thanks,
-> >
-> > Jonathan
-> > >
-> > > Changes in v3:
-> > > - Patches 2-3: set the callbacks with one compound literal (Jonathan)=
-.
-> > > - Kept Joshua's Reviewed-by on all three; patches 2-3 changed only in
-> > >   style.
-> > > - Rebased onto v7.3.
-> > > - Sent as a new thread, not a reply to v2.
-> > >
-> > > Changes in v2:
-> > > - New patch 1, for the use-after-free on unbind found by the Sashiko
-> > >   review of v1.
-> > >
-> > > v2: https://lore.kernel.org/all/20261007184423.622445-1-ch@murgatroid=
-.com/
-> > >
-> > > Christopher Hoover (3):
-> > >   HID: hid-sensor-hub: Synchronize callback removal with raw events
-> > >   iio: temperature: hid-sensor-temperature: Use per-instance callback=
-s
-> > >   iio: humidity: hid-sensor-humidity: Use per-instance callbacks
-> > >
-> > >  drivers/hid/hid-sensor-hub.c                     | 12 ++++++++++--
-> > >  drivers/iio/humidity/hid-sensor-humidity.c       | 14 +++++++-------
-> > >  drivers/iio/temperature/hid-sensor-temperature.c | 14 +++++++-------
-> > >  3 files changed, 24 insertions(+), 16 deletions(-)
-> > >
-> > >
-> > > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
-> >
-> >
->

@@ -1,89 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.54
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794380228;
-	b=JGsCUw6aBS6LSYJ6ansg5rCprle7iHked5GQ5FRuHkw3zHeHMQUzPBN5xde+kWz/3l+a
-	 buZZ9PeAc8VW0dETWg+H2nihASjtWFwshkq9pmOoUuqvath0waG7NixSTNLt3ebRBlggE
-	 Dm+P88hsZaHusyj/uCmxdFmFtBtM4RzxasfgVDdfR1TA7hav/BW841S9pskJ/UkAa5hDP
-	 HPyldS0TZ/lfIacIVaenoJuza0ot2cDZXMXNBoWTrkVw47mRJUqKWPJaM8P50Gpe6VW+k
-	 JopdwMfsLaU53/xUNrNFEDucNYOXH8e9pm+3usXHQk8lPZHZnEne4E53njJg3rI32Vg==
+	t=1794380229;
+	b=BWw6b4HOfIGOGNqnNB2v7F5qZ8eev0SkpQaWSQ+BGyghyM6hLReQWgXF02d1+WjDckOz
+	 vtDquPTVT58eh/a4uN7blzGSp22G4+ZepjBSGH4/3lNwk108THUo17XG+jG7+mbD4q6XQ
+	 QpyIxVt82rFozPEKU9WP/tt/kRK8u6Vd5Gxyqk75m/M8jwLsYMISxPnAQPxsaHGoYdrib
+	 hj9vixZLe5xZ6nXKlkTQeFNzsFoWb7hFWJEmbNUxW5iILANbLJ6URUHdCMsqaY0jDeFc3
+	 JoLUsrP4C/l+cP3LkrSSlZxzKebHWnKyaKBV1IZnmkaB8PiAyivxTZXbrE4Ki2lIHfQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794380228;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794380229;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=lZaigarthkYfk+LJ/id0he7EntFXTEZZC4zUNeoO63c=;
-	b=ueGavXUQyp2QX6UR+6mLbKZs/aTB1LGvu0uDp4DdX1mU1hAKdhlsS9cpMy4qzVgE0RcU
-	 SRoHYB/rtYGSWLfimtbkrhECre1va6JrulCDY2JH5YQyCG+ieX9n9hbUedpy3o+pMaljW
-	 Qu/T1tKvybLxXgNTvgJRFBAD+ptQpwcx43xqWiLYXsOLSMF8zLYvA7TcWkDi++xtMd+yG
-	 DDTWDEG+Vhn+UeeuEp8lmfxeCkM5Qc5VpYh9vnlyvedam7CWj0TPxw/gAYFlqNCcCaLsR
-	 EfQZGLQXHOsaZvaPZjh9Dr6rLJcxxQpp4q3j+QH8T2Gd9cAmPZEKEZmoqACJJ1gBCvg==
+	bh=wvhnAC7SrNPA1IezryM9B4GeDXBzhih+NbqStJTienk=;
+	b=o0IJdoJ3l/3tnbhR6tOGO5aMcN1pD7t/wu/cjhOsDKKYpq8zq6ZpASG6VY6cLntBQmga
+	 UlQdwEcOgBSCC9Blc+356hTLTQnaLg+1qwhEL1Crny7V5BXZGQDW+H7ye+xkJA/zTVV/F
+	 N9QpLoyeYqzBVSX0Cn6OD/fM5eyNJdKjMOLoU9hcIAw3jUBmIBpJJ/NVnjIvIj4AK/Py8
+	 fjrNmLYjOph4NNGw2ljWwsmeVIuALrX5vQTmFmCywCo90cbHUvfddLyys5VnN5vYzgEry
+	 nU8kuWH3/1osLAQrvPSY8hHMyqnQ0UHB7S0j0of4PhozROFx2K037fmG1uEED2L6i/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=agOxSqvp;
-	arc=none smtp.remote-ip=74.125.82.41
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B4RXHGn0;
+	arc=none smtp.remote-ip=74.125.82.54
+Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DACD6606D352
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:57:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DACD6606D352
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36D53606E201
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:57:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36D53606E201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=agOxSqvp
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-1b244fb7fffso3533181c88.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:57:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B4RXHGn0
+Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-1931ff67a29so4165828c88.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:57:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794380227; x=1794985027; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794380228; x=1794985028; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=lZaigarthkYfk+LJ/id0he7EntFXTEZZC4zUNeoO63c=;
-        b=agOxSqvp1p3il60geexOXuGgwctrpHH59Nsqf8JNtRKhWnhpb9lxL229fRj6DlFs1N
-         fgol9Txgzo5sV4VeOcDRuoUM9sAxxoIBOdd9gaXJBA/p2l5vEBrWaOVqoBR9NtYLWmum
-         kANp6LqWF5ZmoBAZk/iQICAD1eR4jyIlRXDWWyWYH5kxFp9PvDOewjtGghIpntRSgWq9
-         PFjaOdKTezQlCykd4yHmbxXWPqe8ogX7Rfg0athXtAcr65TNreQVlQJFo5cGTbvYnGVU
-         S3uTL3d+Ya4JxPQ100M5MbF2EK9+igSP8qvUNaVYWsZb6Mw9wwHtQVFkqv2JqlilooTn
-         vPzA==
+        bh=wvhnAC7SrNPA1IezryM9B4GeDXBzhih+NbqStJTienk=;
+        b=B4RXHGn0wuxKptvyXxOkT8G0RimCNlH1mxyYQqNTyFZRstM6hb6EXUynYpBYGdTpcv
+         3FWWZDn4ewlTMfDoa+sTFQP9iJi16AKgBEBV3HymVs+WvlWoaf5jgDlmE2qAgqyULANl
+         DJ8+V4CJv31UAtdsw1qE791sIze4CblGy6Gy94R2GUdCtFqe2mx4tG1gYXZ++GUBzcdv
+         9aFQoFp6PrjZtaBtPyHba9r1NobVDNtCS0X+xK76ONjDpxWYt+tAaRkrJEPUMAaofUaF
+         aajanxTYFLhJCSimi5WP0On+1e/YMXqJqE1PhBI9MZ+pg0Gf9WPTk+W0WZOif/1eZkXe
+         L9Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794380227; x=1794985027;
+        d=1e100.net; s=20260707; t=1794380228; x=1794985028;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lZaigarthkYfk+LJ/id0he7EntFXTEZZC4zUNeoO63c=;
-        b=buCg883Bbljo4OhlYpfKH7s6ps6JrC7marO+3y1WhzItxA7B4u8/FqYwSuugyVdocz
-         W4wt0h9OJ+wZnToAwMFylWJJy8IJ62+yS7ie4dSgw+l/nGBlMZXxHe4mE9Uf1N3g9MFh
-         7+5/lkG8+EYFSPkko80w8Yq3OYPMsQIEsEUm6z52VFyMGzdwPcb2qfc6+EA9jPogVJgI
-         919s9YHWOCX3EIfKOZBODP3bIc34RSx1lGqrbzZVoHovUI/qgOd7lm0axXCHCuyaRQD/
-         n9z6ETO/c0QVHCWR/v8jn3LYkor6w33vdtunxmUECQmx+220GjUfIGPm/UQUMxysykAi
-         Pw5Q==
-X-Forwarded-Encrypted: i=1; AL+hErF+acaDhkAio/rXmDeiOv1Fbdp1mV77IxsBSTxAlCBBvKF+MRrhaWATrtPpomYxDJwWDLa+C87C93fEWg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/rRFT6lEvsGPjNVmzSGQkHaSxhTC4SAMcWOmtGnjtpFYf6sXgG
-	YIoI5tSQvAaDBPzWK6NHsclKWtbhmjs1kY4SAm+FcNu55BbLxquTzDEu
-X-Gm-Gg: AYBFou0AuK3bz5FQ61/VVUc1I1NwK8ChkBuHkgRsVWYfiehrDxoQN/4tlSN+hS76KGZ
-	8twDU/otVVXWgKfOI/d8KrjllcR7+YCdKhYkgI69sCw2dAq/FSLR6BVYLUoWEKydVE0ZERgWg6x
-	AthAJ4tBD2weThuWOdLhhOWqSq2nxNZ8sxDYl4u2T7cQuyukGjM/qxlnMjVJnFGVlpy1nE7HD/D
-	2MQEMJ/NOJ1LU0STBRPVarU5fqZKKzFxYbBeniWd4+IjWcYOGbVJplZ70zNh8IAE/8kNbuDv0rl
-	0LxOHYzpwlx5tv3mFHGO5A4K9Z+zLe2sK0zrCf7vl69xO0OpBmF+FeNl9HZotqWSaDJZZzkaf+B
-	CyrI63+S5+HFN32R073j+ZDdn9Es7+aP4E9B60+QEcahbQTWpN3EDvpb/DwtUvp6Lb6Yf9SYT8O
-	P6WekR3KhgoPDlpHjgx+Hxg4JfRlKa72CsL4KEiP53TtIwFc4necnQP1gFJeaCFeYIumEpqnjAR
-	x8rqsyrwQ5eLEwnMMLF017NxHAh8MV8qR8eeJ9FiQX+dBfcYZui073e8SFrEC83CbqRFLTBwt92
-	B6Pm4m/OhrNSiAzNWImYCeZaNmvVbTxkhZE2MOr9ZmTizvIUo6To9eqqKSDK2VYYmgywJ5IvJo3
-	stIPo0PQTPxd8YmOEqA==
-X-Received: by 2002:a05:7022:ea4a:b0:1a3:9936:d11e with SMTP id a92af1059eb24-1b3c034aff7mr1595237c88.41.1794380226714;
-        Tue, 10 Nov 2026 22:57:06 -0800 (PST)
+        bh=wvhnAC7SrNPA1IezryM9B4GeDXBzhih+NbqStJTienk=;
+        b=WzZYs7PiKUcDZ8pZV139X8f1Zvviw+vrpp2+YCiFjWi0f4x/dA11+aCb69NZYm+qYK
+         GTwRXqJ82vcWfnPnoRdUVMzWT/6oGyTa9RF5XhDYLFpzV2XXHadU2+5KSVyiGAIRZAfx
+         FdPjfELKvUyhLSJU5G5m1ORXusRrIKOr4c0UIB7cQkg2A1jleSL8wUSSsq0U7c/4I4rV
+         UXaYokF+CEQ1VzX4fGu0najpF++JG1U/whsUJU05rj22GjCrlIz5sX/ABoztIoUxWW9o
+         kZQJxO7Yf83vvoJSbq7Hg7FR5iwq0kCQt/oej+y4eMEfGO+2KguxPRuDMwpBCTOqAKzr
+         FWvQ==
+X-Forwarded-Encrypted: i=1; AL+hErHLMTSzw7SpbdaJ+W1HFjoK/Cxl5nE/5odDIXUGgAnWqZaMK221pZO2lpQYdlX/glsgXpC/nX9S1IHYNg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/MMxWUa6D26asD+cE4xLy2hBKHyNGgRNyzoP2TJnK2+J9iaoIX
+	sCqclmq42Cv4IKNfLth5gflF5t4o+XSS7Aqm7wdhaae+ilVJugwrUYpYK48WSg==
+X-Gm-Gg: AYBFou1zUbxRrDvrb3i6f6ilKPSXTrGrptHwtvCmw+SelDNQsCYr75Py4b9k+aiglZG
+	QqAtIsHcdL56EjyOeppsZyMJKFs8QC/aSwG5QefA7diws2SXTm3T//2iq+KL3MzsVmshv4Y0fbv
+	gsSfMTt1YclmiQUYuWDQ+nE+aHddEGcwgwAk6VvLAxbfvTRQDCMZi395bKri4cuMjUjr7OPNz/w
+	xL0iQrgZURqE9GLLGsnHI9KB43MuCEO/C6W10GX29S2AbgTEm+ZCEYOiQurUTEDkcCj0b4MiiI6
+	nJ37g8LbMgQ+D1xDD/ATVPuKtA6zcOvr/Y/kE4bE9bhzUVgH7U32rU0BUEYOpmnUN8VFGFZj0bC
+	iyffjD8Iv+l5bQlPEDXHSIb3MKYlSad7IFjoo8S/FGfNT9HgizyxxK3KtnBKpTrHNq9pCsMxJmL
+	0xzn1I+OwGmM3+R+C9M6lAwVFyV/C4AgIpi+rKGfbyUxcPQJJRbjUf31464zrvMYbqFLU185BYd
+	efrZTVxuMvEKxfMD4cN+YOZ7SDVvt7+TftlHk2yqrdUDHHy0b0LwWyYLGLVZNeIXQrqefhAueLY
+	qYrO52Rn9w4ork0TJntDVkxHVX3yi6N1tt41m2r49QweYPXUJG7nXnqcsmngVVGbYYKPSzYmEWi
+	dnyfJ1BXOcpBynzzI8w==
+X-Received: by 2002:a05:7022:ea8d:b0:181:ccdd:ed2a with SMTP id a92af1059eb24-1b3c036ee70mr1539668c88.43.1794380228376;
+        Tue, 10 Nov 2026 22:57:08 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:311a:ad7a:93f8:96c8])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.57.05
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.57.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 22:57:05 -0800 (PST)
+        Tue, 10 Nov 2026 22:57:07 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Tue, 10 Nov 2026 22:48:25 -0800
-Subject: [PATCH v2 27/33] HID: logitech-hidpp: store device serial as a
- byte array
+Date: Tue, 10 Nov 2026 22:48:26 -0800
+Subject: [PATCH v2 28/33] HID: logitech-hidpp: use guard() for send_mutex
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,7 +94,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-hid-logitech-hidpp-v2-27-30743e91d83b@gmail.com>
+Message-Id: <20261110-hid-logitech-hidpp-v2-28-30743e91d83b@gmail.com>
 References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 In-Reply-To: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -108,112 +107,43 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-e56a4
 
-Device serial numbers are read from 4-byte protocol payloads only to be
-formatted as raw byte sequences with %4phD. Storing them as u32 requires
-unaligned pointer casts and dereferences that depend on endian-neutral
-memory layout, and the FAP-based serial helper reads from the RAP union
-member instead of the matching FAP payload.
-
-Represent device serial numbers as 4-byte arrays, copy the payload bytes
-with a fixed serial length constant, and read the FAP device information
-response from the FAP payload directly.
+Manual mutex_lock() and mutex_unlock() calls force early loop exits to
+break to a shared unlock path instead of returning directly. Convert
+hidpp_send_message_sync() to use guard(mutex) so lock release is bound
+to the function scope and busy-retry exits can return immediately.
 
 Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index df0bcaaf8647..181b791b3e0c 100644
+index 181b791b3e0c..8f2a9d3e0f74 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -48,6 +48,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_REPORT_SHORT_LENGTH		7
- #define HIDPP_REPORT_LONG_LENGTH		20
- #define HIDPP_REPORT_VERY_LONG_MAX_LENGTH	64
-+#define HIDPP_SERIAL_LENGTH			4
+@@ -380,19 +380,17 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 	int ret;
+ 	int max_retries = 3;
  
- #define HIDPP_REPORT_SHORT_SUPPORTED		BIT(0)
- #define HIDPP_REPORT_LONG_SUPPORTED		BIT(1)
-@@ -898,7 +899,8 @@ static char *hidpp_unifying_get_name(struct hidpp_device *hidpp_dev)
- 	return name;
+-	mutex_lock(&hidpp->send_mutex);
++	guard(mutex)(&hidpp->send_mutex);
+ 
+ 	do {
+ 		ret = __do_hidpp_send_message_sync(hidpp, message, response);
+ 		if (ret != -EBUSY)
+-			break;
++			return ret;
+ 
+ 		dbg_hid("%s:got busy hidpp error, retrying\n", __func__);
+ 	} while (--max_retries);
+ 
+-	mutex_unlock(&hidpp->send_mutex);
+ 	return ret;
+-
  }
  
--static int hidpp_unifying_get_serial(struct hidpp_device *hidpp, u32 *serial)
-+static int hidpp_unifying_get_serial(struct hidpp_device *hidpp,
-+				     u8 serial[HIDPP_SERIAL_LENGTH])
- {
- 	struct hidpp_report response;
- 	int ret;
-@@ -912,11 +914,7 @@ static int hidpp_unifying_get_serial(struct hidpp_device *hidpp, u32 *serial)
- 	if (ret)
- 		return ret;
- 
--	/*
--	 * We don't care about LE or BE, we will output it as a string
--	 * with %4phD, so we need to keep the order.
--	 */
--	*serial = *((u32 *)&response.rap.params[1]);
-+	memcpy(serial, &response.rap.params[1], HIDPP_SERIAL_LENGTH);
- 	return 0;
- }
- 
-@@ -924,14 +922,14 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
- {
- 	struct hid_device *hdev = hidpp->hid_dev;
- 	const char *name;
--	u32 serial;
-+	u8 serial[HIDPP_SERIAL_LENGTH];
- 	int ret;
- 
--	ret = hidpp_unifying_get_serial(hidpp, &serial);
-+	ret = hidpp_unifying_get_serial(hidpp, serial);
- 	if (ret)
- 		return ret;
- 
--	snprintf(hdev->uniq, sizeof(hdev->uniq), "%4phD", &serial);
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%4phD", serial);
- 	dbg_hid("HID++ Unifying: Got serial: %s\n", hdev->uniq);
- 
- 	name = hidpp_unifying_get_name(hidpp);
-@@ -1031,7 +1029,8 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 
- #define CMD_GET_DEVICE_INFO				0x00
- 
--static int hidpp_get_serial(struct hidpp_device *hidpp, u32 *serial)
-+static int hidpp_get_serial(struct hidpp_device *hidpp,
-+			    u8 serial[HIDPP_SERIAL_LENGTH])
- {
- 	struct hidpp_report response;
- 	u8 feature_index;
-@@ -1048,22 +1047,21 @@ static int hidpp_get_serial(struct hidpp_device *hidpp, u32 *serial)
- 	if (ret)
- 		return ret;
- 
--	/* See hidpp_unifying_get_serial() */
--	*serial = *((u32 *)&response.rap.params[1]);
-+	memcpy(serial, &response.fap.params[1], HIDPP_SERIAL_LENGTH);
- 	return 0;
- }
- 
- static int hidpp_serial_init(struct hidpp_device *hidpp)
- {
- 	struct hid_device *hdev = hidpp->hid_dev;
--	u32 serial;
-+	u8 serial[HIDPP_SERIAL_LENGTH];
- 	int ret;
- 
--	ret = hidpp_get_serial(hidpp, &serial);
-+	ret = hidpp_get_serial(hidpp, serial);
- 	if (ret)
- 		return ret;
- 
--	snprintf(hdev->uniq, sizeof(hdev->uniq), "%4phD", &serial);
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%4phD", serial);
- 	dbg_hid("HID++ DeviceInformation: Got serial: %s\n", hdev->uniq);
- 
- 	return 0;
+ /*
 
 -- 
 2.56.0.542.g3ef89b7020-goog

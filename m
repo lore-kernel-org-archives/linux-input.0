@@ -1,74 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794419152;
-	b=X3J02wj6V6l5NUkwGqZB8+He8sfip6BesM01qKWOv/GsN7YEStm0J9JKVaa5u7kH43M/
-	 Ll8vHrSYxR4ICxMlaZwOdR8/MBEs9vOipolk/Ts2GT00SkhdeM6DljklU2VYJFTmFyeAz
-	 hjsKwGapVyFCACcIC7U83C5GPml8uQcC8wFcgmvc1ueaGKUwGhfkgEUymuBP+kizcMXN4
-	 gm5NKRxWbmzEU3oUHeECVLioTMef4A+G5gEiYEL6LSQ8QHJS30juY/glLSA858H+Ad4b6
-	 tJhWxLjazIWwXNfa2P0Q1ejhh4E5fASrAOiUaKt64sCwrV1NQmvKkvHdVuEW2b0AWBQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794419152;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
-	 MIME-Version:User-Agent:X-ZohoMailClient;
-	bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=;
-	b=Gm9hw3XA5C/2Mope8rwpdKzSq5scw+FdviLD+7nMK1UMxGHF/hZqz6sqr/g+O/k7h2hL
-	 pdZ1YauUxpCMjRkX8AUf2g2xNoo7J4a7FiYaFA0QAfo07nTC57btVtE5PvFNiMC4v5eVg
-	 Nx3urQLKB3rS5ot1iHH6/sQcp2zN0hKl5/u8Uqt98kUIx+wGVoII0LkxQk1BoPrcEqsTF
-	 1ClAHHYkfl1QDn82/6k0nvyUldsC7Me3bjtt7fJfMy0D88UUWjHs98X3Hgiu+Ye887u9C
-	 UB+OLN/LTxol6WG0w8Juc0/0dWRwfvbwHIJzZl4cdrfsxoNJDgtMnO1/wSjEw2vJAGw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rong.moe;
-	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=K2thFDH2;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794420043;
+	b=fpNeroOek93oWjAJUDOTvuyy2DotJdZ/eQZpDUkpdo6w8OjDaC+60rTuREVzfEKhe5zI
+	 iWbR7mTDNIxQcsoVzyEiNams2x38E/xHe02gkEDHtQN0uAmgUvLYSRKy4jQKjGWsy6BU2
+	 SFcKGp+bP9WRCYontTqoCwlfWmhWU+kLEPmyl2+InMID+82BPLHmI6gIXUOFqPWiy3Hf1
+	 gpzCQlXHbeh3qt4Fs/sYq8bYn8O51SaTmfYoQDfAqcOGvgU+U67+Au/o8Mh8rvs95dAdw
+	 PjBre5+e6gnpC5irTaRdMqzLx13Tcye5uo6SG3kczaNQZc+kwOdsC5ri0S7VVoG0WFQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794420043;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=gXZUEJAo9ogNRdsof/4yd/DRB/vaqcwMDVHHocdwiu4=;
+	b=b415GN0G05AHJAAfU3Tkz8cW3/00wBnmrNYaBmuiuVIcttiJ7sDuveA9Nd07U++Z9cEf
+	 wXsmulE1koX+irw4NWi7giJShNUXyoN/kZdULCpMMuLPcvJ+dtAVjAhalJrDfcNtDITpX
+	 V6eH8/l8bRePMMo+4qkRTVV+bYsIsJ3arjogTGA9GU1o3oGf0ubEvDnoxN8qMdX5RadOf
+	 G+ZqJ+Iv0yuaTIDwbnhQ8/AXmvxqK2Bbaq4GRBUNLqcN9j5SWQSavoXYwTt5aPc8mot6C
+	 H7KVY1mrbdjozTuZKstFxvGS35RmL+IBeKYP6/YvOqb1mu2PkaAkg5iCy/edNSeda/Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cLhevcER;
+	arc=none smtp.remote-ip=209.85.210.175
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B0C606A331;
-	Wed, 11 Nov 2026 17:45:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56B0C606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA5CA606B752
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 18:00:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA5CA606B752
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=K2thFDH2
-ARC-Seal: i=1; a=rsa-sha256; t=1794419140; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=nmzuq+YuOTr/XnjX22MWYdS9WkWjipjQLSIOejurtWLKiiyf/YGBifxfe3Qh/oh0fmwXBwkCwj5cxaeO+Qat/4CpajVhefFzdRHP3nc9K4OhuRbI4fD7zVFwxzL388T2NNMAKcj0RN847YASQ0glMkz9u7lVVyQjhRTeTWpBYv0=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794419140; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=; 
-	b=IvgvpvP4Fp9AHY4ykcGqAMGx1drI+Knd/ierTnMVE0x+VQDZ5G88rCaiDcrkrtWVPbuC2GWQ905bE+KaCB8uNqIooHugg/fU1ZNooZAvONCob9IzzyJNIpc469ZAAHeu/M5blbNg7KwkY94Ju1S1ZoDf3pIixRlpmY59ZbkuyUc=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=rong.moe;
-	spf=pass  smtp.mailfrom=i@rong.moe;
-	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=K2thFDH27b7B/YJYBmnGsiaXxkHr8p1Bb5gmyzM7yimg6qiChr25HSe8lScIBZWQIA3X9YRuqBcGi/1pq1eZElm702ExxoTAv4/Cloa11K6VPYDI2AaHq4+dCuPrAVANWbgU8P1oZ9+lq+5zBRShRONf6BCAT9p78bsQvjFlQa6Nuro5TkPeJgrpNYV5rzEJS40Cg3ENz0Gs1NY6xWW+HPgO536ltUBgr4mUv2vAGmNUlGIu39N+3p98+7i1wby2+ieD7jI5xkCbz7jPkXrxPixusXZRyklLlW3W1gCTl6sG7dDuHB/vRVpctI08t7rE0x1tVRVLerJE4SzQ3fH8hQ==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794419138890504.7205507541514;
-	Wed, 11 Nov 2026 09:45:38 -0800 (PST)
-Message-ID: <474a0088ab286efb0e363ad27398020dd6b15499.camel@rong.moe>
-Subject: Re: [PATCH RFC 0/2] Keyboard lighting for the Lenovo Legion Pro 7
- Gen 10
-From: Rong Zhang <i@rong.moe>
-To: Ciro Pedrini <ciro.pedrini@gmail.com>
-Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark"	
- <derekjohn.clark@gmail.com>, Ike Panhc <ikepanhc@gmail.com>, Hans de Goede	
- <hansg@kernel.org>, Ilpo =?ISO-8859-1?Q?J=E4rvinen?=	
- <ilpo.jarvinen@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, Werner Sembach <wse@tuxedocomputers.com>,
- Aaron Erhardt	 <aer@tuxedocomputers.com>,
- platform-driver-x86@vger.kernel.org, 	linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org
-In-Reply-To: <CAPKD0Hdt7WNC5n47Bpug=DMsJ8m63UnGprm+-cLaUh3tb=4vCg@mail.gmail.com>
-References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
-	 <71ecff766a91670d509b1286efd995b71efc21f4.camel@rong.moe>
-	 <CAPKD0HduW_atYsz47Nv-9A_88K1B33xENUnZgQAKcH4VHqV9PA@mail.gmail.com>
-	 <db41708e7676697fda99573a31d7747dee112403.camel@rong.moe>
-	 <CAPKD0Hdt7WNC5n47Bpug=DMsJ8m63UnGprm+-cLaUh3tb=4vCg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 01:39:56 +0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cLhevcER
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-8a06e79e152so1926152b3a.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 10:00:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794420042; x=1795024842; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=gXZUEJAo9ogNRdsof/4yd/DRB/vaqcwMDVHHocdwiu4=;
+        b=cLhevcER5F0cC1w/qvx8koU/5KEhFGypHAezF5O9BGPPNqIeXMakQ46AM3CgshFBIv
+         Giqd0YQJGavVCxRE9Q9DKotrEQFnTzzTJvItuYlhjXZBq+xM5+WNEwhlTdovfwLXA5EC
+         mM+hyPnIzlg3Gw79i5YO55EkUhlI6WrGVXTbq7M5o9i/Jx8tNf42NUwD/TcktzxLSwo/
+         7me3Op8YcBEwnMQSEHF2BhTC+V+s9/fFQ6Ds/Cg5VDkufc/QRv2WOQEQUafqfwvPrM92
+         1uizui1kOGViIYLowAmaZXoxuLAfOFV6yIDMb6B9GO6N1lRu2Bf/NfS0KH7epcbfdYoF
+         8pDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794420042; x=1795024842;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gXZUEJAo9ogNRdsof/4yd/DRB/vaqcwMDVHHocdwiu4=;
+        b=vi8G69Qy98uEB5akTq+0jVys0PS4wUnurttGjC9gVb8nHmYJs/dV98k4dfbUnEQiFD
+         XnQckqwV25OplMUPCDH21pcP1pOdFR+8+eDCzKAGMIWex3qd2w/YZEDSjf/ZolIwvMxS
+         cHOETUMluoFYIZPmpudS7i3n8Q57gIdDEGpi0MV7FOB4HmHUyBHi5x3PdX3RDKm5r97W
+         GIqGmKodvpBcg150zhBwIcIzDUyEy9Yho9tsvH4vjBygms8SboRiBb6A9SNQFUappj33
+         UYyEptucx47r3MXyJ+EE0nRbQcslveAM9POQKo8bJJsu9KcfM6lMaCK19jAkvz92hAPc
+         VB1g==
+X-Forwarded-Encrypted: i=1; AL+hErHnG8awuwrOMV2M2uidOFRzayIOfv/GntP2vBNJrJ+lVjgbixim6/UTqwtS5kFoPZe5sesB7FVh4OEwqw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+/uMddchsBjdYWDdCfOH8yk3FNMY+e7srAmZEHQYA2unTn2GsA
+	CA/gwUtMc6ttckgA9RDdOg857SYDmivzbNZGKu6j3acmFz9p9TYN58Fq
+X-Gm-Gg: AYBFou1fuCMy7jK19GkENpY76kZKiY8twHbuUP2LBPJlv2dPULhB8IdU3BJrjRxCSeq
+	0gejbPrc3pa2mRu3x4u9rR8QhDsUA90JoM5gO33m2zuh4FmfqYs4EoBkS5+ZC5PADy1J1vW9jB1
+	D9p7OvJOtg+JnIDLojs27ViGtkIsS5bUq8/AuvupxN4/LOncX/I4P/vhq/x+swT0f5G14lyFwFY
+	mmTVbQg6OF2h7gmsHrMRJP1dPmM2l8NwaW43Vuy/dCU/0XmbzARYJGcPOOuAhen6tzorcEOKOzy
+	l8s6e3fKimXOO6GVV/li/5U3uaiEnlZDxHDJXnhftiCzZTZwBZpSobDKiyjqysRtRbveqNDj2S/
+	M0ouuQ2hHkhtXnid+PdtekO4Om7Zej4WYbFW2LON50tB/B6wheclxSIjCTlxXUVPFpDj9NdoGkW
+	Wv0OpRJDs8L6ud3LUCwIntYFGnE92usUGCimTwFTx2xbr+41fMqP1wsb/znOI45mpISUbSIBlu8
+	YBLDglGCC7TLpKjAci1+uuNQBFLlmqq1vL1rTYr7TORHtF6DiYg+8XC878RErBHe7zGwuBNZebG
+	gOUm34i+/H1SIIpiAhnC5w6qa8P3FEcll1FAk5aqcYq0mBI4Ezvv1bZDULg5k9fApRjGQclNb/d
+	3u5XpfAe6EbgPFGwy
+X-Received: by 2002:a05:6a00:4193:b0:89f:9ea6:1ddb with SMTP id d2e1a72fcca58-8bc1c0b732cmr2911078b3a.23.1794420041911;
+        Wed, 11 Nov 2026 10:00:41 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:311a:ad7a:93f8:96c8])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8baaae3da61sm2331243b3a.35.2026.11.11.10.00.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2026 10:00:38 -0800 (PST)
+Date: Wed, 11 Nov 2026 10:00:35 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Henri Ommer <henri.ommer@gmx.net>
+Cc: job@noorman.info, phone-devel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] input: himax_hx83112b: Add hx83102d support
+Message-ID: <avStFjE4coB0C0q3@google.com>
+References: <20261111163354.36751-1-henri.ommer@gmx.net>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -78,67 +97,60 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Evolution 3.62.1-3 
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111163354.36751-1-henri.ommer@gmx.net>
 
-Hi Ciro,
+On Wed, Nov 11, 2026 at 05:33:54PM +0100, Henri Ommer wrote:
+> The core functionality of the hx83102d is software-compatible with the hx83112b. As with the hx83112b, firmware flashing is unimplemented.
+> This commit also adds support for touchscreen chips which do not have a reset GPIO, like the hx83102d in the Samsung Galaxy A20e.
+> 
+> Tested on: Samsung Galaxy A20e (SM-A202F)
+> 
+> Signed-off-by: Henri Ommer <henri.ommer@gmx.net>
+> ---
+>  drivers/input/touchscreen/himax_hx83112b.c | 21 ++++++++++++++++++++-
+>  1 file changed, 20 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
+> index 345ece27fe74..04c9c6aba396 100644
+> --- a/drivers/input/touchscreen/himax_hx83112b.c
+> +++ b/drivers/input/touchscreen/himax_hx83112b.c
+> @@ -7,6 +7,9 @@
+>   * HX83100A support
+>   * Copyright (C) 2024 Felix Kaechele <felix@kaechele.ca>
+>   *
+> + * HX83102D support
+> + * Copyright (C) 2026 Henri Ommer <henri.ommer@gmx.net>
+> + *
+>   * This code is based on "Himax Android Driver Sample Code for QCT platform":
+>   *
+>   * Copyright (C) 2017 Himax Corporation.
+> @@ -132,6 +135,14 @@ static int himax_bus_read(struct himax_ts_data *ts, u32 address, void *dst,
+>  
+>  static void himax_reset(struct himax_ts_data *ts)
+>  {
+> +	/*
+> +	 * Some versions of himax touchscreen chips do not contain a reset
+> +	 * GPIO. The downstream driver only resets these chips for firmware
+> +	 * updates (which aren't implemented in this driver)
+> +	 */
+> +	if (!ts->gpiod_rst)
+> +		return;
+> +
+>  	gpiod_set_value_cansleep(ts->gpiod_rst, 1);
+>  
+>  	/* Delay copied from downstream driver */
+> @@ -349,7 +360,7 @@ static int himax_probe(struct i2c_client *client)
+>  		return error;
+>  	}
+>  
+> -	ts->gpiod_rst = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+> +	ts->gpiod_rst = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
 
-On Wed, 2026-11-11 at 14:27 -0300, Ciro Pedrini wrote:
-> Hey Rong,
->=20
-> On Wed, 2026-11-11 at 20:10 +0800, Rong Zhang wrote:
-> > What if (four permutations):
-> >=20
-> > - c197 sends 07 AA 02 00 00/01 00
-> > - c193 sends autonomous_mode=3Don/off
-> >=20
-> > And what if the sequence is reversed (another four permutations)?
->=20
-> I tried all eight. Before each one the LEDs were back to the
-> controller's effect (AA 01, autonomous on). "host" below means
-> autonomous off plus all lamps set to green.
->=20
->   c197 first:   AA 00, host  -> green
->                 AA 00, auto  -> controller's effect
->                 AA 01, host  -> controller's effect
->                 AA 01, auto  -> controller's effect
->=20
->   c193 first:   host, AA 00  -> green
->                 auto, AA 00  -> controller's effect
->                 host, AA 01  -> controller's effect
->                 auto, AA 01  -> controller's effect
->=20
-> So the order doesn't matter. The LampArray only shows with AA 00 and
-> autonomous off. c193 keeps the colours it gets while AA is 01, and they
-> show up as soon as AA 00 is sent, without sending them again. AA 01
-> takes the LEDs back even when c193 is not in autonomous mode.
+This should be a separate patch please.
 
-Thanks for the experiments.
+Thanks.
 
-AFAICS, we should be able to integrate both as a unified autonomous mode
-trigger. Yay!
-
-Thanks,
-Rong
-
->=20
-> > My implementation connects the LampArray application to hid-input, so a=
-ny
-> > HID driver with hid_hw_start(HID_CONNECT_DEFAULT) or
-> > hid_hw_start(HID_CONNECT_HIDINPUT | ...) will initialize the LampArray
-> > application. Therefore, I suppose the only thing we need is a simple gl=
-ue
-> > driver[1] for c193.
->=20
-> [...]
->=20
-> > Does that make sense to you?
->=20
-> Yes, it makes sense to me.
->=20
-> > I will CC you when I submit it. For now let's focus on the driver for
-> > c197 first.
->=20
-> Thanks, I'll test it here when it's out.
->=20
-> Ciro
+-- 
+Dmitry

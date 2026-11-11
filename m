@@ -1,99 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.49
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.50
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794417186;
-	b=eRlkpr5EwpIpbvI4b2JV1rWdBxtc27kby7lAOG/XyWLOSJsgKS/eIR2BDA3yiARv9S4X
-	 wdAqta+1hN5CCegcJswVGqW9EGusddD682jT4iYyvXq9VsL1qmHN1B6+5tgFFglOZamvx
-	 6+8fe0eG72MQusqAQsaXPZ4rV+7SxP7nthz21JZmzaaEj5YCRjKlfsy9U9VXdSqtqYrBn
-	 7rEdhjRHeuAb1erAhs2mPPVNvJYTHGHd3i/+so0MNhg3m9CQMRN8fsfV+P9XjshZHUbtV
-	 CNEbPnLc9yKswGLeOdccrih+hK0lzI9PGZSG5x5S+JnaVNgczIIPHJzQ4UIBvtqFilQ==
+	t=1794418059;
+	b=cqiLNgOERc92yeZzx0485QezVqUmYplJMRQ7QiCNKYw7XKnKlqg34/x/SaYL3CkpvtaQ
+	 scPpZywpzGarEqkDhDbk+vXYRakfCe40fkYJuRPApKVa5wNqKqhkoPXELAt4OJyshk1Us
+	 Ai0FKH0Ayiv9hbe3L2tovzIqSjc/mYmXonT1Ii9IC48xlcvOoaQqwXZRphshvNsvb1Kzz
+	 bSqUuNdVvh9uZkxY0EFCHcriHGsuh4AO4GcYiiIeAw8KNNAp2Wf6QZM/VjtyNfMx3I4IO
+	 5Iboq+QLWADewMXuAvpesxGnZHNim0s3u8sZxseW5z+mWu0Ix1426dN7pQUKdBCHVfg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794417186;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794418059;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
 	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=yQBRHBIhMCpK1GaG4ls2kPSsfswknz2sHPrFZyTAPUc=;
-	b=l3rnv2TsJJYC3E7OPrIbM0fe2EvVTtXUrUmRJjJau4OAs061dkkiQ09LMIhWUXiboh32
-	 Rr2b/NdTtf458EOtCNQgXBvZ+hipJePwWCBy73iwXuErv/oxqdl5RptP+RbtJ95hnN5ns
-	 r0LX3ZOZRNAtD2JQrSqPtQE8QtGgTjtof52n/NKVAVd3GUdVZfvfLFPb9erRulc8eyMaV
-	 qgWuYDc+9g+5WT4ZyjadRzA5hAHS1DMMIbcj9RlYOSXwYYidQJUSqUlhZSK4iMaeMlcPr
-	 mv/rZcbdtwYni5QHn7n0aXv8X6t+9uUaeEk59uZPpUZFEqlM0n04T9vEB9z/3qBFUWQ==
+	bh=dSXiAG+3ZY/F8hDcAaOCi5cr+p+IP1IyyF8LUmknS0o=;
+	b=e5+VIEMwaGEn2gV10KeMlhtkhCZCuAo5ibWRL3UDWLu+RbcZZqDP/hCTIR1nwc2HSojZ
+	 zNCdbTlMAzSXg9lqVawciRlp9U2bQHyhzIzyQurQ/h5Dg3bK+rw3MUYfrz8kr0F67eTnr
+	 EzjtD4fE09mlIp3uq8PL5qvTCm1DwBzG9QdxrlHwLfwQHE/nVYwKYIS6kee33l+0OHBC3
+	 fcPr/3/QNxlB326J/GFfBLbjUj4enZ60K10GaRa2oImLKr238DAJhLDDstNb+JtGVYHMG
+	 s08doqPr0gC/Firg9zUjTytttF92ex2gjOoshQBEnXokXbzLhEY0TlI7bTDGgyHAWpg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=awi2vbah;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.49
-Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tyg6ByNt;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.50
+Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBC92606A324
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 17:13:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EBC92606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FF1F606A31C
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 17:27:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3FF1F606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=awi2vbah
-Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1a8cc11ac42so3367250c88.0
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 09:13:05 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794417185; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tyg6ByNt
+Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1ae58d17cd9so2656442c88.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 09:27:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794418058; cv=none;
         d=google.com; s=arc-20260327;
-        b=iZZeijr5S7D2Y1OsyEBwBjUjeuHzTnee4tsngcmH9OwuTK5hdAg8wHDCRyyX51cvuS
-         Favqi3iD10rXYjNmPlAqUoiLqOxgp+/NiRbkcbdq8zFdd9ybuquZi0fh8G+Uq41jyg3/
-         +fANgaG8H3pXYb+plXV2+1ab3fi805DEJq97EQePkoxr5OnNdwdCtjFw9HNl+4l40gkW
-         EmAuWLFz8lTpV/FfHGkS/GcHY7xiBUvjk3B0jYl3rEz+sT7k49V9xNvstco0arrhebO1
-         /twc9rdUF0Kn2nXH1Env2lhhYNgl7pU65r9hc6/ZY6oMLtw/dsxq4TBjVQcE3RwcjLV+
-         tJlw==
+        b=bidOh4Nuz0M7qQ+KVAfx/D06lidasM1S2XBeHNp0mxmu/7mnErlr6R2G1p4JK2wKpE
+         4dWJQLdOyb70k7K49yCCmzGVMRqO2Oyfxjs0D4GZKh9QZ3SOKoVaKUjg2OSioBb+Ottp
+         8Fz3zNp217gHnG4eBZ6YtWFw7AarYTCLv0NULJQINgxKVc2bD5jZq9fzyWd/wzytqTMF
+         8qaPPFu5JC6asRhiGfE80PvFtGyYp7Q++7Q0GT02EWBW8/BbDPgys30aXannPZfjICYl
+         mcKwMH6+RgGoPOBiOdskpMvht+z42J6/riMcY9Pi856jbW+Lb/a1gG5AcavzDmgmMwA9
+         ZD2A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:dkim-signature;
-        bh=yQBRHBIhMCpK1GaG4ls2kPSsfswknz2sHPrFZyTAPUc=;
-        fh=zgqO1pfhG1xLYrHnEhW9Tqjf9auNeFDgI2lD3lZAeeg=;
-        b=R/Szq8xpzKebHxcedPWDi6P+Ctzb0ZsfDg41XvC/FLNcTwEuEAr4rOO5YZLiG8nz+v
-         AP9dl2FmhuKkVxlR/088wxIIFTBy5FgIMSFzzPEQTIo0I7shDq/Su8bs0LPd6HlUzL7h
-         4iguFtHuuOTHblCDcAuRYrdfgjUqp9qmTCXmLbuvVa4aLjYj5ubZUQsD4yJmMV0P9VzI
-         mIqFAtGGorabolgUpjg0jnbESNfsrvUYHDmae22rIufXyBC8my/J47qY4t8r6kJCp01i
-         ToyAt1VgfPSsGl+UPQg6nCk59asUun145Kh/z9NFomPi8YvOi1dkmVBfbHfpE6roSVrN
-         0RWg==;
+        bh=dSXiAG+3ZY/F8hDcAaOCi5cr+p+IP1IyyF8LUmknS0o=;
+        fh=keQI7VtI239bwXYbYK6WfpCMLX13qdiwGKTCYlaw44I=;
+        b=XX3vpoUX64IQFI7itfxHnHNB3doY/rUf3F5WIwb5vyqpSmedE8mILQcOh5K1/F51K0
+         xpuhBN2iIMqupzsJOftiCQMW1VbogDGI/JmDDxhLU17ClaKmizKXLhK1ub4EaIzmQynW
+         c9x0KiAAx5Z5wb0ajmPhbnBGYv1Dn9ig0CS4ylXy0Wwje4vcerdviDAqdw+nFDs32Vn9
+         6wMPQm8+b+8+euuP4xhi2piL+XE6/I6SH08q5U7sPfqtlRUJQQktUrGsVTQ3lnv7PBl9
+         Y7vflAKjuh9hGOfBOL+jdGT8n/77iZH5T+9MUBu9NWevq/QnmERZLt61/QMQooujok+O
+         JZIQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794417185; x=1795021985; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794418058; x=1795022858; darn=vger.kernel.org;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=yQBRHBIhMCpK1GaG4ls2kPSsfswknz2sHPrFZyTAPUc=;
-        b=awi2vbah/fEYbEew3ocu4Kr0L919KYfWpbxLouCV/e615bMYCzISXGeOWYz7B6gePb
-         yQrWkaqFkHFbbuHi627ZaEqgYAFDuBHkx6et7OAGvQgJle0ZWS9wBgndAowm1XcpEduh
-         EwfqcAQGmKXb7jGpzl5h4bazn3z5sTLo8xBGct7Q2R0uHNZZgYJ0zJ0EA718ymD6aNpz
-         JqD2cmqADltIvyO1vM76YMDJ+SLDV8clFlKYzWvTfm/QbwHABYl23F5bifqc5Yf3bzdO
-         AYJ6Ykaa7hj3WHDIukHU3xxBiWHtVWOYCk8qzrGt+iLjDVj8wl5+ca6iFdF7jmTkcGUE
-         dC3A==
+        bh=dSXiAG+3ZY/F8hDcAaOCi5cr+p+IP1IyyF8LUmknS0o=;
+        b=tyg6ByNtCOXd3UYgLHVPAI1+s7aXekSUxLSTJbM32FAWHq0F0hWB9djyJgasJd1l42
+         DlZT03LRvimmYFbcXJ8OpaFRa3cx9q7UJbKhuAk/Jm0SAYEDJjv06ajoRLw+qQhw8HQn
+         aSSpBhMTEtSVeGhM/EzuCVcS1Lm7G3woe7vAqtu+G27MtEGOkFLxNCajtXnJ653o51PW
+         fzjCMY73D9UmZgsWxWWoQRSCKRhEmuBciPAGjPkJzhJrqxS/TmBsBBGf1WcU1zqkDRdQ
+         WsWzelklgQGD824LA+SPXKwXpOlwzYv0i/NYwkLd4KbbE5axg3lQ7t+Q0S26/Ho8kO/H
+         uDKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794417185; x=1795021985;
+        d=1e100.net; s=20260707; t=1794418058; x=1795022858;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=yQBRHBIhMCpK1GaG4ls2kPSsfswknz2sHPrFZyTAPUc=;
-        b=WFWE8u+4alYcWj3J0GlTO98IQWbztwPBJ19bN41N2Tsr1FPzutZRHT654S71x1msvK
-         mUCveOS4PmDRO9WOBI2TpX+29y1QCvgfhMFKIaUK8S0HKsXs9SIYLL67U0iwDRj1178D
-         oRYIhg/4HRrEHElN3tUXk0JN3eecTQgU2WQau2wTTWIoCPxhK+KSHo9/7rO5948tAWUV
-         VUY97X45iSpmxGg2IkBk+v7j9OK64pfeMapkfeKNu2c790d9BO/aOI6qzQn2LjVdRJ4C
-         dBAgfEi+v0tsNU+m29yLeBLIv8rsxx5Nbpcv57K6C+UxQaoUoCpVLlaKZpvBSzL7fo4C
-         yLbw==
-X-Forwarded-Encrypted: i=1; AL+hErHR2LogmByzQ0beplCNfCL6W2hK8I8Xtm9VYu5uQW8ZBzKrQi4sBBjojdYdgwvWcOVeEgGkWKjO55ldbw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8JdLIdfDRCooKZe6AZ/6HaME70icwHKrDfe3r5vNTx9Y8h/qvA
-	pQ/ZvNRQP/zaYLzflW+k3tPov/SdkVY3r8LjHtp/MkiZnAye1g8irGL29I2EsALxfifizohipwN
-	qf59cJcoXo649XHwFHtouggWdJFAkUOEakAgb4iJ9weNr
-X-Gm-Gg: AYBFou1xOhYUy2i+MlW3KUulztyXN/MFgy1Lyh3Wymvo3E/63Ww4hgKLc8QnQ6PGIBT
-	vrK+wcjD/qAPHGDN6ZUlnPKTQavMXdtaxBjyl7Wz6YOg/Pqts02vtnfx5MCaoSLuoSR8uabL4g8
-	+OtZITaid3UoitYv80V7s3pS5sb5jIyTmBWfGR3svqn+S8yCXY/KjIXDUcpw0tnZm32wxLG4TC+
-	DYxTB1zgvMqo/3BnHPROdPhVzqlmKwDjM+66qLwl7ueZERZp4IhvFzsJ6FIDxN0tfTWGjiA9fG9
-	5VP5c3ZM2mYPCjHO/cKlLk+WM9WTIj7okDPADLVa1K+q4D5m3NEeVFpZ3UA6Tom+dVO1xLy4ol5
-	z27Ld6v3JkaVRMW7EpWiLuCWV7BKNp2ecdobd
-X-Received: by 2002:a05:7022:3a86:b0:1b3:a22e:b74d with SMTP id
- a92af1059eb24-1b3c035d23cmr2829705c88.34.1794417184690; Wed, 11 Nov 2026
- 09:13:04 -0800 (PST)
+        bh=dSXiAG+3ZY/F8hDcAaOCi5cr+p+IP1IyyF8LUmknS0o=;
+        b=24U6CDJKUNctCRNQXz02dmJ36MrCj/b2d+3mDrW0If9iHNJDfEKUIQ+XHihTBM5hSi
+         dFoIx2CSOH51anJgXn8HpKJj+de8VdQ2YpCea/WybShMauWaO6LYv+++ICsOJ9I+U1u7
+         Q2IQGd7NFDCNHGg2kTgGHHizA9FfxE5J4+m+bHXSu1/pm5fvlPXpIw2Mu9epexY3ubDh
+         HXnbbvE/++aVkXlPGYu08n/7TpMbB/GVhXKB4AVLQL8CHMYLey7UW5Ixhsxf0UvX1h3o
+         sOwVcUeIwn+B1+2G2scPQWBQBoGEFYEyvaGEIVlmmOvO7fqjMy4pHljvvQ1nALt/Vj6G
+         +aQA==
+X-Forwarded-Encrypted: i=1; AL+hErH6gfOs1tNUtrUZk+vVi5rduk9DoVzUmGsSkRJ78I0J9b/OxAqJqeymKFQ7vubrOBw8/rtFybU5B4bApQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+9va5511l27427QwfC6iCo+IOBOFTwolSt4PthPzPd5BeNZ9pH
+	anycUMLmp5Yi07pRVMaTPG0f+NullQeJI+dB7028i4mMhFuGD1rJKF0ebok8hbh1CzCmEj/Q8t3
+	nzt8udtPjrUOM5KZPi4fpWEV81PM3Veg=
+X-Gm-Gg: AYBFou0z82wNJqP3TsnGfChUlZO+KcdzyusPx/VajM+hFtcK1ZWw/NXQha7JkdBhma4
+	jh75uE/nAOn4CG7W25BTg87ZlPjvTZTZohrQd6DJdC18/snYe3NhVTUOPlYRmKhx/wpz+W1G2K6
+	IIuKCscwBMjGwnf+vmqARk3DGjGfot/6rFfjXk8BJU96ZOhOBcWvueGJ4Gi+8L2cSKKsW5O2AhD
+	wc54ErtEmRK27uShJSUk80RM4U9JFG3tAFGxyiqYnDYnUI93UI5zs4MT1NIoOkLVFvb/Z2neLng
+	KIzayKguNSFqniBrZrCXL8OVSD42w1isdhSlnbHHlToEOCmDDkhmQuCuT7uwPnLHnApnT8ReBIm
+	nThMx1HK/edEu+G0hrtb/W+wqhn+AtnZVcK7Q
+X-Received: by 2002:a05:701b:4558:10b0:1ac:f84d:4036 with SMTP id
+ a92af1059eb24-1b3c02f34fdmr2668936c88.9.1794418058188; Wed, 11 Nov 2026
+ 09:27:38 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,15 +103,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com>
- <20261110-legion-lighting-rfc-v2-2-845726afb71c@gmail.com> <9002537db845b7a0a900612fe3a4a3638f06cd37.camel@rong.moe>
-In-Reply-To: <9002537db845b7a0a900612fe3a4a3638f06cd37.camel@rong.moe>
+References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
+ <71ecff766a91670d509b1286efd995b71efc21f4.camel@rong.moe> <CAPKD0HduW_atYsz47Nv-9A_88K1B33xENUnZgQAKcH4VHqV9PA@mail.gmail.com>
+ <db41708e7676697fda99573a31d7747dee112403.camel@rong.moe>
+In-Reply-To: <db41708e7676697fda99573a31d7747dee112403.camel@rong.moe>
 From: Ciro Pedrini <ciro.pedrini@gmail.com>
-Date: Wed, 11 Nov 2026 14:12:53 -0300
-X-Gm-Features: AclHuK_9AFdIKIxS-VE0HiqvOtlNnIyPwpjp_Fu-O7VtOD5InbSvkib5r35zrYc
-Message-ID: <CAPKD0HfHuv4vKWeff_uhGxXosuU279qB+kkmXNPXJYL2kxFR2w@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] HID: lenovo-legion: Add keyboard backlight driver
- for Legion Gen 10
+Date: Wed, 11 Nov 2026 14:27:26 -0300
+X-Gm-Features: AclHuK-k_YZiigppKf1NhmY5lI_KumHaoapWssTv6Uvn4FXhXg28fO9lUyYHPbk
+Message-ID: <CAPKD0Hdt7WNC5n47Bpug=DMsJ8m63UnGprm+-cLaUh3tb=4vCg@mail.gmail.com>
+Subject: Re: [PATCH RFC 0/2] Keyboard lighting for the Lenovo Legion Pro 7 Gen 10
 To: Rong Zhang <i@rong.moe>
 Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark" <derekjohn.clark@gmail.com>, 
 	Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
@@ -122,64 +122,50 @@ Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark" <derekjohn.clark@
 	linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-Hi Rong,
+Hey Rong,
 
-Thanks for the review. I'll fix the rest in v3, but before I go on with
-it I would like to hear from you on these.
-
-On Wed, 2026-11-11 at 20:09 +0800, Rong Zhang wrote:
-> On Tue, 2026-11-10 at 20:29 +0000, Ciro Pedrini via B4 Relay wrote:
-> > Its hardware brightness, 0..9, is stored in the controller and applies to
-> > every LED of the machine (keys, front strip, rear vents, lid logo).
+On Wed, 2026-11-11 at 20:10 +0800, Rong Zhang wrote:
+> What if (four permutations):
 >
-> I don't know if it's appropriate to represent so many things with the
-> name "legion::kbd_backlight".
+> - c197 sends 07 AA 02 00 00/01 00
+> - c193 sends autonomous_mode=on/off
+>
+> And what if the sequence is reversed (another four permutations)?
 
-I gave splitting it some thought, and looked (with the help of an LLM)
-at how other drivers handle this. We could register one LED per zone,
-but that seems to be usually rejected, because they would not be
-independent: the controller has a single brightness for all zones, so
-writing any of them would change all of them.
+I tried all eight. Before each one the LEDs were back to the
+controller's effect (AA 01, autonomous on). "host" below means
+autonomous off plus all lamps set to green.
 
-Per-zone control is only possible through the LampArray (c193). It has
-319 lamps, each with its own colour, and they are grouped by zone (keys,
-front strip, rear vents, lid logo), so a LampArray driver could light
-or dim each zone on its own. That needs c197 to hand the LEDs over
-first, as discussed in the other thread.
+  c197 first:   AA 00, host  -> green
+                AA 00, auto  -> controller's effect
+                AA 01, host  -> controller's effect
+                AA 01, auto  -> controller's effect
 
-Also, going with kbd_backlight seems like a good idea so that UPower
-and the desktops pick it up automatically.
+  c193 first:   host, AA 00  -> green
+                auto, AA 00  -> controller's effect
+                host, AA 01  -> controller's effect
+                auto, AA 01  -> controller's effect
 
-Thoughts? I'd like a confirmation from someone who knows how this is
-usually handled in Linux, as I don't have much experience with it.
+So the order doesn't matter. The LampArray only shows with AA 00 and
+autonomous off. c193 keeps the colours it gets while AA is 01, and they
+show up as soon as AA 00 is sent, without sending them again. AA 01
+takes the LEDs back even when c193 is not in autonomous mode.
 
-> Just curious, can the software select which effect to use, or listen to
-> an event when Fn+Space is pressed?
+> My implementation connects the LampArray application to hid-input, so any
+> HID driver with hid_hw_start(HID_CONNECT_DEFAULT) or
+> hid_hw_start(HID_CONNECT_HIDINPUT | ...) will initialize the LampArray
+> application. Therefore, I suppose the only thing we need is a simple glue
+> driver[1] for c193.
 
-Yes. 0xCA reads the current effect and 0xC8 sets it. On Fn+Space the
-controller sends report 5 as 05 01 P (P = the new effect), then
-05 02 B (B = the brightness).
+[...]
 
-> I wonder, what if we set the report with a short report size, say,
-> struct_size(msg, params, len)? Could the device handle it properly in
-> this case? If so, there is a chance that we don't need to sleep for 100ms
-> later (I guess the device is processing too much data, causing the
-> massive delay).
+> Does that make sense to you?
 
-You were right. I tried it on the laptop: it takes the short request,
-and it only ever answers 5 bytes anyway, even when asked for 960. The
-answer is there right away, I read it with delays from 100 ms down to 0
-and it was always correct. So a brightness read goes from ~115 ms to
-~2 ms.
+Yes, it makes sense to me.
 
-Setting the brightness with a short request works too, and reading it
-right after returns the new value.
+> I will CC you when I submit it. For now let's focus on the driver for
+> c197 first.
 
-In v3 I'll send and read short reports and drop the msleep().
+Thanks, I'll test it here when it's out.
 
-> Ditto, what if we get the report with struct_size(msg, params, 1)?
-
-Same, that works.
-
-Thanks,
 Ciro

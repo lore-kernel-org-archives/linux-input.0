@@ -1,89 +1,89 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794380193;
-	b=fGmF4NSOHNJv+EMTTAwlfvXZ94ZSSGQe4NeibgvFBexw4MFfIcVMzqco2hlOEGe8if0u
-	 rW7MR3/VpdpjFeOxgyKFyj1g1j4Pppj+07SrONYmutEU9Flxmh7PgILHzvCgyHUTGzuPI
-	 7lzSbJz+UHUJ3wJnKegurKxbSUgCTW6nH3Q/NMGoMoCUu9qcWbTSyn7/ddq3z51x7w22S
-	 HaP8f1eHEHRRHzwNyrLCiqNnmtQMyYQl+0brYMPEa12+KeH9Vix7yO/2JQtWua7LPftev
-	 V6OXEkJZ6o7MIbuT4Cybs9ivz1gDvhibNc9gtOMN6aqtjJ7Z7y8uRrvqsfkYWhvmtMA==
+	t=1794380188;
+	b=Z5pYvAUrhzI1Uw/ImRp78vtDirAI0h3nYKADieAdRagGAaFMBZUD76tsHj0mai1Rhrsu
+	 bc2g29psnqSb0LqH9XExPNxC2tyAFerju4SnxWrtJNMfa7r4F9Coj8sWQPD8PIZEObNI6
+	 HOqvLvmwDNFcBRf16VmZniJ8ShJ8tvyk1xOGY2F0WPBmDRVlGwd9gGaL2TpCbQy5Ge4mj
+	 aMM5+7yTT87JQIG/KjQqMlL2qcJ2I2JCvGrcVHXKPJCvHeOXRUG529ZcAv7eVjUV/3crK
+	 Qo6I+MITOwrEFhO4CCfB+Mwr4WbsVTQAAOq2iu7KCCUoy3VJY+lxLxIVRYEDGLQRXDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794380193;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794380188;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=9jhOOC622dmlAeDDXE08OsOwQ9rbd0t9D1tGFsBggw0=;
-	b=e2yw98WqGI3OJaTIw0eu/owvfHyx1ykhczuYEbJsIPiS9ffWNNJZ1awrA4Zj7/qBJYsb
-	 M4811X61QjUKl9qirWe/ynLeTwO9gI0qCra/BRG5xZpKfV9/p74P9ehmo2+L0yFD9SQ/n
-	 JMKzZ34t6fkfjTldcXTucqWF7z/g21LiTWWEP8TjPpi0DGAL6T/LR9RZg756QQd1vPEkf
-	 lQ1n+0vMuHtExF+NArZbWoeYI6U2kiLfchtOI5E6vzaSD538CvQa1Yzcg96TNezyrtPT7
-	 YqobxWnKvpeU/yDmdAUnU6V2qMwopVz4VZxNdokS28TIVy7dmi1zVg+Y764xqV//thA==
+	bh=Jda2LN7LPQB2P8XOQ+k0o80LxadgQqre8h5FmC/7gKE=;
+	b=0EHM6vOyWLRaeCIaEYRQcXD3DUffcFO71dZFSjJ7/G5HoKOojeqqWVPZQpgAqf22gcDw
+	 pEmUkp3yAU56dYJOU/DrVGD6lVKrRRlpk2UqBPBAYuX8bjp9d02e2oJKaGzI9QdodHEwd
+	 JmrEbnU9rpq9kyB0fZ1W4jBak1bJAqzkQyFyqNk4PPZ6/Dz5A5BUyi62Hdxd/vgMiaSXf
+	 3O+Xs3ii0YuGzXZ3EmGweSbpxiZAPennpvi3KBRNz3mNXXFJBQH62ITj0Hz+8DVR/5cy0
+	 /DLI2fsId5jDYb1qbu0ZXHMNazGk7BdxY8FN4mxD/c4VYV/vnOB/M3vFqoJSkrghjAQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SsBkwh+R;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HcmqKOta;
 	arc=none smtp.remote-ip=74.125.82.48
 Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318C760A3814
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:56:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 318C760A3814
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA0A60A2631
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:56:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6FA0A60A2631
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SsBkwh+R
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-14394530ec6so3679345c88.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:56:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HcmqKOta
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1a2761c69fbso4758951c88.0
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:56:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794380192; x=1794984992; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794380187; x=1794984987; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=9jhOOC622dmlAeDDXE08OsOwQ9rbd0t9D1tGFsBggw0=;
-        b=SsBkwh+RkvYyTpBTtc/4YgnN7aLAWLHZYO7IaApfZg/2+mTAURxhK77U4LOuamHTSu
-         jkFkqCfyuaMmtT0wzFNdgVG7m+iuWt4idS3/lGzNjhfCRRgDTLRyBOJas3oH3WKoL2uP
-         zkj3mIEaV/jebvGfL4BvKZ6nIZUfw8qc7jNHIvr5JGMHJYYdhVTgtVfmD9Za1zaIM6Rp
-         DDI3WFIcsBe3/fSsOo/440Mz6TSKbTXDzC5bE+50fn/VvNa8V+vb/LCtusu8KTWhFqzQ
-         tkG1oSN8dvPWpgWUA/UITBPpy5UJK4X0H83gp3Yter7D72wb1o9nAIdY7J6eQVz5NOE0
-         3eXQ==
+        bh=Jda2LN7LPQB2P8XOQ+k0o80LxadgQqre8h5FmC/7gKE=;
+        b=HcmqKOtaMbIzdNmicEoa8MVYrUmafrpOod9uwkTFjrysRnVzHZGMtl/av70cp5gync
+         UzLIHltQXWLwB0bjPI0sv9CbgJBEXfE+hR73UkaYi99hP5CzsCFiG439hf4AKU5TKBcN
+         wMeRqeo+6b0JA2siQOn0OYuap106vWCvd/0ekC2l+c9AlCFYvFMvcXCjxU/J97rLn7DE
+         iDlfejyL+izOL/hUyiDI9cJrU7ZgmQUEF+98Hdl75vZ/t5gE14XG18w1rrQdWOMkbAfT
+         M0/iuaRkAk21O6hnTxqU5nPY4Y81Ek5jAoWbl5WOPi0RLQRi4PUKwCSLjy2ST4KS1n6/
+         ZvsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794380192; x=1794984992;
+        d=1e100.net; s=20260707; t=1794380187; x=1794984987;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9jhOOC622dmlAeDDXE08OsOwQ9rbd0t9D1tGFsBggw0=;
-        b=Kfabfvl/RmxgiHljgzbdyfogO43bF0FA42263Hf1d4tDgw78VxL0i6CNdlspLoIzDS
-         TgihCxnnwLOTBbAH42ZVja3ElPM2CtJFNk1cPaWWkF6TQnjyJcnigxKzKw/PDaLvL8o3
-         R4ssZIEF55LeLbhnWTPyUlDAZYzBMN/zBPc4La8b8HH/SE0XbDYBE+R9lD3Zj4Ci91Yt
-         WBVVE6z3qxqAlMEpKq0KTYGecUmb3nFHGdu76J0Hkuu8YhgSO9E7m30sA0TCzoVFG2B9
-         DRAKqdtPJLefBsEMRLtqMN3go1P2cnb7liTMDA4RZQlH2cN2zqbWchQCOfFxClFiXMGS
-         qf6A==
-X-Forwarded-Encrypted: i=1; AL+hErH46TsbE7iKAt3kUz4r1kex0Et91R+pHRLktezBCBokUs49XuzZn+33WaFFHN/0NnRwXn9ZpjRBiE8PIA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+m9UFs66tmSGgIhuZPwNbJVFOEzmnr/yTVTNPzOy6quoy6vSo+
-	MmtwD0zhYUoLubC8UTve2+UJGMGJdDMQdYiYf8/YimfQrH6BtBqC0QTO
-X-Gm-Gg: AYBFou0zL2R0y2swqjyhROE7SFko+zRGtbk/TCKC6itQauKMlLPuCeVWMd3uEhi0H0S
-	KhyGp/67FFeVgVk7EkVHEAC7VdXtWZaTOdaKxnIYyAwsNBafjTATnGX+jcN1gWn1IeRhPXP3YzB
-	0tv/wyI3ASejUZCmDDqZKC16U++GPTXW1H8vSd5QDfpTX4xa6kPw9+7TUqs2SbNzay2QGb4SZis
-	Ty0yDikLntTTOE+HOGWdSIs6O3xQM0vQ24F7jiuiw5lBTJL9BLRylI4rJ45BtdKk9coq2PldHtz
-	lo5NksdetiZl0AnE0RUkH+YPF3vp9ta3d96qk6KVcVPV78ZJupeOPV4fAhqQkH8GVnr+m90an1b
-	O/5yvKgbehG2Kt76VhAOkE643WrJPv0Yy3yiKsCDcEghnMLytZ0jyHZB8eD12JHrc/50xqk8lf3
-	f3aLbPnwmCRmxx88j/nlKiv0lpwobP931bjujMztfhRVxm4XpIglVximjpep/Ayt8eK0478p2uH
-	B/x+M6TI+dMoTyWDhzW/8eR3y9L7Xo0Gnrda5JLaWC82TOoo31okbFQIAv+JN8FaCUptpjYnGbT
-	C2/SKzvJE/C4xGUvTajuuYT6+0hla3k3qBtJnFyDXPeW+ih9JDRJo3L/JQCLRodkTJDuLzyZfhs
-	RDwyBzTo+WYZwfkBGYg==
-X-Received: by 2002:a05:701b:4513:20b0:143:3c9f:10a6 with SMTP id a92af1059eb24-1b3c023deaemr1635953c88.4.1794380190728;
-        Tue, 10 Nov 2026 22:56:30 -0800 (PST)
+        bh=Jda2LN7LPQB2P8XOQ+k0o80LxadgQqre8h5FmC/7gKE=;
+        b=ZACxxwVSPVTLboDEiSAIhaxetPjL8lmoCn/kB9PJFStCmI3ATwtKZmVlkOvAjLsZZG
+         vq7vTkOhtG68TMRFhaNOhmfU+bQqTl4wxMxDSIgg4mRNLXkq6bmBqssXLuloSHNlB7tv
+         V4skgFiweCjUokVcrZNmUZ6xIPmC2CGEosHIK5fnX1Hm1cARi8doWv3VZ7ym+xMVZNaS
+         nEPYxkAP9Y6YfLegaMuR1Rq8rA7vDTL2er6Vgstkk4F417V6BuD3dZGlevbuHFL9Uqr2
+         rqbUhTOrjVglM2NjvyveOHSyLYJR+7dP2dw43TEr267AzAAEPU/IhdcJX+FGC8BhpkjS
+         BZAQ==
+X-Forwarded-Encrypted: i=1; AL+hErHHBioliyslWEe5KApSqyxsSgPHQAA9dNEg4AIR0KFoNGC0mA2MBQ31dR+K8WzSFm02BGqIHutvgJfSrg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+uTpMIbcs16XX73QJIAuF5TzQjLTthaeY7X3lHgOLJyRdoPFxL
+	ntg0d2r37+00U84eJN1otw/bQi6b+G2/Tmt9WW0bfVPS4+wA+c8adFLO
+X-Gm-Gg: AYBFou0HOro3JcAcjuGEMyMpLTRHPqThE+NUamxRN+rcIR+z/UR7h/Itg9TeRrlrNUn
+	idbIwo2FC+948pBqm0bgIcxQhVcY46HiwWMeKcS27bNZW3N38ACIJwBCBHjhRVQSXxBdAK31Go5
+	fFqstmMhuv3t504ObS/k21fr7BPMVDjpTeJK5N+HHKywsA6L/dPGkWIjra2hUu4xtVKADdwFYSB
+	NljpVvFtyKxFBKTTZBifxaboJAfGXVST/wQRMT1iQe7y1foDQ/phbGZYmjq5XAJ7/LESKZA3X7d
+	XvjjqKqxWzogvCbOIsT4pd2pKYOxCquohst74pPTV5AgY59JJyHnoRxS7CWi7gO9FNKyqTY47Wq
+	wLVQbaicDYEyWXMpjh8CT+LzWRaOMFlO8ufn4HynUmcFaWfyfj+PAxljYHX62F99j4ZBzWDSGCl
+	JEXeF7qcr6OgfS2xnDG6T9+UXcoI7r+pTpaW3Kui4Bsn0oP+R5z9ycYsZf7C4BvFKk5fF+ttTUg
+	VGOmlRsAjWt9VbSn1hZ647tDK6DjjHyH7hBhwHRPPVfEPZwcLGmsOgxZV6XGUHEK3qxpzMErx7B
+	uFRBVJCRF8SjKngksWKLJ59CeaEm2bBOd7VRDlw5KUtF9OXJUjfbv3OpgV6w/noA7kbomzKxFvo
+	C0KHBcX/WnUUmewolUA==
+X-Received: by 2002:a05:701b:2504:b0:15a:9834:73f2 with SMTP id a92af1059eb24-1b3c0346852mr1464685c88.38.1794380187278;
+        Tue, 10 Nov 2026 22:56:27 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:311a:ad7a:93f8:96c8])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.56.29
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.56.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 22:56:30 -0800 (PST)
+        Tue, 10 Nov 2026 22:56:26 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Tue, 10 Nov 2026 22:48:04 -0800
-Subject: [PATCH v2 06/33] HID: logitech-hidpp: avoid NULL subtraction in
- consumer key report fixup
+Date: Tue, 10 Nov 2026 22:48:02 -0800
+Subject: [PATCH v2 04/33] HID: logitech-hidpp: disable works before
+ stopping transport
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-hid-logitech-hidpp-v2-6-30743e91d83b@gmail.com>
+Message-Id: <20261110-hid-logitech-hidpp-v2-4-30743e91d83b@gmail.com>
 References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 In-Reply-To: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -108,41 +108,83 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org, stable@vger.kernel.org
 X-Mailer: b4 0.17-dev-e56a4
 
-Report fixup runs for all 27 MHz devices because the keyboard quirk
-is only determined later after parsing the report descriptor. For mice
-and other devices without the consumer collection, searching for the
-descriptor fragment returns NULL, yet the remaining length calculation
-subtracts the base descriptor pointer from NULL before checking the
-search result, triggering pointer-subtraction undefined behavior.
+Device removal and the probe error unwind path cancel the connect-event
+and hi-res-reset work items only after closing and stopping the HID
+transport, leaving in-flight work handlers able to issue HID++ transfers
+or register power-supply and input devices while transport teardown is
+underway. Moving cancel_work_sync() ahead of transport shutdown is not
+sufficient because incoming reports remain active until the transport
+stops and can re-schedule the work items before hid_hw_stop() completes.
 
-Ensure the search result is non-NULL before computing the remaining
-descriptor length.
+Disable both work items synchronously before closing or stopping the
+HID transport on device removal and on the post-I/O probe failure path,
+and drop the unreachable cancellations from early transport start and
+open failure paths where incoming packets have not been enabled yet.
 
-Fixes: 42bc4f3129e6 ("HID: logitech-hidpp: add support for HID++ 1.0 consumer keys reports")
-Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
+On device removal where HID core enters with device I/O stopped and
+driver_input_lock held, temporarily re-enable device I/O to flush
+pending work handlers and disconnect input devices before stopping the
+transport. Clear HID_CLAIMED_INPUT and hidpp->input upfront so incoming
+reports can still wake synchronous commands without dispatching events
+to the disconnecting input device.
+
+Fixes: 7bfd2927adca ("HID: hid-logitech-hidpp: Add basic support for Logitech G920")
+Fixes: ed80cc4667ac ("HID: logitech-hidpp: Add HIDPP_QUIRK_RESET_HI_RES_SCROLL")
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 6ac41b7d76ee..53c171dfcf96 100644
+index d5f53b35ac6f..0e1a9fd98faf 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3872,11 +3872,9 @@ static u8 *hidpp10_consumer_keys_report_fixup(struct hidpp_device *hidpp,
- 		0x26, 0x00	/* LOGICAL_MAX (...                    */
- 	};
- 	char *consumer_rdesc, *rdesc = (char *)_rdesc;
--	unsigned int size;
+@@ -4805,13 +4805,13 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	return ret;
  
- 	consumer_rdesc = strnstr(rdesc, consumer_rdesc_start, *rsize);
--	size = *rsize - (consumer_rdesc - rdesc);
--	if (consumer_rdesc && size >= 25) {
-+	if (consumer_rdesc && *rsize - (consumer_rdesc - rdesc) >= 25) {
- 		consumer_rdesc[15] = 0x7f;
- 		consumer_rdesc[16] = 0x10;
- 		consumer_rdesc[20] = 0x7f;
+ hid_hw_init_fail:
++	disable_work_sync(&hidpp->work);
++	disable_work_sync(&hidpp->reset_hi_res_work);
+ 	hid_hw_close(hdev);
+ hid_hw_open_fail:
+ 	hid_hw_stop(hdev);
+ hid_hw_start_fail:
+ 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
+-	cancel_work_sync(&hidpp->work);
+-	cancel_work_sync(&hidpp->reset_hi_res_work);
+ 	mutex_destroy(&hidpp->send_mutex);
+ 	return ret;
+ }
+@@ -4819,15 +4819,26 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ static void hidpp_remove(struct hid_device *hdev)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	bool claimed_input;
+ 
+ 	if (!hidpp)
+ 		return hid_hw_stop(hdev);
+ 
+ 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
+ 
++	claimed_input = hdev->claimed & HID_CLAIMED_INPUT;
++	hdev->claimed &= ~HID_CLAIMED_INPUT;
++	if (claimed_input)
++		hidpp->input = NULL;
++
++	hid_device_io_start(hdev);
++	disable_work_sync(&hidpp->work);
++	disable_work_sync(&hidpp->reset_hi_res_work);
++	if (claimed_input)
++		hidinput_disconnect(hdev);
++	hid_device_io_stop(hdev);
++
+ 	hid_hw_stop(hdev);
+-	cancel_work_sync(&hidpp->work);
+-	cancel_work_sync(&hidpp->reset_hi_res_work);
+ 	mutex_destroy(&hidpp->send_mutex);
+ }
+ 
 
 -- 
 2.56.0.542.g3ef89b7020-goog

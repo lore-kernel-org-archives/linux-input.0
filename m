@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794386835;
-	b=atXOZJ4z/9upmyz4OX4eVutSGRKInHOAFT0BiYmSSM6NqQUC3MFQICK7Cd0N3+s0DYts
-	 o6KqcM0vGOrsUDt3KyLB4/VWh7Cj4oKrPUPOGh67s9XB2mD9oiY/RDRz8LaNaZOrmkFKh
-	 U9DeJh38oNL2hYghjUnbboK7cJRue4ziesk5OTynHzd7+Y8GWyuPBBdWdi42WwT8mbmkR
-	 ZmnhRFGO8cHkN3Fh7JsGXmmAOCrlsGA7fWwufX10Di7IxmZJKOB0BQrHflCFlA/mS6RZw
-	 LnB45FCDvvb+SXWxUD8yG523PlorYpqrwm1FjTnrEJxoUW2Na0Gipt7ZVdFX0rfQMJg==
+	t=1794388009;
+	b=WDDOLfRRwepGXhcZ1rp8TOSDDLxiaGsuvyI8GiaIz65bPz2AGSQxFKry3vin6T2Ivc7v
+	 FlRZML2zYY+MpxkuIrLLfsSQzyhA0fyyiNes1+cvrYYt2kKFp8dz63QD+f5KD1snywyui
+	 wp5s29QJrwsFvxv1grtMVS6CcjBGd8o056Fh9hzp88YPBP2adxhBoLGsfoYQTMIbMgH3K
+	 UZOWONo2Dy1B7Gyh0l6U1WI94Po6iIMApsxqkrJkBEvDMDoVquC+sWZzcNYKF7gybDAui
+	 A3t2OvIUI2EvWBHlK/lGl+GcwsCI+rs+FXPVQFiK1gF3MrngtZoUe6IQylBSEb24SFw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794386835;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794388009;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=XgjFi5NyYDKdzzYleB/j7pH/vWJqQEYwqmYBTHyzssI=;
-	b=Tz8UO0huyhMZ2Klchn7PdkqX7f0zTdBE6LMMxlxLzhm4mKDzHK9zLVsYkGMpa9y7v7pa
-	 pOmakt9GUimyBJpCfJxiWoEEGhKmWSfE/ffl55YGcd1cU6e9JtnsYKckXQp+S+NBmU0Xr
-	 CjNeosr6FdeblatmFhF+xv+yaeNkFNJ4ptzqj1QMZW7j+fY/CFr5onpIRPy0b95flCBq3
-	 0BwGKQmWnq9quY56ezXDuhsiU+83KkU5jxj5dzaNoQ4KoKY+fVPEZbdHwoG6ohUO0ISDS
-	 mXFY1m+J+srY3H4Y9zf96NNLzWdYH0RND1RSefWwyAntu1E+MbSySFbEduHk8zIUzbA==
+	bh=nhwGqwmooKYRCyZi8rJPHsoqLigIHGkOKeuu8D9HzCA=;
+	b=tZp7m2wy4+Iww4XznyXK5iSufcnPNHP4wq0u/syEETU81hVwhhS3Niy0Gg7KhJM9A6Uw
+	 NkAhB60qL/cS4WVreqruR/J+r5ezIHSP7JeKy/AGBbPv0Subnaoc8DeeEcor/3aSRu18a
+	 gkqv2GQgiWXIBoQVYVGD43KAWo2bGmxuJ3yPYZTzWfjjlReyd8DnwNc7uyoTPgu2cvPTe
+	 /JWAM9EFhfC8r+ka7z9Pl0nx/gU/U5mWvHg4zF6p65VKSAr2Lk52igYwt26WtEVnDQcOA
+	 trwVSB4Vr0MOu6UxgF3+peCyC1ccMrDotQ5ZbMCTsyUom6v9z1urdcUPlZ6+dz+undA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PgsmMO4I;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DTnVhWIU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1BBF606A31C
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 08:47:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040E4606A321
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 09:06:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PgsmMO4I
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48FE51F00A05;
-	Wed, 11 Nov 2026 08:47:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DTnVhWIU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 546EE1F00A05;
+	Wed, 11 Nov 2026 09:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794386835;
-	bh=XgjFi5NyYDKdzzYleB/j7pH/vWJqQEYwqmYBTHyzssI=;
+	s=k20260515; t=1794388008;
+	bh=nhwGqwmooKYRCyZi8rJPHsoqLigIHGkOKeuu8D9HzCA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PgsmMO4IQRPJlxdCG2uziAHVSaNkgafk04z7TS2K3DtF8gFVf9ZMRerVr/BeQIhBf
-	 hq9KNUwAE6vqO67UhYi5m4Qu/m5/YegT19Jx2vxnWzyHszd8Focc+mZp/GAyQf0/ud
-	 1/Hs1rw2CpE/5WZ9a2ot3cdYcq7ypjv//WPusD9bHDqvGyeS9z887nITe4DW3COPEA
-	 bqbIqTlDnoGXt6EmyQi/P6+mhvEUSMHv+LcKeEu2GyDA5OnOxN/iTbQegN72szJNkW
-	 w1h6meyivfyL3bUvxfyRCxTIFDM57O2tdNvo5uRi+n7Hu/jm2f2wqVapsmCAq2FBei
-	 nMhsr9vVjb19g==
-Message-ID: <sashiko-outbox-208632@kernel.org>
+	b=DTnVhWIUQ27Tv2DQLrJ2VBvApqarFeoAkug1m4Voe1f9Gj/PZpOo+OEBiK6qvl6pH
+	 1YE7V7k01Qae1EH8mDwipKNEjN+0OGwlHfJHNzWz+LbFHMeLeMd2YHN3w+Uw8JkVH1
+	 8eLNdI68ItfLCCdsQZiS5ULe1k1JrRhirZS6jq/ohVbcGEkzMsZebTO5U39Yr4Wt04
+	 18swiNfkOUCxI4vokFSE+WanYa31uyJYFM1mHNfhBCqwmHqwa3Jc5qXhbeX+3kto92
+	 Dy/S69taqXqVaQxWjYmAw1wpTGAwutDo3HJ2h7NR6S7KcQEM4pO1aY6+bf0ksMTaPl
+	 gIhSr5AfQcuwg==
+Message-ID: <sashiko-outbox-208662@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 16/33] HID: logitech-hidpp: preserve transport error
- codes in __hidpp_send_report()
+Subject: Re: [PATCH] Input: libps2 - annotate lockless command wait
+ conditions
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261110-hid-logitech-hidpp-v2-16-30743e91d83b@gmail.com>
-References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
- <20261110-hid-logitech-hidpp-v2-16-30743e91d83b@gmail.com>
+To: "Zhu Jun" <zhujun2@cmss.chinamobile.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261111084142.80954-1-zhujun2@cmss.chinamobile.com>
+References: <20261111084142.80954-1-zhujun2@cmss.chinamobile.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 08:47:14 +0000
+Date: Wed, 11 Nov 2026 09:06:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,34 +62,67 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] HID: logitech-hidpp: missing Fixes trailer for
-  __hidpp_send_report() fix
+- [Low] Input: libps2 - unannotated lockless wait condition in
+  ps2_drain()
 --
 
-commit 09dff290053556bbf3aafa52b368f79dec907401
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+commit 9801ff26658df02a74329e6bb2b403d12fd15880
+Author: Zhu Jun <zhujun2@cmss.chinamobile.com>
 
-> HID: logitech-hidpp: preserve transport error codes in __hidpp_send_repor=
-t()
->
-> __hidpp_send_report() returns -1 (-EPERM) whenever the underlying HID
-> transport write does not match the expected report length. This discards
-> genuine negative error codes returned by hid_hw_output_report() and
-> hid_hw_raw_request() (such as -ENODEV, -ESHUTDOWN, or -EPIPE), masking
-> device disconnection and transport failure from callers.
->
-> Preserve negative error codes from the transport call, and return -EIO
-> instead of -1 when a short write occurs.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Input: libps2 - annotate lockless command wait conditions
+
+This commit introduces ps2_is_waiting() to annotate lockless wait conditions
+on ps2dev->flags and ps2dev->cmdcnt with data_race(READ_ONCE(...)).
+
+> diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
+> index 05b64277aecd9..a60912224bfac 100644
+> --- a/drivers/input/serio/libps2.c
+> +++ b/drivers/input/serio/libps2.c
+> @@ -41,6 +41,12 @@
+>  #define PS2_FLAG_NAK		BIT(4)	/* Last transmission was NAKed */
+>  #define PS2_FLAG_PASS_NOACK	BIT(5)	/* Pass non-ACK byte to receive handl=
+er */
+> =20
+> +static bool ps2_is_waiting(struct ps2dev *ps2dev, unsigned long flag)
+> +{
+> +	/* Waiters sample flags while the receive interrupt updates them. */
+> +	return data_race(READ_ONCE(ps2dev->flags)) & flag;
+> +}
+> +
+>  static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 byte,
+>  			   unsigned int timeout, unsigned int max_attempts)
+>  	__releases(&ps2dev->serio->lock) __acquires(&ps2dev->serio->lock)
+> @@ -62,7 +68,7 @@ static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 by=
+te,
+>  				"failed to write %#02x: %d\n", byte, error);
+>  		else
+>  			wait_event_timeout(ps2dev->wait,
+> -					   !(ps2dev->flags & PS2_FLAG_ACK),
+> +					   !ps2_is_waiting(ps2dev, PS2_FLAG_ACK),
+>  					   msecs_to_jiffies(timeout));
+> =20
+>  		serio_pause_rx(ps2dev->serio);
 
 [Severity: Low]
-Since this fixes the return value logic in __hidpp_send_report(), should
-the commit message include a Fixes tag:
+Should ps2_drain() also use !ps2_is_waiting(ps2dev, PS2_FLAG_CMD) for its
+wait_event_timeout() condition?
 
-  Fixes: 2f31c5252910 ("HID: Introduce hidpp, a module to handle Logitech h=
-id++ devices")
+drivers/input/serio/libps2.c:ps2_drain() {
+	...
+	scoped_guard(serio_pause_rx, ps2dev->serio) {
+		ps2dev->flags =3D PS2_FLAG_CMD;
+		ps2dev->cmdcnt =3D maxbytes;
+	}
+
+	wait_event_timeout(ps2dev->wait,
+			   !(ps2dev->flags & PS2_FLAG_CMD),
+			   msecs_to_jiffies(timeout));
+}
+
+Like ps2_do_sendbyte() and __ps2_command(), ps2_drain() drops
+ps2dev->serio->lock before waiting for the receive interrupt handler to
+clear PS2_FLAG_CMD, leaving an unannotated data race on ps2dev->flags.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-hid-logite=
-ch-hidpp-v2-0-30743e91d83b@gmail.com?part=3D16
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111084142.8095=
+4-1-zhujun2@cmss.chinamobile.com?part=3D1

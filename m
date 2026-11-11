@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794355573;
-	b=Ul2bYylyWtUKqDZtS6ztQgOPSTWnyFJ46JvuPAOYGObBuNWKdTJpn9NvbwqeRpi9Zblg
-	 qrP+6abjNY5h91qsjzBY8YSP25bl06s66/zlv1zVA/BNe2nJk1RVULaLY8ks+gBY9oP+0
-	 bZXCSa08xPLOeYw8vnO4QLpBUdMe3VtFKfwxjSxJpkyjWKBmEunVShdYbYwDQcAK5rxM3
-	 qGWvK1lDjpUD7RuGe6Iyb2Ocg0Z5HL5HEcTNfoxmTmJXjWc9+z4csOOeReYK9kg3UaTEN
-	 28uY4+1w1MxJOuxXtQGU/EvWQSTNuwoNgRWpO0so4V8ukWw/jdSxKPv444spNPu1XCg==
+	t=1794356757;
+	b=Hicg0cKiRgNpb4MU/OtSq+WGRax80FtiRzSRZGxD79Y9z+tZMb1zvQGSreMjNnJDIJw4
+	 YofQB/I5jaeP6hsvlhzU8A5/i0GmN7uEy+E1KNZ+ASqvisSPpMx6z0eD97SMNAMb8d6mK
+	 xdyql+2yBUZn/K5nDn2R3yJQmEZp57BeVRWPOadFemNaoALopziSFxE62mTwsjwxsZfnk
+	 D+OQc46NRNLN5YRid4l+zDmh1ShUkcblXrbKlmINGc9vFU9OxKTl1MgwRhIQIurJBwByd
+	 cQFXaXUgPhYsqNxq1ZEXVvfthxqGN/X01NzuPtxJ52Gk7jUTTEGcXx5drtIRNeEqHHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794355573;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794356757;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=NLZ1WD3jYOS7elxx3BMoba1XKaw7SRiEiA7ccNV4Mjs=;
-	b=IwDEF8mBZgfA8Ul1TK3jjRF6mr2hwQs8iKn3Cbo5g3TymEy9ACrNRuM8IvtDaopoUyok
-	 tmOPzlbwopP8cCQ6+/fzbVpFcow7SC2WvQdC+EP8KRrTbtAstX7CZnV1eDAYlj09/5gFV
-	 7lV4eL4q4A+Ip4Yc67gmQyvK3xsH+8veLMovptUUyasaty5iqr1ahl1ru/JSTQAuMUTF2
-	 tcoyYf5jpMmRsmmkJlpFAyaLMIIvqXm6WiWxURdUq8KySVXnsnfzOjKpCu/HZ2vrdnFcL
-	 5jNxBh69GvtOZaxODXgxrN3Qlo30Ktd4clrJDWxOOW+5XFSd4QPPrWRnvibRvmxmpUQ==
+	bh=Sl4b3EWxBDK4omBSZONaFHPAyFO7aeNS71Yx9T8CDpQ=;
+	b=DK9CQ0Usyhl9EGo7v3gPMssl9vZ4WPG4tB8bBKb0IW9isIlh6eUdJDkaRuWZL0Q+RkyA
+	 BJxSBzaFyp/CAvoApfkvURbTt4IV7ZxiLH+1mPBLGx4E0YXDY53z9MaBJOCqsuR3UTAbf
+	 lcYly3eD9ReOOynrq7B7R9BWTb1/SfQo3R8DwfbwpkL4Qoa70yleuCpOX06N21pIG15Pl
+	 lsTTt0N2HHjvoQC+Ye9IID7P3fcQkUzX1kaZ4bUqITFBgaXo2aKFpxeFjE1M4o4gmVDCJ
+	 Dm5eflxDyBZsGpZqyhUMTydBpR9pDub8nM24AxfjGrFMlfzmRROofYkk4Az9DTdqtZA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T+FkDHo2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dztOt5vL;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3D460A3814
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 00:06:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71091606A321
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 00:25:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T+FkDHo2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157B51F00A04;
-	Wed, 11 Nov 2026 00:06:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dztOt5vL
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE1D1F0089F;
+	Wed, 11 Nov 2026 00:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794355573;
-	bh=NLZ1WD3jYOS7elxx3BMoba1XKaw7SRiEiA7ccNV4Mjs=;
+	s=k20260515; t=1794356757;
+	bh=Sl4b3EWxBDK4omBSZONaFHPAyFO7aeNS71Yx9T8CDpQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T+FkDHo2xyFL2qxysPkK9QLfGBmAcj6whYWXcsJvsHhiP/cyKoK4SYxZPBM6DBYKc
-	 KA/CPQ7M5bPcdVrq2ymtguKtDPsHoWtwLaF/Tak6TscmnShGcTMw+ZHX2VbVRMuKMC
-	 S2m4joGrKepc6D+C8aAAYmC06QL6AwZetg3bIbI8tGiILnlViJGCZvS3sttq13XkUq
-	 Hv4/DLgCc/1qVZuV3FdVrNkSIWQGhpx0IyDUVVVt/AdLS7l+RgcpjLn7mJk2ZRZuLS
-	 aO5HWtE9upGQfYK1I9DAAmGZMNwW4GCQeX7sfo1pTNpiX5lzTV0Mkc5upoAUIEZlyS
-	 102xrpo0LyanQ==
-Message-ID: <sashiko-outbox-207997@kernel.org>
+	b=dztOt5vLOPm9yoTbWL1AjftCRoLPUNDMA3GRncxJds+q82h9H6442FWKM1Y8l7W2Z
+	 WJ/FBhQYgjX3+b9ZzhOT0Yy+hFyse0UrUaRkO8aI6zr/Y1izTmM6HNsuQWts3W3yp5
+	 Hu7gKxFl3NWBool6FB2zyWKKNF5n8rWZMm5ThdlqWIjbxgEhyBO0+nsafod6pyq195
+	 St5nOuCOkPsAYzkuQ0UbbZD+JXakEZ3jIaTY6TQSUCJngu/dvNsqKL0OV4SXxCli10
+	 Bkqtwqh/ic1Xzmq+A8tj0Of3+1mOhg0LqXIq8l0iF4TI/ItF3nqkrajWN+qtTEvQsa
+	 sGvN/WoEDPKaA==
+Message-ID: <sashiko-outbox-208018@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/9] HID: haptic, multitouch: Fix haptic device
- double-free and unnecessary allocation
+Subject: Re: [PATCH v2 7/9] HID: Add hid-plugin framework for loadable
+ plugin modules
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Rong Zhang" <i@rong.moe>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261110-hid-haptic-kmod-v2-4-b835a067cb62@rong.moe>
+In-Reply-To: <20261110-hid-haptic-kmod-v2-7-b835a067cb62@rong.moe>
 References: <20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe>
- <20261110-hid-haptic-kmod-v2-4-b835a067cb62@rong.moe>
+ <20261110-hid-haptic-kmod-v2-7-b835a067cb62@rong.moe>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 00:06:12 +0000
+Date: Wed, 11 Nov 2026 00:25:56 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,40 +63,47 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] HID: multitouch: Fixes trailer cites wrong commit for td->haptic
-  allocation
+- [Low] HID: hid-plugin: missing Return section in hid_plugin_register()
+  kernel-doc
 --
 
-commit d6cf865be3d7088ec7c4976c069b5aabfd168691
+commit ea30651fd5d31e4684e4f118c37b9199cf1158fc
 Author: Rong Zhang <i@rong.moe>
 
-> HID: haptic, multitouch: Fix haptic device double-free and unnecessary al=
-location
->
-> The haptic device is allocated by devm_kzalloc(), which will be freed by
-> devres on HID device release. At that time, the ff core has already
-> freed it on input device release previously, causing double-free.
->
-> Allocate the haptic device using kzalloc_obj() to ensure its release can
-> be safely delegates to the ff core.
->
-> The allocation code is also moved to hid-haptic.h, so that it can be
-> replaced by a stub in !CONFIG_HID_HAPTIC builds, eliminating the
-> meaningless alloc-and-free sequence.
->
-> Fixes: 344ff3584957 ("HID: haptic: initialize haptic device")
-> Signed-off-by: Rong Zhang <i@rong.moe>
+HID: Add hid-plugin framework for loadable plugin modules
+
+This commit introduces a hid-plugin framework that allows HID drivers to
+request optional loadable or builtin plugin modules via RCU and module
+reference counting.
+
+Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35=
+inqda3exwzs3tk3ff@oagat6g46zto/
+
+> diff --git a/drivers/hid/hid-plugin.h b/drivers/hid/hid-plugin.h
+> new file mode 100644
+> index 0000000000000..4038325c51a08
+> --- /dev/null
+> +++ b/drivers/hid/hid-plugin.h
+
+[ ... ]
+
+> +/**
+> + * hid_plugin_register() - Register an HID plugin.
+> + * @id: Unique ID of @plugin
+> + * @plugin: Pointer to the HID plugin
+> + */
+> +static __always_inline int hid_plugin_register(enum hid_plugin_id id, st=
+ruct hid_plugin *plugin)
+> +{
+> +	BUILD_BUG_ON(!hid_plugin_enabled(id));
+> +
+> +	return __hid_plugin_register(id, plugin);
+> +}
 
 [Severity: Low]
-Should the Fixes: tag reference 8d0bf7908b5a ("HID: multitouch: add
-haptic multitouch support") instead, or in addition to 344ff3584957
-("HID: haptic: initialize haptic device")?
-
-344ff3584957 ("HID: haptic: initialize haptic device") only added
-hid_haptic_init() in hid-haptic, whereas 8d0bf7908b5a ("HID: multitouch:
-add haptic multitouch support") introduced the devm_kzalloc() allocation
-of td->haptic and the hid_haptic_init() call in mt_probe().
+The kernel-doc comment for hid_plugin_register() omits a Return: section,
+which causes a kernel-doc warning when building with W=3D1.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-hid-haptic=
--kmod-v2-0-b835a067cb62@rong.moe?part=3D4
+-kmod-v2-0-b835a067cb62@rong.moe?part=3D7

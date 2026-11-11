@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794368228;
-	b=3fvkNld0vnuL3UM8BlPpb4I7WkcqM7Gu+0KLWBtmcckQ4ylrqpJ0myY1Cp8q53VwYHpy
-	 cwF/lX0ymWm09aum0B8oHd0JUJBEV6RCWFutj2OHl62EO0vQ7Z7nYTrfBo4aEc9ZYx63r
-	 sRoG6McpdIFctukNg+ynrfTzyKrVaQgOY7Aq0LzFvxBxp/wwZi8YvqkdZqRj47pRtYN6u
-	 PGS82XFp6gA+j5HIOLJEnLhLfCv3n23s08t9QriAdh56QkoRsp97D79xOhMuOpsHudwxh
-	 oVYuHhJAvCgumtt2cMQSstPqfufkSG4JNFWvi4kKO0GLIwO3bYvKcxrFvyWE2u0/EQQ==
+	t=1794368248;
+	b=Brg8pUGqWobd/BQFWj20LDYIOtbuPd+A2kcV7CMl+mWsJozZsNTEzQh0FPbmqPdVFWrL
+	 tGcCe4+wuoICV3Zka98W1+vYrY44IkHsvoQHSXW8pzQ+s9V0U/XUFZg80yiDr37eB3lp0
+	 3Z5qxvIK+d5QpDOZwWgymYHzXl/8byl0Lph9fGQFkXUK83+03fRPkITYv0n2leZNojwc1
+	 MBEnvbtvy2D5cul1NGrr9UF9PgDqhILMXoD+rY8TMXUYEX6mDU/EfhhwMhOWZ4TN9SfCw
+	 niusz9BjyrALCtXfetiTIpIxvYeH+jrvyhOlCUVqcqQitBVdMfR/vDUKZ8NNJWqW9GQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794368228;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794368248;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=KRL7sdtHzokVFmkZAY8mIAAGveVY4rhuvkgFHmlqv+E=;
-	b=kdnqrRgrWxxb9djqjY32Q8gwXRW6Ii1nloZyrXcmklQwYEpDa2PonUEStSelnmAitOWG
-	 or6am//ZJRQGi8e38LV957aBVUOUTGkAstyzn0jgXaJcx/RL+UIi8wf5jJgLLkOM1OPHx
-	 4BYqxDUICOQj6/rbLROkaCmSe7DTlsUcN1V9ox5r8DSIzex8SvlQKWrSwsEUVYCE505U5
-	 djNf26Vh3EWX2KuHgHBw9gJ0FI3UXe2nQHZUdh6ToWr2xAAeBNyZ/PpNqyAGrJsSdkeHr
-	 Qy4lUiqzH6nzfGcjZhSTjwPCtu6fMJsoSHU+Jmtq2YAwzkJcqrZt5smiDfhRkQnXTcQ==
+	bh=gekdd3yqyFd4ypNP4uZ1aNE7zW/55l2J7K3GqWzN00w=;
+	b=k61OeHq7/j516kjl4v5lF3KrbfrcjatUtZpQenvvlew9MriU3Bk1CzzD7Sggazk9tbD1
+	 MNKSiAZDI+eFN7NFtseZ5bxGNfzCLI7HUfY0COUo0l+KFd+qLA65l6Ld51m302mos2LN9
+	 28gVoVDnqTigdaPCfvYd+1jloqGh//d/LeTBfNuKtU9JW5ptpt1J93f9bVJ7yCQy8X04T
+	 V6hwGstVZEiAXIgnNgs7GhqOvielfTJuWHksoecMoTm9efCCmxvSOd20mQ49EWtl3zTeG
+	 +QXuJjs2awMg477cWMhfBBrZRawqAj/2oe5lPJaIW/3+k+zyhY272cE3vwcHwds0Lyw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=girnfAPo;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jZdHDv+D;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BCA5606A31C
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 03:37:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F72606A32A
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 03:37:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=girnfAPo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB6E1F0089F;
-	Wed, 11 Nov 2026 03:37:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jZdHDv+D
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C621F0089F;
+	Wed, 11 Nov 2026 03:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794368227;
-	bh=KRL7sdtHzokVFmkZAY8mIAAGveVY4rhuvkgFHmlqv+E=;
+	s=k20260515; t=1794368248;
+	bh=gekdd3yqyFd4ypNP4uZ1aNE7zW/55l2J7K3GqWzN00w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=girnfAPoV5X58bABt/FbxR2Y9pO2eSLtkQJppHCAPGOrRkE2UJX44e1ZCxcs1HRZl
-	 6IiaGHXueJ8PD0AYhiRtOthJxfnl1Oqw9Onhx2Wqc14h9g/B//TW89HI6jsdBTdDj2
-	 qmAJDtIXQsLVx9hgZNM8gd2/ghnEQRTXx16KaieH7axQ12lzk8JkfrKvsEcQ5nLHfu
-	 9L6cD74D9Gg65YN4BU7mzmI/7obtS32gOrQS9D9dWjyKBhUy6Q1xTCpLYMbm7QxATu
-	 PrEil+9Lz8I6Q+0g/RwRKCvOeZ1+4H6RVQm1pp5Q4WWw0xcaautlSzaFbm2QWG2X3U
-	 07CXeLebS+CyQ==
-Message-ID: <sashiko-outbox-208206@kernel.org>
+	b=jZdHDv+D2Ai/8On392MpH7/TVz9jQYf+LCl5s0F0cLm3w9HEyztzygxpYW1gQCifC
+	 z7r29lnzhLyWYIjs/5Mv6j2ez7bs0OTw6D3cT+UdIBLnwWx4VDhVodFlsyQ4vEWZsk
+	 Yw29kG9j2EkkKSUPFzOXWTIxJqLJ9WOZ/JTm5/nbUOJ/R3dBqI8my7vmC5Ea8SkZCE
+	 I7qpuZsTggHZ0Lr2MGRa+31YxhI2pJJm4WVV+p6Z8b2E0K0y+rXGa8hLWr1hzqEMwh
+	 1y2hzUct5dnM6iKtOdupWEX/98Fc3lN2NmstBKZIm6NE/KVZFyKe0uoBPt5xt9DHoW
+	 23Tq4qJ2arMyQ==
+Message-ID: <sashiko-outbox-208208@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: nintendo-switch2-usb: Fix potential deadlock
- on teardown
+Subject: Re: [PATCH 2/2] HID: nintendo-switch2-usb: Improve shutdown logic
+ with inbound message work
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>, linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261111032125.2888320-1-vi@endrift.com>
+In-Reply-To: <20261111032125.2888320-2-vi@endrift.com>
 References: <20261111032125.2888320-1-vi@endrift.com>
+ <20261111032125.2888320-2-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 03:37:06 +0000
+Date: Wed, 11 Nov 2026 03:37:27 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,221 +61,81 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] HID: nintendo-switch2-usb: UAF and NULL deref in
-  switch2_usb_free_in_urbs()
-- [High] HID: nintendo-switch2-usb: UAF on switch2_controller during cfg
-  teardown
-- [Medium] HID: nintendo-switch2-usb: URB resubmission after
-  switch2_usb_shutdown()
-It also noticed 1 related pre-existing issue this patch does not
-introduce:
-- [Medium] HID: nintendo: missing usb_unanchor_urb() in
-  switch2_usb_probe() [1]
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] HID: nintendo-switch2-usb: race in
+  switch2_usb_message_in_work() on shutdown
 --
 
-commit e36945396b8fc382e63f59fdcd5efcaa968354a1
+commit f13e9d16677e01254216a22b0f74fbd5513c6e9d
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: nintendo-switch2-usb: Fix potential deadlock on teardown
+HID: nintendo-switch2-usb: Improve shutdown logic with inbound message work
 
-This commit replaces cancel_work_sync() on message_in_work with cancel_work=
-()
-in switch2_usb_free_in_urbs() and switch2_usb_shutdown(), and adds
-cancel_work_sync() calls at the end of switch2_usb_probe() error handling a=
-nd
-switch2_usb_disconnect().
+This commit moves the schedule_work() call for message_in_work under
+bulk_in_lock in switch2_bulk_in() and adds a shutdown check at the start
+of switch2_usb_message_in_work().
 
-Link: https://sashiko.dev/#/message/20261006063000.A0B821F000FF%40smtp.kern=
-el.org
+Link: https://lore.kernel.org/linux-input/a2dc00e7-9cab-4315-87a4-795f256c1=
+e03@endrift.com/T/
 
 > diff --git a/drivers/hid/hid-nintendo-switch2-usb.c b/drivers/hid/hid-nin=
 tendo-switch2-usb.c
-> index 623473f3d2161..8eafc4fc513d4 100644
+> index 8eafc4fc513d4..97b7bca790f8e 100644
 > --- a/drivers/hid/hid-nintendo-switch2-usb.c
 > +++ b/drivers/hid/hid-nintendo-switch2-usb.c
-> @@ -217,7 +217,7 @@ static void switch2_usb_free_in_urbs(struct switch2_u=
-sb *ns2_usb)
->  	ns2_usb->shutdown =3D true;
->  	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+
+[ ... ]
+
+> @@ -294,6 +287,10 @@ static void switch2_usb_message_in_work(struct work_=
+struct *work)
+>  	unsigned long flags;
 > =20
-> -	cancel_work_sync(&ns2_usb->message_in_work);
-> +	cancel_work(&ns2_usb->message_in_work);
-> =20
->  	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
->  	for (i =3D 0; i < NS2_IN_URBS; i++) {
-
-[Severity: High]
-Can deferring cancel_work_sync(&ns2_usb->message_in_work) until after
-switch2_usb_free_in_urbs() cause a NULL pointer dereference or use-after-fr=
-ee
-on bulk_in[i].urb and its transfer_buffer?
-
-cancel_work() returns immediately if switch2_usb_message_in_work() is alrea=
-dy
-running on a worker CPU.  Once switch2_usb_message_in_work() drops
-bulk_in_lock, switch2_usb_free_in_urbs() can clear bulk_in[i].urb and free =
-the
-coherent DMA buffer and URB while the worker is still using them:
-
-CPU0                                  kworker
-switch2_usb_disconnect()              switch2_usb_message_in_work()
-  switch2_usb_free_in_urbs()            spin_lock_irqsave(&bulk_in_lock)
-    cancel_work(&message_in_work)       urb =3D &ns2_usb->bulk_in[i]
-                                        spin_unlock_irqrestore(&bulk_in_loc=
-k)
-    spin_lock_irqsave(&bulk_in_lock)
-    ns2_usb->bulk_in[i].urb =3D NULL
-    ns2_usb->bulk_in[i].data =3D NULL
-    spin_unlock_irqrestore(&bulk_in_lock)
-    usb_kill_urb(urb)
-    usb_free_coherent(..., data, ...)
-    usb_free_urb(urb)
-                                        switch2_receive_command(...,
-                                          urb->urb->transfer_buffer, ...)
-                                          <-- NULL deref or use-after-free
-
-In addition, switch2_usb_free_out_urbs() also runs before cancel_work_sync()
-and clears bulk_out[i].urb and bulk_out[i].data while leaving
-bulk_out[i].state as NS2_URB_FREE, so if switch2_receive_command() sends a
-command via switch2_usb_send_cmd(), it can pick a freed slot and dereferenc=
-e a
-NULL urb->data or urb->urb.
-
-> @@ -276,7 +276,7 @@ static void switch2_usb_shutdown(struct switch2_cfg_i=
-ntf *intf)
->  	ns2_usb->shutdown =3D true;
->  	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
-> =20
-> -	cancel_work_sync(&ns2_usb->message_in_work);
-> +	cancel_work(&ns2_usb->message_in_work);
-> =20
->  	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
 >  	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-
-[Severity: Medium]
-Can an in-flight switch2_usb_message_in_work() resubmit a bulk IN URB after
-switch2_usb_shutdown() finishes?
-
-drivers/hid/hid-nintendo-switch2-usb.c:switch2_usb_message_in_work() {
-    ...
-		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-		if (!urb->urb)
-			/* We're shutting down and this URB was freed */
-			break;
-
-		urb->state =3D NS2_URB_FREE;
-		/*
-		 * We want exactly one bulk in URB scheduled at a time, so only
-		 * reschedule this immediately if nothing else is scheduled
-		 * currently.
-		 */
-		if (!usb_anchor_empty(&ns2_usb->bulk_in_anchor))
-			continue;
-
-		usb_anchor_urb(urb->urb, &ns2_usb->bulk_in_anchor);
-		err =3D usb_submit_urb(urb->urb, GFP_ATOMIC);
-    ...
-}
-
-When switch2_usb_shutdown() runs while switch2_usb_message_in_work() is
-blocked in switch2_receive_command(), cancel_work() does not wait for the w=
-ork
-item, and switch2_usb_shutdown() kills all anchored URBs while leaving
-urb->urb non-NULL.  When switch2_usb_message_in_work() reacquires
-bulk_in_lock, it only checks !urb->urb and usb_anchor_empty(), not
-ns2_usb->shutdown, so it re-anchors and resubmits urb->urb after shutdown.
-Note that follow-up commit "HID: nintendo-switch2-usb: Improve shutdown log=
-ic
-with inbound message work" checks ns2_usb->shutdown at the start of
-switch2_usb_message_in_work(), but still does not check it after reacquiring
-bulk_in_lock here.
-
-> @@ -447,6 +447,7 @@ static int switch2_usb_probe(struct usb_interface *in=
-tf, const struct usb_device
->  	switch2_usb_free_out_urbs(ns2_usb);
->  err_free_in:
->  	switch2_usb_free_in_urbs(ns2_usb);
-> +	cancel_work_sync(&ns2_usb->message_in_work);
->  	devm_kfree(&intf->dev, ns2_usb);
-> =20
->  	return ret;
-
-[Severity: Medium]
-This problem wasn't introduced by this patch, but if usb_submit_urb() fails=
- in
-switch2_usb_probe() [1], does switch2_usb_free_in_urbs() hang forever in
-usb_kill_anchored_urbs()?
-
-drivers/hid/hid-nintendo-switch2-usb.c:switch2_usb_probe() {
-    ...
-	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
-	ns2_usb->bulk_in[0].state =3D NS2_URB_OUT;
-	usb_anchor_urb(ns2_usb->bulk_in[0].urb, &ns2_usb->bulk_in_anchor);
-	ret =3D usb_submit_urb(ns2_usb->bulk_in[0].urb, GFP_ATOMIC);
-	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
-
-	if (ret < 0)
-		goto err_free_out;
-    ...
-}
-
-Because bulk_in[0].urb is anchored before usb_submit_urb() and is not
-unanchored on submission failure, usb_kill_urb() inside
-usb_kill_anchored_urbs() returns immediately without unanchoring the
-unsubmitted URB, leaving usb_kill_anchored_urbs() spinning in an infinite l=
-oop
-waiting for bulk_in_anchor to become empty.
-
-> @@ -466,6 +467,8 @@ static void switch2_usb_disconnect(struct usb_interfa=
-ce *intf)
->  		switch2_controller_detach_cfg(ns2_usb->cfg.parent);
-> =20
->  	switch2_usb_free_out_urbs(ns2_usb);
-> +
-> +	cancel_work_sync(&ns2_usb->message_in_work);
->  }
-> =20
->  #define SWITCH2_CONTROLLER(vend, prod) \
+> +	if (ns2_usb->shutdown) {
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +		return;
+> +	}
+>  	for (i =3D 0; i < NS2_IN_URBS; i++) {
+>  		urb =3D &ns2_usb->bulk_in[i];
+>  		if (urb->state !=3D NS2_URB_IN)
 
 [Severity: High]
-Can running switch2_controller_detach_cfg() (or the error path of
-switch2_controller_attach_cfg()) before cancel_work_sync() cause a NULL
-pointer dereference or use-after-free on struct switch2_controller?
+Can switch2_usb_message_in_work() still race with teardown and shutdown
+once it drops bulk_in_lock inside the loop?
 
-Because switch2_usb_shutdown() no longer waits for switch2_usb_message_in_w=
-ork()
-to finish, switch2_controller_detach_cfg() can clear ns2->cfg->parent and d=
-rop
-the last reference to ns2 while switch2_usb_message_in_work() is still runn=
-ing
-or blocked on mutex_lock(&ns2->lock) inside switch2_receive_command():
+CPU0 (kworker)                        CPU1 (disconnect / shutdown)
+switch2_usb_message_in_work()
+  spin_lock_irqsave(bulk_in_lock)
+  if (ns2_usb->shutdown) // false
+  spin_unlock_irqrestore(bulk_in_lock)
+                                      switch2_usb_disconnect()
+                                        switch2_usb_free_in_urbs()
+                                          cancel_work(&message_in_work)
+                                          spin_lock_irqsave(bulk_in_lock)
+                                          bulk_in[i].urb =3D NULL
+                                          spin_unlock_irqrestore(...)
+                                          usb_free_coherent(..., data, ...)
+                                          usb_free_urb(urb)
+  switch2_receive_command(...,
+    urb->urb->transfer_buffer, ...)
+    <-- NULL deref or use-after-free
 
-CPU0                                  kworker
-switch2_usb_disconnect()              switch2_usb_message_in_work()
-  ...                                   if (ns2_usb->cfg.parent)
-  switch2_controller_detach_cfg(ns2)      switch2_receive_command(ns2, ...)
-    mutex_lock(&ns2->lock)
-    ns2->cfg->shutdown(ns2->cfg)
-      cancel_work(&message_in_work)
-    ns2->cfg->parent =3D NULL
-    mutex_unlock(&ns2->lock)
-    ...
-    kref_put(&ns2->refcount,
-             switch2_kref_put)
-      kfree(ns2)
-                                            mutex_lock(&ns2->lock)
-                                            <-- use-after-free
-  cancel_work_sync(&message_in_work)
+switch2_usb_free_in_urbs() and switch2_usb_shutdown() call non-blocking
+cancel_work(), and switch2_usb_disconnect() only calls cancel_work_sync()
+after switch2_usb_free_in_urbs() and switch2_controller_detach_cfg() have
+already completed.  Because an URB in state NS2_URB_IN has already
+completed, usb_kill_anchored_urbs() and usb_kill_urb() do not wait for the
+worker either, allowing bulk_in[i].urb, its coherent DMA buffer, and
+ns2_usb->cfg.parent to be cleared and freed while bulk_in_lock is dropped.
 
-Similarly, if ns2->cfg->parent is cleared between the if (ns2_usb->cfg.pare=
-nt)
-check and the call to switch2_receive_command(ns2_usb->cfg.parent, ...),
-switch2_receive_command() will dereference NULL at mutex_lock(&ns2->lock).
-
-[1] https://sashiko.dev/#/bug/linux-278e82ab-e1db-4cb6-bba0-623a80fa475c
+In addition, when switch2_usb_message_in_work() re-acquires bulk_in_lock
+after switch2_receive_command(), it only checks !urb->urb and never
+re-checks ns2_usb->shutdown.  Because switch2_usb_shutdown() sets
+ns2_usb->shutdown =3D true and empties bulk_in_anchor without clearing
+bulk_in[i].urb, an in-flight worker will re-anchor and resubmit urb->urb
+via usb_submit_urb() and continue iterating after shutdown.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111032125.2888=
-320-1-vi@endrift.com?part=3D1
+320-1-vi@endrift.com?part=3D2

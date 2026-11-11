@@ -1,89 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794380217;
-	b=gK6tdhXiXxRpRdqRo9/G01vSmXJsqUREMgVDzDxSUZXeMYijYLEXXBDRIxGhDCtvsdhj
-	 VZQ2dfuZNHMOZ33T/s/ua/YPOoEx7LVXduxzkDZ6KZjKEyJ0pw19CenPfqMzpiHllyW+R
-	 t4iO3ViYnTafjkpqWwLEEP95L6hdoXbkJ774EFzlxZKBkmK6LKkfLKRqYmiuOTNuR/D0W
-	 4ZkFiayVsPM0cis9UqLersNnbJ2EkHlY3rp/gOAczT69i+SMwb79UhN1rYl0dEZ1DwOcv
-	 XSHwa0aEdwjH21xtDu1zAsc7d4U43YD2GS/bXwF8iOBSP4VmagbTJUh7cF1ymXJE+3A==
+	t=1794380219;
+	b=AUyTonicM9vh6bkAzrwuowU7m7OmWMm/WlDSWYbFnicHUbf4qeRobILYyBdVHFpHS4Ye
+	 n/jPfNIlCEav02AQj0DjBLF7xBrHYoTC2JwX0cMKscJzcCaLcNjmGe3BuxAOaFW0ieTqO
+	 4HpAV3BugW0SaJpnkBYZCylPDSFrIC4LlqhwjnSuP4swywEXqt+rilT2FKRnfoIIJH7nL
+	 MpgJTOesFDxjLK7eeZbmdQ3yxrYl4V0y8ohTPUneJaQvAH+g16zHYHUDSuhKUAWX3y57a
+	 XfNfy1XbMqGRhdoCwnY8osLZEUBtIK259Rhb6UqVBdPUyY1FMhQj9u2IptPxxSQDpwQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794380217;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794380219;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=m/vebEqz2w6ZNJzMJ8e2xDVPOuO4IxFjt3QmRcF/LLM=;
-	b=gMIHBtaVPgfFxQ/4yvk2oDAYtVoyXNve6A/vFLfbaqspRSlncXrlx2qaKVNw2OipjJcM
-	 AhubaldmirO9d7UeLwuhSlJTt0Ki/4mll1/uns/lhLbKviBHpyUAJxoJmhZaynDOQAOrx
-	 iWMhsTcflH4ACSNmRxhb5fDJeElXhcRlqwupXtkI1nDWDZrTwvZAHhSxnGTG2rTtoVAvE
-	 1eDrgEI5bgPubfHnRlMNDpI+Tg0qJPDccGdHXwto0HHxOfGkH0fzegMwXW7wm5DVbK3Lt
-	 yGi38P0AQ3YmNarowOf9jwG3ZwAUh84OoBJgw9aDk/JKZQFflq3Z27bspDG/gCg/HoQ==
+	bh=EdW4k8yvohMzIWfj0xykBEvuZwxJL/83yGbzJ2fx2vw=;
+	b=Yi/tI6DSivo8gUWkYSTSlxKZ6CATWvAgVOmoc57Eesms9lwU9d7SAOEiHCxCiOvY4ido
+	 qsqeBVVfHEEQb4dpU+Vf2WyqXHfNmCgzyAFlorKR+LLyzxLpduK/K0dx/W5l4ltXLLxKn
+	 9OhahkvjZSJhxglS9oPsoC6z1uHVkxhzlEErJoaTHSG7+8cCZM2Tpf0yaQ74qfHJVnrnp
+	 /MDzcm01VLxOEHhqnVCSMdB1QP+Ptf9mJ67tnb4gY8RBEgWkK1jHb6gvzP2Hf3Bs83tHg
+	 cxrgVjdTQ1qWEv0FJsSweVgg97GeG6NajTL2qPIeJcARDFtpVjCwZhnezWBRcX649qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nKx1Ujs+;
-	arc=none smtp.remote-ip=74.125.82.50
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c4QJEOz6;
+	arc=none smtp.remote-ip=74.125.82.48
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14F1360A3808
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:56:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14F1360A3808
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9D7C606B7D0
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 06:56:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9D7C606B7D0
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nKx1Ujs+
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1a2761c69fbso4759567c88.0
-        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:56:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c4QJEOz6
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1b3ada81853so2560434c88.0
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2026 22:56:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794380216; x=1794985016; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794380218; x=1794985018; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=m/vebEqz2w6ZNJzMJ8e2xDVPOuO4IxFjt3QmRcF/LLM=;
-        b=nKx1Ujs+5U1U8X1mi/BAefWZ1Ed9hrAxnXhUkKRxKzFhf//RP4PgBTl87RTX2WJYYl
-         qiOJjWmLEuNVM3d34h3DzJxnCxhVGXnil0EGoTFl7EZLM+3dFMgM7hLBb7jQbUp6ZyPD
-         Voc97HjOvRto13OOdSgSTboy2ze5lcpi4llXPbUa4qo8jYYsOxaFfTTZg9LZPjQ2hAiE
-         Gw4TON+4roUGO/ztIDqEeDArKoK92RkCsDRwQ0nfnyBnGiFWvaou1MvwdPLeAA6ooUf6
-         DeDgdECepcSblz4SrPGBWVKOVeR2o09j0gJ1WrRyNq57kP82YF41GGXb4eBPZHMBZuaW
-         NLIA==
+        bh=EdW4k8yvohMzIWfj0xykBEvuZwxJL/83yGbzJ2fx2vw=;
+        b=c4QJEOz6xAgHzizvYunhbVTDP2Nt0YhZ4CmNh0WEHHjCwBZ7qyEal+UkmjiYKhgRcq
+         0krEmbfHv96oMWatc5dUA11NYaUcoCt4qklcMyyiXTo542rnBFTQkH5RTdg2lEi7MPLh
+         mT2kjXIf9eF/VYe3pdym+56dzCKqo3Pg3fbv6yE18MWPDxZUDYx93dnuvP34WgzA3gYH
+         NJiQV/XsfGpDeAvFV+SpsG8ctz+eDRb/EBMyweTntIHG1aqrxlt36IyUE2UHJyMIAiyV
+         XVqE2iavSt0dR5tMiTyeROxJnhkIXxwtA+phDzMypcoiKHFo8QGzzAd7A4KQgXcHnVV+
+         n74w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794380216; x=1794985016;
+        d=1e100.net; s=20260707; t=1794380218; x=1794985018;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=m/vebEqz2w6ZNJzMJ8e2xDVPOuO4IxFjt3QmRcF/LLM=;
-        b=tDDtV2pWClWMiAHAstNKF2hV0z9BhZtjmZmMhv4UmH2+E1MLklaGYDOwry0M4SAa20
-         jPETUByRGa7z5lofBiM/r3taRGmu2knNtyCvsTvEcUwHMfvIIZm4LD/5cqSZMU+O3P0P
-         3LW6AnxZkN2C7t4up5CxgVaaH80ki87DbMliQN0FbpyI+OefjGsETIiEje89b8DSAKjB
-         rjn5pO9HmSlAFQq015jGhQ/+5OWKUKMUsoDYjpuKjX37xIPM4fdxsmJN3EbSFOFSRxTL
-         oWGGlQwhDQMBwkCefLuLwwWSSEgYl8+/jzadYagaG81XzwSp+6CifmLryVvShi1BGf/k
-         gdVw==
-X-Forwarded-Encrypted: i=1; AL+hErGsAzoQJj3ZWPO7efW7gP7lz0TdLH9IKQGNXZ0hNBaw4v7K5z7KMUvUiLGMEz++z3cVQHZ6zatZx4NpJA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+pmvyxL5xu7C8kUA07sW426Sp2OJvLSE0Yeh0inBCx4E8vl4Mj
-	31UcEnsfqZ2+eG1NPxGMBH2j5v9NlH/Ca/lXwZ63uO7hv/liSqWijqX0
-X-Gm-Gg: AYBFou3scCbQqZF1T9dMIikglI+oGvBnG2RPwCAx6ebp3+f3o8XT0D/1XnLaoSHiTMi
-	GXzG0fspFY7ohUdK9H6Z3StMJ2HQll+h7ALMeUQbDVkL0mbLfW51XAZwE0jvOQTKdjDu+rz1H3j
-	51kXLJAJibYtpU9eyKb4INZ/CCdLmJsw9L59hWyjAr7H6cyFHRwGDN1uArHhz9+0FGzqqeGv0Wq
-	a+rfj2brvRNI3Djt7qaM8iIk1e3QPosAZ9rBieoLz/Rgy/16VQ0fBiO6jvwfNwVtR4arEnbIitu
-	S8CMfy2uoUPOs3h9OPt+W+5ARNUH3XSKSR+scX8ZmKGIJO22bdjBv+RaGaNnEBjv32Od3pBljiK
-	AuP/le97aCVnENM6R0ojVKq6g6M//J9HzOygtDTiIhFgeEH6uf7Ps1XeAjRz981+d2UcAEFZvvW
-	7yIMKh26AHQHSFxZVXdMmsNM86gmEbIWAJbiUBGXXrA5OztdCkBTNUPZJY2qhSdQCzKsBgIs2ea
-	c05M3vcjIcbOozzG2jDI2appyLI5vFKerfEqbsi3nR96BB4pca3EtF++fR6/NhEHA6xD8+M4eQF
-	4QbyWUP7x66YvkGi9DokeNRQUpO3wuqyiTAj5lkgpbwMN+dZvAg7I70cfGBJtS+FD+qL3njmqFE
-	blD8SSHiwQ8H2ZQF7U277RBruO6l//Ax9vW3V4Zc=
-X-Received: by 2002:a05:7022:1706:b0:151:d6e5:596b with SMTP id a92af1059eb24-1b3c02ec796mr1384328c88.9.1794380216020;
-        Tue, 10 Nov 2026 22:56:56 -0800 (PST)
+        bh=EdW4k8yvohMzIWfj0xykBEvuZwxJL/83yGbzJ2fx2vw=;
+        b=PtdpBybKvbUxJ03ez6V4/U2xsfOsEjrEIi2CUI21c61FtuH9AIfeVd4G0xiHILEL2i
+         8DS0Fv0dbk9NkvXpVWCCh7fLwl5WQYsJv2oaqb9ojDoXVaCSxQYtk9Jwd0Z+OksFJ53w
+         Ktq63d85EcPPPHjb3P3f6ISrH4SvpTBXlAeIUlBNc13BPeocr8ul9BvCldtLhKvcujSC
+         4UfbSK8qiPk2/JTZGvYdc15YoZZOnPpwQD1HoDSZD+pu93X8XCm7ZpRVa/zLjhVQdPfH
+         rczbixTJ83CQxAC0ASr26zALtncrNe3zdPrBLdoEc3G6x4r9zjFiAAcTUA1hrgWGwK25
+         rMXQ==
+X-Forwarded-Encrypted: i=1; AL+hErGyevh5SibO2/GtHrH1gtNb+OYczgb9d3jUP0YxiqikpvgANRhrAitRyXeYDVqKmIO+GqqG6PgJ5TqXkw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8rVvvT3FLKsOlFOXUnH/Kso0lWGtzwEFPfoKy61ygoDxrtj+IW
+	OyTa1CfP5sPe/4VZv6WieFvMGHldzsD4U3knAyOGABwmDscX39OVpSlF
+X-Gm-Gg: AYBFou23EQRz1GOzc8cfDU7udI5R2QKlJP1X9SICrufw+v2wGd4EiThxzOHp73n/b8q
+	yBoFzEGGN7cGu1SU6scZB3+G2AbEJs+q/Rtb6E6GJla7Ya4+JtUhLCetVDgxc8z3ftUQ5kftDfi
+	l9Scxm2qJNyqUAdjOo2WCDPAcQffMK00q36My2tAwqOWDU2HTkHUL3N4fEpTTsmHerL61kfu2xK
+	GD57nGHjPrPoh5XrQ6AY2dTB6nsDiZ4sv9qc5Y5U+Lu/qbL6TkLS+IYw4POq3+8Dde96s6mnBNz
+	S3D2jKERJmX679KQQImfNrSn+4BucRUCEX6PasKdKE9Q7JM0aEVm7l2SmA31SyqQyLEsjyDNp5V
+	w0gHDTGaqPOr8+bLr8Hf7cNfdmMJHpfE7xg7pq2EnAfs3ZlqjZ3j5emEJkPm9LoglzD97bhLjBb
+	cU8ZGm8fkfOCqZqRDvslVGh8qZwOYwr2OcBGUOWnEnjM0ykx0HUPLewqL+tnYPAYGMmDPusNRDP
+	X7Czlm2gSHkb0FOxApwT98PgEHE+4/APBDQceNOyb97RJODrkQRraRAygTAmGn08vlr6F9/zIOk
+	FC3OLGHwRh8t0k42FvI/4/dDLRHaeeM5sB7vACE+3otuDgOjJIV63DqCAuUxY4P5qXXvJMaUlz8
+	lvVQZI7FYOQi/9erduQ==
+X-Received: by 2002:a05:701b:2302:b0:169:9f67:a91b with SMTP id a92af1059eb24-1b3c02f1010mr1448834c88.12.1794380217651;
+        Tue, 10 Nov 2026 22:56:57 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:311a:ad7a:93f8:96c8])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.56.54
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b11435sm13858121c88.4.2026.11.10.22.56.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 22:56:55 -0800 (PST)
+        Tue, 10 Nov 2026 22:56:56 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Tue, 10 Nov 2026 22:48:19 -0800
-Subject: [PATCH v2 21/33] HID: logitech-hidpp: execute G920 range sysfs
- store synchronously
+Date: Tue, 10 Nov 2026 22:48:20 -0800
+Subject: [PATCH v2 22/33] HID: logitech-hidpp: shut down G920 force
+ feedback on input unregister
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-hid-logitech-hidpp-v2-21-30743e91d83b@gmail.com>
+Message-Id: <20261110-hid-logitech-hidpp-v2-22-30743e91d83b@gmail.com>
 References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 In-Reply-To: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -108,129 +108,72 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-e56a4
 
-Writing to the G920 range sysfs attribute currently queues an
-asynchronous work item to issue the HIDPP_FF_SET_APERTURE command on
-the force-feedback workqueue. Because the sysfs store returns success
-immediately without waiting for the hardware transfer to complete, user
-space cannot know whether the setting succeeded and a subsequent read of
-the range attribute may return stale data before the workqueue drains.
+Force-feedback teardown currently runs only in the force-feedback
+destroy callback, which is deferred until the last open event handle
+is closed. If userspace holds an open handle across USB disconnect or
+driver unbind, device removal frees driver state and destroys the
+command mutex while queued force-feedback work is still active, causing
+use-after-free errors.
 
-Execute the aperture setting command synchronously within the range
-sysfs store method. Open and close the underlying transport around the
-command, clamp the input range between 180 and 900 degrees, update the
-cached range on success, and return errors directly to user space. Read
-and write the cached range with READ_ONCE and WRITE_ONCE to prevent
-torn reads.
+Move workqueue teardown into the force-feedback stop callback so input
+unregistration drains queued work while driver and HID state are still
+alive. Keep calling stop from destroy as a safety net for registration
+failures, guarded so repeated teardown is a safe no-op.
 
-Because the sysfs store now sends the command directly using the HID++
-device handle, the backpointer to the force-feedback private data is no
-longer needed in struct g920_data. Drop the unused pointer and simplify
-the attribute visibility check.
-
+Fixes: 08c453f6d073 ("HID: logitech-hidpp: do all FF cleanup in hidpp_ff_destroy()")
+Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index f24fa70d272e..f7fefff0aed4 100644
+index f7fefff0aed4..ceaa57af6eab 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2348,7 +2348,6 @@ struct hidpp_ff_private_data {
+@@ -2795,14 +2795,32 @@ static const struct attribute_group *hidpp_dev_groups[] = {
+ 	NULL
  };
  
- struct g920_data {
--	struct hidpp_ff_private_data *ff;
- 	u8 feature_index;
- 	u8 slot_autocenter;
- 	u8 num_effects;
-@@ -2473,9 +2472,6 @@ static void hidpp_ff_work_handler(struct work_struct *w)
- 	case HIDPP_FF_SET_GLOBAL_GAINS:
- 		g920->gain = (wd->params[0] << 8) + wd->params[1];
- 		break;
--	case HIDPP_FF_SET_APERTURE:
--		g920->range = (wd->params[0] << 8) + wd->params[1];
--		break;
- 	default:
- 		/* no action needed */
- 		break;
-@@ -2724,7 +2720,7 @@ static ssize_t hidpp_ff_range_show(struct device *dev, struct device_attribute *
- 	struct hidpp_device *hidpp = hid_get_drvdata(hid);
- 	struct g920_data *g920 = hidpp->private_data;
- 
--	return sysfs_emit(buf, "%u\n", g920->range);
-+	return sysfs_emit(buf, "%u\n", READ_ONCE(g920->range));
- }
- 
- static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-@@ -2732,15 +2728,34 @@ static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute
- 	struct hid_device *hid = to_hid_device(dev);
- 	struct hidpp_device *hidpp = hid_get_drvdata(hid);
- 	struct g920_data *g920 = hidpp->private_data;
-+	struct hidpp_report response;
- 	u8 params[2];
--	int range = simple_strtoul(buf, NULL, 10);
-+	u16 range;
-+	int error;
- 
--	range = clamp(range, 180, 900);
-+	error = kstrtou16(buf, 10, &range);
-+	if (error)
-+		return error;
-+
-+	range = clamp_val(range, 180, 900);
- 
- 	params[0] = range >> 8;
- 	params[1] = range & 0x00FF;
- 
--	hidpp_ff_queue_work(g920->ff, -1, HIDPP_FF_SET_APERTURE, params, ARRAY_SIZE(params));
-+	error = hid_hw_open(hid);
-+	if (error)
-+		return error;
-+
-+	error = hidpp_send_fap_command_sync(hidpp, g920->feature_index,
-+					    HIDPP_FF_SET_APERTURE,
-+					    params, ARRAY_SIZE(params),
-+					    &response);
-+	hid_hw_close(hid);
-+
-+	if (error)
-+		return error;
-+
-+	WRITE_ONCE(g920->range, range);
- 
- 	return count;
- }
-@@ -2764,7 +2779,7 @@ static umode_t g920_range_attr_is_visible(struct kobject *kobj,
- 		return 0;
- 
- 	g920 = hidpp->private_data;
--	if (!g920 || !g920->ff)
-+	if (!g920)
- 		return 0;
- 
- 	return attr->mode;
-@@ -2784,12 +2799,10 @@ static void hidpp_ff_destroy(struct ff_device *ff)
+-static void hidpp_ff_destroy(struct ff_device *ff)
++static void hidpp_ff_stop(struct ff_device *ff)
  {
  	struct hidpp_ff_private_data *data = ff->private;
- 	struct hidpp_device *hidpp = data->hidpp;
--	struct g920_data *g920 = hidpp->private_data;
+-	struct hidpp_device *hidpp = data->hidpp;
++	struct hidpp_device *hidpp;
++
++	hidpp = data->hidpp;
++	if (!hidpp)
++		return;
  
  	hid_info(hidpp->hid_dev, "Unloading HID++ force feedback.\n");
  
  	destroy_workqueue(data->wq);
--	g920->ff = NULL;
++
++	data->wq = NULL;
++	data->hidpp = NULL;
++}
++
++static void hidpp_ff_destroy(struct ff_device *ff)
++{
++	/*
++	 * Workqueue teardown normally runs in ff->stop() when the input device
++	 * is unregistered. Still call it here as a safety net for error paths
++	 * before registration completes; once stopped, it becomes a safe no-op
++	 * that never touches freed driver data.
++	 */
++	hidpp_ff_stop(ff);
  }
  
  static int g920_input_open(struct input_dev *dev)
-@@ -2861,7 +2874,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
- 	}
+@@ -2881,6 +2899,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
+ 	ff->playback = hidpp_ff_playback;
+ 	ff->set_gain = hidpp_ff_set_gain;
+ 	ff->set_autocenter = hidpp_ff_set_autocenter;
++	ff->stop = hidpp_ff_stop;
+ 	ff->destroy = hidpp_ff_destroy;
  
- 	ff = dev->ff;
--	g920->ff = data;
- 	ff->private = no_free_ptr(data);
- 
- 	ff->upload = hidpp_ff_upload_effect;
+ 	dev->open = g920_input_open;
 
 -- 
 2.56.0.542.g3ef89b7020-goog

@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794418901;
-	b=vSa6mz9SJau4JDnLfn72GGSLstShnAnZInHcDJyyjNHCd6l8aZfOTRJEXowgVgciZCqz
-	 oE8ve3yQPVyBgHNL0E02Q7CdE8WW0gsGaSHqL+EzE5lDXW5UFcGcRdBA48QT9TtFc0Ejo
-	 3g84z1OIBMrTGGZobplT2H5O4DTDYP9syAGyQjIpZ2TAoBklio0jBqx2L3pQqg5QA4b+c
-	 TMmLOCWmQO9xibnuaBd6rW8t6rvRXK9iopJbFl5Or1+zachMYG8SG0Np4yLCt3iE1eIl8
-	 SHvSoUgZIQowtnrcjjz8Zgic2qWusE1O8C5U3/rOFbGWN9jdU8QqAbWxop62C/2Zs+A==
+	t=1794419152;
+	b=X3J02wj6V6l5NUkwGqZB8+He8sfip6BesM01qKWOv/GsN7YEStm0J9JKVaa5u7kH43M/
+	 Ll8vHrSYxR4ICxMlaZwOdR8/MBEs9vOipolk/Ts2GT00SkhdeM6DljklU2VYJFTmFyeAz
+	 hjsKwGapVyFCACcIC7U83C5GPml8uQcC8wFcgmvc1ueaGKUwGhfkgEUymuBP+kizcMXN4
+	 gm5NKRxWbmzEU3oUHeECVLioTMef4A+G5gEiYEL6LSQ8QHJS30juY/glLSA858H+Ad4b6
+	 tJhWxLjazIWwXNfa2P0Q1ejhh4E5fASrAOiUaKt64sCwrV1NQmvKkvHdVuEW2b0AWBQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794418901;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794419152;
 	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
 	 MIME-Version:User-Agent:X-ZohoMailClient;
-	bh=iqjriVRV+XaVhh5T/bP5TLkCUtH+I0gT57VpXww08Ts=;
-	b=wDE12LD0nibRA2YYtBXeXzHtPqfm8GqNHht8U4s/QzMOhigjkujrQtm07kWc818qjCYF
-	 yuadzEBjuY2H6KKtG2Mzw6cnmFh/xuXeVIwLhn2LNwWTrvxn4rEIDdluLT2HPmmyxpO7e
-	 ZFUlflP3xRvb0ekHBGbe3oyWoIFf3sqmlOb7UDh0c89392/RWCYrFDKoyIiZfGroCGzsS
-	 sTklBlPf+1sNKE2YB1hbUmdAFa5q4hL2ekieKQ9RksqbSrtlIXG9XVcgMHRY4UqC6NYui
-	 /3KoL3dzIwlLQN82lDpPY8D1p0ULRqVI33w41mB4tLYXJu309i6DNXk5l8bMeDjjJeg==
+	bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=;
+	b=Gm9hw3XA5C/2Mope8rwpdKzSq5scw+FdviLD+7nMK1UMxGHF/hZqz6sqr/g+O/k7h2hL
+	 pdZ1YauUxpCMjRkX8AUf2g2xNoo7J4a7FiYaFA0QAfo07nTC57btVtE5PvFNiMC4v5eVg
+	 Nx3urQLKB3rS5ot1iHH6/sQcp2zN0hKl5/u8Uqt98kUIx+wGVoII0LkxQk1BoPrcEqsTF
+	 1ClAHHYkfl1QDn82/6k0nvyUldsC7Me3bjtt7fJfMy0D88UUWjHs98X3Hgiu+Ye887u9C
+	 UB+OLN/LTxol6WG0w8Juc0/0dWRwfvbwHIJzZl4cdrfsxoNJDgtMnO1/wSjEw2vJAGw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=rong.moe;
 	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=GQAG+RSi;
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=K2thFDH2;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
 Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C356B606A331;
-	Wed, 11 Nov 2026 17:41:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C356B606A331
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B0C606A331;
+	Wed, 11 Nov 2026 17:45:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56B0C606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=GQAG+RSi
-ARC-Seal: i=1; a=rsa-sha256; t=1794418886; cv=none; 
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=K2thFDH2
+ARC-Seal: i=1; a=rsa-sha256; t=1794419140; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=Wz+9A2bJsK1w1aCWKBDxj/F9POezsA0iczu87wUfwlQ5T94JTw3hZ0Wea0WPz/40Ytgn1AEKgM9rZPz5GbQFxHjD5FWggGJkKz9yfGWiuNHRYmRGbXvPQMoTvJ3G+CxfUKkNl+QX3rAWyeddedtk6cycznag6yoocp59BAVB2KA=
+	b=nmzuq+YuOTr/XnjX22MWYdS9WkWjipjQLSIOejurtWLKiiyf/YGBifxfe3Qh/oh0fmwXBwkCwj5cxaeO+Qat/4CpajVhefFzdRHP3nc9K4OhuRbI4fD7zVFwxzL388T2NNMAKcj0RN847YASQ0glMkz9u7lVVyQjhRTeTWpBYv0=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794418886; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=iqjriVRV+XaVhh5T/bP5TLkCUtH+I0gT57VpXww08Ts=; 
-	b=CZQ9ZwJUcWcDp3sQmd1t0GhN4buM2apamNQwJggpMjYOpKMX6vFZL9GUn1fBzDJJziy7JSsV70bCF1DgpzGGDzRKraQKQuh+dPM0nVFQbaBrv2aYsqG5WqavV/D1TjJd/APlyHIfnf+CAFHV/3wic6z64YubrIaVdv7clNk6o64=
+	t=1794419140; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=; 
+	b=IvgvpvP4Fp9AHY4ykcGqAMGx1drI+Knd/ierTnMVE0x+VQDZ5G88rCaiDcrkrtWVPbuC2GWQ905bE+KaCB8uNqIooHugg/fU1ZNooZAvONCob9IzzyJNIpc469ZAAHeu/M5blbNg7KwkY94Ju1S1ZoDf3pIixRlpmY59ZbkuyUc=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=rong.moe;
 	spf=pass  smtp.mailfrom=i@rong.moe;
 	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=GQAG+RSi9TiIBnyVIMRoyJfyca8aX9lHAoLUgQgAFx6j6fEtPuQXaA+7fiNEk3wW0zNF585CbxufYjIr8H7HXNp5eEZ/kQn0i7t4oKg79OxleSqjcDbwBV+pfKD7oZUxLNPwZiecQYx5pJZzegUV4Uhs+n6iEhasqL8CWp4XaqGRO3UMWJ5LWByaQrXKKJ2YERWOxb9BNE2cV2B0zdCb3SU1cRB3YFb8Lj6QEFnZ1VtyBDOvOZHWWo7qHhnXnVYZHflqo8GHej3B5NTCotv14uT4JKkkld7gcFxoXaDz6d7tSvPPUwic8DYQRczI1LQAWDswp2VD/s/NgxzifLhmXw==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=iqjriVRV+XaVhh5T/bP5TLkCUtH+I0gT57VpXww08Ts=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794418885665864.7927191318593;
-	Wed, 11 Nov 2026 09:41:25 -0800 (PST)
-Message-ID: <47e0364e0de6b9c22b21019d3d7e506defe58964.camel@rong.moe>
-Subject: Re: [PATCH v2 2/2] HID: lenovo-legion: Add keyboard backlight
- driver for Legion Gen 10
+DKIM-Signature: a=rsa-sha256; b=K2thFDH27b7B/YJYBmnGsiaXxkHr8p1Bb5gmyzM7yimg6qiChr25HSe8lScIBZWQIA3X9YRuqBcGi/1pq1eZElm702ExxoTAv4/Cloa11K6VPYDI2AaHq4+dCuPrAVANWbgU8P1oZ9+lq+5zBRShRONf6BCAT9p78bsQvjFlQa6Nuro5TkPeJgrpNYV5rzEJS40Cg3ENz0Gs1NY6xWW+HPgO536ltUBgr4mUv2vAGmNUlGIu39N+3p98+7i1wby2+ieD7jI5xkCbz7jPkXrxPixusXZRyklLlW3W1gCTl6sG7dDuHB/vRVpctI08t7rE0x1tVRVLerJE4SzQ3fH8hQ==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=cnQjMemomrtAUFZ2+Y/r5Fl4C3K3H/4XXCCh9+3ZdjE=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1794419138890504.7205507541514;
+	Wed, 11 Nov 2026 09:45:38 -0800 (PST)
+Message-ID: <474a0088ab286efb0e363ad27398020dd6b15499.camel@rong.moe>
+Subject: Re: [PATCH RFC 0/2] Keyboard lighting for the Lenovo Legion Pro 7
+ Gen 10
 From: Rong Zhang <i@rong.moe>
 To: Ciro Pedrini <ciro.pedrini@gmail.com>
 Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark"	
@@ -60,14 +60,15 @@ Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark"
  Aaron Erhardt	 <aer@tuxedocomputers.com>,
  platform-driver-x86@vger.kernel.org, 	linux-kernel@vger.kernel.org,
  linux-input@vger.kernel.org
-In-Reply-To: <CAPKD0HfHuv4vKWeff_uhGxXosuU279qB+kkmXNPXJYL2kxFR2w@mail.gmail.com>
-References: <20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com>
-	 <20261110-legion-lighting-rfc-v2-2-845726afb71c@gmail.com>
-	 <9002537db845b7a0a900612fe3a4a3638f06cd37.camel@rong.moe>
-	 <CAPKD0HfHuv4vKWeff_uhGxXosuU279qB+kkmXNPXJYL2kxFR2w@mail.gmail.com>
+In-Reply-To: <CAPKD0Hdt7WNC5n47Bpug=DMsJ8m63UnGprm+-cLaUh3tb=4vCg@mail.gmail.com>
+References: <20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com>
+	 <71ecff766a91670d509b1286efd995b71efc21f4.camel@rong.moe>
+	 <CAPKD0HduW_atYsz47Nv-9A_88K1B33xENUnZgQAKcH4VHqV9PA@mail.gmail.com>
+	 <db41708e7676697fda99573a31d7747dee112403.camel@rong.moe>
+	 <CAPKD0Hdt7WNC5n47Bpug=DMsJ8m63UnGprm+-cLaUh3tb=4vCg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 01:36:18 +0800
+Date: Thu, 12 Nov 2026 01:39:56 +0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,89 +83,62 @@ X-ZohoMailClient: External
 
 Hi Ciro,
 
-On Wed, 2026-11-11 at 14:12 -0300, Ciro Pedrini wrote:
-> Hi Rong,
+On Wed, 2026-11-11 at 14:27 -0300, Ciro Pedrini wrote:
+> Hey Rong,
 >=20
-> Thanks for the review. I'll fix the rest in v3, but before I go on with
-> it I would like to hear from you on these.
->=20
-> On Wed, 2026-11-11 at 20:09 +0800, Rong Zhang wrote:
-> > On Tue, 2026-11-10 at 20:29 +0000, Ciro Pedrini via B4 Relay wrote:
-> > > Its hardware brightness, 0..9, is stored in the controller and applie=
-s to
-> > > every LED of the machine (keys, front strip, rear vents, lid logo).
+> On Wed, 2026-11-11 at 20:10 +0800, Rong Zhang wrote:
+> > What if (four permutations):
 > >=20
-> > I don't know if it's appropriate to represent so many things with the
-> > name "legion::kbd_backlight".
+> > - c197 sends 07 AA 02 00 00/01 00
+> > - c193 sends autonomous_mode=3Don/off
+> >=20
+> > And what if the sequence is reversed (another four permutations)?
 >=20
-> I gave splitting it some thought, and looked (with the help of an LLM)
-> at how other drivers handle this. We could register one LED per zone,
-> but that seems to be usually rejected, because they would not be
-> independent: the controller has a single brightness for all zones, so
-> writing any of them would change all of them.
+> I tried all eight. Before each one the LEDs were back to the
+> controller's effect (AA 01, autonomous on). "host" below means
+> autonomous off plus all lamps set to green.
+>=20
+>   c197 first:   AA 00, host  -> green
+>                 AA 00, auto  -> controller's effect
+>                 AA 01, host  -> controller's effect
+>                 AA 01, auto  -> controller's effect
+>=20
+>   c193 first:   host, AA 00  -> green
+>                 auto, AA 00  -> controller's effect
+>                 host, AA 01  -> controller's effect
+>                 auto, AA 01  -> controller's effect
+>=20
+> So the order doesn't matter. The LampArray only shows with AA 00 and
+> autonomous off. c193 keeps the colours it gets while AA is 01, and they
+> show up as soon as AA 00 is sent, without sending them again. AA 01
+> takes the LEDs back even when c193 is not in autonomous mode.
 
-My opinion is that we'd better figure out another representative name, as
-it actually affects other things...
+Thanks for the experiments.
 
->=20
-> Per-zone control is only possible through the LampArray (c193). It has
-> 319 lamps, each with its own colour, and they are grouped by zone (keys,
-> front strip, rear vents, lid logo), so a LampArray driver could light
-> or dim each zone on its own. That needs c197 to hand the LEDs over
-> first, as discussed in the other thread.
->=20
-> Also, going with kbd_backlight seems like a good idea so that UPower
-> and the desktops pick it up automatically.
->=20
-> Thoughts? I'd like a confirmation from someone who knows how this is
-> usually handled in Linux, as I don't have much experience with it.
-
-...though I won't insist if you still prefer kbd_backlight, as long as
-others are not opposed to it.
-
->=20
-> > Just curious, can the software select which effect to use, or listen to
-> > an event when Fn+Space is pressed?
->=20
-> Yes. 0xCA reads the current effect and 0xC8 sets it. On Fn+Space the
-> controller sends report 5 as 05 01 P (P =3D the new effect), then
-> 05 02 B (B =3D the brightness).
-
-Got it. We can figure out a way to coordinate LampArray autonomous mode
-with it in the future.
-
->=20
-> > I wonder, what if we set the report with a short report size, say,
-> > struct_size(msg, params, len)? Could the device handle it properly in
-> > this case? If so, there is a chance that we don't need to sleep for 100=
-ms
-> > later (I guess the device is processing too much data, causing the
-> > massive delay).
->=20
-> You were right. I tried it on the laptop: it takes the short request,
-> and it only ever answers 5 bytes anyway, even when asked for 960. The
-> answer is there right away, I read it with delays from 100 ms down to 0
-> and it was always correct. So a brightness read goes from ~115 ms to
-> ~2 ms.
->=20
-> Setting the brightness with a short request works too, and reading it
-> right after returns the new value.
-
-In this case you don't need the pre-allocated buffer, too. Let's allocate
-a tiny buffer on stack.
-
->=20
-> In v3 I'll send and read short reports and drop the msleep().
->=20
-> > Ditto, what if we get the report with struct_size(msg, params, 1)?
->=20
-> Same, that works.
-
-Great :-)
+AFAICS, we should be able to integrate both as a unified autonomous mode
+trigger. Yay!
 
 Thanks,
 Rong
 
 >=20
-> Thanks,
+> > My implementation connects the LampArray application to hid-input, so a=
+ny
+> > HID driver with hid_hw_start(HID_CONNECT_DEFAULT) or
+> > hid_hw_start(HID_CONNECT_HIDINPUT | ...) will initialize the LampArray
+> > application. Therefore, I suppose the only thing we need is a simple gl=
+ue
+> > driver[1] for c193.
+>=20
+> [...]
+>=20
+> > Does that make sense to you?
+>=20
+> Yes, it makes sense to me.
+>=20
+> > I will CC you when I submit it. For now let's focus on the driver for
+> > c197 first.
+>=20
+> Thanks, I'll test it here when it's out.
+>=20
 > Ciro

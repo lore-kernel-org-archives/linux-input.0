@@ -1,94 +1,94 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794423442;
-	b=CguPL4HqdhFidNAROH4Z6+XIXbRPVZFojZrqqolZGcXq1UdcuTiylVc9U/9DETu3daBI
-	 EQjQXLQhjuY0An9+eBN8VdCA5qjmd9m/tRuLnMGAQD1P3iICORwoHkKWdvPUyCj+h7uWm
-	 UowgOUv/drdphXgs+EyJJvdx4Iv/UQdcyW9Om8pRV0rw77X9caYad0Vl8CjUgYMGhtpBH
-	 zsGdWmecqA9Pw36g8jlZTv0Bpr1nfkfZlu9B7kbKRQE+XR7vFOsOZx1iAbddq4VV7ojoT
-	 wcuqxlLEeR/+W4+3x17XQMrSi9ndl1mZ4F5+SCi310eFEldapb2SzI1qx6Z1gGe9P6w==
+	t=1794423447;
+	b=QZ9yOpEUKOrjEBeSCDr8qrWqJvy0/AKVikpT596B13XPYJXW21BdJTY3iDU5Uy4y8RNC
+	 dDEJch1CL9h0v5tGKG3OmQLIpcYm6RC3iBildWAhTPv8arFbd0tMNRB2E2K+8LD//FBUe
+	 uiE5gHQ9mKD4A6GslsG0/G5+OgDeN1BIb/WfL8InqQ1EXCmCQll6zqGYSeZa3hPfkPBkH
+	 xwm9teq9YYNxO7GUCLUKhIQlzEV5N8WZv2f5j4Pmwjfdx0EUpSJv/DjQ+22ItLv2/TE3i
+	 /I0LipSy6BsXupl52UtzozvyQa655kTeKIVHkdcP0OyrfHPHo4mMu++RKqe8SLR6CaA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794423442;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794423447;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Content-Disposition;
-	bh=wtJszn8+3NsUlzqSLIs8TPLmW4IzbruAZxBfG0QVUns=;
-	b=RQUiYif2F6D0p/iDtrCkEvhmq6PM+5g1yZsuxVnQLdmsoGaB9BmwZZGb5jW+ydWmy271
-	 PSs27SKmwM6Lm32DV1MH6KjCZbVWVsNphx1Nfblorge+xhm9jnONvUr0oHdEqK6nT5UVT
-	 Fw3CtWnCQJnVl3WxhfkvJYpmkXg7q96N1g2c/sYX1rS0UnGSIzIPG+Tmnh+CF6jUT4WXw
-	 gW9LnfErwejLPyZzDOlHWdMi9QbRk8sKH1yVF0SnaLvZUqJ9UIUHJd7WIisIN7tW2D6LM
-	 oL6L6eXRWA8muqrw/plpP/aGsYM7s/ICIMfRUgcBTKSOg9pbNL7u20lc1qqU9/Z8YjA==
+	bh=x5kazdw9pUpWwrvAjh6CexZLT/5KSVUjeRcT+ok0+pI=;
+	b=t3uSVW7JJUEuKzNbU5aVd1R0tecTMN58OGvivpQ+1Al4qYApCeheTIqHgC2sRXRF15a6
+	 WHcQG198eEnP/l5t2ZnLiBwNV2ZjXX1EAomy2uqN3RUTOJRFyRfdgXuicbh4qA+iUqQ7m
+	 08Nx7w4X+ThIvZnKS1rpfAttW/zSSWHr1mYfsVng85Rs+FcrOgptBNuiDx+5EaYuPUTCw
+	 436ZMtfVUmYnI8fEFq5f3CTyixNx39ITXzmSEHoM5+S7S9XXU/jsSdJN3ZCslv+LInYJ+
+	 Zshgd9VmTx6N300JDdya2ncwSf98xCA0r2UkCflcT9+yG8nVfb7jTAWq1wj7kO0qQ4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nOLLAdM7;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SZx+4aRj;
 	arc=none smtp.remote-ip=74.125.82.176
 Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3B3606A31C
-	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 18:57:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD3B3606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5717606A324
+	for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 18:57:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A5717606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nOLLAdM7
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-36e99cf7bb3so5256281eec.0
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 10:57:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SZx+4aRj
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-37071c0f42aso5948062eec.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 10:57:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794423441; x=1795028241; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794423446; x=1795028246; darn=vger.kernel.org;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=wtJszn8+3NsUlzqSLIs8TPLmW4IzbruAZxBfG0QVUns=;
-        b=nOLLAdM7WWN5RGq9Ch6K+g0yGqQnh0JFQr72L+JxFVCZ6m2gOW/28Vhl4kP8no1Ad8
-         wl5pT223eSYdc0oosM1Zc6cZ4ADU7kItMTAcC4uv+25VvcfZbKc489wz3vHoUBxumYSN
-         +Xa540XqedVtR9QisljxR5rBl8udqFTLpcp1DFqls25hvSUco9eWCmP0Ydc63Zx2d1Wd
-         Jmzz+2b6zXr2/tGmweL+M9SjyMu6kM+bkq1LEOLL4Ukianexm9l1L1D/eFBaa6KteO1v
-         O/JBOb5WDbdcl7Winie2k4QGE2upkP77xGvymIMEFBQWTwc6L2UKv7shh2+wvm03hSQQ
-         OkZw==
+        bh=x5kazdw9pUpWwrvAjh6CexZLT/5KSVUjeRcT+ok0+pI=;
+        b=SZx+4aRjXswlYlmhGk/53X2qNvtnHcTAZ4kufRpVhqwCMsYBF4GzWyu12BlIeSdEzS
+         yueQX8GnjOLvydE++iF70lzB+/e7p87DRKORcw7++aWaB523F294QF+W69NIrXd874Wa
+         uioIt7q5MgfRlubbnt8aLKsA1sY5y0dJHcitebgrC7Htzow4V99/MpIau9J3rjh84Pyi
+         eYPIH1akF+74KFMhS+t7R3PoxRhyBAzGNbLKnLXerVFN9PioIBMetY4S4USvOa4AUBOg
+         sNcfOYovxLnldEnm+RzyeXgIWKBLcTvGhp2YQe+8QNYdoH2+PYgXOAp6Md+GqTnWWd9S
+         A5ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794423441; x=1795028241;
+        d=1e100.net; s=20260707; t=1794423446; x=1795028246;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=wtJszn8+3NsUlzqSLIs8TPLmW4IzbruAZxBfG0QVUns=;
-        b=sNPHRXb58FPtGYIFXyovf6DJia0MUW4Kbr6Zvz+FlGQzRN0ZkW3PVHJXunCz44fgtx
-         cz+pweW3X6VYDziaiRTFHZ2ehKDTEJ1T8CjFpNdaxo/QMdCVuklA8XPoDHQjCRgwyLg/
-         xbAQQSDaqwWLu+7jeGsY+kPfZlWwMUOMHEQlQDcknrz18sKXxTqtca14HT6GHxnAfa+M
-         LYX0OzFQesJfIMtNGmQNjZYwJReV99DfbkfmKVKGpgYh3QNCB3GfsNe1tgVTWVZUjl18
-         hKVeVtXICwKc6hDhjYbIhgmywHJ4prIT4DFI4Mn3ixrdH/kZLT63QIQM8jphvsYG2hB8
-         nb6g==
-X-Forwarded-Encrypted: i=1; AL+hErF7jfDPlqDAmvzJww4rrjFefcum5c2MBUES42BVQgZHZ7sUcQZ275eWHvWUCP8CkHqedEevXoUZsZmT+w==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/qAkq4WsEPiQzjJZkNiWP5CzZ0/mLwE1G+rXCaWaFNZXAnP60U
-	u8QY7ZpdXeAyBIV/X4xx2vd3BfPE2bD1y2XoBU0H37HM1p5ua/hVspaJ
-X-Gm-Gg: AYBFou1Ni+jvx6r52iIWU1mJIpSuN6B1nE2pjorfNKcCqV2FSEs+OuF9YprYifJc+Ds
-	zGyIcNQbgQ4/LkUl7zgS5yASQZP5mP9eROTn0HGSyn4A2Ko9m4/Fr1ffzbgUXxWZktyx1bHgnCB
-	qBkbQf1XahmLLJSgWH4wAeLgBb78oKYaVa/5WFeUjT2eqmJ4H/AZPbIHi4Rozy24eqw3Dv/vVeZ
-	UCa0OYQykZKZq7gNuc1fXlnfsI8tYSpV3nGblTTUZ8Pr6+UelBOXgHdaXaRECYnyibzTbm1mIJB
-	KHd/4QGDwZLCXreRC64D3gUphtQHwOJoVCImaE/i5XLgTvZUC8QHI5ebvmI/A9K/XSAyn0GHe7i
-	KjMsaFz4XW+gf5VlJ6P7zJ+0EU35TFovzY3XJgYmY+umhOxlp21Rg2UFpP0Hn4DRG6iDofC0fpQ
-	UgRo9wkRHcthGVQiMmIohxuWUujYJpN9J9FE5YL5G4W6CH5LuIvEf2no9tDJxWk8T2NmV3D+VCo
-	N39Eda6ggomrIgjxT0muBLpQ/VKIzdBmsjQupuULcKbbckGuulS6xgZu+i/GjgoZxnxqUG5+Z5v
-	LCbsheou0hx2OuftU+zlfQ/BT/XHtyNNkpyvaKfhYPd6HORG51H1vMn1ZwqUyQeF3V2VW3o=
-X-Received: by 2002:a05:693c:8854:b0:376:c352:2fcb with SMTP id 5a478bee46e88-376c36186d5mr2599586eec.9.1794423440516;
-        Wed, 11 Nov 2026 10:57:20 -0800 (PST)
+        bh=x5kazdw9pUpWwrvAjh6CexZLT/5KSVUjeRcT+ok0+pI=;
+        b=an7s2zMu+bK/EJVD68UVxlvVaJQrU+YX9EI7INXnMT2xyLoy2UffQFKHPmTDurtMBf
+         HKywreILphRiWVquis8MKTvjg9itrmUKyD8U0HudtAwkdrPLd4kPOn8mIEtLaHGtqYly
+         OBjA8Ay/n8E1XtZ5PKSdHQSkNfIUCekf0XdOES1XejtKmmLE+kJVWgbtNYDHuWLvMt3x
+         AoiuSJi7xAKf9l6LgBI3EIllPskCxL+V85uxabSEUJ+h1E9OnC7nusvJ/QCkcZf0Nb1u
+         wwDI7dDwUvb6Ts2RvfiPExSevsBAHXu26xYOilKIN1mK9LpgkOzNS/Gg66V08Ys1yO5y
+         Xjqg==
+X-Forwarded-Encrypted: i=1; AL+hErET6+lcwDZNgcnoCxfi9HAxwCSRr+k91Lx/QNtmnGIstyjcMVYJNE6pkTW9m8gvirH4r4yH0hpum0lK3w==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8TTksRCa3PeVHY6n+86X6Onc7ykIZZsIVCIpgtrHZEyt1USKA5
+	bMMYKIegi5z5BjHXJ+btdCw6dMklgaCbMUBZwVdLc/at6FYi2efiYmNQ
+X-Gm-Gg: AYBFou1Yefv/EWuUSUUEAM3ezselGIzv7Kmt+ZANKCg57+jsX7Rs7cSHxb0rWfghmmu
+	Svufk3wGBS3vEpAsWMMY20yf6x7YeDGTL1f5Q+g4If/Kc6mt3o/l5aSBWgpXJDsaAqErms4T8XB
+	Up0jB+kOOlZFL4aFroByaghU3waj6cx1rzo7kKFF+oCs/tV6d+t1CrYKP/sybIrqzn9nCoNiIhQ
+	LhMa5HOugpwNWxMbglyHSby2pUhIjfE0XiYMMrVdamgt+/HPMl1FJyKf53L+HyFk1ojDxS0bU75
+	uAwAugOF/4Og8xwrjuIM8z/P1pmAVQh32FBRcn382GmmaWk7+Sp98LXOEl8hgz2JmArIuF7DkHT
+	cs9GbAVcjobFjkzBDeip0kYHwGL9NpxdzgR+0WpLBPQeIBeScjUdQk8UvZ5gebnRVqWmj5pO6y4
+	PCTmU4l4PXOPvo7rgKS21p83RmYB42gy3NNYfvMK7pCQi5SgV2IuTDCZVt67VRp8rQcjlzgsJ1x
+	x/uelnZTcs/gXrl5E/JDTNO9r7UCWKbn8So4jy3cgghAa0DCtnYhhzO9tx/QzvKY+FJ0XCugV9a
+	dAmYm9PosRHkwUUB985cy4La4hQrjYnhZHn9URMx8yw/Mc37XV9hNHHQKwkIefRMzX7cNQ==
+X-Received: by 2002:a05:693c:88d1:20b0:36a:3ac:b15 with SMTP id 5a478bee46e88-37686d34463mr3531908eec.36.1794423445666;
+        Wed, 11 Nov 2026 10:57:25 -0800 (PST)
 Received: from localhost ([2a00:79e0:2ebe:8:311a:ad7a:93f8:96c8])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520512ec1sm17645762eec.12.2026.11.11.10.57.19
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520512ec1sm17646491eec.12.2026.11.11.10.57.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 10:57:19 -0800 (PST)
-Date: Wed, 11 Nov 2026 10:57:18 -0800
-Message-ID: <599a0d10a56740c40c801facee37652d@gmail.com>
+        Wed, 11 Nov 2026 10:57:24 -0800 (PST)
+Date: Wed, 11 Nov 2026 10:57:24 -0800
+Message-ID: <881603869168da758913733db4391b6a@gmail.com>
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: sashiko-reviews@lists.linux.dev
 Cc: sashiko-bot@kernel.org,
 	linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 12/33] HID: logitech-hidpp: mark device online on unified battery 0x1004 events
-In-Reply-To: <sashiko-outbox-208598@kernel.org>
-References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com> <20261110-hid-logitech-hidpp-v2-12-30743e91d83b@gmail.com> <sashiko-outbox-208598@kernel.org>
+Subject: Re: [PATCH v2 14/33] HID: logitech-hidpp: expose charge_type property for battery voltage feature
+In-Reply-To: <sashiko-outbox-208625@kernel.org>
+References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com> <20261110-hid-logitech-hidpp-v2-14-30743e91d83b@gmail.com> <sashiko-outbox-208625@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,51 +102,44 @@ Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Wed, Nov 11, 2026 at 08:22:48AM +0000, sashiko-reviews@lists.linux.dev wrote:
-> [Severity: High]
-> Does this cause a regression on feature 0x1000 devices by overwriting
-> hidpp->battery when a charging event arrives, and corrupt 0x1004 events by
-> running hidpp20_battery_event_1000() first?
+On Wed, Nov 11, 2026 at 08:39:27AM +0000, sashiko-reviews@lists.linux.dev wrote:
+> [Severity: Medium]
+> Does exposing POWER_SUPPLY_PROP_CHARGE_TYPE here cause sysfs to report an
+> active charging rate even when the device is unplugged and discharging?
 >
-> Both feature 0x1000 and feature 0x1004 store their index in
-> hidpp->battery.feature_index and use event ID 0x00, and
-> hidpp_raw_hidpp_event() calls both handlers unconditionally:
+> hidpp20_battery_map_status_voltage() unconditionally sets *charge_type to
+> POWER_SUPPLY_CHARGE_TYPE_STANDARD (or FAST / TRICKLE if bits 3 or 4 are
+> set) regardless of whether external power (flags & 0x80) is present or
+> status is POWER_SUPPLY_STATUS_CHARGING:
 >
-> drivers/hid/hid-logitech-hidpp.c:hidpp_raw_hidpp_event() {
-> 	...
-> 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_BATTERY) {
-> 		ret = hidpp20_battery_event_1000(hidpp, data, size);
-> 		if (ret != 0)
-> 			return ret;
-> 		ret = hidpp20_battery_event_1004(hidpp, data, size);
-> 		if (ret != 0)
-> 			return ret;
-> 	...
+> drivers/hid/hid-logitech-hidpp.c:hidpp20_battery_map_status_voltage() {
+>     ...
+> 	} else
+> 		status = POWER_SUPPLY_STATUS_DISCHARGING;
+>
+> 	*charge_type = POWER_SUPPLY_CHARGE_TYPE_STANDARD;
+> 	if (test_bit(3, &flags)) {
+> 		*charge_type = POWER_SUPPLY_CHARGE_TYPE_FAST;
+> 	}
+> 	if (test_bit(4, &flags)) {
+> 		*charge_type = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
+> 	}
+>     ...
 > }
 >
-> On a 0x1000 device, a charging report sets hidpp->battery.online to false
-> in hidpp20_battery_event_1000() and returns 0.  With this change,
-> hidpp20_battery_event_1004() then sees !hidpp->battery.online, forces
-> changed to true, sets hidpp->battery.online back to true, and overwrites
-> capacity, status, and level using 0x1004 decoding, which also prevents the
-> 0 to 1 online transition needed to schedule reset_hi_res_work when the
-> charging cable is unplugged.
->
-> Conversely, on a 0x1004 device, hidpp20_battery_event_1000() runs first on
-> every 0x1004 event and mutates hidpp->battery.online before
-> hidpp20_battery_event_1004() checks !hidpp->battery.online, setting online
-> to false on every charging event and true on discharging or full reconnect
-> events.
->
-> Gating hidpp20_battery_event_1000() and hidpp20_battery_event_1004() on
-> HIDPP_CAPABILITY_UNIFIED_BATTERY would avoid both handlers matching the
-> same event.
+> When a device operates wirelessly on battery power, is full, or is not
+> charging, reading charge_type from sysfs returns Standard (or Fast/Trickle)
+> instead of N/A (POWER_SUPPLY_CHARGE_TYPE_NONE).  Also, when a wireless
+> device disconnects, hidpp_connect_event() resets online, status, and level
+> to unknown, but leaves hidpp->battery.charge_type at its previous active
+> value instead of POWER_SUPPLY_CHARGE_TYPE_UNKNOWN.
 
-Good catch! Since both features share hidpp->battery.feature_index and
-event ID 0x00, calling both handlers unconditionally causes them to
-collide. I will update v3 to gate hidpp20_battery_event_1004() and
-hidpp20_battery_event_1000() on HIDPP_CAPABILITY_UNIFIED_BATTERY in
-hidpp_raw_hidpp_event(), matching hidpp_connect_event().
+Agreed. I will update hidpp20_battery_map_status_voltage() in v3 so that
+charge_type is only set to FAST, TRICKLE, or STANDARD when status is
+POWER_SUPPLY_STATUS_CHARGING, defaults to POWER_SUPPLY_CHARGE_TYPE_NONE
+when discharging, full, or not charging, and is set to
+POWER_SUPPLY_CHARGE_TYPE_UNKNOWN on unknown status or wireless
+disconnect.
 
 Thanks.
 

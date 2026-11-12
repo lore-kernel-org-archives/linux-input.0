@@ -1,56 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794518499;
-	b=fEK9+Gn3VdL8QqNHofe0PxzaoyLSeZSukPEOzXNVa/wx+nTFzbPLfzcP1iwngvYGkaeL
-	 BkFICXgGx6bwTL/wevdqXK2kar+j044LoHIFqIN5hzUpY55RrrjplLpZ2m54B6rajV6Bm
-	 hxoSG8Gb8ZuLlp2c5osbem4K37gAJe/sCKG4F33KMjGBtKoJQbh+9ep0iZ5CfbRW+NNJX
-	 ZLmZQP2rvqjCq1jalwuE7Q+4Uv3IrYM+64LMlnHRyNIv86yL3zWsAc16t0inneyqFAchQ
-	 mQe6TnS6qsQ/XPSHx+giipg6Zokm9JgA7jaLClz0QcDFC/LicvrFL1pJRl2riFM+vSg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794518499;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=4eqgGqhIANhj0nYQ+5ubzZJVoiDxk2sGBwrmrqN3BXk=;
-	b=tLx1wApSlg4bJUO9uf7C1C6rTkQcmjVy/3wNE7gUhlfRup/6J61ABW86KN47alzidxBE
-	 ZUIQRJUcu22Lcc0FqYDttD8u+qTxr0wxJncJIxYRUjwXf3ThepgRBFWFTkl4phoyp/rQf
-	 XIAYOHaLvnsZ+Tk/jpt0mhK1DEscNAa2v4sciIsjqZcCXDAaafZFXto9U7Zw6EUGjJvt0
-	 KperC5PKeLQl9olOW9OWgLavs5/LweGzd750dD9IyQeFCJWRHipJPIOoB4XuIBs8YivBu
-	 HAaClYzu/u3lDr/eK5xegBUenzflQoXzH5AudO7YB2m+UiZDu7RGNu2pFMYA0gws/Ug==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UVPMOnnS;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.215.182
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794525393;
+	b=WPwmt3pWchJ7MN+oNu9XL2Zwf19gHF6GZpZ9cMwdf5zereCVxg8xa/nSaq2GFOE/y5nD
+	 j5JTNBjXTs1PUPclr1n6OkpYwehspeJ88sxi3CYarN8mWFvsIeGpm1V8Uoq7z+Ld3vYGW
+	 D1vgWhk4Uq/KrOM7t4+cfwA3RJwcmnZf0lKwnwkFAriSLdY9jpy3Y8VDCxZq8S53exQmf
+	 XGheSmJDv79zKqevUu6QMMGIdc2laSHYMsxGSQ6vVTLBjN18pRikAAGqnNOxhKI6irWoW
+	 rfcMlP7WeKeaNJOhCpIooxBFXic4wSxZOv6iRA2Igt5MbIgRuMJryydu3smdupoZqZA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794525393;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=YCt6YKhP3iRu11RrkHzPffGw1/WrazJq8WC9GVsXVNQ=;
+	b=bvO96WBqQkqHinG3yOf6mve+W91Sm0cjCDFnu95Sm0jecIDISzkVVK03JsiHvCPiecxm
+	 58cp28O93mRuCWiL7jFjgF4owwra+QJ01yokxOnGAlaJ3YMpxLV91B9p2pnASXtblBxj8
+	 MwQ7PamMj7oV3WB3/5Jx8ZZBPNhDgveLwvXO2pGeLfXtYqMfs/qj49a/3mtDyYbjleYX3
+	 zgbIr2pY4Fh3KYMNezrTxOXaTH/jK7G42x7KcouGkf/J82OdQxExzezxSEkpvILnJ2tLO
+	 nHJzAooNjLY48ZbEHuuSLYX6IwKG1RJmxcQTr/g+Ohh9fxQbctah/xXjIXdeJRf0MnA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PcqGLabY;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.215.182
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF3E8606A31C;
-	Thu, 12 Nov 2026 21:21:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EFA8606A327
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 23:16:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8EFA8606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UVPMOnnS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B1061F000C4;
-	Thu, 12 Nov 2026 21:21:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794518499;
-	bh=4eqgGqhIANhj0nYQ+5ubzZJVoiDxk2sGBwrmrqN3BXk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UVPMOnnSNBD6Ajg0ijIcJ/fQ8stFM0AIVKJJH8IDsiZzZTe1bjDhpTRO5gjXfWZBy
-	 tbLgVlsFFdOtWlI1fwzMngfZmTXoyQUp4+FtjDCsrCBUiyWE6RtU6djOT5soTVPhGA
-	 z44Tp1slG9Io7EsVPtphu9+vrdqP0A53Tjq4L1PfJ+FlX1pkKc8FT0cZZ0bZqc6GBy
-	 wITMK3Q1uR84p33Ib10kpe1TTxPhoQW6RBCpR0nS/yS91mkvisDMNkWIjQdNKlOvM1
-	 eKyE1FzJrh8kpbv13WGkXCVVNI8I+nhzttgq4ZQF3nL95sU0Ih44GzsaTp87Atdg80
-	 vB+ANY8QfWfUA==
-Date: Thu, 12 Nov 2026 22:21:35 +0100
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: David Laight <david.laight.linux@gmail.com>, 
-	Mariia Nikitash <nikitash.mariiaw@gmail.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, justinstitt@google.com, 
-	morbo@google.com
-Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
-Message-ID: <avYtm-vs_V0dPfyR@devuan>
-References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
- <20261105112813.13210334@pumpkin>
- <202611121026.23C58B347@keescook>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PcqGLabY
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cdd9d0c9bbdso431067a12.1
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 15:16:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794525392; cv=none;
+        d=google.com; s=arc-20260327;
+        b=PLTrHU08D+E6aaI8lpMjrfPid/oV3AzhWoUoukfodblm323xV0Wq5Khy70w5ymFMS5
+         VXlhZHnkJbvybIllLiezrQSZulsVow1/97oFAUvGzSFgFdJcIWfDzS/LbUWePf5ALGin
+         8Czle1ldSId/d7LMv0Hm9pOWo3nj3Gm/V5xak841c4HKRW6qmPed9LOs99hzDMr2klVu
+         5TyxXxes+Umdz3NsOGtUC7P00gnksMroFyLOZCV/Bjr/P9cKuWUgc7UiGiFSF/nOnnt+
+         LPZ1x2VWV/Y5YOY9o/oTqfkYUs2HlD4PUuUzqqVtD+DfSbQTmpxDz4nvliVYUEZQKPys
+         eqWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=YCt6YKhP3iRu11RrkHzPffGw1/WrazJq8WC9GVsXVNQ=;
+        fh=SMgAV+MsBNWYltyXHK5CZ+E0Y4TTIOq1DA1Yjy9Nm0A=;
+        b=dGHqpXJdb+5hCaBy8rSqtrkVZemOpRHX8zUPgEQvX75xAtkmd7/HJTCdF+Qd8sABRA
+         NIoBfDQib1ztfwPpzovp9SuiBxYykiVhvPHY8TM0GEpKhz1vjPkpaxbB7dVrW0ozsIOj
+         IyPx4qhMbCesnI3/ZeUKtu/+VNl6myreBFPsucdIJ3+/i28Hh0cjaU2h1iLSpvjUNr65
+         dDPfIc1zyTvkTrmVhby1NQJucnNi1ms+ZDfCG/WJDdx9THmegk+z6hn5zT/wHYnj5WA/
+         Q0fMbsm+usxWpGD7dyb5ZQxIY/ac2KlMM/InIlCTw1BeqgoNpZrgoFI0PAvwwKxx1EMD
+         jIWA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794525392; x=1795130192; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=YCt6YKhP3iRu11RrkHzPffGw1/WrazJq8WC9GVsXVNQ=;
+        b=PcqGLabY0qbX789utrbySNOrwQkNq2cB4pnsRIKpK69t12rvdji70sLBSBoeWWVn2s
+         4wnlfOP61C6XJ3rRbulB4DxM+EKEpAsxUQSo2JA+aAxYWOoz1mPZUVZ7hYAoMjCqdJ+Z
+         YlyR+c9G5ag0Zg2wP6Nd9y5zd2mDpQKWmwjvn5+gtyobt8SMhU21EB+Kqx+vQWXNATGA
+         hG1zf6G5Ug69yuzP41e4rRz/RSKQwhpyqDt89pV90Qf0CvqQ79O/x2glhFYtrJhRgsyV
+         dsgoM6sFjo04BhvOVgBFhX80gl5mDmtlPjqNuMYlfNz80/eO6cLtmjg1rj1qtj+qOvm9
+         Un7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794525392; x=1795130192;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=YCt6YKhP3iRu11RrkHzPffGw1/WrazJq8WC9GVsXVNQ=;
+        b=wqNWaWLZmaRZf5e06dtwGwGK/saC8YrrBqAn74XYjlKRbU87SgwP5jYaMy9PghGSh6
+         vQpOqn+ntlwYXCmAMtBxxTcQTogmumacWO6p68e9lyyBORu2AmP/CJifT7KiONhf2oy8
+         TAU7aRqjG8sY4ZdBxQo2IoP7QNrGtIfOBscTJMy78aD4h2JFiolqdq+eEhOzzcd190Ay
+         zqsspRBzI6W4GmUdYU7JCfKsuoTodcOC+9bPIDiiFEjhRqpHD8V1UlFU2CjneZLN2kUY
+         vpyRgaM0H5YnA7gd17+CGFbbY7AortSz75zosEQwZxUxh8uJBqwvXWPvkVpzJcNhU8wW
+         gsyQ==
+X-Forwarded-Encrypted: i=1; AL+hErG/tewiVm/FLgdzDot2TzXcDgWZzdWeJfyEUCnNLw5FSgKCSpq9aqLFOxAofyNb8v7eiEZvyzy6N4/AHQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z90YzZlnP+BtbDIXoVoQgm1TRlw945eK0NchNrt8oRppmXZcqsc
+	XW6tk3Ej2kRyJ6MVP3ar05v+XhOdrc1GD/bdFOKPV3mTNbTT5dgx1CithAmjgJJ5OhT2f4Pc5ea
+	3t/nKfZIVMFYv4aEq6LRstIDlp+6QNnM=
+X-Gm-Gg: AYBFou1cHjD+PdcPa1c9rc0oIhSsuUv6qYNhgSTN4CTBxy23V82XZi3yFiiltfV9bPr
+	UJQu+t7zCvkAwD3y75qqA0PzrmaAY7IDSYj5oehAAMapfrzfZvJ9N4UNwbQ366t2qbAhd0liAXi
+	bnntijkN4y3snBJoY1vxp/9iGg9NcAXQdCH0dTc3kyIsCOqnUEgijVzDmIuw84cPBzEU92TL8oh
+	teQGgOiVT3/VdSUI+7L10Eae4gBHahSQhxhsQDgubtlZLUhSRCkXwzsDdl7LFwB///wiRXBk4XC
+	5rLYfU5u/4o0cUFlvt9Em12JqTs3twdo+Z3LVniLAFyE1KlTfnzIYRB83kQlmXV4Lrzm9gbZN8+
+	4bJpzN0MS9iHmIFvMzXnTj5a0G1zWdvBS3yVAnQ1GUUCYC3jjnd2lRmOiGnAdhDZqzPGeCsGsFy
+	tHAqiglm+wdcobgpl7Tg2Acts7tukk1iRDewjjvayLFU8x/5EyzG3LYg8GWWJmIWaSMRLx3NWQT
+	1orfLz4ZPQifE9xDcGLyrcRWYkn7bFEieQvIgCh00/Pr9E3ZMxigxPtdCvq
+X-Received: by 2002:a05:7022:2584:b0:196:d6e1:108b with SMTP id
+ a92af1059eb24-1b5030e32e2mr1199073c88.10.1794525391639; Thu, 12 Nov 2026
+ 15:16:31 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,109 +106,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ahzol4ylc7553tv5"
-Content-Disposition: inline
-In-Reply-To: <202611121026.23C58B347@keescook>
-
-
---ahzol4ylc7553tv5
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
+References: <20261021000338.2160223-1-miro.kropacek@gmail.com>
+ <20261021022336.2232886-1-miro.kropacek@gmail.com> <c77944ee-f170-ce57-9065-d7d49fcfed6e@gmail.com>
+ <CAMuHMdXWHXjbCNojoukGq4OWvLSibk-goJo4quLdbOj01neOew@mail.gmail.com>
+ <atqTLxkEusWSS-wf@google.com> <CAN5rfbQWDTXZVyh8fDjxqRVO_HEKvWLC7Q_i-7aTtSxi9sWuSg@mail.gmail.com>
+In-Reply-To: <CAN5rfbQWDTXZVyh8fDjxqRVO_HEKvWLC7Q_i-7aTtSxi9sWuSg@mail.gmail.com>
+From: =?UTF-8?B?TWlybyBLcm9ww6HEjWVr?= <miro.kropacek@gmail.com>
+Date: Fri, 13 Nov 2026 09:16:15 +1000
+X-Gm-Features: AclHuK9omy7qW74EtahCV4gmD-m_X0i6pDAOWe6bsljrf0RlmsCYb8yPkvkcYRk
+Message-ID: <CAN5rfbQr9wjnAZN4fitmCyZs_CGd0A37omicP3hfiH3+_SWahA@mail.gmail.com>
+Subject: Re: [PATCH v5] m68k: Fix atari mouse movement
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Michael Schmitz <schmitzmic@gmail.com>, 
+	linux-m68k@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: David Laight <david.laight.linux@gmail.com>, 
-	Mariia Nikitash <nikitash.mariiaw@gmail.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, justinstitt@google.com, 
-	morbo@google.com
-Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
-Message-ID: <avYtm-vs_V0dPfyR@devuan>
-References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
- <20261105112813.13210334@pumpkin>
- <202611121026.23C58B347@keescook>
-MIME-Version: 1.0
-In-Reply-To: <202611121026.23C58B347@keescook>
 
-Hi Kees, Mariia,
+Hi Dmitry,
 
-> Date: 2026-11-12 10:27:58-0800
-> From: Kees Cook <kees@kernel.org>
+Just wondering if there is anything I can do to get this merged? Geert
+gave his Reviewed-by on v5, plus his Acked-by for the arch/m68k files,
+and Michael is fine with adding his Reviewed-by.
+
+Would you take v5 as it is through the input tree, or would you rather
+I re-send it as a standalone patch with the tags collected?
+
+It is basically the last patch to be merged from my "atari stream".
+
+On Fri, 23 Oct 2026 at 10:21, Miro Krop=C3=A1=C4=8Dek <miro.kropacek@gmail.=
+com> wrote:
 >
-> On Thu, Nov 05, 2026 at 11:28:13AM +0000, David Laight wrote:
-> > On Tue,  3 Nov 2026 22:23:18 -0800
-> > Mariia Nikitash <nikitash.mariiaw@gmail.com> wrote:
-> >=20
-> > > In preparation for removing the deprecated strlcat() API[1], use
-> > > strscpy() to initialize the mouse device name.
-> > >=20
-> > > The destination is zero-initialized, and the constant string fits
-> > > within the buffer. Since the return value is unused, this preserves
-> > > the existing behavior.
-> > >=20
-> > > Link: https://github.com/KSPP/linux/issues/370 [1]
-> > > Signed-off-by: Mariia Nikitash <nikitash.mariiaw@gmail.com>
-> > > ---
-> > >  drivers/input/mouse/vsxxxaa.c | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > >=20
-> > > diff --git a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxx=
-xaa.c
-> > > index 042a17fe81db..b3a0d7ff5738 100644
-> > > --- a/drivers/input/mouse/vsxxxaa.c
-> > > +++ b/drivers/input/mouse/vsxxxaa.c
-> > > @@ -463,8 +463,8 @@ static int vsxxxaa_connect(struct serio *serio, s=
-truct serio_driver *drv)
-> > > =20
-> > >  	mouse->dev =3D input_dev;
-> > >  	mouse->serio =3D serio;
-> > > -	strlcat(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
-> > > -		 sizeof(mouse->name));
-> > > +	strscpy(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
-> > > +		sizeof(mouse->name));
-> >=20
-> > You might as well use the 2 argument form.
->=20
-> I'd agree: this is a true array, so the sizeof() can be dropped. But
-> it's also exactly the same binary output, so I'm fine either way:
-
-Indeed, the 2-arg strscpy() call would be much safer.  I'd prefer using
-it, since we can.
+> Hi Dmitry,
+>
+> On Fri, 23 Oct 2026 at 08:51, Dmitry Torokhov <dmitry.torokhov@gmail.com>=
+ wrote:
+> > Could you please re-post v1? Can't seem to find it.
+>
+> v1 went to linux-m68k only, without linux-input:
+> https://lore.kernel.org/linux-m68k/20260814031745.17140-2-schmitzmic@gmai=
+l.com/
+>
+> It touched only atarimouse.c, keeping char * and casting the two
+> deltas to s8. v5 is the same two casts with u8 instead of char. The u8
+> can't stay in input alone though: a char * hook doesn't accept a u8 *
+> handler (-Werror=3Dincompatible-pointer-types), so the arch side has to
+> follow.
+>
+> --
+> http://mikro.atari.org
 
 
-Have a lovely night!
-Alex
-
->=20
-> Reviewed-by: Kees Cook <kees@kernel.org>
->=20
-> And I echo the surprise over strlcat being used on an empty string. :P
->=20
-> --=20
-> Kees Cook
->=20
 
 --=20
-<https://www.alejandro-colomar.es>
-
---ahzol4ylc7553tv5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmr2LdkACgkQ64mZXMKQ
-wqlb/Q//Z+6oJ6b4j7TzZmc0/KZODa14tNbJCvi4tcZTLjMM9TBSIC5RD8NdQNac
-Y3ePfMFpvVnwmlRjl/pSkHH+bj6+IW4TP9BD0eT/DSG2x/LlUp1cO2+IBz9R2KZL
-H5A33gGL43Rmw80rJZWHctuqS+w1tzVv/9QA5bgUqkDsGok0pgdpZ1iw9LkIVzR7
-xPHxni0VR3sRBwWTisKnY37O2Io5QnWhHqU6SF0kx6JyqOUQQIRYt7/RcBxP4XPO
-+tvvUxCvAbckY57k+uEwo1hF56sWhSBQOWX/4rfegox/74NkWrB8qrhSzXmNUBCu
-Ptjg7CVUgL0EkJ/PisFsK5aJK34UJkTLBqctbcyUYvPjHzrlaugYD2yBmexacket
-aAYLCGatrRzx6SnFBe48FFyavPZy+RpmN9B2PvmLrRv9b59t6xOl5zzl4bYueOen
-OrCWJ3xkNoFS/uv12lOVq/b8g2kePxnUdBRIx1+LZfqssAh9UepkLFE5oh2TT2pf
-rofdPWFWUUe+c7dXENeBTcIV0fJxbvI5Ed1conjA9mxKlOO0qT3dJB8FMR323kba
-mNIzKeexa5Yc/D1iLNDYcbiCBAk1WzyXlKZvvvEqa6dkIMmvVleJ89pEh5oN891p
-pjb/XXRRYQzwpjFFAUVJMxq/zFa+epmbXWAAY4ZavbwgL8/YkoQ=
-=a/wb
------END PGP SIGNATURE-----
-
---ahzol4ylc7553tv5--
+http://mikro.atari.org

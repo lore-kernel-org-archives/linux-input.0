@@ -1,96 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794466267;
-	b=mGW6Txx9TtvPueZxf+OckuSRk8YQVfESYmUFlAfw6GdOsocXPOcXwiFeoV0yI7p8V4ZC
-	 TzPFuRu2egP3FKf9H1o9Gt6UKVFp+5tGLwkPpHQPVUyT3nfi+16IceW+bFLVO8KXqHYWh
-	 fu611YvTCN0CGlhd+EfwtMSfItPrJq5m0d5/KPxWb+rwuna7FjxnOF2kEcxzAn88iDS7B
-	 swRG3ZvAbmcUGYfJMvqyysXW3slfAXIn25hHiN4KJyy7bGTS6/olSzVh2rpYtg2SXuyKP
-	 YyOCU2wEW4zr6UPQ6t+EjMRayre2sDrDWhdPdZClxZRXGQyEppWFaJmsBYvBgHf7ioA==
+	t=1794466279;
+	b=n5exiwNWc40TFs4RG6NYHU4j96+bxhgBk6+HzRs0np7xDI1yVX0r4gnMSqqhL75ffQtn
+	 0UK9d1dflbBUKZ8lJcbsgO7yDKNaICh1/N5HIKU9kixQWp5o6VxfRl7O13uDKPVzjnDgs
+	 /uJ6eMTAgEnr0wxAxmP4EXOlUAYvdtgcTVY7HkSZEwNzs3HYHviPWla4Yxt2sJldC8/tE
+	 47opX5llyjKmJJsSyJPdZClsLYh4erZVF8RbB09T0/5AzX5sw2wF5jX/hWC8bJ4VnCvAR
+	 5xOXSEWxpg38AlzPGC7IdKW5qSjPjT7+RZOmUiF3cbkyxOiokW52l+fsTtMwZ8faIxg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794466267;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466279;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=kiOAjw508mciKfyacuxKAhkD/CSrvZAn08VTWyigGlM=;
-	b=Jf+lV7O42u8CAJqMxg4G0zDWbn6eBe2QMOgUwvnDl9hs/tngiSoW1AFsJ1E3wOkN37pd
-	 FhqDQtEn0xq+FudDMUVzwMgYM8isKEjL5EIRChjsYni1eqw/wg//WR8BE1iONdDyIkarw
-	 tm9e4dlddfXm08FtLfSQp16Hb8XdaT0pNv5uMZ8jvcTaUXkqUaUk0nwdIJF74lQqiMV3p
-	 Z4Ehmj+ZQHayFfao9QdC3vwx5ArmmrSQl26sKnJX8qvk+ShzFAMlnI1mUh2foaelAcpL/
-	 MWZVgvYAtrNZfn4OntCy0xO/nh65hWL0anQ74FSAj9moIeG0IBfa2WW5gSxOzY9bKww==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=y4XjNgQPHn8vfXK6a1wosIhFOQwX7Ap8Le+1JlmH6b4=;
+	b=R4DhOYb6xNPfJCyTqtKIkZEDgsStjzBSBRCLoBZKW9oAnMH6WpoxI6WDfmoj7lhpNcwg
+	 sK2cnqrdxdZHup4nm58yok8nhruwxvWQHX3bu8/xJMqEVXL+71UKmqbcSHwfyGKbYA+ER
+	 6a24suZUWiYeRfI2QL2Eb9INW9TN6433R14BJyK80aLqnQo+/K/ZwzWmuLZnvWSv2PtGK
+	 3Fd2Ahy19akEHBdtZJR7SBRGa4uj/GpiVgKwHmGGIW3QU1Xz+XkYRHYKeX6OyYkLSBeWS
+	 ntWuwyHbyUYLbyACle0RFoLaaB2GZuK4qvZCZDsmYweLTlVd1tvtv0wIWIjEuRgsuDw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QmRZwGuc;
-	arc=none smtp.remote-ip=74.125.82.170
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sv+lNKsz;
+	arc=none smtp.remote-ip=74.125.82.173
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E29D606E92C
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:51:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3E29D606E92C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE93606A333
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:51:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6CE93606A333
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QmRZwGuc
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-36fc0a3fe93so7771950eec.0
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:51:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sv+lNKsz
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-37600b0db49so506187eec.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:51:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794466265; x=1795071065; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=kiOAjw508mciKfyacuxKAhkD/CSrvZAn08VTWyigGlM=;
-        b=QmRZwGucrJ/Xqka2MHnrxgDhbtt47oO6SidE0J+2osYC4WrpJypN+cWdNA2ZfuLHMe
-         GkGpM605TEs2AAxQIKXqc2dn8J4Dvkhi6HhXR9JVbqUxSdcgWsA5zcqnVxT9sLHmz5ye
-         3kCelw+udGbw8xXj72vveKmtIOHGlFQTnHENilZnLwAyHwcQ91L17MPyCMdpP361ULra
-         1Gx9pAEqz758BuP7s5vscXzsbjEZDpwO+hDDW+1Dge9Qud18zlBJoAfuxNMXn9jHGU4e
-         NCRNguefBJ5/NijLX0BFL2yG1mE+fB5kzDzSbtkivVwAQhbiPes4N6VI97bikTeXfzH6
-         sDPw==
+        d=gmail.com; s=20260707; t=1794466279; x=1795071079; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=y4XjNgQPHn8vfXK6a1wosIhFOQwX7Ap8Le+1JlmH6b4=;
+        b=sv+lNKszUjGRjLU71mdMXRs6USKmf+ajpNsLredZ5TwyQnpfJqCZv+g/swdX7GHqjV
+         QNYIR/4Bdcemq7WYZts6iLR2Mv5fJx4rur2UfNvISKUR1ZvyJLr+ZbTF8rP68LO4Yv7v
+         IsVL2GWFfmaIgvFl9Dv4k95WBjE6h2Y55Eu0u0yTCYHPX7LwbLJzS7vxZeKsCjW9HKxZ
+         tKHA6aGGZ7kO3ToVfzU0R+AbuTLxBxz8lCrlAmhTH+UHEN0zbSm6jdRr02tfJBuwIAw5
+         M/ruwW0zfq5WPBNQRvy2rAB01xh6RxDjsoIwayKZ5M8BwT7/iVwMWhVK/mKGoQGlFDxX
+         rnfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794466265; x=1795071065;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kiOAjw508mciKfyacuxKAhkD/CSrvZAn08VTWyigGlM=;
-        b=gB47WF8tH0e+aAQ0XdqSgthxt5RRmebIJ63fhA7IUFZD4BRyL1J4o70+JNvAKjB/mI
-         oC0kg1bRQdwCddm27355tQLda6afMUtkFP00BqijLIQBNQyPeYlFMX6BYAupYDpS7JMo
-         42QnYQzHbY1gP9ttufIdQz9gjeucTzWRUC872SKvxU1xogmfTcyiRAImFBEkfdePN5Di
-         Kpx01QwcQ2dUbysschKBP34+aT+D2kb63Bg6yT0m60HbZh3B2b1a4RQPp91QS52tCJa5
-         PjuKZEGqg8iQyVj+Qw/2zrbi4IM8LpYUMRyVi7XNHmSJnXhRVqZV/FJhwz3Pv9sKp8Ph
-         k2PA==
-X-Forwarded-Encrypted: i=1; AL+hErGo/XCSdwdUqIgARJ/LdKuMxdpYKuE7rM0sYrHd/0m4jxuqoz0aceLd772qDbgMaWm5F8GxCqg/441Mjg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/kcJtc3GkLQnGIC2RJzyJS5U2RIZtD3LMis4n0RVleUPbQBoGM
-	BMKxNHHpjtHyy0UhUjUYzM7ELHzr6jw0mNl/wf99djZh26bMEgrrCtW7
-X-Gm-Gg: AYBFou2ccxzvGSQB+C/nnYNuA7eAN2sA+7nb3eRpZqwVx8GOYVNkSqDDMtRdpS5eMh7
-	PrXTVPOGDb34JaiOUDQfBPUTcFUfePRDZufcW+bQXcGaiE86jHkcBl67GTDscrITCgqYIW1vlUE
-	bHVS2QfpLXBGwlhaEm4Fk+vv4hNTD17OanpaZPOmhOSVNFp7lcNajnFsThImeB3d9FRgZdSF8id
-	8uOwzj0RxIDxM0fFDWfNHb7q59upiFRMW4gUoU4QFuZjGs76UgJIrzBtyD53B8H4nvO+umTmDoj
-	EOQnbL9dUMQpcHHbdJINRyU0JYQeFOz3U2+ffYRkdySrNZx2JOV52XC7EDRpDojIUNPxHrk2UZj
-	RXoBTbf1SfbAaEkgLYBnkVBfwEnLJ+OIwtzXhqnIlx6g9icvVrfjmSvGZZjY7Qbl2P5LY66sjfX
-	NuM5er+LNuoUsHpL+JI4SKZTEjQdzan7Vy6gPb6SY1whfdmzNG6ZFnnTQDBa/TOLsNxBL1o2Azx
-	AdRWUkBcepL3G2X6CC0jvCSLM91qMWjuUvlW1qdFpCUMRcI1KP5Hc9om+/aXkyoIc7ZxehgRyg4
-	mWrUBLYXgkpueqcU/Fp4HH8VGQ7FqtHJ4DGw+IZuT9U18lVP1rgl/iwhPLIeAXtMfX9nohEiGqu
-	6UtouRWPcz2hu3+as
-X-Received: by 2002:a05:7301:796:b0:36e:a321:5353 with SMTP id 5a478bee46e88-3768385f3ecmr4818851eec.2.1794466265270;
-        Wed, 11 Nov 2026 22:51:05 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794466279; x=1795071079;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=y4XjNgQPHn8vfXK6a1wosIhFOQwX7Ap8Le+1JlmH6b4=;
+        b=Jq2exOdF+lq32Ju8MXaxYXsGVufKogbWnSQAiu6oiJ4sWknhOFBIMbUhL5bD0GyTbH
+         updZFppsL4xTlQwv77QXPRNakFBWUp2accaN2q8YvVlbSVbEeJ+yaBIputYbMnEg8pRW
+         +Fi0P9uAlLzjxoGh5iYmFspLhw4wvZCppMbFNNcdy+9lx1/hWRX9Ex67ea8b+Qwv4WkU
+         2cWzNm8PJtyPLmpQVrPkHZkTEFohJX6CcFxnIgsw+BdkeNQmEn/3fnUcp/8d041MrpPy
+         4GrONg1P8CMbnRAy7EjyFB6JIZba8xW8L2WI1ZDIIZ5ujqyiWK2pBrifzJtpTRvQjisb
+         uxeA==
+X-Forwarded-Encrypted: i=1; AL+hErEVUKmscsZdu+GKkScfqkVpjRagl4NlhGRZxCe99lnmfwsVtnFKgU6d/Obj0B65KdWkS1KLURlU2k11SA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+zUtqxsBPLLQ/HbMR+DyACngPe7XztSoHHwlHU8XtRrzHXw/zb
+	Tn2EryqToWkL3SoFOSgfXxH9fIu64YI5Gygjr9m0qw/Ki1S4hZ3zguVF
+X-Gm-Gg: AYBFou3IfD5Q+jVm++x+JFDKwTMMh7aM/HciIdVNFwR6QAy6+i3jFMcHM+Wbo45Q8lm
+	LnCisSEtDy/ownauN7RwUgyaSb1FG5iy0j7o8D1jYRE45q4KP89n9yiml7nFpGqhTowubPx6qJI
+	UZozbRwIU0jK/RAKzzQR5o+G9WAwLoOqfOp9BKTouOU6ZEKVGpTtFhFHO5epRKpmFgKCrGBns2R
+	uAdKG4JMqwnQGptJaTcqhZeeMQFZRGGvhcodOlZrpBL/RhpvRQsbbf2BQ3EG0LTQz74p3zysSQe
+	CUrnfBTAsO/uExv7Zn77Io9wQ9e/zjdgbpq7kzAyRryDktTe2JLEZ683cRAqMo/wI0dwaebtisM
+	65MhkwujxatQJ5BB2mGsNtPBaxxShL7WWpItEDhLpo+PEuIb/ehmOEMAdIPgiwnjkK9BL7V4gBF
+	+Yo1Sw+ChqBClbRX2exMbdt78jyQud0xwdhgASULsS7yUkaf7CRnFZka/YBfmZffd0GadX9MDo3
+	e7h6aeY8cB5zyzDVF/VxLW2dG6z9wrR439ArTMoPnwIyaLJ3PDW1nsSOyf6q1zxRuW6JLukbC6K
+	aK9VOxXummGs2pC2Yz6hSljRLcLlmIcZunWxj7QJtjrFhcqP4Po7L+xVZ/yg9fSZOazX75zcaIX
+	/tBYEOcvZkSCdwDXp
+X-Received: by 2002:a05:7301:4104:b0:36d:dcdb:70c5 with SMTP id 5a478bee46e88-377e15f06femr2247708eec.20.1794466278411;
+        Wed, 11 Nov 2026 22:51:18 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3751fe306casm20788624eec.9.2026.11.11.22.51.04
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-375215d8889sm24547205eec.27.2026.11.11.22.51.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 22:51:04 -0800 (PST)
+        Wed, 11 Nov 2026 22:51:17 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kim Kyuwon <q1.kim@samsung.com>,
-	Evgeniy Dushistov <dushistov@mail.ru>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+To: Jaewon Kim <jaewon02.kim@samsung.com>,
+	Hyunhee Kim <hyunhee.kim@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	Pankaj Dubey <pankaj.dubey@samsung.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Input: max7359_keypad - fix coding style issues
-Date: Wed, 11 Nov 2026 22:50:58 -0800
-Message-ID: <20261112065059.1802480-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 0/2] Input: regulator-haptic - drop platform data support and style fixes
+Date: Wed, 11 Nov 2026 22:51:13 -0800
+Message-ID: <20261112065115.1803973-1-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
-In-Reply-To: <20261112065059.1802480-1-dmitry.torokhov@gmail.com>
-References: <20261112065059.1802480-1-dmitry.torokhov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,66 +102,21 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Include <linux/bits.h> and switch the configuration register definitions
-to use the BIT() macro. Also align the arguments with the open
-parenthesis in max7359_initialize().
+This short series removes unused legacy platform data support and its
+header file from the regulator-haptic driver (as all users configure the
+device via Device Tree) and fixes minor coding style issues.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/max7359_keypad.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+Thanks.
 
-diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
-index 686832fe2931..c6673bda67ba 100644
---- a/drivers/input/keyboard/max7359_keypad.c
-+++ b/drivers/input/keyboard/max7359_keypad.c
-@@ -10,13 +10,14 @@
-  * Datasheet: http://www.maxim-ic.com/quick_view2.cfm/qv_pk/5456
-  */
- 
--#include <linux/module.h>
-+#include <linux/bits.h>
- #include <linux/i2c.h>
--#include <linux/slab.h>
--#include <linux/interrupt.h>
--#include <linux/pm.h>
- #include <linux/input.h>
- #include <linux/input/matrix_keypad.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/pm.h>
-+#include <linux/slab.h>
- 
- #define MAX7359_MAX_KEY_ROWS	8
- #define MAX7359_MAX_KEY_COLS	8
-@@ -37,11 +38,11 @@
- /*
-  * Configuration register bits
-  */
--#define MAX7359_CFG_SLEEP	(1 << 7)
--#define MAX7359_CFG_INTERRUPT	(1 << 5)
--#define MAX7359_CFG_KEY_RELEASE	(1 << 3)
--#define MAX7359_CFG_WAKEUP	(1 << 1)
--#define MAX7359_CFG_TIMEOUT	(1 << 0)
-+#define MAX7359_CFG_SLEEP	BIT(7)
-+#define MAX7359_CFG_INTERRUPT	BIT(5)
-+#define MAX7359_CFG_KEY_RELEASE	BIT(3)
-+#define MAX7359_CFG_WAKEUP	BIT(1)
-+#define MAX7359_CFG_TIMEOUT	BIT(0)
- 
- /*
-  * Autosleep register values (ms)
-@@ -143,8 +144,8 @@ static void max7359_close(struct input_dev *dev)
- static void max7359_initialize(struct i2c_client *client)
- {
- 	max7359_write_reg(client, MAX7359_REG_CONFIG,
--		MAX7359_CFG_KEY_RELEASE | /* Key release enable */
--		MAX7359_CFG_WAKEUP); /* Key press wakeup enable */
-+			  MAX7359_CFG_KEY_RELEASE | /* Key release enable */
-+			  MAX7359_CFG_WAKEUP); /* Key press wakeup enable */
- 
- 	/* Full key-scan functionality */
- 	max7359_write_reg(client, MAX7359_REG_DEBOUNCE, 0x1F);
+Dmitry Torokhov (2):
+  Input: regulator-haptic - drop platform data support
+  Input: regulator-haptic - fix coding style issues
+
+ drivers/input/misc/regulator-haptic.c         | 29 ++++++-------------
+ .../linux/platform_data/regulator-haptic.h    | 26 -----------------
+ 2 files changed, 9 insertions(+), 46 deletions(-)
+ delete mode 100644 include/linux/platform_data/regulator-haptic.h
+
 -- 
 2.56.0.567.gdb80ae8cd5-goog
 

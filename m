@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794442611;
-	b=mMpuHVyULPx+9S6DGw/BuRjIx5um4zdVbIicwJB3KD2MZs0JzcOzpLH+yX9nhkDNAFx4
-	 lL9aYh4wpBu/z0r9B0u7BYPC+SpmKaAoechhgceRicUqAPDZ8+LbY2RYf8G65eVxih7Ln
-	 QEqMSRrjcBXqtiNBc05SgjgoAuFQL5L9jDxC9BdbdU4+WH8x99LO8Pce16xYMrXrxDye2
-	 HfFU2Gy66K8M8dDk7mhyDV5FoGez3TXxzIepYvAjQ12UY/hiAUM7499X64gOQ0K8JbhrP
-	 x6vA8H6RgpdLztuK4pCyW0YT+tj24Nf9LAwjN0fKic78erA3POvtNH5aI0mmu1/T1Lg==
+	t=1794442614;
+	b=MlcXepW0RX2VeI2cfOePIHD9Svz7YZSbLS/O59KdBw/ibHuEOCbgSexWwFpkYK8M+/z+
+	 z/bYpwatXuTLY3X7gDdyGybzxFwdvxZPwfwWz/qKxjkiEsDK5dSm/wsK9dFnlVCXMW9xi
+	 /7+Nr6HLH2OMHbu6aPyu0MOGfIb4Tz411k2m6mhGD9QoM3rZLsbStkL6Bp0DlTm8NKQpm
+	 6GlJTkfeVE2b+KNNZ+UoKk65JWozv9fAL1S2DGzCI4V7gL+K2hLXIKqqESsM2KMrThRND
+	 5r4vqDgp4ZAQkMKOqSKW3sOFFvZb7ozJTWrr1/OapQ9TvEQ6cq+H3h7EOY7J6DUhmpg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794442611;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794442614;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=BFLYcLYyJpDgB8FwsuriCtQnWcNZlWPgX5/Y0ltka4Q=;
-	b=VamIGBu2wyEblUKChHFdWvJuneOXpP+Cms3fFQd62J6q06zGviN0PwS7Ldjxx51NdMod
-	 7InRPPIXc2b+CGSAhx0EgYRTr9CdsKwkyJpDdtAhbLbDz42cekLbPQflUnSDvNIfKxcc9
-	 jt4l+O2XfiFHaaUxQ4XMwHi8eXO+9FU5QrNjWL9G4eEwneMmOhI+qcujZknm47N6j/jNj
-	 Sue8oI72LkwmancdDmxxQ4ifSwl3EFIDgbXas4SSHTn8MU9OQbTqPG+xa7m7RNMuo+uDI
-	 /Mt6HWfzXow0bMu/SpTnlAmeIvfxPwtXgSy/TM00KGmBIkV3YhqtCRpW4UcE9+jaFJw==
+	bh=lT7QylMbD9F1F6uRIBMcbNPNSWEKBWGTEWa84Sr6aB0=;
+	b=n8lLMC2nvQf160ySqIHiiOkoxjmByhAIixyuIe6WMyN1CP8TXrBOBBX+M++xvkG064n5
+	 GHorsVV1rRSXkimR/A098m3PZtwLmOrYMXKd7w1bYims2pUjEiPr7W2U0AfmioSBScz19
+	 bSPTd5EOY+gYW6Fsl4H0pynbnVZPPZMBgCl3Lt+6r82o70Rb9xMqH9fcm3G7EwevUzP7n
+	 3bp0wdh37WE8MyUdpTPMFlBLrDpB5RlKd9s2556LblL+1py3YEhlz66Dl2wd640apaRzq
+	 gyBhC2r5TjVg3QS/OH1Xty1JGfhfxlT2vnC/8MFFBI0SAV/b4jMpVa4aKE63i0rXM5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dxl9rao+;
-	arc=none smtp.remote-ip=74.125.82.170
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YZp1UdDF;
+	arc=none smtp.remote-ip=74.125.82.175
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC9C6606A887
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 00:16:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC9C6606A887
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9BA606A32D
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 00:16:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD9BA606A32D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dxl9rao+
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-36dbde64409so7479273eec.0
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 16:16:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YZp1UdDF
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3704d30b84fso4702988eec.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 16:16:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794442610; x=1795047410; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794442612; x=1795047412; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=BFLYcLYyJpDgB8FwsuriCtQnWcNZlWPgX5/Y0ltka4Q=;
-        b=dxl9rao+Mve2THh2SlKEiLWxcU8xmxDUVWW9ZzDnBNaloGcEPR2gnU+RF0iacvpgRy
-         qBDkN6dDwY2DqaPsLjVKfgSwV1+C7D5SjdeLSsIuu7fMX7RYF1Rg8T1h3358ueumZfe5
-         vCLZsLR4aGWsz4j/Bq7dtWoMpy682KSkmpf+H9HP8HzkLmF92GUZ2wgjkiLiuRaz7+RF
-         lG5ajUD9brwDyJNcJ3B9VuHoYix0WvzCyaGHtTsjVGkBAb2b5OMeWju0nA7wzKc+Xt6D
-         0W4l6AeaT72UfoNCyfaFOoZan2h3s4hsEjqA9oj5Kn16XbUH8v2CBdGxOlGGkMN3GZ05
-         KdGA==
+        bh=lT7QylMbD9F1F6uRIBMcbNPNSWEKBWGTEWa84Sr6aB0=;
+        b=YZp1UdDFdwKAz9IZmd56kfzgIzZmggyDfpTLihGjEhRnN8bxH8DD4rgdz4ZdZfKvt4
+         6tL75OmmiNIrnmveIRIySHNnBFKufg1PyinzbJrHMImdXokg6ml41X1/aePYJHsHw/FD
+         WBb4iJm5WUsx3sx+nuyEz8giJ/mDguuk2Ra1ardaPzd0aB2w6TfMyfYwFfoYGlwJ7//e
+         opQKT65edxCMfRgr2BaCAAnUh1GWzVvHNDfwYEjOk6Z3ZokZitB4epF/SRYiIdScWu3i
+         Ypr7kPaUkrVqMuEZsYiepbTb+t63Yo//3/KBWoFqxMUDpO0vg7wODMSZ1ZnQ6QXf3YPR
+         6R8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794442610; x=1795047410;
+        d=1e100.net; s=20260707; t=1794442612; x=1795047412;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BFLYcLYyJpDgB8FwsuriCtQnWcNZlWPgX5/Y0ltka4Q=;
-        b=CKV0vlrVtnu6EA3tXOcN+I1i1u3WzuNO89Qm4lpsOAS+Anayk3eW2cXkUiY6wUjjk1
-         dpNjG1jUqD21GPWYM+s/vENLvrsuIwFaTkvYSBh03YPIwA9E/SLRqrJPXtCmyjD02Xg4
-         vs7FluaZIJQtTZ+8Z9qH0Z5G8p2CihlZl37x2SQ+0yqMK33Am0xiezaJJglz5UQRM9xR
-         CW9aeynhgwAbB5UTjcr4zAxaKvaiRRW/UBXlV2ISV7/ZcnB3cKASy7+GV6aT+qoMbMi6
-         hizsG1arxnskcqceeZp4Wc+gdi4d6wPr0s3fN4ouT9+cKixi20OfVqMcVBVaD3JBQAbf
-         Pm7Q==
-X-Forwarded-Encrypted: i=1; AL+hErEdFePWwFe5RYqXda17q/g8dpwJXUUoatU5DkpwL3MQsRyD6mAPKcNfr71YnQtLjB8mPOLklHWuFEkeiw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8/4a58PsR5llKLtZBpyfGTnrOZL2y/6FnRj9R3VaiEZtkG8HJk
-	ZvF1fPxpXfwGB5ZFyC9Aydh4dAonHnCJqEZKuHlM5W4vEVZZ+ODCgZJ2
-X-Gm-Gg: AYBFou0YFWGe1fnPXcTp5YrRnnq42Glhgn8UWdxv6Kfs5Xc3dY15fLclfL846ZxpbaW
-	YiT96ubfb9MXC6hWz1gozq1VnUz7NeuBFcR5fbNj1Dj1WX5pMNgVSxCNmDyaWy3Jdkk5JP67XHo
-	5Tc02hmAl1+OBZ+SIwPLdCK+zHn6dy0NNvVduWTYVCTqXbNbYRx2F1VUqZGwLL0XVSI/C5evsva
-	3D58hSq+0oXFvHEngpaUoDuV9/GeYLtCGLLHK6hH3sXHwCnn3LZ3Z7r2OT9yTxRwiMTIvtliAHj
-	TIEoK0lqpnFdLVMI1sOBVtoq2TlDGkPkWkthQT/e2SpGcSHv8AIfTNVif1fCyA4Bk5wS3R9zELX
-	dhqYV1gRiASWmPcStQ8I7p09vs0iysR2cIe80G9rWKggzYjZDhxOAlRzhBX8I6L6lpNCdYy7skO
-	L0hwd3p3TRYw7y+Dt6HhhHH4X6a5xqpoOoAfxPAEpIQf2fhPmrgZEdiE8Tnvv6t9jylzmeZN9LY
-	6B8ImGYsZ8BWJPkrDODusdGCBpgvQseeJ906xFjcCVW+tR4D/8UuwJl9CVmomxmCkZ9YuKsN77s
-	wBeCRKv+c64UJqllMH3ESiiqlIeNbR2BJSj7JgaVGFc4NDaCh9n3Wlt4OYpuJCwVmp8EyG1hEt5
-	SqicrvpeO9nHJy0VkSkkT0sFKenegsjvZtTwSew==
-X-Received: by 2002:a05:7300:6a8f:b0:360:e2e6:f849 with SMTP id 5a478bee46e88-376861732afmr3870927eec.28.1794442609584;
-        Wed, 11 Nov 2026 16:16:49 -0800 (PST)
+        bh=lT7QylMbD9F1F6uRIBMcbNPNSWEKBWGTEWa84Sr6aB0=;
+        b=JL+36sZapwq4plFi1hFLNS2+lWVvLlyNhfc5U11tusctzQPzyzjZ5DJEbTkgza18yR
+         ibGlVw5Dqyd216rZdrao5B13Nya3L9uG2DV18jp+K3bj98ApHMt2OfeX0CYEXNmfQuIc
+         F60Vk658VWqN/Rg55a66Dpt2veDLZCWlSjFdUX6sj+qKN8W8eaXv07gtEJ6Y/uW67ixI
+         Z9Z6YUCV6TS6zt+J9+tB7DcZbXxcMrpgwjE5E4rsKkxcH8Ol6cdiHjggWEevL3RARImJ
+         qBvzBCfLnaCDjCn77p/CE3PNt1+ig7056U0QGeUyz0i6EwCZyakGYG54DruNf5bjrk+t
+         +iFg==
+X-Forwarded-Encrypted: i=1; AL+hErH/6EdMNounqJ5KILV2z48sWX9g/5Qvb3+UHSisrKC3yzWmdvjajDmRS4IaP4bN3iuzHKuLMCF6KFCcAg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+X1R5qBbYOXPvGbjNmCoPNNdWYu0a58yWOJqE056/Ew7q3DrKU
+	7fGDzDn9RDKY6XABF2clVbXDZoSPBWTOzkhH6ppOpyVRqvLBXKG0f/DD
+X-Gm-Gg: AYBFou37V29vD4VH7eCaUpxxUEHO5YSbs91ILSbOF3sSILbqzRrk6iTeO2i7sSLnZih
+	P1LMrc0obyCka7Y7x+xSgMyFiP7VzXyAyuRsqGr9uJIcqbrIIqVuFqP6/Ogs5PZA25sooQEsBwE
+	XatadojHIQS5ZtGDZkr7I+u1Fitu9R1W4HvaF6lMQ+YgN9x/a7FwV7zyO1bFsyUWIL0KAhKZLpI
+	2RAUFYNs22Ew04rH6fMTJsWJT8VisO6s9MQuz269XSY2pSG0a6WEPYSTVxj+vV8Z27lDOhhFpIP
+	YSQqDThP22YacEKxMZauRoH8/O3Net/GDVNqcyok0I494UP2gu0aJHgJ94Bp7MA/BoBRPQdkyuL
+	eMY9VCO8kA28k/JvkgNNmmxPicQpNtHDO7MfLtr4+lK5kmlQaowWlbJoDNCKoVjS+bueShZWCgM
+	DyASYEW34vZulq+IMTJk4vQbtTXhlxcUEuufUceAgjD+294mwpGqNCxtfcCOSyOlDnZPQ8ar8LM
+	SF+EelpZcWy4AWS4rWbTd5QqZsRTiq7ffPzAPQUfjJYSBec1TXmLHRCYQ6DxIWYLtsxZEcrH2Br
+	7dcq49m8suj5sdJBntZ3AmKTAAkFHKyFsxrTm6/CwtzXtVIkueZTwPFpk26OFhBPNrCbRM7Dp/Z
+	PM/GgufKsBaDzxgtPsGNNTHpdwH468CtzWAAK6w==
+X-Received: by 2002:a05:7301:4902:b0:376:f63a:cb24 with SMTP id 5a478bee46e88-376f63ad124mr3435535eec.3.1794442611578;
+        Wed, 11 Nov 2026 16:16:51 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520bf3e18sm40492697eec.16.2026.11.11.16.16.47
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520bf3e18sm40492697eec.16.2026.11.11.16.16.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 16:16:48 -0800 (PST)
+        Wed, 11 Nov 2026 16:16:50 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: "Alfred E . Heggestad" <aeh@db.org>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -99,9 +99,9 @@ Cc: Oliver Neukum <oneukum@suse.com>,
 	linux-usb@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] powerpc/configs: drop CONFIG_INPUT_CM109 from ppc6xx_defconfig
-Date: Wed, 11 Nov 2026 16:16:41 -0800
-Message-ID: <20261112001642.243554-2-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/2] Input: cm109 - remove driver
+Date: Wed, 11 Nov 2026 16:16:42 -0800
+Message-ID: <20261112001642.243554-3-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
 In-Reply-To: <20261112001642.243554-1-dmitry.torokhov@gmail.com>
 References: <20261112001642.243554-1-dmitry.torokhov@gmail.com>
@@ -116,26 +116,1049 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The cm109 driver is obsolete and being removed. Drop its module
-selection from ppc6xx_defconfig.
+The cm109 driver was written in 2007-2008 (modeled after yealink) for
+four mid-2000s USB VoIP/Skype handsets (Komunikate KIP1000, Genius
+G-talk, Allied-Telesis Corega USBPH01, and ATCom AU-100) built around
+the C-Media CM109 USB audio and HID controller (0x0d8c:0x000e). Audio
+was handled by snd-usb-audio, while cm109 polled a 4x4 phone keypad
+matrix and drove a buzzer wired to the chip's GPIO pins via vendor HID
+reports, relying on a module parameter (phone=...) to select the phone
+keymap.
+
+The mid-2000s userspace VoIP/Skype bridge ecosystem for these handsets
+is long defunct, the driver has had no new hardware support since 2008
+(and has had broken keycodesize = sizeof(unsigned char) for
+KEY_NUMERIC_* keycodes > 255), while its custom URB state machine
+continues to generate syzbot crashes.
+
+Furthermore, because 0x0d8c:0x000e is the generic C-Media CM109 VID:PID
+and was added to hid_ignore_list[] so cm109 could claim the USB
+interface, cm109 actively interferes with non-phone CM109 hardware
+still in use today. Amateur radio interfaces (Direwolf, AllStarLink,
+SVXLink, UniPager, Hamlib) must blacklist cm109 so usbhid can expose
+/dev/hidraw* and to prevent cm109 from pulsing the GPIO pins (which
+keys the radio transmitter's PTT line) when the input device is
+opened. Standard USB headsets with 0x0d8c:0x000e can use usbhid
+directly via the chip's standard HID Consumer Page volume and mute
+descriptors once the hid_ignore_list[] entry is removed. Remove the
+driver, its Kconfig and Makefile entries, and the HID ignore-list
+entry.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/powerpc/configs/ppc6xx_defconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/hid/hid-ids.h       |   1 -
+ drivers/hid/hid-quirks.c    |   1 -
+ drivers/input/misc/Kconfig  |  12 -
+ drivers/input/misc/Makefile |   1 -
+ drivers/input/misc/cm109.c  | 940 ------------------------------------
+ 5 files changed, 955 deletions(-)
+ delete mode 100644 drivers/input/misc/cm109.c
 
-diff --git a/arch/powerpc/configs/ppc6xx_defconfig b/arch/powerpc/configs/ppc6xx_defconfig
-index 29acc77573d6..4ba35b9377d7 100644
---- a/arch/powerpc/configs/ppc6xx_defconfig
-+++ b/arch/powerpc/configs/ppc6xx_defconfig
-@@ -537,7 +537,6 @@ CONFIG_INPUT_PCSPKR=m
- CONFIG_INPUT_ATI_REMOTE2=m
- CONFIG_INPUT_KEYSPAN_REMOTE=m
- CONFIG_INPUT_POWERMATE=m
--CONFIG_INPUT_CM109=m
- CONFIG_INPUT_UINPUT=m
- CONFIG_SERIO_RAW=m
- CONFIG_GAMEPORT_NS558=m
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index acfd6fafed73..4f6fe0986b28 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -355,7 +355,6 @@
+ #define USB_DEVICE_ID_NITROKEY_U2F	0x4287
+ 
+ #define USB_VENDOR_ID_CMEDIA		0x0d8c
+-#define USB_DEVICE_ID_CM109		0x000e
+ #define USB_DEVICE_ID_CMEDIA_HS100B	0x0014
+ #define USB_DEVICE_ID_CM6533		0x0022
+ 
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index f4735b0f01ec..d550dff92c66 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -846,7 +846,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CIDC, 0x0103) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_RADIO_SI470X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_RADIO_SI4713) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM109) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_HIDCOM) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_ULTRAMOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 955cca77e9fe..b108776ae09e 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -469,18 +469,6 @@ config INPUT_POWERMATE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called powermate.
+ 
+-config INPUT_CM109
+-	tristate "C-Media CM109 USB I/O Controller"
+-	depends on USB_ARCH_HAS_HCD
+-	select USB
+-	help
+-	  Say Y here if you want to enable keyboard and buzzer functions of the
+-	  C-Media CM109 usb phones. The audio part is enabled by the generic
+-	  usb sound driver, so you might want to enable that as well.
+-
+-	  To compile this driver as a module, choose M here: the module will be
+-	  called cm109.
+-
+ config INPUT_REGULATOR_HAPTIC
+ 	tristate "Regulator haptics support"
+ 	depends on REGULATOR
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index d4576869aff9..46aadeaba67b 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -26,7 +26,6 @@ obj-$(CONFIG_INPUT_ATMEL_CAPTOUCH)	+= atmel_captouch.o
+ obj-$(CONFIG_INPUT_AW86927)		+= aw86927.o
+ obj-$(CONFIG_INPUT_BBNSM_PWRKEY)	+= nxp-bbnsm-pwrkey.o
+ obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
+-obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
+ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+deleted file mode 100644
+index 353d3c1d347d..000000000000
+--- a/drivers/input/misc/cm109.c
++++ /dev/null
+@@ -1,940 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Driver for the VoIP USB phones with CM109 chipsets.
+- *
+- * Copyright (C) 2007 - 2008 Alfred E. Heggestad <aeh@db.org>
+- */
+-
+-/*
+- *   Tested devices:
+- *	- Komunikate KIP1000
+- *	- Genius G-talk
+- *	- Allied-Telesis Corega USBPH01
+- *	- ...
+- *
+- * This driver is based on the yealink.c driver
+- *
+- * Thanks to:
+- *   - Authors of yealink.c
+- *   - Thomas Reitmayr
+- *   - Oliver Neukum for good review comments and code
+- *   - Shaun Jackman <sjackman@gmail.com> for Genius G-talk keymap
+- *   - Dmitry Torokhov for valuable input and review
+- *
+- * Todo:
+- *   - Read/write EEPROM
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/slab.h>
+-#include <linux/module.h>
+-#include <linux/moduleparam.h>
+-#include <linux/rwsem.h>
+-#include <linux/usb/input.h>
+-
+-#define DRIVER_VERSION "20080805"
+-#define DRIVER_AUTHOR  "Alfred E. Heggestad"
+-#define DRIVER_DESC    "CM109 phone driver"
+-
+-static char *phone = "kip1000";
+-module_param(phone, charp, S_IRUSR);
+-MODULE_PARM_DESC(phone, "Phone name {kip1000, gtalk, usbph01, atcom}");
+-
+-enum {
+-	/* HID Registers */
+-	HID_IR0 = 0x00, /* Record/Playback-mute button, Volume up/down  */
+-	HID_IR1 = 0x01, /* GPI, generic registers or EEPROM_DATA0       */
+-	HID_IR2 = 0x02, /* Generic registers or EEPROM_DATA1            */
+-	HID_IR3 = 0x03, /* Generic registers or EEPROM_CTRL             */
+-	HID_OR0 = 0x00, /* Mapping control, buzzer, SPDIF (offset 0x04) */
+-	HID_OR1 = 0x01, /* GPO - General Purpose Output                 */
+-	HID_OR2 = 0x02, /* Set GPIO to input/output mode                */
+-	HID_OR3 = 0x03, /* SPDIF status channel or EEPROM_CTRL          */
+-
+-	/* HID_IR0 */
+-	RECORD_MUTE   = 1 << 3,
+-	PLAYBACK_MUTE = 1 << 2,
+-	VOLUME_DOWN   = 1 << 1,
+-	VOLUME_UP     = 1 << 0,
+-
+-	/* HID_OR0 */
+-	/* bits 7-6
+-	   0: HID_OR1-2 are used for GPO; HID_OR0, 3 are used for buzzer
+-	      and SPDIF
+-	   1: HID_OR0-3 are used as generic HID registers
+-	   2: Values written to HID_OR0-3 are also mapped to MCU_CTRL,
+-	      EEPROM_DATA0-1, EEPROM_CTRL (see Note)
+-	   3: Reserved
+-	 */
+-	HID_OR_GPO_BUZ_SPDIF   = 0 << 6,
+-	HID_OR_GENERIC_HID_REG = 1 << 6,
+-	HID_OR_MAP_MCU_EEPROM  = 2 << 6,
+-
+-	BUZZER_ON = 1 << 5,
+-
+-	/* up to 256 normal keys, up to 15 special key combinations */
+-	KEYMAP_SIZE = 256 + 15,
+-};
+-
+-/* CM109 protocol packet */
+-struct cm109_ctl_packet {
+-	u8 byte[4];
+-} __attribute__ ((packed));
+-
+-enum { USB_PKT_LEN = sizeof(struct cm109_ctl_packet) };
+-
+-/* CM109 device structure */
+-struct cm109_dev {
+-	struct input_dev *idev;	 /* input device */
+-	struct usb_device *udev; /* usb device */
+-	struct usb_interface *intf;
+-
+-	/* irq input channel */
+-	struct cm109_ctl_packet *irq_data;
+-	dma_addr_t irq_dma;
+-	struct urb *urb_irq;
+-
+-	/* control output channel */
+-	struct cm109_ctl_packet *ctl_data;
+-	dma_addr_t ctl_dma;
+-	struct usb_ctrlrequest *ctl_req;
+-	struct urb *urb_ctl;
+-	/*
+-	 * The 3 bitfields below are protected by ctl_submit_lock.
+-	 * They have to be separate since they are accessed from IRQ
+-	 * context.
+-	 */
+-	unsigned irq_urb_pending:1;	/* irq_urb is in flight */
+-	unsigned ctl_urb_pending:1;	/* ctl_urb is in flight */
+-	unsigned buzzer_pending:1;	/* need to issue buzz command */
+-	spinlock_t ctl_submit_lock;
+-
+-	unsigned char buzzer_state;	/* on/off */
+-
+-	/* flags */
+-	unsigned open:1;
+-	unsigned resetting:1;
+-	unsigned shutdown:1;
+-
+-	/* This mutex protects writes to the above flags */
+-	struct mutex pm_mutex;
+-
+-	unsigned short keymap[KEYMAP_SIZE];
+-
+-	char phys[64];		/* physical device path */
+-	int key_code;		/* last reported key */
+-	int keybit;		/* 0=new scan  1,2,4,8=scan columns  */
+-	u8 gpi;			/* Cached value of GPI (high nibble) */
+-};
+-
+-/******************************************************************************
+- * CM109 key interface
+- *****************************************************************************/
+-
+-static unsigned short special_keymap(int code)
+-{
+-	if (code > 0xff) {
+-		switch (code - 0xff) {
+-		case RECORD_MUTE:	return KEY_MICMUTE;
+-		case PLAYBACK_MUTE:	return KEY_MUTE;
+-		case VOLUME_DOWN:	return KEY_VOLUMEDOWN;
+-		case VOLUME_UP:		return KEY_VOLUMEUP;
+-		}
+-	}
+-	return KEY_RESERVED;
+-}
+-
+-/* Map device buttons to internal key events.
+- *
+- * The "up" and "down" keys, are symbolised by arrows on the button.
+- * The "pickup" and "hangup" keys are symbolised by a green and red phone
+- * on the button.
+-
+- Komunikate KIP1000 Keyboard Matrix
+-
+-     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
+-      |    |    |    |
+-     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
+-      |    |    |    |
+-     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
+-      |    |    |    |
+-     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
+-      |    |    |    |
+-
+-     /|\  /|\  /|\  /|\
+-      |    |    |    |
+-GPO
+-pin:  3    2    1    0
+-     0x8  0x4  0x2  0x1
+-
+- */
+-static unsigned short keymap_kip1000(int scancode)
+-{
+-	switch (scancode) {				/* phone key:   */
+-	case 0x82: return KEY_NUMERIC_0;		/*   0          */
+-	case 0x14: return KEY_NUMERIC_1;		/*   1          */
+-	case 0x12: return KEY_NUMERIC_2;		/*   2          */
+-	case 0x11: return KEY_NUMERIC_3;		/*   3          */
+-	case 0x24: return KEY_NUMERIC_4;		/*   4          */
+-	case 0x22: return KEY_NUMERIC_5;		/*   5          */
+-	case 0x21: return KEY_NUMERIC_6;		/*   6          */
+-	case 0x44: return KEY_NUMERIC_7;		/*   7          */
+-	case 0x42: return KEY_NUMERIC_8;		/*   8          */
+-	case 0x41: return KEY_NUMERIC_9;		/*   9          */
+-	case 0x81: return KEY_NUMERIC_POUND;		/*   #          */
+-	case 0x84: return KEY_NUMERIC_STAR;		/*   *          */
+-	case 0x88: return KEY_ENTER;			/*   pickup     */
+-	case 0x48: return KEY_ESC;			/*   hangup     */
+-	case 0x28: return KEY_LEFT;			/*   IN         */
+-	case 0x18: return KEY_RIGHT;			/*   OUT        */
+-	default:   return special_keymap(scancode);
+-	}
+-}
+-
+-/*
+-  Contributed by Shaun Jackman <sjackman@gmail.com>
+-
+-  Genius G-Talk keyboard matrix
+-     0 1 2 3
+-  4: 0 4 8 Talk
+-  5: 1 5 9 End
+-  6: 2 6 # Up
+-  7: 3 7 * Down
+-*/
+-static unsigned short keymap_gtalk(int scancode)
+-{
+-	switch (scancode) {
+-	case 0x11: return KEY_NUMERIC_0;
+-	case 0x21: return KEY_NUMERIC_1;
+-	case 0x41: return KEY_NUMERIC_2;
+-	case 0x81: return KEY_NUMERIC_3;
+-	case 0x12: return KEY_NUMERIC_4;
+-	case 0x22: return KEY_NUMERIC_5;
+-	case 0x42: return KEY_NUMERIC_6;
+-	case 0x82: return KEY_NUMERIC_7;
+-	case 0x14: return KEY_NUMERIC_8;
+-	case 0x24: return KEY_NUMERIC_9;
+-	case 0x44: return KEY_NUMERIC_POUND;	/* # */
+-	case 0x84: return KEY_NUMERIC_STAR;	/* * */
+-	case 0x18: return KEY_ENTER;		/* Talk (green handset) */
+-	case 0x28: return KEY_ESC;		/* End (red handset) */
+-	case 0x48: return KEY_UP;		/* Menu up (rocker switch) */
+-	case 0x88: return KEY_DOWN;		/* Menu down (rocker switch) */
+-	default:   return special_keymap(scancode);
+-	}
+-}
+-
+-/*
+- * Keymap for Allied-Telesis Corega USBPH01
+- * http://www.alliedtelesis-corega.com/2/1344/1437/1360/chprd.html
+- *
+- * Contributed by july@nat.bg
+- */
+-static unsigned short keymap_usbph01(int scancode)
+-{
+-	switch (scancode) {
+-	case 0x11: return KEY_NUMERIC_0;		/*   0          */
+-	case 0x21: return KEY_NUMERIC_1;		/*   1          */
+-	case 0x41: return KEY_NUMERIC_2;		/*   2          */
+-	case 0x81: return KEY_NUMERIC_3;		/*   3          */
+-	case 0x12: return KEY_NUMERIC_4;		/*   4          */
+-	case 0x22: return KEY_NUMERIC_5;		/*   5          */
+-	case 0x42: return KEY_NUMERIC_6;		/*   6          */
+-	case 0x82: return KEY_NUMERIC_7;		/*   7          */
+-	case 0x14: return KEY_NUMERIC_8;		/*   8          */
+-	case 0x24: return KEY_NUMERIC_9;		/*   9          */
+-	case 0x44: return KEY_NUMERIC_POUND;		/*   #          */
+-	case 0x84: return KEY_NUMERIC_STAR;		/*   *          */
+-	case 0x18: return KEY_ENTER;			/*   pickup     */
+-	case 0x28: return KEY_ESC;			/*   hangup     */
+-	case 0x48: return KEY_LEFT;			/*   IN         */
+-	case 0x88: return KEY_RIGHT;			/*   OUT        */
+-	default:   return special_keymap(scancode);
+-	}
+-}
+-
+-/*
+- * Keymap for ATCom AU-100
+- * http://www.atcom.cn/products.html 
+- * http://www.packetizer.com/products/au100/
+- * http://www.voip-info.org/wiki/view/AU-100
+- *
+- * Contributed by daniel@gimpelevich.san-francisco.ca.us
+- */
+-static unsigned short keymap_atcom(int scancode)
+-{
+-	switch (scancode) {				/* phone key:   */
+-	case 0x82: return KEY_NUMERIC_0;		/*   0          */
+-	case 0x11: return KEY_NUMERIC_1;		/*   1          */
+-	case 0x12: return KEY_NUMERIC_2;		/*   2          */
+-	case 0x14: return KEY_NUMERIC_3;		/*   3          */
+-	case 0x21: return KEY_NUMERIC_4;		/*   4          */
+-	case 0x22: return KEY_NUMERIC_5;		/*   5          */
+-	case 0x24: return KEY_NUMERIC_6;		/*   6          */
+-	case 0x41: return KEY_NUMERIC_7;		/*   7          */
+-	case 0x42: return KEY_NUMERIC_8;		/*   8          */
+-	case 0x44: return KEY_NUMERIC_9;		/*   9          */
+-	case 0x84: return KEY_NUMERIC_POUND;		/*   #          */
+-	case 0x81: return KEY_NUMERIC_STAR;		/*   *          */
+-	case 0x18: return KEY_ENTER;			/*   pickup     */
+-	case 0x28: return KEY_ESC;			/*   hangup     */
+-	case 0x48: return KEY_LEFT;			/* left arrow   */
+-	case 0x88: return KEY_RIGHT;			/* right arrow  */
+-	default:   return special_keymap(scancode);
+-	}
+-}
+-
+-static unsigned short (*keymap)(int) = keymap_kip1000;
+-
+-/*
+- * Completes a request by converting the data into events for the
+- * input subsystem.
+- */
+-static void report_key(struct cm109_dev *dev, int key)
+-{
+-	struct input_dev *idev = dev->idev;
+-
+-	if (dev->key_code >= 0) {
+-		/* old key up */
+-		input_report_key(idev, dev->key_code, 0);
+-	}
+-
+-	dev->key_code = key;
+-	if (key >= 0) {
+-		/* new valid key */
+-		input_report_key(idev, key, 1);
+-	}
+-
+-	input_sync(idev);
+-}
+-
+-/*
+- * Converts data of special key presses (volume, mute) into events
+- * for the input subsystem, sends press-n-release for mute keys.
+- */
+-static void cm109_report_special(struct cm109_dev *dev)
+-{
+-	static const u8 autorelease = RECORD_MUTE | PLAYBACK_MUTE;
+-	struct input_dev *idev = dev->idev;
+-	u8 data = dev->irq_data->byte[HID_IR0];
+-	unsigned short keycode;
+-	int i;
+-
+-	for (i = 0; i < 4; i++) {
+-		keycode = dev->keymap[0xff + BIT(i)];
+-		if (keycode == KEY_RESERVED)
+-			continue;
+-
+-		input_report_key(idev, keycode, data & BIT(i));
+-		if (data & autorelease & BIT(i)) {
+-			input_sync(idev);
+-			input_report_key(idev, keycode, 0);
+-		}
+-	}
+-	input_sync(idev);
+-}
+-
+-/******************************************************************************
+- * CM109 usb communication interface
+- *****************************************************************************/
+-
+-static void cm109_submit_buzz_toggle(struct cm109_dev *dev)
+-{
+-	int error;
+-
+-	if (dev->buzzer_state)
+-		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
+-	else
+-		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
+-
+-	error = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
+-	if (error)
+-		dev_err(&dev->intf->dev,
+-			"%s: usb_submit_urb (urb_ctl) failed %d\n",
+-			__func__, error);
+-}
+-
+-static void cm109_submit_ctl(struct cm109_dev *dev)
+-{
+-	int error;
+-
+-	guard(spinlock_irqsave)(&dev->ctl_submit_lock);
+-
+-	dev->irq_urb_pending = 0;
+-
+-	if (unlikely(dev->shutdown))
+-		return;
+-
+-	if (dev->buzzer_state)
+-		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
+-	else
+-		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
+-
+-	dev->ctl_data->byte[HID_OR1] = dev->keybit;
+-	dev->ctl_data->byte[HID_OR2] = dev->keybit;
+-
+-	dev->buzzer_pending = 0;
+-	dev->ctl_urb_pending = 1;
+-
+-	error = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
+-	if (error)
+-		dev_err(&dev->intf->dev,
+-			"%s: usb_submit_urb (urb_ctl) failed %d\n",
+-			__func__, error);
+-}
+-
+-/*
+- * IRQ handler
+- */
+-static void cm109_urb_irq_callback(struct urb *urb)
+-{
+-	struct cm109_dev *dev = urb->context;
+-	const int status = urb->status;
+-
+-	dev_dbg(&dev->intf->dev, "### URB IRQ: [0x%02x 0x%02x 0x%02x 0x%02x] keybit=0x%02x\n",
+-	     dev->irq_data->byte[0],
+-	     dev->irq_data->byte[1],
+-	     dev->irq_data->byte[2],
+-	     dev->irq_data->byte[3],
+-	     dev->keybit);
+-
+-	if (status) {
+-		if (status == -ESHUTDOWN)
+-			return;
+-		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
+-				    __func__, status);
+-		goto out;
+-	}
+-
+-	/* Special keys */
+-	cm109_report_special(dev);
+-
+-	/* Scan key column */
+-	if (dev->keybit == 0xf) {
+-
+-		/* Any changes ? */
+-		if ((dev->gpi & 0xf0) == (dev->irq_data->byte[HID_IR1] & 0xf0))
+-			goto out;
+-
+-		dev->gpi = dev->irq_data->byte[HID_IR1] & 0xf0;
+-		dev->keybit = 0x1;
+-	} else {
+-		report_key(dev, dev->keymap[dev->irq_data->byte[HID_IR1]]);
+-
+-		dev->keybit <<= 1;
+-		if (dev->keybit > 0x8)
+-			dev->keybit = 0xf;
+-	}
+-
+- out:
+-	cm109_submit_ctl(dev);
+-}
+-
+-static void cm109_urb_ctl_callback(struct urb *urb)
+-{
+-	struct cm109_dev *dev = urb->context;
+-	const int status = urb->status;
+-	int error;
+-
+-	dev_dbg(&dev->intf->dev, "### URB CTL: [0x%02x 0x%02x 0x%02x 0x%02x]\n",
+-	     dev->ctl_data->byte[0],
+-	     dev->ctl_data->byte[1],
+-	     dev->ctl_data->byte[2],
+-	     dev->ctl_data->byte[3]);
+-
+-	if (status) {
+-		if (status == -ESHUTDOWN)
+-			return;
+-		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
+-				    __func__, status);
+-	}
+-
+-	guard(spinlock_irqsave)(&dev->ctl_submit_lock);
+-
+-	dev->ctl_urb_pending = 0;
+-
+-	if (unlikely(dev->shutdown))
+-		return;
+-
+-	if (dev->buzzer_pending || status) {
+-		dev->buzzer_pending = 0;
+-		dev->ctl_urb_pending = 1;
+-		cm109_submit_buzz_toggle(dev);
+-	} else if (likely(!dev->irq_urb_pending)) {
+-		/* ask for key data */
+-		dev->irq_urb_pending = 1;
+-		error = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
+-		if (error)
+-			dev_err(&dev->intf->dev,
+-				"%s: usb_submit_urb (urb_irq) failed %d\n",
+-				__func__, error);
+-	}
+-}
+-
+-static void cm109_toggle_buzzer_async(struct cm109_dev *dev)
+-{
+-	guard(spinlock_irqsave)(&dev->ctl_submit_lock);
+-
+-	if (dev->ctl_urb_pending) {
+-		/* URB completion will resubmit */
+-		dev->buzzer_pending = 1;
+-	} else {
+-		dev->ctl_urb_pending = 1;
+-		cm109_submit_buzz_toggle(dev);
+-	}
+-}
+-
+-static void cm109_toggle_buzzer_sync(struct cm109_dev *dev, int on)
+-{
+-	int error;
+-
+-	if (on)
+-		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
+-	else
+-		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
+-
+-	error = usb_control_msg(dev->udev,
+-				usb_sndctrlpipe(dev->udev, 0),
+-				dev->ctl_req->bRequest,
+-				dev->ctl_req->bRequestType,
+-				le16_to_cpu(dev->ctl_req->wValue),
+-				le16_to_cpu(dev->ctl_req->wIndex),
+-				dev->ctl_data,
+-				USB_PKT_LEN, USB_CTRL_SET_TIMEOUT);
+-	if (error < 0 && error != -EINTR)
+-		dev_err(&dev->intf->dev, "%s: usb_control_msg() failed %d\n",
+-			__func__, error);
+-}
+-
+-static void cm109_stop_traffic(struct cm109_dev *dev)
+-{
+-	dev->shutdown = 1;
+-	/*
+-	 * Make sure other CPUs see this
+-	 */
+-	smp_wmb();
+-
+-	usb_kill_urb(dev->urb_ctl);
+-	usb_kill_urb(dev->urb_irq);
+-
+-	cm109_toggle_buzzer_sync(dev, 0);
+-
+-	dev->shutdown = 0;
+-	smp_wmb();
+-}
+-
+-static void cm109_restore_state(struct cm109_dev *dev)
+-{
+-	if (dev->open) {
+-		/*
+-		 * Restore buzzer state.
+-		 * This will also kick regular URB submission
+-		 */
+-		cm109_toggle_buzzer_async(dev);
+-	}
+-}
+-
+-/******************************************************************************
+- * input event interface
+- *****************************************************************************/
+-
+-static int cm109_input_open(struct input_dev *idev)
+-{
+-	struct cm109_dev *dev = input_get_drvdata(idev);
+-	int error;
+-
+-	error = usb_autopm_get_interface(dev->intf);
+-	if (error < 0) {
+-		dev_err(&idev->dev, "%s - cannot autoresume, result %d\n",
+-			__func__, error);
+-		return error;
+-	}
+-
+-	scoped_guard(mutex, &dev->pm_mutex) {
+-		dev->buzzer_state = 0;
+-		dev->key_code = -1;	/* no keys pressed */
+-		dev->keybit = 0xf;
+-
+-		/* issue INIT */
+-		dev->ctl_data->byte[HID_OR0] = HID_OR_GPO_BUZ_SPDIF;
+-		dev->ctl_data->byte[HID_OR1] = dev->keybit;
+-		dev->ctl_data->byte[HID_OR2] = dev->keybit;
+-		dev->ctl_data->byte[HID_OR3] = 0x00;
+-
+-		dev->ctl_urb_pending = 1;
+-		error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
+-		if (!error) {
+-			dev->open = 1;
+-			return 0;
+-		}
+-	}
+-
+-	dev->ctl_urb_pending = 0;
+-	usb_autopm_put_interface(dev->intf);
+-
+-	dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
+-		__func__, error);
+-
+-	return error;
+-}
+-
+-static void cm109_input_close(struct input_dev *idev)
+-{
+-	struct cm109_dev *dev = input_get_drvdata(idev);
+-
+-	scoped_guard(mutex, &dev->pm_mutex) {
+-		/*
+-		 * Once we are here event delivery is stopped so we
+-		 * don't need to worry about someone starting buzzer
+-		 * again
+-		 */
+-		cm109_stop_traffic(dev);
+-		dev->open = 0;
+-	}
+-
+-	usb_autopm_put_interface(dev->intf);
+-}
+-
+-static int cm109_input_ev(struct input_dev *idev, unsigned int type,
+-			  unsigned int code, int value)
+-{
+-	struct cm109_dev *dev = input_get_drvdata(idev);
+-
+-	dev_dbg(&dev->intf->dev,
+-		"input_ev: type=%u code=%u value=%d\n", type, code, value);
+-
+-	if (type != EV_SND)
+-		return -EINVAL;
+-
+-	switch (code) {
+-	case SND_TONE:
+-	case SND_BELL:
+-		dev->buzzer_state = !!value;
+-		if (!dev->resetting)
+-			cm109_toggle_buzzer_async(dev);
+-		return 0;
+-
+-	default:
+-		return -EINVAL;
+-	}
+-}
+-
+-
+-/******************************************************************************
+- * Linux interface and usb initialisation
+- *****************************************************************************/
+-
+-struct driver_info {
+-	char *name;
+-};
+-
+-static const struct driver_info info_cm109 = {
+-	.name = "CM109 USB driver",
+-};
+-
+-enum {
+-	VENDOR_ID        = 0x0d8c, /* C-Media Electronics */
+-	PRODUCT_ID_CM109 = 0x000e, /* CM109 defines range 0x0008 - 0x000f */
+-};
+-
+-/* table of devices that work with this driver */
+-static const struct usb_device_id cm109_usb_table[] = {
+-	{
+-		.match_flags = USB_DEVICE_ID_MATCH_DEVICE |
+-				USB_DEVICE_ID_MATCH_INT_INFO,
+-		.idVendor = VENDOR_ID,
+-		.idProduct = PRODUCT_ID_CM109,
+-		.bInterfaceClass = USB_CLASS_HID,
+-		.bInterfaceSubClass = 0,
+-		.bInterfaceProtocol = 0,
+-		.driver_info = (kernel_ulong_t) &info_cm109
+-	},
+-	/* you can add more devices here with product ID 0x0008 - 0x000f */
+-	{ }
+-};
+-
+-static void cm109_usb_cleanup(struct cm109_dev *dev)
+-{
+-	kfree(dev->ctl_req);
+-	usb_free_coherent(dev->udev, USB_PKT_LEN, dev->ctl_data, dev->ctl_dma);
+-	usb_free_coherent(dev->udev, USB_PKT_LEN, dev->irq_data, dev->irq_dma);
+-
+-	usb_free_urb(dev->urb_irq);	/* parameter validation in core/urb */
+-	usb_free_urb(dev->urb_ctl);	/* parameter validation in core/urb */
+-	kfree(dev);
+-}
+-
+-static void cm109_usb_disconnect(struct usb_interface *interface)
+-{
+-	struct cm109_dev *dev = usb_get_intfdata(interface);
+-
+-	usb_set_intfdata(interface, NULL);
+-	input_unregister_device(dev->idev);
+-	cm109_usb_cleanup(dev);
+-}
+-
+-static int cm109_usb_probe(struct usb_interface *intf,
+-			   const struct usb_device_id *id)
+-{
+-	struct usb_device *udev = interface_to_usbdev(intf);
+-	struct driver_info *nfo = (struct driver_info *)id->driver_info;
+-	struct usb_host_interface *interface;
+-	struct usb_endpoint_descriptor *endpoint;
+-	struct cm109_dev *dev;
+-	struct input_dev *input_dev = NULL;
+-	int ret, pipe, i;
+-	int error = -ENOMEM;
+-
+-	interface = intf->cur_altsetting;
+-
+-	if (interface->desc.bNumEndpoints < 1)
+-		return -ENODEV;
+-
+-	endpoint = &interface->endpoint[0].desc;
+-
+-	if (!usb_endpoint_is_int_in(endpoint))
+-		return -ENODEV;
+-
+-	dev = kzalloc_obj(*dev);
+-	if (!dev)
+-		return -ENOMEM;
+-
+-	spin_lock_init(&dev->ctl_submit_lock);
+-	mutex_init(&dev->pm_mutex);
+-
+-	dev->udev = udev;
+-	dev->intf = intf;
+-
+-	dev->idev = input_dev = input_allocate_device();
+-	if (!input_dev)
+-		goto err_out;
+-
+-	/* allocate usb buffers */
+-	dev->irq_data = usb_alloc_coherent(udev, USB_PKT_LEN,
+-					   GFP_KERNEL, &dev->irq_dma);
+-	if (!dev->irq_data)
+-		goto err_out;
+-
+-	dev->ctl_data = usb_alloc_coherent(udev, USB_PKT_LEN,
+-					   GFP_KERNEL, &dev->ctl_dma);
+-	if (!dev->ctl_data)
+-		goto err_out;
+-
+-	dev->ctl_req = kmalloc_obj(*(dev->ctl_req));
+-	if (!dev->ctl_req)
+-		goto err_out;
+-
+-	/* allocate urb structures */
+-	dev->urb_irq = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!dev->urb_irq)
+-		goto err_out;
+-
+-	dev->urb_ctl = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!dev->urb_ctl)
+-		goto err_out;
+-
+-	/* get a handle to the interrupt data pipe */
+-	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
+-	ret = usb_maxpacket(udev, pipe);
+-	if (ret != USB_PKT_LEN)
+-		dev_err(&intf->dev, "invalid payload size %d, expected %d\n",
+-			ret, USB_PKT_LEN);
+-
+-	/* initialise irq urb */
+-	usb_fill_int_urb(dev->urb_irq, udev, pipe, dev->irq_data,
+-			 USB_PKT_LEN,
+-			 cm109_urb_irq_callback, dev, endpoint->bInterval);
+-	dev->urb_irq->transfer_dma = dev->irq_dma;
+-	dev->urb_irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+-	dev->urb_irq->dev = udev;
+-
+-	/* initialise ctl urb */
+-	dev->ctl_req->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE |
+-					USB_DIR_OUT;
+-	dev->ctl_req->bRequest = USB_REQ_SET_CONFIGURATION;
+-	dev->ctl_req->wValue = cpu_to_le16(0x200);
+-	dev->ctl_req->wIndex = cpu_to_le16(interface->desc.bInterfaceNumber);
+-	dev->ctl_req->wLength = cpu_to_le16(USB_PKT_LEN);
+-
+-	usb_fill_control_urb(dev->urb_ctl, udev, usb_sndctrlpipe(udev, 0),
+-			     (void *)dev->ctl_req, dev->ctl_data, USB_PKT_LEN,
+-			     cm109_urb_ctl_callback, dev);
+-	dev->urb_ctl->transfer_dma = dev->ctl_dma;
+-	dev->urb_ctl->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+-	dev->urb_ctl->dev = udev;
+-
+-	/* find out the physical bus location */
+-	usb_make_path(udev, dev->phys, sizeof(dev->phys));
+-	strlcat(dev->phys, "/input0", sizeof(dev->phys));
+-
+-	/* register settings for the input device */
+-	input_dev->name = nfo->name;
+-	input_dev->phys = dev->phys;
+-	usb_to_input_id(udev, &input_dev->id);
+-	input_dev->dev.parent = &intf->dev;
+-
+-	input_set_drvdata(input_dev, dev);
+-	input_dev->open = cm109_input_open;
+-	input_dev->close = cm109_input_close;
+-	input_dev->event = cm109_input_ev;
+-
+-	input_dev->keycode = dev->keymap;
+-	input_dev->keycodesize = sizeof(unsigned char);
+-	input_dev->keycodemax = ARRAY_SIZE(dev->keymap);
+-
+-	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_SND);
+-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+-
+-	/* register available key events */
+-	for (i = 0; i < KEYMAP_SIZE; i++) {
+-		unsigned short k = keymap(i);
+-		dev->keymap[i] = k;
+-		__set_bit(k, input_dev->keybit);
+-	}
+-	__clear_bit(KEY_RESERVED, input_dev->keybit);
+-
+-	error = input_register_device(dev->idev);
+-	if (error)
+-		goto err_out;
+-
+-	usb_set_intfdata(intf, dev);
+-
+-	return 0;
+-
+- err_out:
+-	input_free_device(input_dev);
+-	cm109_usb_cleanup(dev);
+-	return error;
+-}
+-
+-static int cm109_usb_suspend(struct usb_interface *intf, pm_message_t message)
+-{
+-	struct cm109_dev *dev = usb_get_intfdata(intf);
+-
+-	dev_info(&intf->dev, "cm109: usb_suspend (event=%d)\n", message.event);
+-
+-	guard(mutex)(&dev->pm_mutex);
+-
+-	cm109_stop_traffic(dev);
+-
+-	return 0;
+-}
+-
+-static int cm109_usb_resume(struct usb_interface *intf)
+-{
+-	struct cm109_dev *dev = usb_get_intfdata(intf);
+-
+-	dev_info(&intf->dev, "cm109: usb_resume\n");
+-
+-	guard(mutex)(&dev->pm_mutex);
+-
+-	cm109_restore_state(dev);
+-
+-	return 0;
+-}
+-
+-static int cm109_usb_pre_reset(struct usb_interface *intf)
+-{
+-	struct cm109_dev *dev = usb_get_intfdata(intf);
+-
+-	mutex_lock(&dev->pm_mutex);
+-
+-	/*
+-	 * Make sure input events don't try to toggle buzzer
+-	 * while we are resetting
+-	 */
+-	dev->resetting = 1;
+-	smp_wmb();
+-
+-	cm109_stop_traffic(dev);
+-
+-	return 0;
+-}
+-
+-static int cm109_usb_post_reset(struct usb_interface *intf)
+-{
+-	struct cm109_dev *dev = usb_get_intfdata(intf);
+-
+-	dev->resetting = 0;
+-	smp_wmb();
+-
+-	cm109_restore_state(dev);
+-
+-	mutex_unlock(&dev->pm_mutex);
+-
+-	return 0;
+-}
+-
+-static struct usb_driver cm109_driver = {
+-	.name		= "cm109",
+-	.probe		= cm109_usb_probe,
+-	.disconnect	= cm109_usb_disconnect,
+-	.suspend	= cm109_usb_suspend,
+-	.resume		= cm109_usb_resume,
+-	.reset_resume	= cm109_usb_resume,
+-	.pre_reset	= cm109_usb_pre_reset,
+-	.post_reset	= cm109_usb_post_reset,
+-	.id_table	= cm109_usb_table,
+-	.supports_autosuspend = 1,
+-};
+-
+-static int __init cm109_select_keymap(void)
+-{
+-	/* Load the phone keymap */
+-	if (!strcasecmp(phone, "kip1000")) {
+-		keymap = keymap_kip1000;
+-		printk(KERN_INFO KBUILD_MODNAME ": "
+-			"Keymap for Komunikate KIP1000 phone loaded\n");
+-	} else if (!strcasecmp(phone, "gtalk")) {
+-		keymap = keymap_gtalk;
+-		printk(KERN_INFO KBUILD_MODNAME ": "
+-			"Keymap for Genius G-talk phone loaded\n");
+-	} else if (!strcasecmp(phone, "usbph01")) {
+-		keymap = keymap_usbph01;
+-		printk(KERN_INFO KBUILD_MODNAME ": "
+-			"Keymap for Allied-Telesis Corega USBPH01 phone loaded\n");
+-	} else if (!strcasecmp(phone, "atcom")) {
+-		keymap = keymap_atcom;
+-		printk(KERN_INFO KBUILD_MODNAME ": "
+-			"Keymap for ATCom AU-100 phone loaded\n");
+-	} else {
+-		printk(KERN_ERR KBUILD_MODNAME ": "
+-			"Unsupported phone: %s\n", phone);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int __init cm109_init(void)
+-{
+-	int err;
+-
+-	err = cm109_select_keymap();
+-	if (err)
+-		return err;
+-
+-	err = usb_register(&cm109_driver);
+-	if (err)
+-		return err;
+-
+-	printk(KERN_INFO KBUILD_MODNAME ": "
+-		DRIVER_DESC ": " DRIVER_VERSION " (C) " DRIVER_AUTHOR "\n");
+-
+-	return 0;
+-}
+-
+-static void __exit cm109_exit(void)
+-{
+-	usb_deregister(&cm109_driver);
+-}
+-
+-module_init(cm109_init);
+-module_exit(cm109_exit);
+-
+-MODULE_DEVICE_TABLE(usb, cm109_usb_table);
+-
+-MODULE_AUTHOR(DRIVER_AUTHOR);
+-MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE("GPL");
 -- 
 2.56.0.567.gdb80ae8cd5-goog
 

@@ -1,111 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.146
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794468522;
-	b=XkVXeCZSxlKRuNyJoRAIKbqnphGeGjbX0lDvJMz6iBJLfJ5akupQGs6Nc982vzKnQLss
-	 z19z+kws6WhXVadf8qaWGNiqm0C7zR+25vsQwgxWd2gxD0Vz+i74+/zk/ULDTudNImyNF
-	 lQ3Mqyfno3h0o9j2RfBhaqp9PJ7Oza7gyThl/E5SYxYBr/Phg6DksTzuwFZFTgqnRu7Oh
-	 eB+8oVUr3Ug9aZqY7TBIWQnnnzfZeD98nushwelm+EZwNl06uaEBf0JhgbjkA/3Gbfp0M
-	 Mwko4Yk2nzTMWOAsmb+blInutVLiuQ4w1yJmXxiSLQP/f6iPZG/f3gj6vnVzEo+eOcg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794468522;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=jtpWNo7TMacpo5dLQCzhDaqmAx7GU105iZnfQunsf+w=;
-	b=DUGZulTogh53v2swXiWYbVS5jXXjY8QvSZAOBL/EG+S75ucAtjGg+yZ+HfyZEiLAJevO
-	 FT4ZA5mn29ZGY/GntBhz8yerL8ATH4SvnO57pVDNJby2wQvNtuK6QD+mGQfiDAhMGF55f
-	 sXY/8q4lkrnPwv0Jfqade6KQ1H5qDJLs1iyinlUwIEodBTwYQ3LrZS3EId8b61dhfu6kJ
-	 HhBb403HqTZ2neTAgEJnbugG5DN3SClJpG7dADH5IkJYerCDtzRiVuk3Pgpdsx3Ff42GK
-	 DCk3zxOHfUb6KjXj0XZf21tv27HmS6EIx8EU8Qi0E3UMHrLXkmEA8cmYp5Ygb0jGepg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=ZaECq2+H;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=WT09LNp3;
-	arc=none smtp.remote-ip=202.12.124.146
-Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.181
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794473040;
+	b=jQWz9kgn+ZL1jvALT/PeMoe6VW9RxJfkOlzIKTjEFpOUIa+Pz3w6Nq0TZkBGompHdqFr
+	 dQNMUxXjH+WqW2pLSYU21Q7RIAJS43EM46KPyJfek8BE6HYTLDVhbhq8u6+bER/LjgQH6
+	 9rYsSjQ24WsfPd3PT8lQ+QM7jehT7saUYUoV5hLlvMZ+UH1zSadwMZWTW6xl9392hmJdU
+	 3NxHdG1yrazWyuMEu588WgP0rGD10nVeEc158hTVZbCv69hk60xL3L9sPfTPqJbDwGZa1
+	 usds5XpwUhz1mbMNapa8cF0sPfSlURV2PHjJG+EzQf5ETDsiZzM+fxU8yZAwHAjpksg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794473040;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=j4z+t7xZiBYWqSlCxRL9tqHGVa1+jJSPT4E84fY0Opw=;
+	b=a/IVw1AeyXlV2XDSzflyRnGmIy++zfd+WVF8yeYx2vKLjgRFEOMikQ/qqqO36Zc1ha3+
+	 JNfofgZnbG76MpAMTDs8gfj/eRy9mGCXjCe/qr9h32CgoN20KkWA2rf8+pVzy0OHjrHbi
+	 5wafbriF4W2wSZKYc20XYdIjrTKccr/Ppwgd14BQQJXkaQ4+xLdAueHulBxAr5ZpKjBDE
+	 2QtVEXmKCKbZFX2Zs+7NmBXhgn6AsuGYt7OKsnYPZwYSjXz9+AuArie/tSyR65RvH2n9a
+	 fnx7faEppq3cf5wXMbufjo+fbN3wJvG5P9Df6vmVdNerPWwDw9gTvS+unDYXrxddIJw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=U1pDnbWC;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.181
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C0D606A321
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 07:28:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 37C0D606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 937F3606A8BA
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 08:44:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 937F3606A8BA
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=ZaECq2+H;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=WT09LNp3
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfout.stl.internal (Postfix) with ESMTP id F0F161D0023B
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 02:28:39 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Thu, 12 Nov 2026 02:28:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794468512;
-	 x=1794554912; bh=jtpWNo7TMacpo5dLQCzhDaqmAx7GU105iZnfQunsf+w=; b=
-	ZaECq2+H3fZLSbZItu52liYGqOetSj4pzsfYVmCp+sFMJyF30SsjGOyB3UweUFrW
-	G3K3H0C+yj6GxWQC+INukPp8kql8nLhkTumtAvdnXnVu7tAweKvytl9bgx/MOYcq
-	ZXI7+Mq+mrbou63Jg+GQoTFvMy82or+7hxeDkOr8kPVR9Wx/O7/TzpLyc92BVPLJ
-	fHJfF5GImdIqdXhbgGXYjx2TIOON0IEcgpXH34c6/Dw3ps/fHz7WTaI5Vb9z5aUA
-	//Y16AQkhwl187DXYldkLbOb67eBvPMaqj4WoI/S5ueagvjVEuYgQmpxF+BSJ7GE
-	Gaa6y/+QEd6es95GE1AMiA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794468512; x=
-	1794554912; bh=jtpWNo7TMacpo5dLQCzhDaqmAx7GU105iZnfQunsf+w=; b=W
-	T09LNp3F+6ZU0cg7gjIeXUGQuCqupgHFyIfmNpPh66aUx8GzE/zkgrQWNZnMnx8o
-	XgJ0F1/oU8sZzAZFgeGqAzD+QiWB6Kfhadoo0yq4X/W+eqAT+/6wXm+FOZxtGFj2
-	74/BhZq8Te6hytXtqNimYxbi6+/nK8fSFXuS8nc7nz2/RtsfXPFm8cxjizbW8cg8
-	tXDAAFkmook+dNokF2IHxHvlMlT/IBwH5RaM8voyo1K9kOTPgk2s8O0sLXAHDVTZ
-	RA+wP3EV0T2HPhMd/C2del2gh8WvLwcE/Q7SefSQCiu7g61izsL6ItScQr7dun8g
-	AryJ7TMpDRtXQf80DENVA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794468512; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
-	s=fm2:rsa-sha256:fGeoVUDy3/t1pTCaVPv+QrzsKgWAw1Er2YP4nKCY1seZv+k
-	4EOOwxxWPTM8pTA5JwhjMDar6lan4NV90MK7wzjOSFALmK1I0XwFTnI04rnmanhh
-	MUuRceArYr0d0nqgAX52f8XjV+wC5jk9xC0EBUveOGf6Ym6pfdFjuybqhItsbvXT
-	FRuWdxWwDOH/C99TfYsLYM1Kgd5NdEXI2RV1xs7eYJDuxNR7a3snHqA4jBYPaJ5i
-	19lJKkecJQpqLEOG3iancSkqc6APd1pWc3mk/ZBHnSCXds7oNVDEQCTT/yi0Z9b4
-	9CqTRYv7FMfFoBMZvAbqYnLnT1YyhWY9tFAD+Bw==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:nkTOjxKk9a9RAr7YpxephbkNfsVtf2NTfupsq0l/ugw=:jtpWNo7TMacpo5dLQCzhDaqmAx7GU105iZnfQunsf+w=;
-X-ME-Sender: <xms:mmr1ajgXo3Axsmou4B7KzkByWU-AjBViiPTB4XgAgf2XF5doPwnv7g>
-    <xme:mmr1aq0GfE83JG6NZFgZ58z-bruQmVZxeY_ZBDuEUj6-I1pJFr17kpOGFOwybGY_Y
-    5taeQtgs4Qy4WFi7M-2EES5h-jy1WTMD1KzIm0hhukvwm10erYE9bV2xg>
-X-ME-Proxy-Cause: dmFkZTF9Cii5tCJ/eiFoFWruahOT1qK5ASAcalVOMwjDWcFD/dMBUFqfeKLpzlac2VvZ8W
-    V9iu/o6ZR+Sv+050sngjcdznw7FD4MuBoj1sVq4A38XNzwoNh4drEfuQLnvyHU0UWAzEER
-    0/4sDUx/ru4772Ka7asMoVI39ZZKd+VMgg1hWK6dIhZQusAVxfVVXcRBOYa2HO+ODWkJJk
-    yHhAg0/yNzYdXHGAfMBwRNrzlT71WYs3yYVuMgiUtP2W3xChnosbmHTg8oFgQ2A1Wly06T
-    4FJ4LnlTHRsMOa7D+xSMU1HYoEgWvMmfr2TX4b/cJomuLFseYhxG8OoKH52UP023qwOdju
-    OXU/rstS7rhtjzYoEJXl0iV73emRZjJYCx4fU+8YffGbrnO3MpCKZE18sAT5Y8FQUcxkVi
-    gOd9Ye6RcDoNFMyPc9eKbSz0Ntwd9lt3pCFSxcmEyrm1xUkbI7kQIU13hAiY7QRVsDGZ3w
-    MLjUJuiXF7lrFYYtA+Uk2lkbCo3JpWb0eeMr21UcrDPfQ3q1OuO13/0xapduxh0EOx5ZKz
-    AzNi1C/daJAUAlTkwWvNE2oarkNe5WErEMnJtCrw5mQhgyKcA2troNXK9HqN8JU7ZNphoa
-    rQnxuSiEIxK4WY/zpd7LmSHG6MRvS2ebD33d/lkgLortuG/jXaQDedowMbkQ
-X-ME-Proxy: <xmx:nGr1ahnGhNSr4FzptxJsS4_djP_SITwZbwIIgTdu6g6H5GCl3lZdQA>
-    <xmx:nGr1aiYuQsfIJ9UNvMD4tHZlUHhp92ePdBhAJ0tsvBhd-LVYM3In7A>
-    <xmx:nGr1ahNS_d9-LNiv0DwFTrBW7SIySjRPKl8etJxhbQGqBdOgdZIMxA>
-    <xmx:nGr1aidCo_l8iDMifNF071yQQ5TkBpvrB3t41x3zD12lr0Mj7Mzv9g>
-    <xmx:oGr1atPBQrgBZMfEnO70sZpJxtfjXWX6JfXMabrdIR7Zf8qDG6wV5BbS>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 1E5CE32A0099; Thu, 12 Nov 2026 02:28:26 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=U1pDnbWC
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-3acd523a802so33563481fa.2
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 00:44:00 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794473039; cv=none;
+        d=google.com; s=arc-20260327;
+        b=CXrQNJjai7169Uel7z712uuOopbxdIIM5bHjurtsHJ28bSd+1mUhrWaVL0YAdJCRsH
+         aT2+Vsoq1JY2hrcfi7w0Zff6gwEbLrT31MP/QiBe8c5X/dZIv6lOtpYgyVLAFzfT0vEA
+         R5ER2QiB8uwJA63XhHsMsIoQOxMwsdZdWodcWYxyb3MzBL71ZV/s2UPIXPfc6t95UAKS
+         74Oo7Dc2U4aXSYcoVINyYxMVttGXcMJ5i+7rY8Fa7WC+fOvq47pd/d/F57wfgaVYWhAE
+         Nnu3MvlZ3XjYnrF0D0t20Amq2Xf3m9fOXRTsNVOIVFEsbJ1TS6kBKCWoku1dw+EB87aM
+         BNeg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=j4z+t7xZiBYWqSlCxRL9tqHGVa1+jJSPT4E84fY0Opw=;
+        fh=sqOlnSlNfwy7H6CNTbkQYyzIwGr+/4V1EV5kot1ATwA=;
+        b=pfV9Ut4DgycnmuKj+a0j6MYHBIEHdPB3kKjZemYEIBwhKzImpvRfsIpUAGTXas6cMM
+         Is+AikfZQJLE0hsVZjSyRxDSWekIujD23560vZRsbdXrk65CANZxxSyjNUR/9tcOGT48
+         mFNAMG32WoyCCNhQ9m4VKy4bkv338UBfJo03M0BvqQ+y8iEgCGko3gPQ7ibue4vcz/lE
+         uF68TRp+tIx+DI3E/e35sayDR3BPHzo/y44HVxIucPI6/ee+GhSyRsas2GWsff7OqL+1
+         lrHkLyMOk2H7+4+a7+Qhz6Hk6Jsfswq3B/nsYOhD1k1mBiNwiDfLbPS7qG9Gwer+ldVc
+         kOow==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794473039; x=1795077839; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=j4z+t7xZiBYWqSlCxRL9tqHGVa1+jJSPT4E84fY0Opw=;
+        b=U1pDnbWCVTCGQ77KHMpS0ryIaY5Fd8M8qQtnYvIN/tmX8WicigA45WByhGmV43ossZ
+         pfnI64oIMCvXG8XXWmk+gr6tcrgPDj2fU22ue+zSzsR7sWEBVKcL1DmwcPTMaCnFOF0r
+         jtyUZsI2FR+DNUEReCFY+5P31HvJWHAgDLN9G1NMVXtFNZO/8aFXIldiyBt/uGWxzziM
+         0EcImUD+ORPm4MwTBn/RrhH1tyrHovLeXJYT6nviSzb3QU2VqavcDOUCsYAA0KG4QHaj
+         NY47PsuSV+Mo+t7BQpe02fEgrRDAVk6MO79V1ILDOteoY6ktLVHeZRk2yQ0X/uOtUpHq
+         luwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794473039; x=1795077839;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=j4z+t7xZiBYWqSlCxRL9tqHGVa1+jJSPT4E84fY0Opw=;
+        b=Z0xBlTEilj+YO32XkZaZTTH/nHx6CEGrFnTjtMb+YcrYifi0lSsyByGuasU294cmCi
+         BBjcnNxUmw6LNgylf+2fLoCbhDGw7x7KIfQUBmwZpqRRDCaDRBsqG14E9oZaVfNmymfO
+         O3SckWJKKwheBxxlYxtbbCHF51ZgT5Wht0FR2hGm9wB5ACU2dFm4kT5C5XQtu5W3Huk0
+         +WRt2pViO+h8nyHbbTgEBwncXiTqLIgTlbjaZhlhth9bGxlD8W/wpQoH5UQ3TDs1qLpx
+         wgWs1q5GOsfDiU1yoiSpEzZPGKxZsFZWo2kOGoSDwhvFdcLPOcHx3/YFU84jPHu6MfCe
+         trlg==
+X-Forwarded-Encrypted: i=1; AL+hErEa8C83KdMTFtbWp/JYgHuzeKvQm0yLTiFf/rvWWSOc54zBYuuqv6Es+q/JxiKnsxmuexn9iqhbehjajg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/cXcy5lOHn2Sw7s4v0NoxaxJGosJ12UiJiow1XjSpRiqI7Ihm2
+	+xphFWI7KEMvO5mBvASc+Xf9RWkaeaYjkAYGaWAREqYwDoQOHLQ35HeEeadua2xYgRTupf4cpuL
+	RWj2bn+MEHbeUnoRtk8VQBk2bO4nZluE=
+X-Gm-Gg: AYBFou21E34JA9zIeUrD+bhK7WgRX0sFc8hEBW0GjBH/bnvoArU3QxVkN8M7XhEToSm
+	9YmZZ/JWAs76i90NH4f4e+8JveBuhF7QsHoTd3ST3ywk+DZi8i6Pa2LAvU711Xm7BdnZXFDDsO8
+	evVm5pbv9wv70wGe1Ssj7xC1xD+BWk9TzkUJs5+kdfFhIxa+mBpAZiTQ3MObAiaxSsE6dHdli4W
+	gXGrBzxykWWSuFz3ytZp8zTJo2ID4tJ7YWai7y0o1zfSB1ky7eNwK9BkDnMttx6Q9K2dufdwPMA
+	s4n8qXHVaWjY/9X+unPUwzVUaMmf7TC8DrHx5q5cFw10CDd09SCV6kOmAKEJAhRgNxMZ3yEO3l5
+	C+w5cmengSEBhTyUR8lxti5JJOP0vksTgo0DTOM6qIbPM6mgb8NcidqqOqylWTl5j
+X-Received: by 2002:a05:651c:a347:b0:3aa:fc64:a92c with SMTP id
+ 38308e7fff4ca-3ae125cc73emr11313481fa.1.1794473038570; Thu, 12 Nov 2026
+ 00:43:58 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -115,43 +104,82 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: ARWrktkilFtV
-Date: Thu, 12 Nov 2026 08:28:05 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- "Linus Walleij" <linusw@kernel.org>, "Aaro Koskinen" <aaro.koskinen@iki.fi>,
- "Daniel Mack" <daniel@zonque.org>,
- "Haojian Zhuang" <haojian.zhuang@gmail.com>,
- "Robert Jarzmik" <robert.jarzmik@free.fr>
-Cc: "Mark Brown" <broonie@kernel.org>,
- "H . Nikolaus Schaller" <hns@goldelico.com>,
- "Kris Bahnsen" <kris@embeddedts.com>,
- "Mark Featherston" <mark@embeddedts.com>,
- "Bartosz Golaszewski" <bartosz.golaszewski@oss.qualcomm.com>,
- linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Message-Id: <1ce5b6c0-5926-4330-bc45-593a119c65ef@app.fastmail.com>
-In-Reply-To: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
-References: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/5] Input: ads7846 - drop platform data support and cleanups
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20261102130836.11863-1-yaoyuan0329os@gmail.com>
+ <20261102130836.11863-2-yaoyuan0329os@gmail.com> <avKBsi-E7IeUgsSY@google.com>
+ <TY0PR0101MB4786C8CF42ED66617BD9DA1EDC722@TY0PR0101MB4786.apcprd01.prod.exchangelabs.com>
+ <avMcB0q7wF9oP5X8@sapienza> <PUZPR01MB477458CD012208A31DE60068DC712@PUZPR01MB4774.apcprd01.prod.exchangelabs.com>
+ <avRttU9N0EZeq8nY@sapienza> <TY0PR0101MB47865DFC765932B9E6C3E1C0DC702@TY0PR0101MB4786.apcprd01.prod.exchangelabs.com>
+ <avVPRySmoH_KKHa6@google.com> <CABxCQKt9o--KrucZ-jcG+tb4AGtrBnPY_mypqX64ojWRpoO_yw@mail.gmail.com>
+In-Reply-To: <CABxCQKt9o--KrucZ-jcG+tb4AGtrBnPY_mypqX64ojWRpoO_yw@mail.gmail.com>
+From: Vishnu Sankar <vishnuocv@gmail.com>
+Date: Thu, 12 Nov 2026 17:43:21 +0900
+X-Gm-Features: AclHuK8ZD51yIggX2ulMSfaDbMsjgHBr0y01lwFMAIyoSpiv0HXa-d3ugFJHB-A
+Message-ID: <CABxCQKvPhvs5X+fej2gHaCJv_rWWPYciG8cUKVtxgSb-iFK5yQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Input: trackpoint - Add new ELAN trackpoint device
+ variant id 7
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?SmluZ2xlIFd1IOWQs+mHkeWciw==?= <jingle.wu@emc.com.tw>, 
+	Yao Yuan <yaoyuan0329os@gmail.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	=?UTF-8?B?UGhvZW5peCBIdWFuZyDpu4PkuJbptaw=?= <phoenix@emc.com.tw>, 
+	=?UTF-8?B?U3RhbmxleSBDaGVuIOmZs+W7uue2rQ==?= <stanley.chen@emc.com.tw>, 
+	Vishnu Sankar <vsankar@lenovo.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2026, at 07:49, Dmitry Torokhov wrote:
-> Now that all in-tree boards using ads7846 have been converted to Device
-> Tree or software nodes, this series drops legacy platform data support
-> and its header file, simplifies sample filtering by calling
-> ads7846_debounce_filter() directly instead of through function pointers,
-> removes redundant memory barriers, deletes dead code, and cleans up
-> minor coding style issues.
+On Thu, Nov 12, 2026 at 4:14=E2=80=AFPM Vishnu Sankar <vishnuocv@gmail.com>=
+ wrote:
+>
+> Hi Dimitry, Jingle, Yuan,
+>
+> On Thu, Nov 12, 2026 at 2:33=E2=80=AFPM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > Hi Jingle,
+> >
+> > On Thu, Nov 12, 2026 at 05:26:46AM +0000, Jingle Wu =E5=90=B3=E9=87=91=
+=E5=9C=8B wrote:
+> > > Hi Yao:
+> > >
+> > > Upon inquiry, it was confirmed that a black TrackPoint stick (0x07)
+> > > underneath the red TrackPoint cap corresponds to a vendor that is
+> > > compatible with the Windows ELAN driver.
+> >
+> > Are you at liberty to share the vendor name? Or should we mark it as
+> > "Elan" or "Elan-compatible"?
+>
+> Sorry to jump in; this is Vishnu from Lenovo.
+> I have now confirmed with the component owner and supplier that the
+> TrackPoint reporting variant ID `0x07` and firmware revision `0xA1`
+> are made by JYT/NDT, not ELAN. The physical check also identified the
+> corresponding button/stick as white. It uses the same ELAN driver for
+> Windows but has different FW.
+Sorry, typo.
+The physical check also identified the corresponding button/stick as
+black/off-black
+>
+> Therefore, the patch should recognize `0x07` as the JYT/NDT variant
+> rather than naming it as an ELAN variant.
+>
+> Can name it something like  [TP_VARIANT_JYT_NDT]          =3D "JYT_NDT"
+> or something like that.
+> >
+> > Thanks.
+> >
+> > --
+> > Dmitry
+>
+> --
+>
+> Regards,
+>
+>       Vishnu Sankar
 
-Nice cleanup!
 
-I took a look at the patches and everything seems fine to me. The
-spitz.c change will of course conflict with the board removal but
-I see no problem with that.
 
-I did not have a patch for this driver in my cleanup series because
-it was still using platform data when I created my list.
+--=20
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Regards,
+
+      Vishnu Sankar

@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794466208;
-	b=f08wwUh353f4bQCpfOfGJ2VgtunTeyrdyWLIA9TyiGtoFTj3uYrEFadF4pQVNFipJus2
-	 xTlU3Oii5Wd4aK4g13+dSLMMuByCV2PtUtBHBzkwURupe586fDZQyYOwOEg6SB+Jw+UuR
-	 umjerChP7BLT12UvlTHij8mmni7o610iCIc4UxNvrPs125GvC4vNGzTdLOY3X08/LnLau
-	 hOCTJLS4yZgmigjLWwX8W1KzlLBG9vkK1dKLYVztTVeO1BfX/0qok1t1GZecNLOw8mUqe
-	 qYLdGdc7D4fQyl6vxFueNNHPHg2Kiywaf8TcMHh3Q9CTnDK7FjOuwJWNYq6SmT3DDFQ==
+	t=1794466211;
+	b=FUmZYw+v2CcUKJrUQ5FCiY9h6X7BG2Da9ISX7oY09Km5UG+UzobOJxpBB7fZD3azZAIr
+	 AoQtYokWCYXkaXNZkwYm6E/1KHsRiOCeyayISUyt6EpwzffYhi0TmUzEO+7vgmPUG94L1
+	 nN3T+dQPEmjpwyLh99pa5PomlZMHJqvhSVPFq/dcQu2Y+JEtw0oHAjzOlvvmcP/RU/Hqi
+	 wLHRVYLn3AQQ9KakqzwKUQWNFMNTofsBu0OyNmI1lptkNNKSB1N9P8mPnHyWN7w+0Mcrv
+	 F7l+or6rgYiUAW37JmNpHZ4AJRtVmbcOJt8JB23lhe90t35L6RxvIJWyzmQYA1K0NNQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794466208;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466211;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=b9b3tYu+beF9g/ZwB2Rnwljh+myz1+aTj2HUWSMtgl8=;
-	b=zot2u96i7w/u5bAneoamTBGEIcJeykXrD2YKRokoVcD2EGjNg8l+yDglWUjQ1n5MMnYv
-	 5RhGJrnSAiN/uOw91XZbjjzyDym475KOrTkhZpqQw1VNvbw80LB4O3HF6yBJAIV2KvPhb
-	 RWHuyvwVVKoddPRHxiWaU+3P5cOOj3clug17ONeXLMYqWn2TJnS/8f07y4XuhLb0U8yxZ
-	 ki1icX9DTRhgHpfxWt1yM0TqrzYxKklmstFmxcCKpWxQYODZyC7GQ0ZocnbzGGTJavtH+
-	 Tev8HJsLCR2CMauBjRatEcqEYG5YRJ4YL/zHXVXTkaM/WhoD8MElN4i35W6j2GTuj9w==
+	bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
+	b=wXBjy9kS8sXxxFgQLrDNUZrcwMjKtTbsSlraxut5qFcsZ4B+w2nI9I0q+PX7sPKFZQhu
+	 wVxYiRjL8UlQQeZcxr2MCpd0Jc1RxWwIoNV7Wp/NLNk14PdCOc3iNhGI9xczxZKu5N+kj
+	 89oOjPp6j1wFnR0HJBZ1t7JpSznCjCEJNdf84xA01HcH9pjF3TerXgQsZ7P39KYfyKv7W
+	 WWl1T7brwUUpCvs96SXF81NzNIrgqpW2a70SBRdLNq0UItcPhKEc797QElJQkg5MXeqsx
+	 bPjMnohQseox0sNp429W+Hc6pB/lkb8U0BLiVdI74U7VwaoFcLlG+fRIt48vW0HPdOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SgwHHH6R;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hh2o3mX6;
+	arc=none smtp.remote-ip=74.125.82.169
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BB9560A5BC7
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:50:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6BB9560A5BC7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD9760A5BE3
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:50:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FD9760A5BE3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SgwHHH6R
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-33fb4680717so4750309eec.1
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:50:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hh2o3mX6
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-37628596783so3776233eec.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:50:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794466208; x=1795071008; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794466209; x=1795071009; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=b9b3tYu+beF9g/ZwB2Rnwljh+myz1+aTj2HUWSMtgl8=;
-        b=SgwHHH6RYgrx0noh7brEbqdSa5d/fDZSvuAXPUJIHRvvV+j5ClLWPhI0JL0ULpv1Jv
-         0VarGnytt4sarhu13itTjd07vwTPjpCspNi0HnqRtbz0JOr1hsR5/pqXwZ99FGDmHwf5
-         rmXmfBFmDRXwXUulQFjmmGOoVNY4eCZWv7BEZY/TQljtwS0ZbX9oRn1K8paxFkVFijTL
-         UWp2djiJnUa/JPioAkfE1nwfnGD7qgu5Zq2eg4sTrAgjdmNCzVDOLk0F5K1zws0QDhyi
-         yTP6i+386VzhoW2oOnCMhyXn289l21H6fqZEgiRThTIv0Ailz81BvhaWtoT7yH1wXOEZ
-         +pQg==
+        bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
+        b=Hh2o3mX6TwMjHtUDQjFKWWLY9ICG8OkBWi672/jXglxlWUU05O1/0gHpLXjBXZewdv
+         AWSNmysG6Fa3+DAwAIRat8C4MYGAzHqrzgAGCrktfuO2ZoZaRrP97bGPgqXWsTkPxAwt
+         zS9JbAuwskdP+RwY6qaQhXZBP60lWB0Ea3z+HPat35mrfiM1/T8A7wgjAakx+/Ux6s+T
+         3RfFZeM3BhJHFCFhGNIKOOZ6ymglbgDOCgrqeKEob9AKKgchWcX+tCbQCZGAGMHVG3bn
+         iC8UKZfAPE1zD4JdVV4sKcTbguTnRL/c7dg4eQgelrtbwdKmTkjdr7IoYF1vAZsXVSuj
+         HPZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794466208; x=1795071008;
+        d=1e100.net; s=20260707; t=1794466209; x=1795071009;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=b9b3tYu+beF9g/ZwB2Rnwljh+myz1+aTj2HUWSMtgl8=;
-        b=pUdsGVP8RnA+p2XPqi8PYUbzHleiLgoROIoOVpS/oaQbq4IDTfhBp8AkgGFnhDRedA
-         h0Nzrvjuzy5grKSOEoh2Y+rmvV/1H2yN1VUegMSO6yqtCEKBUKxMQns4EVxbvKQnx5AR
-         V03bUCJdl9CNUdl13q98zYzrmEYy7Bq4753fYZgdB9cB513DQXeeKMkNpImKtjyKAgS6
-         +1GLGzVFjxxkyhkruihH74WbjpWa8WNAqNwZV9PeV3oysRDaVEFhWoiF0kJ9FfAAEyA6
-         /bocDrz292fqysSfbg/8YbzcedvMWWV119ANSLshABXjkS4ZacDGkYKQ5ynGcHQtVV1G
-         V8HA==
-X-Forwarded-Encrypted: i=1; AL+hErGHxGeTFB5PwfW1iG3ddHtxJGLS51eaOYLMPzGuk8ZXLS/4Q1odjnKVss4JpyI55CFPHeVkv50rw9VGPw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z93eeCnYVVaifSr6mj9AbMq4TQtobmJKzP8clqKCPf8gJfIFG0D
-	mU6ywRYyUDhgT8rfHhWkVj4mPRQQu0LUng+Sk1OzJ5s0LPWrGGIFU4Pq
-X-Gm-Gg: AYBFou3x36i2/jx+t+7+OntwO1Wffyla1Z6gA7oKpRZCYe/N07VdH50/D7u3/jY7R+5
-	SDolNPTfzzTsZzEZ2XaEvdr5kpjSBjXCqeCHxCmxhBZoG0FiEz5geYE2Mm1mVzKuXDr0tdPxdBf
-	AEWku0/6C0fHkGNxwmZsYtCDTBljNou/zqX5q/C7K0Zkf+XBKHs+y0Z/I1uPzGnG9qDqJHwWA1l
-	7CzhjPNtQvXFncd7/ZyC4AVUF6enE896qIoOXz47RAJS7DHBdL5CxdcutMp8MBEUv6tMIXAg83N
-	bC2w6zZMOGpF3QQw8Q9oa0oPn87jvOZywY8o63rGvY5LnJc5KJnQ24l3FraTDQkA5otzwrymhKR
-	ovviB0ZhMwpW5bOjhj7GV875jkxUrUb8EP/ICqEa7+umxeQGsViWQIWiDtTox9s16q8HYqHe4KU
-	MChaiBl9aWKOqiHY7Z8T6F0pK5eKlW+tIxp1gyj/1UtmeZtHOrRDfi6Sb5HJ1j7ChtL7qK+gN+s
-	4IcdsyQfEivEin7QnOzH/OSX83cU5m3BHW0nhFJcH7DTro0riQJ01fIYDfnM5PHhuoqUrh8mDai
-	6r8inJSRCxoLqzd63UPKj0qJ2wTrRz8vUOaWw5Tp+JoM+LJsXyB8q1S+ZYQ+919tOX9nCgDephH
-	/gPlXmtw8tSwD/RPl
-X-Received: by 2002:a05:693c:68c7:b0:374:e25e:a533 with SMTP id 5a478bee46e88-376864688a8mr4910852eec.35.1794466207572;
-        Wed, 11 Nov 2026 22:50:07 -0800 (PST)
+        bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
+        b=WCVBgjXlPfocSUmDhRkrM9JxM8KUOxw6qT1QoGiF+urrqHyjpT6DQM3k7NaGLlp6/B
+         L472NjDYFfZtfcRvZWqBssXJR23b/nO86Amd/s+E1h7qlolTa7TlCEG4AXujceDqywQ5
+         yFhaLJH0D5DWVdqTQMZxSRawwv6cSrcUrmrrd5rtIdLhrDp5YCvJnalOM6PE9ccXKmKZ
+         S9krXu6PuPTgZgRBnWL9KyfaHI2MnDjluT6tchV5yCwzTqyLb3xU14ZHQqTjYFdPpMeA
+         Jjh2vxyDxx//NLqhMp1o8q/F/yARHSsVR3z6lRvbNKd5ILpLJ1mApqwFvIVj44EWYSP/
+         S9Xg==
+X-Forwarded-Encrypted: i=1; AL+hErEI57Raa0BcBRX0LdaKjSWgx3MsteBZRYCcqrdcHJbifCrvb1tOn1aEFKF4Xh8MkoLV61YMDWjjarXong==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+HF1sVqUk7iTb/taLkfBBGa/A/KW/HpPQACMFuHikIJaGRy6vd
+	qMKfWJL2NMjzP3jTULa1rumlfx+hp6FGdKaS8kv0zYT2S1bUagk9IMo+
+X-Gm-Gg: AYBFou00D/bUedElCER1i4bOoIMJQI9cJYGVY29O0Bdty7/cCI4+olAqt/s2+k9RnVb
+	+WzC6zbIGu5yJPiLzVk7DNQYRELGTIuKOOxfv5i9qqEQagW9585xBK0kN75lDjqWUrOZKYTVHsS
+	hI2YU2roL/6Z32c/sPElFhFMr8/VgQlIPHilJDmPz2oqCUsA4d3C/h/KabLSGc1FoNJrv4a+q11
+	IfhG3aSoB/Jkh6+tSsYdATXW72V987z9sSwviMYsByq1BGO/A3L1rqLYXWusFPUKPLN22B3fB4g
+	mS8FTRtwwbodbEk7xIUmA3y4Axb3B+QplhWPfv2kyljG0RKaZvUgRxvXXFrDpHqu2U2RJqv4H7+
+	G481NLhKIUb9pFlkrpKFf1rcdKvOzhsy+pdWqooWGXCtgrwl6R29wuA0F0lfb695mu/1aeyYrLY
+	VAvOWqFb0atPak6TUQBGMTE/uzrx5U7AcyrU3Hu6pQhkUzhF5fiJi0QwE0SZhmbzGwnYpimkf2b
+	hZqpznSUxmiFreR9a8JwkkbDgCSqcne4DMWHV2Iu1OvbnVAVEbrkqDmCevZVYgioQd1bxfrAHT5
+	rVrEY63orfDpk0UkpFjHC618jxuTcdCaKj9SnhYNnW6yuAbaQxTO/v4oTrsDAsNxBbskCtgEwg1
+	GMiQgf4dDoCTWKtR/
+X-Received: by 2002:a05:7300:f54b:b0:36c:a42d:9bc9 with SMTP id 5a478bee46e88-37685c7a866mr4653158eec.25.1794466209304;
+        Wed, 11 Nov 2026 22:50:09 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520cfdfadsm27190961eec.19.2026.11.11.22.50.05
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520cfdfadsm27190961eec.19.2026.11.11.22.50.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 22:50:06 -0800 (PST)
+        Wed, 11 Nov 2026 22:50:08 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Linus Walleij <linusw@kernel.org>,
 	Aaro Koskinen <aaro.koskinen@iki.fi>,
@@ -95,9 +95,9 @@ Cc: Mark Brown <broonie@kernel.org>,
 	linux-spi@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] Input: ads7846 - remove unneeded memory barriers
-Date: Wed, 11 Nov 2026 22:49:55 -0800
-Message-ID: <20261112064957.1796975-4-dmitry.torokhov@gmail.com>
+Subject: [PATCH 4/5] Input: ads7846 - remove unused code
+Date: Wed, 11 Nov 2026 22:49:56 -0800
+Message-ID: <20261112064957.1796975-5-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
 In-Reply-To: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
 References: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
@@ -112,40 +112,62 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The driver invokes mb() after setting the stopped flag in ads7846_stop()
-and ads7846_restart(). These mandatory barriers lack pairing barriers on
-the reader side and are unnecessary.
+Remove the pwrdown_cmd member from struct ads7846_packet, unused since
+commit 6965eece2a89 ("Input: ads7846 - convert to one message").
 
-The wait queue operations wake_up() and wait_event_timeout(), along
-with disable_irq() and enable_irq(), already provide the required
-synchronization and memory ordering when stopping and restarting the
-device polling. Remove the redundant barriers.
+Also remove the unused REF_OFF macro definition and drop the CS_CHANGE()
+macro along with its sole call in ads7846_read12_ser(), since the
+request structure is allocated with kzalloc_obj() and cs_change is
+already zero.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/ads7846.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index f1827684c902..6352117cd898 100644
+index 6352117cd898..4a5a141bb4a6 100644
 --- a/drivers/input/touchscreen/ads7846.c
 +++ b/drivers/input/touchscreen/ads7846.c
-@@ -235,7 +235,6 @@ static void ads7846_stop(struct ads7846 *ts)
- 	if (!ts->disabled && !ts->suspended) {
- 		/* Signal IRQ thread to stop polling and disable the handler. */
- 		ts->stopped = true;
--		mb();
- 		wake_up(&ts->wait);
- 		disable_irq(ts->spi->irq);
- 	}
-@@ -251,7 +250,6 @@ static void ads7846_restart(struct ads7846 *ts)
+@@ -84,8 +84,6 @@ struct ads7846_packet {
+ 	struct ads7846_buf *rx;
+ 	struct ads7846_buf *tx;
  
- 		/* Tell IRQ thread that it may poll the device. */
- 		ts->stopped = false;
--		mb();
- 		enable_irq(ts->spi->irq);
- 	}
- }
+-	struct ads7846_buf pwrdown_cmd;
+-
+ 	bool ignore;
+ 	u16 x, y, z1, z2;
+ };
+@@ -145,13 +143,6 @@ enum ads7846_filter {
+ 	ADS7846_FILTER_IGNORE,
+ };
+ 
+-/* leave chip selected when we're done, for quicker re-select? */
+-#if	0
+-#define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
+-#else
+-#define	CS_CHANGE(xfer)	((xfer).cs_change = 0)
+-#endif
+-
+ /*--------------------------------------------------------------------------*/
+ 
+ /* The ADS7846 has touchscreen and other sensors.
+@@ -195,7 +186,6 @@ enum ads7846_filter {
+ 	| ADS_12_BIT | ADS_SER)
+ 
+ #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
+-#define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+ 
+ /* Order commands in the most optimal way to reduce Vref switching and
+  * settling time:
+@@ -400,7 +390,6 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 
+ 	req->xfer[7].rx_buf = &req->scratch;
+ 	req->xfer[7].len = 2;
+-	CS_CHANGE(req->xfer[7]);
+ 	spi_message_add_tail(&req->xfer[7], &req->msg);
+ 
+ 	scoped_guard(mutex, &ts->lock) {
 -- 
 2.56.0.567.gdb80ae8cd5-goog
 

@@ -1,99 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794466284;
-	b=q59l4q0JqmvAVBuvzY5lqGKPRBE/gJVq5TeKY/RvKCOiFNn3igpqmpXNW2/s2DCTJ062
-	 OuOn+YXNivZBWsR6cioZE3wxXz8YfV0vSyMRc+X6Zgvy1hnPJT6n+tgoZo4ZoS3aCauD9
-	 A3yPGaSlc6icUXpyGPOtzs69WkwlR0V9IfpkOdnsYSuLKVedjkF/s3Nh9E7OTFKxi5daP
-	 8aOEIRAZ0+F/Rip1DAmq0TqxsV55VvLWwt3rlNnwaWdn+Om3hJgxtKlp5wesFE3y2zWMv
-	 mpSuPN/c30k8CisjOe5R03GH++G5k+bauz8ZeiIUACsU/q58FURLjr1qMPG4JmUF8Gg==
+	t=1794466768;
+	b=xBlJRpn8qQ1w59Qp8/jp+ow0bgaJGj3piTiygx0g11J3qe3o56rZ8WJNV7kIZmfHBRA4
+	 YLo+o/lMYLfKrM9adKWStQTUSmB0pDL0u+Chcmgg3lXTAnsKSn9KCywFKB+bXUBLnZels
+	 YXkJWjTffyx2OFH4ghj7vk17DwT2o/9XCH1H7g3Segzrg5y2kft4rHEXx9wlZGKTnzJsP
+	 ejlL+DAajURe5PsaWNz3xoSdwnSjznGELmNckGyCNi0aZo4zXcaYwGyUIULCFTHNazsDI
+	 8X/EZ4ludIf+QpP+0ZStLr4CllBDZOts6LToJGsl7JryoExGCoLltlIn+ZPE/4GpiFQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794466284;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=S6vHQHJISvLttOPVGmxf1RIVPLKenvgKFyjyMf1hrow=;
-	b=ACBoisY/J9znyvmOfP43ttirrF4DAxFOMv1VGL4SFtT7QYt0lnM+Zd2V5Y6Z0c1xHPzV
-	 bt3CpbOpTWb+cOwp1ZzrRZSRXEyEYiLfAuHvPLCPLUpdCmWk12oIIKlEiTzi95KaDhtH8
-	 QguCJvNCVa9iEO9hb6LpVdRGWw+ztLGXdZV2dcSUWWve0lXENVKCDcjpS/4nQQmIrVfqK
-	 I9NMizsId66jD5angV30p316VBjbcqFPGqlIhgQoe/toQ8mGwsVjSVQcB4+wdFo6dNMmm
-	 BALCP5pU51KcnJez8EPM3IDlq8zmhnkLnJomucYmaL3CaYaXyoZ2WGvZ3gb2A5LF1EQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466768;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=Z1K7y6H1/5Q2fQS86EpV4i90f4o3M7cNOET7d3GpeC4=;
+	b=O9A/SpDdIs7h62MVZGZbJInNqO913silRUMmLv6m90krl3PDmHnBaA/gmHf6e/yHEaST
+	 B88qLAzm50R+TVUIJ25cB2L/dhSDP08cnjUpGSvyE1V77gadKvuiOVsj5vRrTrLsA2Z/Y
+	 uLgSnheY64YCKnUy8Wt26SuyQ2JQhOwfJOFbwr9UjnrxOHiL0sGoaSmB0/JTA6H1VdFwF
+	 wkM3lHlyAYnXUv8eHWxaIfjWSAB2nxMn/VA+p4bKUqzvfhO933ay5IjXXtijPc+nGXKG3
+	 RqhXWXmgHoNzim2dGN0RTyrvZiAJCun4q4hEy9H9qJsed2QcljFKOViP4V+ldXTJihA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="L9o/XV7a";
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FnWBSKBq;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3B560A3838
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:51:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD3B560A3838
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D88606A323
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:59:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=L9o/XV7a
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3720addb068so7040910eec.1
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:51:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794466282; x=1795071082; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=S6vHQHJISvLttOPVGmxf1RIVPLKenvgKFyjyMf1hrow=;
-        b=L9o/XV7aP/sRDlIO4NymG0vbdEhk/qY2z2okt0Ybn/kuQZmIuPEC9cPaGxuM7HxnQO
-         +48CPWG5n8OcpG/7GHR5YehtxW0eNIW5qbSGB6FMOeQXR1yTDaUAFguyFrFBi1/FiBzA
-         QMhYd+Yl9ZAekrl0p9qELxxnYpy05qnq+uWwK2gBAxJ9j4kiXSAYxy+Wo07v9J2p2Nwn
-         iNBBvygKSVV2Ej7iHNou9RLIgELFxA6a3feApnhZMBfFa/Vas0G3TnGtj+4Be3HdoR1/
-         WYX+q8kUUjit5Mlt5iLML0bT+WQt7bqCsiNGGGEluImYbtUtoCtVDKREy/tAfJq8jqIW
-         V9IQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794466282; x=1795071082;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=S6vHQHJISvLttOPVGmxf1RIVPLKenvgKFyjyMf1hrow=;
-        b=R+jipEGOwhnUUvq1i4DZqy8BHhejdpU44iiJdY9vjFB580IuCCq9feBO7ZrwHrSMcI
-         BkiJsR43UaUpPwTXwhk/8JEZ62CEUdycpeNLCxk2KXs3T3DPTvJuZO+EhYzf+M33htWi
-         qELHIHM8t0wK7lzRaXfsuDYfE4tm058TYZSRYhyUoQHoqGAHITLSMXXjvjqR3JeBW3oI
-         6Ftnoc5lnxUAqmSqctrQw/+1TcueLUZRK/BcqAMNkJcRxeRDLSsaKWUvyNDhsTLs9OGu
-         v1+0u93O0BLnBFIcMmEePOCDFl1MYs/KEJeoJQQFI6BLduyZJ9ri8oC/B9GRvxyMfGvk
-         jKEg==
-X-Forwarded-Encrypted: i=1; AL+hErHGXfIWOnjAVQudxqmflr/xrMH7rPIYXbpIAzjmQ7kRtrsHJ6qNRUxjsO9kE4RXubMnQVPvbxC+MsGIPg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8S9YLGbFSkHDN6K7FtPq6yHz0YLufpnbOetrw1jgdSbxRIrKDy
-	Jb9spUvdBvnj09spGTftU0TTMlWWJfMlGvjr1U1MPJaQbrt4DDru8VTC
-X-Gm-Gg: AYBFou38Ic/Z2GZaVtlqP4/ineOhvOds7biHDf7kr1XriS7eGCEJ1cxMOs1cFwiV8Pi
-	AQRZr/DUcaehHWGYETtXB/KeIN5bc5icVmtM2bH+EirFVGJ+KAdOxSkA7xFnDzKY3jYdWqmELy4
-	vHj/4TTFVPNlaG/NHUfzLxuIt8HAEamAIz7WVSTr4E/WNPP9mPA1IYWRqFOPDPazQLAvXpwgt/m
-	jRJOpS+Zlyaxme7UYSrvom4bsk9/gz5o45QphOvMwTzFycGZ8KKlAWc1g+A8LwT9FmXzMet3Lwr
-	oHqUNTCcqZ9/m/eVhqkTYYpzD7kzPjkro5EuTl5XltlxdEctiAFh6BZZz652Q/pxvgOiOzHma7V
-	4AWv288iLeZYkkz3eC6XHelSnNpWzA1481QOhNxSdhmwK0+6t4PUwDCi0tuzjUz4ehtFrHBX1ni
-	YsW9OzbqQtKxFm4391HRpbZBx5Mj+EzWPh9nqmSNnCXczZbzfVrTyr8RK9plcS4+pxwfRl8KHWf
-	mu9vC35UwUfcaL6hIYj2dGqmzwZVH24MIBifJjJt3aJnaH6fEI978oM5FYPL+bXjxgidqPZMmHB
-	jyFeFLAM9b9ot0skEvo6HghS7uJCw7vXkCAACO0EQLvAxkziM70dgfOK5kiBzKPiqDrzZEsgyyo
-	uMJ/gXBNK9BZN/94t
-X-Received: by 2002:a05:7301:d810:b0:376:5b99:a7e3 with SMTP id 5a478bee46e88-3768327e817mr4203057eec.3.1794466281758;
-        Wed, 11 Nov 2026 22:51:21 -0800 (PST)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-375215d8889sm24547205eec.27.2026.11.11.22.51.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 22:51:21 -0800 (PST)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jaewon Kim <jaewon02.kim@samsung.com>,
-	Hyunhee Kim <hyunhee.kim@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	Pankaj Dubey <pankaj.dubey@samsung.com>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Input: regulator-haptic - fix coding style issues
-Date: Wed, 11 Nov 2026 22:51:15 -0800
-Message-ID: <20261112065115.1803973-3-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
-In-Reply-To: <20261112065115.1803973-1-dmitry.torokhov@gmail.com>
-References: <20261112065115.1803973-1-dmitry.torokhov@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FnWBSKBq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23AD21F00A05;
+	Thu, 12 Nov 2026 06:59:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794466767;
+	bh=Z1K7y6H1/5Q2fQS86EpV4i90f4o3M7cNOET7d3GpeC4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FnWBSKBq8BUl2tSE1U2KLUUD7FZ/ziMozIGl8AbNhoDvW5L+pOyj14OgdmEXgteB0
+	 HfNXP9Y2stVnZ0c3/ibHsGoXPbEB6z99+xMv+gwKbYM2keD9rCOP8XIwZV/gh11Cdw
+	 ZLN5OgC10H0+GzCde/uV3qdLJrYN763mjlbveRuF63EKeQG+JzeTbjND21ILse5fGf
+	 bx7fCRN/vwULrD7ZmGkm48bvlzYrRzJNf7OgkWuCG2hGutDDu97jsSB38cw9j3z36P
+	 +7tqyzGcIj9dZv+YRszc78EFuOkTT/zNh0xFC4OeylrqpE5I5MRD6OqJYhWHT7Nzk3
+	 +zbJfgsbBVnmA==
+Message-ID: <sashiko-outbox-210560@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/2] HID: intel-thc-hid: quicki2c: quiesce IRQs
+ during teardown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Myeonghun Pak" <mhun512@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261112T063704Z-thc-v3-2-mhun512@gmail.com>
+References: <20261112T063704Z-thc-v3-0-mhun512@gmail.com>
+ <20261112T063704Z-thc-v3-2-mhun512@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 12 Nov 2026 06:59:26 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,68 +60,94 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Fix minor coding style issues across the driver: add a comment
-explaining mutex purpose, drop an unnecessary blank line after an open
-brace, align function arguments with the open parenthesis, fix
-whitespace in conditional checks, and use a space instead of a tab in
-a return statement.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] HID: intel-thc-hid: quicki2c: premature IRQ/dev teardown in
+  quicki2c_remove()
+--
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/regulator-haptic.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+commit cd8b528b30521f872e42d4b36fda65f3e1f39085
+Author: Myeonghun Pak <mhun512@gmail.com>
 
-diff --git a/drivers/input/misc/regulator-haptic.c b/drivers/input/misc/regulator-haptic.c
-index d99f716ef44b..4ede90195366 100644
---- a/drivers/input/misc/regulator-haptic.c
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -23,7 +23,7 @@ struct regulator_haptic {
- 	struct regulator *regulator;
- 
- 	struct work_struct work;
--	struct mutex mutex;
-+	struct mutex mutex; /* serializes voltage updates and suspend/resume */
- 
- 	bool active;
- 	bool suspended;
-@@ -38,7 +38,6 @@ static int regulator_haptic_toggle(struct regulator_haptic *haptic, bool on)
- 	int error;
- 
- 	if (haptic->active != on) {
--
- 		error = on ? regulator_enable(haptic->regulator) :
- 			     regulator_disable(haptic->regulator);
- 		if (error) {
-@@ -55,7 +54,7 @@ static int regulator_haptic_toggle(struct regulator_haptic *haptic, bool on)
- }
- 
- static int regulator_haptic_set_voltage(struct regulator_haptic *haptic,
--					 unsigned int magnitude)
-+					unsigned int magnitude)
- {
- 	u64 volt_mag_multi;
- 	unsigned int intensity;
-@@ -118,7 +117,7 @@ static int regulator_haptic_parse_dt(struct device *dev,
- 	int error;
- 
- 	node = dev->of_node;
--	if(!node) {
-+	if (!node) {
- 		dev_err(dev, "Missing device tree data\n");
- 		return -EINVAL;
- 	}
-@@ -165,7 +164,7 @@ static int regulator_haptic_probe(struct platform_device *pdev)
- 
- 	input_dev = devm_input_allocate_device(&pdev->dev);
- 	if (!input_dev)
--		return	-ENOMEM;
-+		return -ENOMEM;
- 
- 	haptic->input_dev = input_dev;
- 	haptic->input_dev->name = "regulator-haptic";
--- 
-2.56.0.567.gdb80ae8cd5-goog
+HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
 
+This commit disables and frees the device interrupt and deinitializes the
+controller before tearing down the hid and dma resources during probe
+unwind, remove, and shutdown.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 29319b6227f3f..84e458fdd69cc 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+
+[ ... ]
+
+> @@ -788,9 +802,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
+>  	if (!qcdev)
+>  		return;
+> =20
+> -	quicki2c_hid_remove(qcdev);
+> -
+> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	disable_irq(pdev->irq);
+>  	quicki2c_dev_deinit(qcdev);
+> +	devm_free_irq(&pdev->dev, pdev->irq, qcdev);
+> +
+> +	quicki2c_hid_remove(qcdev);
+> =20
+>  	quicki2c_dma_deinit(qcdev);
+
+[Severity: High]
+Does tearing down pdev->irq and calling quicki2c_dev_deinit() before
+quicki2c_hid_remove() break synchronous transfers issued while
+hid_destroy_device() disconnects subdrivers and hidraw?
+
+When quicki2c_hid_remove() runs hid_destroy_device(), bound subdrivers such
+as hid-multitouch close the device (mt_remove() -> hid_hw_stop() -> ... ->
+hid_hw_close() -> mt_on_hid_hw_close() -> mt_set_modes()) and send
+synchronous requests through quicki2c_hid_raw_request().  Because
+quicki2c_set_report() and quicki2c_get_report() rely on pdev->irq via
+thc_dma_write() and thc_swdma_read() to signal completion on
+dev->write_complete_wait and dev->swdma_complete_wait, starting those
+transfers after pdev->irq is disabled and freed stalls each request for its
+1-second wait timeout.
+
+On timeout, thc_swdma_read() skips thc_swdma_read_completion(), leaving the
+software dma engine started when quicki2c_dma_deinit() unmaps and frees the
+scatterlists and prd tables (as thc_dma_unconfigure() only stops the two
+receive dma engines):
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_swdma_read() {
+    ...
+	ret =3D thc_swdma_read_start(dev, write_buff, write_len, prd_tbl_len);
+	if (ret)
+		goto end;
+
+	ret =3D wait_event_interruptible_timeout(dev->swdma_complete_wait, dev->sw=
+dma_done, 1 * HZ);
+	if (ret <=3D 0 || !dev->swdma_done) {
+		dev_err_once(dev->dev, "timeout for waiting SWDMA completion\n");
+		ret =3D -ETIMEDOUT;
+		goto end;
+	}
+    ...
+	ret =3D thc_swdma_read_completion(dev);
+    ...
+}
+
+In addition, if an in-flight hidraw request in thc_swdma_read() receives
+its completion interrupt just before disable_irq(),
+thc_swdma_read_completion() can run after quicki2c_dev_deinit() while
+quicki2c_hid_remove() drains hidraw, restarting the receive dma engine and
+unquiescing interrupts right before quicki2c_dma_deinit() frees the dma
+buffers.
+
+Keeping quicki2c_hid_remove(qcdev) before disabling pdev->irq and calling
+quicki2c_dev_deinit(qcdev) would let hid teardown finish while interrupts
+are still active.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112T063704Z-th=
+c-v3-0-mhun512@gmail.com?part=3D2

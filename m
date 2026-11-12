@@ -1,50 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=57.103.76.156
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=57.103.78.73
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794504437;
-	b=XOxBAxqcDMxEWD9IdEMiW/WnRYWnvdmWR2B1crxhBI97D7X1W3ZXb7dUceDqx+SYHbyx
-	 AgXlR8RKF2MKrljBpvilsVS1NET8EEFu0oNEq55uC8xXYAyz3/kS0f/mPYHFJ1QpGWk82
-	 XNMsdcsWL4VOl2W/I1GToSyBefU+yidmRlKXUsHDtW+om4210IsOCFsZUhZ3BpXtGbzmZ
-	 ynGCzdvaU+C0hTH9sOVmytiinGso/SI1gaVPhDy6OG0StsUUxrWegt9ZkGfn052XaeTiw
-	 r8SfOEv45k2pMvwm8kyutHISD0Gra8eATVKOyx0RwrpBnU77dBoW/WpcNFn71zEgV9g==
+	t=1794504441;
+	b=Zmgw1aaU60s3wSucUPtRFESfgbbSY/7SoAa/YN5HG3Iwx0cstSMHt+ZLPPkjf0ZsbM9j
+	 +gQcv8pvCEvDhvrRRE7req/fC5VwI36OiWaKAeZq1bMf260MZDjuEbQ/4Pp50Sp6SqNJH
+	 uqNf7o/DKPMUxRAFywcBR9YCwNNRqLTCvH/3gpJVbmbowOt1UiZ1CNdbO+w9RoQQ0cT35
+	 shMTvDPfgkMFczWo2OmRU4qa0/gtJ6DkX9368TfjEffWC8YvN0qGT6IDS+g1W5HOnTyIC
+	 S6HnCYj4zmOTg1kzGsC0ZLObpYC1AHbtCkoePu7rTVDeOjO541akYUDFFimUL+iEZPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794504437;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794504441;
 	h=DMARC-Filter:Received:X-ICL-RepId:Dkim-Signature:
 	 mail-alias-created-date:Received:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Info-Out:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-ORIG-GUID:X-JNJ;
-	bh=kOpVzC/gnR6noXx/ldd1qaxvou3eZ11e4clr2riCUi8=;
-	b=YDwkaQGnHqU3p3je92hKPuX28elQ4iYKMgCcUFy2OOl9jejtlvaxUpgI61aeLF89JcGw
-	 kaGPLPqfnccBNf8IuJIEE8GithTx+N/3Z7Yw4uIYf45S2MabEM1WW5v+J746ecnHcO4ZQ
-	 7+vRBI3TjSp1dzUWMXPKkX0N0XYYFWxMkY9UDTJ1J8hQTD8tOUPxU1ACGnTy5M86uTKKZ
-	 4IFYuhF3n2Nf2cn4mGB1PdP2goZQBLa83946kD1a1hSoJQEviOZLJEDxUN3HrJgXBAfE2
-	 QA9OPo+XtVGfD37nIZ9i08Kls4Lt/puIB9ggaVsmXYnKi0qiH8nijIANyQehTu/Ml1A==
+	 Content-Transfer-Encoding:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Authority-Info-Out:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-JNJ;
+	bh=8IUECNHiDajqPOe1RiRQKh2wtgaPAw0gQvNQT060lWU=;
+	b=SGh/zL5xFupwCb1Fp+KxqfAZPYJX6km9Y7k4lk6U/cpJBzyP5MWZk0ibrYFx4rdeGFjz
+	 p+MZRxrjc8RGz3uO5DXEWH4BXQ3DA1Sq9JbCSk/HKUk2vaDjkVVM8LFkiwn5DwPPZyWis
+	 HbDIdqqZLx+l5HqWLHI3QqxzsE6oe7En/6LOWd73uPdxbEZ1VkN+wHaI+zNSVWr7w51zz
+	 kZFgHArPMB91BTGws/g6vX9B19BNGLOc2CsXAzjo2UQR5Psvae9LFjJgv3n0D8GzMhy+J
+	 BJ4oDR/tcWFe9VH36t1sOLadQ7H1IJ60tz6VyMlcFSCrIozBOQoY7ADTZAUvVO3m8zg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=tawheed.cc;
 	spf=pass smtp.mailfrom=tawheed.cc;
-	dkim=pass header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=rbyVzVnP;
-	arc=none smtp.remote-ip=57.103.76.156
-Received: from outbound.st.icloud.com (st-2006g-snip4-5.eps.apple.com [57.103.76.156])
+	dkim=pass header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=otsYeCov;
+	arc=none smtp.remote-ip=57.103.78.73
+Received: from outbound.st.icloud.com (st-2002i-snip4-11.eps.apple.com [57.103.78.73])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F09A606A8BE
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 17:27:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7F09A606A8BE
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA08B606A883
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 17:27:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA08B606A883
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tawheed.cc
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tawheed.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=rbyVzVnP
+	dkim=pass (2048-bit key, unprotected) header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=otsYeCov
 Received: from outbound.st.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPS id 95D331801520;
-	Thu, 12 Nov 2026 17:27:13 +0000 (UTC)
-X-ICL-RepId: 01a1d0cc-9f9b-799b-a43a-f00f48d477d1
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tawheed.cc; s=sig1; t=1794504435; x=1826040435; bh=kOpVzC/gnR6noXx/ldd1qaxvou3eZ11e4clr2riCUi8=; h=From:To:Subject:Date:Message-ID:MIME-Version:x-icloud-hme; b=rbyVzVnPK++tgT70wbfEs4ca8pXA8w+n75DtnPMDHEVU5jG4xVs/NY7lAlYPi3fJS8YJAfpnuxCy7lVylstgga1R0rjZMmoUHStUZhlFGYNf3dDAZNP3un0OIQhJBp6mKcyxZOaO9PfltPVtQf97t6dp4wwkLL1ZzHDFhPqm8vgKh/Jr8nQnNkPQUQs7WcrlqyVQlwv//VX3XMCUQ6oMpoZpdyh96K6bwfgNQvGgrRAHeFGP9DcH54sfMxm4X9meue13nW3a8rj0rmCawG/LutjfuaG7MUyQlnDws5ITSHpQOMSzjBtStiLul9tF6YTvH0kfh4p5ct2fjO/rIhNZlA==
+	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPS id 55D771802094;
+	Thu, 12 Nov 2026 17:27:18 +0000 (UTC)
+X-ICL-RepId: 01a1d0cc-b221-7caf-9aa9-6181f83a192c
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tawheed.cc; s=sig1; t=1794504440; x=1826040440; bh=8IUECNHiDajqPOe1RiRQKh2wtgaPAw0gQvNQT060lWU=; h=From:To:Subject:Date:Message-ID:MIME-Version:x-icloud-hme; b=otsYeCovDa5jxn8NcGKbkPFgujg/FFyP8czTyszTQYWAY31lPFWyQ6092Zx/Msqh7fq2lpjUf3qieX/wzXN1A36KjMahu8bNzgshzLhscajISIoWOU4SqIsjPOOTrjRWtmLTihxSLl8aKHB7xmb+aXUqsQ1SV6Gz0D2dFCrzoxWw9DN539kHqgLdnzgyijBE8ArG+yHwdqjmowrFWjYwmwlQJL8fbC3FukGHTBBArbcts7ytc8ju5bARz6olIA2S5JG73dp6B7q7pg+bZMlL2ujx1yAtA2TicEDgWyEhtmbcQvT2KrbtC3kJru9+wGWAztiCEeNG0HhBD6Y9zL9oKg==
 mail-alias-created-date: 1711150425226
 Received: from DESKTOP-HUABEFD.localdomain (unknown [17.156.216.30])
-	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPSA id B4112180483F;
-	Thu, 12 Nov 2026 17:27:12 +0000 (UTC)
+	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPSA id 79142180481F;
+	Thu, 12 Nov 2026 17:27:17 +0000 (UTC)
 From: Tawheed Makhdoomi <_@tawheed.cc>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -56,9 +56,9 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 2/3] HID: spi-hid: support the pre-release HID over SPI protocol revision
-Date: Thu, 12 Nov 2026 12:26:40 -0500
-Message-ID: <20261112172641.407-3-_@tawheed.cc>
+Subject: [RFC PATCH 3/3] HID: spi-hid-of: add the Surface Pro X touch digitizer
+Date: Thu, 12 Nov 2026 12:26:41 -0500
+Message-ID: <20261112172641.407-4-_@tawheed.cc>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261112172641.407-1-_@tawheed.cc>
 References: <20261112172641.407-1-_@tawheed.cc>
@@ -72,627 +72,100 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfX1ycuf2GsGNcu
- giJO+BUVUusfSZ9BJ9TGpEmw8x+R9ibh8E4nHrxgpUq43ng1LSNYTx63OvcJY5pabdaQvT213JP
- OfBRcU+lWSN8giskxt3mqHSybF253KWoiTrr6t8/KD7OEucaCguzmnQGjcgkA5WHiABXQ3AHoNn
- cotv3ITjWu+8yRDSIjOjpuRi4fbWgmJ0QJM9Mq8jDqU+9JTAuX4VlJwddF1LXusnnEUW8zVyny5
- LW6XaqD0FhyKK3VeikEao7yA3Cf7K4XRI6s6fJkS8kTyo+0chNmoPC1EwDq5UojjX3Rid0vZnw0
- jNOd8dc7sBHVg/OJurnwedN2sUPhP7kJBPYwzmAjpVh30P33PnmPK1WOFjSb4Y=
-X-Authority-Info-Out: v=2.4 cv=DPIacCNb c=1 sm=1 tr=0 ts=6af5f6f2
+X-Proofpoint-ORIG-GUID: WHA6shUJS5uPyMvVx3fsC9BzVDRn3B4v
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfX7MqP4KUTSYdh
+ neXD9ADPYiTKZsbt/c4ElWyfWBX91h4k23D6Fpj+OR17ZbI7S1AhIZL721iH8kTE3lunimenhJR
+ 0Ck7GvxMDSW4lSp9fIiKAaweENuuOYgUvgg8pm4spqh+o+Vwl7glbISOiL/qfdhfwWf49rBuz2D
+ NWMSuWlRRnQNrlH+U9t2K5iJz2FSxHbrumkQOt0yuwqgRRq2ogeKy3+gGFPhpRYafVSJcAgozQ8
+ a9gBn0jwWksU7Etkls0ohVo38SzkcwWIIrrg7NP34FxtImCUbd5lPMMfkdTT+Y90nEdtyFS/7JZ
+ /zmYgVpC+UqZgB3+M3muMijBNDUU/br0CX9VHE9gFUBntoSBsb/eDOCuWyJHow=
+X-Authority-Info-Out: v=2.4 cv=RfMFmFtv c=1 sm=1 tr=0 ts=6af5f6f6
  cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
  a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=MKtGQD3n3ToA:10 a=1oJP67jkp3AA:10
  a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=kibvr5HLtuNvmma_iept:22
- a=NVRLzpS9o0UsCidzZbzm:22 a=njWXlcdKt_6iw8KqobAA:9 a=XBjt6Mf8PWL2DS22:21
-X-Proofpoint-GUID: epcihuRmk4HGIo4rukNfCf3wIDPn-ClS
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfXyI4ZLqdyF1l0
- 47vKKPgDW1qrRvaXvX4EvRLpnpL7wclZmMZjw/yxsh2YsGyVhyeVUpJXJC/8/lTMTtNMfTH6Vka
- CEw4yvFyT4YcjCRYSTTuoTk2ItAd0f0=
-X-Proofpoint-ORIG-GUID: epcihuRmk4HGIo4rukNfCf3wIDPn-ClS
-X-JNJ: AAAAAAABU0Vf8AgH3fDV7JdplRvYSTSVjpH0++ct66vAFOGFgRuNBquHW5zWBA9FIgOFxJ
- FLPSTC38AmKXBk05Wn0OzivGup9LmT7qm2d7vU2kSjwYe1z3x9oxHyX8yXxcezdJtKG4tn
- bol3jx2qrATQG7DTG9Q3f5OH05jROOhpF4EMW2SdkwCvLLAsxPMn9lGkRTfaYEyrZSRYuM
- RyJ0YU4HQpK/rVH/0T8SSlUOIBgI5lu7c6IlAWzlz+I8XJ2ZMxHMQWrtoVl5BORZFzpyER
- z9CpE+vZZXqOxAwwuC2DlZAqy0OwPjpBhnjLjU496swxWOG7TyHSM6/bBJO2cmCiij+nnt
- AxtSOAilMyd1Ttw7NweSgcq0lmEUMxeY/b08btNgGZLvvTHULbUvMYOHnvVPWmssYhvPsG
- LgitNQEA9e97I3FJb+N7fqh1Yc4duvhRu1exh1NXDl2E+MlvTYbJIGJoryx8CAeqdngUwC
- wPZvn0A5k4Ua0yShxjIMzWjk3xF1jIp0tFwU9yLFoyYHP9VITBAFf5UATrSThvCTaHQ2/0
- 1bAnh91OGk+8owVhMUXLVzl2XXqoYye+W84O9rGSELyRHrgfgiyvMaJoY4UcJDep48aG/1
- sWxl4qZdWeDU5TB10yyqujLvlduToltuH+Ol1IiISCDeMJbMOkKyURpVlWnzm5FnS/DgjQ
- s4njNhLn8PCJroW+3uW4LPweNqKCXm9HbWWmMt2cnWqUs3xJJWFUXMHL/Q7J93kWFY3qHF
- vsrrMXS3NWNWWTNV65tvQNwKvlgjxBg+jFfR07wwz2EQvvAef+wxROIPlOB4vEqy5idsMQ
- MptXpvHpIqEQdSRI1mlQPwgCzm/K
+ a=FWZx5dj72HHvF9NkQXT7:22 a=HiKr9HWsZoCIc8ansSkA:9
+X-Proofpoint-GUID: WHA6shUJS5uPyMvVx3fsC9BzVDRn3B4v
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfX2BPiqBx5VyUg
+ dPtealoOF7nexe5+QVTMIQ1fiFFkzb2Nq+1yFXQgloM3CAim5SbKyrali2TaVEO9i75KZMrFrV5
+ pmX4D36Cw7PnPl+yKkDpKAiLyvWPmPc=
+X-JNJ: AAAAAAABHJXMpRV6V7hjkIaMrJ2X+2+76V4lb8b9FdqZBjKqwFt1UhV3MQue1eM5ZXrz9E
+ gqgreBGscX82434RTIITVG44jZRrF6Sgrj49KqrcwQWc/bGnBYdhVOckHhU0gwhQnNZTSw
+ d9sFkhQowgwjLyqmXSRUGdwvh+7Fb3rYwU1OFEj1x6rsFpF6xbLdXmpPkKRkb5rgExsZBw
+ M511Gji1I5n5YQsZA5ITrGpMn960SHU6Q5Ui1DX0aa21Iy1FEcsv5EPtU3ivaYdBiZCbRD
+ Ncgntt9+kUALiTfosMM1dlviGh7yG7AU34J+TqciI2P9+pE7Go4XDGt/5hSdH/ivifgB5a
+ By6YIC1725fkYCh+uX+FyqJ6EouLH251u9NQu8n/0LEJsKsxSSiInCB7KClplz0Ux5XldD
+ k8mRFqKJrIKSEIDEHzlLzzwnqk1/s680IOg8Au7XFGKGaOEMCXaBVw2JrDqLw9qo236880
+ QghZVRohe078RStsQqrPhi6G0avkxZMn/AiqK/HoZUi8T+/D7b5aKxXV2XAJLjAAPef3zO
+ mm/OK8CnsnX1hf993QbCMO5s2R1JlSuPS++X3FRHxrJAEtcKF67kzor6S5Plpb6MYjHQYs
+ rVG2wMFwnFmVUWi08UBzErqsBzBTI6yZoqKcsPFLkqqkgkNLKteptYcTS+s2ltmaKKP4zS
+ l+uwu81ctMK7S6278nht3eUHoNQTV0NjgB0oT6gjDtwunzpvn9+7efV4rtGN6cZgq/QQdM
+ 3wQZ0zoI02rzTS4DHWeIs1jbqz7Fw26lDIbqVYJwpWAIO8B/gpNrB/wZ0+WkVs8x+pvQ9x
+ f2uGC9AOXwY=
 
-Some Microsoft digitizers, such as the one in the Surface Pro X, implement
-the revision of HID over SPI that preceded the 1.0 specification. The
-transport is the same (read approval, sync byte, report types), but the
-framing differs:
+The Surface Pro X digitizer speaks the pre-release HID over SPI protocol
+revision. Both the input report header and body are read from 0x1000
+with opcode 0x0b, and the device descriptor is requested from register 1
+with opcode 0x02; the other registers come from the device descriptor.
 
-- Input header: byte 0 holds version 2 and the report type, and the
-  report length is 12 bits split over bytes 1 and 2. There is a fragment
-  ID instead of a last-fragment flag.
-- Input body header: 3 bytes, Content Length then Content ID. Content
-  Length counts itself and the Content ID.
-- Output reports: a 6-byte header (opcode, register, version 2 and the
-  padded length of what follows) and a 4-byte body header (Content Type,
-  Content Length counting itself and the Content ID, Content ID). Content
-  types are COMMAND (0), SET_FEATURE (3), GET_FEATURE (4) and
-  OUTPUT_REPORT (5).
-- Requests are not written to one output report address. The device
-  descriptor is requested from a fixed register, the report descriptor
-  from wReportDescRegister and everything else from wOutputRegister, both
-  taken from the device descriptor.
-- The 28-byte device descriptor has bcdVersion 0x0100 and also lists
-  those registers.
-- SET_FEATURE and output reports are not acknowledged.
-
-The input report types that exist in both revisions have the same values.
-
-Add a protocol field to struct spi_hid_conf so transport drivers can
-select the revision per device, and keep the differences in small
-helpers: header and body parsing, report type mapping, output header
-building with register selection, output length and padding, response
-expectations, and device descriptor validation. Store the content ID of
-a response next to its length instead of copying the raw body header,
-whose layout now depends on the revision.
-
-SPI_HID_PROTOCOL_V3 is zero, so existing users are unchanged.
+Add match data for it, with the same timings as the G6 digitizer, under
+the "microsoft,surface-pro-x-touch-digitizer" compatible and SPI device
+ID.
 
 Signed-off-by: Tawheed Makhdoomi <_@tawheed.cc>
 ---
- drivers/hid/spi-hid/spi-hid-core.c | 327 +++++++++++++++++++++++++----
- drivers/hid/spi-hid/spi-hid-core.h |   4 +
- drivers/hid/spi-hid/spi-hid.h      |  27 ++-
- 3 files changed, 317 insertions(+), 41 deletions(-)
+ drivers/hid/spi-hid/spi-hid-of.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi-hid-core.c
-index 496b33cdf..a1a69ff6f 100644
---- a/drivers/hid/spi-hid/spi-hid-core.c
-+++ b/drivers/hid/spi-hid/spi-hid-core.c
-@@ -68,6 +68,44 @@
- #define SPI_HID_READ_APPROVAL_LEN		5
- #define SPI_HID_OUTPUT_HEADER_LEN		8
- 
-+/*
-+ * SPI_HID_PROTOCOL_V2 constants. The input body header is Content Length
-+ * (which counts itself and the Content ID) and Content ID; the report type is
-+ * in the input header. Output reports have a 6-byte header followed by a
-+ * 4-byte body header: Content Type, Content Length (counting itself and the
-+ * Content ID) and Content ID.
-+ */
-+#define SPI_HID_V2_INPUT_HEADER_VERSION		0x02
-+#define SPI_HID_V2_OUTPUT_HEADER_VERSION	0x02
-+#define SPI_HID_V2_SUPPORTED_VERSION		0x0100
-+#define SPI_HID_V2_INPUT_BODY_HEADER_LEN	3
-+#define SPI_HID_V2_OUTPUT_HEADER_LEN		6
-+#define SPI_HID_V2_OUTPUT_BODY_HEADER_LEN	4
-+#define SPI_HID_V2_CONTENT_LENGTH_OVERHEAD	3
-+
-+#define SPI_HID_V2_CONTENT_TYPE_COMMAND		0x00
-+#define SPI_HID_V2_CONTENT_TYPE_SET_FEATURE	0x03
-+#define SPI_HID_V2_CONTENT_TYPE_GET_FEATURE	0x04
-+#define SPI_HID_V2_CONTENT_TYPE_OUTPUT_REPORT	0x05
-+
-+/* SPI_HID_PROTOCOL_V2 device descriptor */
-+struct spi_hid_v2_dev_descriptor {
-+	__le16 dev_desc_len;
-+	__le16 bcd_ver;
-+	__le16 rep_desc_len;
-+	__le16 rep_desc_reg;
-+	__le16 input_reg;
-+	__le16 max_input_len;
-+	__le16 output_reg;
-+	__le16 max_output_len;
-+	__le16 command_reg;
-+	__le16 vendor_id;
-+	__le16 product_id;
-+	__le16 version_id;
-+	__le16 flags;
-+	__le16 reserved;
-+} __packed;
-+
- /* flags */
- /*
-  * ready flag indicates that the FW is ready to accept commands and
-@@ -155,9 +193,34 @@ static void spi_hid_parse_dev_desc(const struct hidspi_dev_descriptor *raw,
- 	desc->no_output_report_ack = le16_to_cpu(raw->flags) & BIT(0);
- }
- 
--static void spi_hid_populate_input_header(const u8 *buf,
-+static bool spi_hid_is_v2(const struct spi_hid *shid)
-+{
-+	return shid->conf->protocol == SPI_HID_PROTOCOL_V2;
-+}
-+
-+static size_t spi_hid_input_body_header_len(const struct spi_hid *shid)
-+{
-+	return spi_hid_is_v2(shid) ? SPI_HID_V2_INPUT_BODY_HEADER_LEN :
-+				     HIDSPI_INPUT_BODY_HEADER_SIZE;
-+}
-+
-+static void spi_hid_populate_input_header(const struct spi_hid *shid,
-+					  const u8 *buf,
- 					  struct spi_hid_input_header *header)
- {
-+	if (spi_hid_is_v2(shid)) {
-+		/*
-+		 * Byte 0 holds the version and the report type, byte 1 a
-+		 * fragment ID and the low bits of the length. Fragmented
-+		 * reports are not supported: treat each report as complete.
-+		 */
-+		header->version            = buf[0] & 0xf;
-+		header->report_length      = ((buf[1] >> 4) | (buf[2] << 4)) * 4;
-+		header->last_fragment_flag = 1;
-+		header->sync_const         = buf[3];
-+		return;
-+	}
-+
- 	header->version            = buf[0] & 0xf;
- 	header->report_length      = (get_unaligned_le16(&buf[1]) & 0x3fff) * 4;
- 	header->last_fragment_flag = (buf[2] & 0x40) >> 6;
-@@ -172,17 +235,127 @@ static void spi_hid_populate_input_body(const u8 *buf,
- 	body->content_id = buf[3];
- }
- 
--static void spi_hid_input_report_prepare(struct spi_hid_input_buf *buf,
-+/* Map a SPI_HID_PROTOCOL_V2 input report type to enum input_report_type. */
-+static u8 spi_hid_v2_report_type(u8 type)
-+{
-+	switch (type) {
-+	case DATA:
-+	case RESET_RESPONSE:
-+	case COMMAND_RESPONSE:
-+	case GET_FEATURE_RESPONSE:
-+	case DEVICE_DESCRIPTOR_RESPONSE:
-+	case REPORT_DESCRIPTOR_RESPONSE:
-+		/* Same values as in HID over SPI 1.0 */
-+		return type;
-+	default:
-+		return INVALID_INPUT_REPORT_TYPE;
-+	}
-+}
-+
-+static void spi_hid_v2_populate_input_body(const struct spi_hid_input_buf *buf,
-+					   struct spi_hid_input_report *body)
-+{
-+	u16 len = get_unaligned_le16(&buf->body[0]);
-+
-+	body->report_type = spi_hid_v2_report_type(buf->header[0] >> 4);
-+	/* A length too small to count itself fails the body length check. */
-+	body->content_length = len >= SPI_HID_V2_CONTENT_LENGTH_OVERHEAD ?
-+			       len - SPI_HID_V2_CONTENT_LENGTH_OVERHEAD : U16_MAX;
-+	body->content_id = buf->body[2];
-+}
-+
-+static void spi_hid_input_report_prepare(const struct spi_hid *shid,
-+					 struct spi_hid_input_buf *buf,
- 					 struct spi_hid_input_report *report)
- {
-+	if (spi_hid_is_v2(shid)) {
-+		spi_hid_v2_populate_input_body(buf, report);
-+		report->content = &buf->body[SPI_HID_V2_INPUT_BODY_HEADER_LEN];
-+		return;
-+	}
-+
- 	spi_hid_populate_input_body(buf->body, report);
- 	report->content = buf->content;
- }
- 
-+/* Length of the output report header, i.e. the offset of the content. */
-+static size_t spi_hid_output_header_len(const struct spi_hid *shid)
-+{
-+	return spi_hid_is_v2(shid) ? SPI_HID_V2_OUTPUT_HEADER_LEN +
-+				     SPI_HID_V2_OUTPUT_BODY_HEADER_LEN :
-+				     SPI_HID_OUTPUT_HEADER_LEN;
-+}
-+
-+/* Length of an output report on the bus, including padding. */
-+static size_t spi_hid_output_len(const struct spi_hid *shid,
-+				 size_t content_length)
-+{
-+	/* SPI_HID_PROTOCOL_V2 pads what follows the 6-byte header. */
-+	if (spi_hid_is_v2(shid))
-+		return SPI_HID_V2_OUTPUT_HEADER_LEN +
-+		       round_up(SPI_HID_V2_OUTPUT_BODY_HEADER_LEN +
-+				content_length, 4);
-+
-+	return round_up(SPI_HID_OUTPUT_HEADER_LEN + content_length, 4);
-+}
-+
-+/*
-+ * SPI_HID_PROTOCOL_V2 has no fixed output report address: the device
-+ * descriptor is requested from the configured address, and other requests go
-+ * to the registers from the device descriptor.
-+ */
-+static u32 spi_hid_v2_output_register(const struct spi_hid *shid,
-+				      u8 report_type)
-+{
-+	switch (report_type) {
-+	case DEVICE_DESCRIPTOR:
-+		return shid->conf->output_report_address;
-+	case REPORT_DESCRIPTOR:
-+		return shid->desc.report_descriptor_register;
-+	default:
-+		return shid->desc.output_register;
-+	}
-+}
-+
-+static u8 spi_hid_v2_content_type(u8 report_type)
-+{
-+	switch (report_type) {
-+	case SET_FEATURE:
-+		return SPI_HID_V2_CONTENT_TYPE_SET_FEATURE;
-+	case GET_FEATURE:
-+		return SPI_HID_V2_CONTENT_TYPE_GET_FEATURE;
-+	case OUTPUT_REPORT:
-+		return SPI_HID_V2_CONTENT_TYPE_OUTPUT_REPORT;
-+	default:
-+		/* Descriptor requests */
-+		return SPI_HID_V2_CONTENT_TYPE_COMMAND;
-+	}
-+}
-+
- static void spi_hid_populate_output_header(u8 *buf,
--					   const struct spi_hid_conf *conf,
--					   const struct spi_hid_output_report *report)
-+					   const struct spi_hid *shid,
-+					   const struct spi_hid_output_report *report,
-+					   size_t length)
- {
-+	const struct spi_hid_conf *conf = shid->conf;
-+	size_t body_len;
-+
-+	if (spi_hid_is_v2(shid)) {
-+		/* The header carries the padded length of what follows it. */
-+		body_len = length - SPI_HID_V2_OUTPUT_HEADER_LEN;
-+
-+		buf[0] = conf->write_opcode;
-+		put_unaligned_be24(spi_hid_v2_output_register(shid, report->report_type),
-+				   &buf[1]);
-+		buf[4] = SPI_HID_V2_OUTPUT_HEADER_VERSION | (body_len & 0xf) << 4;
-+		buf[5] = body_len >> 4;
-+		buf[6] = spi_hid_v2_content_type(report->report_type);
-+		put_unaligned_le16(report->content_length +
-+				   SPI_HID_V2_CONTENT_LENGTH_OVERHEAD, &buf[7]);
-+		buf[9] = report->content_id;
-+		return;
-+	}
-+
- 	buf[0] = conf->write_opcode;
- 	put_unaligned_be24(conf->output_report_address, &buf[1]);
- 	buf[4] = report->report_type;
-@@ -465,9 +638,17 @@ static void spi_hid_error_handler(struct spi_hid *shid)
- 	enable_irq(shid->spi->irq);
- }
- 
--/* Map an output report type to the response type the device sends back. */
--static u8 spi_hid_response_type(u8 report_type)
-+/*
-+ * Map an output report type to the response type the device sends back, or 0
-+ * if the device does not answer it.
-+ */
-+static u8 spi_hid_response_type(const struct spi_hid *shid, u8 report_type)
- {
-+	/* SPI_HID_PROTOCOL_V2 does not acknowledge SET_FEATURE or output reports. */
-+	if (spi_hid_is_v2(shid) &&
-+	    (report_type == SET_FEATURE || report_type == OUTPUT_REPORT))
-+		return 0;
-+
- 	switch (report_type) {
- 	case DEVICE_DESCRIPTOR:
- 		return DEVICE_DESCRIPTOR_RESPONSE;
-@@ -494,6 +675,8 @@ static int __spi_hid_send_output_report(struct spi_hid *shid,
- {
- 	struct spi_hid_output_buf *buf = shid->output;
- 	struct device *dev = &shid->spi->dev;
-+	size_t header_length = spi_hid_output_header_len(shid);
-+	u8 *content = (u8 *)buf + header_length;
- 	u16 report_length;
- 	u16 padded_length;
- 	u8 padding;
-@@ -515,15 +698,16 @@ static int __spi_hid_send_output_report(struct spi_hid *shid,
- 	}
- 
- 	guard(mutex)(&shid->io_lock);
--	spi_hid_populate_output_header(buf->header, shid->conf, report);
-+	report_length = header_length + report->content_length;
-+	padded_length = spi_hid_output_len(shid, report->content_length);
-+	padding = padded_length - report_length;
-+
-+	spi_hid_populate_output_header((u8 *)buf, shid, report, padded_length);
- 
- 	if (report->content_length)
--		memcpy(&buf->content, report->content, report->content_length);
-+		memcpy(content, report->content, report->content_length);
- 
--	report_length = sizeof(buf->header) + report->content_length;
--	padded_length = round_up(report_length, 4);
--	padding = padded_length - report_length;
--	memset(&buf->content[report->content_length], 0, padding);
-+	memset(&content[report->content_length], 0, padding);
- 
- 	if (expected_response) {
- 		reinit_completion(&shid->output_done);
-@@ -551,11 +735,11 @@ static int __spi_hid_sync_request(struct spi_hid *shid,
- 				  struct spi_hid_output_report *report)
- {
- 	struct device *dev = &shid->spi->dev;
-+	u8 response_type = spi_hid_response_type(shid, report->report_type);
- 	int error;
- 
--	error = __spi_hid_send_output_report(shid, report,
--					     spi_hid_response_type(report->report_type));
--	if (error)
-+	error = __spi_hid_send_output_report(shid, report, response_type);
-+	if (error || !response_type)
- 		return error;
- 
- 	if (wait_for_completion_timeout(&shid->output_done,
-@@ -636,7 +820,7 @@ static int spi_hid_input_report_handler(struct spi_hid *shid,
- 		}
- 
- 		hid = shid->hid;
--		spi_hid_input_report_prepare(buf, &r);
-+		spi_hid_input_report_prepare(shid, buf, &r);
- 	}
- 
- 	/*
-@@ -658,15 +842,56 @@ static int spi_hid_input_report_handler(struct spi_hid *shid,
- 	return error;
- }
- 
--/*
-- * Validate a device descriptor response and, if valid, publish it to
-- * shid->desc and request device creation.
-- */
--static int spi_hid_dev_desc_response(struct spi_hid *shid,
--				     struct spi_hid_input_report *body)
-+/* Validate a SPI_HID_PROTOCOL_V2 device descriptor and parse it to shid->desc. */
-+static int spi_hid_v2_parse_dev_desc(struct spi_hid *shid,
-+				     const struct spi_hid_input_report *body)
-+{
-+	const struct spi_hid_v2_dev_descriptor *raw =
-+		(const struct spi_hid_v2_dev_descriptor *)body->content;
-+	struct spi_hid_device_descriptor *desc = &shid->desc;
-+	struct device *dev = &shid->spi->dev;
-+	u16 rep_desc_len;
-+
-+	if (body->content_length < sizeof(*raw)) {
-+		dev_err(dev, "Invalid content length %d, expected at least %zu\n",
-+			body->content_length, sizeof(*raw));
-+		return -EPROTO;
-+	}
-+
-+	if (le16_to_cpu(raw->bcd_ver) != SPI_HID_V2_SUPPORTED_VERSION) {
-+		dev_err(dev, "Unsupported device descriptor version %4x\n",
-+			le16_to_cpu(raw->bcd_ver));
-+		return -EPROTONOSUPPORT;
-+	}
-+
-+	rep_desc_len = le16_to_cpu(raw->rep_desc_len);
-+	if (!rep_desc_len || rep_desc_len > HID_MAX_DESCRIPTOR_SIZE) {
-+		dev_err(dev, "Invalid wReportDescLength %d, max %d\n",
-+			rep_desc_len, HID_MAX_DESCRIPTOR_SIZE);
-+		return -EPROTO;
-+	}
-+
-+	desc->hid_version = le16_to_cpu(raw->bcd_ver);
-+	desc->report_descriptor_length = rep_desc_len;
-+	desc->report_descriptor_register = le16_to_cpu(raw->rep_desc_reg);
-+	desc->max_input_length = le16_to_cpu(raw->max_input_len);
-+	desc->output_register = le16_to_cpu(raw->output_reg);
-+	desc->max_output_length = le16_to_cpu(raw->max_output_len);
-+	desc->max_fragment_length = 0;
-+	desc->vendor_id = le16_to_cpu(raw->vendor_id);
-+	desc->product_id = le16_to_cpu(raw->product_id);
-+	desc->version_id = le16_to_cpu(raw->version_id);
-+	desc->no_output_report_ack = 1;
-+
-+	return 0;
-+}
-+
-+/* Validate a HID over SPI 1.0 device descriptor and parse it to shid->desc. */
-+static int spi_hid_v3_parse_dev_desc(struct spi_hid *shid,
-+				     const struct spi_hid_input_report *body)
- {
--	struct hidspi_dev_descriptor *raw =
--		(struct hidspi_dev_descriptor *)shid->input->content;
-+	const struct hidspi_dev_descriptor *raw =
-+		(const struct hidspi_dev_descriptor *)body->content;
- 	struct device *dev = &shid->spi->dev;
- 
- 	/* Validate device descriptor length before parsing */
-@@ -699,6 +924,25 @@ static int spi_hid_dev_desc_response(struct spi_hid *shid,
- 
- 	spi_hid_parse_dev_desc(raw, &shid->desc);
- 
-+	return 0;
-+}
-+
-+/*
-+ * Validate a device descriptor response and, if valid, publish it to
-+ * shid->desc and request device creation.
-+ */
-+static int spi_hid_dev_desc_response(struct spi_hid *shid,
-+				     struct spi_hid_input_report *body)
-+{
-+	int error;
-+
-+	if (spi_hid_is_v2(shid))
-+		error = spi_hid_v2_parse_dev_desc(shid, body);
-+	else
-+		error = spi_hid_v3_parse_dev_desc(shid, body);
-+	if (error)
-+		return error;
-+
- 	set_bit(SPI_HID_CREATE_DEVICE, &shid->flags);
- 	schedule_work(&shid->reset_work);
- 	/* The device can take requests now; see spi_hid_wait_for_reset(). */
-@@ -731,11 +975,10 @@ static int spi_hid_response_handler(struct spi_hid *shid,
- 	trace_spi_hid_response_handler(shid);
- 
- 	shid->response_length = body->content_length;
-+	shid->response_content_id = body->content_id;
- 	if (body->report_type == REPORT_DESCRIPTOR_RESPONSE ||
- 	    body->report_type == GET_FEATURE_RESPONSE) {
--		memcpy(shid->response->body, shid->input->body,
--		       sizeof(shid->input->body));
--		memcpy(shid->response->content, shid->input->content,
-+		memcpy(shid->response->content, body->content,
- 		       body->content_length);
- 	} else if (body->report_type == DEVICE_DESCRIPTOR_RESPONSE) {
- 		/*
-@@ -934,16 +1177,17 @@ static int spi_hid_process_input_report(struct spi_hid *shid,
- 	struct spi_hid_input_header header;
- 	struct spi_hid_input_report body;
- 	struct device *dev = &shid->spi->dev;
-+	size_t body_length;
- 
- 	trace_spi_hid_process_input_report(shid);
- 
--	spi_hid_populate_input_header(buf->header, &header);
--	spi_hid_input_report_prepare(buf, &body);
-+	spi_hid_populate_input_header(shid, buf->header, &header);
-+	spi_hid_input_report_prepare(shid, buf, &body);
- 
--	if (HIDSPI_INPUT_BODY_SIZE(body.content_length) > header.report_length) {
-+	body_length = spi_hid_input_body_header_len(shid) + body.content_length;
-+	if (body_length > header.report_length) {
- 		dev_err(dev, "Bad body length %zu > %u\n",
--			HIDSPI_INPUT_BODY_SIZE(body.content_length),
--			header.report_length);
-+			body_length, header.report_length);
- 		return -EPROTO;
- 	}
- 
-@@ -996,8 +1240,10 @@ static int spi_hid_bus_validate_header(struct spi_hid *shid,
- 	u32 max_body = round_up(sizeof(shid->input->header) +
- 				sizeof(shid->input->body) + shid->bufsize, 4) -
- 		       sizeof(shid->input->header);
-+	u8 version = spi_hid_is_v2(shid) ? SPI_HID_V2_INPUT_HEADER_VERSION :
-+					   SPI_HID_INPUT_HEADER_VERSION;
- 
--	if (header->version != SPI_HID_INPUT_HEADER_VERSION) {
-+	if (header->version != version) {
- 		dev_err(dev, "Unknown input report version (v 0x%x)\n",
- 			header->version);
- 		return -EINVAL;
-@@ -1014,9 +1260,10 @@ static int spi_hid_bus_validate_header(struct spi_hid *shid,
- 	}
- 
- 	/* The body must at least hold the body header. */
--	if (header->report_length < sizeof(shid->input->body)) {
-+	if (header->report_length < spi_hid_input_body_header_len(shid)) {
- 		dev_err(dev, "Input report too small: %u < %zu\n",
--			header->report_length, sizeof(shid->input->body));
-+			header->report_length,
-+			spi_hid_input_body_header_len(shid));
- 		return -EMSGSIZE;
- 	}
- 
-@@ -1070,8 +1317,8 @@ static int spi_hid_get_request(struct spi_hid *shid, u8 content_id,
- 		return error;
- 	}
- 
--	/* Content Length counts only the payload, not the Content ID. */
--	content_len = get_unaligned_le16(&shid->response->body[1]);
-+	/* The response length counts only the payload, not the Content ID. */
-+	content_len = shid->response_length;
- 	if (content_len > shid->bufsize) {
- 		dev_err(dev, "Get report response too big: %u > %u\n",
- 			content_len, shid->bufsize);
-@@ -1080,7 +1327,7 @@ static int spi_hid_get_request(struct spi_hid *shid, u8 content_id,
- 
- 	/* buf[0] holds the report ID, the payload follows. */
- 	ret = min_t(size_t, len - 1, content_len);
--	buf[0] = shid->response->body[3];
-+	buf[0] = shid->response_content_id;
- 	memcpy(&buf[1], shid->response->content, ret);
- 
- 	return ret + 1;
-@@ -1144,7 +1391,7 @@ static irqreturn_t spi_hid_dev_irq(int irq, void *_shid)
- 			return spi_hid_irq_error(shid);
- 		}
- 
--		spi_hid_populate_input_header(shid->input->header, &header);
-+		spi_hid_populate_input_header(shid, shid->input->header, &header);
- 
- 		error = spi_hid_bus_validate_header(shid, &header);
- 		if (error) {
-@@ -1192,7 +1439,7 @@ static int spi_hid_alloc_buffers(struct spi_hid *shid, size_t report_size)
- 	struct device *dev = &shid->spi->dev;
- 	int inbufsize = round_up(sizeof(shid->input->header) +
- 				 sizeof(shid->input->body) + report_size, 4);
--	int outbufsize = round_up(sizeof(shid->output->header) + report_size, 4);
-+	int outbufsize = spi_hid_output_len(shid, report_size);
- 	void *tmp;
- 
- 	tmp = devm_krealloc(dev, shid->output, outbufsize, GFP_KERNEL | __GFP_ZERO);
-diff --git a/drivers/hid/spi-hid/spi-hid-core.h b/drivers/hid/spi-hid/spi-hid-core.h
-index 28e9880ad..2f7214b08 100644
---- a/drivers/hid/spi-hid/spi-hid-core.h
-+++ b/drivers/hid/spi-hid/spi-hid-core.h
-@@ -40,6 +40,9 @@ struct spi_hid_device_descriptor {
- 	u16 product_id;
- 	u16 version_id;
- 	u8 no_output_report_ack;
-+	/* SPI_HID_PROTOCOL_V2 only: where requests are written */
-+	u16 report_descriptor_register;
-+	u16 output_register;
+diff --git a/drivers/hid/spi-hid/spi-hid-of.c b/drivers/hid/spi-hid/spi-hid-of.c
+index 6de9affbe..429bf51ad 100644
+--- a/drivers/hid/spi-hid/spi-hid-of.c
++++ b/drivers/hid/spi-hid/spi-hid-of.c
+@@ -62,6 +62,24 @@ static const struct spi_hid_of_data microsoft_g6_data = {
+ 	.minimal_reset_delay_ms = 100,
  };
  
- /* Driver context */
-@@ -63,6 +66,7 @@ struct spi_hid {
- 	bool	panel_follower_work_finished;
- 
- 	u16 response_length;
-+	u8 response_content_id;
- 	u16 bufsize;
- 	/* Response type awaited by a sync request, 0 if none. Protected by io_lock. */
- 	u8 expected_response;
-diff --git a/drivers/hid/spi-hid/spi-hid.h b/drivers/hid/spi-hid/spi-hid.h
-index 95acb2845..171a723d0 100644
---- a/drivers/hid/spi-hid/spi-hid.h
-+++ b/drivers/hid/spi-hid/spi-hid.h
-@@ -10,13 +10,38 @@
- #include <linux/spi/spi.h>
- #include <linux/sysfs.h>
- 
--/* struct spi_hid_conf - Conf provided to the core */
-+/**
-+ * enum spi_hid_protocol - HID over SPI protocol revision spoken by the device
-+ * @SPI_HID_PROTOCOL_V3: HID over SPI 1.0: input header version 3, device
-+ *	descriptor bcdVersion 0x0300. This is the default.
-+ * @SPI_HID_PROTOCOL_V2: the pre-release revision implemented by some older
-+ *	Microsoft digitizers: input header version 2, device descriptor
-+ *	bcdVersion 0x0100, and requests sent to the registers listed in the
-+ *	device descriptor.
++/*
++ * The Surface Pro X digitizer implements the pre-release protocol revision.
++ * Input report header and body are both read from 0x1000, and the device
++ * descriptor is requested from register 1.
 + */
-+enum spi_hid_protocol {
-+	SPI_HID_PROTOCOL_V3 = 0,
-+	SPI_HID_PROTOCOL_V2,
++static const struct spi_hid_of_data microsoft_surface_pro_x_data = {
++	.conf = {
++		.input_report_header_address = 0x1000,
++		.input_report_body_address = 0x1000,
++		.output_report_address = 0x1,
++		.read_opcode = 0x0b,
++		.write_opcode = 0x02,
++		.protocol = SPI_HID_PROTOCOL_V2,
++	},
++	.post_power_on_delay_ms = 10,
++	.minimal_reset_delay_ms = 100,
 +};
 +
-+/**
-+ * struct spi_hid_conf - Conf provided to the core
-+ * @input_report_header_address: address of the input report header
-+ * @input_report_body_address: address of the input report body
-+ * @output_report_address: address output reports are written to. With
-+ *	SPI_HID_PROTOCOL_V2 this is the device descriptor register; later
-+ *	requests go to the registers from the device descriptor.
-+ * @read_opcode: opcode of the read approval
-+ * @write_opcode: opcode of output reports
-+ * @protocol: protocol revision, see enum spi_hid_protocol
-+ */
- struct spi_hid_conf {
- 	u32 input_report_header_address;
- 	u32 input_report_body_address;
- 	u32 output_report_address;
- 	u8 read_opcode;
- 	u8 write_opcode;
-+	enum spi_hid_protocol protocol;
- };
+ static int spi_hid_of_populate_config(struct spi_hid_of_config *conf,
+ 				      struct device *dev)
+ {
+@@ -181,12 +199,20 @@ static int spi_hid_of_probe(struct spi_device *spi)
  
- /**
+ static const struct of_device_id spi_hid_of_match[] = {
+ 	{ .compatible = "microsoft,g6-touch-digitizer", .data = &microsoft_g6_data },
++	{
++		.compatible = "microsoft,surface-pro-x-touch-digitizer",
++		.data = &microsoft_surface_pro_x_data
++	},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, spi_hid_of_match);
+ 
+ static const struct spi_device_id spi_hid_of_id_table[] = {
+ 	{ .name = "g6-touch-digitizer", .driver_data = (kernel_ulong_t)&microsoft_g6_data },
++	{
++		.name = "surface-pro-x-touch-digitizer",
++		.driver_data = (kernel_ulong_t)&microsoft_surface_pro_x_data
++	},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(spi, spi_hid_of_id_table);
 -- 
 2.43.0
 

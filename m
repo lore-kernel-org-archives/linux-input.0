@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.70.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.52
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794473670;
-	b=WDPrZcg9/fd5arfhLXbCkxF28hS5Og7sfXXHiQr+8Z4qQc5qBS/5i8Tzb6QL08hfDYeX
-	 vOxgKMTvOzPuHAyGiqKV5kTQIh0TSYT6T6X6ypJD6l9MNUQ9V9mAAmwEHew2tWmoVsGsP
-	 FqjjJu6Gj0VwwXhuAQDPVcn+/GWq7+oc8OiNPkBgxEHLT5MzLo/5IvwoCem70uryT6PKx
-	 SZvAIMeAALfOtug30Ks9bDQ86iw3d6lMcKObX/yWmQyXg+BJdb87A5fSqwreAjf9j2/cz
-	 q2sYczPwevEEo4ZTynZ8dJkMRI5axM1ZFkm4MYL0Y5O6GHGDH1T2IKL58bCXPvQxzfw==
+	t=1794480549;
+	b=FeGyFjVC1/FbO8qmqjNbweCjXg6dhaNxKin5L6LFHuGbwoY7jKyTwEQFiStLYhBLJNQe
+	 y/Ttiq7qJGvbah4SbaOQo0051mtvHcAHU8++vDnenPG2o85qN5RmthCGdIrH5QexRvnlS
+	 gXVl1ThdG0oHoCy7xu4f6ABiZBh4mQ3UttysbpTfKW+RooEG1ygBQpGLMHuMI4I35HlMF
+	 7DyjEovVlM1m5Tx3s88qPiYHyscn6S/Hn0QHcA8oUNyqzbS+Ob/jRmMRPer9Fhyzcnw67
+	 8XFSPxz+nMeJHswK/Ur85pdvlUwqMI66rZA7yLEIfnYb87isYdrT9m+LSgHCt0NpMQQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794473670;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:
-	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:CC:
-	 References:Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
-	 X-EOPAttributedMessage:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=3hSdrree7mkalBMSQXh5OGUB6ltIwr1aZ72PHT628eI=;
-	b=K/DfzXVyj8/kP009te0KTGrzGajjfyc9brbsQRCUZZorJ0wZ86H3DIE3nvWFcgd8fOec
-	 c8iZ9WJFwDvsuh1g+7wSX519P+qHqCiZLLWrM88waRRBaF1cTFnkON3hl3Z2EEZ8W6t9i
-	 cxmvkju9SSsfckgeHVDOjwOncjHTtcyJcdb37ky9BuEOT9uYNBy3qg4AeX7q1FZPyNfKZ
-	 4d5FunkDeopEQNu+1ROStKuFNT3FwJZVyYFIEo5LMcfHp9Wg0ePdYyhDStKapiMxGWYjq
-	 taGEJJvxGzAJaBwBH2PUnpal+bH/snd3QSFfJ3JJw3677dFjewxRnOPi7L8DQccJFlg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794480549;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=djeywF8NU6JhVA2LA1RCUZwnghPMCvDfZV9losxqGOA=;
+	b=x14EOkVE6IlW6QkmON5iohuLsLTE4ny5lP5mfS3U717CcDFRylJlzVqawvBjQ9W1NCOu
+	 CY+1JFN3nDetprlPT2tiflFu14d34Vsv+S2ZWAm2LRKu4gkvuu4Dqa7isp4PZEFirVLGr
+	 ah7rLx2kYiRETissQMK66UPTpd9eO5Zu8TiOTAvvxlvYOl3zdFYhITTG64wgZpCoZGUQf
+	 jaQoTU1/3EvWmEIIZyZFkmYkfAXuawOxONH9rVA2x8aZSc62ezoGmYmpsvgohkoepGmWz
+	 PPr5oPbDRPwGB18TBDWJ6J+LP2ka9AD0MSGqSMmUr+SPw0uP4VvBwa6qQkt1tu8piYw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=foss.st.com;
-	spf=pass smtp.mailfrom=foss.st.com;
-	dkim=pass header.d=foss.st.com header.i=@foss.st.com header.a=rsa-sha256 header.s=selector2 header.b="a/xjiQMj";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.70.18
-Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011018.outbound.protection.outlook.com [52.101.70.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FoTjQFN6;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.52
+Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1F88606A323;
-	Thu, 12 Nov 2026 08:54:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B1F88606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BAD0606A89E
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 10:49:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1BAD0606A89E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=foss.st.com header.i=@foss.st.com header.a=rsa-sha256 header.s=selector2 header.b=a/xjiQMj
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=GKEBIVC8vg5v5KclcvbFRvz2/JBW8MNzvvgBGNnbISAe2btp1ohRPNLGyWo+7Y3IhYROcyJX3pyvxeptAA54Ng+Xy5wxmE6fgQA6McTE6/DS3nqIgEOcqWABfOzWJVnERgIrMTExCOwjnu98K40Z5J2pRbzYiTURlFvKnpRYL4TSQV3B4d5Gs86+7TtNy+MdAbcBy9ACeLXItC0MGMPaKE7C3NcTTzEdEI/BLUnv2UaDWyA3TdeOCnf1fKTPi3ta1yvkcDJUydCIH+ZWmTB7zYpS/INcEeue2xzf/W+RyY6PB0NTuMA1zj3pbHlSX9WwGb+gjiuLAWIIUeECj2rtiQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3hSdrree7mkalBMSQXh5OGUB6ltIwr1aZ72PHT628eI=;
- b=YNSE5jA0VtchYQYBS4fKXYacu2PENt7zJSdzjEQmAsg0KNLCL9GjEH4D/Qex4pJvi0Zfl4qi5jpq34Xi5KtjXJ8VQRC10rwyZtZmv9sDbNrqeYC+CW5TbDsQhTCom/lSZlwzbBUPhjaz/WlLMM02yWN5LTJbEqn9YgMT3BD9Ptb1wyEa8QmLVTVBpgwOnzAqCsJ1qRmZrHYtC+VjxIAo2LBSXxJZUveb1RWTmaC+AdHxUxnDfgKipE9tjLfR9M3njvtIiCL1MySciYQ5Zlx8R1HM05I/ABwkEsbyT92FwDsFv3xySPan3u05AiqirhvirHo9QEcZDoS/ERLOK441CQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 164.130.1.59) smtp.rcpttodomain=kernel.org smtp.mailfrom=foss.st.com;
- dmarc=fail (p=none sp=none pct=100) action=none header.from=foss.st.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3hSdrree7mkalBMSQXh5OGUB6ltIwr1aZ72PHT628eI=;
- b=a/xjiQMjju6DLxOMjkYDilsA2AwGQ/+N3s/Z2oZM+XWS59CXfPlR2ssUlBFvLfH6L+bW8epbeOm9YCf3wiPQNnRsfmXrKIueZeMlbhqCzScRxKyQynCyxKciQxcBoCm+wowD6N2xtlWv39bOt2u6YJeb+F0TZy5VqgSTvClrR13Paex3MYoBSyrEY14wLozv/WOSd3PvCxyK1qPyEX9QvChpdMZF3qIJ8ZHxeF9xbEby/8DUnsSgmoKdnlmWMSQODRm4kNTWY3kfR/H5ac7KDs8TaC8Kt3lE1cF7yWKhmjGL9e6QpVs6MEHO+D3UeVaDI3ScmnEISl1g9Q8no7j06g==
-Received: from DU7P251CA0014.EURP251.PROD.OUTLOOK.COM (2603:10a6:10:551::17)
- by AS2PR10MB7603.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:546::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.8; Thu, 12 Nov
- 2026 08:54:22 +0000
-Received: from DB1PEPF000509FD.eurprd03.prod.outlook.com
- (2603:10a6:10:551:cafe::83) by DU7P251CA0014.outlook.office365.com
- (2603:10a6:10:551::17) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.615.10 via Frontend Transport; Thu,
- 12 Nov 2026 08:54:22 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=fail (sender IP
- is 164.130.1.59) smtp.mailfrom=foss.st.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=none header.from=foss.st.com;
-Received-SPF: Fail (protection.outlook.com: domain of foss.st.com does not
- designate 164.130.1.59 as permitted sender) receiver=protection.outlook.com;
- client-ip=164.130.1.59; helo=smtpO365.st.com;
-Received: from smtpO365.st.com (164.130.1.59) by
- DB1PEPF000509FD.mail.protection.outlook.com (10.167.242.39) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.615.4 via Frontend Transport; Thu, 12 Nov 2026 08:54:22 +0000
-Received: from STKDAG1NODE2.st.com (10.75.128.133) by smtpo365.st.com
- (10.250.44.71) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.56; Thu, 12 Nov
- 2026 09:54:55 +0100
-Received: from [10.48.86.251] (10.48.86.251) by STKDAG1NODE2.st.com
- (10.75.128.133) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Thu, 12 Nov
- 2026 09:54:09 +0100
-Message-ID: <9dd9b3fe-11b3-4a40-8681-8bbc0f35bd30@foss.st.com>
-Date: Thu, 12 Nov 2026 09:54:08 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FoTjQFN6
+Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-67bee1f693bso3786118d50.1
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 02:49:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794480548; cv=none;
+        d=google.com; s=arc-20260327;
+        b=EJETVeu3QlQOMZlDmj6iXwF3z8ACO2RGuNlaKIRw+wmeHXGDKaK7apD4jdEV6Ktg8Y
+         lm6FWypFRVHm+3JWX8tf14rkdm+FeOmM0U9GfG25GL8QxlpkpZFplabCqRuMUCs30FfL
+         k+Q0BsODjtG7el6aGnyLyWuAOWk+6Nr2F/AkdiC7KRzj0cHWzVHZCzjLGpdEK0lpSBKW
+         vxe863NntGdTaJ3HWkXcuGeGKZ0UcBc43CgmJEyBN1Tu5V7mRt1NYDLKn4eSgmkq6yjT
+         Pyo1F95q4ChuxPxBaE7ObQp4QLjUUSbnzDGXrcSf8yp+KPN1tOascgm0iydrdDM+0Gbi
+         8qAw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=djeywF8NU6JhVA2LA1RCUZwnghPMCvDfZV9losxqGOA=;
+        fh=zBOa/RFZ4Fiil7C0P0Tj2jQoxzAGyAjCZcT/2Hdj/nQ=;
+        b=A1U0o+di2X49GnRIUuUqzOfhg+NZEOfWUSbqxL8Xj39RwXroxM+z+kcleHLlqwjBW2
+         CIoH+N+vTNjgUxNRWqkJCm8RnbKqvvT1fhiOQ+0CMeZVqDVlbtcEXxNRvtC7N2udfmF0
+         9TFSHyCUnpb5qrY4WQaYBBOw8zATx79cHH638pBrvcIwM5Qu+VW92pPcDEutXfW9WEYA
+         MDCEWqUgJM9Ffpu5y4+72GbvXWY4iNpeXRXtXgW9JRHTXdxUS6Il2q4yexedYyhblvEu
+         js+C/U8EWqPGe45pcjhdih7/6rYDnH9v1nJ3wOAmHV3uwBtyO6/1Bkyj9g36n4+kQHts
+         8gJA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794480548; x=1795085348; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=djeywF8NU6JhVA2LA1RCUZwnghPMCvDfZV9losxqGOA=;
+        b=FoTjQFN6HKDx5jy184j9d8fpoMU4ig57gFse8f6Zw3tpbWpaNUmen+l8TbMwQBr98F
+         K/SiCATGkVA9+PDnMnd6K+vLTL7VHcOGARIWGB8zphm16QHjJZedmPhD3jBD2BF+C9c7
+         kNCNCVexmmltKENgVFxOIkw6b8haSD94a6w777S1gmlPmi/CWmymacrjWz+qjgEQ4les
+         aWFplqMgHU41kjoCKAVuj2uYEtZRpsbYzOjL+vf3T/6aioIWB3COME6Ddaa9OeTHuLtj
+         vfuJmQWzbAqh0KqYRXabp3fdx/m3JZiBIzTE/wMc8SmsU4RrWLnZO9LkGS/ftCdSbSIm
+         Fa0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794480548; x=1795085348;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=djeywF8NU6JhVA2LA1RCUZwnghPMCvDfZV9losxqGOA=;
+        b=amQulCrE3um7MidjglloCNGZaHeETRaeYbhE2x5NuFafVkExRaem4zXB0eHkutLhuD
+         lZ20dMBKFRk3r/B9TAPBJ64SUt8tRmEq4jkjYfGDLaIKMefKGY81wqWYCuEJO9mii8pW
+         MZxP95dV6DwoadtK+ec4qgJWioHRi/lm2zF6w7H2i5nNZ0od6ITeLubU68Zb2GUsdtMN
+         ciC3bufbRcx8v2VWroGNPLY8X4bmTaQRh1Wo6QxYkTPH8lxC7FwSuzGIE7pm1wIXB0/2
+         1M1izGIXT3V4jCMMuq0xIIaaI9kDSlJMLrmJ9cbxKKoAaGHvve4SGI5yAINeSAEXU7Ui
+         tFWw==
+X-Forwarded-Encrypted: i=1; AL+hErHJ0JTCy8eCWLK/dqGnyag3zSUJWWMswK1vj/UeYu63myjaVdQogtn7ypkO6YngdIKFJvGejrP3sTBRvw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9EFO0PAcg0I3+SJn8+cD9f4Ooa3qs6oaDCBT3iDZSbmI008HUB
+	fnCFQnjm6+KknyhpJhiOGPJi3BtMkZpLLau70Uwk1mk32mQR8U7NIYqm9fwpkZ0BoX0KXZrWZmf
+	K+GKYCLjVBq+SDRHMgWvGaDY7/1xcdmQ=
+X-Gm-Gg: AYBFou18Bxpc0LSi2NrTceTSeGHeYVYwutlymtkKUczLRKo6xFBoYe3oKA0G9/HoIaK
+	X5N3vFvjoI7VxnpVTavmKmqQmNrQwo9DiIfom9wB7uLtxm3rpr5nQGBVXuQeRp82skyd3jmQem0
+	jlleiOwh+OCPT6xMSdbNhoSz4pMfoxr0SO7nQEXm6UApsXUW1RezRCBICvkdYIXc/AsFS8MnsGY
+	ydRaTF8vSXtk/TolEho/n2kFd8eyMekjcNQJduwP/uTfGR1wppgqJrl08t4pXk0lGws72x0vo+R
+	ysMKQGtHWFni1sP72mzCOxPvFrnzGOzvP90tjoJllJMDMkFElgq+6FOG2TEz3mwmcvNjOMVVw9L
+	3msDFDoaH3hn06EbqGlvbhwF5bwtM43pBew0T1XWcklERmjeT4LBVRy8CtJDbw0KLtKquQEA=
+X-Received: by 2002:a05:690e:458a:20b0:679:bad8:7dd0 with SMTP id
+ 956f58d0204a3-67c67f00246mr2870020d50.27.1794480548052; Thu, 12 Nov 2026
+ 02:49:08 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,108 +104,259 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
-To: "Rob Herring (Arm)" <robh@kernel.org>
-CC: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
-	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
-	<airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski
-	<krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Vadim Fedorenko
-	<vadim.fedorenko@linux.dev>, Arkadiusz Kubalewski
-	<arkadiusz.kubalewski@intel.com>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera
-	<ivecera@redhat.com>, Benson Leung <bleung@chromium.org>, Guenter Roeck
-	<groeck@chromium.org>, Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski
-	<brgl@kernel.org>, Frank Li <Frank.Li@nxp.com>, Sascha Hauer
-	<s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>, =?UTF-8?Q?Nuno_S=C3=A1?=
-	<nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Olivier Moysan <olivier.moysan@foss.st.com>, Arnaud Pouliquen
-	<arnaud.pouliquen@foss.st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Thierry Reding <thierry.reding@kernel.org>, Jonathan Hunter
-	<jonathanh@nvidia.com>, Lee Jones <lee@kernel.org>, Srinivas Kandagatla
-	<srini@kernel.org>, Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, Ulf Hansson
-	<ulfh@kernel.org>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, Andrew Lunn
-	<andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, "Eric
- Dumazet" <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Vinod Koul <vkoul@kernel.org>, Neil Armstrong
-	<neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, Ray Jui
-	<rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, "Broadcom
- internal kernel review list" <bcm-kernel-feedback-list@broadcom.com>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, Masami Hiramatsu
-	<mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown
-	<broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano
-	<daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, Lukasz Luba
-	<lukasz.luba@arm.com>, "Orson Zhai" <orsonzhai@gmail.com>, Baolin Wang
-	<baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, Paul
- Kocialkowski <paul.kocialkowski@bootlin.com>, Shawn Guo
-	<shawnguo@kernel.org>, "Chanh Nguyen" <chanh@os.amperecomputing.com>,
-	Alistair Francis <alistair@alistair23.me>, Julius Werner
-	<jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>, Dmitry Osipenko
-	<digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Thierry Reding
-	<thierry.reding@gmail.com>, Ray Jui <ray.jui@broadcom.com>, Scott Branden
-	<scott.branden@broadcom.com>, "Krzysztof Kozlowski" <krzk@kernel.org>,
-	<dri-devel@lists.freedesktop.org>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<chrome-platform@lists.linux.dev>, <linux-gpio@vger.kernel.org>,
-	<imx@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-hwmon@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-	<linux-stm32@st-md-mailman.stormreply.com>, <linux-sound@vger.kernel.org>,
-	<linux-input@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-	<mfd@lists.linux.dev>, <linux-arm-msm@vger.kernel.org>,
-	<linux-mmc@vger.kernel.org>, <linux-phy@lists.infradead.org>,
-	<linux-pm@vger.kernel.org>
-References: <20261102135330.2493332-1-robh@kernel.org>
-Content-Language: en-US
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
+References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com>
+ <CAPb1+K2BxnfQ7VUQ15td5f9pVhn-ARSM9EjfOU8WuW72o+cvPg@mail.gmail.com> <2f722967b6db0692d4dd4164aff39b62@gmail.com>
+In-Reply-To: <2f722967b6db0692d4dd4164aff39b62@gmail.com>
+From: Gideon Heinz <gideonheinz02@gmail.com>
+Date: Thu, 12 Nov 2026 11:48:56 +0100
+X-Gm-Features: AclHuK-kGykkeazgcRdIxLsRXEFTifsTMFIGeK5tG_bdJlYg18i60d5dyzfQ1AM
+Message-ID: <CAPb1+K1J2F-=cJF_+Z+RkA+9uLD8-15m3hDv71DSPG47XLJttw@mail.gmail.com>
+Subject: Re: [PATCH v2 00/33] HID: logitech-hidpp: G920 force-feedback fixes,
+ rework, and cleanups
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	=?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
+	Bastien Nocera <hadess@hadess.net>, Hans de Goede <hansg@kernel.org>, Edwin Velds <e.velds@gmail.com>, 
+	Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, Andrey Smirnov <andrew.smirnov@gmail.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ENXCAS1NODE2.st.com (10.75.128.138) To STKDAG1NODE2.st.com
- (10.75.128.133)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB1PEPF000509FD:EE_|AS2PR10MB7603:EE_
-X-MS-Office365-Filtering-Correlation-Id: 42aedc12-75f3-44a9-0348-08df409a8bc9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700016|23010399003|376014|1800799024|7416014|22082099003|18002099003|10067099003|56012099006|261009223027099003|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	E3Hn9+91PYLiCPy6iewOxcJGn0xmrf27E7xqACr0TwJZxexYfCYXZP3zeajQW/D7mm2lK63uLtbDAcn6E6jAydIN02RKTt85fs/gR3+yDDQo0Qequ7NDRM1sA+w5f8yzjNCrE7StrwU8cya3uwjzZqDVA5d/n27eG6IQFj01/DJNs/xfbR0xibmQjPjRAwu7NESA8qzz12uNdLWtof+zOkPN/Y6dLZCBSj46hqLktwXfGndpL1UKMkOtjOrwMgST/Zicoonkg++KJk5jqUuHnNOU66S3HFJjqlEY8znI7RXoEDpRKM+0lRXiX7JYj4Ii+ea09kh0Axb8GRpMMztQ3JlUYhafHoDaQC5GH/0mBQmZeZzCV4zW+LtHTMrB68j+FRebzN1i3xmEkOwlI1ghoRoTYp6qQHovWBs/yOLRI6wdr9hehceG9YWDiAuErXjcZSi/ZT04fciHqigmdnZIGAoXxXoRrfMbRax1hyeCUFL+Yx7k2Z62tEfF69h94bbjm/q9FmDq2VxOFOBAhI5D0iTC++kbAiTgMcVsjO9nRkqiWxz9g8amPxlo3UMtJtrtaEyFLOJhtEVs+IBxj6U4mEntk8vHl86A99Wp/jcoZLSnUmGr2DskMKXCXNSskYqMu0GplufZsBK+8OmaiZmHR6YlmodqIZCooyXyp26XdWrK/AslAkfqm7+2gSKt19/4
-X-Forefront-Antispam-Report:
-	CIP:164.130.1.59;CTRY:IT;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpO365.st.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(23010399003)(376014)(1800799024)(7416014)(22082099003)(18002099003)(10067099003)(56012099006)(261009223027099003)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	1CfsLkQBhd/S+iSj0Mgc8J74IQv8uaa5snYPLkuAdma36tpat9k8Ec+j22MYZ3RIiTRvPozFbu0Url9kjQgaBy0ay4my7NTuigYGL5wuSfa7gi/iES6M6IKUwynUr+NYB66tjwvLjF3BBmeSLqRV+G5Z44Te8ZkBYfq/NUqW/b5NMq+q+Ec1Bjzjv+gaWu9yuPqAOTgy79AseiiQnBPj6uRruofVy8OjDGwOV0w5aBw8s5r2ouFOKiUSjcppKrpZHDca9x21R308QwYQWwjCnT6GYvURGZ4XjvDgjEDzT91NgiJ82G6PqSZBM78KwheSKmYuVZkawsi0rkhJi8CGDtV0T66/6QHmh0SE9TJVbDiIbg1n7AevAC1GoxYPrlhBR4KKWHy5aNF+yELl1XktrvtD+w8D0YhVg+h4MUGp07fFRqfo7eOFqvDTgdii6Vgg
-X-OriginatorOrg: foss.st.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Nov 2026 08:54:22.3476
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 42aedc12-75f3-44a9-0348-08df409a8bc9
-X-MS-Exchange-CrossTenant-Id: 75e027c9-20d5-47d5-b82f-77d7cd041e8f
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=75e027c9-20d5-47d5-b82f-77d7cd041e8f;Ip=[164.130.1.59];Helo=[smtpO365.st.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DB1PEPF000509FD.eurprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2PR10MB7603
+Content-Transfer-Encoding: quoted-printable
 
-On 11/2/26 14:53, Rob Herring (Arm) wrote:
-> Unit-addresses by default (and most commonly) are hexadecimal. There's a
-> number of cases using decimal patterns. Fix all of them, limiting the
-> pattern to match the 'reg' limits if there are any.
-> 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+Hi Dmitry,
+
+I tested the out-of-tree equivalent you suggested, ff->destroy =3D NULL;
+in hidpp_ff_stop(), on top of the 33-patch v2 module (G920 046d:c262,
+7.3.1-1-cachyos).
+
+Same reproduction as before: fftest holding the event node at the
+effect prompt, rmmod hid_logitech_hidpp from another terminal, then
+entering -1 in fftest.
+This time fftest exits normally, the machine stays up, and there are
+no errors in dmesg.
+The only message is the single =E2=80=9CUnloading HID++ force feedback.=E2=
+=80=9D at rmmod time.
+
+I=E2=80=99ll try your input core patch on a rebuilt kernel later and report=
+ back
+
+Thanks,
+Gideon
+
+On Thu, Nov 12, 2026 at 3:43=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Gideon,
+>
+> On Thu, Nov 12, 2026 at 02:30:39AM +0100, Gideon Heinz wrote:
+> > Hi Dmitry,
+> >
+> > I tested v2 of the series on my G920 (046d:c262). Everything on my
+> > list works except one scenario that takes the whole machine down, with
+> > and without your series (last item).
+> ...
+> >  - rmmod with fftest holding the device open: rmmod returned after
+> >    2.99 s with "Unloading HID++ force feedback" and nothing else in
+> >    dmesg. When I then exited fftest (entering -1), the machine went
+> >    down: the first time with a garbled panic screen that I couldn't
+> >    read, and on later attempts as a total hang with no output. The
+> >    same sequence on stock Arch 7.2.11-arch1-1 with the unpatched
+> >    driver also hangs the whole system, so this predates the series.
+> >
+> >    To reproduce: with the module loaded and the G920 plugged in, start
+> >    fftest on its event node and leave it at the effect prompt, run
+> >    "rmmod hid_logitech_hidpp" from another terminal, then enter -1 in
+> >    fftest.
+> >
+> >    I could not recover a trace yet and will send one if I manage to.
+> >
+> >    My guess, from reading the code and not verified by a trace:
+> >    hidpp_ff_create() stores hidpp_ff_destroy() and the other FF
+> >    callbacks in the ff_device as pointers into the module. With fftest
+> >    holding the evdev open, the input_dev outlives the driver, so when
+> >    fftest closes, the final input_dev release calls ff->destroy in
+> >    module code that rmmod has already freed.
+>
+> Thank you very much for the thorough testing!
+>
+> Your diagnosis is spot on. Opening /dev/input/eventX pins the evdev cdev
+> (and through it input_dev), but does not hold a module reference on the
+> underlying HID driver. When rmmod unloads hid_logitech_hidpp while fftest
+> still has the file descriptor open, __input_unregister_device() disconnec=
+ts
+> evdev (flushing effects, closing the device, and marking evdev dead so al=
+l
+> subsequent ioctls and writes return -ENODEV) and runs ff->stop(), after
+> which rmmod frees the module text. When fftest finally exits and closes t=
+he
+> file descriptor, input_dev_release() calls input_ff_destroy(), which
+> invokes ff->destroy() pointing into the already-unmapped module text.
+>
+> Rather than working around this in individual drivers with a separate
+> ff->stop() callback, input core should call input_ff_destroy() directly i=
+n
+> __input_unregister_device() once all handlers are disconnected and the
+> device is removed from sysfs. At that point nothing touches dev->ff
+> anymore, and calling input_ff_destroy() there guarantees ff->destroy()
+> always runs while the driver and its module are still loaded (while the
+> second input_ff_destroy() call in input_dev_release() becomes a no-op onc=
+e
+> dev->ff is NULL).
+>
+> Could you try the input core patch below (with patch 22/33 "HID:
+> logitech-hidpp: shut down G920 force feedback on input unregister" droppe=
+d
+> from the hid-logitech-hidpp series, since ff->stop is removed and
+> hidpp_ff_destroy() will now run on input unregistration)?
+>
+> Alternatively, if you prefer to test with your out-of-tree module build
+> without rebuilding the kernel, you can test the equivalent effect by
+> setting:
+>
+>         ff->destroy =3D NULL;
+>
+> inside hidpp_ff_stop() in hid-logitech-hidpp.c.
+>
+> Thanks.
+>
 > ---
-
-[snip]
-
->  .../devicetree/bindings/iio/adc/st,stm32-adc.yaml    |  2 +-
->  .../bindings/iio/adc/st,stm32-dfsdm-adc.yaml         |  6 +++---
-
-[snip]
-
->  .../devicetree/bindings/mfd/st,stm32-lptimer.yaml    |  2 +-
->  .../devicetree/bindings/mfd/st,stm32-timers.yaml     |  2 +-
-Acked-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com> # stm32
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Subject: [PATCH] Input: destroy force-feedback device on input unregistra=
+tion
+>
+> When an input device is unregistered while userspace holds an open file
+> descriptor to its event node, input_dev_release() is deferred until the
+> last file descriptor is closed. Because input_ff_destroy() was only
+> called from input_dev_release(), force-feedback teardown (ff->destroy
+> and freeing ff->private) could run after the parent driver had already
+> unbound, freed its device state, or even been unloaded via rmmod,
+> causing use-after-free errors or page faults in unmapped module text.
+>
+> Commit ef166ce08801 ("Input: stop force-feedback timer when
+> unregistering input devices") added a separate ff->stop callback for
+> ff-memless, but left ff->destroy invoked from input_dev_release().
+>
+> Once __input_unregister_device() has disconnected all input handlers
+> (which flushes effects, closes the device, and marks evdev dead) and
+> deleted the device from sysfs, nothing accesses dev->ff anymore. Call
+> input_ff_destroy() directly in __input_unregister_device() so that
+> ff->destroy() always runs synchronously while the driver and its module
+> are still active, and remove the now-redundant ff->stop callback. Keep
+> input_ff_destroy() in input_dev_release() (where it is a no-op once
+> dev->ff is NULL) to handle input_free_device() on devices that were
+> never registered.
+>
+> Fixes: 509ca1a93836 ("Input: implement new force feedback interface")
+> Cc: stable@vger.kernel.org
+> Reported-by: Gideon Heinz <gideonheinz02@gmail.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/ff-core.c    |  2 +-
+>  drivers/input/ff-memless.c | 23 -----------------------
+>  drivers/input/input.c      |  5 ++---
+>  include/linux/input.h      |  3 ---
+>  4 files changed, 3 insertions(+), 30 deletions(-)
+>
+> diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+> index 0e5d1d1ceb46..133b4622dc49 100644
+> --- a/drivers/input/ff-core.c
+> +++ b/drivers/input/ff-core.c
+> @@ -338,7 +338,7 @@ EXPORT_SYMBOL_GPL(input_ff_create);
+>   *
+>   * This function is only needed in error path as input core will
+>   * automatically free force feedback structures when device is
+> - * destroyed.
+> + * unregistered or destroyed.
+>   */
+>  void input_ff_destroy(struct input_dev *dev)
+>  {
+> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> index d1fefd1dfc0d..3069436148ec 100644
+> --- a/drivers/input/ff-memless.c
+> +++ b/drivers/input/ff-memless.c
+> @@ -483,32 +483,10 @@ static void ml_ff_destroy(struct ff_device *ff)
+>  {
+>         struct ml_device *ml =3D ff->private;
+>
+> -       /*
+> -        * The timer is normally shut down in ml_ff_stop() when the devic=
+e
+> -        * is unregistered. However, we still shut it down here as a safe=
+ty
+> -        * net and for cases where the device was never registered (e.g.
+> -        * error paths during probe).
+> -        */
+>         timer_shutdown_sync(&ml->timer);
+> -
+>         kfree(ml->private);
+>  }
+>
+> -static void ml_ff_stop(struct ff_device *ff)
+> -{
+> -       struct ml_device *ml =3D ff->private;
+> -
+> -       /*
+> -        * Even though we stop all playing effects when tearing down an
+> -        * input device (by the way of evdev calling input_flush_device()
+> -        * that calls into input_ff_flush() that stops and erases all
+> -        * effects), we do not actually shutdown the timer, and therefore
+> -        * we should do it here to prevent it firing after the input
+> -        * device is unregistered and its associated resources are freed.
+> -        */
+> -       timer_shutdown_sync(&ml->timer);
+> -}
+> -
+>  /**
+>   * input_ff_create_memless() - create memoryless force-feedback device
+>   * @dev: input device supporting force-feedback
+> @@ -543,7 +521,6 @@ int input_ff_create_memless(struct input_dev *dev, vo=
+id *data,
+>         ff->playback =3D ml_ff_playback;
+>         ff->set_gain =3D ml_ff_set_gain;
+>         ff->destroy =3D ml_ff_destroy;
+> -       ff->stop =3D ml_ff_stop;
+>
+>         /* we can emulate periodic effects with RUMBLE */
+>         if (test_bit(FF_RUMBLE, ff->ffbit)) {
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 210635ef147e..7be69deed8eb 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -2286,10 +2286,9 @@ static void __input_unregister_device(struct input=
+_dev *dev)
+>                 input_wakeup_procfs_readers();
+>         }
+>
+> -       if (dev->ff && dev->ff->stop)
+> -               dev->ff->stop(dev->ff);
+> -
+>         device_del(&dev->dev);
+> +
+> +       input_ff_destroy(dev);
+>  }
+>
+>  static void devm_input_device_unregister(struct device *dev, void *res)
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 3381608127f7..02047cc45d04 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -549,8 +549,6 @@ extern const struct class input_class;
+>   * @set_autocenter: Called to auto-center device
+>   * @destroy: called by input core when parent input device is being
+>   *     destroyed
+> - * @stop: called by input core when parent input device is being
+> - *     unregistered
+>   * @private: driver-specific data, will be freed automatically
+>   * @ffbit: bitmap of force feedback capabilities truly supported by
+>   *     device (not emulated like ones in input_dev->ffbit)
+> @@ -579,7 +577,6 @@ struct ff_device {
+>         void (*set_autocenter)(struct input_dev *dev, u16 magnitude);
+>
+>         void (*destroy)(struct ff_device *);
+> -       void (*stop)(struct ff_device *);
+>
+>         void *private;
+>
+>
+> --
+> Dmitry

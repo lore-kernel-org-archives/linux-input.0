@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794466211;
-	b=FUmZYw+v2CcUKJrUQ5FCiY9h6X7BG2Da9ISX7oY09Km5UG+UzobOJxpBB7fZD3azZAIr
-	 AoQtYokWCYXkaXNZkwYm6E/1KHsRiOCeyayISUyt6EpwzffYhi0TmUzEO+7vgmPUG94L1
-	 nN3T+dQPEmjpwyLh99pa5PomlZMHJqvhSVPFq/dcQu2Y+JEtw0oHAjzOlvvmcP/RU/Hqi
-	 wLHRVYLn3AQQ9KakqzwKUQWNFMNTofsBu0OyNmI1lptkNNKSB1N9P8mPnHyWN7w+0Mcrv
-	 F7l+or6rgYiUAW37JmNpHZ4AJRtVmbcOJt8JB23lhe90t35L6RxvIJWyzmQYA1K0NNQ==
+	t=1794466213;
+	b=dXJG3LJ0owEupAbHlVhXkSwpc5oDmwL5FmeTEDF0J/KszhVS+2MTVAx6SG0lwokKvo97
+	 tvkX3LRyzv8fIuLdG4D/tXnsZ1S4Fx2pvxx1jygWt7wC43fErCXzLoWRFbPauSZ1CvFnu
+	 FV/vuI1vT8slEvc2wlbi1npsgEdesUpp0NTj+5aPkA02ibZGLmbVOXhZNqHXsUIbyj78c
+	 lRaqPw67Cb+n8G0hzUlofQGayoTU7LXm8wj6DR3QI1KSNu2Br04X4ihB4I25GpL3LGT0v
+	 yiuiqi1jK1scjkJD1GWFUze8gQsJbiTEKhvEiCLaMVVgspgWi8bEfx4EkYQ6VAoL3GA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794466211;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466213;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
-	b=wXBjy9kS8sXxxFgQLrDNUZrcwMjKtTbsSlraxut5qFcsZ4B+w2nI9I0q+PX7sPKFZQhu
-	 wVxYiRjL8UlQQeZcxr2MCpd0Jc1RxWwIoNV7Wp/NLNk14PdCOc3iNhGI9xczxZKu5N+kj
-	 89oOjPp6j1wFnR0HJBZ1t7JpSznCjCEJNdf84xA01HcH9pjF3TerXgQsZ7P39KYfyKv7W
-	 WWl1T7brwUUpCvs96SXF81NzNIrgqpW2a70SBRdLNq0UItcPhKEc797QElJQkg5MXeqsx
-	 bPjMnohQseox0sNp429W+Hc6pB/lkb8U0BLiVdI74U7VwaoFcLlG+fRIt48vW0HPdOQ==
+	bh=lFZI6D9HiCcFKFr5KBwD7yhjEPPk3NJWS5p9mmDk/e4=;
+	b=0UiisV4ZJQQbbfotu6mg83idPhrHJ7RxzXcdpX33J3516MohscQtJw8Tczuk9NbjWhmm
+	 v3tl6v+e6dcyNWLhR9sfQI1UUN3qofe8cGZsvVxkAhmZ5+5j+8rZHQOvsnNOqpV0mnzvX
+	 Zo8Zz9bUFovH+PNb0IVKO4YTHhiugZHcEcRTcYlzz4kbNbaDjQoBftuQ/as6z8Hh/QBgm
+	 Qy+9e6G8QdQXKX67t4l0gdmjqUfBPuD8D7tTcQGbmhbMJnXWYbRv0UJdHzw6HYbuo/tdq
+	 RM5iPcY0JjNJXSkllVRkBVOMDlWnx/AGfdbT9jNtRobqbO5YJHxhfFjDMyIz2NsGa3g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hh2o3mX6;
-	arc=none smtp.remote-ip=74.125.82.169
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cWPz+EWz;
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD9760A5BE3
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:50:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FD9760A5BE3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1975F60A6F5B
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:50:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1975F60A6F5B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Hh2o3mX6
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-37628596783so3776233eec.1
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:50:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cWPz+EWz
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso8352396eec.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:50:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794466209; x=1795071009; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794466211; x=1795071011; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
-        b=Hh2o3mX6TwMjHtUDQjFKWWLY9ICG8OkBWi672/jXglxlWUU05O1/0gHpLXjBXZewdv
-         AWSNmysG6Fa3+DAwAIRat8C4MYGAzHqrzgAGCrktfuO2ZoZaRrP97bGPgqXWsTkPxAwt
-         zS9JbAuwskdP+RwY6qaQhXZBP60lWB0Ea3z+HPat35mrfiM1/T8A7wgjAakx+/Ux6s+T
-         3RfFZeM3BhJHFCFhGNIKOOZ6ymglbgDOCgrqeKEob9AKKgchWcX+tCbQCZGAGMHVG3bn
-         iC8UKZfAPE1zD4JdVV4sKcTbguTnRL/c7dg4eQgelrtbwdKmTkjdr7IoYF1vAZsXVSuj
-         HPZQ==
+        bh=lFZI6D9HiCcFKFr5KBwD7yhjEPPk3NJWS5p9mmDk/e4=;
+        b=cWPz+EWzUeQmTIy8ZK9xBrRqqGwycpud6QuPSV70aIpIP/CnITrTYo2KEFCLXq5s93
+         fK0WR1Pfdb5mCZv/QECuYsobLcp8oXXV0QkHqX18a4jlxqDyrxJmKB05dWf2DGDiFavG
+         TwK2xjuGsFddCKUOtr2WNunfpdhXJFBfdLOyVu8kYBqdQ7q24+qiBfCnKBhE8r9aKR3l
+         j/c5ZIoqdH01QCfNRJhUs+vp3HqxG/4+ejN9BLCpXotHlidQRpwsyYis5HSaqM0F1rAY
+         We4UxdMiFBZrY/Zg3XrlQtwgbTri5DN0Ph8RrFbR0rrE3Q0yiTPESB64uY1AMnY8ot2W
+         SXrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794466209; x=1795071009;
+        d=1e100.net; s=20260707; t=1794466211; x=1795071011;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fSSCkqvwTZj1huGL8Zl26siSAmzWWRmX0EP+FjZ9eu0=;
-        b=WCVBgjXlPfocSUmDhRkrM9JxM8KUOxw6qT1QoGiF+urrqHyjpT6DQM3k7NaGLlp6/B
-         L472NjDYFfZtfcRvZWqBssXJR23b/nO86Amd/s+E1h7qlolTa7TlCEG4AXujceDqywQ5
-         yFhaLJH0D5DWVdqTQMZxSRawwv6cSrcUrmrrd5rtIdLhrDp5YCvJnalOM6PE9ccXKmKZ
-         S9krXu6PuPTgZgRBnWL9KyfaHI2MnDjluT6tchV5yCwzTqyLb3xU14ZHQqTjYFdPpMeA
-         Jjh2vxyDxx//NLqhMp1o8q/F/yARHSsVR3z6lRvbNKd5ILpLJ1mApqwFvIVj44EWYSP/
-         S9Xg==
-X-Forwarded-Encrypted: i=1; AL+hErEI57Raa0BcBRX0LdaKjSWgx3MsteBZRYCcqrdcHJbifCrvb1tOn1aEFKF4Xh8MkoLV61YMDWjjarXong==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+HF1sVqUk7iTb/taLkfBBGa/A/KW/HpPQACMFuHikIJaGRy6vd
-	qMKfWJL2NMjzP3jTULa1rumlfx+hp6FGdKaS8kv0zYT2S1bUagk9IMo+
-X-Gm-Gg: AYBFou00D/bUedElCER1i4bOoIMJQI9cJYGVY29O0Bdty7/cCI4+olAqt/s2+k9RnVb
-	+WzC6zbIGu5yJPiLzVk7DNQYRELGTIuKOOxfv5i9qqEQagW9585xBK0kN75lDjqWUrOZKYTVHsS
-	hI2YU2roL/6Z32c/sPElFhFMr8/VgQlIPHilJDmPz2oqCUsA4d3C/h/KabLSGc1FoNJrv4a+q11
-	IfhG3aSoB/Jkh6+tSsYdATXW72V987z9sSwviMYsByq1BGO/A3L1rqLYXWusFPUKPLN22B3fB4g
-	mS8FTRtwwbodbEk7xIUmA3y4Axb3B+QplhWPfv2kyljG0RKaZvUgRxvXXFrDpHqu2U2RJqv4H7+
-	G481NLhKIUb9pFlkrpKFf1rcdKvOzhsy+pdWqooWGXCtgrwl6R29wuA0F0lfb695mu/1aeyYrLY
-	VAvOWqFb0atPak6TUQBGMTE/uzrx5U7AcyrU3Hu6pQhkUzhF5fiJi0QwE0SZhmbzGwnYpimkf2b
-	hZqpznSUxmiFreR9a8JwkkbDgCSqcne4DMWHV2Iu1OvbnVAVEbrkqDmCevZVYgioQd1bxfrAHT5
-	rVrEY63orfDpk0UkpFjHC618jxuTcdCaKj9SnhYNnW6yuAbaQxTO/v4oTrsDAsNxBbskCtgEwg1
-	GMiQgf4dDoCTWKtR/
-X-Received: by 2002:a05:7300:f54b:b0:36c:a42d:9bc9 with SMTP id 5a478bee46e88-37685c7a866mr4653158eec.25.1794466209304;
-        Wed, 11 Nov 2026 22:50:09 -0800 (PST)
+        bh=lFZI6D9HiCcFKFr5KBwD7yhjEPPk3NJWS5p9mmDk/e4=;
+        b=Jqe4uA7WCCIQT27ezSE7dahMQj289EZqq3bhcVORt3pEI5YeJ/sTQV+n1bx8d+5/CJ
+         z6LpzynsDIr6YTUOfyNrR6izCYM4Dtvxf88HKlZwAG5zXCNGodY22lkp2R/zaKSODT2N
+         y315lilIiMvBGwQ8JuWCmuEWtJfLH0l5jr9Sp7VyQLtTtjvu32m543Ahh/1uPh27jA+o
+         mnu3hZUPnvDNO+tkHLJrPAedSLGtdYUiE9+Tfnd0L1pHEnjQNAbVgljZnVrRVqsq+q6p
+         LMm37sn02pwwDFjKjETXpsv1qpnlpVxMqhE0heNFF95Kxgi2dpY3rVCjPgccOvRePWfv
+         B+ZA==
+X-Forwarded-Encrypted: i=1; AL+hErGVyhiprSfI6XMuCqB+3Q/IkyD0MUw4gSWTsp5ksvCHkWxBWHGzydfUP+82rwVy10ZAcN17e4AEHzqrUg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+B6LgeXqtnCL1ZZqzWuQwaiL/s9G3hbvolvsbYiRCBiR8d3Hl/
+	QyTaSfkZUH6IRJa5gcWh/sbou6r4Mvv1e41IuppQ7FDgbuSZGMGZZXOw
+X-Gm-Gg: AYBFou1749NyDQN85tOxpw7SdwwPiGvKOnn964XL0Mbl5T1lba2R1D0j4rR7qcfz/EC
+	kHaSTHKTissIZ8ZnpQAguP6q82cl5ZmSwqF4mShHy/kgMyIUY6EaU11uUJz4llGogtfIHSfxVGT
+	GpLPR7m6yvYWeiIvfELzipT467yRseG5CJiibWLQtXTwKvSfwzP7WdwZ7MhXzhrJGKSESzjgwXn
+	08RXRXHQhbjiw96Mo807HNItpxJGb0IpTrN3Wk8cLgq+kZIFf1uUkm2WxkyhDLXF/s7P7eMW7rS
+	Pakmosg+Q/G4yWramVUccjMzxhNoBxWbj9tMNCovvrWO83SBJsaFUpFodMvTwo9MNBTDJTyBYXN
+	Lyd7Nzxq9TOVh8EYJ0igT9Hymjysmfk4xH936yaBl05E5rCkyJay+sPFGNXiToO4ZIBEUoTKydD
+	CToNvV0B3FXo/kmQVE+jLRaX4KOuXlEwIXI670vVnWAHMIPIeotWs0h3Q0S0MFlata2+GdgtCLQ
+	hy0X4XMQZClKIh6iZpFc5EbLM1QADgEVDiSKaNwNputDfF+UU/jrW/eRHOy0XQd85MS11I3xP2U
+	iamI5VCn94otKdP1pxIyYeFudiv5JWb3+s/bG9NwUJHDQmuaekSpOAIpqDTGN7CVurwWe2PSwOU
+	CJIgm/5Ns0YMCdeLe
+X-Received: by 2002:a05:7301:795:b0:36e:e349:f2cb with SMTP id 5a478bee46e88-3768579dfa3mr4930481eec.19.1794466210966;
+        Wed, 11 Nov 2026 22:50:10 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520cfdfadsm27190961eec.19.2026.11.11.22.50.07
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37520cfdfadsm27190961eec.19.2026.11.11.22.50.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 22:50:08 -0800 (PST)
+        Wed, 11 Nov 2026 22:50:10 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Linus Walleij <linusw@kernel.org>,
 	Aaro Koskinen <aaro.koskinen@iki.fi>,
@@ -95,9 +95,9 @@ Cc: Mark Brown <broonie@kernel.org>,
 	linux-spi@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] Input: ads7846 - remove unused code
-Date: Wed, 11 Nov 2026 22:49:56 -0800
-Message-ID: <20261112064957.1796975-5-dmitry.torokhov@gmail.com>
+Subject: [PATCH 5/5] Input: ads7846 - fix minor coding style issues
+Date: Wed, 11 Nov 2026 22:49:57 -0800
+Message-ID: <20261112064957.1796975-6-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
 In-Reply-To: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
 References: <20261112064957.1796975-1-dmitry.torokhov@gmail.com>
@@ -112,62 +112,376 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Remove the pwrdown_cmd member from struct ads7846_packet, unused since
-commit 6965eece2a89 ("Input: ads7846 - convert to one message").
-
-Also remove the unused REF_OFF macro definition and drop the CS_CHANGE()
-macro along with its sole call in ads7846_read12_ser(), since the
-request structure is allocated with kzalloc_obj() and cs_change is
-already zero.
+Fix minor checkpatch warnings and checks across the ads7846 driver,
+cleaning up types, spacing, permissions, and macro formatting.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/ads7846.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 119 +++++++++++++---------------
+ 1 file changed, 57 insertions(+), 62 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 6352117cd898..4a5a141bb4a6 100644
+index 4a5a141bb4a6..ce1ae6a7b58e 100644
 --- a/drivers/input/touchscreen/ads7846.c
 +++ b/drivers/input/touchscreen/ads7846.c
-@@ -84,8 +84,6 @@ struct ads7846_packet {
- 	struct ads7846_buf *rx;
- 	struct ads7846_buf *tx;
+@@ -127,6 +127,7 @@ struct ads7846 {
  
--	struct ads7846_buf pwrdown_cmd;
--
- 	bool ignore;
- 	u16 x, y, z1, z2;
- };
-@@ -145,13 +143,6 @@ enum ads7846_filter {
- 	ADS7846_FILTER_IGNORE,
- };
+ 	struct touchscreen_properties core_prop;
  
--/* leave chip selected when we're done, for quicker re-select? */
--#if	0
--#define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
--#else
--#define	CS_CHANGE(xfer)	((xfer).cs_change = 0)
--#endif
--
++	/* Serializes start/stop operations and state changes */
+ 	struct mutex		lock;
+ 	bool			stopped;	/* P: lock */
+ 	bool			disabled;	/* P: lock */
+@@ -145,7 +146,8 @@ enum ads7846_filter {
+ 
  /*--------------------------------------------------------------------------*/
  
- /* The ADS7846 has touchscreen and other sensors.
-@@ -195,7 +186,6 @@ enum ads7846_filter {
- 	| ADS_12_BIT | ADS_SER)
+-/* The ADS7846 has touchscreen and other sensors.
++/*
++ * The ADS7846 has touchscreen and other sensors.
+  * Earlier ads784x chips are somewhat compatible.
+  */
+ #define	ADS_START		(1 << 7)
+@@ -166,7 +168,7 @@ enum ads7846_filter {
+ #define	ADS_PD10_REF_ON		(2 << 0)	/* vREF on + penirq */
+ #define	ADS_PD10_ALL_ON		(3 << 0)	/* ADC + vREF on */
  
- #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
--#define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+-#define	MAX_12BIT	((1<<12)-1)
++#define	MAX_12BIT	((1 << 12) - 1)
  
- /* Order commands in the most optimal way to reduce Vref switching and
-  * settling time:
-@@ -400,7 +390,6 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ /* leave ADC powered up (disables penirq) between differential samples */
+ #define	READ_12BIT_DFR(x, adc, vref) (ADS_START | ADS_A2A1A0_d_ ## x \
+@@ -273,8 +275,7 @@ static void ads7846_disable(struct ads7846 *ts)
+ 	guard(mutex)(&ts->lock);
  
- 	req->xfer[7].rx_buf = &req->scratch;
- 	req->xfer[7].len = 2;
--	CS_CHANGE(req->xfer[7]);
- 	spi_message_add_tail(&req->xfer[7], &req->msg);
+ 	if (!ts->disabled) {
+-
+-		if  (!ts->suspended)
++		if (!ts->suspended)
+ 			__ads7846_disable(ts);
  
- 	scoped_guard(mutex, &ts->lock) {
+ 		ts->disabled = true;
+@@ -286,7 +287,6 @@ static void ads7846_enable(struct ads7846 *ts)
+ 	guard(mutex)(&ts->lock);
+ 
+ 	if (ts->disabled) {
+-
+ 		ts->disabled = false;
+ 
+ 		if (!ts->suspended)
+@@ -327,7 +327,7 @@ struct ads7845_ser_req {
+ 	u8 sample[3] ____cacheline_aligned;
+ };
+ 
+-static int ads7846_read12_ser(struct device *dev, unsigned command)
++static int ads7846_read12_ser(struct device *dev, unsigned int command)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct ads7846 *ts = dev_get_drvdata(dev);
+@@ -362,7 +362,7 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 	command |= ADS_PD10_ADC_ON;
+ 
+ 	/* take sample */
+-	req->command = (u8) command;
++	req->command = (u8)command;
+ 	req->xfer[2].tx_buf = &req->command;
+ 	req->xfer[2].len = 1;
+ 	spi_message_add_tail(&req->xfer[2], &req->msg);
+@@ -408,7 +408,7 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 	return status;
+ }
+ 
+-static int ads7845_read12_ser(struct device *dev, unsigned command)
++static int ads7845_read12_ser(struct device *dev, unsigned int command)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct ads7846 *ts = dev_get_drvdata(dev);
+@@ -420,7 +420,7 @@ static int ads7845_read12_ser(struct device *dev, unsigned command)
+ 
+ 	spi_message_init(&req->msg);
+ 
+-	req->command[0] = (u8) command;
++	req->command[0] = (u8)command;
+ 	req->xfer[0].tx_buf = req->command;
+ 	req->xfer[0].rx_buf = req->sample;
+ 	req->xfer[0].len = 3;
+@@ -454,30 +454,30 @@ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
+ 		return v; \
+ 	return sprintf(buf, "%u\n", adjust(ts, v)); \
+ } \
+-static DEVICE_ATTR(name, S_IRUGO, name ## _show, NULL);
++static DEVICE_ATTR(name, 0444, name ## _show, NULL)
+ 
+-
+-/* Sysfs conventions report temperatures in millidegrees Celsius.
++/*
++ * Sysfs conventions report temperatures in millidegrees Celsius.
+  * ADS7846 could use the low-accuracy two-sample scheme, but can't do the high
+  * accuracy scheme without calibration data.  For now we won't try either;
+  * userspace sees raw sensor values, and must scale/calibrate appropriately.
+  */
+-static inline unsigned null_adjust(struct ads7846 *ts, ssize_t v)
++static inline unsigned int null_adjust(struct ads7846 *ts, ssize_t v)
+ {
+ 	return v;
+ }
+ 
+-SHOW(temp0, temp0, null_adjust)		/* temp1_input */
+-SHOW(temp1, temp1, null_adjust)		/* temp2_input */
++SHOW(temp0, temp0, null_adjust);		/* temp1_input */
++SHOW(temp1, temp1, null_adjust);		/* temp2_input */
+ 
+-
+-/* sysfs conventions report voltages in millivolts.  We can convert voltages
+- * if we know vREF.  userspace may need to scale vAUX to match the board's
++/*
++ * Sysfs conventions report voltages in millivolts.  We can convert voltages
++ * if we know vREF.  Userspace may need to scale vAUX to match the board's
+  * external resistors; we assume that vBATT only uses the internal ones.
+  */
+-static inline unsigned vaux_adjust(struct ads7846 *ts, ssize_t v)
++static inline unsigned int vaux_adjust(struct ads7846 *ts, ssize_t v)
+ {
+-	unsigned retval = v;
++	unsigned int retval = v;
+ 
+ 	/* external resistors may scale vAUX into 0..vREF */
+ 	retval *= ts->vref_mv;
+@@ -486,9 +486,9 @@ static inline unsigned vaux_adjust(struct ads7846 *ts, ssize_t v)
+ 	return retval;
+ }
+ 
+-static inline unsigned vbatt_adjust(struct ads7846 *ts, ssize_t v)
++static inline unsigned int vbatt_adjust(struct ads7846 *ts, ssize_t v)
+ {
+-	unsigned retval = vaux_adjust(ts, v);
++	unsigned int retval = vaux_adjust(ts, v);
+ 
+ 	/* ads7846 has a resistor ladder to scale this signal down */
+ 	if (ts->model == 7846)
+@@ -497,8 +497,8 @@ static inline unsigned vbatt_adjust(struct ads7846 *ts, ssize_t v)
+ 	return retval;
+ }
+ 
+-SHOW(in0_input, vaux, vaux_adjust)
+-SHOW(in1_input, vbatt, vbatt_adjust)
++SHOW(in0_input, vaux, vaux_adjust);
++SHOW(in1_input, vbatt, vbatt_adjust);
+ 
+ static umode_t ads7846_is_visible(struct kobject *kobj, struct attribute *attr,
+ 				  int index)
+@@ -544,9 +544,8 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 	case 7845:
+ 	case 7843:
+ 		if (!ts->vref_mv) {
+-			dev_warn(&spi->dev,
+-				"external vREF for ADS%d not specified\n",
+-				ts->model);
++			dev_warn(&spi->dev, "external vREF for ADS%d not specified\n",
++				 ts->model);
+ 			return 0;
+ 		}
+ 		break;
+@@ -555,7 +554,6 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 	hwmon = devm_hwmon_device_register_with_groups(&spi->dev,
+ 						       spi->modalias, ts,
+ 						       ads7846_attr_groups);
+-
+ 	return PTR_ERR_OR_ZERO(hwmon);
+ }
+ 
+@@ -575,10 +573,10 @@ static ssize_t ads7846_pen_down_show(struct device *dev,
+ 	return sprintf(buf, "%u\n", ts->pendown);
+ }
+ 
+-static DEVICE_ATTR(pen_down, S_IRUGO, ads7846_pen_down_show, NULL);
++static DEVICE_ATTR(pen_down, 0444, ads7846_pen_down_show, NULL);
+ 
+ static ssize_t ads7846_disable_show(struct device *dev,
+-				     struct device_attribute *attr, char *buf)
++				    struct device_attribute *attr, char *buf)
+ {
+ 	struct ads7846 *ts = dev_get_drvdata(dev);
+ 
+@@ -669,8 +667,7 @@ static int ads7846_get_value(struct ads7846_buf *buf)
+ 	return (value >> 3) & 0xfff;
+ }
+ 
+-static void ads7846_set_cmd_val(struct ads7846 *ts, enum ads7846_cmds cmd_idx,
+-				u16 val)
++static void ads7846_set_cmd_val(struct ads7846 *ts, enum ads7846_cmds cmd_idx, u16 val)
+ {
+ 	struct ads7846_packet *packet = ts->packet;
+ 
+@@ -869,7 +866,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+ static void ads7846_report_state(struct ads7846 *ts)
+ {
+ 	struct ads7846_packet *packet = ts->packet;
+-	unsigned int Rt;
++	unsigned int rt;
+ 	u16 x, y, z1, z2;
+ 
+ 	x = packet->x;
+@@ -887,18 +884,18 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 		x = 0;
+ 
+ 	if (ts->model == 7843 || ts->model == 7845) {
+-		Rt = ts->pressure_max / 2;
++		rt = ts->pressure_max / 2;
+ 	} else if (likely(x && z1)) {
+ 		/* compute touch pressure resistance using equation #2 */
+-		Rt = z2;
+-		Rt -= z1;
+-		Rt *= ts->x_plate_ohms;
+-		Rt = DIV_ROUND_CLOSEST(Rt, 16);
+-		Rt *= x;
+-		Rt /= z1;
+-		Rt = DIV_ROUND_CLOSEST(Rt, 256);
++		rt = z2;
++		rt -= z1;
++		rt *= ts->x_plate_ohms;
++		rt = DIV_ROUND_CLOSEST(rt, 16);
++		rt *= x;
++		rt /= z1;
++		rt = DIV_ROUND_CLOSEST(rt, 256);
+ 	} else {
+-		Rt = 0;
++		rt = 0;
+ 	}
+ 
+ 	/*
+@@ -906,9 +903,9 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	 * the maximum. Don't report it to user space, repeat at least
+ 	 * once more the measurement
+ 	 */
+-	if (packet->ignore || Rt > ts->pressure_max) {
++	if (packet->ignore || rt > ts->pressure_max) {
+ 		dev_vdbg(&ts->spi->dev, "ignored %d pressure %d\n",
+-			 packet->ignore, Rt);
++			 packet->ignore, rt);
+ 		return;
+ 	}
+ 
+@@ -919,7 +916,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	if (ts->penirq_recheck_delay_usecs) {
+ 		udelay(ts->penirq_recheck_delay_usecs);
+ 		if (!get_pendown_state(ts))
+-			Rt = 0;
++			rt = 0;
+ 	}
+ 
+ 	/*
+@@ -931,7 +928,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	 * The only safe way to check for the pen up condition is in the
+ 	 * timer by reading the pen signal state (it's a GPIO _and_ IRQ).
+ 	 */
+-	if (Rt) {
++	if (rt) {
+ 		struct input_dev *input = ts->input;
+ 
+ 		if (!ts->pendown) {
+@@ -941,10 +938,10 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 		}
+ 
+ 		touchscreen_report_pos(input, &ts->core_prop, x, y, false);
+-		input_report_abs(input, ABS_PRESSURE, ts->pressure_max - Rt);
++		input_report_abs(input, ABS_PRESSURE, ts->pressure_max - rt);
+ 
+ 		input_sync(input);
+-		dev_vdbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, Rt);
++		dev_vdbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, rt);
+ 	}
+ }
+ 
+@@ -955,7 +952,6 @@ static irqreturn_t ads7846_hard_irq(int irq, void *handle)
+ 	return get_pendown_state(ts) ? IRQ_WAKE_THREAD : IRQ_HANDLED;
+ }
+ 
+-
+ static irqreturn_t ads7846_irq(int irq, void *handle)
+ {
+ 	struct ads7846 *ts = handle;
+@@ -964,7 +960,6 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
+ 	msleep(TS_POLL_DELAY);
+ 
+ 	while (!ts->stopped && get_pendown_state(ts)) {
+-
+ 		/* pen is down, continue with the measurement */
+ 		ts->read_state(ts);
+ 
+@@ -988,7 +983,6 @@ static int ads7846_suspend(struct device *dev)
+ 	guard(mutex)(&ts->lock);
+ 
+ 	if (!ts->suspended) {
+-
+ 		if (!ts->disabled)
+ 			__ads7846_disable(ts);
+ 
+@@ -1008,7 +1002,6 @@ static int ads7846_resume(struct device *dev)
+ 	guard(mutex)(&ts->lock);
+ 
+ 	if (ts->suspended) {
+-
+ 		ts->suspended = false;
+ 
+ 		if (device_may_wakeup(&ts->spi->dev))
+@@ -1163,8 +1156,10 @@ static int ads7846_setup_spi_msg(struct ads7846 *ts)
+ 	packet->count_skip = DIV_ROUND_UP(count, 24);
+ 
+ 	if (ts->debounce_max && ts->debounce_rep)
+-		/* ads7846_debounce_filter() is making ts->debounce_rep + 2
+-		 * reads. So we need to get all samples for normal case. */
++		/*
++		 * ads7846_debounce_filter() is making ts->debounce_rep + 2
++		 * reads. So we need to get all samples for normal case.
++		 */
+ 		packet->count = ts->debounce_rep + 2;
+ 	else
+ 		packet->count = 1;
+@@ -1237,11 +1232,11 @@ static int ads7846_setup_spi_msg(struct ads7846 *ts)
+ }
+ 
+ static const struct of_device_id ads7846_dt_ids[] = {
+-	{ .compatible = "ti,tsc2046",	.data = (void *) 7846 },
+-	{ .compatible = "ti,ads7843",	.data = (void *) 7843 },
+-	{ .compatible = "ti,ads7845",	.data = (void *) 7845 },
+-	{ .compatible = "ti,ads7846",	.data = (void *) 7846 },
+-	{ .compatible = "ti,ads7873",	.data = (void *) 7873 },
++	{ .compatible = "ti,tsc2046",	.data = (void *)7846 },
++	{ .compatible = "ti,ads7843",	.data = (void *)7843 },
++	{ .compatible = "ti,ads7845",	.data = (void *)7845 },
++	{ .compatible = "ti,ads7846",	.data = (void *)7846 },
++	{ .compatible = "ti,ads7873",	.data = (void *)7873 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, ads7846_dt_ids);
+@@ -1282,7 +1277,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 	/* don't exceed max specified sample rate */
+ 	if (spi->max_speed_hz > (125000 * SAMPLE_BITS)) {
+ 		dev_err(dev, "f(sample) %d KHz?\n",
+-			(spi->max_speed_hz/SAMPLE_BITS)/1000);
++			(spi->max_speed_hz / SAMPLE_BITS) / 1000);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1440,7 +1435,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 					irq_flags, dev->driver->name, ts);
+ 	if (err && err != -EPROBE_DEFER) {
+ 		dev_info(dev,
+-			"trying pin change workaround on irq %d\n", spi->irq);
++			 "trying pin change workaround on irq %d\n", spi->irq);
+ 		irq_flags |= IRQF_TRIGGER_RISING;
+ 		err = devm_request_threaded_irq(dev, spi->irq,
+ 						ads7846_hard_irq, ads7846_irq,
+@@ -1466,7 +1461,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 	if (ts->model == 7845)
+ 		ads7845_read12_ser(dev, PWRDOWN);
+ 	else
+-		(void) ads7846_read12_ser(dev, READ_12BIT_SER(vaux));
++		(void)ads7846_read12_ser(dev, READ_12BIT_SER(vaux));
+ 
+ 	err = input_register_device(input_dev);
+ 	if (err)
 -- 
 2.56.0.567.gdb80ae8cd5-goog
 

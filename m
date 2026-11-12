@@ -1,67 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=57.103.78.73
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794504441;
-	b=Zmgw1aaU60s3wSucUPtRFESfgbbSY/7SoAa/YN5HG3Iwx0cstSMHt+ZLPPkjf0ZsbM9j
-	 +gQcv8pvCEvDhvrRRE7req/fC5VwI36OiWaKAeZq1bMf260MZDjuEbQ/4Pp50Sp6SqNJH
-	 uqNf7o/DKPMUxRAFywcBR9YCwNNRqLTCvH/3gpJVbmbowOt1UiZ1CNdbO+w9RoQQ0cT35
-	 shMTvDPfgkMFczWo2OmRU4qa0/gtJ6DkX9368TfjEffWC8YvN0qGT6IDS+g1W5HOnTyIC
-	 S6HnCYj4zmOTg1kzGsC0ZLObpYC1AHbtCkoePu7rTVDeOjO541akYUDFFimUL+iEZPw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794504441;
-	h=DMARC-Filter:Received:X-ICL-RepId:Dkim-Signature:
-	 mail-alias-created-date:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Authority-Info-Out:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-JNJ;
-	bh=8IUECNHiDajqPOe1RiRQKh2wtgaPAw0gQvNQT060lWU=;
-	b=SGh/zL5xFupwCb1Fp+KxqfAZPYJX6km9Y7k4lk6U/cpJBzyP5MWZk0ibrYFx4rdeGFjz
-	 p+MZRxrjc8RGz3uO5DXEWH4BXQ3DA1Sq9JbCSk/HKUk2vaDjkVVM8LFkiwn5DwPPZyWis
-	 HbDIdqqZLx+l5HqWLHI3QqxzsE6oe7En/6LOWd73uPdxbEZ1VkN+wHaI+zNSVWr7w51zz
-	 kZFgHArPMB91BTGws/g6vX9B19BNGLOc2CsXAzjo2UQR5Psvae9LFjJgv3n0D8GzMhy+J
-	 BJ4oDR/tcWFe9VH36t1sOLadQ7H1IJ60tz6VyMlcFSCrIozBOQoY7ADTZAUvVO3m8zg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=tawheed.cc;
-	spf=pass smtp.mailfrom=tawheed.cc;
-	dkim=pass header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=otsYeCov;
-	arc=none smtp.remote-ip=57.103.78.73
-Received: from outbound.st.icloud.com (st-2002i-snip4-11.eps.apple.com [57.103.78.73])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794506064;
+	b=WVOFuhDPE03IbJpUx+i9CSxX+pZHk2E7NYkKN1pjQclZLBRZ9FK2pZ4Zw0wmTIWBPZCb
+	 Nc3vpF1YNA30mcOsbwtHX3bjAs8uW1DGcE8aJ0GlbKpEaJGl4FTFcZ9ihWQSHMxT93tKL
+	 CQTcRZjP3+wZ6kWPb66EkE1IKOFnyCB6Tj8g/w8GUsQLMtCKyvBRnLweZVuImzWJYcAH5
+	 dWeHntvOjoXweQpgBjqW2+WdOTXNgs02LAm7ZcskDJPHuTTV5laOZQaH48N67qEmdL2EA
+	 oQNWEojBzhmheNgECYuDHT8xdqCwV8p9v1YN5dUZxNZ3u0fQI5nbQQrLCG8c58fuGJQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794506064;
+	h=DMARC-Filter:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-ZohoMailClient;
+	bh=2/ekIoIsbpslgBQr1hgDyBFguXw4lOn68nnIGxnrzDQ=;
+	b=N4FrmGZTj87YSfXK1hp4amp6BZ9EPjuzAeufUma/WInjcvC4rck/LGy4pWOFomwSImBg
+	 fP7IUYIO5d+A9DP56IPNvRedqYFKxpjTsl8YAX1OjMPREo/L1zVzuLCKvaoopsO48XeeD
+	 EbStxQQPj2H5p9I/Nj6xIAP6xaijb+XvVz3EeupFJRjOmcnZznL5+za60yd7yXUb22A02
+	 m5mwmazdLGOIEhqys+BnadGOAU9Op0qp1GeUeejBBJgq/w2z0arP4yBgatjZH4fwCvJCd
+	 ZWd0NWequGY1bAujiiP0CHKHvHT7ordkO80gwYeWPqu7WI3D4sDmPcS1rPvPGMW67XA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=rong.moe;
+	spf=pass smtp.mailfrom=rong.moe;
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=TuIhNW9S;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.188.112
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA08B606A883
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 17:27:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA08B606A883
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tawheed.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tawheed.cc
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE122606A33A;
+	Thu, 12 Nov 2026 17:54:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DE122606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=tawheed.cc header.i=@tawheed.cc header.a=rsa-sha256 header.s=sig1 header.b=otsYeCov
-Received: from outbound.st.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPS id 55D771802094;
-	Thu, 12 Nov 2026 17:27:18 +0000 (UTC)
-X-ICL-RepId: 01a1d0cc-b221-7caf-9aa9-6181f83a192c
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tawheed.cc; s=sig1; t=1794504440; x=1826040440; bh=8IUECNHiDajqPOe1RiRQKh2wtgaPAw0gQvNQT060lWU=; h=From:To:Subject:Date:Message-ID:MIME-Version:x-icloud-hme; b=otsYeCovDa5jxn8NcGKbkPFgujg/FFyP8czTyszTQYWAY31lPFWyQ6092Zx/Msqh7fq2lpjUf3qieX/wzXN1A36KjMahu8bNzgshzLhscajISIoWOU4SqIsjPOOTrjRWtmLTihxSLl8aKHB7xmb+aXUqsQ1SV6Gz0D2dFCrzoxWw9DN539kHqgLdnzgyijBE8ArG+yHwdqjmowrFWjYwmwlQJL8fbC3FukGHTBBArbcts7ytc8ju5bARz6olIA2S5JG73dp6B7q7pg+bZMlL2ujx1yAtA2TicEDgWyEhtmbcQvT2KrbtC3kJru9+wGWAztiCEeNG0HhBD6Y9zL9oKg==
-mail-alias-created-date: 1711150425226
-Received: from DESKTOP-HUABEFD.localdomain (unknown [17.156.216.30])
-	by p00-icloudmta-asmtp-us-east-1a-60-percent-8 (Postfix) with ESMTPSA id 79142180481F;
-	Thu, 12 Nov 2026 17:27:17 +0000 (UTC)
-From: Tawheed Makhdoomi <_@tawheed.cc>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Jingyuan Liang <jingyliang@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 3/3] HID: spi-hid-of: add the Surface Pro X touch digitizer
-Date: Thu, 12 Nov 2026 12:26:41 -0500
-Message-ID: <20261112172641.407-4-_@tawheed.cc>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261112172641.407-1-_@tawheed.cc>
-References: <20261112172641.407-1-_@tawheed.cc>
+	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=TuIhNW9S
+ARC-Seal: i=1; a=rsa-sha256; t=1794506053; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=a5SFaWgm6iw8LMobZZclvDDtZvrmBe7zniqDi7I2gqS/0/XWXsmxY8JJEuonw1C5TL46w+jHzOLj5bYnNVBDVDfSnYk6LyYsROQIA892LFVFfMi1hRKrDaHREGFxB/L5TotnDz825EKq/thl3+1ihukWohwRhF2K7joxC6uRAgk=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1794506053; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=2/ekIoIsbpslgBQr1hgDyBFguXw4lOn68nnIGxnrzDQ=; 
+	b=XusdBGfGmS58TcRcN63E1kjTGLXPt3ltUQ3EZTp9veTOUh10N+Ji+qXGITz94wj+diOnGe1hXZqeqwCGhdEMtHOZ4ePowQUVczArPxf3SY2+CZ4pN+DtXFQNH2L0vBu6dA1KcLGl3pGBwMcaD20FahyLRczNa0Qq8F3OK+iXPBY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=rong.moe;
+	spf=pass  smtp.mailfrom=i@rong.moe;
+	dmarc=pass header.from=<i@rong.moe>
+DKIM-Signature: a=rsa-sha256; b=TuIhNW9StHTFg647RgMBUqPrj/m77Vt1rsmxU0nJJGIAQMjQNEeqywUNu2lOb63r7iXz+x+j/gTzQ06jr9opATnmEMiJODLsLWTGVcJwHRWrIyOjxHKU7SdqhInLbsXObswImVJp+7FetWsRa5BvEoz03eyfwNHin5CvQrMrMmqoiE9bZaKiy3hT+Jhuv8ggpUbwcDHUSDuVogkTqhp1jCLdLyvDddFHd4hPZIjrm+SOAmrYx8xP66G+qGuTxXp+ZYqSoYydtUsDomHmSMAo5+90z3wPTOZfma4DZw/3fYh32pwIB8sa/QFaIKXBaEUHIrNXNox9AmQvrqwQ7RxLpw==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=2/ekIoIsbpslgBQr1hgDyBFguXw4lOn68nnIGxnrzDQ=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 179450605168890.86027366517612;
+	Thu, 12 Nov 2026 09:54:11 -0800 (PST)
+From: Rong Zhang <i@rong.moe>
+Subject: [PATCH v3 0/9] HID: Add hid-plugin framework & convert haptic into
+ a plugin
+Date: Fri, 13 Nov 2026 01:53:53 +0800
+Message-Id: <20261113-hid-haptic-kmod-v3-0-e7dfa8766c0d@rong.moe>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -71,101 +61,116 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: WHA6shUJS5uPyMvVx3fsC9BzVDRn3B4v
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfX7MqP4KUTSYdh
- neXD9ADPYiTKZsbt/c4ElWyfWBX91h4k23D6Fpj+OR17ZbI7S1AhIZL721iH8kTE3lunimenhJR
- 0Ck7GvxMDSW4lSp9fIiKAaweENuuOYgUvgg8pm4spqh+o+Vwl7glbISOiL/qfdhfwWf49rBuz2D
- NWMSuWlRRnQNrlH+U9t2K5iJz2FSxHbrumkQOt0yuwqgRRq2ogeKy3+gGFPhpRYafVSJcAgozQ8
- a9gBn0jwWksU7Etkls0ohVo38SzkcwWIIrrg7NP34FxtImCUbd5lPMMfkdTT+Y90nEdtyFS/7JZ
- /zmYgVpC+UqZgB3+M3muMijBNDUU/br0CX9VHE9gFUBntoSBsb/eDOCuWyJHow=
-X-Authority-Info-Out: v=2.4 cv=RfMFmFtv c=1 sm=1 tr=0 ts=6af5f6f6
- cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
- a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=MKtGQD3n3ToA:10 a=1oJP67jkp3AA:10
- a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=kibvr5HLtuNvmma_iept:22
- a=FWZx5dj72HHvF9NkQXT7:22 a=HiKr9HWsZoCIc8ansSkA:9
-X-Proofpoint-GUID: WHA6shUJS5uPyMvVx3fsC9BzVDRn3B4v
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDA2OSBTYWx0ZWRfX2BPiqBx5VyUg
- dPtealoOF7nexe5+QVTMIQ1fiFFkzb2Nq+1yFXQgloM3CAim5SbKyrali2TaVEO9i75KZMrFrV5
- pmX4D36Cw7PnPl+yKkDpKAiLyvWPmPc=
-X-JNJ: AAAAAAABHJXMpRV6V7hjkIaMrJ2X+2+76V4lb8b9FdqZBjKqwFt1UhV3MQue1eM5ZXrz9E
- gqgreBGscX82434RTIITVG44jZRrF6Sgrj49KqrcwQWc/bGnBYdhVOckHhU0gwhQnNZTSw
- d9sFkhQowgwjLyqmXSRUGdwvh+7Fb3rYwU1OFEj1x6rsFpF6xbLdXmpPkKRkb5rgExsZBw
- M511Gji1I5n5YQsZA5ITrGpMn960SHU6Q5Ui1DX0aa21Iy1FEcsv5EPtU3ivaYdBiZCbRD
- Ncgntt9+kUALiTfosMM1dlviGh7yG7AU34J+TqciI2P9+pE7Go4XDGt/5hSdH/ivifgB5a
- By6YIC1725fkYCh+uX+FyqJ6EouLH251u9NQu8n/0LEJsKsxSSiInCB7KClplz0Ux5XldD
- k8mRFqKJrIKSEIDEHzlLzzwnqk1/s680IOg8Au7XFGKGaOEMCXaBVw2JrDqLw9qo236880
- QghZVRohe078RStsQqrPhi6G0avkxZMn/AiqK/HoZUi8T+/D7b5aKxXV2XAJLjAAPef3zO
- mm/OK8CnsnX1hf993QbCMO5s2R1JlSuPS++X3FRHxrJAEtcKF67kzor6S5Plpb6MYjHQYs
- rVG2wMFwnFmVUWi08UBzErqsBzBTI6yZoqKcsPFLkqqkgkNLKteptYcTS+s2ltmaKKP4zS
- l+uwu81ctMK7S6278nht3eUHoNQTV0NjgB0oT6gjDtwunzpvn9+7efV4rtGN6cZgq/QQdM
- 3wQZ0zoI02rzTS4DHWeIs1jbqz7Fw26lDIbqVYJwpWAIO8B/gpNrB/wZ0+WkVs8x+pvQ9x
- f2uGC9AOXwY=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WNQQ6DIBQFr2JYlwYQqXbVezRdIHyFNooBS9oY7
+ 16wGxOXk7yZt6AA3kJA12JBHqIN1o0JylOBlJFjD9jqxKgRnHPRSGysxkZOs1X4NTiNOdTAGel
+ qqDqUrMlDZz9b8f74c3i3T1BzzuSFsWF2/rtdRpp3iBEmKCXsUI8UEyxLDZVgQksNN+/G/jw4Q
+ Dke2U6n5KizpLd1WUkiLqoVbKev6/oDK8mvov4AAAA=
+X-Change-ID: 9644469a-hid-haptic-kmod-4e8e420f8e5f
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ Angela Czubak <aczubak@google.com>, Henrik Rydberg <rydberg@bitmath.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Rong Zhang <i@rong.moe>
+X-Mailer: b4 0.17-dev-ce4c1
+X-ZohoMailClient: External
 
-The Surface Pro X digitizer speaks the pre-release HID over SPI protocol
-revision. Both the input report header and body are read from 0x1000
-with opcode 0x0b, and the device descriptor is requested from register 1
-with opcode 0x02; the other registers come from the device descriptor.
+Recently I am working on adding HID LampArray support for hid-input [1].
+I would like it to be a loadable plugin module. While looking through
+LKML, I found hid-haptic, which is a plugin-like support code collection
+that must be built into vmlinux. Therefore, I decided to develop a
+generic framework for loadable plugin modules, so that it can be used by
+multiple drivers.
 
-Add match data for it, with the same timings as the G6 digitizer, under
-the "microsoft,surface-pro-x-touch-digitizer" compatible and SPI device
-ID.
+This series aims to introduce the said framework and convert hid-haptic
+into the first plugin, as it's easy to convert and perfectly
+demonstrates how the framework works.
 
-Signed-off-by: Tawheed Makhdoomi <_@tawheed.cc>
+The first five patches fix pre-existing bugs in hid-haptic and
+hid-multitouch that may become more frigile once the former is
+converted. The last four patches refactor hid-haptic, implement the
+hid-plugin framework and finish the conversion.
+
+The plugin framework is designed for devices with additional HID usage
+pages which enhance their capabilities. The support code for these usage
+pages is called "HID plugin".
+
+The corresponding HID driver calls functions provided by the plugin to
+take the advantage of such enhancements. Without the framework, the HID
+driver must have a linkage dependence on the plugin, which is not
+optimal because the plugin is always loaded into memory even if no
+device actually supports it.
+
+Logically, the dependence should be reversed, i.e., the plugin should be
+an optional component of the HID driver, which is only loaded when the
+driver finds that the device needs it.
+
+Introduce hid-plugin framework for loadable plugin modules to achieve
+the said logical dependence. Each plugin has a unique hid_plugin_id when
+enabled, so that HID drivers can request it accordingly. The framework
+aims to be lightweight. It loads the plugin module when needed. Once
+loaded (or if the plugin is builtin), requesting the plugin is just an
+RCU dereference plusing an module refcount increment.
+
+When a plugin is disabled, its id maps to HID_PLUGIN_DISABLED, and calls
+to the plugin helper functions are eliminated by the compiler.
+
+With it, hid-haptic can be easily converted into a loadable plugin
+module, so that hid-multitouch only requests it on demand.
+
+Thanks Benjamin Tissoires for the inspiration for the implementation.
+
+[1]: I know Texudo folks are working on adding hid-lamparray to connect
+it to hid-generic. I am not in favor of their design, so I decided to
+write a new one. In my local tree, I've had an independent
+implementation with HIDRAW sniff, autonomous mode as an LED trigger,
+RGB/non-RGB LampArray support, per-key LED device support, etc. I will
+submit it once this series settles.
+
+Suggested-by: Benjamin Tissoires <bentiss@kernel.org>
+Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35inqda3exwzs3tk3ff@oagat6g46zto/
+Signed-off-by: Rong Zhang <i@rong.moe>
 ---
- drivers/hid/spi-hid/spi-hid-of.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+Changes in v3:
+- Correct the Fixes: tag of PATCH 4 (thanks Sashiko)
+- Add missing Return: to hid_plugin_register()'s kernel-doc (ditto)
+- Fix the return value of hid_haptic_connected_to_input() when
+  hid-haptic is disabled (ditto)
+- Link to v2: https://patch.msgid.link/20261110-hid-haptic-kmod-v2-0-b835a067cb62@rong.moe
 
-diff --git a/drivers/hid/spi-hid/spi-hid-of.c b/drivers/hid/spi-hid/spi-hid-of.c
-index 6de9affbe..429bf51ad 100644
---- a/drivers/hid/spi-hid/spi-hid-of.c
-+++ b/drivers/hid/spi-hid/spi-hid-of.c
-@@ -62,6 +62,24 @@ static const struct spi_hid_of_data microsoft_g6_data = {
- 	.minimal_reset_delay_ms = 100,
- };
- 
-+/*
-+ * The Surface Pro X digitizer implements the pre-release protocol revision.
-+ * Input report header and body are both read from 0x1000, and the device
-+ * descriptor is requested from register 1.
-+ */
-+static const struct spi_hid_of_data microsoft_surface_pro_x_data = {
-+	.conf = {
-+		.input_report_header_address = 0x1000,
-+		.input_report_body_address = 0x1000,
-+		.output_report_address = 0x1,
-+		.read_opcode = 0x0b,
-+		.write_opcode = 0x02,
-+		.protocol = SPI_HID_PROTOCOL_V2,
-+	},
-+	.post_power_on_delay_ms = 10,
-+	.minimal_reset_delay_ms = 100,
-+};
-+
- static int spi_hid_of_populate_config(struct spi_hid_of_config *conf,
- 				      struct device *dev)
- {
-@@ -181,12 +199,20 @@ static int spi_hid_of_probe(struct spi_device *spi)
- 
- static const struct of_device_id spi_hid_of_match[] = {
- 	{ .compatible = "microsoft,g6-touch-digitizer", .data = &microsoft_g6_data },
-+	{
-+		.compatible = "microsoft,surface-pro-x-touch-digitizer",
-+		.data = &microsoft_surface_pro_x_data
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, spi_hid_of_match);
- 
- static const struct spi_device_id spi_hid_of_id_table[] = {
- 	{ .name = "g6-touch-digitizer", .driver_data = (kernel_ulong_t)&microsoft_g6_data },
-+	{
-+		.name = "surface-pro-x-touch-digitizer",
-+		.driver_data = (kernel_ulong_t)&microsoft_surface_pro_x_data
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(spi, spi_hid_of_id_table);
--- 
-2.43.0
+Changes in v2:
+- Reject touchpad applications with non-force units (thanks Sashiko)
+- Only call runtime methods if the event source is the same input device
+  as the stored one (ditto)
+- Rebase on top of v7.4-rc2 due to the devm_kzalloc_obj() changes
+- Link to v1: https://patch.msgid.link/20261102-hid-haptic-kmod-v1-0-a3de5626dade@rong.moe
+
+---
+Rong Zhang (9):
+      HID: haptic: Fix use-after-free when draining workqueue
+      HID: haptic: Get rid of input_ff_destroy() in error paths
+      HID: haptic, multitouch: Check haptic prerequisite properly
+      HID: haptic, multitouch: Fix haptic device double-free and unnecessary allocation
+      HID: haptic: Postpone GET_REPORT to init
+      HID: haptic: Convert simple methods into static inline ones
+      HID: Add hid-plugin framework for loadable plugin modules
+      HID: haptic: Convert into a loadable plugin module
+      HID: haptic: Remove stubs in favor of inlined dead code elimination
+
+ MAINTAINERS                  |   7 ++
+ drivers/hid/Kconfig          |  21 +++-
+ drivers/hid/Makefile         |   4 +-
+ drivers/hid/hid-haptic.c     | 206 ++++++++++----------------------------
+ drivers/hid/hid-haptic.h     | 233 +++++++++++++++++++++++++++++++------------
+ drivers/hid/hid-multitouch.c |  75 ++++++++------
+ drivers/hid/hid-plugin.c     | 108 ++++++++++++++++++++
+ drivers/hid/hid-plugin.h     | 147 +++++++++++++++++++++++++++
+ 8 files changed, 554 insertions(+), 247 deletions(-)
+---
+base-commit: 9d66f26fefacebfeed15de31c1123451a17ff119
+change-id: 9644469a-hid-haptic-kmod-4e8e420f8e5f
+
+Thanks,
+Rong
 

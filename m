@@ -1,57 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794466259;
-	b=fjirCnz7OyE6AMkfEdjeRVIKft9u9NmlDnoSSfCDjiDJKEMFznC5HwKpzYFfE+I19HzY
-	 UdPSAjzXdX9mrWvoxWFkHMih5iKyCTBJe8/TJYW062/W0wCgkgIBJQLvddaECEniFoIOj
-	 rm9Qwt93cb4eHUrEDKHTwEdQ4puw6bJTFGOG68IWMsfzxWtAwukpaaJEJ1Aw4sTSZuD8R
-	 2RdpJStmBsVFUSGetX575cO7Z2A+xyncSHVxHpTA6o2U/tI4G0il9t6del9ahM9hGk8oY
-	 oZYTsYANYoc+IAP08b8fY0sOBLTy9W8PaK6xqloB0MbTorhyYWQle3/EgRSH82f4GYQ==
+	t=1794466264;
+	b=Bq+oFeprkPM9fea1jO5O5sBlKefeUh3IbHcMYjMTYEnL8rel69rBh7egkbzvNS1FF5ES
+	 5DopfQsoJGaOLF5gZEFObMwzFPtKHkH6NFgIofdEGjuiiX4/nZxSh7uROAKXlOHA3EKVP
+	 UXwjdbh1qJB5kgWNkG1c9Eto5nwnl4NGfmIepCxyUj4CRSKD1QB9CIAnjBEtYfxxYAS0y
+	 B0j4SVDgNe/8ugzDkGqz4b2lkn2NqBhzEDkLExI+LGS14YCxfNEyoHd1tUyfLwq1mLg04
+	 9gLCFzX0nvT9EvlfCE5gWI3cyLrv8Q6Ko90EBtwqO0DPeYJWBso0Je8cFXmpxQGErZw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794466259;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=TiMBNE0SdEanqDa46Z2oEWmTBYwnlOmuj9xGhawnj1M=;
-	b=MDbJo4SbV67iyvfQBlmJMZZ0eN6lq7YOSon85D12tfD/GUtu5BqNxu5Tdnn5BO4fYs9z
-	 Ux6d719z6PxqpVKA7p1n4Mznu0S4OIraaIhwRaA/SEOTd7JYOD9pJgNX7blQjH3Qyo/2l
-	 TjpSgRsP4BGJM6t0cAtB4d+3s0XRlOHl8lOZe3ovMJ+RlqEN514rIh/zxTqaQZHkIf8gf
-	 pPCq1baK+1+NMuV4APO33NhC7flgxNDbcMug/YAa0Rj1WtgnydsrFlMmQdI8IojALRT1w
-	 nQ5ixayMYeEQrmLO0WTifHkxRftnoyYckEgB4QIxLdIPit/MSuTZszHXoQ81A5CTzIw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466264;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=o7FuU2kplsxoIIrv2lRaqW8tQ/83lB7XG52hnt4k8OA=;
+	b=QSaQpgEDVOqz1s7h1+0QeQWktLNRslVZQO/l1hOT0yDn1ezbh+9n6/WVZsfdHp3PadBh
+	 NBmlE7Ra3BecdP68Sx+ZSZvg2tHUsh3AI1VHG4SBPfK+EC+I97HplrXmEaEhFbQRJiDQv
+	 oP7D2qwIN2ndGhIVKa7tOjpKs7jBLWRhvYfuKXX3tLXsTnLPRIPJ1UaAiUVmdcIF7eHKg
+	 dqT1y9c4Rpp9XrSdAXFk/IEk9ZiXjkKDd9YwRlnvcoYE4FpuQ3HQsjuMW/0QIslsKinSC
+	 PDRIyzhZoUhgyvpOX0KRU2vklmZhojGA73LgQHTszbFIAZmY7KA6nnL8o5EnnMetR5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PzG+wAJC;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="J7/v84aM";
+	arc=none smtp.remote-ip=74.125.82.171
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961A5606A8A9
-	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:50:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1797606A88A
+	for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 06:51:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C1797606A88A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PzG+wAJC
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D931F00A05;
-	Thu, 12 Nov 2026 06:50:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794466259;
-	bh=TiMBNE0SdEanqDa46Z2oEWmTBYwnlOmuj9xGhawnj1M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PzG+wAJCAEQTpmrEJU/3fnzkxt3E6ytgfCqFYgzQY5b/Hk8j95bUOitQRIZUMSxTo
-	 lXgcblMlcrhZZc4/TvBmIOzvOuE7MGwXyzPv1n3gEHRP9ss6633DzFYsSkHg6hXCTE
-	 ks1gGQJ2scABAA5de07BYijjrUM0ffkKa1LKcMZ5FGE7e53lNYveVmTrYn3kJv3ppZ
-	 8ElkK7+y3ZZKGHJF/3ouR3WK8J4IIXjuQb+lQedjpCxewhoLBhcqMHjWY18+mYBg5m
-	 D2Okeq0WA8Zx1bXAJdaI1VKF57d08xMiS43xxxmlC+cCA/L69E4sSsu1HKNNTDoPAu
-	 3wssN+bs3gNCg==
-Message-ID: <sashiko-outbox-210539@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs
- during teardown
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Myeonghun Pak" <mhun512@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261112T063704Z-thc-v3-1-mhun512@gmail.com>
-References: <20261112T063704Z-thc-v3-0-mhun512@gmail.com>
- <20261112T063704Z-thc-v3-1-mhun512@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 06:50:58 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=J7/v84aM
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-36dbde64409so7859257eec.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2026 22:51:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794466263; x=1795071063; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=o7FuU2kplsxoIIrv2lRaqW8tQ/83lB7XG52hnt4k8OA=;
+        b=J7/v84aM4LAIRiQJCL+hVmWW1vPtK51m1N++Rb8wSEBzgbbwrl11S7D6e6pPHSqKs0
+         iQ9bcoS9qOrf52PkTUbdaiPlyHay4TJiCrCT9wOHPaxWgWYuhi3ITMxXwRDfl723hYyp
+         91Dvsjal8PJGKBd+JYCNEoSMQy829nNsRIJYePvWNMMIAzOilfEqfStA4MCIUs5706p+
+         5+isCDY2fqeQk0uNA0GYJ4KiKK7FsJfr8V6UoTq/VC6NEd/y27C9Bdc5GjJd/JzVtqV8
+         qKPFUtOmz1Ap/70uTeS8K818YxaBH74iP2wPgIpXzngsTmkb949k1Orbo7wgvVCLiNpc
+         qyXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794466263; x=1795071063;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=o7FuU2kplsxoIIrv2lRaqW8tQ/83lB7XG52hnt4k8OA=;
+        b=ZPiAxjuh2cnJHYImK3z7hXlfhgGNLFxQeHZiRDBZ4CTZSmspYYi2BUPFOsdpo4CEeE
+         msrzzhumHNjUgmF7JRS70yJacT4jSYd5uEws+qqUxPNKU/tQ1WSHiBqRvbQ9ETi3a+Wb
+         e/ulA7N1jW6/pfk+VDnRMjG4NhixUp/ez1nqfz/nU3VxtB0IHjcslt+vGa5DbH8lZach
+         981sAdayxK3YPpJm8opaw8DqLOWmaCwbMs9Qt8s/WNslB17hWOciw4PzkLYXvUEnsUBF
+         eUPayHnjzdsOjtUZTXviYj8LMTO/CaInHsF0qucZI7aguLmqst5/Gl8XK3HCNx/HS1nU
+         PB/w==
+X-Forwarded-Encrypted: i=1; AL+hErEecZ6715oXEy60gP6dp09aI1InoKEBDFFGutULCCs2fNl0CJWAc2r83fdxk0CrwK4GgAR0HJJ+rGgz2Q==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/IabqoMtrbRWtd1ALUx55PsDKCSaZoqQ6h7UdTAa2l8kvNwJfa
+	oMXIOm+V4YioFuRE4pXbtJdBrMAiwIr7YLDqxcGFOutee+V21Zl1gVMr
+X-Gm-Gg: AYBFou0lkITJTipabQt3N4PCI69RyXRSZBs08QHlhbbQ8ZMIrHbz5EjXAUgjKbojFGv
+	Bfp9kLDD+INiPalm3/huf/KHASn5M0ZfJJTpC/2SS3BfPctakNT+wnxzR4gBh9ag1g2zwUYYKsh
+	7rqJseXhiDNMHwGUi9mFc5e4J5B7tG+zct0L+WDBeR51bSbtAg49B9hik3jWqbQ6owsKuCCuXgQ
+	G3XCX1a1k62BTsykmpuO3X2ln2oOaxquCCmtHuYDJ5riEax+9SpI4sx//+JlnsVXxCTbBsy2rZv
+	4iY7lcXV9y0UbJCDbLJs9fvOTjBKB0KH76M4hw39t/ohO3XiNjZPQ3kotbDpbe8QfbIPgzelTjq
+	xK4XLNh10QWr451+YGcfG6CXsS03biYiUjJZQghEJBnuod0QJTORBCqLF3LYweSU7CspdvV12Mi
+	WcF6aqiURySAB6NP8CO6aGpyxSo8h2pLKZc2DlIjv4ZBK89a7yv51jrpepkRABPY6wVFD13udq9
+	VQmqNNfu5AXmwDMu0nuVww79HjiFEnOxxzrRgRO0IKNS10FRTW8pBlXTT6YS4YY6kPtJB4v3i38
+	0Y3h0PqLms4O/Y4HZ26Si1q6WobaCxOC/Ye3SqnYGvMGRfwhQYRIMD1IJp6ZxgEDrpkF56DsS/T
+	8vmC4IoIJGjdbTgMt
+X-Received: by 2002:a05:693c:87c4:10b0:36f:9d8:4a33 with SMTP id 5a478bee46e88-376867551b7mr5264981eec.31.1794466262717;
+        Wed, 11 Nov 2026 22:51:02 -0800 (PST)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:182d:659:ffce:39a4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3751fe306casm20788624eec.9.2026.11.11.22.51.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2026 22:51:02 -0800 (PST)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Kim Kyuwon <q1.kim@samsung.com>,
+	Evgeniy Dushistov <dushistov@mail.ru>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Input: max7359_keypad - drop platform data support and style fixes
+Date: Wed, 11 Nov 2026 22:50:56 -0800
+Message-ID: <20261112065059.1802480-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,66 +96,23 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: intel-thc-hid: quickspi: broken HID teardown in
-  quickspi_remove()
---
+This short series drops unused platform data support from the
+max7359_keypad driver so it relies exclusively on device properties via
+matrix_keypad_build_keymap(), and cleans up register bit definitions and
+argument alignment.
 
-commit c5d058390d4d45710eca02a89498e5e65474bafb
-Author: Myeonghun Pak <mhun512@gmail.com>
+Thanks.
 
-HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
+Dmitry Torokhov (2):
+  Input: max7359_keypad - drop platform data support
+  Input: max7359_keypad - fix coding style issues
 
-This commit disables and frees the device IRQ and drains recovery work
-during probe failure, driver removal, and shutdown before releasing HID
-and DMA resources.
+ drivers/input/keyboard/max7359_keypad.c | 27 ++++++++++++-------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
-ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> index bf49d8ce5f07b..3aa0ae81053e8 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+-- 
+2.56.0.567.gdb80ae8cd5-goog
 
-[ ... ]
-
-> @@ -721,9 +735,12 @@ static void quickspi_remove(struct pci_dev *pdev)
->  	if (!qsdev)
->  		return;
-> =20
-> -	quickspi_hid_remove(qsdev);
-> -
-> +	WRITE_ONCE(qsdev->recovery_disabled, true);
-> +	disable_irq(pdev->irq);
->  	quickspi_dev_deinit(qsdev);
-> +	devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-> +
-> +	quickspi_hid_remove(qsdev);
-> =20
->  	quickspi_dma_deinit(qsdev);
-
-[Severity: Medium]
-Does moving disable_irq(), quickspi_dev_deinit(), and devm_free_irq()
-ahead of quickspi_hid_remove() break HID teardown?
-
-When a hid-multitouch input device is open during unbind,
-quickspi_hid_remove() -> hid_destroy_device() -> ... -> hid_hw_close() ->
-mt_on_hid_hw_close() -> mt_set_modes() synchronously calls
-quickspi_hid_raw_request() -> quickspi_set_report() ->
-write_cmd_to_txdma() -> thc_dma_write(). Because quickspi_hid_raw_request()
-does not check qsdev->state and THC_TXDMA remains enabled until
-quickspi_dma_deinit(), thc_dma_write() starts hardware TxDMA and blocks in
-wait_event_interruptible_timeout(dev->write_complete_wait, ...) waiting
-for a THC_TXDMA_INT completion interrupt that can no longer arrive. When
-thc_dma_write() times out or is interrupted by a signal,
-quickspi_dma_deinit() then unmaps and frees the TxDMA scatterlist and PRD
-table without clearing THC_M_PRT_WRITE_DMA_CNTRL_THC_WRDMA_START.
-
-Calling quickspi_hid_remove() before disabling the IRQ and deinitializing
-the controller would avoid starting new transfers after interrupts are
-disabled.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112T063704Z-th=
-c-v3-0-mhun512@gmail.com?part=3D1

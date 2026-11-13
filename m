@@ -1,96 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794585657;
-	b=mppDVsicZQHRKt27RdUgIHxKig5RNhslh9iMF0JNQvWeuQuHtXqNpfs3ZiZQ/bxjJ+tl
-	 ixqe46cmnRzaOyF5DaSLrY4ky3KwRRElOJ/nL5gwq2GmmszZ9Id7eC7NmXx7k516np21q
-	 opuhr9n7vN/lO4p0LNKC0UGJYOg71V7rCVa+hnz7Er+CNvKcN33VllHjsKnCfAPffrQwR
-	 RmBcQdM0QdDLqBBh2P7/p7p+rPxdmrfAc4QQJ1QJygl9ZVRuAxXOXq8D4CjoOePLmcXwU
-	 +QkwbCXc40LcTiP/11xtYiWeNYRzafZ0KLweu6GBwTHYPn0sZ/LxEstRy1+mENNKiOw==
+	t=1794585933;
+	b=E+paIsZdYlGpWqrH193P1mjFCTJsGZnzrcFuWLI+kcf43+CaSe7EWP6cXJddhZQbU87x
+	 8rIDC5ZJFFHazRH3yTfTqYZLs6LloDzQf1P4VZAIo7Awx6DjQIvf+fX12hidhMMKZNudg
+	 JxmayT7qrw1O9ti/ZmDTSr1OaO8BzB5iffEBHt4CmT3V+NSYToNj5W8Wqtz38YfqBVQL+
+	 P/+giGykEjleDa5xStXJiJA1qUkh+2TKlwe32s2AGvjgPMRWmJViK8MnL2cMW1S/8uAVm
+	 Ry1iGuBBeYwYq7A/lUAEv3emdsb3BDDZCPOL088rlj1vj0YOh4BLQpmIa3TIra0sgDQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794585657;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794585933;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Content-Disposition;
-	bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
-	b=rJfKVM3QjonbyHMxr9NS70YpXgSnC3GxTKIFi2ZXLiBHHq4KhHbgC3/exaoJgJuOyEup
-	 r3MjMhRbGyi4lfK0nt9HiH8nhJbZyDD/k3o1cMyRMaDpYQxTgVVyG82CvVfjzY5y4atHP
-	 KONVL1aiaMUt6+HVO9hGh4UM25jezmbEJy03vnHxw9D3uwsxORnMP1KCj4hDwbAhGnvSc
-	 T2zsLUh/jpGY6zzc0YCdZ3c7meKJ93Li2GZEt+nYMvF+UglVRplpVOIb1gGn3o/ZiJivD
-	 lEQgVo4W2iYz8UWilGIOCU/tnaU5BD/MNfPwuynOGwfDRhJJ68KWfjvtT8XbOG1QomQ==
+	bh=eUCp7y4ZtvBDvMyeJy1tGSy1cHHuB1Vlu3Y40S35fBA=;
+	b=2np2nprg3wG2M3f6pWcUUwczB3mytCDbHFGXYKpQIOnvKKFXd9ZdqEFHXsaHlJtw4PbL
+	 CPIV+P2Gjbaom80ZHRKZfaaLMo3dUASmExd9HshH1rMTOvMQMseh2ZSouiFIN8bA3oh6w
+	 2Cd0MgU82ejtGL/NYe4/BvmpjGBGmDPmzkUqQg7BhzZxJbJp2270mKnBINT8wbgBpV7GO
+	 pC8a5HRH62ha1kAsQEVWBjJTrSaKwT8YBvunwtzZbo2YLxUHD288uBudUfILjxstIVdGL
+	 K3Ohstz/b0BSNP/awoWc3gL1qBgsvL+C223GIq7RnV/5Cg37bctrVAtOr7o1FMyrxDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FNkjY8c5;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Zf7OncZR;
+	arc=none smtp.remote-ip=74.125.82.170
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93B71606B5ED
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 16:00:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 93B71606B5ED
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D0E606A889
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 16:05:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91D0E606A889
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FNkjY8c5
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36f8cdd30beso2874016eec.1
-        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:00:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Zf7OncZR
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-36dbde64409so1744679eec.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:05:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794585656; x=1795190456; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794585933; x=1795190733; darn=vger.kernel.org;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
-        b=FNkjY8c5qVoxECoy9cH5IqZVYrIDNUHHh+EI386wFkJOvTo8i7gMp6DoGZKImma+8a
-         4xHxER0iCZjoiQFZLsWK4msE8tgrpKQPrqPc6h5XkCBmfK6NvlQAVvavnjIsy2WPIV0y
-         +WHgWAkOUdJF4X++yHTft5Pypxk7CHTT8+Yba/4SSsBXJvqU6phdQhBIJd/g7ExMEg+i
-         OgowQyD9OfSJli99pOCQoJOvLIA9W5SKPuZlnDX2Lne8OmuFhhaKvg7/hb9DVyFoBORa
-         Vpqi7lWnfhJWev1FfnVNfJMP8Dk97aPGObaWfT3OgXLc5CuZzKmIhpszV2ildSXt3Nw5
-         jdTQ==
+        bh=eUCp7y4ZtvBDvMyeJy1tGSy1cHHuB1Vlu3Y40S35fBA=;
+        b=Zf7OncZRcIc8BLKThzw2qNc3gniEua31SWuTjcSV5mo7oSxUlOQvSGmIzu5ddm3Kek
+         W9kWzAmIKry/bwwM5klYSIkSrghYyyAq2l1T3J7lKybH8yJ84m0rqNx9Xixx7PB8HHDS
+         GcJRixMDtmzvZMxpX4c2NS1LDmDyKHgqogpNjUMrGuVHfqWNzLyH26F1JTcpVXYsRFo+
+         Em+tIIFvtL16Oc3Z99TbvVfqGhqG9A9Za+dXQ4NKz/ynx1J0sfX1Gghy6YUN3regi6Xe
+         yJ08w2FNAEbKUoT1BWKsr3OI7NF6NpE3GwLtS9y1SAG2K71t3rHt6V8pnHuBLKagCbge
+         ZJzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794585656; x=1795190456;
+        d=1e100.net; s=20260707; t=1794585933; x=1795190733;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
-        b=zRSkQp4jNZnJEF+YlNl/3W8xb+Do+Al5H00FqfoTZB5HiURIsDnaSPf88ry0DXUIqU
-         HGkoU4ctkwuOjtrFblvLJ0DlTjMIdSe4vHeTPBJxeWdHBHvb3AJSLtDpx5CgWP0rGiYP
-         vqfLAHNcs/OAqirQS7yno+NNpCveEBaQP8HpMbs1e2RDxmebZjUpJWnm4RpQZzDMSQN/
-         wWVC2mSe1UqLppTGrVvve5dtP5lZmgLAoyywphlAoFQxlYRz2RTL36cfFNv46nKAlFsf
-         uYPTfWD96aIKHB3pGYk+wHdwus6CsE0rR98tLWi+fAL3sSPkRTmAajXpTNyc9C4ftBqf
-         NkMQ==
-X-Forwarded-Encrypted: i=1; AL+hErFfAW11rwtx8qMGFgX7q5zrCS2MIfnvvshD/IQ9Z/PkAlSBOh5pxZUBimrJHVZk0XVLTGOyAmG3cSpPPA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/kBYcXQl0Qtzr+KRrGDMptwWQ0ir4M7WE3BVMmOoTSLgNlak7P
-	dHUerbZrV0AtpT5fWhPAtFKyGjL6dqZhiNNQUVE+hMOV95OKHgJZmb0d
-X-Gm-Gg: AYBFou3axDCrsOHEWLsk12vZruR37fggb2XfM7rPmnyTEw8/K4XWwH4iBF5wkpdRsY6
-	1KDct3A3bTXKBS5Omml1nG0cDCBL028UifIoA/bqAV1kwQr6k1V2ExOfdJjsZmUeP8B6sfhDDLb
-	xpDs9agsm6mDlSO0AksXgvw01kUAFyHPeysWkzbk6u7PbmuD2RtUmR1KtZ5+oC5QdUcFui42IUD
-	EvZ6zBzik1ew8fXoE3XTtPH9WO6WdAmuU4l014+ce3JfM/ICX2v2s8O7kobaA7ZqmQFegJb3hqb
-	IZ59jRRXPWcrqe8cWqveKFbfPjXkm74i89xDowgLP1MkHHe+fjf4+KIJplo0mUeT+qnCa1rjL+a
-	QZv7pYjbJJMg1uIs68MtS2yz/ONGDejSxtOjfpSshx8AEkunstW3Q3mZpE/5/AdHhuyRGTyqNNk
-	/T9aCsh1FRmupGT8BWGzo9u9kCgU6MnGUTTG/TWX5k8dTA6D+j06s0/A9thJgkSQhk5Mvsozi7O
-	CkO1upTRPmmO5WGlQOp3fOc8FrAFMDEPsZr75SxgXnoqLyKoDDCR6Y0SDZ/3z+DBbCwLlnruAaB
-	quZtaNsrDTEY6oJbnF1/xncf1Q5OKXmvTQIraQlMnGlTFfZKndtv7WFeO6yRXTXxdUK09Q==
-X-Received: by 2002:a05:693c:8312:b0:374:ea35:9069 with SMTP id 5a478bee46e88-379681cdd7amr2329847eec.39.1794585655380;
-        Fri, 13 Nov 2026 08:00:55 -0800 (PST)
+        bh=eUCp7y4ZtvBDvMyeJy1tGSy1cHHuB1Vlu3Y40S35fBA=;
+        b=rjSG0SW/z6ivOwhD6+sHrr2Greerv87X6kuOrxrT7MYHe+O64ELa9GlaJFxn9zejNO
+         jKBlmV6QOgCXNMZ9xu1FhsqUXjFd4zMycL4NKiVblb+cb69foG/WBP4d2v5I5e53chTi
+         Dqg0ft5usau62yxcmt2B6KOdcqNK8o0qWi4hz+/g+DOXYNk3GSs4hl8lEpoPIg2Ug2pQ
+         TA6Aa8Kl0YxPfGv3DtH7kd8FhU2q1T6eXCD76UrXDDnRDn79+1DYh1d1ZuddzAJvrUSr
+         sC4eAfLieE5gAD4A0cH2BnRTl6izA/lX6RMcLNOkBqisFB6yRjE/0o+ztnMArRGn/1bD
+         Powg==
+X-Forwarded-Encrypted: i=1; AL+hErG2bUX7S89q8/XH3N8zEmiDL+4PmqGdeOWiuNCLBYQfKGmn/RHt1pDG2WWvKSnJfKWRcBsqr4IqQn9xFA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z99pZOXtkX3j6zcAzeuFHp5OdrSC3RjV3tzW+dNb9ItIj5E5NhI
+	uv93skgXIiVf2pq+VYWRnnmTiTnVBXsK01uj3fWm/J/eARzleTzexm4p
+X-Gm-Gg: AYBFou0L7Zi0TzKWXsxcnMxT/Yh7Nzuzj5tvBlk3ppdw/6qxTt7bZjkttAarb1wJeP0
+	fQxIutBx5W/kAz1pADz6sXZDYhHdjygblJxnXaIrPaWcpHHy36B8SzlLHJ3rle2g4U5VWPefVWZ
+	Xbb7WIBU+kfcTRSagFPYjpy/3tBziH3GCpJTyLsqs7dgucOKXZ3I3qVtBC4cYhxrKlRi8GasNAx
+	BZMN8nM5bf8CSdOiXR9OReYLAnSrvgel5KPTLUYm60uV6I93iyAuFPlwfmpisnqFQPYD6txTYGb
+	1X86XN5LmHa66EvrmG13UYYYhB9dDBIORmdIp5tmXDDBRt0uwtAbf1rZ85wOEsQpTiwWjEmhNtZ
+	zDcys1/95O71CL1WqxmOPKu6vsluJ9G0HMITDP/p0KYjEl/ouTcmyJ/7X/3HsZfhsThIHI20wji
+	JbdF1GDjy5z3vgmaYkDWWqNPtowuXhExFhhiKOp7xkCj/BFm6vAnSuXmuyueS09Vxij/1olqk0/
+	QtCbfwB4lYY7rcC2d6TBC5xJUYlYB7L9AYwLRTqi2ATpWeRwdwcxxkudiVdqGAQcjXYElXSDUf0
+	iCpnswpgJlJRvvqS9iu2Z+jK/mNQ1+iOrZbTMDH2AufLmboMPe5cnD+8S0ZrBAfqiVwB4A==
+X-Received: by 2002:a05:693c:8806:10b0:370:121a:b2f with SMTP id 5a478bee46e88-37965f9dce1mr2544887eec.11.1794585932296;
+        Fri, 13 Nov 2026 08:05:32 -0800 (PST)
 Received: from localhost ([2a00:79e0:2ebe:8:48f1:7a0b:9bfb:4205])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379508762a5sm8587820eec.0.2026.11.13.08.00.54
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379553316fdsm8743311eec.5.2026.11.13.08.05.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 08:00:54 -0800 (PST)
-Date: Fri, 13 Nov 2026 08:00:53 -0800
-Message-ID: <9594e8428a3fbc94e515c9dad2268009@gmail.com>
+        Fri, 13 Nov 2026 08:05:30 -0800 (PST)
+Date: Fri, 13 Nov 2026 08:05:30 -0800
+Message-ID: <b51b774b36066fb9aea14fdcf192c3b1@gmail.com>
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Vishal Tyagi <vishalxtyagi.oss@gmail.com>
-Cc: Markus Rathgeb <maggu2810@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "Input: synaptics - enable SMBus for HP Elitebook 850 G1"
-In-Reply-To: <179399405216.85438.8327280593401118083@gmail.com>
-References: <179399405216.85438.8327280593401118083@gmail.com>
+To: Nick Green <n.grn@outlook.com>
+Cc: Dmitry Mikushin <dmitry@kernelgen.org>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: Re: [REPORT] synaptics_intertouch on ThinkPad T14 Gen 2 (LEN2072)
+In-Reply-To: <CY8PR02MB9252B5E325192960631C286CE7AB2@CY8PR02MB9252.namprd02.prod.outlook.com>
+References: <CY8PR02MB9252B5E325192960631C286CE7AB2@CY8PR02MB9252.namprd02.prod.outlook.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,30 +98,33 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
 
-Hi Vishal,
+Hi Nick,
 
-On Sat, Nov 07, 2026 at 01:10:52AM +0530, Vishal Tyagi wrote:
-> Commit f04f03d3e99b ("Input: synaptics - enable SMBus for HP Elitebook 850 G1")
-> added PNP ID "SYN3003" to smbus_pnp_ids[] to enable SMBus/InterTouch mode.
+On Sat, Aug 29, 2026 at 08:44:23PM +0000, Nick Green wrote:
+> Following up on my previous report regarding synaptics_intertouch on the ThinkPad T14 Gen 2 (PNP: LEN2072).
 >
-> However, on Haswell-generation HP EliteBooks sharing this touchpad controller
-> (including HP EliteBook 840 G1 and HP EliteBook 850 G1), the touchpad fails
-> to resume after ACPI S3 suspend:
+> After further daily-use testing, please DO NOT add LEN2072 to the smbus_pnp_ids whitelist.
 >
->   rmi4_smbus 0-002c: failed to get SMBus version number!
->   rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
->   rmi4_physical: Failed to resume rmi4-00: -6
+> Key findings:
+> 1. Under psmouse.synaptics_intertouch=1 (RMI4/SMBus), the touchpad exhibits intermittent tap-to-click failures during natural use.
+> 2. Low-level event debugging via 'libinput measure touchpad-pressure' confirmed that missed taps produce zero evdev events at the kernel level—momentary tap interrupts are being dropped by the SMBus controller before reaching userspace, while continuous swiping and pointer motion transmit normally.
 
-Could you please try the patch recently posted by Markus Rathgeb (CCed)
-that retries reading the SMBus version on -ENXIO during resume, and see
-if it resolves the S3 resume issue on your EliteBook without reverting
-SMBus support:
+Dmitry Mikushin (CCed) recently tracked down a performance issue with
+Synaptics TM3471 (LEN2072) over SMBus where rmi_f12 was reading the
+entire 79-byte F12 data packet on every attention interrupt (requiring
+three SMBus block reads and taking ~17.4 ms per frame, which capped the
+report rate at ~43 Hz), even though only the first 32 bytes (Data1) are
+used.
 
-https://lore.kernel.org/linux-input/20261105204953.69572-1-maggu2810@mailbox.org/
+Could you please test his patch series (now in the input next branch)
+that limits the F12 read to Data1 and enables SMBus for LEN2072, and
+let us know if it resolves the missed taps on your T14 Gen 2:
+
+https://lore.kernel.org/linux-input/20261026142648.2567233-1-dmitry@kernelgen.org/
 
 Thanks.
 

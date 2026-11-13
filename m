@@ -1,109 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794578391;
-	b=SqePKLaZ7tM5241wKz1Zi+r+/4iXE2oZ69nGp0qm25F0OR16CHHt6CdjtnFgiRqPf+OS
-	 Q/QDRR8GYEIXU7G6Rr4HpoNsyLflIgPYYFedxsb0NVe6osWgu+/+PwqGnHfqKaXQeqUiz
-	 M7UUxdzLgKtYsEBy7gH9lGzFWr2h7VO7IBWU66FagC9JrxYoAWtRjIrQvdYZlMmE2PH/R
-	 pg5FhkktjFpLi+zv/669bKTqIi7M3h3jxg1ce0w77sFOTtb3i6Nv4P3Okne/VPDTO/fjm
-	 XeW7QLMYrk8PiOvT4zB2HDPM8ACqaHIYsloxiTDRIMxTaOkUmBOa8vLlnLN0Vlvxd2w==
+	t=1794580043;
+	b=JUNoPSBSdZb715IMfm+D707RLjrzxnphrt1vdiVxSR860XIyzgrDmFf8EDxtxN0Jz5BM
+	 ZP1Gf/sX7ALqlPpRg/lgcrRa7BOmia6pSbGY88RTs7JWmDY7lTwJed5kN5CHnEZdkgkHA
+	 sj7CK2A8BhBWdVhHf0nRVLuLPuqDLEyaAXgBMdljDWyAiDDAIPffayysS/LLCeGgSJFt+
+	 W8bnSrSSrmbbMwR7SaAG7X6/CvgPCu6s3XEIjY80yjuNwHyhPhHGmuEQqWlvqzjaFC567
+	 bSBHdtHGVEoBnNz9PuVgUA3ofLWTFkTjR73AoTuuTRsBnxGDZfvcerQwHAw3GzYV4aA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794578391;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Gm-Message-State:X-Gm-Gg:
-	 X-Received:X-Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=wWzAUjZknh4jZl3NcGcDKL8d9zuu/SZC4rP1w2kOxz4=;
-	b=TIhZ8C/pd/6rXsnrJqD4xf/ZDaVwvcvCBTOYX8KnbBBp10t2CeFJz0FydmM79FUJ/ghS
-	 y7yxDw0OihvQv4IakWxAaRDsRbxQ32NiaBqwiDFaQCgFLkBMasqRx++UwVO89B4u1sHxI
-	 ffiM0feRwuVl25V4R11cLIvGTuMzcbkTlQKcMWcpcHMP2jZHEu/QITtNLn2OdXjiW4Cc9
-	 lsMWaTjtXiwINnRt4sP2avskx8GWR4L/ZMRpXJ54SF0XwqTN8vG95vUCJWxshEWvStpXa
-	 yBX0ideYit8ksa2l84Kn7+lhbr4O4unrdWePDX1si3xNbEoQOxslRCSonhPOy7eN1ZA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794580043;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=hpJ36xyZPKWbN6TAd1+Vr1Q2cNa8/zsHguDy8UEegXA=;
+	b=txLv94L01j16bTKZmFZV1kItKVmRwlZxSPh4TfMXaPWSwI9XQbMXbQHuopaHTfUvrw8B
+	 Ytl4dGFgFMXxMBrRq728uW3t1xqQed3+qwqLNYXzLAT+xsegrsg3KcOvN2GSpwZymqhOn
+	 BLIlBwXNPhhzo+WbdaPdaeKgdksnPzT3In5dPhBSjH1V0mw+rtOpjpVHAPB8RVW9FSAZ5
+	 vQXbFvixVgP2fB+19HlMNpmclk0P+XE3+J/SEq3F9zlshmhLUwMsauAMM+hC2Fv8dzGTr
+	 Il0RQdQQkqXlpLH8pIxM/AyZ5MltMhcH/tD+fDnlEKa5IIUw+8OF9aJf/hL3SGo90uQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=BHGYa9dw;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=ZfT69EnD;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bn4BQudr;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6059A606A893
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 13:59:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6059A606A893
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C218606A32E
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 14:27:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=BHGYa9dw;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=ZfT69EnD
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ADCJoC4516559
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 13:59:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	wWzAUjZknh4jZl3NcGcDKL8d9zuu/SZC4rP1w2kOxz4=; b=BHGYa9dwBFVPl3bH
-	262z7vPEMx6Ep/+o9Zt/ee7SXdvIkpmkK7lS0UL3XibqX3ypzttHtwtcJL8z9YPE
-	XyHL4t7/YWiiXzNU2XTmdN7ZqgT4s3PumGhG/9ksPU6sBn0cSbJLDCzIxJ7X9YP4
-	B3K8MWkecn0doWzpI8EyFsotiYTeqhb6ZsyBBD1U4u8IPbWPVtps4QFEU3ZBIH8q
-	MUsLx1CrsH/4D3zhYiHfI28X5PUR1k0mrMa4XgHcjeXuJR6+TvpbGhvni/g+R0s9
-	Wgb3yBNkrfZjYv1bx+u7rvsr4Cju5hGf2NHvPFyaYSIQpCoqgePyuJg+z9jVLgID
-	fWcpdw==
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com [209.85.219.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hwkfdkeeg-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 13:59:49 +0000 (GMT)
-Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-91eaaefe98cso426216d6.1
-        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 05:59:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1794578388; x=1795183188; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wWzAUjZknh4jZl3NcGcDKL8d9zuu/SZC4rP1w2kOxz4=;
-        b=ZfT69EnDWJJ1B0t0ndDA6/z5KWGkJytbdRoMaet0dfFN/ADd4YQrqBs8rWzJYbSOZG
-         pjMG+1zLBiYtROrFxT+D4eyhA4Py2gvtZKwrlxumIxVVd8uyusO/U9y+IBH2OkApzd9o
-         7vA4DOcaX8uNjkQIUP1fXDJD+xoUjgb4Ofp9qcKHRb7/qDHp6bfr+2gDxWhmVfZTRSE0
-         jX41WsBqQQBTVULQ4arcWjOl9e1E06U10hrVwxYr7GM4VkBJCGtOZZRqvmeq5qEJkM1e
-         4L0D8Os8OHe9lcXs7rXz9ULhx/U7rgRL78z5N5TrIg4Hwn/1Yg3sSSxfdg96EZnOmwF/
-         wCxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794578388; x=1795183188;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=wWzAUjZknh4jZl3NcGcDKL8d9zuu/SZC4rP1w2kOxz4=;
-        b=MVCtED7kTlXPdTvBqHASJAfl2/kMeHM+//gEc3Spt4alrqqkUesOTx0SRzr4RsB/E8
-         ggoapIxa1JPM1P3osDUVstrnjjqXvtEMcTbmKnbCmq935l8nHXPd8Cx3DE/rIx5IafHx
-         Bj6s8KV/9jKHqBufIVDvFifad2j3Jgau6oYK3uVQoOr+Npt/PMYUijhBGgma//lFwvPG
-         7sWbsH4ampqphVELmAM103RBXj6/s80+dTmohrVX1Moib3DCjDfP68OgVWcg+aG0/El/
-         Nisky3W2BKSvGT1D13JxiQJjah9k351iuBJXeL00r7H/YiDe4mk8czya0UHbDm6Cksy0
-         NQGA==
-X-Gm-Message-State: APuU4Z/rt0OSPevAXjml8cNKg9LwdNBkHcmEvvkGZsCVWwyPGGmcVn+x
-	9ynNgdrEJCZh7Et9Y6XOWqKQCjcWI/Cm5HP9EhLZuRSlz5HSEjHlJF91RlyH8s9tIW3iOLMu9Ob
-	gt/8WrN/6JuRJO9WceoSHoeoGHEnX7gydETYgLQYVBKS37kSOj/Gb0EFg1ZjwRGqO0w==
-X-Gm-Gg: AYBFou3Awrgoa12H7xHQuWxeAJU0tUHiV2achIxEKOXHSGYkVdH73uI1/4ta5HviRYG
-	kboIEk7SDDTSMsUhY3otYuIqKYqlsOf6HKJKBG4a1vgA/8vueE7bb58aIqUKeX80EnMQiiXOGrv
-	FKZSEof+KohHI3ZgDg90ar7I9AytRadO08JaPePpmfwgoIJiSvOobBOzQJL2DINwkn3YUIWGh1I
-	BYcDSLQGiOu3UXudWEx0jwNhryzRel+Nov5eVKtg8LNXozyiMBjVnoWRw34bEuoBZz9JX5VjiS3
-	WQR8Mt/QOrE81I5Sihsw6zQ4GlXEqiqpm/Pknygevq+WmmQ1Va/p4+RY/mUAKWYmB+BsJX2IL7C
-	hcAiz2VU9tiCNocVeUtuR5R1EemVVX9iTUKXo0DVxjwExDeFlK3qcuuxfQoXuHhk8TOsG5fw=
-X-Received: by 2002:a05:6214:3103:b0:914:521e:7da5 with SMTP id 6a1803df08f44-91f2405e286mr55051196d6.1.1794578388562;
-        Fri, 13 Nov 2026 05:59:48 -0800 (PST)
-X-Received: by 2002:a05:6214:3103:b0:914:521e:7da5 with SMTP id 6a1803df08f44-91f2405e286mr55050386d6.1.1794578387916;
-        Fri, 13 Nov 2026 05:59:47 -0800 (PST)
-Received: from [192.168.226.72] ([178.235.128.140])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ae2b76b6b1sm8150891fa.6.2026.11.13.05.59.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Nov 2026 05:59:47 -0800 (PST)
-Message-ID: <182a6790-90ec-4083-8da2-14be30803740@oss.qualcomm.com>
-Date: Fri, 13 Nov 2026 14:59:44 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bn4BQudr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF061F000C4;
+	Fri, 13 Nov 2026 14:27:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794580042;
+	bh=hpJ36xyZPKWbN6TAd1+Vr1Q2cNa8/zsHguDy8UEegXA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Bn4BQudr1SXcJpralvhX9IMeROcRXpZJSnigFWAGJ/4akfZXS2Ls8YPQkvb/vPWbY
+	 YxP0EACW+z0ZCp7kIKQDVLeYMToPioJQq7t7ZxamdLZScmpZoocI9Rm6PoHWjAimRV
+	 Itn1/XfYANgWQ+9VWOh7CFKMK0C/DcU+XYf8825yag1NNkmB41BmFi503nextVQmrM
+	 jif4AhFkz0PHX9qpgC1/qZSw4uXsUDLXqkfoL25wocBGSCcJ4jBSvCdEbxUCa2nZMV
+	 IE+URIyUP5YsaH7FzTlU9K+WJlTtOZh/Rj/yJGvq94qzRNH5jhb/lgdfuL9g8UfoWE
+	 N4gpn/yvw2Iqg==
+Message-ID: <aa5ac70e-1d8b-4368-9453-cfc3bdbaa2c2@kernel.org>
+Date: Fri, 13 Nov 2026 15:27:19 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -114,72 +52,122 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4: Support drm_panel_follower
-To: Konrad Dybcio <konradybcio@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Vincent Huang <vincent.huang@tw.synaptics.com>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-References: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
- <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
+Subject: Re: [PATCH] HID: letsketch: skip string descriptors the firmware does
+ not implement
+To: =?UTF-8?Q?Eren_=C3=87akar?= <hey@erencakar.com>, jikos@kernel.org,
+ bentiss@kernel.org
+Cc: linux-input@vger.kernel.org
+References: <1794567868877069470.1794567868@erencakar.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <1794567868877069470.1794567868@erencakar.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEzMDA1NSBTYWx0ZWRfX0BhlUbi3IH4K
- 4k3OwT7T81q/tovjs16a7L1V043K0xUMYPWPR8DPwXuo2NWM0fKleMkkUijUGlWHHZMfPxHW9xm
- Zbj1I2d7WVf/ymtXBKQYYKrZ6ikRF3A=
-X-Proofpoint-ORIG-GUID: KpeMXFospUVwoDX7MUbLKrifQC77YYyv
-X-Authority-Analysis: v=2.4 cv=DoTDa2/+ c=1 sm=1 tr=0 ts=6af717d5 cx=c_pps
- a=7E5Bxpl4vBhpaufnMqZlrw==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
- a=EUspDBNiAAAA:8 a=hBt2bvH4Q003rsbsdR0A:9 a=QEXdDO2ut3YA:10
- a=pJ04lnu7RYOZP9TFuWaZ:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEzMDA1NSBTYWx0ZWRfX2qJjLMl1lB4O
- g5MVdk14MaKUf7l1J8CRNhP3Pm25twXZTrlkiCqkIRuXDfcOw73N4989yVrJrDpILdLZPu8dchH
- 4GD9zLO8om7cvPNG6BoGJUuEyESHwqp1GRIWj0YcC5fS9vWwPHddVGdldzdeiSnFMdmVjTQCNkd
- XDX5hgQZiLf4J5CFbOV6Y1/JuOy7Kc/HujdxQcJpfUcSdIdrfWm4ZxqCUhNRQLVSS/G/zJR/fF0
- 9bhuNJ/XWjHv2pkXrGuBFjfng5bVcqffzKK1PctNL69WX9Q9zrAMF4CTXApUr+C6YbVjcvXj2eN
- pQaXEX5cusOG1Z1YaUT3i8WOY3XJC4AssIw1c+O/IKMZIPRyvN/NSdPkSSNsbIsXasbgeF3JuJz
- U6ejyA51PBHmqxWC1/3ACyNFa2uP9bar+gRVY7KqjZ/Se5DXa/qo/IJEzVcIjBvZm20PgDv1QWi
- GYOgNYpHLl2G+th4uEQ==
-X-Proofpoint-GUID: KpeMXFospUVwoDX7MUbLKrifQC77YYyv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-13_04,2026-11-11_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501 malwarescore=0
- spamscore=0 impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611130055
+Content-Transfer-Encoding: 8bit
 
-On 9/11/26 3:18 PM, Konrad Dybcio wrote:
-> From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Hi,
+
+On 13-Nov-26 12:04, Eren Çakar wrote:
+> The Starcom GC-422 is a rebranded LetSketch WP9620C with the same USB
+> ID (6161:4d15), so it binds to this driver. Its firmware
+> ("Vision_V201_180530") does not implement every string descriptor index
+> that the raw mode handshake reads. For those indices usb_string() keeps
+> returning an empty string or -EPIPE, letsketch_get_string() gives up
+> after its retries, and the probe fails:
 > 
-> Many RMI4 implementations are present on in-cell panels with very
-> tight power sequencing requirements, normally handled by the DRM panel
-> driver in Linux.
+>   letsketch ...: probe with driver letsketch failed with error -5
 > 
-> If that doesn't take place first, the integrated touchscreen IC refuses
-> to work properly.
+> The tablet then does not work at all.
 > 
-> Add support for drm_panel_follower to take care of that dependency.
+> The handshake only needs the reads to happen, not their contents. Once
+> the retries are used up, report an index that still reads as empty or
+> STALLs as missing with -ENOENT, and let the probe skip it. Other errors
+> still fail the probe as before, and the retries stay in place, so
+> firmware that only fails a read now and then behaves as it did.
 > 
-> Assisted-by: LLM
-> Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> With this change the GC-422 completes the handshake, switches to raw
+> mode and reports pen position, pressure and the five pad buttons.
+> 
+> The change and this message were written with the help of an AI coding
+> assistant (Claude Code); I reviewed them and tested the result on the
+> hardware.
+> 
+> Fixes: 33a5c2793451 ("HID: Add new Letsketch tablet driver")
+> Signed-off-by: Eren Çakar <hey@erencakar.com>
+
+Thanks, patch looks good to me:
+
+Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
+
+Regards,
+
+Hans
+
+
+
 > ---
+>  drivers/hid/hid-letsketch.c | 21 +++++++++++++++++----
+>  1 file changed, 17 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-letsketch.c b/drivers/hid/hid-letsketch.c
+> index b52e93a..6a93245 100644
+> --- a/drivers/hid/hid-letsketch.c
+> +++ b/drivers/hid/hid-letsketch.c
+> @@ -213,6 +213,12 @@ static int letsketch_raw_event(struct hid_device *hdev,
+>   * string descriptors. But the firmware is buggy and does not like it if
+>   * we do this too fast. Even if we go slow sometimes the usb_string() call
+>   * fails. Ignore errors and retry it a couple of times if necessary.
+> + *
+> + * Some firmware revisions (e.g. "Vision_V201_180530", sold as the Starcom
+> + * GC-422) do not implement every string descriptor index the handshake
+> + * reads. For those indices usb_string() keeps returning an empty string or
+> + * -EPIPE (STALL). Report such an index as missing with -ENOENT once the
+> + * retries are used up, so that the caller can skip it.
+>   */
+>  static int letsketch_get_string(struct usb_device *udev, int index, char *buf, int size)
+>  {
+> @@ -225,9 +231,14 @@ static int letsketch_get_string(struct usb_device *udev, int index, char *buf, i
+>  			return 0;
+>  	}
+>  
+> +	if (ret == 0 || ret == -EPIPE) {
+> +		dev_dbg(&udev->dev, "String descriptor %d not implemented\n", index);
+> +		return -ENOENT;
+> +	}
+> +
+>  	dev_err(&udev->dev, "Max retries (%d) exceeded reading string descriptor %d\n",
+>  		LETSKETCH_GET_STRING_RETRIES, index);
+> -	return ret ? ret : -EIO;
+> +	return ret;
+>  }
+>  
+>  static int letsketch_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> @@ -256,6 +267,8 @@ static int letsketch_probe(struct hid_device *hdev, const struct hid_device_id *
+>  	 */
+>  	for (i = LETSKETCH_INFO_STR_IDX_BEGIN; i <= LETSKETCH_INFO_STR_IDX_END; i++) {
+>  		ret = letsketch_get_string(udev, i, buf, sizeof(buf));
+> +		if (ret == -ENOENT)
+> +			continue;
+>  		if (ret)
+>  			return ret;
+>  
+> @@ -264,16 +277,16 @@ static int letsketch_probe(struct hid_device *hdev, const struct hid_device_id *
+>  
+>  	for (i = 1; i <= 250; i++) {
+>  		ret = letsketch_get_string(udev, i, buf, sizeof(buf));
+> -		if (ret)
+> +		if (ret && ret != -ENOENT)
+>  			return ret;
+>  	}
+>  
+>  	ret = letsketch_get_string(udev, 0x64, buf, sizeof(buf));
+> -	if (ret)
+> +	if (ret && ret != -ENOENT)
+>  		return ret;
+>  
+>  	ret = letsketch_get_string(udev, LETSKETCH_INFO_STR_IDX_BEGIN, buf, sizeof(buf));
+> -	if (ret)
+> +	if (ret && ret != -ENOENT)
+>  		return ret;
+>  
+>  	/*
 
-It's been a while, since there has been no objections, can we go
-forward with this patch? It would help us remove a DT bindings
-violation in the qcom tree.
-
-Konrad

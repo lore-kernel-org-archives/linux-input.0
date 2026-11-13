@@ -1,92 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.83.212.14
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794567921;
-	b=Ie1aEVJb1XWjqkv7Fao6ynETZLBrTuDKeN0fjFFrzmGn2fXwnuYCjpau+XCDbI/3ciGz
-	 536QhI9pFbPXKm63bjz+7Pj5QxRJI9bSPXP09NJZIlxicMe6hcdhqmK7VN/yUSrmyHdEs
-	 oIgG0TtkLHJP4L0eLPeH7LR8FG1MkoYh8OMsIreBQzwM6t49nHTpMzkh/DnQjo2pXuoKw
-	 3ubueMXafGYpO0ZMZ3QJwWdrO+yYget5HyngLbWsWdq8CBdBlCW5YTsGcn/lsKn363qTh
-	 PLE7vw+8aSP4OscZ9tFar4JwwfPwaPLy+mB5sC52P88RgxTvnen9atZHBe0wv8kgqqA==
+	t=1794568959;
+	b=Hez1eckaFsM7XWYqed2jPkUf7qNdddL63xWOSFKA1ui9qofzDh06uB+qBkZWpIyPGgHb
+	 PN/h8tWw6HZa0ohCrvj3hDrnNqDOo8Qwk6to9zT5dB3vVHGN7NCzR+6hk/rIK9CoJxheh
+	 tPLcC14E01j27WIPHMlZxo/wHP4SxBXL+OkK67wWOAuO1hdfG7funlAC1wmR8GSr4nhrP
+	 qvSotGprhXFjpYy8refWtKUGRiS/d2l+GlcdMlcHfGua6Dh//vMcPFqU2b0a61xrmt1Hc
+	 7cQpN3G945kWJVrlebu9C7PXyrQ4ZW/o/PU4fdHe8ee2fjI6dnJClFVHD43hyYUOkFg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794567921;
-	h=DMARC-Filter:X-Sender-Id:Received:Received:X-Sender-Id:X-MC-Relay:
-	 X-MailChannels-SenderId:X-MailChannels-Auth-Id:X-Print-Chief:
-	 X-MC-Loop-Signature:X-MC-Ingress-Time:Received:X-Hostinger-Mail-Ref:
-	 X-Hostinger-Mail-Id:Received:DKIM-Signature:X-CM-Envelope:
-	 X-CM-Analysis:Received:Cc:Content-Transfer-Encoding:Content-Type:From:
-	 Message-Id:Mime-Version:Subject:To:Date;
-	bh=TwtuMkGpp8gG7z+4w4hXHL+pU2MlTBevI9Xf+7Kv6oM=;
-	b=LZlJfq788sEVGR+Xp0wObUwLR84aRraV2V3946MRLyJeKVKQscgOtcVv3e4li/HQXqIY
-	 +BYOzV0/edpI8zx8Jow3+0uZWriAiLQafa5FUmlBPtA9rqNcz8xv7H8VHLr3WGbOvqonh
-	 EMSyWCelaDfZuo4W8UcxyQBXV40gE8YCC6XPOERQsdYD6/QQwu0Liz8XLp/oOyVwHSTnd
-	 5vWBbnciG6hk86WJrCqXg2PdAp5sibQR5zIXxjeOAQzt3GfaglBv3CrujqtwB4UBD7+lw
-	 CFN4jQO+f/6FuCrgIwArBspEhE1wXkl3AYT9TUkxSdBiBrW8XGxkW1x2WZ24KtzDWxg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568959;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:
+	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=sbmw4N9ZOrzNpmY4Wy/XZUtKSoT6XgWpn6TeMukDezE=;
+	b=dAITN5BaA3+KnqfSvEDMlt50+4nYNnGdmPthtWQS620nLmcxI9GFlDhUw090/NLT0t/o
+	 H/IyjYXOmXlufWhpuWm08cTDBAWtbGv1jeJ3YXLB+TkXMUU6xsgMPaQyup0QkCY/o5yrJ
+	 b3D2Ig1rmCl/SUFrqQt5vLRZdgBVlFWeMlUDY8p628qpWc5H6QyhH/d7gcBnSHgIQfM7y
+	 Jxn9cKe+wfQEpp3qJujSkFlz4jOs06qkqGHrF+t2PupC0KAMGutpWfY521/yNVMGy7sI7
+	 nme0yBU5b0nje/VToeEeNuXT5nl3iePjlaJaRNkTquHhZB/GBAnP+nY4baWCRu84nyQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=erencakar.com;
-	spf=pass smtp.mailfrom=erencakar.com;
-	dkim=pass header.d=erencakar.com header.i=@erencakar.com header.a=rsa-sha256 header.s=hostingermail-a header.b=Af23O9CT;
-	arc=none smtp.remote-ip=23.83.212.14
-Received: from bee.elm.relay.mailchannels.net (bee.elm.relay.mailchannels.net [23.83.212.14])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q20VRQ8q;
+	arc=none smtp.remote-ip=74.125.82.51
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8AB5606A8AA
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 11:05:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B8AB5606A8AA
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=erencakar.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=erencakar.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9671C606A32E
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 11:22:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9671C606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=erencakar.com header.i=@erencakar.com header.a=rsa-sha256 header.s=hostingermail-a header.b=Af23O9CT
-X-Sender-Id: _forwarded-from|131.222.230.172
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id DB2E038A50A
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 11:05:13 +0000 (UTC)
-Received: from fir5.relay.mail.hostinger.com (100-99-192-228.trex-nlb.outbound.svc.cluster.local [100.99.192.228])
-	(Authenticated sender: hostingeremail)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 714E238A4E2
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 11:05:13 +0000 (UTC)
-X-Sender-Id: _forwarded-from|131.222.230.172
-X-MC-Relay: Forwarding
-X-MailChannels-SenderId: _forwarded-from|131.222.230.172
-X-MailChannels-Auth-Id: hostingeremail
-X-Print-Chief: 6067d55834d484a4_1794567913810_679388457
-X-MC-Loop-Signature: 1794567913810:112692082
-X-MC-Ingress-Time: 1794567913810
-Received: from fir5.relay.mail.hostinger.com (fir5.relay.mail.hostinger.com
- [148.222.54.67])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.99.192.228 (trex/8.0.2);
-	Fri, 13 Nov 2026 11:05:13 +0000
-X-Hostinger-Mail-Ref: eyJfQF8iOiJcXF8vIiwicmVjaXBpZW50IjoibGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnIiw
-	idGVuYW50IjoiaGV5PWVyZW5jYWthci5jb20iLCJ4X2N1c3RvbWVyIjoiaGV5QGVyZW5jYWthci
-	5jb20ifQ==
-X-Hostinger-Mail-Id: 182dcd5adf5211f190a3bc2411239de6
-Received: from smtp.hostinger.com (131.222.230.172)
-  by smtp.hostinger.com (KumoMTA ::ffff:127.0.0.1) 
-  with ESMTPSA (TLSv1_3:TLS13_AES_256_GCM_SHA384)  id 182dcd5adf5211f190a3bc2411239de6 for <linux-input@vger.kernel.org>;
-  Fri, 13 Nov 2026 11:05:11 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=erencakar.com;
-	s=hostingermail-a; t=1794567910;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=TwtuMkGpp8gG7z+4w4hXHL+pU2MlTBevI9Xf+7Kv6oM=;
-	b=Af23O9CTwuNi353djlKaqTdC5mKecrJjFB055nMv8Z1zTQuE4P5JLldnRBe9QPF72HHm5R
-	YlQFzJ9wdzCZVhqrCcMvi4o0j5MOeW6UGsjIk34GAeXTF0DezOJIp4gbSGD9wqSOFoMruV
-	2chFuvzXr66eGSDzCWGWTRolyyQ2oo6/Pneln0YpraUnSTRjkiMUm3JeXsc7gIFJ1CvBej
-	F8b2nA0EGhYD4HgLUp+on/jT5j2/OuTLfne2xMt4h63SoUlE6Wz7oxojz3SomIuzwk3D96
-	tO1zpb+1FZwxy/fCE0pHIScAqfu0Go7lwQysjCZ5D3y7TMxlAghLu4m5gRqcVQ==
-X-CM-Envelope: MS4xfBZMdDD4xKXfa5RO6SHrIu1Y3FAwa3ASXqy+Sklnop5+cGCm1rGPFKIM+AyXoSR42OMuAZLiLD0d9xMoGjbhrYbdk7z9WJGfG12PMSO3Hf3h+by+Y7Jd XgkZv8L+cY2xUvzZFMJZE7fz4E8gID0rzsbEuAv6TpGmg/v2NshTH3/nN1NRAIxOo7o8/bFwLRASpViVesfW1o2g1tspqF3SbK4=
-X-CM-Analysis: v=2.4 cv=UdEDS7SN c=1 sm=1 tr=0 ts=6af6eee6 a=prERNx796fc2PsiqrbVh+A==:117 a=prERNx796fc2PsiqrbVh+A==:17 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M51BFTxLslgA:10 a=l0x-iJ_UAAAA:8 a=5WDK1-o_Z0DR0BEWtb0A:9 a=QEXdDO2ut3YA:10 a=dwddIJbocq3ZAqzMCJTT:22
-Received: from localhost ([131.222.230.172])
-	by smtp.hostinger.com with ESMTPSA
-	id MHSRFebu9moNnxgAeimIyQ
-	(envelope-from <hey@erencakar.com>)
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 11:05:10 +0000
-Cc: <hansg@kernel.org>, <linux-input@vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=utf-8
-From: =?utf-8?q?Eren_=C3=87akar?= <hey@erencakar.com>
-Message-Id: <1794567868877069470.1794567868@erencakar.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q20VRQ8q
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1a8cc11ac42so584994c88.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 03:22:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794568959; x=1795173759; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sbmw4N9ZOrzNpmY4Wy/XZUtKSoT6XgWpn6TeMukDezE=;
+        b=Q20VRQ8qOgV9X9HGOrJuLcb2+2cJ40HCMkaUTGcg22VvSeVL4A+RbdWBKM5axJ36QE
+         HbVSgfTLgsh99hqCGQGMHTK0AfM+1rkYAxMPyq1fHKJB3FWsovdxHkODcw++LVfs2CbA
+         eVmmSSDrbcOCs4y0Dmih82RXdGhd/1RjmAc5RHhgMmF9cZhWF2e312quE0GEKdJMENfw
+         pKdpVgL4g7/JWTNNRfp1fw2XTDiNsaV4iqSG/8SM8o/ujuHZgbbUAANY9W/Gvc6kKnCW
+         sjSeLv1Dw/ewMi2yB+se+bLS3mhq3A1piFPL0twvdLVjbaiGGq93phQGu0AXDWBdE9MM
+         eK8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794568959; x=1795173759;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sbmw4N9ZOrzNpmY4Wy/XZUtKSoT6XgWpn6TeMukDezE=;
+        b=fqtzSVAyVSUu/pT2Z20fd3sOcD7qb+guSFWnPuEfXaEe8Sh57cC1xScZfONVXf+khe
+         KhnYHiamxBScGzxbv/89NQVgC7jlNzkVhgpxtHhbfyi211zTea2IXBKy75cSricd6xqx
+         Rp68auSJHDsYIY8E2sxXimT5L+zOr80WXtdEt+PRB7Zvmia49V6SmZlgkeoUMKicSzKB
+         AdFpFRQsF3PPze/uHawBqke0I+wmRp5SYYNsd7SMA0lqpUpTbMpLz46Fa/YR5XiYlTep
+         hm3mjLpWZDIYroxWuBKa5ojZq39PLm3PqkjsnRUPv0nzat6a+C7zmFhOBNuQTxxdM/32
+         gUvQ==
+X-Gm-Message-State: APuU4Z81swYKu0zb8lxX5cTwnYCj5xTrdUq4xyvx9oyES3Nw0JMMUKbE
+	XetXLdVmtY4ObcvZ6UPIPOfra0BBweXnx+asUSMLk4LWw6UXY9jy5Qys
+X-Gm-Gg: AYBFou27DCEjdw5yT0PZV0heYeOuUpwRhBxiyJVwuL2zqGMNpn86hCCFY8AB+MeVEda
+	bEgmdhbW2gKaOYG+BX8yEKtZvl9wtI3We5qtw+tP4wCmuVUWczuwsbyBadoGP/gnbpWYw4eeYdS
+	s7yVZO6aLvNEIQ9UxA/3E3X4kLVIfCy4vS8L/o+EKUsKTuZmIPKYuPTUyvzHU5aJctVYAQsPdNJ
+	7IluOQ5apB/qJPu3pw60deJxrIyZE+k385BW1EbNgFNrkDFsvfhrkv1usdUaYaB+1wCiB+H/UNG
+	4Sg9B34D7ALSS1xjTtuegUgBF8VX5UgOykCL/HpKZ3qpZKKWYesAphY3GESmfkT1XVIQZFQtA00
+	sJiaBzukDDeyoaW1SJr/cxnoQ/0RUvSrZlvBgLwyPGKic80mDELTD6LBR+478g98Qh0SMzy/m2W
+	bquqDoaYDPI4iHs+lyv/3OpTwPTnv3uIIdheB/m5bnzafQVEpQl5tbi2llHB7LUZpl9V2+AOsCW
+	yYrf2TvWfvTj3wyvQQI+7S1hYkgeNFrNmD8wbf/hOOSTiATVV8kVnIzYr/CVeckot/IBvKPPXho
+	7pDh5goN7cNcSUQ5V/O2u8UWq/Q=
+X-Received: by 2002:a05:7022:3a8b:b0:182:94d7:f76a with SMTP id a92af1059eb24-1b5031562c3mr2330168c88.43.1794568958594;
+        Fri, 13 Nov 2026 03:22:38 -0800 (PST)
+Received: from localhost ([154.21.93.22])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b50313d990sm8374244c88.4.2026.11.13.03.22.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 03:22:37 -0800 (PST)
+From: Yuan Yao <yaoyuan0329os@gmail.com>
+X-Google-Original-From: Yuan Yao <yaoyuan@linux.alibaba.com>
+To: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Vishnu Sankar <vishnuocv@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yuan Yao <yaoyuan0329os@gmail.com>,
+	Yuan Yao <yaoyuan@linux.alibaba.com>,
+	=?UTF-8?q?Jingle=20Wu=20=E5=90=B3=E9=87=91=E5=9C=8B?= <jingle.wu@emc.com.tw>
+Subject: [PATCH v2 0/1] Input/trackpoint: Add new JYT_NDT device variant id 7
+Date: Fri, 13 Nov 2026 19:22:01 +0800
+Message-ID: <20261113112202.10304-1-yaoyuan@linux.alibaba.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,113 +98,47 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Subject: [PATCH] HID: letsketch: skip string descriptors the firmware does
- not implement
-To: <jikos@kernel.org>, <bentiss@kernel.org>
-Date: Fri, 13 Nov 2026 11:05:10 +0000
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The Starcom GC-422 is a rebranded LetSketch WP9620C with the same USB
-ID (6161:4d15), so it binds to this driver. Its firmware
-("Vision_V201_180530") does not implement every string descriptor index
-that the raw mode handshake reads. For those indices usb_string() keeps
-returning an empty string or -EPIPE, letsketch_get_string() gives up
-after its retries, and the probe fails:
+The new trackpoint variant id 7 is found on Lenovo Thinkpad X14
+Gen1 laptop(Product Name: 21XMA006CD), it belongs to JYT_NDT with
+confirmation from Vishnu Sankar in Lenovo. Now it's incorrectly
+probed as Generic or Logitech PS/2 mouse.
 
-  letsketch ...: probe with driver letsketch failed with error -5
+Add the variant id 7 to match the TP_READ_ID command return
+value, probe the device as trackpoint correctly.
 
-The tablet then does not work at all.
+I tested the sensitivity/middle button lock/rate/resolution
+setting, the trackpoint works well in daily usage and when
+resume form system sleeping, no issue is found in my last
+weeks usage.
 
-The handshake only needs the reads to happen, not their contents. Once
-the retries are used up, report an index that still reads as empty or
-STALLs as missing with -ENOENT, and let the probe skip it. Other errors
-still fail the probe as before, and the retries stay in place, so
-firmware that only fails a read now and then behaves as it did.
+BEFORE:
+input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input63
 
-With this change the GC-422 completes the handshake, switches to raw
-mode and reports pen position, pressure and the five pad buttons.
+AFTER:
+psmouse serio1: trackpoint: JYT_NDT TrackPoint firmware: 0xa1, buttons: 3/3
+input: TPPS/2 JYT_NDT TrackPoint as /devices/platform/i8042/serio1/input/input8
 
-The change and this message were written with the help of an AI coding
-assistant (Claude Code); I reviewed them and tested the result on the
-hardware.
+The patch is rebased to 7.4-rc1.
 
-Fixes: 33a5c2793451 ("HID: Add new Letsketch tablet driver")
-Signed-off-by: Eren =C3=87akar <hey@erencakar.com>
----
- drivers/hid/hid-letsketch.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+Changes from v1:
 
-diff --git a/drivers/hid/hid-letsketch.c b/drivers/hid/hid-letsketch.c
-index b52e93a..6a93245 100644
---- a/drivers/hid/hid-letsketch.c
-+++ b/drivers/hid/hid-letsketch.c
-@@ -213,6 +213,12 @@ static int letsketch_raw_event(struct hid_device *hdev=
-,
-  * string descriptors. But the firmware is buggy and does not like it if
-  * we do this too fast. Even if we go slow sometimes the usb_string() call
-  * fails. Ignore errors and retry it a couple of times if necessary.
-+ *
-+ * Some firmware revisions (e.g. "Vision_V201_180530", sold as the Starcom
-+ * GC-422) do not implement every string descriptor index the handshake
-+ * reads. For those indices usb_string() keeps returning an empty string o=
-r
-+ * -EPIPE (STALL). Report such an index as missing with -ENOENT once the
-+ * retries are used up, so that the caller can skip it.
-  */
- static int letsketch_get_string(struct usb_device *udev, int index, char *=
-buf, int size)
- {
-@@ -225,9 +231,14 @@ static int letsketch_get_string(struct usb_device *ude=
-v, int index, char *buf, i
- 			return 0;
- 	}
-=20
-+	if (ret =3D=3D 0 || ret =3D=3D -EPIPE) {
-+		dev_dbg(&udev->dev, "String descriptor %d not implemented\n", index);
-+		return -ENOENT;
-+	}
-+
- 	dev_err(&udev->dev, "Max retries (%d) exceeded reading string descriptor =
-%d\n",
- 		LETSKETCH_GET_STRING_RETRIES, index);
--	return ret ? ret : -EIO;
-+	return ret;
- }
-=20
- static int letsketch_probe(struct hid_device *hdev, const struct hid_devic=
-e_id *id)
-@@ -256,6 +267,8 @@ static int letsketch_probe(struct hid_device *hdev, con=
-st struct hid_device_id *
- 	 */
- 	for (i =3D LETSKETCH_INFO_STR_IDX_BEGIN; i <=3D LETSKETCH_INFO_STR_IDX_EN=
-D; i++) {
- 		ret =3D letsketch_get_string(udev, i, buf, sizeof(buf));
-+		if (ret =3D=3D -ENOENT)
-+			continue;
- 		if (ret)
- 			return ret;
-=20
-@@ -264,16 +277,16 @@ static int letsketch_probe(struct hid_device *hdev, c=
-onst struct hid_device_id *
-=20
- 	for (i =3D 1; i <=3D 250; i++) {
- 		ret =3D letsketch_get_string(udev, i, buf, sizeof(buf));
--		if (ret)
-+		if (ret && ret !=3D -ENOENT)
- 			return ret;
- 	}
-=20
- 	ret =3D letsketch_get_string(udev, 0x64, buf, sizeof(buf));
--	if (ret)
-+	if (ret && ret !=3D -ENOENT)
- 		return ret;
-=20
- 	ret =3D letsketch_get_string(udev, LETSKETCH_INFO_STR_IDX_BEGIN, buf, siz=
-eof(buf));
--	if (ret)
-+	if (ret && ret !=3D -ENOENT)
- 		return ret;
-=20
- 	/*
---=20
-2.56.1
+1. Change to correct vendor name JYT_NDT, with many thanks to
+Dmitry Torokhov, Jingle Wu, Vishnu Sankar for helping on identify
+the real vendor of this device.
+
+v1: https://lore.kernel.org/all/20261102130836.11863-1-yaoyuan0329os@gmail.com/
+
+Yuan Yao (1):
+  Input: trackpoint - Add new TP JYT_NDT device variant id 7
+
+ drivers/input/mouse/trackpoint.c | 2 ++
+ drivers/input/mouse/trackpoint.h | 1 +
+ 2 files changed, 3 insertions(+)
+
+
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+--
+2.56.0

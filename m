@@ -1,68 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.12
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794585232;
-	b=NETiANiKpRENSidgmAo5taaRd7xw0O2y4gdG2ETX1T6AdBFChN2RZ+zxXU18koOf+iYp
-	 PLqKiOKlXgvJLJUegXpFi2fpREX1uqSzlye3j0IapcCjdBMxr2K2+683Sp2UgQUL2d+wZ
-	 /DjJvglTjGtZGa/4vicvb+/8fJ7+u8pO9FL7b5c5V2oRRQqKLYWt+ffheWTroJxu7XKGO
-	 nCDZK9GfmZblGhotGcYXGGEKVd5xwhYlHzNINqXmQQzvzxaZM787vxtquV8CtLeMtwzBv
-	 gVQMM3xUO7D57QxiogtiVee6BsbSztHFm10hYxgXLnrUKp87smYwcDLxYDfqmnRyqnQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794585232;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
-	 MIME-Version:User-Agent:X-ZohoMailClient;
-	bh=XcWoVluvejfy6goOP0kALQEQw4mtKjYbJbV8gWTCIpo=;
-	b=yL86DaXBCtPBI0OnkJLEhk8OxkDKjpPZYIydogp0DkjxkPXl5lnE6Mj2Mz4APp3B6MpV
-	 tR7kGVw4VfZk62+BA/oQa3ldxG0QQodO8JE5dak6/65cXvmJRBlNFYE+2lR8Vh0hDUW70
-	 bANKnYGfhyPhCwRj7TmOKfGRew+5yJEVyUEg97G0K97QVEEulYMBfy83Wb2ITgNmVQRrL
-	 /OPNDGI4u4qPJNIfNUslFF+gs+fdzSobMX1Ra3D6XLnFNZgVUgAdnZI3BNVy5QkOff+lb
-	 fIEBM5373FvqRiFzpEd8C8vd2mzGhVvn/Y20qpuxIyo/UCivDlJBUPsPscWAOSCM6wg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rong.moe;
-	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=QYZB2biv;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.12
-Received: from sender6-op-o12.zoho.com (sender6-op-o12.zoho.com [165.173.180.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794585657;
+	b=mppDVsicZQHRKt27RdUgIHxKig5RNhslh9iMF0JNQvWeuQuHtXqNpfs3ZiZQ/bxjJ+tl
+	 ixqe46cmnRzaOyF5DaSLrY4ky3KwRRElOJ/nL5gwq2GmmszZ9Id7eC7NmXx7k516np21q
+	 opuhr9n7vN/lO4p0LNKC0UGJYOg71V7rCVa+hnz7Er+CNvKcN33VllHjsKnCfAPffrQwR
+	 RmBcQdM0QdDLqBBh2P7/p7p+rPxdmrfAc4QQJ1QJygl9ZVRuAxXOXq8D4CjoOePLmcXwU
+	 +QkwbCXc40LcTiP/11xtYiWeNYRzafZ0KLweu6GBwTHYPn0sZ/LxEstRy1+mENNKiOw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794585657;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Content-Disposition;
+	bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
+	b=rJfKVM3QjonbyHMxr9NS70YpXgSnC3GxTKIFi2ZXLiBHHq4KhHbgC3/exaoJgJuOyEup
+	 r3MjMhRbGyi4lfK0nt9HiH8nhJbZyDD/k3o1cMyRMaDpYQxTgVVyG82CvVfjzY5y4atHP
+	 KONVL1aiaMUt6+HVO9hGh4UM25jezmbEJy03vnHxw9D3uwsxORnMP1KCj4hDwbAhGnvSc
+	 T2zsLUh/jpGY6zzc0YCdZ3c7meKJ93Li2GZEt+nYMvF+UglVRplpVOIb1gGn3o/ZiJivD
+	 lEQgVo4W2iYz8UWilGIOCU/tnaU5BD/MNfPwuynOGwfDRhJJ68KWfjvtT8XbOG1QomQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FNkjY8c5;
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53F8606A334;
-	Fri, 13 Nov 2026 15:53:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D53F8606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93B71606B5ED
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 16:00:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 93B71606B5ED
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=QYZB2biv
-ARC-Seal: i=1; a=rsa-sha256; t=1794585217; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Tas54hvfU60KxHGwArBLdl9zT+G5xsO58mRfGoRESYJgTwCE1x2ZCACSDSjJ6z4VlzNF1LPoT6ylyY3LvDhiQA3vaqv/n5KSaURnqa7WcEMdlvfzs4MMPhsBazDTkq3xg4Z1Zy/o0K0n6woh7jkDTM3tHro/46hvjkIULc9rAwg=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1794585217; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=XcWoVluvejfy6goOP0kALQEQw4mtKjYbJbV8gWTCIpo=; 
-	b=B3y/UNhk1fg/t1PNNFLLbATR3c5+8qqE9uxkyhqfl62NAGOb1bBHWonwIJV4T3NR5n2zQqFtjFIT6okHMAuzGiG70ZzmHw9EBxyb7HZkwXAp4DHZpm/QspHGN+NXkmyPC0zXBJXQ5vj+orP3GBHTDmXhxxlGbRtz/VUdam+TrfQ=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=rong.moe;
-	spf=pass  smtp.mailfrom=i@rong.moe;
-	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=QYZB2bivIOrBLpRcIiTnFQikZJpchg+bfLYkq2dx3oko+yGUR4efJals0hzYakhua8NFzQOpSaQisFQ7qIDgBanAdTYDSBN3wlwHvDNLZPRKORDC5EetM7r9XZLT5TLEDQ90vchw6GJlzmNC2nZvrwo2hyh7qWcSEdbQaRzydLibeJLasWgpnBpWUAfyzmL1cByynfFc1RMRiVEOO8NfnBOn2KF0nrblrilBsDqq9zWhMSZRqy9IZsQ51AkMHx+GhdV6/f6j6LncqeiXrMWxmbmYIG3NI8am3ugV1sb1/ZBmTzCF7U7kqRR4CbTDswsUyp59c0AJekcqTyGFHV3qoQ==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=XcWoVluvejfy6goOP0kALQEQw4mtKjYbJbV8gWTCIpo=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1794585215915172.50852571582186;
-	Fri, 13 Nov 2026 07:53:35 -0800 (PST)
-Message-ID: <4b1d3cd7d5d6ef4029285d0a7ddb79be7b7fd131.camel@rong.moe>
-Subject: Re: [PATCH v3 2/9] HID: haptic: Get rid of input_ff_destroy() in
- error paths
-From: Rong Zhang <i@rong.moe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
- <bentiss@kernel.org>,  Angela Czubak <aczubak@google.com>, Henrik Rydberg
- <rydberg@bitmath.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-In-Reply-To: <f44447354f28c295e79a025bbcab7a4e@gmail.com>
-References: <20261113-hid-haptic-kmod-v3-0-e7dfa8766c0d@rong.moe>
-		 <20261113-hid-haptic-kmod-v3-2-e7dfa8766c0d@rong.moe>
-		 <f44447354f28c295e79a025bbcab7a4e@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 23:48:18 +0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FNkjY8c5
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36f8cdd30beso2874016eec.1
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:00:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794585656; x=1795190456; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
+        b=FNkjY8c5qVoxECoy9cH5IqZVYrIDNUHHh+EI386wFkJOvTo8i7gMp6DoGZKImma+8a
+         4xHxER0iCZjoiQFZLsWK4msE8tgrpKQPrqPc6h5XkCBmfK6NvlQAVvavnjIsy2WPIV0y
+         +WHgWAkOUdJF4X++yHTft5Pypxk7CHTT8+Yba/4SSsBXJvqU6phdQhBIJd/g7ExMEg+i
+         OgowQyD9OfSJli99pOCQoJOvLIA9W5SKPuZlnDX2Lne8OmuFhhaKvg7/hb9DVyFoBORa
+         Vpqi7lWnfhJWev1FfnVNfJMP8Dk97aPGObaWfT3OgXLc5CuZzKmIhpszV2ildSXt3Nw5
+         jdTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794585656; x=1795190456;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=76hK192hwNNcxMcbm0UzywzzRTcZcsnY/gd0BW0R8wc=;
+        b=zRSkQp4jNZnJEF+YlNl/3W8xb+Do+Al5H00FqfoTZB5HiURIsDnaSPf88ry0DXUIqU
+         HGkoU4ctkwuOjtrFblvLJ0DlTjMIdSe4vHeTPBJxeWdHBHvb3AJSLtDpx5CgWP0rGiYP
+         vqfLAHNcs/OAqirQS7yno+NNpCveEBaQP8HpMbs1e2RDxmebZjUpJWnm4RpQZzDMSQN/
+         wWVC2mSe1UqLppTGrVvve5dtP5lZmgLAoyywphlAoFQxlYRz2RTL36cfFNv46nKAlFsf
+         uYPTfWD96aIKHB3pGYk+wHdwus6CsE0rR98tLWi+fAL3sSPkRTmAajXpTNyc9C4ftBqf
+         NkMQ==
+X-Forwarded-Encrypted: i=1; AL+hErFfAW11rwtx8qMGFgX7q5zrCS2MIfnvvshD/IQ9Z/PkAlSBOh5pxZUBimrJHVZk0XVLTGOyAmG3cSpPPA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/kBYcXQl0Qtzr+KRrGDMptwWQ0ir4M7WE3BVMmOoTSLgNlak7P
+	dHUerbZrV0AtpT5fWhPAtFKyGjL6dqZhiNNQUVE+hMOV95OKHgJZmb0d
+X-Gm-Gg: AYBFou3axDCrsOHEWLsk12vZruR37fggb2XfM7rPmnyTEw8/K4XWwH4iBF5wkpdRsY6
+	1KDct3A3bTXKBS5Omml1nG0cDCBL028UifIoA/bqAV1kwQr6k1V2ExOfdJjsZmUeP8B6sfhDDLb
+	xpDs9agsm6mDlSO0AksXgvw01kUAFyHPeysWkzbk6u7PbmuD2RtUmR1KtZ5+oC5QdUcFui42IUD
+	EvZ6zBzik1ew8fXoE3XTtPH9WO6WdAmuU4l014+ce3JfM/ICX2v2s8O7kobaA7ZqmQFegJb3hqb
+	IZ59jRRXPWcrqe8cWqveKFbfPjXkm74i89xDowgLP1MkHHe+fjf4+KIJplo0mUeT+qnCa1rjL+a
+	QZv7pYjbJJMg1uIs68MtS2yz/ONGDejSxtOjfpSshx8AEkunstW3Q3mZpE/5/AdHhuyRGTyqNNk
+	/T9aCsh1FRmupGT8BWGzo9u9kCgU6MnGUTTG/TWX5k8dTA6D+j06s0/A9thJgkSQhk5Mvsozi7O
+	CkO1upTRPmmO5WGlQOp3fOc8FrAFMDEPsZr75SxgXnoqLyKoDDCR6Y0SDZ/3z+DBbCwLlnruAaB
+	quZtaNsrDTEY6oJbnF1/xncf1Q5OKXmvTQIraQlMnGlTFfZKndtv7WFeO6yRXTXxdUK09Q==
+X-Received: by 2002:a05:693c:8312:b0:374:ea35:9069 with SMTP id 5a478bee46e88-379681cdd7amr2329847eec.39.1794585655380;
+        Fri, 13 Nov 2026 08:00:55 -0800 (PST)
+Received: from localhost ([2a00:79e0:2ebe:8:48f1:7a0b:9bfb:4205])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379508762a5sm8587820eec.0.2026.11.13.08.00.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 08:00:54 -0800 (PST)
+Date: Fri, 13 Nov 2026 08:00:53 -0800
+Message-ID: <9594e8428a3fbc94e515c9dad2268009@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Vishal Tyagi <vishalxtyagi.oss@gmail.com>
+Cc: Markus Rathgeb <maggu2810@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "Input: synaptics - enable SMBus for HP Elitebook 850 G1"
+In-Reply-To: <179399405216.85438.8327280593401118083@gmail.com>
+References: <179399405216.85438.8327280593401118083@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -72,69 +100,32 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Evolution 3.62.1-3 
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hi Dmitry,
+Hi Vishal,
 
-On Thu, 2026-11-12 at 21:50 -0800, Dmitry Torokhov wrote:
-> Hi Rong,
->=20
-> On Fri, Nov 13, 2026 at 01:53:55AM +0800, Rong Zhang wrote:
-> > It's painful to have error paths after calling input_ff_create(),
-> > because input_ff_destroy() frees too much things but does not restore
-> > some other things.
-> >=20
-> > On get_device failure, the module's bail-out path calls module_put()
-> > right before hid_haptic_destroy() calling it again, causing refcount
-> > underflow.
-> >=20
-> > Besides, every error path calling input_ff_destroy() frees ff->private,
-> > while the others don't. This divergence has caused quite a lot of
-> > trouble.
-> >=20
-> > Get the module and the device beforehand, so that there is no error pat=
-h
-> > after input_ff_create(), eliminating the call to input_ff_destroy(). In
-> > this manner, we don't need to restore dev->flush and dev->event either.
->=20
-> The only reason hid_haptic_init() had try_module_get(THIS_MODULE) and
-> get_device(&hdev->dev) (and their counterparts in hid_haptic_destroy())
-> was to work around input_ff_destroy() previously being called only from
-> input_dev_release(), which could be deferred until after hdev was
-> unbound or the driver module was unloaded if userspace kept the evdev
-> node open.
+On Sat, Nov 07, 2026 at 01:10:52AM +0530, Vishal Tyagi wrote:
+> Commit f04f03d3e99b ("Input: synaptics - enable SMBus for HP Elitebook 850 G1")
+> added PNP ID "SYN3003" to smbus_pnp_ids[] to enable SMBus/InterTouch mode.
+>
+> However, on Haswell-generation HP EliteBooks sharing this touchpad controller
+> (including HP EliteBook 840 G1 and HP EliteBook 850 G1), the touchpad fails
+> to resume after ACPI S3 suspend:
+>
+>   rmi4_smbus 0-002c: failed to get SMBus version number!
+>   rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
+>   rmi4_physical: Failed to resume rmi4-00: -6
 
-Thanks for the clarification. Yeah, it was a painful design...
+Could you please try the patch recently posted by Markus Rathgeb (CCed)
+that retries reading the SMBus version on -ENXIO during resume, and see
+if it resolves the S3 resume issue on your EliteBook without reverting
+SMBus support:
 
->=20
-> I am queuing an input core change ("Input: destroy force-feedback device
-> on input unregistration") [1] that calls input_ff_destroy() directly in
-> __input_unregister_device() once all handlers are disconnected and the
-> device is removed from sysfs.
->=20
-> With that change in place, hid_haptic_destroy() is guaranteed to run
-> synchronously during input_unregister_device() while hdev is still bound
-> and alive (and dev->dev.parent already holds a reference to &hdev->dev
-> anyway). That means get_device(&hdev->dev) / put_device(&hdev->dev) and
-> try_module_get(THIS_MODULE) / module_put(THIS_MODULE) are not needed at
-> all here (until patch 8/9 where hid-haptic becomes a separate plugin
-> module and hid_plugin_get() is taken before calling self_plugin->init()),
-> and simply dropping them eliminates the error path after
-> input_ff_create(). It also avoids the devres lifetime issue with
-> put_device(&hdev->dev) mentioned in patch 1/9.
+https://lore.kernel.org/linux-input/20261105204953.69572-1-maggu2810@mailbox.org/
 
-Thanks for fixing the ff core and reviewing this series! The lifecycle of
-ff does look much better with your patch.
+Thanks.
 
-I will follow your suggestion to simplify the fixes in the series and
-resubmit it when your patch lands.
-
-Thanks,
-Rong
-
->=20
-> [1] https://lore.kernel.org/linux-input/2f722967b6db0692d4dd4164aff39b62@=
-gmail.com/
->=20
-> Thanks.
+-- 
+Dmitry

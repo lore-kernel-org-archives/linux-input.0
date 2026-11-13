@@ -1,67 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.204.34.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794553069;
-	b=wSfWZU+wa0PmYKMZc8PXPhM9tREFckZNpKzTbx1Vz3k94Gvi/Hd0XlU0RNUogASywFlZ
-	 6GZOrtyMXG509E4EJTKk8mg6eD9cu30uH1ZLfB/mcztLMQqUBN+fKxSE5EsnqXnQJ/T49
-	 Sv0wjhKLG1lqNO2YP9Dlg8iCbay/YAxYxoG7MsNjQ2hbk3+P7YJ7y4kYobAjfxdvtkOEa
-	 JT73Na7aNusBiGDBhHc7+KbywEHOdTRt40vxzoKm0Ka+wx5mPi74z9ylPkSZBfE27jWIN
-	 h/xtIXMLSS/B8nJEyb7PM22OoKW8eQP7F1hLnXvzk5myENYQmzG14x5z7EqGzV6d3jw==
+	t=1794559743;
+	b=dxSP2TuKthjD3Kb16+i65U60/k6D+i+bdaGqPe7xPQ8wyc6PN/nZ1SuSuL0vzaNT0YVa
+	 5NVOhKVe5PEetCa+XbF6iAx3m5PKl7M7MtO0gyABTr3AQ0yBZ9917t22zAHthqf2zAwyS
+	 d5r2vmZL16EiRarTUvWmHvRXY3wP5xlUnB5vLlu1M5P/arOaSHqe50S7aocw50y+4Y0vq
+	 O7pM2p07Gg39FfnqaBaQ2+jYCRbJfJToAEdnNUV2Xgxl+Z1APy/RR3Zw5AN3fO43oLtq/
+	 cm4I05OV2YYX6/g3nV/tOKk2aNvRfXCWD3RcVYhpsC1UwcwpYJpZB81enFAeELmr/FQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794553069;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
-	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
-	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
-	b=OYZ381iWjhOGLYDTmWE13E1I0t93AH8nugGnpa+8btElAIDkb5qYKj+m9hlMdFdX18bf
-	 7ZAonwgVWLZF1fQcWU6f11Sd2vNIQEFQf/WNpIJIXZ9r9L00nrj2G/nJI9YLubJqYPQt6
-	 GkpVgTnozmCY+e93RP/ZS6D17yX+RIdSQoPKkXLuPBA46+gjAqiHsDuJfDpO+/Q3nWuNP
-	 7A2l+0Ukfm7wi9c5pvBQh1Tx0Vaikhqzhh2OTmxbz5o5CV7spQ/Ei3qaGS3652r2AtKQf
-	 T/xTyne1aOORQiDhQUis6izcLuaNeppNSaZsLHMq8PszVNRlvqz9fwJIYGs5a8OxMcQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794559743;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
+	b=f5438F/tMl/i/XahpsnBpJ9ThQfUaxOrZSA8w0QVdgBJezoURmav8ozQVtNOKOkI9MtE
+	 i5V9VnOE6DCNZmKolaXu6P3ZxqNqDgutSGpE3u2fc7iMNQkjpGl3oLcAu3k7OPII+5wv2
+	 1mUPSaBw9URVY3SxAmGfAJ5hrMvDtNnaUEbmvbGelPib3EJSjDl4epotTQeqiTpUJd2N8
+	 fiHfIyyBBLWaHRjNCSiJVz//2dq5sUrEIJoRDfiK23GjncFjYsMoA0aqkNM3+Ot4oMDDj
+	 xwL8ueKZ9rxGIcpEU13y52vMgi3freYknemZGIgJ2OTaNJ/zdb6oE6tTSztLzDtE6Og==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=uniontech.com;
-	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J;
-	arc=none smtp.remote-ip=54.204.34.130
-Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXbDGLQb;
+	arc=none smtp.remote-ip=209.85.210.179
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA12606A321;
-	Fri, 13 Nov 2026 06:57:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3CA12606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEC1606A323
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:49:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DEC1606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1794553051;
-	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=m+LB025JGdaSKwFFraY/SiA90prUTmMKtLCevddUz0a2HkM8pMQaC2Dw1HDLmaz6w
-	 R3NXs7w0qSf1OSGRu0VcspHQq3teA67u4aixQupsbTNe+4S+kKenegRJvKa7cSaUKc
-	 hOH0zf1zIcZn3QUVC+BYVecEOdvNospLTV2PzPhQ=
-X-QQ-mid: esmtpgz16t1794553046t2f118e79
-X-QQ-Originating-IP: wQ9qTzv5+oRDiWvSqKEsM2b3ogjsAG/eOGlRStq9y4w=
-Received: from PEC004119 ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 13 Nov 2026 14:57:24 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 15401069445647339368
-EX-QQ-RecipientCnt: 7
-From: Haowen Tu <tuhaowen@uniontech.com>
-To: gupt21@gmail.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXbDGLQb
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8b271e573adso464941b3a.2
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 00:49:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794559742; x=1795164542; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
+        b=uXbDGLQbF0w26QAw6MJrM+Gn/WE9SHb8OtRQkAj9lO266801X+jv0LVPreBz6oz94a
+         B92xhj2j1To789uEuSuRZKr3zzsuxMeBmH0dbBnMJnT54gk68b70J1d5rKe7c45aS80R
+         Hg7JVCq2OYsF4ORvO93oQGyjExlaRb9HVQBZGLLvF94c9QBrEFXVB16EPcRyrXIxKm31
+         vh50ZnIGEI+CSKCCOrTQezfbF6rb160F8KYZoNI3fcxRDUz8kQ0PqGfhBB5JkUnV3buX
+         j/5Gy7hNjzBDPzunZypx2PLkuIroU/j8E+codgCOSinm05fSiidcjrrlDIOKtWVWFv2U
+         gq6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794559742; x=1795164542;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
+        b=Hy2w0N33Xy1CZl6sA8JUC5WeO2DkNHOTIu5mobYbG7gM1zzm3OXW9kgYzH+SrcsTXx
+         5hVibd3h93pS0unlReme/bH9ygfn0ZOqf8a6XmfHzVxCSD0umVERtXSHgCI/Cw71kTyU
+         wFv2RkgksChcY+T5en6DHAqHS0CErwHoe0YhJznmg0tAAEtyy8ayY0wMTSG/3h8MJDt+
+         nyfuH0futar+Ol1h3E31jSY+YZHvgHuCOMdQp7rqBIERlrPcXlgacy3cPHt2MTmq5oTY
+         fDs/s6fxl1W9rL1dCW8S2xbuUrEeHW2e6wbI1OOUQnH9qwmsind8HjDk6P7Ryjr49V0W
+         xCDA==
+X-Forwarded-Encrypted: i=1; AL+hErH6yUtbTd9JgCl5sCihIWCGHSnxcK/wTzUzrQrOPetgVHLvAkGWh5Lx6tXc50egyvkqRv/nLcGkLLVadw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8sP8DUpIfh6jIdu1n9/57boQ8jdaaA8njinb58w5urYY62XKr/
+	1JpDmJLM0ME9DONgR7x/AnjasduNjBpOECcJQJiFrDdzYeDQ7v+KoRmD
+X-Gm-Gg: AYBFou237qrU2L7Fb20x2GknAIQF071jcWjfc0dli4nrcX0HWrizEIQvBRJiWA+hWgq
+	RD5ewT3lj6sDp5jgjMqirZB6Rx6rsM0kR/lkLg09lmPtILgBnPvJBHWN/rZ1bEhbCRVFGcqb9ah
+	bQe2H0CXtbyKpdfNc5zpzvhan2nlXK5vagEGkChzxtb7XIogxeeTMKT1O/mxF/GniyJVhIAGKXz
+	3oHcO/JTF5EBi/8oEzDrgkr2kTakupAy8moS+fmuf1fnXfCjSK6CQYI8EaRuxjVRVxKJnq7cMkH
+	4kjG8lPEtALNaNfBLKQD0wWCZcBc8dXQPhF//qUH2pLar4QBvvSrhkU7Glbnv+t2MNuW/nSDsMB
+	1vllqSCGqg6/7moWAIacBnhOpgAWtLvZVdFDfLkfPJe9q4un5RlQFMv/NwV1rTx4kxIstDVkHz6
+	0Ls1PPC2kWYof771VSsRrwB1tSyF6PYLDsFRQOOJLInXz0SKwcYFp64ideoLg59cL62xJYH2SLk
+	jBmaS4bN4FMdpMPH1laxTXPd7CwpSEgGp3Vpd0dJrhXum0aBb3HzT0GgucikBB+0Qo+TNUmWn8z
+	0Jn2tTVJf6IzfhxH2swCK/PJ2dHNoKntQHuCjRcgmLA0J6eGtLv5Y2fHyj6ESozjmFKDaD1oq4x
+	+ixwf
+X-Received: by 2002:a05:6a20:a11c:b0:3e0:eae8:7525 with SMTP id adf61e73a8af0-3f7a8bd20camr1630922637.64.1794559742523;
+        Fri, 13 Nov 2026 00:49:02 -0800 (PST)
+Received: from fyhsueh.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bececcce76sm742540b3a.5.2026.11.13.00.48.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 00:49:02 -0800 (PST)
+From: Feng-Yi Hsueh <fyhsueh4linux@gmail.com>
+To: dmitry.torokhov@gmail.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: ychuang3@nuvoton.com,
+	schung@nuvoton.com,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Haowen Tu <tuhaowen@uniontech.com>
-Subject: [PATCH] HID: mcp2221: Use the direction field for high GPIO outputs
-Date: Fri, 13 Nov 2026 14:57:23 +0800
-Message-ID: <0122335B0140275C+20261113065723.1514843-1-tuhaowen@uniontech.com>
-X-Mailer: git-send-email 2.50.1
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/2] Add Nuvoton MA35D1 keypad controller support
+Date: Fri, 13 Nov 2026 16:48:50 +0800
+Message-ID: <20261113084852.32727-1-fyhsueh4linux@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -72,59 +103,38 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
-X-QQ-XMAILINFO: N3mvcAHX73MW1lnHX7MaOi6Iu0Nijpdo+ERygBWYDcKOSWpL1IP6PIhl
-	GhuGiTMlgf48MwjL/67WemBDQb0RcH51buoWCudDTPgIpIMUWAwFI+8VXyjbWL2deS/bs/5
-	YKlDH6BJJTMHU2cM8ON1ZIvOP4fTAuFxqKlVH8eNQTuH1SVVjhO/hdqzjGUgUpUVXkSrIAU
-	dMLI73ws9Vy9rbh4NhxX+28Swx2oielIOL0xHt4OsPwKxqa22Ay+qYiv44SNjMazSCXJ9Fx
-	GIMg1CMKwM1yCDjCI9ka+q+C6UW9278xODERxgPFYSFqc57+qH/mgwQABgLOciZDZUG9Fzc
-	vwDxqjGeSHlTJLtd3rRni77Bjv71r6P7pjPQZVEdbTozEr4AdQ8ykkUhVSlP4K4NuSDKwmQ
-	Qma6NZh1zOcyxQ+2E65lbzdw7Qubsrapyjl2Mt8MSVfp/QwvQKVaItioSJv/MHDccanXq9R
-	TVImKq5KqbeADWPiJ/plTm3QI7KMZ3VQEOjgCGAI22aP+Fys1G6BnzDeqCBs2iCdSSc1C6M
-	tDbcFKgg6Q622X/GyIxNPNQ4XV8rFKkagFO6bgI9rkOeweXG5D7pDGrxfAFbj+D2rA28Q5e
-	HWgCdxCaM/IMkeVht95URWXvFTrT0b5evjR6ldEaTstBEh3WZOSnk2Z5FSwLyy5BeSsZoCx
-	LZ0Y43TGbYzLT+GKNnS45vRBBQbnegoNB7U4srg82LeDlQnTKdNrBeVyzG7/1KVLHHst7tw
-	wFcZdn9IquA4pZbGWkPtb385vTOW+PFyXwNGUNO17AcrSWZZiHFBWnrd+reBmFJSmtsalc0
-	c8FXQWJFk4ymgeJ10iBChqaBlc4uj4HCdZXpYBhwNB8skTYIQ7VAX+2NZgL0Ln2OouosgLZ
-	NMHPs73pm1bAD5px4faEr2wRjyXE4958micgqvg7+MJgxI5hAAIhz29yWg1Dzliv37WOBvq
-	UQPVDtxgzb0bBAk/AK8Q9HL1KJjkifEYDeq/FbmLaP8Hp1pDul7ysA1SsYoLS7p79MwUmmT
-	k6vbcyhZPhc/JRl5e1faWnzSmhqM8=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
-X-QQ-RECHKSPAM: 0
 
-The GPIO_GET response handler stores the pin value in mcp->status and the
-pin direction in mcp->gpio_dir. Consequently,
-mcp_send_data_req_status() returns either zero or one on a successful
-GPIO_GET request.
+The Nuvoton MA35D1 SoC provides a hardware matrix keypad
+controller supporting up to eight rows and eight columns.
 
-mcp_gpio_get_direction() treats any nonzero return as an error and returns
-it directly. For a high output this returns one, which means
-GPIO_LINE_DIRECTION_IN, instead of checking the output direction reported
-by the device.
+This series adds the Device Tree binding and input driver
+for key press/release events, clock management, and system
+suspend/resume support.
 
-Only return early for negative errors so both pin levels use gpio_dir to
-determine the direction.
+Tested on a Nuvoton MA35D1 board with a 4x1 keypad
+configuration and a 1 MHz KPI clock using evtest.
 
-Fixes: ca6961d8a851 ("HID: mcp2221: fix get and get_direction for gpio")
-Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
+Feng-Yi Hsueh (2):
+  dt-bindings: input: Add Nuvoton MA35D1 keypad controller
+  Input: keyboard: Add Nuvoton MA35D1 keypad driver
+
 ---
- drivers/hid/hid-mcp2221.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes since v1:
+  - dt-bindings: add optional resets and reference input.yaml.
+  - dt-bindings: fix interrupt, clock, and keymap formatting.
+  - input: use guard(mutex) in suspend/resume callbacks.
+  - input: rename error variables from ret to error and
+    explicitly return 0 on successful resume.
+  - input: remove the unnecessary linux/mod_devicetable.h include.
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 3f05d6e288f9..3358b7d0c5e4 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -810,7 +810,7 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
- 	mutex_unlock(&mcp->lock);
- 
--	if (ret)
-+	if (ret < 0)
- 		return ret;
- 
- 	if (mcp->gpio_dir == MCP2221_DIR_IN)
+ .../bindings/input/nuvoton,ma35d1-keypad.yaml |  75 ++++
+ drivers/input/keyboard/Kconfig                |  11 +
+ drivers/input/keyboard/Makefile               |   1 +
+ drivers/input/keyboard/ma35d1_keypad.c        | 407 ++++++++++++++++++
+ 4 files changed, 494 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/nuvoton,ma35d1-keypad.yaml
+ create mode 100644 drivers/input/keyboard/ma35d1_keypad.c
+
 -- 
-2.50.1
+2.43.0
 

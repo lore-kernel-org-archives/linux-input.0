@@ -1,98 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.179
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794559743;
-	b=dxSP2TuKthjD3Kb16+i65U60/k6D+i+bdaGqPe7xPQ8wyc6PN/nZ1SuSuL0vzaNT0YVa
-	 5NVOhKVe5PEetCa+XbF6iAx3m5PKl7M7MtO0gyABTr3AQ0yBZ9917t22zAHthqf2zAwyS
-	 d5r2vmZL16EiRarTUvWmHvRXY3wP5xlUnB5vLlu1M5P/arOaSHqe50S7aocw50y+4Y0vq
-	 O7pM2p07Gg39FfnqaBaQ2+jYCRbJfJToAEdnNUV2Xgxl+Z1APy/RR3Zw5AN3fO43oLtq/
-	 cm4I05OV2YYX6/g3nV/tOKk2aNvRfXCWD3RcVYhpsC1UwcwpYJpZB81enFAeELmr/FQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794559743;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.169
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794560306;
+	b=jDpq6NF1kEPoSUYrG7WtRkKRb5A5dNUfuReLsKhbaxivf6iq1YISPbyG0xmEpgFFGrAG
+	 dgHa/ZRdfWVEwcAOUH29ZjUdkC/z6T9IsD1jkebn9vh2XxwRcCQg/eWZoqc8Qd+nJdVD6
+	 eu3g4o0P4DSYSyDgi5GNWSH0ZxRgF9LLq53W7H3lFDuMs5gNRlbkW6c5ejK1Dw25dRg2y
+	 c/3EvnJ3B50a2+rki1ZwyYzl4rXRkOTRkUArrRS2a3rJlVPMrwna0uzAmwUUtSCXdYc+p
+	 tO7RdT1oZ2FWqt1WdP6Ti48n/xAO/DyZ0dW2sMV/N8Ea3EDVdSdkj+WJ3lhAt84ve7A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794560306;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
-	b=f5438F/tMl/i/XahpsnBpJ9ThQfUaxOrZSA8w0QVdgBJezoURmav8ozQVtNOKOkI9MtE
-	 i5V9VnOE6DCNZmKolaXu6P3ZxqNqDgutSGpE3u2fc7iMNQkjpGl3oLcAu3k7OPII+5wv2
-	 1mUPSaBw9URVY3SxAmGfAJ5hrMvDtNnaUEbmvbGelPib3EJSjDl4epotTQeqiTpUJd2N8
-	 fiHfIyyBBLWaHRjNCSiJVz//2dq5sUrEIJoRDfiK23GjncFjYsMoA0aqkNM3+Ot4oMDDj
-	 xwL8ueKZ9rxGIcpEU13y52vMgi3freYknemZGIgJ2OTaNJ/zdb6oE6tTSztLzDtE6Og==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=zdODR8oMvC9u/tbpB8xQBzqRf2Zx8GIT7V8LD+QVHbk=;
+	b=t1oI+J7yAVyyXnR17GBmvJ7pszOxwdUwP143QloHjUPIBTZFxwJ9SFk8EzCnYpfUEc29
+	 sdQwg9XHpwaTcu43//C1dEpcLa9j638qAG0Lo6ipcNAKTrSnheveao+amFZcyliqt9mQi
+	 v0ZB0n5fSpynIbn0AXlHCFvTzHuDrGmzgKYJw7S4ZsqTHo2Lttozcm2oIrzE0TqLBOs/r
+	 zu/Hc2rQeDTxWS3GBNVZaCTzPj6bGafmk+6LsZz/p0ZajwDG1h/7cn6bTlk3a0if8wGFv
+	 HZ/O03WUT/iHyHFAxEuJFPzFdH+ga9OAiZHEpyhvXLsZ+c/Fp/OFgc+638nSDMgh3ig==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXbDGLQb;
-	arc=none smtp.remote-ip=209.85.210.179
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=riuEvSnN;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.169
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEC1606A323
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:49:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DEC1606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532D8606A321
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 08:58:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 532D8606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uXbDGLQb
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8b271e573adso464941b3a.2
-        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 00:49:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=riuEvSnN
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-8b308fca7c3so5729067b3.2
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 00:58:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794560305; cv=none;
+        d=google.com; s=arc-20260327;
+        b=U+gTZkAlDyZkmy7+o1BA7stBIxRzwVfbjluEhASA0ENHg1xQYG6ZAjZOlaoCfEhG9u
+         KfphMndQjubxGWfPZYkCBMJULu1+YuQ80V2PlHIVEyw9T9FTcNmYv2rbfKJW9AEbnV6K
+         9HH06thQ9+6JOm2V9czIj56vWxUM+rrPxvxY4SEuOxpfsQYZEafwuUlkWVbIZMQymxyV
+         nPcqK7U0Au2fS0xlrn1YqUGbVIIEGkGcR3sqnQ4RB9PbsHL2ngNbyMGKnKW8L1iwM6VY
+         Xi6m9eTCAG6j9GN8/JiixMXRK0HJ01peZWbYj9FZRNTIzGi1C/MFfgQ8FURXyQFv4CBC
+         sqDw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=zdODR8oMvC9u/tbpB8xQBzqRf2Zx8GIT7V8LD+QVHbk=;
+        fh=eYTE9Es9YFsU7Z9Z4KgovbvJyHKODGb0LUD93pI+f7I=;
+        b=Tfv94BTpKyV0srvARumfPW6FDNrfpNH8sB7Ir4kE8RgUeNcnf6QMW8IhSm7xUW3Y6h
+         YFeyZKChoCa3uUGU1GR1sxjhlBaBzTm+Lpv1/K+emBqy0+BNQF2Bx5U2Rq9PmXhv2KbD
+         I3STelohBPx/dMRaItIU9Agu2/JzVIAEUTAlvdUd46CHGuczJAOt/qwAFNqiJe2e/N2N
+         b4Sfj80spCFldRjo6AzyaGVkQp1yyK/QQekyeoqicrZPIa9kubGuqSMAsZy1al0CAFaC
+         15A9g28fu/Az77+WhjluvmLWecdoDV3m9RnzG7WFoh5vNhCLJnEASewP/ioRz5I1Uo4l
+         fL+w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794559742; x=1795164542; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
-        b=uXbDGLQbF0w26QAw6MJrM+Gn/WE9SHb8OtRQkAj9lO266801X+jv0LVPreBz6oz94a
-         B92xhj2j1To789uEuSuRZKr3zzsuxMeBmH0dbBnMJnT54gk68b70J1d5rKe7c45aS80R
-         Hg7JVCq2OYsF4ORvO93oQGyjExlaRb9HVQBZGLLvF94c9QBrEFXVB16EPcRyrXIxKm31
-         vh50ZnIGEI+CSKCCOrTQezfbF6rb160F8KYZoNI3fcxRDUz8kQ0PqGfhBB5JkUnV3buX
-         j/5Gy7hNjzBDPzunZypx2PLkuIroU/j8E+codgCOSinm05fSiidcjrrlDIOKtWVWFv2U
-         gq6Q==
+        d=gmail.com; s=20260707; t=1794560305; x=1795165105; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=zdODR8oMvC9u/tbpB8xQBzqRf2Zx8GIT7V8LD+QVHbk=;
+        b=riuEvSnN7JmdLlXxo1i14j8AdCq4QwCe+cbdOjeCp7EGB7A19vq5maOIEqo8K85Ji4
+         yW2a2Bu0TQAzsaVZGGVeCNrHSMAHXQJv78EtKkBmqq0VcYwmuXjOOAYl84PWZGKWvbNN
+         ZhLJF9aGs07sLs8Ha6u+1VQR+l6SlJPbL3oiyZQnL4vCnGYgQjYwU8a578Tl1ec06TYR
+         OGLQyjS1avlivz7inCsRuFUdcVlj6MHB4XY8P9SZqPFun7vOibhXPifH+Jgk4fH86wDP
+         uv3mYbZ4av7L4+NtVtvvDqpkp0aG4GJbByEU+fgMG5zzRG2XmZkG1j+gwLfwnoWBaJWX
+         o7FQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794559742; x=1795164542;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qx6anf3hBdJB8SU0X3cTGKNeyaZPKU1W0S8sS4JiQgM=;
-        b=Hy2w0N33Xy1CZl6sA8JUC5WeO2DkNHOTIu5mobYbG7gM1zzm3OXW9kgYzH+SrcsTXx
-         5hVibd3h93pS0unlReme/bH9ygfn0ZOqf8a6XmfHzVxCSD0umVERtXSHgCI/Cw71kTyU
-         wFv2RkgksChcY+T5en6DHAqHS0CErwHoe0YhJznmg0tAAEtyy8ayY0wMTSG/3h8MJDt+
-         nyfuH0futar+Ol1h3E31jSY+YZHvgHuCOMdQp7rqBIERlrPcXlgacy3cPHt2MTmq5oTY
-         fDs/s6fxl1W9rL1dCW8S2xbuUrEeHW2e6wbI1OOUQnH9qwmsind8HjDk6P7Ryjr49V0W
-         xCDA==
-X-Forwarded-Encrypted: i=1; AL+hErH6yUtbTd9JgCl5sCihIWCGHSnxcK/wTzUzrQrOPetgVHLvAkGWh5Lx6tXc50egyvkqRv/nLcGkLLVadw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8sP8DUpIfh6jIdu1n9/57boQ8jdaaA8njinb58w5urYY62XKr/
-	1JpDmJLM0ME9DONgR7x/AnjasduNjBpOECcJQJiFrDdzYeDQ7v+KoRmD
-X-Gm-Gg: AYBFou237qrU2L7Fb20x2GknAIQF071jcWjfc0dli4nrcX0HWrizEIQvBRJiWA+hWgq
-	RD5ewT3lj6sDp5jgjMqirZB6Rx6rsM0kR/lkLg09lmPtILgBnPvJBHWN/rZ1bEhbCRVFGcqb9ah
-	bQe2H0CXtbyKpdfNc5zpzvhan2nlXK5vagEGkChzxtb7XIogxeeTMKT1O/mxF/GniyJVhIAGKXz
-	3oHcO/JTF5EBi/8oEzDrgkr2kTakupAy8moS+fmuf1fnXfCjSK6CQYI8EaRuxjVRVxKJnq7cMkH
-	4kjG8lPEtALNaNfBLKQD0wWCZcBc8dXQPhF//qUH2pLar4QBvvSrhkU7Glbnv+t2MNuW/nSDsMB
-	1vllqSCGqg6/7moWAIacBnhOpgAWtLvZVdFDfLkfPJe9q4un5RlQFMv/NwV1rTx4kxIstDVkHz6
-	0Ls1PPC2kWYof771VSsRrwB1tSyF6PYLDsFRQOOJLInXz0SKwcYFp64ideoLg59cL62xJYH2SLk
-	jBmaS4bN4FMdpMPH1laxTXPd7CwpSEgGp3Vpd0dJrhXum0aBb3HzT0GgucikBB+0Qo+TNUmWn8z
-	0Jn2tTVJf6IzfhxH2swCK/PJ2dHNoKntQHuCjRcgmLA0J6eGtLv5Y2fHyj6ESozjmFKDaD1oq4x
-	+ixwf
-X-Received: by 2002:a05:6a20:a11c:b0:3e0:eae8:7525 with SMTP id adf61e73a8af0-3f7a8bd20camr1630922637.64.1794559742523;
-        Fri, 13 Nov 2026 00:49:02 -0800 (PST)
-Received: from fyhsueh.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bececcce76sm742540b3a.5.2026.11.13.00.48.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 00:49:02 -0800 (PST)
-From: Feng-Yi Hsueh <fyhsueh4linux@gmail.com>
-To: dmitry.torokhov@gmail.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: ychuang3@nuvoton.com,
-	schung@nuvoton.com,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/2] Add Nuvoton MA35D1 keypad controller support
-Date: Fri, 13 Nov 2026 16:48:50 +0800
-Message-ID: <20261113084852.32727-1-fyhsueh4linux@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20260707; t=1794560305; x=1795165105;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zdODR8oMvC9u/tbpB8xQBzqRf2Zx8GIT7V8LD+QVHbk=;
+        b=OPgZy12V+RK3B23msheMF5zdQMyu//S1bCNndqJIu+e2iMFZZ8hDl4sZ9vTNx5ClIK
+         lkjxD4rRfuuh6ZGNVBdPQnM5ax7vpp+FGcSdrmHL41Kmv+/VoVmYPWpJE10OnoMBjq7k
+         3rjr2wLmBPvlB5vfwvBvRTapQQ2Smwv0gk3y22cQ+vBezJPiz1vJEzs+NP2g6FEXojXd
+         xDE0Lk/sinepK4dmyV2FxNjD7R2pufsmy9oRujl93jro+rV7CVKLh4UyXv0C5AK+DZGD
+         Q1XJbQXuW7j5eZuJ5BMIAF+9bdIKWihp4EfApWJ7LDreawX3P+DJZqOa6Lswnbr4tBMC
+         xMTQ==
+X-Forwarded-Encrypted: i=1; AL+hErEkL+WgYS4oSKmtO97Da1WNwJMEnp0p7y7rGT+vIpIGhGFj69kCt/dSdrTY7LhzwxSR6TXj6bQ4MxLo2g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/r19U/akQDWW6VTzxbFVBAH3EX4mMC14z4xtpDQPprvZk8OjKv
+	vcuxX61u6nCKW5L8Gxk3ZbhOMdVLSaSGlFoJv5ZiW/p6uG2Ir9KITQFVN6h7n190ehfK1tqQ4Im
+	AWvU4xOVLp+khX0LGj3JrFqw34BhBv2M=
+X-Gm-Gg: AYBFou04CjVCSLS1lj/Acsu+05GXGMqkxNZY4qyV9wCe9lA730EcQamgGTYk7MSbgjr
+	VhcIvz/yoQlJnCeGnxfTQ7zwY+3L4nVb7t3YQkYvPsxJcCWOhdNffzCbjTbA94GLYkyQSgsJZNP
+	7kLSG6dncOuwmzhJWiDOd6g1hDiBXlo+US4eVGhZFXB4JI1/bPf4VMGaOpEJqnvXv12bqw+F0sH
+	1+OC4dCP1z5I1h3CaYrTZzKre0GdZ6dxHRGMrU0eAHs59GXBoK4JGJ6T/xWvJQ1Z/c405iv8HQk
+	s/wytbNBvxNqWO4CDt2M9qI4ylieEV0h8GGcSVfw4opmN9qTgAAc9FxN7TCrAi6jwUSmPfr/AeE
+	8D7tqDBhX5ApZBcgeZZ8zGYSkW+CPa6G1R4I9Z+nRLnLRNMgGM31U318j9aDuK8pPOfYY6o7Yne
+	d6xQn4hTovjjXyK2FkcKtb7n8BRPKAL0YePjrgJ4GPmRXgw8EQYfnWc/WO/xjXxwWz2PutOXr86
+	qDXZgNehH015BZ3wBReU+CAO+b1q5e8G9LWutt6o5PTnR/YoW+BX3AlFBDmgQ==
+X-Received: by 2002:a05:690c:7:b0:8b3:22c:b40c with SMTP id
+ 00721157ae682-8b4aa0d0fb2mr13819027b3.7.1794560305368; Fri, 13 Nov 2026
+ 00:58:25 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,39 +106,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com> <20261112065037.1800467-2-dmitry.torokhov@gmail.com>
+In-Reply-To: <20261112065037.1800467-2-dmitry.torokhov@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 13 Nov 2026 10:57:48 +0200
+X-Gm-Features: AclHuK8xbnlVzSxLbVaTLM1vgALdMGppH-yIDCfls_fqrQt5T114mrDDfzRO1l8
+Message-ID: <CAHp75VfKx3DRa0hU+TeFmvi_24_MLVwhmwFRsHO+ggMZXYvWbw@mail.gmail.com>
+Subject: Re: [PATCH 1/5] Input: tsc2007 - drop platform data support
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller" <hns@goldelico.com>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, Andreas Kemnade <andreas@kemnade.info>, 
+	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, 
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, linux-input@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The Nuvoton MA35D1 SoC provides a hardware matrix keypad
-controller supporting up to eight rows and eight columns.
+On Thu, Nov 12, 2026 at 8:50=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Now that all in-tree board files (including SuperH ecovec24) have been
+> converted to generic device properties, legacy platform data support
+> is no longer needed.
+>
+> Remove the platform data structure and associated hardware callbacks
+> from the driver, check the pen-down GPIO directly, and remove the
+> unused platform data header file.
 
-This series adds the Device Tree binding and input driver
-for key press/release events, clock management, and system
-suspend/resume support.
+Very good!
+Reviewed-by: Andy Shevchenko <andy@kernel.org>
 
-Tested on a Nuvoton MA35D1 board with a 4x1 keypad
-configuration and a 1 MHz KPI clock using evtest.
-
-Feng-Yi Hsueh (2):
-  dt-bindings: input: Add Nuvoton MA35D1 keypad controller
-  Input: keyboard: Add Nuvoton MA35D1 keypad driver
-
----
-Changes since v1:
-  - dt-bindings: add optional resets and reference input.yaml.
-  - dt-bindings: fix interrupt, clock, and keymap formatting.
-  - input: use guard(mutex) in suspend/resume callbacks.
-  - input: rename error variables from ret to error and
-    explicitly return 0 on successful resume.
-  - input: remove the unnecessary linux/mod_devicetable.h include.
-
- .../bindings/input/nuvoton,ma35d1-keypad.yaml |  75 ++++
- drivers/input/keyboard/Kconfig                |  11 +
- drivers/input/keyboard/Makefile               |   1 +
- drivers/input/keyboard/ma35d1_keypad.c        | 407 ++++++++++++++++++
- 4 files changed, 494 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/nuvoton,ma35d1-keypad.yaml
- create mode 100644 drivers/input/keyboard/ma35d1_keypad.c
-
--- 
-2.43.0
-
+--
+With Best Regards,
+Andy Shevchenko

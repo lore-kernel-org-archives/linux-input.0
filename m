@@ -1,71 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794589997;
-	b=Ka1FMNTYAGfJ3YZFNbhp5RvyLK1p7fY8dXgkFMsZUECxRZclyCJlyMW7Gl2fUbIZ4njM
-	 2qDrPuUygOSShFqs6sd4/W1sZGUrUnO6kYww0i2kRi2cdjwjtMFi5T9Ldes9kvVRLbPPG
-	 PH+3YOTdn5xBJ+MBcynkM4kKxZSR3AOuZcvgTn/dc0HU8z71XBiFubtUBNWzRLqARwV/G
-	 Fps9Eo55UQpNj7rmAW3xuWvYaQEBIfBF9C6gclANuzSv2NEBmStXBx27Jj6u9Bv39+ePL
-	 t2JSGyBxdk5SFno/wwLHSEfGo4MhGWT098cN98VXAgE8Sj2EFuosRWQMnVHQ+sr3cpw==
+	t=1794590340;
+	b=qyjv11BKNwfBR1eVrPVIXASyBc59t28Me8Y8zIbD/O8rYgKfIbdi7B5YidprGuMEWVPw
+	 k37lym8ceHtwrIcXqno5hwP8TgXus0+fVQ9uUXsMAyh1sT8zTTLx+OhrQhS4uZ7qWF7/F
+	 hyFTxv8IRdVG7AgJ8Ys15QH6e5qUCt459hbYEoQkpE/DsdtHAdCn+Ke3Q5xs6IVPsAac7
+	 FZ33doo5i2QwOqJNVhWmvYKK7OwrdutM0SEjaJe47/tEwKz0Y0yK9d0ErvR3RvJ1BwPTx
+	 8X83IAuegpj4kb7QNu9rpI4Ef5ftV+Lk2rBqjDPoDci7P/addAiJCLTUesXwKvMS3oQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794589997;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=bonakH17m6oL3I6u6f22hNg5N1ig4SK5E1SkaoENsVo=;
-	b=1NFabWF3NkNyOzrSquiD1RhJ7B3uajcu1JejhOgBL1hKPL9B4YmjIwAMnM3TlSk8ipWK
-	 +bH3Q471ZQoKjy51NXaIRGeXKpDRPHHWHNqIuQefbLgQsK2+6mXVd+mheb8BF4hm4eEtr
-	 OYRFvO+IIETUQOe0j5A8Rkjsn7shFKueVouNFlYNgcfpIEZtpQhfla77NjZWojfStHCAe
-	 lTqa5J4tTyCNgxAQbfxAne87OhJVaMb5/7Pkgrm3oDeG8vgeulMVeUCG6HkGj6t+5NnM9
-	 RQGRkDLIq2uQcJoILkXSS3OCJpRWkKayNoarTbcHYHVaSVCrhvaOe4GEL7ztV7GJgMA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794590340;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=+cycbEhwswLeXCs3zWykLJjiooQDa12N5+D+GVlohvs=;
+	b=krdISnHkwZBIzb2GIiT6GqR3XmuUrByl4xcKEukti3gHjz075o3GxToFdWciFrfgqmjf
+	 2u6yf3B0/VYucD72x1LlQOc29nzrU+xLpz4u+OZACAw0Un9wUPaI7EBFuI4Uml7GQZxTt
+	 EMjmB5FjJ3Hz4U5LUazRFrw/4BWy0gonZiqSGHoEk1yCp3L727PkZJdEnhh0XN5PFWWij
+	 xBydDZSnMGVX2SgF0w3OXAsJ8KCg1BAS51nzcpEmvm9RNL9ibnEflNBvI9+pEbrYia/1e
+	 gsUKgH6sitQyf4Zd3oxrzdtctpS0X5Gqs+1ozgJeO3pI09YFoZ34wiUq0JPawD1K4eQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DiOGWW5A;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BlAWRyt9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDD4F606A334;
-	Fri, 13 Nov 2026 17:13:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A9C3606D4BE;
+	Fri, 13 Nov 2026 17:19:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DiOGWW5A
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD94B1F000D0;
-	Fri, 13 Nov 2026 17:13:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BlAWRyt9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D23CC1F000CA;
+	Fri, 13 Nov 2026 17:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794589997;
-	bh=bonakH17m6oL3I6u6f22hNg5N1ig4SK5E1SkaoENsVo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=DiOGWW5AblLFcTIFUrgE/alIXAiZXbzEhZbiIXhFXE8H/zK//AjmvQiVdRU2ZBZgw
-	 YuJtKCusYKUus+2whWriFHNVHslI4dDXzhW1FoNrjObxZxHsLlCS8N1f5Urk/+nfts
-	 I/1RB4QSNgC15X5zSln0RFNaKLZZPGo61aGvqrJIcDn2grBij96TZGAaEHDDVV5EcL
-	 59io1+xQ/4z75IqkElQ5J3bpoB5fdF0/+oKbAZ5ezCRVzInwE5hqaK8IddqaTjdh90
-	 3/Mz44iAuaK2JQreGJJI+Z9XcEA1a77Y7iTR+7v2NixTB1vJ/Lo7rt8nM7TeD0hY96
-	 Wn0fc2K8hSecA==
-From: Sven Peter <sven@kernel.org>
-To: Janne Grunau <j@jannau.net>,
-	Neal Gompa <neal@gompa.dev>,
-	Jassi Brar <jassisinghbrar@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Michael Reeves <michael.reeves077@gmail.com>
-Cc: Sven Peter <sven@kernel.org>,
-	asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	Yureka Lilian <yureka@cyberchaos.dev>,
-	Hector Martin <marcan@marcan.st>,
-	Sasha Finkelstein <k@chaosmail.tech>
-Subject: Re: (subset) [PATCH v5 0/8] Add support for Apple Silicon DockChannel internal keyboards
-Date: Fri, 13 Nov 2026 18:13:00 +0100
-Message-ID: <179458995719.5774.15567568274381558619.b4-ty@b4>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
-References: <20261108-b4-apple-mtp-keyboard-v5-0-e2c97b82669a@gmail.com>
+	s=k20260515; t=1794590340;
+	bh=+cycbEhwswLeXCs3zWykLJjiooQDa12N5+D+GVlohvs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=BlAWRyt9y4N6pMImSO+7YGb6aFuWf1N5xw+Saz3m/m/ecfT61/jDu8UrNaiDmZEjs
+	 Sr6GpgqHYTPaa3UOE3QIE5rnK/3PrPFDoljOSdFXluj8nY3BcK/FvAfqfypHjNfFDB
+	 krEJK6jW84RQ+oJ0iG6o3FsHIDA6i4Bud/jQWBmge/nH0z7skUjYyNtOkQfP5avw89
+	 UqYBMsqEFed7mrwkdtXVVZiYyMxjQuFOrgUSnX6tTAip9M58CwjrjoIoUAAqQbZ3TR
+	 VBqyFhtLTQLEYcqvXbLWOA+QrXf0JUR+bFRvQnMETCyKiYRAPT5MXmyD+m1PX0JhXg
+	 Zpy33ag/ZIWxg==
+Date: Fri, 13 Nov 2026 17:18:55 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Feng-Yi Hsueh <fyhsueh4linux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, robh@kernel.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org,
+	ychuang3@nuvoton.com, schung@nuvoton.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: input: Add Nuvoton MA35D1 keypad
+ controller
+Message-ID: <20261113-stadium-prowler-0bb8a177a2ec@spud>
+References: <20261113084852.32727-1-fyhsueh4linux@gmail.com>
+ <20261113085959.32798-1-fyhsueh4linux@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -75,26 +60,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="eKOVTR4HhWToRLNa"
+Content-Disposition: inline
+In-Reply-To: <20261113085959.32798-1-fyhsueh4linux@gmail.com>
 
-On Sun, 08 Nov 2026 07:25:05 +0000, Michael Reeves wrote:
-> This series introduces support for the internal keyboards on Apple
-> Silicon M2 and M3 MacBook models.
-> 
-> On these platforms, built-in input devices are managed by a dedicated
-> coprocessor running an RTKit-based operating system. Communication
-> between this coprocessor and the main processor is carried out over a
-> low-latency hardware byte FIFO interface called DockChannel.
-> 
-> [...]
+--eKOVTR4HhWToRLNa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Applied to git@github.com:AsahiLinux/linux.git (apple-soc/drivers-7.5), thanks!
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
-[4/8] soc: apple: rtkit: Add tracekit endpoint
-      https://github.com/AsahiLinux/linux/commit/6a2cf965b53f
+--eKOVTR4HhWToRLNa
+Content-Type: application/pgp-signature; name=signature.asc
 
-Best regards,
--- 
-Sven Peter <sven@kernel.org>
+-----BEGIN PGP SIGNATURE-----
 
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavdGfwAKCRB4tDGHoIJi
+0gZVAP9nvT2zzc/A55G8N7PyXKYNDaweWMOhgMmpZ/K2Z3kH0wD/ZSR8UzoZ/Fx4
+viG8gqdUBHOhXvvEBQXaRDWCciupiQg=
+=Cy+e
+-----END PGP SIGNATURE-----
+
+--eKOVTR4HhWToRLNa--

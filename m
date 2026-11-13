@@ -1,83 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.133.4.66
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794563713;
-	b=D1aWBtK+m3aqavG10GXyMNuC0C0I3aTz4OS0z0kQvMSHxhmbZICMlTEgSst6uHwD3P2a
-	 LIGfS20QdVN8aw7ScIUgk0PfpQ7RlMeZl13cko7fipZCcwlv3jYQqi+qOW8z+BXWqmYPL
-	 pd2Zn3H+zZLHpU9cx5eUkMc9YabxMmSE4Nh9AN+DyaiSgOieGSkMhHZA1KGhmJOsamv35
-	 yE8oafTxhVQVRdyUJC97U5zKe8s3KO1LA+LgDYZ33qb/CUIe9DN/qJwMpVICB8tgeDPsQ
-	 cxXiYLM/WlZbn1jiiHd/syrTQ6zC0LErQHzPOe80qnC1qxTsqqjxzaX+67jjsUqvb0Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794563713;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Subject:
-	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-Original-Sender:
-	 X-Originating-IP:X-ZEDAT-Hint;
-	bh=DSxYOaCEQUN98hO0auoHWXR5OBU2d9UCjSU81ozd6Vw=;
-	b=E1XwNxh9Mea7lQrydepT3BL2CADVWQZOMeGCFU/sOMXmiWlcqczgqOVhNFuLqltQ5G41
-	 syNbzIydJysH8NBhX6OuKGpkzD2GFoSULe1yy6KiMGoA9K99jkbg754L4fIwIYcm3M21j
-	 7yokkdIUnb5Wfg83Qpn3WADD7UXPFMwK9Mw1XGrkyAfJmR1QbiSvb5GVjlPGLouY7OgGJ
-	 EuICGuYDIlW0ToxMC1CZzm53LVw3FSALpSUUINzREV1lIokw1REWoUj6HKRY2WzKQ09oH
-	 +et2HYyywYMjpPo1evdqR9ibfBmqbMm8CKgRP30FtRSfKdHoxQfidRTDB6ql7Cc0gXw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=physik.fu-berlin.de;
-	spf=pass smtp.mailfrom=zedat.fu-berlin.de;
-	dkim=pass header.d=fu-berlin.de header.i=@fu-berlin.de header.a=rsa-sha256 header.s=fub01 header.b=EGfWTiK3;
-	arc=none smtp.remote-ip=130.133.4.66
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794564528;
+	b=cPkPNi7mhCpIaL25gk0ZuZ5mMzN0PVnYPQbMyPk1z9CPxkl20UFrIO+myBWqv6+LU2Fe
+	 Ejlh06NAan2bXGpBERUEvWJJxpHPcjlI5rFliZ6FOSIrl6yt+BpJgbAE0yJs+h8ZQIJv2
+	 5c609f+tc2ym8QgpX2JVZUEielRdnZbZsgT/wrpfGN3zN+01qpYo1kMtYEu81LiH8fdj7
+	 EBzWDvHoU86OFV6qMXpZP1hwo5MxsGaP146c5Fyry0XYdwzRemmBzHRkjZvFMQpoXRjdo
+	 nLE9gt9D1H9P44ksGL6so/DBH2PHfZm2WhEcngZDW29NPLwH9Wu7lFUyJJDsOEfKB4Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794564528;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
+	b=G0d30EhS/eAWiaKEgCcPi4AVFOyJCzieQO5rpU0bvfGooebq/s1fg6K1D9+Bjn0ACxcB
+	 +0dH6E+c07EKNbAI3sO064t44k3nvA7B2uzTPREoJh8kl9oj60hRKt4CVIhGqfZqonzuf
+	 q082VVwHNu6kST7yWEBC57FIYdd10YcM4K9eoTKbvkT+XNbLFimaOpEcHNIbflPo0iOvT
+	 CTxUD7Cli0+/HUGZBigSqcf4Ysagt3dxa9WSBKDWp5wJJEOVwOqT6YsV+Fz3f8JW7/U98
+	 sOdB/STJjG651lrLbgmW4/oglPHx2TLwZpR2IV6AXJlAE+pr/3x8ky8m4os12zxPsBw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JOHjHrKw;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC8BD606A332;
-	Fri, 13 Nov 2026 09:55:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC8BD606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0258F606A888
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 10:08:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0258F606A888
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=fu-berlin.de header.i=@fu-berlin.de header.a=rsa-sha256 header.s=fub01 header.b=EGfWTiK3
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:From:
-	Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
-	References; bh=DSxYOaCEQUN98hO0auoHWXR5OBU2d9UCjSU81ozd6Vw=; t=1794563711;
-	x=1795168511; b=EGfWTiK3ifpjW/ySH1THz/wwUiQESm+W4OCd4TPjqCMMfcTa3zVWMU2Clbf9Z
-	gqZa5RzGowO63DT3S7qiycaFyN7BDez50qR4ZX50CBQeMMPbXbuqBntt6Kf30lTBaF4yO+gxULjZP
-	H0MlIW0fwNdwqrAHZC8mha/lGIpAlYN0UUUvfM5Jzf15T26oAnD47uItCzx9gnYf8w4xvHBsW3n63
-	YqE1OADboJ+M+V6cVa90zsEgHqizeSqSbw+sF6XEg+SbnRNFEMRmpj2YOBksHgfZehRbthtPV7QS0
-	oOK8lidqBoas/qnVjnqr1MLsfQnY/e1LQH2ub0CxAqd9Oa/Cow==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.100)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1xRnzo-00000002wpb-2rN9; Fri, 13 Nov 2026 10:55:00 +0100
-Received: from p57bd95b5.dip0.t-ipconnect.de ([87.189.149.181] helo=[192.168.178.61])
-          by inpost2.zedat.fu-berlin.de (Exim 4.100)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1xRnzo-00000003r0U-1ePu; Fri, 13 Nov 2026 10:55:00 +0100
-Message-ID: <5e3fbef26b8500de7c4192bd6cb6eb5248496e14.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH 0/5] Input: tsc2007 - drop platform data support and
- cleanups
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Svyatoslav Ryhel <clamor95@gmail.com>, Dmitry Torokhov
-	 <dmitry.torokhov@gmail.com>
-Cc: "H . Nikolaus Schaller" <hns@goldelico.com>, Yoshinori Sato	
- <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Andy
- Shevchenko	 <andy.shevchenko@gmail.com>, Andreas Kemnade
- <andreas@kemnade.info>,  Johannes Kirchmair
- <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, Geert
- Uytterhoeven	 <geert+renesas@glider.be>, Kuninori Morimoto
- <kuninori.morimoto.gx@renesas.com>, 	linux-input@vger.kernel.org,
- linux-sh@vger.kernel.org, 	linux-kernel@vger.kernel.org
-Date: Fri, 13 Nov 2026 10:54:58 +0100
-In-Reply-To: <CAPVz0n25-LyOFFu-h7Sc0iUcjLMk0njOuAAHr-NepQbnZU6gxg@mail.gmail.com>
-References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com>
-	 <CAPVz0n25-LyOFFu-h7Sc0iUcjLMk0njOuAAHr-NepQbnZU6gxg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.62.1 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JOHjHrKw
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8b31261e8a9so5557407b3.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 02:08:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794564527; cv=none;
+        d=google.com; s=arc-20260327;
+        b=EykH1J15Rx1YlDq/hHmT1iCEKOUQbJHOAZKpWNpfz0p2n00O4Cyz8t4KkPqtoLeDnH
+         VrmY5sVsjA/793ScC0Ry7NfMdTxn8DDip10gYnV/j88gJ4ttW5q4g9NuPaD3+G6CIEiF
+         4zyenGAG3msKeVVmoIFi4JXBR0sz0ftCt0P/qO9brbXZJ8LrQenGnfF8taShoKH0qStH
+         EqadwFC7yZC2I+7/eo7aC/+1fMtZrs0k5lwooSgZuCGvZeuqayMG+DrAeoPH0WUNP8Cr
+         t8ltnldZxrDrISss3qEzkfBS8/9sq6bNHhHZCyOPOQz7JgJUUXnS1glD340dZo/cFeGX
+         hiiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
+        fh=RjmqmWZxyOytvK41oiMMuc45FvplhBX+xJ/U2YtIM8w=;
+        b=ecclA7ia9H0bOZLbrg4+o206RCh5beESOkzsbXOKIyXsc033Mg5eMmCi6QL4srIIr0
+         s7YNBD72wfP2OEbMS43lC9HsfCbkdre1jeDAayf+ZUAjiFxY1pXdilhErAL4jNsyVG3f
+         ITgn6TtjBgcVc2K7XNSM50+lBXRGVoSQBHu/PkXV4vzA7fEW6aVxiUou8pXNujy1YdPe
+         dTKLSUt4UQQ6mvapWr+OpLIXgxJ+T77s+w1gaq5HKKE2fwHhahHenROuJX1+XNwa61Si
+         Y0BhzJFgLcOI483SpFcsvzy1l6jHIxZkDGKHiV8hV1uq+LslkkHAZpOLzsSDaRFXsdNZ
+         5MeA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794564527; x=1795169327; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
+        b=JOHjHrKwW0jJI5tHFSRlGlzX8vgF5h90RovdHP10mbXC0f3qrowCJW//O8BBklbmGZ
+         ytneDq6zTIO6t8z+Dd/cTaDui27l4VySHAZ0TtoxlOq1lY3/hl9tqfQWADCUvyzj8Y9O
+         jtyrS7CgL9VoJxXQFlMRXX2TA3qm5CV40l8rLoBq5NcrhVN5F9HYfoaTwS+RP8eylsDh
+         lynaOrt1ud2snOnot19Br7JRxY7AZY+6RsOqxTokjJhvaLT0MfQsl/quo7ylCeHy86cy
+         39xtGdWxCEmiBq0Gdf/CfuKXncUOs1wF7goPDv+aIZ9cdto1sjoklpl2E2a3d9Tur28Y
+         QTRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794564527; x=1795169327;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
+        b=m6TeU2qasLA9IwfnvJnQPc9B6x6RZpZlaQXREVFcRfe9g432p5twSlRt2U7QC9EEr5
+         MjRuflJQaQxlHqM8UCTiIfO4MqnGtgHi9EMAVF71zzZ1MMs0HnmEwI6zKSFzaiYVB6kb
+         ue4Acx10nQC8lmpfQ39BAWdu/7TJpUywtvPVo/Aq2ke2vL4wg0elN9gacKfwrx4yD1x/
+         kuNe6bAhCBFqfu/uSN4+5UiHECtz/NBqZYko85KD34u5vIYSZsl+oSZTu3OOh+H05H0B
+         7LLPtUJZ3u9RlAddxBDAnG2V5tL7RJLCa6+bLnjTU/VkfgmcFx2vdO0/ClB8QgXqe7z0
+         l/nw==
+X-Forwarded-Encrypted: i=1; AL+hErHUR76i51bafmCAFQmVRTYbhQtSyZ92HEpkgNc896oarn9b5uYbEZM3F3tk58jpQtP1SUNpbgOXygoroQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+sStiJ5YUAC/sgKDog/A1PW9+08tUmOKJgOAFTNYBgIFH/jhMA
+	Km12lqvV3U0rO4qnAStYv3zqvaFst+YpgYg/5aPHXsG/3Ups0h3Y6THP/vu2dA5QU7NhE28OUWp
+	OJ3C+n6LZ1CDTlADJKUw7FHmT4CGNTF19oYjS/FaL2Q==
+X-Gm-Gg: AYBFou3fjI8OY5cM2yiP/L+A7VkpVvoDneIqqXyAQHXrR8ThIV4KMl8LWt6xq2GeJCr
+	2uqdmwdCIbcPcAcymKnINFvnCI+O4QPfPI6dpMVXhVf+kr7LfNanuZiIlqJKK9Ecg/4WI4CP+dN
+	n5Kq95LuOWR9iOTdcvsIG5syFHn8JKWA9ov2rkgrLGaDIJYVZ7jXjgKEGU0KZ2FjWYr3d9iX4BL
+	8ixKW16e0yJ9imkvi6KqGak5sQKdaM3oBGziZV5Xjz7rtKalxhKJLi3PWHPw2Ulr4RF68z7yqmV
+	cpIToEuW9C5ftXRIn4QT+c6h2/ra3XLfgMon7FrL5Pumw/JiS6IwbZZ9MtHbXU9sydJzhoOyoMS
+	yCzCU03eA7+kNh8J02/mlb70PUr2vboVkHmx5VpK+MM2e+aqRnLTyIdR7NvmGjMXG9OPnj9l341
+	wa+WlHEN9qhcQzWBk5H5XekCzx1a5I+3wbd9/VbUhZ/D0ZHA6OkOuS575d50vi6AISwkpK3xNg8
+	OwQ9EGH2m2bhFjAfOVA2SVoixhyjMDLxt7X2OSRfl7KQ7RfJOG2phpVddkwMg==
+X-Received: by 2002:a05:690c:e1d3:20b0:8b3:4f53:91c4 with SMTP id
+ 00721157ae682-8b4aa326b49mr10197467b3.29.1794564526979; Fri, 13 Nov 2026
+ 02:08:46 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -87,63 +106,76 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com> <20261112065037.1800467-5-dmitry.torokhov@gmail.com>
+In-Reply-To: <20261112065037.1800467-5-dmitry.torokhov@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 13 Nov 2026 12:08:09 +0200
+X-Gm-Features: AclHuK8Y20CK-uRfjZMkziALZSmbzxcenVC4HU4NYiah5SSa7aVtNNizdoU07Uc
+Message-ID: <CAHp75Vcta1YuUfLkxh96NoeOVGjn=paTHXw8ive=+kS9pvBoDw@mail.gmail.com>
+Subject: Re: [PATCH 4/5] Input: tsc2007 - do not register input device without IRQ
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller" <hns@goldelico.com>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, Andreas Kemnade <andreas@kemnade.info>, 
+	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, 
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, linux-input@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Svyatoslav,
+On Thu, Nov 12, 2026 at 8:56=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> The driver has no polled input mode and only reports touchscreen input
+> events from its threaded interrupt handler. When no interrupt is wired,
+> the device is used solely as an IIO ADC, so registering an input device
+> serves no purpose and creates a non-functional input node.
+>
+> Only allocate, configure, and register the input device when an
+> interrupt is present. This also allows removing the unnecessary
+> ts->irq checks in the open and stop callbacks.
 
-On Fri, 2026-11-13 at 11:33 +0200, Svyatoslav Ryhel wrote:
-> =D1=87=D1=82, 12 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 08=
-:50 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
-> >=20
-> > Now that all in-tree boards using tsc2007 (including SuperH ecovec24)
-> > have been converted to generic device properties, this series drops
-> > legacy platform data support and its header file, removes redundant
-> > memory barriers, fixes minor coding style issues, skips registering a
-> > non-functional input device when no interrupt is wired (when the chip i=
-s
-> > used purely as an IIO ADC), and uses IRQF_NO_AUTOEN when requesting the
-> > threaded interrupt.
-> >=20
-> > Thanks.
-> >=20
-> > Dmitry Torokhov (5):
-> >   Input: tsc2007 - drop platform data support
-> >   Input: tsc2007 - remove unneeded memory barriers
-> >   Input: tsc2007 - fix minor coding style issues
-> >   Input: tsc2007 - do not register input device without IRQ
-> >   Input: tsc2007 - use IRQF_NO_AUTOEN when requesting interrupt
-> >=20
-> >  arch/sh/boards/mach-ecovec24/setup.c     |   1 -
-> >  drivers/input/touchscreen/tsc2007.h      |   5 +-
-> >  drivers/input/touchscreen/tsc2007_core.c | 183 ++++++++---------------
-> >  include/linux/platform_data/tsc2007.h    |  23 ---
-> >  4 files changed, 60 insertions(+), 152 deletions(-)
-> >  delete mode 100644 include/linux/platform_data/tsc2007.h
-> >=20
-> > --
-> > 2.56.0.567.gdb80ae8cd5-goog
-> >=20
->=20
-> Hello Dmitry!
->=20
-> I have tested this series on top of the latest next/master on the LG
-> Optimus Vu P895. My device uses this chip as an ADC for battery
-> temperature measurements.
->=20
-> Your patches works as expected. Input device was no longer registered,
-> ADC part was present and worked as intended. Thank you!
->=20
-> All series
->=20
-> Tested-by: Svyatoslav Ryhel <clamor95@gmail.com> # LG P895
+...
 
-Interesting. What kind of device is this? Is this a SuperH-based phone?
+>         ts->stopped =3D false;
+> -
+> -       if (ts->irq)
+> -               enable_irq(ts->irq);
+> +       enable_irq(ts->irq);
 
-Adrian
+
+Looking at this makes me think that if "stopped" is tightened to IRQ
+enablement, the IRQ framework already has an API which may be used
+instead of having a local flag. This can be achieved with
+irqd_irq_disabled(irq_get_irq_data(ts->irq)), but this is most likely
+for the other day.
+
+...
+
+> -       snprintf(ts->phys, sizeof(ts->phys),
+> -                "%s/input0", dev_name(&client->dev));
+> +       snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(dev));
+
+Perhaps scnprintf() to avoid compiler warnings?
+
+...
+
+> +       err =3D devm_request_threaded_irq(dev, ts->irq,
+> +                                       NULL, tsc2007_soft_irq,
+> +                                       IRQF_ONESHOT,
+> +                                       dev->driver->name, ts);
+> +       if (err) {
+
+> +               dev_err(dev, "Failed to request irq %d: %d\n", ts->irq, e=
+rr);
+
+This has to be dropped in a separate patch as dup. The above API
+prints the very similar message on error.
+
+> +               return err;
+> +       }
 
 --=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+With Best Regards,
+Andy Shevchenko

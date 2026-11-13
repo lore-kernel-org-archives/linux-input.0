@@ -1,102 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.170
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794564528;
-	b=cPkPNi7mhCpIaL25gk0ZuZ5mMzN0PVnYPQbMyPk1z9CPxkl20UFrIO+myBWqv6+LU2Fe
-	 Ejlh06NAan2bXGpBERUEvWJJxpHPcjlI5rFliZ6FOSIrl6yt+BpJgbAE0yJs+h8ZQIJv2
-	 5c609f+tc2ym8QgpX2JVZUEielRdnZbZsgT/wrpfGN3zN+01qpYo1kMtYEu81LiH8fdj7
-	 EBzWDvHoU86OFV6qMXpZP1hwo5MxsGaP146c5Fyry0XYdwzRemmBzHRkjZvFMQpoXRjdo
-	 nLE9gt9D1H9P44ksGL6so/DBH2PHfZm2WhEcngZDW29NPLwH9Wu7lFUyJJDsOEfKB4Q==
+	t=1794565755;
+	b=aqs0IZKfIEBqq6gaJ8E/NDfdTLxYs9mYCfQz7bb9P6QvNhVAIEBoAO7e/D8+SSVFKql6
+	 ukPFNyEzBv0Zv2pv3e4OulW6itt91hj+Ix/UAobksajxh62UR4iSyse4lHKpMmUIq5ViD
+	 UTISwP5fI1a6l0U5UeKCGswEQ/Q5YQ+TcX7+j6GOmVY8CHpOahXvd4ZhOftOBvklQRuRD
+	 FoI3oo7H4+N/c9Xs8JN5fRn3EkyMeXPIBm5sN0K+dFzz/rzD+cPv4LP/K6ksdYiW1gwSb
+	 r1E6OaVtvDZu51RG1vOJFF2tHHq2c5vqtRIFq5D23maw91JyeaWelZishEzJzd0p5Qw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794564528;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794565755;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
 	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
-	b=G0d30EhS/eAWiaKEgCcPi4AVFOyJCzieQO5rpU0bvfGooebq/s1fg6K1D9+Bjn0ACxcB
-	 +0dH6E+c07EKNbAI3sO064t44k3nvA7B2uzTPREoJh8kl9oj60hRKt4CVIhGqfZqonzuf
-	 q082VVwHNu6kST7yWEBC57FIYdd10YcM4K9eoTKbvkT+XNbLFimaOpEcHNIbflPo0iOvT
-	 CTxUD7Cli0+/HUGZBigSqcf4Ysagt3dxa9WSBKDWp5wJJEOVwOqT6YsV+Fz3f8JW7/U98
-	 sOdB/STJjG651lrLbgmW4/oglPHx2TLwZpR2IV6AXJlAE+pr/3x8ky8m4os12zxPsBw==
+	bh=cLlqqY0k7diIlhrzv1M1aVJOoeE1a6tJkKZXoZP0rU0=;
+	b=DsvOXt/VE9yMqB2x5LAyW4G1QqNhOhdDMXll0gJOEbfUm9elzJMaalXc9iIBb2wYD/K0
+	 8HIaUB7H0tRJt7kLtGHga9b7Va/vNCX2y0IAZNOmSKGlJGo2hvgeyUVia2vqZrPf91dri
+	 EDCz215YROMQtXcrwcZBFwqxXr3Cdh9SICmLknJnUM2er4EwywBH4NAS5jH1G88ucTgJD
+	 GFNBO25fKL3xT7MZ712wRVkhE+Zvhru9M1HOZAp1U/jcF1gqxdw32vIy88x+jbZ+a1Zqz
+	 XxY3Hf4ktO4iCms9kKWo/F/1kap49D09qnmc/YflmGC6mx8VokonmJ+s24MN3PiNRwA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JOHjHrKw;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.180
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TDvS+YtY;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.170
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0258F606A888
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 10:08:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0258F606A888
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735EA606A89F
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 10:29:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 735EA606A89F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JOHjHrKw
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8b31261e8a9so5557407b3.0
-        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 02:08:47 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794564527; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TDvS+YtY
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-3704d30b84fso1047864eec.1
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 02:29:15 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794565754; cv=none;
         d=google.com; s=arc-20260327;
-        b=EykH1J15Rx1YlDq/hHmT1iCEKOUQbJHOAZKpWNpfz0p2n00O4Cyz8t4KkPqtoLeDnH
-         VrmY5sVsjA/793ScC0Ry7NfMdTxn8DDip10gYnV/j88gJ4ttW5q4g9NuPaD3+G6CIEiF
-         4zyenGAG3msKeVVmoIFi4JXBR0sz0ftCt0P/qO9brbXZJ8LrQenGnfF8taShoKH0qStH
-         EqadwFC7yZC2I+7/eo7aC/+1fMtZrs0k5lwooSgZuCGvZeuqayMG+DrAeoPH0WUNP8Cr
-         t8ltnldZxrDrISss3qEzkfBS8/9sq6bNHhHZCyOPOQz7JgJUUXnS1glD340dZo/cFeGX
-         hiiw==
+        b=T1hfswyj/jPudAqKBCRDOBRwvFKU3lkCUPpggQeJon6q6Yo1dLVho4UwGU1/P+jmvG
+         eYfJ6tSDneuHA4g3RRfUe3MtE4cMF0/zokPhqZgHEnAiVA2GXMXMFdAf7u625JDKo4wC
+         YZAwv1vLGQIUnkDLGqYheqGAfn/Jw1ZEj4lPt1JY5pSYcY1AAq1aY7JHRONo4cnzB1CC
+         EEpKE5Fdh9nYJ6uJbj3QIGXMLMV/0SiolVqKuN0IScu4NofC8znnx3Yq07x8aQl1cyS3
+         pKTQGUlGsKTFNmQYUFjsfEr4E6Me1ElOGJRQ1+FD9rEWrrFnOOojyg2eueR1e7LAhRgE
+         Z9AA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
-        fh=RjmqmWZxyOytvK41oiMMuc45FvplhBX+xJ/U2YtIM8w=;
-        b=ecclA7ia9H0bOZLbrg4+o206RCh5beESOkzsbXOKIyXsc033Mg5eMmCi6QL4srIIr0
-         s7YNBD72wfP2OEbMS43lC9HsfCbkdre1jeDAayf+ZUAjiFxY1pXdilhErAL4jNsyVG3f
-         ITgn6TtjBgcVc2K7XNSM50+lBXRGVoSQBHu/PkXV4vzA7fEW6aVxiUou8pXNujy1YdPe
-         dTKLSUt4UQQ6mvapWr+OpLIXgxJ+T77s+w1gaq5HKKE2fwHhahHenROuJX1+XNwa61Si
-         Y0BhzJFgLcOI483SpFcsvzy1l6jHIxZkDGKHiV8hV1uq+LslkkHAZpOLzsSDaRFXsdNZ
-         5MeA==;
+        bh=cLlqqY0k7diIlhrzv1M1aVJOoeE1a6tJkKZXoZP0rU0=;
+        fh=mOZLxK37QL5zTQq8aDlY+9nXyaPu/f5HjO1uW6p9tAE=;
+        b=hFsl5hkmoCKyehfPg4ubqXgxEy9lVNgU+WIm6qV/+OnLUtG26jhp6pBiQjMeiMdnxj
+         CQfEdSdomNFMdcs0IuNrbYgddrO4NbVntzIpymheb+fzhyShmUHsB2wXfjvbNIuTwy0Z
+         dUIrjj2EyansC04LIhNs21U0I5W8CIlkv+FssaU00kxy/yWdGzm4bxOiuymfSN1FHqVr
+         q9JB+KOAQ2kCkZbS8+flyppc4y6cBtqim97Ggc3YBgrv0/NYGQxf3V20qHkS3GvWJkFK
+         B3Xx6azAIOjQ2uYrMtc1nA0C0QNz2Fi8NXRTGCWsGatpl7hwnr0ZhAxb4EN7x4pTZabz
+         1fNQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794564527; x=1795169327; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794565754; x=1795170554; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
-        b=JOHjHrKwW0jJI5tHFSRlGlzX8vgF5h90RovdHP10mbXC0f3qrowCJW//O8BBklbmGZ
-         ytneDq6zTIO6t8z+Dd/cTaDui27l4VySHAZ0TtoxlOq1lY3/hl9tqfQWADCUvyzj8Y9O
-         jtyrS7CgL9VoJxXQFlMRXX2TA3qm5CV40l8rLoBq5NcrhVN5F9HYfoaTwS+RP8eylsDh
-         lynaOrt1ud2snOnot19Br7JRxY7AZY+6RsOqxTokjJhvaLT0MfQsl/quo7ylCeHy86cy
-         39xtGdWxCEmiBq0Gdf/CfuKXncUOs1wF7goPDv+aIZ9cdto1sjoklpl2E2a3d9Tur28Y
-         QTRA==
+        bh=cLlqqY0k7diIlhrzv1M1aVJOoeE1a6tJkKZXoZP0rU0=;
+        b=TDvS+YtY1AbTqAyGZ1p120oYrqqEBQUua5EF2onSOkfyB/igjcBk3zHmxtaBIRmn6m
+         /cUajT0QY1fRwVR1QGJm3pufwc+P59LwlfISZLTOlcmRjhS6wM21yfW30POC51d0yD53
+         nJ5KZJ1F8EvA2NWXMe77ZbSnv1tgaMkch19sjHlswpQF299Po21Exby0G8lgI2WosR+d
+         gmJQJphxlR2jQf1/f7DYhhNcHoYeqdSCeM4GbVh8GW7YfM2+U31//1elpRZBJMEElWQi
+         6mNISV/+yZ1T1N4f2mmexYBdxnMpxWX/2SD4cLqAXQo4+bR6UIaK+ywFgs749NOO6uLM
+         NDwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794564527; x=1795169327;
+        d=1e100.net; s=20260707; t=1794565754; x=1795170554;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=rKWOW9+LLEImVEGgv+UL91WRNiS03i6s+m/NnnyTegE=;
-        b=m6TeU2qasLA9IwfnvJnQPc9B6x6RZpZlaQXREVFcRfe9g432p5twSlRt2U7QC9EEr5
-         MjRuflJQaQxlHqM8UCTiIfO4MqnGtgHi9EMAVF71zzZ1MMs0HnmEwI6zKSFzaiYVB6kb
-         ue4Acx10nQC8lmpfQ39BAWdu/7TJpUywtvPVo/Aq2ke2vL4wg0elN9gacKfwrx4yD1x/
-         kuNe6bAhCBFqfu/uSN4+5UiHECtz/NBqZYko85KD34u5vIYSZsl+oSZTu3OOh+H05H0B
-         7LLPtUJZ3u9RlAddxBDAnG2V5tL7RJLCa6+bLnjTU/VkfgmcFx2vdO0/ClB8QgXqe7z0
-         l/nw==
-X-Forwarded-Encrypted: i=1; AL+hErHUR76i51bafmCAFQmVRTYbhQtSyZ92HEpkgNc896oarn9b5uYbEZM3F3tk58jpQtP1SUNpbgOXygoroQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+sStiJ5YUAC/sgKDog/A1PW9+08tUmOKJgOAFTNYBgIFH/jhMA
-	Km12lqvV3U0rO4qnAStYv3zqvaFst+YpgYg/5aPHXsG/3Ups0h3Y6THP/vu2dA5QU7NhE28OUWp
-	OJ3C+n6LZ1CDTlADJKUw7FHmT4CGNTF19oYjS/FaL2Q==
-X-Gm-Gg: AYBFou3fjI8OY5cM2yiP/L+A7VkpVvoDneIqqXyAQHXrR8ThIV4KMl8LWt6xq2GeJCr
-	2uqdmwdCIbcPcAcymKnINFvnCI+O4QPfPI6dpMVXhVf+kr7LfNanuZiIlqJKK9Ecg/4WI4CP+dN
-	n5Kq95LuOWR9iOTdcvsIG5syFHn8JKWA9ov2rkgrLGaDIJYVZ7jXjgKEGU0KZ2FjWYr3d9iX4BL
-	8ixKW16e0yJ9imkvi6KqGak5sQKdaM3oBGziZV5Xjz7rtKalxhKJLi3PWHPw2Ulr4RF68z7yqmV
-	cpIToEuW9C5ftXRIn4QT+c6h2/ra3XLfgMon7FrL5Pumw/JiS6IwbZZ9MtHbXU9sydJzhoOyoMS
-	yCzCU03eA7+kNh8J02/mlb70PUr2vboVkHmx5VpK+MM2e+aqRnLTyIdR7NvmGjMXG9OPnj9l341
-	wa+WlHEN9qhcQzWBk5H5XekCzx1a5I+3wbd9/VbUhZ/D0ZHA6OkOuS575d50vi6AISwkpK3xNg8
-	OwQ9EGH2m2bhFjAfOVA2SVoixhyjMDLxt7X2OSRfl7KQ7RfJOG2phpVddkwMg==
-X-Received: by 2002:a05:690c:e1d3:20b0:8b3:4f53:91c4 with SMTP id
- 00721157ae682-8b4aa326b49mr10197467b3.29.1794564526979; Fri, 13 Nov 2026
- 02:08:46 -0800 (PST)
+        bh=cLlqqY0k7diIlhrzv1M1aVJOoeE1a6tJkKZXoZP0rU0=;
+        b=wLVY7DrRrUblLi7bcR3andzwp5bkAEhB5kmgWjjH2Ie92ZhMEuy/eU/UVhmdqEUosi
+         zTsgSQAl3URZtLa7ZloULpmSBfjHBMx6qwQWsNfvQ5tExtS9rD4AVl1xBzocX9eXk/Hm
+         p0KtbkYDXkX8WAd7/FfuMB4ABg8frdyxcFJPFUwjdNF1g55SZGnkdiHSyfg87x91nm7b
+         iab/5nCxJxO5bMNB+AIXF22oO8/IoL+Ik59ymAx99KpUk2TpWiS+7CgsPPwgeHvnzvzJ
+         zw938csGJig7VC+rzNYjRAJ3R0s3iRh/p2GbQYRtIhDjGF4lffggjk/oDU1K48vllygN
+         Oi5Q==
+X-Forwarded-Encrypted: i=1; AL+hErFvCYEHmjtr3o+PcBlnTSg6gUOxcB7TYkdK92p1NjPnPcuYChNo1VM0L2680HiAn1geaM0c5e4U3lLEJA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/KkEFXJ5LEru28f+PGzpCB2jlJ7LmIkpwlTLGBei8q+tS3Ftpz
+	9J1RjFCtAH48O69dKd+UTOw8fZBXn0QPsAFx06HriKGjMX37sCSzEjBWC3ZLNKk+YmMVjBqamnZ
+	DbPudTp4wK/4gV+n3l5lgY5XdgkbGtZg=
+X-Gm-Gg: AYBFou34Hop+43ALrDIwuP052wmEUsBYhlS+Avpi6/6i0JoFINj1nc8s/Vn8wa2kR3H
+	BJ/5WGbp0VVLr32xvjqK7k9YcS8t6B83mjW5AbWGK8ckxMfQx/EdZwuSTo7H51KJzQ1Hv6MH6bl
+	xl4XMlLY/3jfZrB4LGYgNSOYNTsPaP2jngiIvcH2E34SG1vL3HswOIpUIeqqsNNT/n4G1Tn0KqD
+	niWiKClVlk1K0H/fa83S8I9RUCp4kTZQgn2j102L6H1oUkZzsJZQLeKQcxxQyqSDv6BtuAtE65V
+	7sOyvtY0ji/ABWuam1RSqt/hK/eXUbLJHO8v9QWqrXgCQNdcYjcZ2f/pT7AjngMOXZRiHwjIMMd
+	xI2+km8yiYR/bOExhGPMUJfJWpR6fClUCIAX+y68O+xYfkesy30u2uoez4XUQ1ugdiDKQvZCv1S
+	YSajb3GYNE8MW8jJt7VndiMURXIUxMr5s=
+X-Received: by 2002:a05:693c:8813:20b0:376:77e6:a66 with SMTP id
+ 5a478bee46e88-37967315a29mr1873378eec.16.1794565754508; Fri, 13 Nov 2026
+ 02:29:14 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,17 +105,18 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com> <20261112065037.1800467-5-dmitry.torokhov@gmail.com>
-In-Reply-To: <20261112065037.1800467-5-dmitry.torokhov@gmail.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 13 Nov 2026 12:08:09 +0200
-X-Gm-Features: AclHuK8Y20CK-uRfjZMkziALZSmbzxcenVC4HU4NYiah5SSa7aVtNNizdoU07Uc
-Message-ID: <CAHp75Vcta1YuUfLkxh96NoeOVGjn=paTHXw8ive=+kS9pvBoDw@mail.gmail.com>
-Subject: Re: [PATCH 4/5] Input: tsc2007 - do not register input device without IRQ
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller" <hns@goldelico.com>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, Andreas Kemnade <andreas@kemnade.info>, 
+References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com>
+ <CAPVz0n25-LyOFFu-h7Sc0iUcjLMk0njOuAAHr-NepQbnZU6gxg@mail.gmail.com> <5e3fbef26b8500de7c4192bd6cb6eb5248496e14.camel@physik.fu-berlin.de>
+In-Reply-To: <5e3fbef26b8500de7c4192bd6cb6eb5248496e14.camel@physik.fu-berlin.de>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Fri, 13 Nov 2026 12:29:02 +0200
+X-Gm-Features: AclHuK-Fxw1Wk4d0-g4CX6-_wsdY0XEuPYGBEZCmvji7RJCYCeNHh-w-hBV3HBw
+Message-ID: <CAPVz0n3SU1eJ9=zzXmaB=y_c8faNMFB2HZfUwZQg6jJkNgRSjQ@mail.gmail.com>
+Subject: Re: [PATCH 0/5] Input: tsc2007 - drop platform data support and cleanups
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H . Nikolaus Schaller" <hns@goldelico.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	Andy Shevchenko <andy.shevchenko@gmail.com>, Andreas Kemnade <andreas@kemnade.info>, 
 	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, 
 	Geert Uytterhoeven <geert+renesas@glider.be>, 
 	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, linux-input@vger.kernel.org, 
@@ -124,58 +124,75 @@ Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller" <hns@goldelic
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2026 at 8:56=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+=D0=BF=D1=82, 13 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 11:5=
+5 John Paul Adrian Glaubitz
+<glaubitz@physik.fu-berlin.de> =D0=BF=D0=B8=D1=88=D0=B5:
 >
-> The driver has no polled input mode and only reports touchscreen input
-> events from its threaded interrupt handler. When no interrupt is wired,
-> the device is used solely as an IIO ADC, so registering an input device
-> serves no purpose and creates a non-functional input node.
+> Hi Svyatoslav,
 >
-> Only allocate, configure, and register the input device when an
-> interrupt is present. This also allows removing the unnecessary
-> ts->irq checks in the open and stop callbacks.
+> On Fri, 2026-11-13 at 11:33 +0200, Svyatoslav Ryhel wrote:
+> > =D1=87=D1=82, 12 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE =
+08:50 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> > >
+> > > Now that all in-tree boards using tsc2007 (including SuperH ecovec24)
+> > > have been converted to generic device properties, this series drops
+> > > legacy platform data support and its header file, removes redundant
+> > > memory barriers, fixes minor coding style issues, skips registering a
+> > > non-functional input device when no interrupt is wired (when the chip=
+ is
+> > > used purely as an IIO ADC), and uses IRQF_NO_AUTOEN when requesting t=
+he
+> > > threaded interrupt.
+> > >
+> > > Thanks.
+> > >
+> > > Dmitry Torokhov (5):
+> > >   Input: tsc2007 - drop platform data support
+> > >   Input: tsc2007 - remove unneeded memory barriers
+> > >   Input: tsc2007 - fix minor coding style issues
+> > >   Input: tsc2007 - do not register input device without IRQ
+> > >   Input: tsc2007 - use IRQF_NO_AUTOEN when requesting interrupt
+> > >
+> > >  arch/sh/boards/mach-ecovec24/setup.c     |   1 -
+> > >  drivers/input/touchscreen/tsc2007.h      |   5 +-
+> > >  drivers/input/touchscreen/tsc2007_core.c | 183 ++++++++-------------=
+--
+> > >  include/linux/platform_data/tsc2007.h    |  23 ---
+> > >  4 files changed, 60 insertions(+), 152 deletions(-)
+> > >  delete mode 100644 include/linux/platform_data/tsc2007.h
+> > >
+> > > --
+> > > 2.56.0.567.gdb80ae8cd5-goog
+> > >
+> >
+> > Hello Dmitry!
+> >
+> > I have tested this series on top of the latest next/master on the LG
+> > Optimus Vu P895. My device uses this chip as an ADC for battery
+> > temperature measurements.
+> >
+> > Your patches works as expected. Input device was no longer registered,
+> > ADC part was present and worked as intended. Thank you!
+> >
+> > All series
+> >
+> > Tested-by: Svyatoslav Ryhel <clamor95@gmail.com> # LG P895
+>
+> Interesting. What kind of device is this? Is this a SuperH-based phone?
+>
 
-...
+Quote from wiki:
 
->         ts->stopped =3D false;
-> -
-> -       if (ts->irq)
-> -               enable_irq(ts->irq);
-> +       enable_irq(ts->irq);
+The LG Optimus Vu (Also known as LG Intuition on Verizon) is an
+Android phablet smartphone released in August 2012 and noted for its
+4:3 aspect ratio 5.0-inch screen size - between that of conventional
+smartphones, and larger tablets (sigh). It is powered by a 1.5 GHz
+quad-core Nvidia Tegra 3 CPU with Nvidia ULP GeForce GPU.
 
-
-Looking at this makes me think that if "stopped" is tightened to IRQ
-enablement, the IRQ framework already has an API which may be used
-instead of having a local flag. This can be achieved with
-irqd_irq_disabled(irq_get_irq_data(ts->irq)), but this is most likely
-for the other day.
-
-...
-
-> -       snprintf(ts->phys, sizeof(ts->phys),
-> -                "%s/input0", dev_name(&client->dev));
-> +       snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(dev));
-
-Perhaps scnprintf() to avoid compiler warnings?
-
-...
-
-> +       err =3D devm_request_threaded_irq(dev, ts->irq,
-> +                                       NULL, tsc2007_soft_irq,
-> +                                       IRQF_ONESHOT,
-> +                                       dev->driver->name, ts);
-> +       if (err) {
-
-> +               dev_err(dev, "Failed to request irq %d: %d\n", ts->irq, e=
-rr);
-
-This has to be dropped in a separate patch as dup. The above API
-prints the very similar message on error.
-
-> +               return err;
-> +       }
-
---=20
-With Best Regards,
-Andy Shevchenko
+> Adrian
+>
+> --
+>  .''`.  John Paul Adrian Glaubitz
+> : :' :  Debian Developer
+> `. `'   Physicist
+>   `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913

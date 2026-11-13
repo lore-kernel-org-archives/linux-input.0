@@ -1,97 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.204.34.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794551339;
-	b=yqHovAVEJiNYm/23aF5u0+YYXN597bpuvCW9jww7ZwybLvNQdDorKifxILYuNgbyHBsg
-	 kgzB3lPPenfIjbMf93enQZFxorV39A0N3b6qFt3rq77ljKtm0NSVyxSr9/RwwxBjvdN0a
-	 T7HkD94oNHe2YXEqHBSJMDtYoVEU96SF6efHEHOVczgtPxJUU2V/cC4KG/xFqm79e8x6D
-	 Q2NrvArpp6BtrV7QZhFmJVaf7H2bFp/ry7KEywytO+yZZE/L97dLsMRLOFRmVsDgD257T
-	 oR3OUNSUZDecp837UIuyhTg+A9YQ+gkKoi9WrN9M6YBjAc1ZjXVVLyXMD04g+TbmSyg==
+	t=1794553069;
+	b=wSfWZU+wa0PmYKMZc8PXPhM9tREFckZNpKzTbx1Vz3k94Gvi/Hd0XlU0RNUogASywFlZ
+	 6GZOrtyMXG509E4EJTKk8mg6eD9cu30uH1ZLfB/mcztLMQqUBN+fKxSE5EsnqXnQJ/T49
+	 Sv0wjhKLG1lqNO2YP9Dlg8iCbay/YAxYxoG7MsNjQ2hbk3+P7YJ7y4kYobAjfxdvtkOEa
+	 JT73Na7aNusBiGDBhHc7+KbywEHOdTRt40vxzoKm0Ka+wx5mPi74z9ylPkSZBfE27jWIN
+	 h/xtIXMLSS/B8nJEyb7PM22OoKW8eQP7F1hLnXvzk5myENYQmzG14x5z7EqGzV6d3jw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794551339;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=eMtI/QvyBu7WYuIQjEeNFc1ytajl1TcdksT1CryvP7Q=;
-	b=1PEpJzHNkQp5l0pn5Lwv96TwbV7/3Nks8VzCQglghwSNdvKIXRJdgfyLPpNEMaau0J5J
-	 M4MRADluck+Oeg5vKlJgaPEZtiNIMM9sYtrE7keBQ8q1yW2jBnNKGkvIqKXVyrU4KJSP2
-	 3GM1+WO62BrfQPlLdnhIX+bCdDGN6HhhoJUoUEpq+XRMmaP6k+01ciBf2jmdmPGJgP/0K
-	 o2g4tugaGlC8gujiRTwNdcc9JcEgPfTTPCytWgyef1ZhWDgQZ3qYM9lik1w0gphPuhPpP
-	 J2tuGKNXL06asRTrxHi2iXbDfoLzFi+F6ErnbV8UgiBy7L7DJB1iqkFDoDkNG9LfaAQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794553069;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
+	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
+	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
+	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
+	b=OYZ381iWjhOGLYDTmWE13E1I0t93AH8nugGnpa+8btElAIDkb5qYKj+m9hlMdFdX18bf
+	 7ZAonwgVWLZF1fQcWU6f11Sd2vNIQEFQf/WNpIJIXZ9r9L00nrj2G/nJI9YLubJqYPQt6
+	 GkpVgTnozmCY+e93RP/ZS6D17yX+RIdSQoPKkXLuPBA46+gjAqiHsDuJfDpO+/Q3nWuNP
+	 7A2l+0Ukfm7wi9c5pvBQh1Tx0Vaikhqzhh2OTmxbz5o5CV7spQ/Ei3qaGS3652r2AtKQf
+	 T/xTyne1aOORQiDhQUis6izcLuaNeppNSaZsLHMq8PszVNRlvqz9fwJIYGs5a8OxMcQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=cz+kn4Du;
-	arc=none smtp.remote-ip=209.85.221.46
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=uniontech.com;
+	spf=pass smtp.mailfrom=uniontech.com;
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J;
+	arc=none smtp.remote-ip=54.204.34.130
+Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A050F606A31C
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 06:28:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A050F606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA12606A321;
+	Fri, 13 Nov 2026 06:57:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3CA12606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=cz+kn4Du
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-491846221ffso537288f8f.3
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2026 22:28:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1794551337; x=1795156137; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=eMtI/QvyBu7WYuIQjEeNFc1ytajl1TcdksT1CryvP7Q=;
-        b=cz+kn4DuwLvFxEnT1RdO8AR1F0oXhLYwqMLGi15pJafOa2ZLuQePGzmS7ybyfi+k4R
-         WYiiGoHG3sb31cMtl1+ZxQbkXtMAi4UZF4EvnXICafNJ5fWBMHe5WQVzeeJICIx8nvsH
-         LiOi25YLkt3ocFE/UzCKppsR+wA1Ug5dI7ymde9WPwJ/rIZEJ2Alei2RTLNgGDOgUOOA
-         /k9+0wb46DDy97V5Idh86mkwudDy+7/Mqg42ecANFcVbDlMlQ3gtFoeW9H2Dr8MOqVv8
-         XMiA3LXF49UOzeEfJnuFw3IdEUPHKbg0Jps4yu6DcRThZHDg5FpWnNmI7Efa2m/LQQuN
-         h+Ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794551337; x=1795156137;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=eMtI/QvyBu7WYuIQjEeNFc1ytajl1TcdksT1CryvP7Q=;
-        b=qg00831Me7dvRwP0lGntnkWVrr0oEDlR5XbvhRKr69eVJPuC1pUIVdkTFbKKgw+gr1
-         bgDrlTMRwG13OPwzeKU0cx289LBrTgB8y9H1gwa9smFmfojcY0OkVpM3EtmDEVafTjnL
-         A2pXwl2Kp24uWGhNhXR8u3IDKvIY1jtMA9SAnTMnmWyTzTAyJAY2myoUMjiySK0eIgs3
-         mv3s7j4QPtsZZE4FZ7+FhWrXSKt3oP6/eS+os06HoSdqUHl6lsZGk7A6xZX4n9+J6yVX
-         UWk4D/id8jPpJgQkK7SnmOTHa/oENqlEtE4LeeFVBLHbK2k05FiT78AVLjbwubT5c618
-         xDIQ==
-X-Forwarded-Encrypted: i=1; AL+hErGpqg/bd50TCLORPh/EnIjHYbdE6VHMIak6oaYPXF4cYFv+ViCPD2uDbjQ2h/SU2SawmA7n7V9fC97BrQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/p8AKnx5bJuazHNkBMVPl2Xi1LiZoo/3UANmIx389Tuv9xiR4X
-	ke9EzkCQ3cIO61lhdMSIp65quOEkTR8KAToQGcgXc9/gBS0rfhzFZOvnR2LwY7QUGU0=
-X-Gm-Gg: AYBFou0le23CJnRfWHw0XBKo4SS9mZtlZ0kxBYVhKCtxboMtZioUd+xj2lJPcdlA3UN
-	9F/X15VXqkdxzUtmA9JA9jt/X8BkBqUOTL0/V+U0oQnVhkzr01c7uZKcHaUsMFol6Sur4NwAN45
-	wrLTBxCpeOFIz14vau/9YDMq3a8Y1xht7Uao5cByMFK4Ydw+aTGKfK+9wASsbQCF88klrxxIsya
-	u9xu1pEiIGrRNyfQjdyIPpsB4U+I2yfUkx7jJ9PW7WB7dJgMlfgeemPbpScWZ9n9g6iZbTKV50+
-	AGRsAFY56MAPC4OI37V45Cv8OD7FSosa/MWil6d4PAPHwjrR64FvCRS5bQjg4fZdbwkw8TNM93V
-	JStKJnxpeouCteQH8VIJxZPdoPrTYkS5+MluPgWq4NDQSPeK3FEOQxg6NvDnHGALxzl4j7aXcH2
-	sdCDCwkQf5+DFtKHEbQUJLsIueQqWpbLvJPyYimabRY7t9KKrNk7VmqlNb/TOupOGFEg/k5a+ph
-	mBO99hmFoxThhaIjus7Ia/fhkA4LPQdNcai9ld10SeStoC684h+1Ihlg3oseasbcIXaatKiRVCq
-	D4ZJ7uXw6ZrGqVQZjGEx5BpvJEiB/Jim7NJIySMhlNR6Y8vQgugZCdv4sU1yv1Q8nDWVbkqYEg=
-	=
-X-Received: by 2002:a05:6000:2586:b0:48e:2f7e:bdbb with SMTP id ffacd0b85a97d-49c72c9c8b4mr3464138f8f.50.1794551337038;
-        Thu, 12 Nov 2026 22:28:57 -0800 (PST)
-Received: from localhost (ip-091-089-005-024.um28.pools.vodafone-ip.de. [91.89.5.24])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-49c5fe373casm3174771f8f.30.2026.11.12.22.28.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 22:28:56 -0800 (PST)
-Date: Fri, 13 Nov 2026 07:28:55 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Feng-Yi Hsueh <fyhsueh4linux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	linux-input@vger.kernel.org, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org, 
-	Jacky Huang <ychuang3@nuvoton.com>, Shan-Chun Hung <schung@nuvoton.com>, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 2/2] Input: keyboard: Add Nuvoton MA35D1 keypad driver
-Message-ID: <avatz4Q8JbrAJNn_@monoceros>
-References: <20261110111419.89535-1-fyhsueh4linux@gmail.com>
- <20261110111419.89535-3-fyhsueh4linux@gmail.com>
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1794553051;
+	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=m+LB025JGdaSKwFFraY/SiA90prUTmMKtLCevddUz0a2HkM8pMQaC2Dw1HDLmaz6w
+	 R3NXs7w0qSf1OSGRu0VcspHQq3teA67u4aixQupsbTNe+4S+kKenegRJvKa7cSaUKc
+	 hOH0zf1zIcZn3QUVC+BYVecEOdvNospLTV2PzPhQ=
+X-QQ-mid: esmtpgz16t1794553046t2f118e79
+X-QQ-Originating-IP: wQ9qTzv5+oRDiWvSqKEsM2b3ogjsAG/eOGlRStq9y4w=
+Received: from PEC004119 ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Fri, 13 Nov 2026 14:57:24 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 15401069445647339368
+EX-QQ-RecipientCnt: 7
+From: Haowen Tu <tuhaowen@uniontech.com>
+To: gupt21@gmail.com
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haowen Tu <tuhaowen@uniontech.com>
+Subject: [PATCH] HID: mcp2221: Use the direction field for high GPIO outputs
+Date: Fri, 13 Nov 2026 14:57:23 +0800
+Message-ID: <0122335B0140275C+20261113065723.1514843-1-tuhaowen@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,43 +71,60 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="a2ifqpif6owwxnga"
-Content-Disposition: inline
-In-Reply-To: <20261110111419.89535-3-fyhsueh4linux@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
+X-QQ-XMAILINFO: N3mvcAHX73MW1lnHX7MaOi6Iu0Nijpdo+ERygBWYDcKOSWpL1IP6PIhl
+	GhuGiTMlgf48MwjL/67WemBDQb0RcH51buoWCudDTPgIpIMUWAwFI+8VXyjbWL2deS/bs/5
+	YKlDH6BJJTMHU2cM8ON1ZIvOP4fTAuFxqKlVH8eNQTuH1SVVjhO/hdqzjGUgUpUVXkSrIAU
+	dMLI73ws9Vy9rbh4NhxX+28Swx2oielIOL0xHt4OsPwKxqa22Ay+qYiv44SNjMazSCXJ9Fx
+	GIMg1CMKwM1yCDjCI9ka+q+C6UW9278xODERxgPFYSFqc57+qH/mgwQABgLOciZDZUG9Fzc
+	vwDxqjGeSHlTJLtd3rRni77Bjv71r6P7pjPQZVEdbTozEr4AdQ8ykkUhVSlP4K4NuSDKwmQ
+	Qma6NZh1zOcyxQ+2E65lbzdw7Qubsrapyjl2Mt8MSVfp/QwvQKVaItioSJv/MHDccanXq9R
+	TVImKq5KqbeADWPiJ/plTm3QI7KMZ3VQEOjgCGAI22aP+Fys1G6BnzDeqCBs2iCdSSc1C6M
+	tDbcFKgg6Q622X/GyIxNPNQ4XV8rFKkagFO6bgI9rkOeweXG5D7pDGrxfAFbj+D2rA28Q5e
+	HWgCdxCaM/IMkeVht95URWXvFTrT0b5evjR6ldEaTstBEh3WZOSnk2Z5FSwLyy5BeSsZoCx
+	LZ0Y43TGbYzLT+GKNnS45vRBBQbnegoNB7U4srg82LeDlQnTKdNrBeVyzG7/1KVLHHst7tw
+	wFcZdn9IquA4pZbGWkPtb385vTOW+PFyXwNGUNO17AcrSWZZiHFBWnrd+reBmFJSmtsalc0
+	c8FXQWJFk4ymgeJ10iBChqaBlc4uj4HCdZXpYBhwNB8skTYIQ7VAX+2NZgL0Ln2OouosgLZ
+	NMHPs73pm1bAD5px4faEr2wRjyXE4958micgqvg7+MJgxI5hAAIhz29yWg1Dzliv37WOBvq
+	UQPVDtxgzb0bBAk/AK8Q9HL1KJjkifEYDeq/FbmLaP8Hp1pDul7ysA1SsYoLS7p79MwUmmT
+	k6vbcyhZPhc/JRl5e1faWnzSmhqM8=
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+X-QQ-RECHKSPAM: 0
 
+The GPIO_GET response handler stores the pin value in mcp->status and the
+pin direction in mcp->gpio_dir. Consequently,
+mcp_send_data_req_status() returns either zero or one on a successful
+GPIO_GET request.
 
---a2ifqpif6owwxnga
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v1 2/2] Input: keyboard: Add Nuvoton MA35D1 keypad driver
-MIME-Version: 1.0
+mcp_gpio_get_direction() treats any nonzero return as an error and returns
+it directly. For a high output this returns one, which means
+GPIO_LINE_DIRECTION_IN, instead of checking the output direction reported
+by the device.
 
-On Tue, Nov 10, 2026 at 07:14:19PM +0800, Feng-Yi Hsueh wrote:
-> +#include <linux/mod_devicetable.h>
-> [...]
-> +#include <linux/platform_device.h>
+Only return early for negative errors so both pin levels use gpio_dir to
+determine the direction.
 
-Please don't include <linux/mod_devicetable.h> as it introduces a bunch
-of unneeded build dependencies. <linux/platform_device.h> is sufficient
-to get of_device_id.
+Fixes: ca6961d8a851 ("HID: mcp2221: fix get and get_direction for gpio")
+Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
+---
+ drivers/hid/hid-mcp2221.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Best regards
-Uwe
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 3f05d6e288f9..3358b7d0c5e4 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -810,7 +810,7 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+ 	mutex_unlock(&mcp->lock);
+ 
+-	if (ret)
++	if (ret < 0)
+ 		return ret;
+ 
+ 	if (mcp->gpio_dir == MCP2221_DIR_IN)
+-- 
+2.50.1
 
---a2ifqpif6owwxnga
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmr2riMACgkQj4D7WH0S
-/k6KPAf9EQ0HGivhdceUuk66CUKDwtvjh/7/jjrthGgkb+pdJryDbkedlXcCKjK9
-b+TSwyp0Ij45TIIFMN/ZFfLea+1FM3nTPndVlZsIIDgJctKr0b9642hqhFrvkbPy
-57e6YCZlJnH+P0baX7Z7JCgbPo34/RX6nn3dmY96cVDPx9nlO82bZlUKT0+O81nc
-6nAdhy73QjVG7hEQYipP7SJUFRNOCOBxqjT4iIelWp8tvmFrMUdux3Yi2kmSL405
-R0HXdDse9VWP/awUS/rl6ACGhds1ZJbh03SA5seeuZxX/6xVqbyap9pvvDIndv21
-UM+9r6MVkXax2D6HXkYWSiATc2X9cQ==
-=FoqO
------END PGP SIGNATURE-----
-
---a2ifqpif6owwxnga--

@@ -1,57 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.92
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794534973;
-	b=W4cBvHlz0f8fG4Sd/NmDQ5GiXcDI46VC54ctzL4n/2ytiB30Tu0l4vuQWzbpDHllasOd
-	 L6ce6YHnPQ8g5unoclboOX37kT2Xf1DF25SLPp0hCMSeLrzf9UdEeHlUVkUx9fuXwxC/u
-	 mpCjNXzE+TDT9Obk3Kf64EGYcCOAijQ9GNvZq2tmckf4iqWYwTXUGMXyXDxhb8e8fC5SA
-	 aLFwnjXm4HrJLMe9bQvrZBrbYOPMv5JYSVcFfSoCTAdYboEdy8FsUhTLo6zDht05prLF2
-	 oWKlK7Svs+EzFKoikQPd5nuqGbsIHoisFN+Zh8DKllCI/z6qekPQ3PdGe1UeYDcBSZw==
+	t=1794535029;
+	b=eTuH2OL6dAurpyxDrZ4RMuJEgOAi3Rx9CMBiLBWdm1Om96qKFO8OVUMZ7YCBFZIS5Stv
+	 VzuZiFB1NYFTUnA7HytzyvRmBwPGg0M29Vvlja4V/Ae+GQ7bsiW/YMy6EyFcUt0eqOHdt
+	 U/oBnf76gNqGS8QlLqQrgYG+CNxh9pAkfPB89UYtHEimQPH91CKe/vvE/ig6q1H+uk42d
+	 r5WaBb3T5G2PcwocpkkRGUYcVUg/rJyyqxipOW63CkyIPkxB3yVf0mH0jLM2UTR+WiorB
+	 fGMbEzLgnHJRzsnG0zh86r1HPwhHiFP6Y00Bk5jWKUIxKFoNamZ+l+kPiHa3IsB129Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794534973;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=v64fOHDXwqHUf2DIsjtSQn/CVl+UQzq1Bb/7MMxGFXw=;
-	b=ibBN6BCWe84Li+6BZBzqfY2aKtL7P7aeNc2EXJ+Rxw+dErOFxAssE/IizyyBvwTorej3
-	 9+RHHJos6Rd3otjrlgR5z2SacYDy3AqOOxn5JdfX7sYR9GLMrRh5ob5qW3z/mr0mG2IML
-	 mEikPVun0iKi9Th/cWAHl972d/0rQ1ph09BazDA32zoOoOQ0cazmc5lp4UFbzvYnUITiz
-	 wryOjripn3JI1j8/DBqgAN0IzXcjtAo4ArhC3sLgaX2ptIy0DpMYfs7CBneooHlsio35z
-	 Abt6wC6y8HjAQMAlv7+l5IR/VeIBk468+YcJMNCJJLhhMMocGhkMM5lOwsG6YeJ5gIw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794535029;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
+	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
+	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
+	bh=P2rSFdeBefkG0QLlDX1VLlflCmYqSn5vGlcZaogrGcw=;
+	b=tTKykVusoR3x9UJtI9m6Ew9NQ0MmHr4ZwD5Fi/Ha2GrDig7h4kotk0nvKrluidwk55Mo
+	 J9jX+B6w7CTNz/ttHilAQI91qPK4c6Ln7oQaBWpbdSdyh8G5CflpCWkoLKuijjRzjpyPJ
+	 8L3klAnkPo5xC2V9e2hmtSEYERLDWCQlinhwxe0/s3oiYJOkEB7FGQNftVsb+roTHNg7x
+	 IBsOgpPau5PCorDFqeDsB4ElrL2zU5Akr580WKFzyuiBxjAdhsuqNsAUctLCJBx2afg+l
+	 se/gCy2xKkeNbkz8+HYxhSVu6PJXYT9RkG6w/l7xgqpy6cZLA1JbikpriVSQiy82gPQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YFInfbUH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=uniontech.com;
+	spf=pass smtp.mailfrom=uniontech.com;
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=alDlOphe;
+	arc=none smtp.remote-ip=54.254.200.92
+Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65C7C606A31C;
-	Fri, 13 Nov 2026 01:56:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53E23606A31C;
+	Fri, 13 Nov 2026 01:57:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53E23606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YFInfbUH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712A31F000C4;
-	Fri, 13 Nov 2026 01:56:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794534973;
-	bh=v64fOHDXwqHUf2DIsjtSQn/CVl+UQzq1Bb/7MMxGFXw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YFInfbUHyHPemC/SJktobd5Ze+hsic2/loh7RcaLx9A8hoIcN+SfNbh54DdtVK/71
-	 622TQz62nZE4AtneK8HwQM01PtRj+0HxGV+/PdOAsLR0GGCiKFIT+4rhpgGgw7ETwC
-	 T2jLuuPl/vgD/CzHnzuua1ZM5d83SJ4y+Cg67L07p/ISgEplfwjjygBc90qttZPfd+
-	 1/YKQbTiPPidBBjAHF4iZsKdfN/N6bF9dtHTv1p8nUELaxDDaLQX5qejJFTLUf9WWU
-	 ombiRBC8/4iImFkmZAZ3vFiLzIPWy8pinRqrmlTIz6krn/RJ4vnMWUIk0QGW0SOTYM
-	 SlVXNj41Fv+vg==
-Message-ID: <sashiko-outbox-212076@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] mfd: mxs-lradc: Pass parent IRQs to child
- drivers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fabio Estevam" <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, imx@lists.linux.dev, robh@kernel.org, conor+dt@kernel.org, Frank.Li@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261113013212.470981-2-festevam@gmail.com>
-References: <20261113013212.470981-1-festevam@gmail.com>
- <20261113013212.470981-2-festevam@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 01:56:11 +0000
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=alDlOphe
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1794535011;
+	bh=P2rSFdeBefkG0QLlDX1VLlflCmYqSn5vGlcZaogrGcw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=alDlOpheE8hUv+EOYxTlXbyUi5TplmLcrMOt/V3wwoBXHf2QodQvU0Ksy3XuoJn4M
+	 Obkve/lQOvdymRKnFcFn9zp+b/OWDWNXHncn58nqbMBE8Aqo5Yy5utBvcWZrMJ8/Y6
+	 fRA1ig66qRV8Cqi0848ViQbPKRE/F3SBsOLVFLIs=
+X-QQ-mid: esmtpgz13t1794535007td4ef3061
+X-QQ-Originating-IP: HBOPV/FUpPzU1qlk1cOuZV0M5JVK/q27eIwWJpFrfCI=
+Received: from PEC004119 ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Fri, 13 Nov 2026 09:56:45 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 15081137483030176273
+EX-QQ-RecipientCnt: 7
+From: Haowen Tu <tuhaowen@uniontech.com>
+To: gupt21@gmail.com
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haowen Tu <tuhaowen@uniontech.com>
+Subject: [PATCH] HID: mcp2221: Lock GPIO request preparation
+Date: Fri, 13 Nov 2026 09:56:43 +0800
+Message-ID: <A2AB87D20090642D+20261113015643.1435503-1-tuhaowen@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,113 +70,137 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
+X-QQ-XMAILINFO: Nj/O81qLKo2g4OfDGjpwuOAiSveEA2pSM7QzgSPvL6Y4JRp3gaxBBuya
+	bff1sLsEi0Op6YKZJVVqLSppBHPjgCTWk/5F5oBEHjtnhfs95Mw0FsUCabYsfyDoBCz7Sre
+	0uZMGy2GIzPKOYvdJ0LJviENvn8Ke2WlRKMAhbuHEZ7iVDULHyJTI9Q+eBQR3OE6ONRY4kT
+	AdMD2lEJIDjLf4jnej6/9ITSfq5jhQ+kFLpLtjyajR0QDig+ESz5v5qyNVH2GHp8qhKON5y
+	KhUbx91gAVa5R2fkmgFeE/ChE4CxNj9K1y799YZxsL/TeSMWxkjZLRSIiO/SEVaLIiL91bq
+	xLPo/z2g6Eyln/p0mjRd/jusM6BnORwUqSa5TdcUAvXd7CGPPlckFTCZsG0QxaxIzd6L7qc
+	Xv5rPFvH9ONgn1t4k3JtNELgbtf6oZBNne5bESSV3YxbNH6lY0RtUuxRU/a3jO0QQQf2GI0
+	NPWDF5Ic88DcdB7XnLgW5kS4YinS9CbOJHcTSfGMPEBV8VqMtYfqGZB5CFsN+6Io7xakRkC
+	Y82sq6p91x6xNZ6UfHXbei9O80xiUsjDI/hH15n6q8kI36GG0rWsy9UsX/Owoph4KAYcIFv
+	Jku/SGmE293mgf8BS8N5R5BoxuHoRdT7bdBhbgKqu9lTD+JKINsSP3Ssre66raMkd2Rv5Um
+	avkSokUDgUEUDKZ2fqZNtBN+oag2FvudoAqthPBz5rfPcCwg5tbbUxLZ51yrCeVfhNgq2bg
+	wtrXGyF619HxBrRfHbN2XduEsGvSN8Jrl/gMdIIsw0i0m9DGiiqa6pfKX5ZUKsLd3f10Fhq
+	mP3Q3ABZYQQU/FK80Jr8nQbfYubi7IjKukxScw6rJ5ms3jTupddGdM+h/HTOECcFZXERDog
+	C8E6e9DWxWkLO8LNUZMBLzKfiyQQMrgKzh3cgoG8NqVgAIdhgaZxXfdL6nGPZtGzJO7bBn5
+	PCzwWcap8Y+/pwUpZtDo6YrvJSAoypyutt9X5JcNWDjmdnOLKPK8aCvjBLhz2Yo/H397RGo
+	YQnyV/83ZeyyAMFR4WhzwxBTiInDvh3C5G6fD8F+4O5Qvgeqv4JDSylruOBy0ZbiyOHa5uK
+	R+mkeGTzPOW
+X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+X-QQ-RECHKSPAM: 0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] mfd: mxs-lradc: use-after-free in release_resource() on shared
-  mem resource
---
+GPIO requests share txbuf and gp_idx with other GPIO operations and with
+I2C/SMBus transfers. However, several GPIO paths modify these fields
+before acquiring mcp->lock. A GPIO callback waiting for an ongoing
+transfer can therefore overwrite its command buffer or change the index
+used to interpret the response, despite the transfer holding the mutex.
 
-commit 976bbc1082d0f14834e0c7850fdccd2c40f13cb4
-Author: Fabio Estevam <festevam@gmail.com>
+Acquire the mutex before preparing GPIO get, set, direction and SRAM
+requests, and hold it through the response wait. Also snapshot the GPIO
+direction before releasing the mutex so another request cannot replace
+the result before it is returned to the caller.
 
-mfd: mxs-lradc: Pass parent IRQs to child drivers
+Fixes: 328de1c519c5 ("HID: mcp2221: add GPIO functionality support")
+Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
+---
+ drivers/hid/hid-mcp2221.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-This commit moves IRQ resolution from the mxs-lradc child drivers into
-the MFD parent and shares a single relative memory resource across both
-MFD cells via devm_mfd_add_devices().
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 3f05d6e288f9..408c38828cc9 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -643,10 +643,11 @@ static int mcp_gpio_read_sram(struct mcp2221 *mcp)
+ {
+ 	int ret;
+ 
++	mutex_lock(&mcp->lock);
++
+ 	memset(mcp->txbuf, 0, 64);
+ 	mcp->txbuf[0] = MCP2221_GET_SRAM_SETTINGS;
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
+ 	mutex_unlock(&mcp->lock);
+ 
+@@ -682,6 +683,8 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
+ 	if (!needgpiofix)
+ 		return 0;
+ 
++	mutex_lock(&mcp->lock);
++
+ 	/*
+ 	 * Set all bytes to 0, so Bit 7 is not set. The chip
+ 	 * only changes content of a register when bit 7 is set.
+@@ -706,7 +709,6 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
+ 		}
+ 	}
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
+ 	mutex_unlock(&mcp->lock);
+ 
+@@ -719,11 +721,12 @@ static int mcp_gpio_get(struct gpio_chip *gc,
+ 	int ret;
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
+ 
++	mutex_lock(&mcp->lock);
++
+ 	mcp->txbuf[0] = MCP2221_GPIO_GET;
+ 
+ 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset]);
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+ 	mutex_unlock(&mcp->lock);
+ 
+@@ -735,6 +738,8 @@ static int mcp_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
+ 	int ret;
+ 
++	mutex_lock(&mcp->lock);
++
+ 	memset(mcp->txbuf, 0, 18);
+ 	mcp->txbuf[0] = MCP2221_GPIO_SET;
+ 
+@@ -743,7 +748,6 @@ static int mcp_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
+ 	mcp->txbuf[mcp->gp_idx - 1] = 1;
+ 	mcp->txbuf[mcp->gp_idx] = !!value;
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 18);
+ 	mutex_unlock(&mcp->lock);
+ 
+@@ -801,19 +805,22 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
+ {
+ 	int ret;
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
++	u8 direction;
++
++	mutex_lock(&mcp->lock);
+ 
+ 	mcp->txbuf[0] = MCP2221_GPIO_GET;
+ 
+ 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset]);
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
++	direction = mcp->gpio_dir;
+ 	mutex_unlock(&mcp->lock);
+ 
+ 	if (ret)
+ 		return ret;
+ 
+-	if (mcp->gpio_dir == MCP2221_DIR_IN)
++	if (direction == MCP2221_DIR_IN)
+ 		return GPIO_LINE_DIRECTION_IN;
+ 
+ 	return GPIO_LINE_DIRECTION_OUT;
+-- 
+2.50.1
 
-> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
-> index 30a66e2681699..d16dfea892076 100644
-> --- a/drivers/mfd/mxs-lradc.c
-> +++ b/drivers/mfd/mxs-lradc.c
-[ ... ]
-> +static const struct resource mxs_lradc_resources[] =3D {
-> +	DEFINE_RES_MEM(0, SZ_8K),
-> };
->=20
-> -static struct mfd_cell mx23_cells[] =3D {
-> +static const struct mfd_cell mxs_lradc_cells[] =3D {
-> 	{
-> 		.name =3D "mxs-lradc-adc",
-> -		.resources =3D mx23_adc_resources,
-> -		.num_resources =3D ARRAY_SIZE(mx23_adc_resources),
-> +		.resources =3D mxs_lradc_resources,
-> +		.num_resources =3D ARRAY_SIZE(mxs_lradc_resources),
-> 	},
-> 	{
-> 		.name =3D "mxs-lradc-ts",
-> -		.resources =3D mx23_touchscreen_resources,
-> -		.num_resources =3D ARRAY_SIZE(mx23_touchscreen_resources),
-> +		.resources =3D mxs_lradc_resources,
-> +		.num_resources =3D ARRAY_SIZE(mxs_lradc_resources),
-> 	},
-> };
-[ ... ]
-> @@ -187,38 +215,15 @@ static int mxs_lradc_probe(struct platform_device *=
-pdev)
-> 		goto err_clk;
-> 	}
->=20
-> -	switch (lradc->soc) {
-> -	case IMX23_LRADC:
-> -		mx23_adc_resources[RES_MEM] =3D *res;
-> -		mx23_touchscreen_resources[RES_MEM] =3D *res;
-> -		cells =3D mx23_cells;
-> -		break;
-> -	case IMX28_LRADC:
-> -		mx28_adc_resources[RES_MEM] =3D *res;
-> -		mx28_touchscreen_resources[RES_MEM] =3D *res;
-> -		cells =3D mx28_cells;
-> -		break;
-> -	default:
-> -		dev_err(dev, "Unsupported SoC\n");
-> -		ret =3D -ENODEV;
-> +	ret =3D mxs_lradc_get_irqs(pdev, lradc, data);
-> +	if (ret)
-> 		goto err_clk;
-> -	}
-> -
-> -	ret =3D devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-> -				   &cells[ADC_CELL], 1, NULL, 0, NULL);
-> -	if (ret) {
-> -		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
-> -		goto err_clk;
-> -	}
-> -
-> -	if (!lradc->touchscreen_wire)
-> -		return 0;
->=20
-> -	ret =3D devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-> -				   &cells[TSC_CELL], 1, NULL, 0, NULL);
-> +	num_cells =3D lradc->touchscreen_wire ? ARRAY_SIZE(mxs_lradc_cells) : 1;
-> +	ret =3D devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
-> +				   mxs_lradc_cells, num_cells, res, 0, NULL);
-
-[Severity: High]
-Does passing the same relative IORESOURCE_MEM range in mxs_lradc_cells[]
-with mem_base =3D res cause a use-after-free in __release_resource() when
-the driver is unbound with a touchscreen enabled?
-
-When num_cells is 2, mfd_add_device() gives both mxs-lradc-adc and
-mxs-lradc-ts an IORESOURCE_MEM resource with parent =3D res and identical
-bounds [res->start, res->start + SZ_8K - 1].  In platform_device_add(),
-insert_resource() inserts the ADC resource (r_adc) as a child of res, and
-then __insert_resource() places the identical touchscreen resource (r_ts)
-between res and r_adc, setting r_adc->parent =3D r_ts.
-
-On driver unbind, mfd_remove_devices() unregisters the children in
-reverse order:
-
-1. platform_device_unregister(pdev_ts) calls release_resource(r_ts) ->
-   __release_resource(r_ts, true), which unlinks r_ts from res->child
-   without reparenting r_ts->child (r_adc), and platform_device_release()
-   frees r_ts while r_adc->parent still points to it.
-
-2. platform_device_unregister(pdev_adc) then calls
-   release_resource(r_adc) -> __release_resource(r_adc, true), which
-   walks r_adc->parent->child and writes to the freed r_ts.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113013212.4709=
-81-1-festevam@gmail.com?part=3D2

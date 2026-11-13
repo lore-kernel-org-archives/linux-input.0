@@ -1,102 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.182
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794562712;
-	b=2/3N3lOu47Rp/ryBYuEL6zR5qbaH29t/bdXRAxSOuALhPr8WjzrRUuJzs3vRxABPJ+WG
-	 BAolSiOQhsZwiylV8ShYFTGETuJU20i8CrPaczGJOvl61Cr8WkHk/sPrmVugXuvOq3tBN
-	 tfY4z9s9/sXFz/nnziCjmIyOw/fNPlmXBowmCaF20Orq+GY0+Jh+k/3AlFwcnzafS8+uL
-	 14PR5IkpxW7xWUICnEfk2KZ+hmDoRA/OrruUPwmVFZvM6+rSWCCFXfaCBefeCZPy0B2bf
-	 yI14ynBjU+4qYXOKKH0TrbytbS5uy8ufjRGEAU2JyLiRb5zt1ehneBbVHCMCOvaNJKA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794562712;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=vwaSOUD1+F3Uh3wDhst/F9A1M+bA9w5kaeCRuz3dMQ0=;
-	b=BjJ3C098W2yCwEv3zJIWb0l+Fx+M+uB1U4hRlUxsivBg1K+sW+kxavpJiHr4loCbTyLC
-	 D9STeh4Dj+BgzN6bbYsHChq9JhbxnHT4ETQf7NaUwyswLjePYyO52Vuqrtm9m/zXLzp6o
-	 GEhZWOh9dPWmw+/d2fdLfXz8FpJehvc3PFFCCqfk9PEBPjzdB+DSk8DL7Wg12XrMjj2V5
-	 shWfpRYrk1G3PUkks9UrLhIlgbK3YQnb5IpxN8q2xlhYN3bE3XtASmrD0Y7PEYdNlZlr0
-	 tDXz5xZM4/HlT+uGMOhxO101WEpJql7UFlameA2Z6RiDN3FXGxrlXxEVt8KviSOOOiw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=avpyrTvi;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.182
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.133.4.66
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794563713;
+	b=D1aWBtK+m3aqavG10GXyMNuC0C0I3aTz4OS0z0kQvMSHxhmbZICMlTEgSst6uHwD3P2a
+	 LIGfS20QdVN8aw7ScIUgk0PfpQ7RlMeZl13cko7fipZCcwlv3jYQqi+qOW8z+BXWqmYPL
+	 pd2Zn3H+zZLHpU9cx5eUkMc9YabxMmSE4Nh9AN+DyaiSgOieGSkMhHZA1KGhmJOsamv35
+	 yE8oafTxhVQVRdyUJC97U5zKe8s3KO1LA+LgDYZ33qb/CUIe9DN/qJwMpVICB8tgeDPsQ
+	 cxXiYLM/WlZbn1jiiHd/syrTQ6zC0LErQHzPOe80qnC1qxTsqqjxzaX+67jjsUqvb0Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794563713;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-Original-Sender:
+	 X-Originating-IP:X-ZEDAT-Hint;
+	bh=DSxYOaCEQUN98hO0auoHWXR5OBU2d9UCjSU81ozd6Vw=;
+	b=E1XwNxh9Mea7lQrydepT3BL2CADVWQZOMeGCFU/sOMXmiWlcqczgqOVhNFuLqltQ5G41
+	 syNbzIydJysH8NBhX6OuKGpkzD2GFoSULe1yy6KiMGoA9K99jkbg754L4fIwIYcm3M21j
+	 7yokkdIUnb5Wfg83Qpn3WADD7UXPFMwK9Mw1XGrkyAfJmR1QbiSvb5GVjlPGLouY7OgGJ
+	 EuICGuYDIlW0ToxMC1CZzm53LVw3FSALpSUUINzREV1lIokw1REWoUj6HKRY2WzKQ09oH
+	 +et2HYyywYMjpPo1evdqR9ibfBmqbMm8CKgRP30FtRSfKdHoxQfidRTDB6ql7Cc0gXw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=physik.fu-berlin.de;
+	spf=pass smtp.mailfrom=zedat.fu-berlin.de;
+	dkim=pass header.d=fu-berlin.de header.i=@fu-berlin.de header.a=rsa-sha256 header.s=fub01 header.b=EGfWTiK3;
+	arc=none smtp.remote-ip=130.133.4.66
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F966606A323
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 09:38:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6F966606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC8BD606A332;
+	Fri, 13 Nov 2026 09:55:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC8BD606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=avpyrTvi
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-8b308fca7c3so5939817b3.2
-        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 01:38:31 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794562710; cv=none;
-        d=google.com; s=arc-20260327;
-        b=GoqHL4BfzYplMusGaaDzEg2KCjI9xOBGZ1jiHuMf9TwLxB0i0qK3N4uDfXCmDg2guH
-         XmBX2sfpQ0Kg7x9wFi4Gq9fejeah4wlXDvNmwt0000Mw1EBuaBW/Bob9YP7sFxqdzGmY
-         sfgAwWuQwTSLfXOTUl9BSMBoKy0aiPUZ0MPbqsgPCTelv3oDFCf2OmqBKXLBl/EGcRqs
-         jl3wa2UvItayojDIvR8KFbBu3/wVy63hgbjpKQ8EzvZ1E/G5dVCoDv/80rWZZ290xOvE
-         bFpuWjiegO9Tp7l0rTVcqAubYR1B5cbSWgImqNpZBCj7/UOQCIsxhGr1QL0p+8Il9cNv
-         fghQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=vwaSOUD1+F3Uh3wDhst/F9A1M+bA9w5kaeCRuz3dMQ0=;
-        fh=zm5O+JMld3rrt6YO3BESPlMWQzsuVc3BH1Z0zfBKsoo=;
-        b=EOnZ9/2cDzk/wqYGh0CaabsDoqSDHsCN8OBTiPTyxZwqRSwsEQ5N/eD+60F/dJO2+1
-         OnfajuOD5WNI0DqRPFd/X22ZWaMANTkRJpAOabe8kx7L5/cVx0A1VLwZG+c/IFXac9nG
-         bGSgIc66UXFhnGZkUon4YTVFiP0DKUCBxfrCLs+HBv2zpk00GjWGR1DywoHBuMHkrT3/
-         MQj9TeuyBaGDRz5Cq9fb3nsQHWHBVzBS7A7ZfYgo4vuUT5SAlxEl0H2+1kQdng6yLRNK
-         axHyVTYIotso7KI1BVYL9bCZWR+SwdYgZ15IwdTF3EuhqrbVOVbGhj7p4OHCe0qgqfPd
-         Z3Kw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794562710; x=1795167510; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vwaSOUD1+F3Uh3wDhst/F9A1M+bA9w5kaeCRuz3dMQ0=;
-        b=avpyrTvi4oK5W3E4mvGN2d3McV1cvJMinrQQk9ZcQAlCjlH0BfUksq4dhRDqRitzIn
-         wB1FCrOOPRqI3Rn7xXhQW11ZOgRa0Gjd3ExI03bogX9cwH4iCYOu+/BPwkahcbRAN/6d
-         NTWuIeW0NbkghW7vkpnUfx6CYRzzIdDWsleLny2760Xsq3YhS+u2DOnmdoP/25yfBihU
-         MoEk9e4jmII8V2TVVwx69pIsY3XcR4b+NoqzJYVmYPvRLQfAKzg5EDTrtsEhwoCi6gD7
-         FBguBY9bMbd0GGBhb/nRJOYo2PHYSuKAe3F68zv8Q22pCiKCQSjZdXTq5q6sWNrn0mYM
-         6wCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794562710; x=1795167510;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vwaSOUD1+F3Uh3wDhst/F9A1M+bA9w5kaeCRuz3dMQ0=;
-        b=EHIL0+8aLIocjzzE+ovWGSmbZD+VWzQKsB5Nz6LgTprcPHVIgc2EOEOmLJ6jEfH8iq
-         +vi6Gf2czXqQbNLV98d4Hu4O2y4PQLlhXrQYQAViIR76Kiu85lev68S3Ci+Noc1pMvL/
-         9tQhVqSSPwIiIPLWOzoFNb4mmP2d1FVXfC0mj8UZ4nxDaFQS3HYj4T9xUQT/wG5Vzq4q
-         1nqN7t6rXL4Rp2vukJUSJa2tak51cuq+zOxZS9Eh7eLopSQRHWVjXz8PDwDEdCeY4vK+
-         +Ol7mZZjg/Rlb7mPbANEwEubmiJEu4bO8Qr5aiTPtadVWRxQ2Pz/cFmswlm41Tf6tSNu
-         /YRA==
-X-Forwarded-Encrypted: i=1; AL+hErHqWBBsqSo7wBGanUhzmlpe2Jl/PdoD90jDoOOCMAgZTrwzcuMKO7frp1+G50oJdpiYhUF+AG1rqiz7DQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8r7dO4F+Zb4uXIR5XfbTp1G/2WLLrnMgLYop6/qmfWYJ72AKRs
-	fVkP7wvvCa0kqduObf5quytu63aNTZVmBnFwvw8712vYQtT988NUOdLsVJPR2cHKDzb1LlrXfXT
-	A7zS9VTLrngTkV5MsGdWq5Ikjl0n/L2M=
-X-Gm-Gg: AYBFou16Ob9dLomP5ILlkCOa7nJgPFxt1juV32D+F9mmWWtxUvjo/e9feRranb96lUU
-	JhM5sE8SXHKHpV2XYuFIFBYkZz2dWqBVCmHLyuuZ7bn4ZBRpI9+vn0vls7azVGfNJe6x0KURTmu
-	bmNbqpf/sIt90/gqnUgSwvO1pf0iyiFY/ye0dYqEU7ObtDjAvtXhiSqvk5pdrw68JSfb5tyQWSo
-	62lxnIc6xepghmbb4HRf76OVYyZKyCo9eZueB/VNRgxfkdHOrAQCyDxW5ILyyBtp/QRm3C2STKO
-	LHq+PGLIl9mEyz21yZiPj4Z4tt8P8ABAPd98SzVVIKlql9ERDwPvRr2wGXhUbaymFN+yWRM4RF+
-	8xmTSHwc3wrrW44c18HhFHk9X4ednTtA3uG8NrC3nQruDMUCxgphDC0EqGZO5dTgvH0BOUOSNw1
-	F0o27uDA2E+A6Jjh+Npk9gDkjSVs3HNJH6xy5vbnuDanjb3FvCSPT40miRFB0ymIrjUkfOhxDHk
-	NtNwL9pYqz5F9g0huAf0uVuA5FjmcQ+q2GzB4msEqYwRCB4obuOH4PPlQWD9Q==
-X-Received: by 2002:a05:690c:c4e5:b0:8ab:4989:bc9d with SMTP id
- 00721157ae682-8b4aa3126d2mr14797977b3.65.1794562710293; Fri, 13 Nov 2026
- 01:38:30 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=fu-berlin.de header.i=@fu-berlin.de header.a=rsa-sha256 header.s=fub01 header.b=EGfWTiK3
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:From:
+	Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
+	References; bh=DSxYOaCEQUN98hO0auoHWXR5OBU2d9UCjSU81ozd6Vw=; t=1794563711;
+	x=1795168511; b=EGfWTiK3ifpjW/ySH1THz/wwUiQESm+W4OCd4TPjqCMMfcTa3zVWMU2Clbf9Z
+	gqZa5RzGowO63DT3S7qiycaFyN7BDez50qR4ZX50CBQeMMPbXbuqBntt6Kf30lTBaF4yO+gxULjZP
+	H0MlIW0fwNdwqrAHZC8mha/lGIpAlYN0UUUvfM5Jzf15T26oAnD47uItCzx9gnYf8w4xvHBsW3n63
+	YqE1OADboJ+M+V6cVa90zsEgHqizeSqSbw+sF6XEg+SbnRNFEMRmpj2YOBksHgfZehRbthtPV7QS0
+	oOK8lidqBoas/qnVjnqr1MLsfQnY/e1LQH2ub0CxAqd9Oa/Cow==;
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.100)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1xRnzo-00000002wpb-2rN9; Fri, 13 Nov 2026 10:55:00 +0100
+Received: from p57bd95b5.dip0.t-ipconnect.de ([87.189.149.181] helo=[192.168.178.61])
+          by inpost2.zedat.fu-berlin.de (Exim 4.100)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1xRnzo-00000003r0U-1ePu; Fri, 13 Nov 2026 10:55:00 +0100
+Message-ID: <5e3fbef26b8500de7c4192bd6cb6eb5248496e14.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH 0/5] Input: tsc2007 - drop platform data support and
+ cleanups
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Svyatoslav Ryhel <clamor95@gmail.com>, Dmitry Torokhov
+	 <dmitry.torokhov@gmail.com>
+Cc: "H . Nikolaus Schaller" <hns@goldelico.com>, Yoshinori Sato	
+ <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Andy
+ Shevchenko	 <andy.shevchenko@gmail.com>, Andreas Kemnade
+ <andreas@kemnade.info>,  Johannes Kirchmair
+ <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, Geert
+ Uytterhoeven	 <geert+renesas@glider.be>, Kuninori Morimoto
+ <kuninori.morimoto.gx@renesas.com>, 	linux-input@vger.kernel.org,
+ linux-sh@vger.kernel.org, 	linux-kernel@vger.kernel.org
+Date: Fri, 13 Nov 2026 10:54:58 +0100
+In-Reply-To: <CAPVz0n25-LyOFFu-h7Sc0iUcjLMk0njOuAAHr-NepQbnZU6gxg@mail.gmail.com>
+References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com>
+	 <CAPVz0n25-LyOFFu-h7Sc0iUcjLMk0njOuAAHr-NepQbnZU6gxg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.62.1 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,35 +87,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com> <20261112065037.1800467-6-dmitry.torokhov@gmail.com>
-In-Reply-To: <20261112065037.1800467-6-dmitry.torokhov@gmail.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 13 Nov 2026 11:37:53 +0200
-X-Gm-Features: AclHuK_djmP9MqgezxklWmxc9D08cGWxuo_8XnZ2UDBve8INb7OAHhKwKVITLVk
-Message-ID: <CAHp75VeWV39isCSpSxsuzw07iXf7rBfdYeSn=eJsBM-oWui01Q@mail.gmail.com>
-Subject: Re: [PATCH 5/5] Input: tsc2007 - use IRQF_NO_AUTOEN when requesting interrupt
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller" <hns@goldelico.com>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, Andreas Kemnade <andreas@kemnade.info>, 
-	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, linux-input@vger.kernel.org, 
-	linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-ZEDAT-Hint: PO
 
-On Thu, Nov 12, 2026 at 8:50=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Request the threaded interrupt with IRQF_NO_AUTOEN so that the interrupt
-> line remains disabled after probe until the input device is opened by
-> user space. Explicitly initialize the stopped flag to true before
-> requesting the interrupt and drop the immediate tsc2007_stop() call.
+Hi Svyatoslav,
 
-I believe this also closes a window of possible IRQ storms or floods.
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
+On Fri, 2026-11-13 at 11:33 +0200, Svyatoslav Ryhel wrote:
+> =D1=87=D1=82, 12 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 08=
+:50 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> >=20
+> > Now that all in-tree boards using tsc2007 (including SuperH ecovec24)
+> > have been converted to generic device properties, this series drops
+> > legacy platform data support and its header file, removes redundant
+> > memory barriers, fixes minor coding style issues, skips registering a
+> > non-functional input device when no interrupt is wired (when the chip i=
+s
+> > used purely as an IIO ADC), and uses IRQF_NO_AUTOEN when requesting the
+> > threaded interrupt.
+> >=20
+> > Thanks.
+> >=20
+> > Dmitry Torokhov (5):
+> >   Input: tsc2007 - drop platform data support
+> >   Input: tsc2007 - remove unneeded memory barriers
+> >   Input: tsc2007 - fix minor coding style issues
+> >   Input: tsc2007 - do not register input device without IRQ
+> >   Input: tsc2007 - use IRQF_NO_AUTOEN when requesting interrupt
+> >=20
+> >  arch/sh/boards/mach-ecovec24/setup.c     |   1 -
+> >  drivers/input/touchscreen/tsc2007.h      |   5 +-
+> >  drivers/input/touchscreen/tsc2007_core.c | 183 ++++++++---------------
+> >  include/linux/platform_data/tsc2007.h    |  23 ---
+> >  4 files changed, 60 insertions(+), 152 deletions(-)
+> >  delete mode 100644 include/linux/platform_data/tsc2007.h
+> >=20
+> > --
+> > 2.56.0.567.gdb80ae8cd5-goog
+> >=20
+>=20
+> Hello Dmitry!
+>=20
+> I have tested this series on top of the latest next/master on the LG
+> Optimus Vu P895. My device uses this chip as an ADC for battery
+> temperature measurements.
+>=20
+> Your patches works as expected. Input device was no longer registered,
+> ADC part was present and worked as intended. Thank you!
+>=20
+> All series
+>=20
+> Tested-by: Svyatoslav Ryhel <clamor95@gmail.com> # LG P895
+
+Interesting. What kind of device is this? Is this a SuperH-based phone?
+
+Adrian
 
 --=20
-With Best Regards,
-Andy Shevchenko
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913

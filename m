@@ -1,78 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.16
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794572013;
-	b=Oc4HI3JCtjKe0sFCsHn9B0jp/xgi96J5ANMvEXWQQWoBV7ngyH+DQDiYsz0VfCDsVaee
-	 mje8wfoTJGMJBeONEOOFKmbV0d+Z04Mk10zmL5Om7YeJMvkxP9wkZl50f6s0Mt3xmOeuK
-	 EjeRjwZpuBchApqu+X78Jq45yaGLGiS4v1dzmrtoVm2dz+a7NVJAB+/bSZLSQDOLfQdMi
-	 2IZg0NWZXzWg0CznsZQua4gbciMcA9i9wjLRWnetXQW2Uy1uSLTn8DquDNEBmU/tvcxD9
-	 SOrYR640Rp/Z7BrGajVAtNU8OZ1MpvWlM9sBFkDQigLtyHujc8ghoCC5jXsyGwDrvjQ==
+	t=1794572856;
+	b=GqJiqx+gRGuGAbrHiDsJcdDN6gmPt5zLVFAHB/eWZyxVa4rDPMZsQJ6dt2joKpoEqZuG
+	 qKpdvRS1bI01M0cxCikUGZwM3gdBsJQDa7ufk7w5+1FbP+O8lUpn+tU79rQGkxsp/utlz
+	 F9vT8W81v5Qhst7XRwiSyzDTmmO4foSDEvrUxJZhpYREEncgzKWdy/prlENAR96SNAg35
+	 Q6sqWbvDZORQpHU6Fc9JEAwHU6ANod7TAxjBY7vMIpn4/zpTgiMfvRCyVViVXn063Q6Iz
+	 8mWLf1UjclEZRHmWabDOm2colKsTQlFGdBV2kj8HKQPnUPpKyQqepeLz11l3dAr/Bsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794572013;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=1iUZT/JRKjiRUq3S3wXoQz2Mr1XA+Ebv5deNzL+Hfx0=;
-	b=yCo2AbfbH8AWbbZit1IPUaz6n/hvQNowYtE+JISkoL/3f8k6B+owzv9+KiUg2LWGxzxZ
-	 WFMJxMYWQJuhmE0lwZb6Fy5BheQeASXyrzo5PsCYMWyAtTn0TcjS3zAQlojq2DVnV0+LU
-	 5UuF9iyiJtjW0045KIbccDDpdwUDHg+OptxMbxOL/lETx/xEK/FNMADmja0UC+lTRa8M1
-	 x8apZz7vAlbbQVm1+a7ZkuIQBh8rJu871dgsc9Xvc+rlB9EBXrq8RRnAmgWqmawi0qLiN
-	 idNGJWf7zfEMek74lZ0ZP0Mt0eMeVrx4aHoVZ6hAJ4nULyqDg5hOZoi0OqLtDzV3EIw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794572856;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 Feedback-ID:X-Pm-Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=Pdfq1SwYpORYmsHq2kMlXIBTfvuU5U4Y7VxLR1LdLNo=;
+	b=rlXqHXCXrywJLYlEPP6fZK+mlMCArRUhcP8pTJ1Hz2JNblQy1m2aVlvCRSw47ls1SMpq
+	 x7IKapCZIq/83SuXz4CXvRnSdHHVQu01euocMlr8Wvclc5lnA6Md9YCDRg/K4FQrpWAH5
+	 SRxlF8iLpV3Z6HFi7OIl7tseLJvNIKI48FwCoV9ZGKIUcu9SMNBI7rRhvPkmBAg7/5DBT
+	 A7CLQ0GB2YpSD3SNPKq79CDIZMKiXGYtbqgonFVS99aGAxn2z0d53RmeNbwtZXR9rJnVz
+	 aHV2QDaU9m2zNyzchX62rsvVmtuKmaPJSnH7bHG/tHRH+VmwubWApo/FeTjVtBVXWxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Fuo0fjLv;
-	arc=none smtp.remote-ip=198.175.65.17
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=hA3qNRWd;
+	arc=none smtp.remote-ip=185.70.43.16
+Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A2F2606A323;
-	Fri, 13 Nov 2026 12:13:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5A2F2606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5128C606A321
+	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 12:27:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5128C606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Fuo0fjLv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794572012; x=1826108012;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=rHH8i6Jaj4wG/QVHWjBNd4UsOpx6pzu7l9kaAO5hq6U=;
-  b=Fuo0fjLvrze0KqzVK+2WW5qq3YrJg3MdGtNA39cv01DroWDEJIVZUlKg
-   Mas+DEnMhGP+u4Ztz9wGv0+kdrq6Twrtf8QnLEaKpz8U9ZmU+Lrr7NPpn
-   iCR/36fV9rgnJ4qAeUT++pIX1YkkvYUtcMunBIf1FSxxgfjOv7iPikg8D
-   CmSLawqPsfg6JsrlPhwmSMfBwD4FTIba/TSb92BmwhuMh3HfuW5c9sdKi
-   Om9xhJYSrbe1qVU8mhiX+IWWRvT4H5GDHj8gTN3d6vVd4sS3mrJW8noL8
-   OHfNDRb1yO3GVh3HJ8sMu27T2EER0vlFi6xvzCnEftHFeItXH3wGQMXNv
-   A==;
-X-CSE-ConnectionGUID: p+P7pV79RzyZfgAi3G1pOQ==
-X-CSE-MsgGUID: Q6NfsCNGQEGZ/JXhSkYnMA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11964"; a="3385781"
-X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
-   d="scan'208";a="3385781"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Nov 2026 04:13:31 -0800
-X-CSE-ConnectionGUID: TtlvUlykT4SNAU2R1Isc5g==
-X-CSE-MsgGUID: iB+z62UDSbW0eDhITPJ7GA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
-   d="scan'208";a="8834698"
-Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.148])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Nov 2026 04:13:28 -0800
-Date: Fri, 13 Nov 2026 14:13:26 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: lee@kernel.org, maz@kernel.org, andy@kernel.org, jic23@kernel.org,
-	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-	mfd@lists.linux.dev, linux-iio@vger.kernel.org, robh@kernel.org,
-	krzk+dt@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org,
-	imx@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] mfd: mxs-lradc: Pass parent IRQs to child drivers
-Message-ID: <avb-5lw3JHpfmIlz@ashevche-desk.local>
-References: <20261113013212.470981-1-festevam@gmail.com>
- <20261113013212.470981-2-festevam@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=hA3qNRWd
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1794572853; x=1794832053;
+	bh=Pdfq1SwYpORYmsHq2kMlXIBTfvuU5U4Y7VxLR1LdLNo=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=hA3qNRWdLB4cUw7oy9Gk1p0GTKC+W/jw2+Q/VcWhXJjJ81Lnq8ulVeTdznrBHAv1w
+	 LkGh64OCiqDMIi/bwUA5tPIlOcQjBNTx0c/t5eZcWl69BP2xwzKT0WQ5OXuEixuYGa
+	 Aiu/15TlgoDJacOp7n+1FA1tj0ulfd5ZuHeOIKwkTLk0DJeYqaBssTRxAEz9kZcmT/
+	 run3BGemwX98nmrI3CFFOMwzI42XwqRVKuZMeFm0Czwn+tu5W3gGBJUqlPLRgeLMJa
+	 7vtzO6Iovs2jORA/9rOj+Xf3jXIdCbJXy5H6DLZrmRdzTwfGATDy5jHzbvh64dHq43
+	 hBrh0nx+mEqiQ==
+Date: Fri, 13 Nov 2026 12:27:30 +0000
+To: roderick.colenbrander@sony.com
+From: Macauley Lim <macauley.lim@pm.me>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, Macauley Lim <macauley.lim@pm.me>
+Subject: [RFC PATCH] HID: playstation: Ignore Bluetooth input reports with interleaved microphone data
+Message-ID: <20261113122528.1348736-1-macauley.lim@pm.me>
+Feedback-ID: 31200587:user:proton
+X-Pm-Message-ID: 839a09d3409076332dacbbde62f66e882c91c889
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,42 +61,81 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261113013212.470981-2-festevam@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2026 at 10:32:12PM -0300, Fabio Estevam wrote:
-> The MFD driver stores raw DT interrupt indices in IRQ resources but
-> registers its child devices without an IRQ domain or IRQ base. The child
-> drivers consequently receive the indices as if they were mapped Linux
-> IRQ numbers. IRQ index 0 triggers the platform_get_irq_byname() warning:
-> 
->   0 is an invalid IRQ number
-> 
-> The children then try to recover the indices from their resources and
-> map them against the parent OF node. Besides duplicating IRQ names in
-> the parent and children, this relies on invalid platform IRQ resources
-> and fails when IRQ 0 is rejected.
-> 
-> Resolve the interrupts with platform_get_irq() in the MFD parent and
-> store the mapped IRQs in the shared LRADC data. Drop the child IRQ
-> resources and duplicated name arrays, and have both child drivers
-> request the mapped IRQs directly. Use the MFD memory base support to
-> translate a single relative memory resource shared by both cells.
-> 
-> Tested on an i.MX28 EVK. The mxs-lradc-ts driver probes successfully,
-> touch events are reported, and the touch-detect and LRADC channel 7
-> interrupt counters increase as expected.
+When userspace streams audio to a DualSense over Bluetooth through
+hidraw, the controller interleaves microphone data into its 0x31
+input reports. They share the report ID and size of normal gamepad
+reports but not their layout, so the driver reports bogus stick and
+button state while audio is active.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Reports carrying microphone data have bit 1 of data[1] set; gamepad
+reports have it clear. Skip them after the CRC check. Behaviour is
+unchanged when no audio is streamed.
 
-Thanks for fixing this, I hope it will be applied sooner than later to reduce
-the number of weird cases in the kernel.
+Signed-off-by: Macauley Lim <macauley.lim@pm.me>
+---
 
--- 
-With Best Regards,
-Andy Shevchenko
+Hi Roderick,
+
+I have been working on streaming audio to a DualSense over Bluetooth
+from a userspace daemon through hidraw, as you suggested in
+<https://lore.kernel.org/lkml/CAEc3jaAm4gws8drVKvQGYHoAT4fb5i7sSPJ0LFiSGHaV=
+AzKZnA@mail.gmail.com/>.
+
+When the microphone is on, the controller interleaves mic data into its
+0x31 input reports, and the driver parses it as gamepad state, which
+causes random sticks and buttons to be reported.
+
+On my hardware, the reports carrying mic data have bit 1 of data[1] set
+and normal gamepad reports don't. This patch drops them. In my testing
+the gamepad keeps working normally through hid-playstation while
+userspace streams audio.
+
+Is that bit documented, and is dropping the reports the right approach
+given that Sony is looking at Bluetooth audio
+<https://lore.kernel.org/lkml/CAEc3jaBkyPgnWjkZX6XjT6YKn4sAmHpOrtwp_+UMruS-=
+hwUz_Q@mail.gmail.com/>?
+
+Thanks,
+Macauley
+
+ drivers/hid/hid-playstation.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index f9dc9378c..31d965d3a 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -82,6 +82,8 @@ struct ps_led_info {
+ #define DS_INPUT_REPORT_USB_SIZE=09=0964
+ #define DS_INPUT_REPORT_BT=09=09=090x31
+ #define DS_INPUT_REPORT_BT_SIZE=09=09=0978
++/* Set in data[1] of a BT input report that carries interleaved microphone=
+ data. */
++#define DS_INPUT_REPORT_BT_AUDIO=09=09BIT(1)
+ #define DS_OUTPUT_REPORT_USB=09=09=090x02
+ #define DS_OUTPUT_REPORT_USB_SIZE=09=0963
+ #define DS_OUTPUT_REPORT_BT=09=09=090x31
+@@ -1463,6 +1465,15 @@ static int dualsense_parse_report(struct ps_device *=
+ps_dev, struct hid_report *r
+ =09=09=09return -EILSEQ;
+ =09=09}
+=20
++=09=09/*
++=09=09 * While a userspace driver streams audio, the controller
++=09=09 * interleaves microphone data into its input reports. It does
++=09=09 * not use the gamepad layout, so skip it rather than report
++=09=09 * bogus stick and button state.
++=09=09 */
++=09=09if (data[1] & DS_INPUT_REPORT_BT_AUDIO)
++=09=09=09return 0;
++
+ =09=09ds_report =3D (struct dualsense_input_report *)&data[2];
+ =09} else {
+ =09=09hid_err(hdev, "Unhandled reportID=3D%d\n", report->id);
+--=20
+2.53.0
 
 

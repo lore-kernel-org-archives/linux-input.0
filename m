@@ -1,65 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794698295;
-	b=YfGyeDRunHq6MfzDzUuqrjx1ltffQx/TgwqhR8BP/kQLQW12dmQ71WHU4hQip+usKt/r
-	 84eKedAAMX59hq+W+eriMpjXglgGHMQyS7nSTdsqN7+a/+fx9ijfk+8kRG08zxuMtcJgg
-	 8AwVuYAq8N3Y+Wxf5ahBDOheJqFosBpE5blUYpRoIBYFf/yziDYpkS6C9zW5zXwiSxHi2
-	 0L4KcR9k2eWvvKt37+VyyUadc8S/Uvg7skO4BwtOzBXAdU7Xly6ysVp5xfAh0oiuY5/E7
-	 SIjKw52OcCq7K1Q470720FdgvV9Sih7xLk4/6PkRnFu0V66+BA5CZSM4U4If+zVCRJA==
+	t=1794698498;
+	b=nr3nyTwC8UNM1zZB0lwfdNsJST0bV2y2dYsc82Yu+sdYFKVWmUN+jyZu+INbwydB4WS0
+	 hMkDpW9IL2bATnrhEdOlJww1T+tlHQlgMCce6noev3fBbhaQmjnKzeWoAutH100BEo1E5
+	 NwlZbalQ1LGh6Myg4wzru5VSnDuy2HotEpUs5DV7e/dBbwNZ0V0x2SmqIpBdgfVSirgJJ
+	 4wCbR+SNvYLcXbOc7D4kHWMb7wlLYO/Xews91HaKibfex5kb9whVAafwc+u68Vek4lcPf
+	 hh+9H3uiryxXoLY6+sjUVjt10NIZ7qMPAotcTcGOwc1BwemgxSpAxEwdVkgbftDBJgg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794698295;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Debian-User;
-	bh=Vi/p4fUVhpFjb9s6Vzfmbzm5sEOD5y84qq3KlrB9vm0=;
-	b=F9xdeG2vXCUeyasaV9oH1GwK22Ml/HP0cixl8u9RTZkCZL90EYtOjzQpXICs4Uu8/xmC
-	 ZHCHIRSejrZ8jlR/L76Z6RHFOEZN5PoAWNShhERb8JTlOhAMHinpmqStb4tTsizOPnPgX
-	 Sux/60ITqqq0XXlFQAK77EkfXGUGt+POm91HE1mOBOHb879GPIwAsOwoNatsx9gdnvtnE
-	 dSXKgcsL1yaV19A56rFVz4Z3GBphDSB4B5idz7swruRuEe0Yy+7ID/sk4QC0qF4ShKK6G
-	 /Qqvs/XNuFntfcUU9qhVKxoGL4qsaUYz8v9ROdPv2qnx9KQZNqQPrfPLGAea/n8MrXQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794698498;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=df5aXYJ0jLlgu50iZ/o6v+mxuaUy15Ywwa+T+uQ3xFw=;
+	b=Y0V5dboZo2mOX25f4ex54mbMu2PyK9X0oE9L/J+35h3ghobVjwrmHPiQ+IRkSQ9bYZin
+	 Q7+lzGENkpamNoIiqygZNCvNXOVrLCfunaqrdrkKimfJZKwjkXhivJc/SX5q6nEHKt0WG
+	 BEiNMfXU6aov0phrCgW15/v44A7IxjeyoG6oZepS3SQlVLhQWhdMLokBKZJhf4xz7OZpu
+	 PxAJ+3/7zhRv5c+lvXcdAkaGbjj4CU0NKVP4m2PwMdkCywC25i6g2LDlYOJTX6kqri36k
+	 CCWG2g+XJ0kOPzTPtHq4j/4GkCr+s9qt8bkVbmYdxS3K5WF7jQmMIgSTVlmgggE+ClA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=dezgWBh2;
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g4ht3wBG;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9032B606A327;
-	Sat, 14 Nov 2026 23:18:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9032B606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BCC7606A327;
+	Sat, 14 Nov 2026 23:21:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=dezgWBh2
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=Vi/p4fUVhpFjb9s6Vzfmbzm5sEOD5y84qq3KlrB9vm0=; b=dezgWBh2FEc4ztJF/MRQz6EXXn
-	8/1nD5ixSfz7+6+7Bj1cnhTvdVx6E38/olpPH1kWA28uLzTbiSpU/kkpJwRhKEVs90HwPH3bpP2Ol
-	FICPuf28tt09gn3L73uVnLrqhfwjdx91iep0c4PM1X24H93u22u2kbMnuM8FFDgucIZmSe8ZcmwtO
-	1x7nGSFF17mGg69HX7aZ5OKBGmoHNfO1pFC/rie4oASn8bEu2WSp+HXgPF3NYLJSepx8VEkbdYnoE
-	yx5aqF0lXg5++8tE37oB/gs7ltRMacI2kId4zt4JyYebiVT3epal7IdKu8XzNavVKlhyeWxupeqJz
-	MqD7Kc0g==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xSN0a-00FtUe-09;
-	Sat, 14 Nov 2026 23:18:08 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: intel-thc-hid: intel-thc: rewrite PRD tables on reset
-Date: Sun, 15 Nov 2026 07:17:33 +0800
-Message-ID: <20261114231733.3916070-1-emfox@debian.org>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g4ht3wBG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F191F000C4;
+	Sat, 14 Nov 2026 23:21:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794698498;
+	bh=df5aXYJ0jLlgu50iZ/o6v+mxuaUy15Ywwa+T+uQ3xFw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=g4ht3wBGXeMDSc0Q3TNJL3GyLbPsaPNCPa/bKzf5dynUaUQCYHPSk40MYBOpZkEmM
+	 93K2Eo44CSemhg8BRuHyALt9xVeYIrVCIe9HJpiydE4XvMC4xQX3RlyqqnSdViiKS2
+	 iMpgOYQfX30+Gc+vQjCbaYY6LhrlFsWMpBAlQvLFsedi4kB8SULAYF05nyXmcovK0H
+	 hy1ahi6ZgejGyDJ9OYN/S/P2MtQACznDVjywHWe2rLZ1olQ8Uq4qteTlt7wUzOAtGP
+	 G+l7OlJiWy1U260ifRYcTC+RiJvMaTl61JDWSFOUGKtSvYWbaguDfiwVD3gZl/roii
+	 p/+vB4aoKznqw==
+Message-ID: <sashiko-outbox-215102@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 16/16] HID: ft260: use lock guards
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael Zaidman" <michael.zaidman@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-serial@vger.kernel.org, linux-gpio@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261114230800.1344401-17-michael.zaidman@gmail.com>
+References: <20261114230800.1344401-1-michael.zaidman@gmail.com>
+ <20261114230800.1344401-17-michael.zaidman@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2026 23:21:37 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -68,49 +59,88 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
 
-RxDMA reset takes the DMA configuration down and puts it back, but leaves
-the PRD entries as the controller wrote them. A frame that was queued and
-not read keeps its shortened length, so the next frame runs past the end of
-the table: the controller reports a buffer overrun, which is a transfer
-error and leads back into the same reset, with the tables still untouched.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] HID: ft260: mixing guard(mutex) with goto cleanup in xfer
+  functions
+--
 
-Write the receive tables again while both engines are paused, before the
-configuration starts them. The configuration is the wrong place for it: on
-resume it runs with a frame that arrived before the suspend still queued.
+commit 27addf69822143f9d183be5b9b500ff0df6b356b
+Author: Michael Zaidman <michael.zaidman@gmail.com>
 
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
- drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+HID: ft260: use lock guards
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index c80ef8c20..28a1aa97b 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -211,6 +211,9 @@ static void thc_copy_sgls_to_prd(struct thc_device *dev,
- {
- 	unsigned int i;
- 
-+	if (!config->is_enabled)
-+		return;
-+
- 	memset(config->prd_tbls, 0, array_size(PRD_TABLE_SIZE, config->prd_tbl_num));
- 
- 	for (i = 0; i < config->prd_tbl_num; i++)
-@@ -598,6 +601,10 @@ int thc_rxdma_reset(struct thc_device *dev)
- 
- 	thc_dma_unconfigure(dev);
- 
-+	/* Still paused: the configuration starts the receive engine again. */
-+	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA1]);
-+	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA2]);
-+
- 	ret = thc_dma_configure(dev);
- 	if (ret) {
- 		dev_err(dev->dev, "Re-config DMA failed during RxDMA reset\n");
+This commit converts mutex_lock() and mutex_unlock() pairs in hid-ft260 to
+guard(mutex) and scoped_guard(mutex, ...).
 
-base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 53321c8d70fd0..716b37cead7dc 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+
+[ ... ]
+
+> @@ -1034,12 +1031,11 @@ static int ft260_i2c_xfer(struct i2c_adapter *ada=
+pter, struct i2c_msg *msgs,
+>  	struct ft260_device *dev =3D i2c_get_adapdata(adapter);
+>  	struct hid_device *hdev =3D dev->hdev;
+> =20
+> -	mutex_lock(&dev->lock);
+> +	guard(mutex)(&dev->lock);
+> =20
+>  	ret =3D hid_hw_power(hdev, PM_HINT_FULLON);
+>  	if (ret < 0) {
+>  		hid_err(hdev, "failed to enter FULLON power mode: %d\n", ret);
+> -		mutex_unlock(&dev->lock);
+>  		return ret;
+>  	}
+> =20
+> @@ -1063,7 +1059,6 @@ static int ft260_i2c_xfer(struct i2c_adapter *adapt=
+er, struct i2c_msg *msgs,
+>  	ret =3D num;
+>  i2c_exit:
+>  	hid_hw_power(hdev, PM_HINT_NORMAL);
+> -	mutex_unlock(&dev->lock);
+>  	return ret;
+>  }
+> =20
+> @@ -1077,12 +1072,11 @@ static int ft260_smbus_xfer(struct i2c_adapter *a=
+dapter, u16 addr, u16 flags,
+> =20
+>  	ft260_dbg("smbus size %d\n", size);
+> =20
+> -	mutex_lock(&dev->lock);
+> +	guard(mutex)(&dev->lock);
+> =20
+>  	ret =3D hid_hw_power(hdev, PM_HINT_FULLON);
+>  	if (ret < 0) {
+>  		hid_err(hdev, "power management error: %d\n", ret);
+> -		mutex_unlock(&dev->lock);
+>  		return ret;
+>  	}
+> =20
+> @@ -1190,7 +1184,6 @@ static int ft260_smbus_xfer(struct i2c_adapter *ada=
+pter, u16 addr, u16 flags,
+> =20
+>  smbus_exit:
+>  	hid_hw_power(hdev, PM_HINT_NORMAL);
+> -	mutex_unlock(&dev->lock);
+>  	return ret;
+>  }
+
+[Severity: Low]
+This isn't a bug, but ft260_i2c_xfer() and ft260_smbus_xfer() now mix
+guard(mutex) with goto-based cleanup at the i2c_exit and smbus_exit labels,
+contrary to the cleanup.h convention of not mixing scope-based cleanup with
+goto unwinding in the same function.
+
+In ft260_i2c_xfer(), the i2c_exit label can be dropped by calling
+hid_hw_power(hdev, PM_HINT_NORMAL) after the if/else block and returning
+ret < 0 ? ret : num, while ft260_smbus_xfer() could either factor the
+transfer switch into a helper or keep explicit mutex_lock() and
+mutex_unlock() alongside smbus_exit.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114230800.1344=
+401-1-michael.zaidman@gmail.com?part=3D16

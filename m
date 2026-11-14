@@ -1,56 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794612969;
-	b=rXlJHq4a0buW7CovwGiB6Xv6aRpKCNzL3WSAIxz9sWSQNeB1NsgnL9vwXUPLqDHXvGi1
-	 UbBqLTp7psaIGkpQqKaCBeI/T1GvOG9P+a9owDXB20Ugb/BVdtFSHlcMFxoeKM3pS0QuD
-	 gGvChICr3eCiThjciORwE/HyOXNzqCqA503CAEJb336R+WCBVXVscCYhK+gSj5vE/rbW9
-	 7refDJRm46mpOaPa4FDzvNZ/88BDdHyZCouo9vSwOd6ucrqB9ZKcQPUnPvPK3C5tW06Zp
-	 UGU2sX9j8KDNvJ5LYG4S0ubipzgZte/YflZN3CgHoG+m8ZUelcncl7l92Nyscr8lRhQ==
+	t=1794614546;
+	b=NRuKPIIuLSTCHZiDi9hriG3QY8H8NQgsDotT1hECOrrDe9KHwoPx5UPW0XiJWqykZ47s
+	 p7uzBuZ8FbWUT6DZ2z0fpLl7oDNTQANuCmB45jpSB+yGOaYHz7l3zDP1ybMsPDEehCZi9
+	 PLwkSOQHkKxNULOq4YIdxLJFszTqt2uoZvPBy5xK2CoSjYpgHaALxN3pLPR49wUeI8yGL
+	 LkAVbBVMES+fmP8EjPvHXjaus080rvTakB/pKQQxBZIMpHkcqoDAXiyZPDAsDmuXeJiWV
+	 pM4b5Q6j+o2eCV0CZQw+i4QgYfd4yvdPFwPCWMhRBRAWZQZzr0Q1t5c++ffhhExTk2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794612969;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=8TAA8M+v27fD6vuURvWur7o5HWPhqGXViKJfRRwWN64=;
-	b=IaK+SQuz+e4HwfVn114Tt5lRdxIst6pZ316eX1l74ObdIOGNlM8h/5Ahayv8TqERqOQg
-	 rlj79RNbrfY2uGTzSX/8sXHrI8biUxnXfoqf6Yp/XCBMqs4h9JEpp7ciRM3gcMyL4bzPN
-	 n7pnnXS5q6CMs2Ga6Vd/wcrtJWneD1kz8hLL0pUgrFCJE2kggsjsGfwCh6ZkwMcAZ/fsE
-	 TCygvAiStDMp2YtbtvUGEyej/bEMRo84spa2/O/rTlD1zFPqlXpoRJlwqTfBNws5rjvzx
-	 YcYEB90oWwURpJ4NK4fQT2g5I+gngVp8S2DqPPTwEN9Df080PfT6E2iruCUnV82iuQQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794614546;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=kxRETnsBm6VnWvhVvC7Nguz7Rrl10P8nelMFGOXi2xg=;
+	b=gXS9nXCvENeVH3Dtt7e0+NAN65pEHUii8vDA/BTyeFVscRMgCEY/MnfrrOid7hBGt8fy
+	 4T7I7+FuK23pHbHpZGEtb/eH9fneOgald/p9MHEBJcep+S2VC6dCS0uMasbUcOiENXwoD
+	 v9jmEd+pCY9cqR5Ta5fD6fZLYdUyp/HwbgXxOwIqqBuNPlqbVQHUwJv/Gagd7MDm31rH9
+	 SVb+4krCr3jLF76FMu0zxtr1eGqRdilnLjxfaW1lw1fIwev6Sav5fBFdbAjrXlx3TESF/
+	 HXug36iNBR181x8taWZIF1+pUYY1SfFzWMntKyJ93RpV8nK4//iP7VdowNcrYPU4/5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=o1+j4ygT;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=N9buWkxV;
+	arc=none smtp.remote-ip=74.125.82.181
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD6B606A89B
-	for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 23:36:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9664606A32D
+	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 00:02:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9664606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=o1+j4ygT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAA31F000C4;
-	Fri, 13 Nov 2026 23:36:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794612969;
-	bh=8TAA8M+v27fD6vuURvWur7o5HWPhqGXViKJfRRwWN64=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=o1+j4ygTBHNUDrEo6oiAKDsuOSarWDSeJv9D05hEHp00k5l/igBZCPKfsIwMQSgtP
-	 iAJWl4NtuPq3GeXV+u1ivlsh85NIWcSgwuwLIhBgNmJN7aQT2ykOXEz3MoSa1Kta/V
-	 DzyHcu9Mj7aCrA7VkxSD5pcC7yhX/tVyfmUb+GoM8hjPNHNMh4Ia/+FFLmYtwj1FRz
-	 /klsUlXpS4No8V60W4RK+F/22IoftfbcbdVJKTgK/jbclWX9m6fYepWGP3F7JYmiYv
-	 myc3a4Cc8Sh6FO/d9A3/F6WBnXWW+V1evD99UXbmISKAIE3ivPK8DQKjE+vaLWtjpq
-	 c0e/OfSCuYncA==
-Message-ID: <sashiko-outbox-213870@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6] HID: ayaneo: Add AYANEO 3 detachable controller
- driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWF0w61hcyBNYXJ0w61uZXo=?= <hello@matias.me>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261113232228.17553-1-hello@matias.me>
-References: <20261113232228.17553-1-hello@matias.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 23:36:08 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=N9buWkxV
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-33bf40b0c8bso2700336eec.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2026 16:02:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794614545; x=1795219345; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kxRETnsBm6VnWvhVvC7Nguz7Rrl10P8nelMFGOXi2xg=;
+        b=N9buWkxVsPWUF7Wm8IEY+qKOjay49Vms7+Ng+fde0FZj17F8b1nXN9efqNsI16Ee97
+         DkLj1XN+FvhumFynxFuMeMTHQLp9jIxc1FgsbO5GWu/m+yq1V0gsfr1A9S5bvywswmco
+         7tArPcpFu+TwZelBZ1Yq9/qZIEawBJvanUdNTSSaAT+Mlv7W5vSf9WztzClX+NsdEo5+
+         p2gBNuB1twVFSw0Tcd9/QsCevKIJOJkkf48/6PV76ObeCKS6lohNqb9EOag63uiTd/Vn
+         jFvVsuOGUm7PZmxStFBjVfbysYfyErbWXYwnwU6RUed+dluW0Tc0VVyCtUoL2kL04mNo
+         DSBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794614545; x=1795219345;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kxRETnsBm6VnWvhVvC7Nguz7Rrl10P8nelMFGOXi2xg=;
+        b=yQIkveyWHeiuDzEM9TsGgwOLfrecCL+M8KDArmjgCyijV9n/iHopFoVMqK0/1xhiZh
+         19bmtlyHAXvrWe4yjm/i0xxyjJIgzq7CFbVCjZCAVaZ3g2K+sIUM2mNxMemmUBBUuWf/
+         HlSAUeWSRlfLohsaQdLupYp+Di7l+utfAjXtzIOjEhSjKC10Y4DunfC1z2S79+kqJsEp
+         WUMMNmYCzwUcFtz6l/1vyuCJ6WrVt4jEEHnzjdv5uEbHvREy0QwjJUauEXO1/PVCMtxq
+         eULLaP31Vn8Zm0LBoxzxIpNkOUM78IxPLtMCqz3VxRX9ERsgsh82oLSwVg6uwNg0EMOS
+         VHXA==
+X-Forwarded-Encrypted: i=1; AL+hErFKW6bifevT1YeREkcZkvBLwIRUprWCiiiKMp17kuLNf3hoalVdecGam95gP5gGc7Wo0IYIMDBBMMzw/w==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9wxZDJOwubW/+NNMuBQdHYwRuAbMp5dAEHi67myTfpybVkluyt
+	VBqAEAgU60DMf0c8PioyX0Tp4jbpYz1tNrM8LsaXsixqEkrcBRClcsfq
+X-Gm-Gg: AYBFou24D0er5o/h7P+8scBdmWj0q0MHzmirZrR8c8VIO/ZLHrJ9Lp2otWjINJ30FUG
+	A8GXbsCwB15QoO+OpB3t70DVE/ZnJQpQqt5h7NdQKwZSV9/0uLFJ3/IfF4US14ByLkPRUrV6plO
+	8bDNjbo3Soj7tlRVHfz65xM3NX0myxKV7hvmUbrdNncfBK8apCjtKmdqV3IKZMeE/wfPgZW0M3q
+	VMaKdLvz76v3E2G6iqX0MEea8mPDO4Mo0cEnLY8FA+LqyGr1GRoMazu7FpdNfL2z6s4FWbN5dS2
+	2OVzfAjnWunlvH1he9GZcY0VHPA3FeSi8fS0U2+3ScEb+2vrBkPgz8LaQdwxs0sXaFbXWrM4uhT
+	2fk6VreQrIQsc1QfSTSPzjfVnC47YinA0vtcDvBTwILvPfLKKFkUXvadnQGLyTa9idkFyLQiSLy
+	Q7z1oiPgfc7xASY/J2LJkLLWME7VV+a9u/D+X9M2Bae2ixn1eC5bb44eLaQKr2dXznb8A0FWtoF
+	UmRCOWNpX0VcCkih2Bze6amC3Q0s2+wmIvsq8tpvSvzj+/eaTDuVEnvBDrTKXRYXPuECZF2a3Uk
+	rPQRyrPqJAEMR98RUCFvOpuD6lBIru9O5fsgPezxTL/SBEKN2/vNPplhGtOPmMiwyUSw/8VrM6e
+	FrYfCB3HFzK9MLkVNMQ==
+X-Received: by 2002:a05:7300:bf9c:b0:375:370e:f1ff with SMTP id 5a478bee46e88-379671238f1mr3369208eec.35.1794614544915;
+        Fri, 13 Nov 2026 16:02:24 -0800 (PST)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:560:7267:5908:e9a5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379565d269asm11309849eec.23.2026.11.13.16.02.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 16:02:24 -0800 (PST)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andy Shevchenko <andy@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	"H . Nikolaus Schaller" <hns@goldelico.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Johannes Kirchmair <johannes.kirchmair@skidata.com>,
+	Yuki Horii <yuuki198708@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] Input: tsc2007 - drop unnecessary cast in tsc2007_calculate_resistance()
+Date: Fri, 13 Nov 2026 16:02:18 -0800
+Message-ID: <20261114000220.1280581-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.56.0.679.gc527c65306-goog
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,84 +100,32 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] HID: ayaneo: spurious -ENODEV errors and traffic on LED
-  unregister
---
+The resistance value is already bounds-checked against U32_MAX before
+returning from a function returning u32, so the explicit cast is
+unnecessary. Drop it.
 
-commit 503e8577930caa05e37b8ae2f759096d42ca369b
-Author: Mat=C3=ADas Mart=C3=ADnez <hello@matias.me>
+Suggested-by: Andy Shevchenko <andy@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/tsc2007_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-HID: ayaneo: Add AYANEO 3 detachable controller driver
+diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
+index 7660504f58ff..fc707e672424 100644
+--- a/drivers/input/touchscreen/tsc2007_core.c
++++ b/drivers/input/touchscreen/tsc2007_core.c
+@@ -82,7 +82,7 @@ u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, struct ts_event *tc)
+ 
+ 	if (rt > U32_MAX)
+ 		return U32_MAX;
+-	return (u32)rt;
++	return rt;
+ }
+ 
+ bool tsc2007_is_pen_down(struct tsc2007 *ts)
+-- 
+2.56.0.679.gc527c65306-goog
 
-This commit adds a HID driver for the AYANEO 3 detachable controller,
-supporting module identification, software eject, rumble intensity,
-configuration reset, and multicolor LED control on its vendor interface.
-
-> diff --git a/drivers/hid/hid-ayaneo.c b/drivers/hid/hid-ayaneo.c
-> new file mode 100644
-> index 0000000000000..abb754a2a0534
-> --- /dev/null
-> +++ b/drivers/hid/hid-ayaneo.c
-
-[ ... ]
-
-> +static int ayaneo_led_set(struct led_classdev *cdev, enum led_brightness=
- value)
-> +{
-> +	struct led_classdev_mc *mc =3D lcdev_to_mccdev(cdev);
-> +	struct ayaneo *aya =3D container_of(mc, struct ayaneo, mcled);
-> +	int ret, i;
-> +
-> +	ACQUIRE(mutex_intr, lock)(&aya->lock);
-> +	ret =3D ACQUIRE_ERR(mutex_intr, &lock);
-> +	if (ret)
-> +		return ret;
-> +
-> +	led_mc_calc_color_components(mc, value);
-> +	aya->brightness =3D min(value, U8_MAX);
-> +	for (i =3D 0; i < ARRAY_SIZE(aya->subleds); i++)
-> +		aya->rgb[i] =3D min(aya->subleds[i].brightness, U8_MAX);
-> +
-> +	ret =3D ayaneo_send_config(aya, 0);
-> +	if (ret)
-> +		hid_err(aya->hdev, "failed to update RGB config: %d\n", ret);
-> +	return ret;
-> +}
-
-[ ... ]
-
-> +static int ayaneo_register_led(struct ayaneo *aya)
-> +{
-> +	struct led_classdev *cdev =3D &aya->mcled.led_cdev;
-> +	int ret, i;
-
-[ ... ]
-
-> +	cdev->color =3D LED_COLOR_ID_RGB;
-> +	cdev->brightness =3D 0;
-> +	cdev->max_brightness =3D U8_MAX;
-> +	cdev->brightness_set_blocking =3D ayaneo_led_set;
-
-[Severity: Low]
-Does unregistering the LED on controller power-off or unbind log spurious
--ENODEV errors and send unwanted config traffic?
-
-When the controller is powered off (including after an eject handshake) or
-disconnected, usb_disconnect() marks the device detached before
-ayaneo_remove() runs.  led_classdev_multicolor_unregister() then issues an
-LED_OFF write via set_brightness_work, which fails with -ENODEV in
-ayaneo_send().  Because cdev->flags does not set LED_HW_PLUGGABLE and
-ayaneo_led_set() logs all errors unconditionally, both ayaneo_led_set() and
-the LED core log -ENODEV errors on every disconnect.
-
-In addition, when the driver is unbound while aya->configured is false, that
-same LED_OFF write during unregister still sends a 65-byte config report to
-the device, even though the driver otherwise avoids sending traffic unless
-userspace has configured it.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113232228.1755=
-3-1-hello@matias.me?part=3D1

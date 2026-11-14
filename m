@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794697733;
-	b=ylsyymSyW5yb+sGKwfXc5yLB5qIPOGtpc/28QFpZN8NiD7scIHACkWeA4Ziy7DZqsQ2N
-	 RudumvdbAMEMsVTf3CLW648Sq4/fabPwFwvByJpaAoX2seHDXP5SXWYsj4vBZ6vpeejNV
-	 FMFxkfedgHwfjjePedJgCSXOZErUkSnOJcfVSNglyuNV5NNz4zsflN/dIXMh1isPTQPhu
-	 wcyIHPNrSSVK3fV5rH5xqule4H5Me8FsQiw5T//FUSuf5O2pk3awQlWdHumCDsFv/EFRK
-	 x73YrzPdWx8bra28k5qv+iVkHCMfJR+qqpH+0zNL5nnePSEy3Wp/6JB6eTo+rgBYH7Q==
+	t=1794697735;
+	b=2PczhZ+H/9AmQfsNu9l41mVQaT7xJy/S3Qs4n4If4DQFhg0z9YPtzTpuvO/dzGnDhpWo
+	 ZEyACrER/u5i5QKlI6HJMmG9s/czH2xhtnS6veCS48bp5CgGx7zGkIlta6nATbRJAytkO
+	 oRKwHIx5y3Ihcz7MY+N/o/17jL8sfBh8+YiWRInSiqy8hIXoNHUXXWzL2KV8m7MocYLQb
+	 iiZX9fpfe1uiQvG1Bq2Fm5pZwfBjg7l7KBwG2wP7gBBavgw9hDen1B6fioG7cY6MYA/0l
+	 SOYkyt7xqJdjppd4nAINlQexpdEFEVWArUMdWQqU1D7B/NwwedNVKgHCl0LSE/1dv5w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794697733;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794697735;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=0crtjAMKzzw1W0f3Ujf9h2uT0/bT08baQoD9Um1fE1E=;
-	b=Hap2ioIXWJtcrvppQBbhe6GWe7XbtpqQx9htsArms/Xuiwx5f+tHe54cwcMzqud0ugQk
-	 a6fQgmMu8t9zCqBkZRqtohi2E1jgs3DUQSob0vT2AZRsapvYiMS1Je2jPRrY9U5WS0JGB
-	 2Tae1BPVbEUf1IOOm0hjNKuVGflBHWW3vfHl3+mmLDq7fhZgkP6flElCDfDlAidaf0lGN
-	 xILshOdxvWlkN9GzWpdE89egrAXtMIyfTR7W5jp5zBKzkNWqw2DV4J4gSYSvMf+zeBJI7
-	 IcGAzwSjjCuweoCTF1cZQjie1sw4cZCZ83MzsqYGKqe5HjCnyL3Cj2tmzSzFFSi+aCg==
+	bh=hh9ybCpP5y8fCdG/ue0SgeIlejwXAiQet93xa73o/ck=;
+	b=G6wxL9bEZOtdRSSeW2vFMjFYuzJUiRFFLAMZVGa1pLhCwTJsNfGwNXLyzMjIezLJQ/Gh
+	 719HJuZnQHDbHMHnyc4nDG0aTT8UjAF3st993SFeDjseuygDn+Qd93bs/uVo6kMXVOBHC
+	 nYDn5B4QGQ3Z7r1GHFT4WTwT4zDrraz/pmgTHAqneDE3sq/JNm0uveLwe7qenmcZhsGJy
+	 5RGEhJAtsdRzNZbGLiBtpvHpaTcwWFK/kl8xNbZ9Y5uJwABOFrfbnk8+N0zTvkbQ0oxlY
+	 YfpJUe766v/KGDgl5E5HyGN+HiI6wnit+9Va7HVctn4Yx9fPfHoGEETrkQXcAEzHWgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=msfs8jkt;
-	arc=none smtp.remote-ip=209.85.221.41
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="jeFJb/c0";
+	arc=none smtp.remote-ip=209.85.221.45
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B5460A6F45
-	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 23:08:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 29B5460A6F45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F1A60A2606
+	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 23:08:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0F1A60A2606
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=msfs8jkt
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-490f38e9688so1471930f8f.0
-        for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 15:08:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jeFJb/c0
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-490d59c3f0aso782327f8f.1
+        for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 15:08:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794697731; x=1795302531; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794697733; x=1795302533; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=0crtjAMKzzw1W0f3Ujf9h2uT0/bT08baQoD9Um1fE1E=;
-        b=msfs8jktw4EmuGCDbantx6NNqUh5AxG07lSq/ymkAp8NIWvmydvMcHlHi+5yRiP0HH
-         12aunYx5OSNv5AMhydz3aIzeJuPYtvFXeHdjge752G9m1oywQRd/3LoDNJNM4vjk+hMK
-         4DyW7j+vpI0xNNjlpkp1HlHYoLBFwp5cXZURDRfX4MF//GltKtWXws7iPrOY+xFX97N5
-         Qc25Qcn0RJIGTjVJa1Ajao5/opbygAjxa4G8lCVd+bJqucJuKrtjl5H/Lqr8+52hgVlD
-         ZM1lxUE6tdf9vjGv22+cqx8ZMV1iZ0J2ZqaYUXgE4xd0M1mDq2yetVxuDgG8a7Rva0N0
-         YC4w==
+        bh=hh9ybCpP5y8fCdG/ue0SgeIlejwXAiQet93xa73o/ck=;
+        b=jeFJb/c01M9tftwZV+FhKblIVrnpLKLb+K0qW29KG8tNYlpIt2M0ZA/r3nSu2sNB00
+         MwRBxF+fvkIJobYzGZlbR9zhP1oSohsw9+QLS/qLiDoNr215xRcFwSxqToxY1PgEr75G
+         yYxSxbq6ZprH62dUFNhBIkEqmEUTIkYo0m3OKc18rbjj+64lwlFKnKcFeT/TuI2fIxO8
+         PRtGSohTG4gGxMjlnn1dqiOCGxe2BYWtY9zeyiN91yQZltWhb0tuB8CrrBgn1XoUZV6A
+         PZzeLPUWEFUUBdoh7wkx6yS4wTgfvAuxvZ7LbaWK0TgMCAYSd3RO1Vkt4JkvyslI6ypC
+         8d8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794697731; x=1795302531;
+        d=1e100.net; s=20260707; t=1794697733; x=1795302533;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0crtjAMKzzw1W0f3Ujf9h2uT0/bT08baQoD9Um1fE1E=;
-        b=hjA6gp8zrxvJIYOLcjEDxpbpoBaIoMHK4GhYd4Ymw5vCU1bnHpaeDh6C0HTs2Z1Ds/
-         GT3tNWERMcQEp/P64rSnihBkrwoEoPTtzwwgHiTWPYWd+uwGhgbMHAylRzz2IVqcla5X
-         xXxEVAYuJiIghLiK+6g0QWhssj9olHarSaaUuu9mEPbHeJ7D3w3v3esIn7j+0QVRZyjL
-         eGqyml4Vlj9jXJh6swAadJdvrf3lbcDHr1fqPJ2osl5dIpxR2OEiHfrKgGfhjHBHpPR+
-         djD5yFqPXV4O4zEnkBcgxzhbArjYxmkE785mheI/tvM/+lhVe1qxt5YlKauO3FXreGJm
-         4p+Q==
-X-Forwarded-Encrypted: i=1; AL+hErE63qdSoN2DNkk7Ryi8FjZxnmbjz0wGIduv2ckF02UcNdnHp7sgun4PW+6bRc612OlZb+sjv6fal7uIVw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+ejoeFoTVyxp6WNh79SLwbFoMGrp4ngcSSSBsljY2shKhGBsD6
-	M9hizOFwieBlzx4MAlAjcyTxALe5RaqQMrcetkEerb/Nx5vaYOyJ1Onu
-X-Gm-Gg: AYBFou1XJvRn4vRdH/lUOPx4hsBZB4jD9N5TV+66Ku1Npia5vwVa27WgfR+IdPTBfKX
-	Q87bAiFtXeobMKLyXloz5e39db9OBReopGaBgQjQrayAVZa/iJJikfGKWllZAQld4g4yCP3AGhB
-	kKawqb5t7tLW9rmLam7J0z5seSP+gtXZVuDqPmZZEFGQ8C1klXVlTzt8UGuHK2ryaI14HqyXyvE
-	XH8R4iQGpr3z/xfUgS4VXKTnfHw7rne/62t4O0//wvs2hHj56YoWTSSkMgbSxG4PfBduGMI9LeB
-	GhuRLEZwLW67mhdGjFFztlgfc1eUJJc1GNO4fQv8FYYrk8YG6gfpbyPyY+RQU+fT2izR0pnKwgk
-	SaesXYVqzpnY9xjwqdIreR2knAlK3b7D9UwWhhvNObmyAZvS2w1CL6pYLDPj4oekceYipMvisBp
-	k0FaHSQyRp+MvJNVK4vqDpCbqV0qP5CwNPnwdv9HrBOy85gHwsxOeiCcOqd9xJdioPg2c4beksk
-	Buqd98wk4qlHHx/7Derumea6YmEOKoe2qRoEV7NWC/q/2RIsomrQfFvqlluBIn21N0RWFTZjgv0
-	6JtWhd2Y899+VdDj+nPBtu001Ujg
-X-Received: by 2002:a05:6000:490e:b0:492:bd2f:bdeb with SMTP id ffacd0b85a97d-49b022b3bb0mr21095488f8f.17.1794697731451;
-        Sat, 14 Nov 2026 15:08:51 -0800 (PST)
+        bh=hh9ybCpP5y8fCdG/ue0SgeIlejwXAiQet93xa73o/ck=;
+        b=sKdJH5YjxscFn8X5xj5KP037qqm6yk2FgNBiVrg3w9JnLsY+28mmodtyc/JvontXWD
+         u3RfJHjzn/DSAf7TWpU7vEV5HgHYg5oMbHQu5JcV6fCuqxdkBviWiMVOzDzQKG+/ZBpL
+         HmRIfI9cTLYhVxwNXTy7OAGBHtaRHkOnbrgKp2qyKYJMnqGTE1JM96ji+zum4vZShCaG
+         /7au/UO+2flHixD3QkMXkKYXpiS7JyXvp4zxezwXZwMeFtdB33WMfgE2LEuxMHpzNHN7
+         xhaM+9CDOV8Mlkoym089Yxo1AgNuLF9b5DmUyDvI6GWAWAIbSBZ5t+3y9poE7+EwaaJO
+         e36w==
+X-Forwarded-Encrypted: i=1; AL+hErGd9ZksLXL0we8AQhcESHxnCANTqtbajubBGa3heDax4cNnen9CtSmyLNSqUUSssQ6fGbMk8v3ax7/JxA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9jvSQkel0EKoDYXhRNVbxBloN23vKuba4ud6glb5Hh9usSo0zn
+	BoMGj0wyj7uQYCLX+0DlS4CYrilYsXjBYF/Dl64TgFZy93SE5f3r9ArR
+X-Gm-Gg: AYBFou15fUaHDn5kmTHkvJJ5mQIEReZysd96M9Rtr8wqTbhCyiXQ/t0DYKN8wxydqCn
+	tPt91iUxOZ0CXtfUZdiHD/czgk1NT5JYhI8p94/MgJqY28hDZhZHThe6putUjzwkoWzJD5ilRSk
+	LKl+KHM/68G1C0C6YATp3R7kQJXlXLSsRu3G/BnUEe6WqSZcARixrTkXbc6NPafVdbK89pptF1Z
+	jhY9vPKw/5vUymtJV/cp5yUtsaGUEM+vyW8WUEHn6AoI8d0TQvwsJf1UHrgfgZp9HFv2qbwg4Z3
+	wsdfaNm7lWxzsa1g8LmerUGlJFsnGeY5ZoOZL4UzVLdJ5zGS+oz0MNc8hFeMVRzhuuhaoNNIoJZ
+	q6nW8pQ2ambWpa58G3Gtcd8Liuk3UCJwxk9+ww6knhUvEqDjsiSFm+LKeH80KB3D7EiV0GYbTez
+	hIp+9lmh71nFsm0StYP+C/cGnRLdXMUuCp7fsKxN5yAAa+FWUTasrCu7chpSddMUr0pbKdYpq1O
+	sDcLqcH9s1ozaNBAv2pJ0motmWrwbUOx6uoL/xBebPaRWhm1LF6BYIu3mXAkonRsuDCpj9XTfzp
+	8ZMpPMLVjYqAU0bWmWwuGrRGt+g7
+X-Received: by 2002:a05:6000:1a8a:b0:48b:f93:3b87 with SMTP id ffacd0b85a97d-49c726da6e1mr15621389f8f.30.1794697733385;
+        Sat, 14 Nov 2026 15:08:53 -0800 (PST)
 Received: from m2.. ([37.142.149.161])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-49c5d03b10fsm14910018f8f.1.2026.11.14.15.08.49
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-49c5d03b10fsm14910018f8f.1.2026.11.14.15.08.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 15:08:50 -0800 (PST)
+        Sat, 14 Nov 2026 15:08:53 -0800 (PST)
 From: Michael Zaidman <michael.zaidman@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -96,9 +96,9 @@ Cc: Linus Walleij <linusw@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v3 12/16] HID: ft260: i2c: abort in-flight transfers with STOP before reset
-Date: Sun, 15 Nov 2026 01:07:56 +0200
-Message-ID: <20261114230800.1344401-13-michael.zaidman@gmail.com>
+Subject: [PATCH v3 13/16] HID: ft260: i2c: reject an I2C clock outside the supported range
+Date: Sun, 15 Nov 2026 01:07:57 +0200
+Message-ID: <20261114230800.1344401-14-michael.zaidman@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261114230800.1344401-1-michael.zaidman@gmail.com>
 References: <20261114230800.1344401-1-michael.zaidman@gmail.com>
@@ -113,142 +113,91 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A transfer that ends without STOP leaves the FT260 I2C controller
-with BUS_BUSY set. I2C reset (AN_394 section 4.4.15) restarts the
-master but, with the driver still bound, status stays 0x60
-(CTRL_IDLE | BUS_BUSY) even when SCL and SDA are pulled up. The
-next START then fails with 0x72 (arbitration lost + error) and
-further resets do not recover; only a USB replug did.
+The clock sysfs attribute passes any 16-bit value to the chip. The chip
+accepts it, reports it back in the I2C status report that clock_show
+reads, and runs the bus at the 100 kHz default. A read of 2048 bytes
+takes the same 0.298 s after writing 50, 3500 or 65535 as it does after
+writing 100, while 60 and 3400 give 0.387 s and 0.058 s. Userspace has
+no way to see that the value was not applied.
 
-Add ft260_i2c_abort(): a STOP-only write (flag 0x04, zero payload)
-then FT260_SET_I2C_RESET. Use it wherever the host tears down an
-open transaction:
+Refuse a value outside the 60-3400 kHz range named in the datasheet
+section 4.4.16. ft260_uart_change_speed() checks the baud rate against
+FT260_UART_CFG_BAUD_MIN and FT260_UART_CFG_BAUD_MAX, but termios has no
+error return, so it falls back to 9600. A sysfs store can return an
+error, so the clock store refuses the value.
 
-  - read wait timeout
-  - read status check failure after the HID report arrived
-  - write status poll failure after the report was sent
-  - SMBus block read with an invalid count (count phase has no STOP)
-
-Leave ft260_i2c_reset() alone for HID output failure (the request
-may never have reached the controller), sysfs i2c_reset, and probe.
-
-Tested on a UMFT260EV1A with a 24LC512 at 0x51. Five 1 ms read
-timeouts each followed by STOP+reset left bus_status 0x20; raising
-the timeout to 25 ms on the same loaded module then read 16 bytes
-successfully.
-
-This matters more with the 25/75 ms completion timeout from
-"HID: ft260: i2c: reduce driver module loading time", which makes
-read timeouts more likely than mainline's 5000 ms wait.
+FT260_WORD_ATTR_STORE() takes the parse function as a parameter now, so
+a word attribute with no range of its own keeps passing kstrtou16.
 
 Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 ---
- drivers/hid/hid-ft260.c | 43 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 36 insertions(+), 7 deletions(-)
+ drivers/hid/hid-ft260.c | 31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index f51ba3df8890..5564ed62cc48 100644
+index 5564ed62cc48..391128e4bb35 100644
 --- a/drivers/hid/hid-ft260.c
 +++ b/drivers/hid/hid-ft260.c
-@@ -613,6 +613,33 @@ static int ft260_i2c_reset(struct hid_device *hdev)
- 	return ret;
+@@ -69,6 +69,11 @@ MODULE_PARM_DESC(debug, "Toggle FT260 debugging messages");
+ 
+ #define FT260_WR_I2C_DATA_MAX 60
+ #define FT260_WR_UART_DATA_MAX 60
++
++/* I2C bus clock range in kHz, see the FT260 datasheet section 4.4.16 */
++#define FT260_I2C_CLOCK_MIN 60
++#define FT260_I2C_CLOCK_MAX 3400
++
+ #define FT260_GPIOCHIP "ft260_gpio"
+ #define FT260_GPIO_0_5_COUNT 6
+ #define FT260_GPIO_A_H_COUNT 8
+@@ -1592,6 +1597,25 @@ static void ft260_attr_dummy_func(struct hid_device *hdev, u8 req, u16 value)
+ {
  }
  
-+static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
-+				   size_t len);
-+
 +/*
-+ * STOP with no START and no payload. Used by ft260_i2c_abort() when
-+ * tearing down an in-flight transfer: I2C reset alone can leave
-+ * BUS_BUSY set even when SCL/SDA are idle, and the next START then
-+ * fails with arbitration lost.
++ * The chip takes any 16-bit value and reports it back in the I2C status
++ * report, but runs the bus at the 100 kHz default when the value is
++ * outside the documented range. The report gives no way to tell the two
++ * cases apart, so refuse the value here.
 + */
-+static int ft260_i2c_stop(struct hid_device *hdev, u8 addr)
++static int ft260_i2c_clock_parse(const char *buf, unsigned int base, u16 *clock)
 +{
-+	u8 buf[4] = {
-+		FT260_I2C_REPORT_MIN,
-+		addr,
-+		FT260_FLAG_STOP,
-+		0,
-+	};
++	int ret = kstrtou16(buf, base, clock);
 +
-+	return ft260_hid_output_report(hdev, buf, sizeof(buf));
++	if (ret)
++		return ret;
++
++	if (*clock < FT260_I2C_CLOCK_MIN || *clock > FT260_I2C_CLOCK_MAX)
++		return -EINVAL;
++
++	return 0;
 +}
 +
-+static int ft260_i2c_abort(struct hid_device *hdev, u8 addr)
-+{
-+	ft260_i2c_stop(hdev, addr);
-+	return ft260_i2c_reset(hdev);
-+}
-+
- static int ft260_xfer_status(struct ft260_device *dev, u8 bus_busy)
- {
- 	struct hid_device *hdev = dev->hdev;
-@@ -682,7 +709,8 @@ static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
- }
+ #define FT260_ATTR_SHOW(name, reptype, id, type, func)			       \
+ 	static ssize_t name##_show(struct device *kdev,			       \
+ 				   struct device_attribute *attr, char *buf)   \
+@@ -1649,9 +1673,9 @@ static void ft260_attr_dummy_func(struct hid_device *hdev, u8 req, u16 value)
+ 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
+ 				 u8, kstrtou8, func, FT260_STORE_NATIVE)
  
- static int ft260_hid_output_report_check_status(struct ft260_device *dev,
--						u8 *data, int len, u8 bus_busy)
-+						u8 *data, int len, u8 addr,
-+						u8 bus_busy)
- {
- 	int ret, usec, try = 100;
- 	struct hid_device *hdev = dev->hdev;
-@@ -711,7 +739,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
- 	if (ret == 0)
- 		return 0;
+-#define FT260_WORD_ATTR_STORE(name, reptype, req, func)			       \
++#define FT260_WORD_ATTR_STORE(name, reptype, req, strtou, func)		       \
+ 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
+-				 u16, kstrtou16, func, cpu_to_le16)
++				 u16, strtou, func, cpu_to_le16)
  
--	ft260_i2c_reset(hdev);
-+	ft260_i2c_abort(hdev, addr);
- 	return -EIO;
- }
+ FT260_SSTAT_ATTR_SHOW(chip_mode);
+ static DEVICE_ATTR_RO(chip_mode);
+@@ -1704,7 +1728,8 @@ static DEVICE_ATTR_RW(clock_ctl);
  
-@@ -750,7 +778,8 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 			  rep->flag, data[0]);
+ FT260_I2CST_ATTR_SHOW(clock);
+ FT260_WORD_ATTR_STORE(clock, ft260_set_i2c_speed_report,
+-		      FT260_SET_I2C_CLOCK_SPEED, ft260_attr_dummy_func);
++		      FT260_SET_I2C_CLOCK_SPEED, ft260_i2c_clock_parse,
++		      ft260_attr_dummy_func);
+ static DEVICE_ATTR_RW(clock);
  
- 		ret = ft260_hid_output_report_check_status(dev, (u8 *)rep,
--							   wr_len + 4, bus_busy);
-+							   wr_len + 4, addr,
-+							   bus_busy);
- 		if (ret < 0) {
- 			ft260_dbg("failed with %d\n", ret);
- 			return ret;
-@@ -791,7 +820,7 @@ static int ft260_smbus_write(struct ft260_device *dev, u8 addr, u8 cmd,
- 	ft260_dbg("rep %#02x addr %#02x cmd %#02x datlen %d replen %d\n",
- 		  rep->report, addr, cmd, rep->length, len);
- 
--	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len,
-+	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len, addr,
- 						   (flag & FT260_FLAG_STOP) ?
- 						   FT260_I2C_STATUS_BUS_BUSY : 0);
- 	if (ret < 0)
-@@ -859,7 +888,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 		timeout_jiffies = msecs_to_jiffies(timeout);
- 		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
- 			ret = -ETIMEDOUT;
--			ft260_i2c_reset(hdev);
-+			ft260_i2c_abort(hdev, addr);
- 			goto ft260_i2c_read_exit;
- 		}
- 
-@@ -873,7 +902,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 		ret = ft260_xfer_status(dev, bus_busy);
- 		if (ret < 0) {
- 			ret = -EIO;
--			ft260_i2c_reset(hdev);
-+			ft260_i2c_abort(hdev, addr);
- 			goto ft260_i2c_read_exit;
- 		}
- 
-@@ -1057,7 +1086,7 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 				hid_warn(hdev,
- 					 "smbus block read: invalid count %u from slave 0x%02x\n",
- 					 count, addr);
--				ft260_i2c_reset(hdev);
-+				ft260_i2c_abort(hdev, addr);
- 				ret = -EPROTO;
- 				goto smbus_exit;
- 			}
+ static ssize_t i2c_reset_store(struct device *kdev,
 -- 
 2.43.0
 

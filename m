@@ -1,57 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794672481;
-	b=j0C934U7Wfuk8KwpD3rIxSzF6Yd0ofaIW1VTG5jdEXad2dV3+8BzrV3rhnDMtrstWcJi
-	 Ml4pP2WEgVgn6S4fVBN2cBsyW05eWDxx0TM0rZySDV/7ravCqvXUOtYyYoTqqOrJzvUEK
-	 k0UdJxK70+mLad0nWTskWWqJXhE2vST+/24+ZRyl4ad9Cre/LMZAMQ4VhgAZnPp44cDxv
-	 wEQQPws0wh9MHkC8sy0r+6rGkXECfosdnClfFViPd9xgH7uzeWp0rsDv53BnLynNWaO6N
-	 h/+6T0eq1wY4/nNCMvYCR/F1kfwkdKZjcy40dctc6c3DOuj0fF6+Bl5tHqHjuOydlCw==
+	t=1794676083;
+	b=H85nNVowp+4QGaEnJXE7ed0d4gfBZmX3TNZfUeJisZHhHed2+W+qfZi87w+1ssERy+jl
+	 9vEUKPvr91HAE+13tx2mLTrFzr3Kr7zTlM/cgEVX2Z2BNM5dmHLcy5ybyxFLIVd4uVxi3
+	 9b/I0iOoYDiPjR+Wci2wMVMJvU6aIj2cVUmOXL+pjn3dhOrMM6RrMVnxZgpr/5g/lxuQF
+	 TameAOt+g70dw+2o0RQlSzfv79QjbdY/o8yJMbHWPlAp2uWdoutI/dt+xP7KHNh0WAsVc
+	 nFgQHdVRuv/H7GfaNIkJWQKTiP1NvNrxRzjZk2Tr1kzB9G5UsxBwZXRkny4S145y31g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794672481;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=WrgmvOPnPHr0k4nptcWpXLB4wm52IJ7Il0Isu8rY6JE=;
-	b=L5r3Hv8QvmFioz2pUqBae8rn3Mo3jKY32WrMoWvwrf4j5azU2KfVxflQ4DVRjujALroB
-	 ltoJ7cEbB37raWIigPJzVUqEgKvzqIdXUUjDUnD0IXsFNpp8v3woWtgzXpoy26dKH51sw
-	 JPs8TDgVge3vW5gdt6Zl539KFhH9DZK/fnT+pQC9J25MfQFV1wVj4cIzG5w0IisZUzVbB
-	 07+ibzEviRMzHgCchGnIJa4nBmwM55lOYMNE3/vjgClDJSzFfIlnmsIpOcLGEpcO6I3Dm
-	 wWBe/tQW5YU1uuMZSa9bXPxqAyT/G1AUjK0ylnhjfHjqRwzFzjxs4MhBCFKOCnhQvdw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794676083;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Debian-User;
+	bh=M8UQAAYwxMPO/N35yFrmI3Jk91luWX5cEKDle2vhHtI=;
+	b=mMog2EtixDBlfKLXJt9IC+BiwBpBey7do1MyiAsiMoD830ZBsoCjjY/ns5sKfgmsHNI9
+	 Hy5v9x5r86LBI2d42HTepCE8CPZzWSX04Hn2CTH0qkA5CUqySitVGDaEvL4iq+nI2KxxF
+	 KecWrlsJMavXs9Y9MFY013QFr5/38rHUdg7LRf32DFurXyBKN86OoeLkcHFzkUKbMUAzQ
+	 9/HtZsUT6AHl1Cs8/ADqtLtARGSiL0LONdIfwluDK2BuxgSMEGRdBJVUKdH9Sta8EWdKr
+	 e+iTZrhoBYeTAbPwPeq1NakWaIflMBg4FQjY6bHL2rtb77hUet+xBgdYdWGNsWvhgZQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQtv4tQK;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=debian.org;
+	spf=pass smtp.mailfrom=debian.org;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=AAV+duFV;
+	arc=none smtp.remote-ip=82.195.75.108
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3E80606A323
-	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 16:08:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD33D606A330;
+	Sat, 14 Nov 2026 17:08:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD33D606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQtv4tQK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E32F1F000C4;
-	Sat, 14 Nov 2026 16:08:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794672481;
-	bh=WrgmvOPnPHr0k4nptcWpXLB4wm52IJ7Il0Isu8rY6JE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UQtv4tQKmRzH7jYe9n5SGnrSA3DayxM1Wk0ksgc2D/nh7VNHXFkIEWTtLXechN4E5
-	 pbveB+lgVbIj7YWv+sG3yeyxqESw6w/lbznTNGobWexeND5+oizT8RQQ7wfn0V/rp7
-	 SxJFC6obVzhjm6biODDa2iIs/av4tzQszzm89aB4qIBdRQpk5dn6c+uQxTAHmbO5L8
-	 3dHKzUmCINXTKvNl3OMd5sUM2zJrfzgnyj9OuXZj8sPYq7VPH1QV+gl0D2CQzSbo8c
-	 rAKPHXQd4FN7PMRkuUKXyCIQjbPa06Q7uOG85VZCy7kv6xK3cTRY7DrmW2iPzbD12p
-	 +HyOpLGMlHbFA==
-Message-ID: <sashiko-outbox-214736@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/5] HID: intel-thc-hid: intel-ipts: expose the port as
- a HID device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Emfox Zhou" <emfox@debian.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261114154611.1683519-4-emfox@debian.org>
-References: <20261114154611.1683519-1-emfox@debian.org>
- <20261114154611.1683519-4-emfox@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 16:08:00 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=AAV+duFV
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
+	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=M8UQAAYwxMPO/N35yFrmI3Jk91luWX5cEKDle2vhHtI=; b=AAV+duFVyzC7eApCpNvheUmw6y
+	FK7IoNUgu+5zTKhc3K40MyQFQ2Ews9Y6D5vU7DOi2F6n8z1ZPNdF4ymUcDXRYk2r8YczFuJdoZLxg
+	SQPgmDy68qeXbzjTJBhNek1jNhudyBLt/m2ziOBO4kif1v7pB63efoAyFfwwH4NdRLCRWiUsV4LPi
+	IClPk2kAQ9IO3EdBswWlok9vnRZvTYldOooz+wY4i975i5xaKnO4tqeerQ4+GJQnP6jh5QmXU1d29
+	XnrIO4Y+0o86dUF7AMtHo6BMgDnzvYoA4bUESKhFjIfQ5vFhN+O0W/UvX1d5CuGkWBiz438GvwfkU
+	07+mWuxg==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <emfox@debian.org>)
+	id 1xSHEK-00FgWX-0g;
+	Sat, 14 Nov 2026 17:07:56 +0000
+From: Emfox Zhou <emfox@debian.org>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/5] HID: intel-thc-hid: intel-ipts: support THC IPTS ports
+Date: Sun, 15 Nov 2026 01:07:35 +0800
+Message-ID: <20261114170740.2068179-1-emfox@debian.org>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,359 +68,128 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Debian-User: emfox
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issues to consider:
-- [High] HID: intel-thc-hid: zero return on SET_REPORT in
-  thc_ipts_hid_raw_request()
-- [High] HID: intel-thc-hid: DMA stopped before HID removal in
-  thc_ipts_port_stop()
-- [High] HID: intel-thc-hid: uninitialized frame len in
-  thc_ipts_read_frames()
-- [Medium] HID: intel-thc-hid: unvalidated feature report ID in
-  thc_ipts_get_feature()
-- [Medium] HID: intel-thc-hid: racy and zero-length descriptor in
-  thc_ipts_descriptor()
---
+The THC ports on Tiger Lake, Lakefield, Alder Lake and Raptor Lake run in
+IPTS mode: plain SPI with a private framing instead of HIDSPI, which is
+all intel-thc-hid handles today. This adds a backend for them next to
+intel-quickspi and intel-quicki2c, on top of the same core, and is based
+on v7.4-rc2, the first tag with the hid_safe_input_report() it uses.
 
-commit 378fb3be497c5d8bed8daca37c866a233cfb6aad
-Author: Emfox Zhou <emfox@debian.org>
+Register, DMA and interrupt work goes through the exported intel-thc API,
+except in four places where the core has no call for it: the reset,
+port-supported and quiesce-state bits of THC_M_PRT_CONTROL are accessed
+directly. Nothing outside the new directory changes except Kconfig and
+Makefile.
 
-HID: intel-thc-hid: intel-ipts: expose the port as a HID device
+The hardware facts - port IDs, configuration block layout, frame codes
+and header sizes - come from the ithc driver linux-surface ships, at
+https://github.com/quo/ithc-linux 6d53c9c (dual licensed GPL-2.0 /
+BSD-2-Clause); no code is taken from it. The layout, the frame format and
+the ordering between quiesce, interrupt configuration and the DMA engines
+are the parts most likely to need scrutiny; each is argued in the commit
+message that relies on it. All of it was confirmed on a Surface Pro 8 with
+a 045e:0c37 controller.
 
-This commit registers a HID device for the IPTS port, adds TX frame helpers,
-and implements report descriptor parsing, feature report handshakes, and
-input report forwarding.
+The first four patches each leave a state that builds and loads: port
+bring-up, DMA and interrupts, HID registration, system sleep. The fifth
+documents the controller behaviour the driver relies on, none of which is
+written down anywhere else.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
-tel-thc-hid/intel-ipts/ipts.c
-> index 8529b91e063f7..55206205f2115 100644
-> --- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
-> +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
-[ ... ]
-> @@ -135,8 +137,62 @@ static int thc_ipts_touch_set(struct thc_ipts *idev,=
- bool enable)
->  				 &touch);
->  }
-> =20
-> +/*
-> + * One frame to the controller: code, length, then the payload padded to=
- four
-> + * bytes. The frame is built in @idev->tx_frame, so callers serialise wi=
-th
-> + * @idev->req_lock.
-> + */
-> +static int thc_ipts_send(struct thc_ipts *idev, u32 code, const void *da=
-ta,
-> +			 size_t len)
-> +{
-> +	size_t padded =3D round_up(len, 4);
-> +	u8 *frame =3D idev->tx_frame;
-> +
-> +	if (!idev->dma_ready)
-> +		return -EAGAIN;
-> +	if (THC_IPTS_TX_HDR_SIZE + padded > idev->max_tx)
-> +		return -EMSGSIZE;
-> +
-> +	put_unaligned_le32(code, frame);
-> +	put_unaligned_le32((u32)len, frame + 4);
-> +	memset(frame + THC_IPTS_TX_HDR_SIZE, 0, padded);
-> +	if (len && data)
-> +		memcpy(frame + THC_IPTS_TX_HDR_SIZE, data, len);
-> +
-> +	return thc_dma_write(idev->thc, frame, THC_IPTS_TX_HDR_SIZE + padded);
-> +}
-> +
-> +static void thc_ipts_descriptor(struct thc_ipts *idev, const u8 *data,
-> +				size_t len)
-> +{
-> +	if (len < THC_IPTS_DESC_PREAMBLE)
-> +		return;
-> +
-> +	len =3D min(len - THC_IPTS_DESC_PREAMBLE, idev->max_rx);
-> +	memcpy(idev->desc, data + THC_IPTS_DESC_PREAMBLE, len);
-> +	idev->desc_len =3D len;
-> +	WRITE_ONCE(idev->have_desc, true);
-> +	wake_up(&idev->wq);
-> +}
+On that machine the touchscreen and the pen work through hidraw and iptsd
+after patch 3, and three suspend/resume cycles (pm_test=devices) bring
+them back after patch 4, with the daemon restarting on its own.
 
-[Severity: Medium]
-Can a delayed retry response in thc_ipts_descriptor() overwrite idev->desc
-and idev->desc_len while thc_ipts_hid_parse() is passing them to
-hid_parse_report()?
+The interrupt is the legacy pin: these ports put requester ID 01:05.0 in
+their MSI messages, which is neither their own function nor expressible
+as a DMA alias, so with interrupt remapping on the MSI is rejected and the
+port stays silent. The pin is shared on the PCH, hence IRQF_SHARED; MSI
+stays as a fallback where no pin is routed.
 
-Unlike thc_ipts_feature(), thc_ipts_descriptor() does not check a pending
-flag or whether idev->have_desc is already set. If the first attempt in
-thc_ipts_hid_parse() times out and a second THC_IPTS_TX_GET_DESC request is
-sent, the delayed reply to the first attempt wakes thc_ipts_hid_parse(),
-while the second reply on the IRQ thread races with hid_parse_report():
+Ports are matched by PCI ID. These four generations are not in the HIDSPI
+ID table, so nothing else claims them, and a port that firmware drives as
+HIDSPI has no driver today: this driver gives up with -EIO when the $TIC
+tag never appears.
 
-CPU0                                     CPU1 (thc_ipts_thread)
-thc_ipts_hid_parse()
-  try 0: thc_ipts_send(GET_DESC)
-  wait_event_timeout() -> times out
-  try 1: thc_ipts_send(GET_DESC)
-                                         thc_ipts_descriptor() (reply 0)
-                                           WRITE_ONCE(idev->have_desc, true)
-                                           wake_up(&idev->wq)
-  hid_parse_report(hdev, idev->desc,
-                   idev->desc_len)
-                                         thc_ipts_descriptor() (reply 1)
-                                           memcpy(idev->desc, ...)
-                                           idev->desc_len =3D len;
-                                             <-- data race
+Report handling stops at HID core on purpose: the controller is the one
+declaring itself a HID device, so the descriptor comes from it, Windows
+exposes the same port the same way, and turning the heatmap into contacts
+is user space work that already exists.
 
-Also, checking len < THC_IPTS_DESC_PREAMBLE allows an 8-byte preamble-only
-frame to set idev->desc_len =3D 0; hid_parse_report() then sets
-hdev->dev_rdesc =3D ZERO_SIZE_PTR via kmemdup() and registers a broken HID
-device with a 0-byte report descriptor instead of retrying.
+Some concerns:
 
-> +
-> +/* The report is collected in a private buffer; the caller copies it out=
-. */
-> +static void thc_ipts_feature(struct thc_ipts *idev, const u8 *data,
-> +			     size_t len)
-> +{
-> +	if (!READ_ONCE(idev->feature_pending))
-> +		return;
-> +
-> +	len =3D min(len, idev->max_rx);
-> +	memcpy(idev->feature, data, len);
-> +	idev->feature_len =3D len;
-> +	WRITE_ONCE(idev->feature_pending, false);
-> +	WRITE_ONCE(idev->feature_done, true);
-> +	wake_up(&idev->wq);
-> +}
-> +
->  static void thc_ipts_handle_frame(struct thc_ipts *idev, size_t len)
->  {
-> +	const u8 *payload =3D idev->rx_frame + THC_IPTS_RX_HDR_SIZE;
->  	size_t capacity =3D idev->max_rx - THC_IPTS_RX_HDR_SIZE;
->  	u32 code, size;
-> =20
-> @@ -145,11 +201,28 @@ static void thc_ipts_handle_frame(struct thc_ipts *=
-idev, size_t len)
-> =20
->  	code =3D get_unaligned_le32(idev->rx_frame);
->  	/* The header may claim more than what actually arrived. */
-> -	size =3D min_t(u32, get_unaligned_le32(idev->rx_frame + 4),
-> -		     capacity);
-> +	size =3D min_t(u32, get_unaligned_le32(idev->rx_frame + 4), capacity);
->  	size =3D min_t(u32, size, len - THC_IPTS_RX_HDR_SIZE);
-> =20
-> -	dev_dbg(idev->dev, "frame code %u, %u bytes\n", code, size);
-> +	switch (code) {
-> +	case THC_IPTS_RX_INPUT:
-> +		if (idev->hid)
-> +			hid_safe_input_report(idev->hid, HID_INPUT_REPORT, (u8 *)payload,
-> +					      capacity, size, 1);
-> +		break;
-> +	case THC_IPTS_RX_DESC:
-> +		thc_ipts_descriptor(idev, payload, size);
-> +		break;
-> +	case THC_IPTS_RX_FEATURE:
-> +		thc_ipts_feature(idev, payload, size);
-> +		break;
+  - Runtime PM is not implemented, and only the Tiger Lake ports were
+    tested; Lakefield, Alder Lake and Raptor Lake share the code path but
+    have not been run. LTR configuration comes with runtime PM.
 
-[Severity: High]
-Can thc_ipts_handle_frame() be called with an uninitialized len and
-redispatch a stale idev->rx_frame buffer when the RxDMA2 ring is already
-empty?
+  - The SPI clock is one of ten gears the core can program, 7.8 to
+    50 MHz, and the core rounds the request down. A controller that asks
+    for less than the slowest gear is raised to 7.8 MHz, warned about
+    once and carried on with.
 
-In thc_ipts_read_frames(), len is not initialized before calling
-thc_rxdma_read(), and thc_ipts_handle_frame(idev, len) runs before checking
-finished:
+  - System sleep takes the HID device down and brings it back, so the
+    daemon restarts and asks for the report stream again: the controller
+    does not keep that state, and replaying one set feature would not
+    cover the several the daemon sends. It also means the touchscreen
+    cannot wake the machine.
 
-drivers/hid/intel-thc-hid/intel-ipts/ipts.c:thc_ipts_read_frames() {
-	for (;;) {
-		int finished =3D 0;
-		size_t len;
 
-		if (thc_rxdma_read(idev->thc, THC_RXDMA2, idev->rx_frame,
-				   &len, &finished)) {
-...
-		}
+Link to v1:
+https://lore.kernel.org/r/20261114154611.1683519-1-emfox@debian.org
 
-		thc_ipts_handle_frame(idev, len);
-		if (finished)
-			break;
-	}
-}
+Changes in v2, from the automated review of v1:
 
-In thc_dma_read(), if is_dma_buf_empty() is true on entry, *read_len is
-left untouched while *read_finished is set to 1 and the function returns 0:
+  - The recovery work item is initialised where it is introduced.
+    Patch 2 used it and only patch 3 initialised it, which breaks the
+    bisect.
 
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_dma_read() {
-	if (!is_dma_buf_empty(dev, read_config, &read_ptr, &write_ptr)) {
-		...
-		*read_len =3D status;
-		...
-	}
+  - A frame read that finds the ring empty no longer passes an
+    uninitialised length to the frame decoder.
 
-	if (read_finished)
-		*read_finished =3D is_dma_buf_empty(dev, read_config, &read_ptr, &write_p=
-tr) ? 1 : 0;
+  - The port stays masked while the recovery item resets the engine,
+    and the handler keeps draining the status registers after an error,
+    so a queued transmit completion is acknowledged instead of timing
+    out under the bus lock.
 
-	return 0;
-}
+  - Teardown stops and quiesces the controller before the DMA memory is
+    released, and takes req_lock around the release: a send already
+    inside thc_dma_write finishes, later ones fail on ->stopping.
 
-If a second frame arrives after pass 0 of thc_ipts_thread() clears the
-RxDMA2 EOF interrupt status bit in thc_interrupt_handler() and before pass
-0's thc_ipts_read_frames() loop finishes draining the ring, pass 0 consumes
-both frames, but the newly latched status bit causes pass 1 to call
-thc_ipts_read_frames() on an empty ring. thc_rxdma_read() then returns 0
-without setting len, and thc_ipts_handle_frame() uses the uninitialized
-stack value to reprocess the previous frame in idev->rx_frame.
+  - SET_REPORT returns the byte count, as hidraw expects; zero was
+    returned before.
 
-[ ... ]
+  - A late or empty report descriptor no longer overwrites the buffer
+    being parsed, and an empty one is retried instead of registered.
 
-> @@ -291,6 +378,175 @@ irqreturn_t thc_ipts_thread(int irq, void *data)
-[ ... ]
-> +/*
-> + * A feature report is not pushed by the controller: it is asked for and=
- comes
-> + * back as a frame of its own, so the request waits for the handler.
-> + */
-> +static int thc_ipts_get_feature(struct thc_ipts *idev, unsigned char rep=
-ortnum,
-> +				u8 *buf, size_t len)
-> +{
-> +	int ret =3D -ETIMEDOUT;
-> +	int try;
-> +
-> +	guard(mutex)(&idev->req_lock);
-> +
-> +	WRITE_ONCE(idev->feature_done, false);
-> +	WRITE_ONCE(idev->feature_pending, true);
-> +
-> +	for (try =3D 0; try < THC_IPTS_REQ_TRIES; try++) {
-> +		ret =3D thc_ipts_send(idev, THC_IPTS_TX_GET_FEATURE, &reportnum, 1);
-> +		if (ret)
-> +			break;
-> +
-> +		if (wait_event_timeout(idev->wq, READ_ONCE(idev->feature_done),
-> +				       msecs_to_jiffies(THC_IPTS_REQ_TIMEOUT_MS))) {
-> +			ret =3D 0;
-> +			break;
-> +		}
-> +
-> +		ret =3D -ETIMEDOUT;
-> +	}
-> +
-> +	WRITE_ONCE(idev->feature_pending, false);
-> +
-> +	if (ret) {
-> +		dev_err(idev->dev, "controller did not return feature %u in %d tries\n=
-",
-> +			reportnum, try);
-> +		return ret;
-> +	}
-> +
-> +	/* The payload is the report as user space writes it, report ID first. =
-*/
-> +	len =3D min(len, idev->feature_len);
-> +	memcpy(buf, idev->feature, len);
-> +
-> +	return len;
-> +}
+  - Feature reports: empty answers are rejected, and the report ID in
+    an answer is checked against the request. Verified on hardware,
+    where GET_FEATURE for reports 5, 6, 9 and 17 echoes its own ID.
 
-[Severity: Medium]
-Does thc_ipts_feature() need to verify that the incoming payload is
-non-empty and starts with the requested reportnum?
+  - Unchanged: the shared interrupt is still claimed unconditionally.
+    The cause can only be read from the threaded handler, and returning
+    IRQ_NONE while this port is masked would let the spurious detector
+    disable a line that other functions share.
 
-If try 0 times out after 300 ms and try 1 sends a second request, a delayed
-reply to try 0 completes try 1 while the second request remains in flight.
-On a subsequent thc_ipts_get_feature() call for a different report ID, the
-late reply from the earlier request is accepted by thc_ipts_feature() and
-returned to the caller as if it matched the new reportnum. Also, if a
-THC_IPTS_RX_FEATURE frame arrives with len =3D=3D 0, thc_ipts_get_feature()
-returns 0 without writing anything to buf.
 
-> +
-> +static int thc_ipts_hid_raw_request(struct hid_device *hdev,
-> +				    unsigned char reportnum, __u8 *buf,
-> +				    size_t len, unsigned char rtype, int reqtype)
-> +{
-> +	struct thc_ipts *idev =3D hdev->driver_data;
-> +
-> +	if (!buf || !len)
-> +		return -EINVAL;
-> +
-> +	if (reqtype =3D=3D HID_REQ_GET_REPORT && rtype =3D=3D HID_FEATURE_REPOR=
-T)
-> +		return thc_ipts_get_feature(idev, reportnum, buf, len);
-> +
-> +	if (reqtype !=3D HID_REQ_SET_REPORT ||
-> +	    (rtype !=3D HID_OUTPUT_REPORT && rtype !=3D HID_FEATURE_REPORT))
-> +		return -EOPNOTSUPP;
-> +
-> +	guard(mutex)(&idev->req_lock);
-> +
-> +	if (rtype =3D=3D HID_OUTPUT_REPORT)
-> +		return thc_ipts_send(idev, THC_IPTS_TX_OUTPUT, buf, len);
-> +
-> +	return thc_ipts_send(idev, THC_IPTS_TX_SET_FEATURE, buf, len);
-> +}
+Emfox Zhou (5):
+  HID: intel-thc-hid: intel-ipts: bring up the port
+  HID: intel-thc-hid: intel-ipts: receive reports
+  HID: intel-thc-hid: intel-ipts: register the HID device
+  HID: intel-thc-hid: intel-ipts: handle system sleep
+  HID: intel-thc-hid: intel-ipts: document the IPTS mode
 
-[Severity: High]
-Should thc_ipts_hid_raw_request() return len on a successful
-HID_REQ_SET_REPORT instead of the 0 returned by thc_ipts_send()?
+ Documentation/hid/intel-thc-hid.rst           |  95 ++-
+ drivers/hid/intel-thc-hid/Kconfig             |  14 +
+ drivers/hid/intel-thc-hid/Makefile            |   4 +
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 740 ++++++++++++++++++
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.h   | 191 +++++
+ .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 198 +++++
+ 6 files changed, 1241 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
 
-thc_ipts_send() returns the result of thc_dma_write(), which is 0 on
-success. However, struct hid_ll_driver.raw_request must return the number
-of transferred bytes on success. In hidraw_send_report(), the return value
-of __hid_hw_raw_request() is returned directly to user space for write()
-and for HIDIOCSFEATURE and HIDIOCSOUTPUT ioctls, so returning 0 causes user
-space (such as the daemon sending the report 5 set-feature request) to see
-0 bytes transferred.
 
-[ ... ]
-
-> @@ -413,6 +669,8 @@ void thc_ipts_port_stop(struct thc_ipts *idev)
->  	cancel_work_sync(&idev->recover_work);
->  	thc_ipts_dma_stop(idev);
-> =20
-> +	thc_ipts_hid_remove(idev);
-> +
->  	if (idev->running)
->  		thc_ipts_touch_set(idev, false);
-
-[Severity: High]
-Can stopping DMA before removing the HID device in thc_ipts_port_stop()
-cause a NULL pointer dereference or use-after-free in thc_dma_write()?
-
-Until thc_ipts_hid_remove() destroys idev->hid, user space (via hidraw) or
-a HID driver can still invoke thc_ipts_hid_raw_request() -> thc_ipts_send().
-Because thc_ipts_dma_stop() does not take idev->req_lock or
-idev->thc->thc_bus_lock, it can free the DMA scatterlists and PRD tables
-while thc_ipts_send() is entering thc_dma_write():
-
-CPU0                                     CPU1
-thc_ipts_hid_raw_request()
-  guard(mutex)(&idev->req_lock)
-  thc_ipts_send()
-    if (!idev->dma_ready) (true)
-                                         thc_ipts_port_stop()
-                                           thc_interrupt_enable(..., false)
-                                           ...
-                                           thc_ipts_dma_stop()
-                                             idev->dma_ready =3D false
-                                             thc_dma_unconfigure(idev->thc)
-                                             thc_dma_release(idev->thc)
-                                               sgl_free(config->sgls[0])
-                                               config->sgls[0] =3D NULL
-                                               config->prd_tbls =3D NULL
-    thc_dma_write()
-      write_dma_buffer()
-        sg_copy_from_buffer(write_config->sgls[0], ...)
-          <-- NULL pointer dereference / use-after-free
-
-In addition, masking interrupts before thc_ipts_hid_remove() drains active
-callers causes any in-flight thc_dma_write(), thc_ipts_get_feature(), or
-thc_ipts_hid_parse() to stall until its timeout expires. Calling
-thc_ipts_hid_remove() before disabling interrupts and stopping DMA avoids
-both issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114154611.1683=
-519-1-emfox@debian.org?part=3D3
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb

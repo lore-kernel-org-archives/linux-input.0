@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794676088;
-	b=VhMZ5e8zkKP+4Q2X9u4a0gCbtBCMXLwRyPJIWdZzjaDT2rhH8b7nXVYA8XQ6bOlId5mw
-	 xXguaJef8tNCr1UJHY9VAA5POPpqIrH0ZnWcFQGGguaoPwppFWo41V4zw9KylIe9N8JO7
-	 Py1/z7QV11b1LBcd8+Dy+cnfQxhErGio5l3zpw4ThGbDXmE8ANfd4hMGcUyXKMimxrzK1
-	 QyW0hSwFLe4Bq0bDIbU2PpE7yHW+zsPJeeCvw3ISr5yQWDxQZhNUkrBmdxiWo6xNHhc8E
-	 Gy/VGCvipBebjy7UWl/32I1Scgu32jDtPT5y6sMTSzTZMH2IjJ0SeIAZoZJKaWJWsJw==
+	t=1794676094;
+	b=k23WVCfcdZQjCTzfCjNUga+ynQZyIefwhPqnXNwkfdagcLGdEB8f9WNKxd/pF7lVWg72
+	 1YyP1oKU2Dwc0DDCsVJ1WA+pp2lYlIRDLwDx0as/kpj/+Hr182LQfeSxgmGXdmsdixBxr
+	 v2pcGdIcwP3k6lxshBC4xtigHlx7fT1Jlg9/JO9S7HL28n5STbF5UZBYfL9yIod7syNZn
+	 89m7kKwdoJwB2uAsJCsRzKur6IpsOXoz9UBzfEvuZ5gcB5q0VIUyV7zYfLe4rfxp7K4nF
+	 /z8NucnOX915wTZATI5phtvI/ZgWNIkIr+phOAMsONPZ6IxJ5mW0o5dvd8RiN9aTxwA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794676088;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794676094;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Debian-User;
-	bh=Z+Vr4MfKuJJDb15SbEO6CQpm9GZ2UpHzarS6RBtqaf8=;
-	b=Uq1N2STi533yQE7fsPDnPUNk/xjHUOnVzTCaIWMh2lIhZTx70sEO2gPCCbvntTd5NULN
-	 thX/Uj6U86x3I1TeFrSoZOnULvp8kxi++EGU8dJw/czlPnYlQ/SlMhstUZPwDIdPk/eXF
-	 qAca/3xAqkB2cQYXMiwf86YH+TFtnxpVYKlxEBaJZ5e3KvoM99G0GDzk9hgzWvkz808hu
-	 UbfoiXXic8zprPSdlboUaQSb4YeSd4ra2i9IOXAMH+sUzfmUjuqrjNM+VxhVozc/Y6zEb
-	 AAbsnQKHS4LHRf21F5UWUEaxw6t6PX1cE5UPSMR/I0NhCJ562krpoHJa6r6SaHxQHSQ==
+	bh=HeDypeRG9BjT1sL7iHC1QETRBtB+9IcGpI8U/AxMADU=;
+	b=Azi41D3DTNFIiajsPEzpU821o4gg/k+yREvHS7ri+2GwDdCXgaukS2dXk3dN1iOU39XQ
+	 zgKZ7mWfOXlbHXeM+rYxZ0ZXMnG58iSAEwBTDG2kWC9mgct7Gs8T7W/1xjgeXxCjBcKYR
+	 WFst8r+4KGSfhowBaucdFnvgf6JuDpi+kCBoS54hxfmt74ARrXaTPqzjk8ek5vLpydnAl
+	 RV+ecDpkiawi3oES6yQxgjMk7tRQlKfWPOX00tMlrAoV2L2vTId4zNaxE7lzJDerEIbeH
+	 KvE8F2lt5hxR6mVq1dPcfxf/1gL/OmdiRAvzxyJ9Hez0XsXaukAH04QCtPuprVLRUsw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=aN1MBhCy;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=mUBFpPD6;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD4F606A327;
-	Sat, 14 Nov 2026 17:08:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1FD4F606A327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8871606A334;
+	Sat, 14 Nov 2026 17:08:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D8871606A334
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=aN1MBhCy
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=mUBFpPD6
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
 	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
 	Content-Type:Content-ID:Content-Description;
-	bh=Z+Vr4MfKuJJDb15SbEO6CQpm9GZ2UpHzarS6RBtqaf8=; b=aN1MBhCyOmXCvL6NsBWLLwEKOO
-	4ismOy/lOB0w4bcz6EdLBtjiFI8Zz0CwJ5Niib+BKx9P0kaxDZZ5bmCthhdcqYwv9svamyhTMGKlH
-	O6hpnBj0fzl70u5+/TCrIG7q4/cshlaWGRszXL9JNWrw+QxchjMGB8T5CQwkUm+Xde9JJ5CLgKUGO
-	yAF3SWIa2YJpRycyeRpOpc1qH84/823X+veMI1Uboz0OOHzuzn5TT4PmLjrWQGjwLX6z9kbk0cLI8
-	ytMfDRCP4tE48hQPUHF8VIvhvkT2PVF/c6Pkoc4vcxFA9jIxS7I3ozUa6Uyiuqi9W+OXlEPfl2J0a
-	QFE3+JTA==;
+	bh=HeDypeRG9BjT1sL7iHC1QETRBtB+9IcGpI8U/AxMADU=; b=mUBFpPD6oTMmzDhJdB9n2M3/UD
+	HCsICKZjhB72r0W6TCzqgm/m+dlO9SybK41YpRPQQLnK5euyz+fRGdaqwfJ2gEECgOpfTidd8xZZH
+	n2HEArMPXzSbb/UVnJrDoKo4Zcg81+4nt9IbBPs/sUJhPcmB5C37BCZrjDpX8W84cmxlSkZPNa20J
+	HOY4PiBMgnx574fWLJuInyJ+VJurcmGH02OoKpc7ZWeFViRyFxvTaV3bL5lAZBCVQUplK8+t/gCDO
+	tL2riryD2P+N2DAoMLbva6r5ltcB8nUjRoWX+ltXTWYfWmEOW+BXO8xzgw/j3rpr+apy1St3ACLfM
+	E02I/9mw==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xSHEQ-00FgWg-0r;
-	Sat, 14 Nov 2026 17:08:02 +0000
+	id 1xSHEW-00FgX1-39;
+	Sat, 14 Nov 2026 17:08:09 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,9 +56,9 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/5] HID: intel-thc-hid: intel-ipts: bring up the port
-Date: Sun, 15 Nov 2026 01:07:36 +0800
-Message-ID: <20261114170740.2068179-2-emfox@debian.org>
+Subject: [PATCH v2 2/5] HID: intel-thc-hid: intel-ipts: receive reports
+Date: Sun, 15 Nov 2026 01:07:37 +0800
+Message-ID: <20261114170740.2068179-3-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261114170740.2068179-1-emfox@debian.org>
 References: <20261114170740.2068179-1-emfox@debian.org>
@@ -74,585 +74,456 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-Ports on Tiger Lake, Lakefield, Alder Lake and Raptor Lake can run in
-IPTS mode: instead of HIDSPI the port drives the touch controller over
-plain SPI, and the controller answers with a 64 byte configuration
-block at address zero that carries the vendor and product IDs, the
-buffer sizes and the SPI timing it expects.
+Take the port one step further: configure the two DMA engines, one for
+the frames the controller sends and one for the frames the host sends,
+and register the interrupt that reports them.
 
-Add a port driver that does that much: select the SPI port, release the
-controller from reset, read the configuration block over the existing
-PIO path, apply the timing the controller asked for and enable the
-touch engine. What the controller reports is printed, and removal puts
-it back into reset.
+Interrupt remapping rejects the MSI requests these ports send: the
+requester ID in them is 01:05.0, neither the port's own function nor a
+valid DMA alias for it, so only the legacy interrupt pin works once
+remapping is on. MSI is the fallback for a platform that does not route
+that pin. It is shared with other functions on the PCH, so it is
+requested with IRQF_SHARED and a foreign interrupt only costs the thread a
+few register reads.
 
-Three things are not obvious from the register names:
+Transfer errors are recovered from a work item and not from the threaded
+handler: thc_rxdma_reset() takes the bus lock, and a pending
+thc_dma_write() holds that lock while it waits for the very completion the
+handler has to deliver. The port stays masked until that item has reset the
+engine and unmasked it again, so the reset cannot race with a frame being
+read.
 
-  - The bulk data window is at address 0x1000, not at zero. It is set
-    here because the DMA engines write there; left unset they write into
-    the configuration block and the controller drops the frames without
-    reporting an error.
+Every frame carries a code and a length in front of the payload. The
+receive side decodes that header and logs each frame.
 
-  - Quiescing gates the whole data path, not only the interrupt. The
-    port stays quiesced while the configuration block is read and the
-    timing is applied, and is only released once that is done.
+Three details are worth spelling out:
 
-  - The edge detect bit belongs to the interrupt setup, but is set
-    here: the first configuration read is unreliable without it.
+  - The interrupt configuration has to be applied before the DMA
+    engines are started: it programs the device interrupt type field to
+    the invalid value, and starting the receive engine then replaces that
+    field with the type it expects. The other order would leave the
+    invalid value in place.
 
-Meteor Lake and newer IDs are deliberately absent: those ports are
-already claimed by the HIDSPI driver.
+  - The line is masked while the threaded handler runs, and an event
+    that arrives in that window leaves nothing behind but its status
+    bit. The handler therefore drains the status registers instead of
+    trusting a single delivery: a write completion taken for granted
+    this way makes the next transfer wait for a completion that never
+    comes, and the port stays unusable until it is reset.
+
+  - Bulk transfers have no address phase, so the SPI opcode is zero.
+    The opcodes the HIDSPI path uses make this controller ignore the
+    frames altogether.
 
 Signed-off-by: Emfox Zhou <emfox@debian.org>
 ---
- drivers/hid/intel-thc-hid/Kconfig             |  14 ++
- drivers/hid/intel-thc-hid/Makefile            |   4 +
- drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 230 ++++++++++++++++++
- drivers/hid/intel-thc-hid/intel-ipts/ipts.h   | 132 ++++++++++
- .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 125 ++++++++++
- 5 files changed, 505 insertions(+)
- create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.c
- create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.h
- create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 226 ++++++++++++++++++
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.h   |  15 ++
+ .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   |  40 +++-
+ 3 files changed, 280 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-thc-hid/Kconfig b/drivers/hid/intel-thc-hid/Kconfig
-index 9d74e53..3df645f 100644
---- a/drivers/hid/intel-thc-hid/Kconfig
-+++ b/drivers/hid/intel-thc-hid/Kconfig
-@@ -40,4 +40,18 @@ config INTEL_QUICKI2C
- 
- 	  Say Y/M here if you want to support Intel QuickI2C. If unsure, say N.
- 
-+config INTEL_IPTS
-+	tristate "Intel Touch Host Controller IPTS mode"
-+	depends on INTEL_THC_HID
-+	help
-+	  Support for THC ports in IPTS mode. Instead of HIDSPI these ports
-+	  drive the touch controller over plain SPI and carry its reports in a
-+	  private framing. This driver brings such a port up, reads the
-+	  controller's configuration block and exposes the reports as a HID
-+	  device, so that a decoder in user space can turn them into input
-+	  events.
-+
-+	  Say Y/M here if you have an Intel touch controller that runs in IPTS
-+	  mode. If unsure, say N.
-+
- endmenu
-diff --git a/drivers/hid/intel-thc-hid/Makefile b/drivers/hid/intel-thc-hid/Makefile
-index f118225..0490095 100644
---- a/drivers/hid/intel-thc-hid/Makefile
-+++ b/drivers/hid/intel-thc-hid/Makefile
-@@ -20,4 +20,8 @@ intel-quicki2c-objs += intel-quicki2c/pci-quicki2c.o
- intel-quicki2c-objs += intel-quicki2c/quicki2c-hid.o
- intel-quicki2c-objs += intel-quicki2c/quicki2c-protocol.o
- 
-+obj-$(CONFIG_INTEL_IPTS) += intel-ipts.o
-+intel-ipts-objs += intel-ipts/pci-ipts.o
-+intel-ipts-objs += intel-ipts/ipts.o
-+
- ccflags-y += -I $(src)/intel-thc
 diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
-new file mode 100644
-index 0000000..f139b8f
---- /dev/null
+index f139b8f..790c3ea 100644
+--- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
 +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
-@@ -0,0 +1,230 @@
-+// SPDX-License-Identifier: GPL-2.0
+@@ -5,8 +5,13 @@
+  */
+ 
+ #include <linux/delay.h>
++#include <linux/interrupt.h>
++#include <linux/minmax.h>
+ #include <linux/regmap.h>
++#include <linux/sizes.h>
+ #include <linux/string.h>
++#include <linux/unaligned.h>
++#include <linux/workqueue.h>
+ 
+ #include "intel-thc-hw.h"
+ #include "ipts.h"
+@@ -20,6 +25,12 @@
+ /* Time the controller needs after reset before it answers on the bus. */
+ #define THC_IPTS_BOOT_MS		100
+ 
 +/*
-+ * Transport for THC ports in IPTS mode: the controller is driven over plain
-+ * SPI and carries its HID reports in a private framing.
++ * The core returns after the first cause it finds, so one interrupt can need
++ * up to four reads: non-DMA, transaction error, overrun, then the data path.
 + */
++#define THC_IPTS_IRQ_CAUSES		4
 +
-+#include <linux/delay.h>
-+#include <linux/regmap.h>
-+#include <linux/string.h>
-+
-+#include "intel-thc-hw.h"
-+#include "ipts.h"
-+
-+/* Bulk transfers have no address phase, so the SPI opcode is zero. */
-+#define THC_IPTS_SPI_OPCODE		0
-+
-+/* Slowest clock the core can program, used until the controller is read. */
-+#define THC_IPTS_BOOT_SPI_HZ		THC_IPTS_SPI_MIN_HZ
-+
-+/* Time the controller needs after reset before it answers on the bus. */
-+#define THC_IPTS_BOOT_MS		100
-+
-+static int thc_ipts_read_cfg(struct thc_ipts *idev)
+ static int thc_ipts_read_cfg(struct thc_ipts *idev)
+ {
+ 	int ret, try;
+@@ -127,6 +138,193 @@ static int thc_ipts_touch_set(struct thc_ipts *idev, bool enable)
+ 				 &touch);
+ }
+ 
++static void thc_ipts_handle_frame(struct thc_ipts *idev, size_t len)
 +{
-+	int ret, try;
++	size_t capacity = idev->max_rx - THC_IPTS_RX_HDR_SIZE;
++	u32 code, size;
 +
-+	for (try = 0; try < THC_IPTS_CFG_TRIES; try++) {
-+		u32 got = 0;
-+
-+		memset(&idev->cfg, 0, sizeof(idev->cfg));
-+		ret = thc_tic_pio_read(idev->thc, 0, THC_IPTS_CFG_SIZE, &got,
-+				       (u32 *)&idev->cfg);
-+		if (!ret && got == THC_IPTS_CFG_SIZE &&
-+		    le32_to_cpu(idev->cfg.device_id) == THC_IPTS_TIC_ID)
-+			return 0;
-+
-+		if (try + 1 < THC_IPTS_CFG_TRIES)
-+			msleep(THC_IPTS_CFG_RETRY_MS);
-+	}
-+
-+	dev_err(idev->dev,
-+		"controller did not answer, last id 0x%08x, error %d\n",
-+		le32_to_cpu(idev->cfg.device_id), ret ?: -EIO);
-+
-+	return ret ?: -EIO;
-+}
-+
-+/*
-+ * The core warns when the port is already in the requested state, so sample
-+ * the bit first; it is a plain register bit and safe to read here.
-+ */
-+static int thc_ipts_quiesce(struct thc_ipts *idev, bool quiesce)
-+{
-+	u32 ctrl;
-+	int ret;
-+
-+	ret = regmap_read(idev->thc->thc_regmap, THC_M_PRT_CONTROL_OFFSET,
-+			  &ctrl);
-+	if (ret)
-+		return ret;
-+
-+	if (!!(ctrl & THC_M_PRT_CONTROL_THC_DEVINT_QUIESCE_EN) == quiesce)
-+		return 0;
-+
-+	return thc_interrupt_quiesce(idev->thc, quiesce);
-+}
-+
-+static int thc_ipts_spi_set(struct thc_ipts *idev, u32 hz, u32 mode)
-+{
-+	int ret;
-+
-+	/* No multi-packet transfers in this mode, so both sizes stay zero. */
-+	ret = thc_spi_read_config(idev->thc, hz, mode, THC_IPTS_SPI_OPCODE, 0);
-+	if (ret)
-+		return ret;
-+
-+	return thc_spi_write_config(idev->thc, hz, mode, THC_IPTS_SPI_OPCODE,
-+				     0, 0);
-+}
-+
-+/*
-+ * The core picks the fastest gear that does not exceed the request, so the
-+ * clock is rounded down; a request below the slowest gear is raised to it,
-+ * because running faster than asked is the one direction that breaks it.
-+ */
-+static void thc_ipts_spi_from_cfg(struct thc_ipts *idev, u32 *hz, u32 *mode)
-+{
-+	u32 cfg = le32_to_cpu(idev->cfg.spi_cfg);
-+	u32 div = THC_IPTS_SPI_CLKDIV(cfg);
-+
-+	if (!div) {
-+		/* Nothing valid asks for this; use the slowest gear. */
-+		dev_warn_once(idev->dev, "controller asks for divisor 0\n");
-+		*hz = THC_IPTS_SPI_MIN_HZ;
-+	} else {
-+		*hz = THC_IPTS_SPI_BASE_HZ / div;
-+		if (cfg & THC_IPTS_SPI_CLKDIV8)
-+			*hz /= THC_IPTS_SPI_CLKDIV8_DIV;
-+	}
-+
-+	if (*hz < THC_IPTS_SPI_MIN_HZ) {
-+		dev_warn_once(idev->dev,
-+			      "controller asks for %u Hz, slowest is %u Hz\n",
-+			      *hz, THC_IPTS_SPI_MIN_HZ);
-+		*hz = THC_IPTS_SPI_MIN_HZ;
-+	}
-+
-+	if (cfg & THC_IPTS_SPI_QUAD)
-+		*mode = THC_QUAD_IO;
-+	else if (cfg & THC_IPTS_SPI_DUAL)
-+		*mode = THC_DUAL_IO;
-+	else
-+		*mode = THC_SINGLE_IO;
-+}
-+
-+static int thc_ipts_touch_set(struct thc_ipts *idev, bool enable)
-+{
-+	u32 touch = le32_to_cpu(idev->cfg.touch_cfg);
-+
-+	touch &= ~(THC_IPTS_TOUCH_POWER_MASK | THC_IPTS_TOUCH_ENABLE |
-+		   THC_IPTS_TOUCH_HID_REPORT);
-+	touch |= THC_IPTS_TOUCH_POWER(enable ? THC_IPTS_TOUCH_POWER_ON : 0);
-+	if (enable)
-+		touch |= THC_IPTS_TOUCH_ENABLE | THC_IPTS_TOUCH_HID_REPORT;
-+
-+	return thc_tic_pio_write(idev->thc, THC_IPTS_CFG_TOUCH, sizeof(touch),
-+				 &touch);
-+}
-+
-+/**
-+ * thc_ipts_port_start - bring one port up
-+ * @idev: port to start
-+ */
-+int thc_ipts_port_start(struct thc_ipts *idev)
-+{
-+	u32 ctrl, hz, mode;
-+	int ret;
-+
-+	ret = thc_ipts_quiesce(idev, true);
-+	if (ret)
-+		return ret;
-+
-+	ret = thc_port_select(idev->thc, THC_PORT_TYPE_SPI);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_read(idev->thc->thc_regmap, THC_M_PRT_CONTROL_OFFSET,
-+			  &ctrl);
-+	if (ret)
-+		return ret;
-+	if (!(ctrl & THC_M_PRT_CONTROL_PORT_SUPPORTED))
-+		return -ENODEV;
-+
-+	/* Without this the engines write into the configuration block. */
-+	thc_spi_input_output_address_config(idev->thc, 0, THC_IPTS_BULK_ADDR,
-+					    THC_IPTS_BULK_ADDR);
-+
-+	ret = thc_ipts_spi_set(idev, THC_IPTS_BOOT_SPI_HZ, THC_SINGLE_IO);
-+	if (ret)
-+		return ret;
-+
-+	/* The first configuration read is unreliable without edge detect. */
-+	thc_int_trigger_type_select(idev->thc, true);
-+
-+	/* Release the controller from reset; it answers only after this. */
-+	ret = regmap_set_bits(idev->thc->thc_regmap,
-+			      THC_M_PRT_CONTROL_OFFSET,
-+			      THC_M_PRT_CONTROL_DEVRST);
-+	if (ret)
-+		return ret;
-+
-+	msleep(THC_IPTS_BOOT_MS);
-+
-+	ret = thc_ipts_read_cfg(idev);
-+	if (ret)
-+		return ret;
-+
-+	idev->vendor = le16_to_cpu(idev->cfg.vendor);
-+	idev->product = le16_to_cpu(idev->cfg.product);
-+	idev->max_rx = THC_IPTS_RX_BUF_SIZE(le32_to_cpu(idev->cfg.buf_sizes));
-+	idev->max_tx = THC_IPTS_TX_BUF_SIZE(le32_to_cpu(idev->cfg.buf_sizes));
-+	if (idev->max_rx <= THC_IPTS_RX_HDR_SIZE ||
-+	    idev->max_tx <= THC_IPTS_TX_HDR_SIZE) {
-+		dev_err(idev->dev, "buffer sizes %zu/%zu are too small\n",
-+			idev->max_rx, idev->max_tx);
-+		return -ENODEV;
-+	}
-+	thc_ipts_spi_from_cfg(idev, &hz, &mode);
-+	ret = thc_ipts_spi_set(idev, hz, mode);
-+	if (ret) {
-+		dev_warn(idev->dev,
-+			 "cannot follow the SPI timing, going slow\n");
-+		ret = thc_ipts_spi_set(idev, THC_IPTS_BOOT_SPI_HZ,
-+				       THC_SINGLE_IO);
-+		if (ret)
-+			return ret;
-+	} else {
-+		dev_dbg(idev->dev, "SPI clock asked for %u Hz, rounded down\n",
-+			hz);
-+	}
-+
-+	ret = thc_ipts_quiesce(idev, false);
-+	if (ret)
-+		return ret;
-+
-+	ret = thc_ipts_touch_set(idev, true);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+/**
-+ * thc_ipts_port_stop - tear one port down
-+ * @idev: port to stop
-+ */
-+void thc_ipts_port_stop(struct thc_ipts *idev)
-+{
-+	if (!idev->thc)
++	if (len < THC_IPTS_RX_HDR_SIZE)
 +		return;
 +
-+	if (idev->running)
-+		thc_ipts_touch_set(idev, false);
++	code = get_unaligned_le32(idev->rx_frame);
++	/* The header may claim more than what actually arrived. */
++	size = min_t(u32, get_unaligned_le32(idev->rx_frame + 4),
++		     capacity);
++	size = min_t(u32, size, len - THC_IPTS_RX_HDR_SIZE);
 +
-+	idev->running = false;
-+	regmap_clear_bits(idev->thc->thc_regmap,
-+			  THC_M_PRT_CONTROL_OFFSET,
-+			  THC_M_PRT_CONTROL_DEVRST);
-+	thc_ipts_quiesce(idev, true);
++	dev_dbg(idev->dev, "frame code %u, %u bytes\n", code, size);
 +}
-diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.h b/drivers/hid/intel-thc-hid/intel-ipts/ipts.h
-new file mode 100644
-index 0000000..f0493dc
---- /dev/null
-+++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.h
-@@ -0,0 +1,132 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _THC_IPTS_H_
-+#define _THC_IPTS_H_
 +
-+#include <linux/bitfield.h>
-+#include <linux/bits.h>
-+#include <linux/build_bug.h>
-+#include <linux/device.h>
-+#include <linux/interrupt.h>
-+#include <linux/types.h>
-+
-+#include "intel-thc-dev.h"
-+
-+/* Configuration block the controller keeps at address zero. */
-+#define THC_IPTS_CFG_SIZE		64
-+#define THC_IPTS_CFG_TOUCH		0x0c
-+#define THC_IPTS_TIC_ID		0x43495424	/* "$TIC" */
-+
-+/* Bulk data window. The DMA engines have to be pointed here, not at zero. */
-+#define THC_IPTS_BULK_ADDR		0x1000
-+
-+/* Ports in IPTS mode, one pair per generation. */
-+#define PCI_DEVICE_ID_INTEL_THC_LKF_PORT1	0x98d0
-+#define PCI_DEVICE_ID_INTEL_THC_LKF_PORT2	0x98d1
-+#define PCI_DEVICE_ID_INTEL_THC_TGL_LP_PORT1	0xa0d0
-+#define PCI_DEVICE_ID_INTEL_THC_TGL_LP_PORT2	0xa0d1
-+#define PCI_DEVICE_ID_INTEL_THC_TGL_H_PORT1	0x43d0
-+#define PCI_DEVICE_ID_INTEL_THC_TGL_H_PORT2	0x43d1
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_S_PORT1	0x7ad8
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_S_PORT2	0x7ad9
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_P_PORT1	0x51d0
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_P_PORT2	0x51d1
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_M_PORT1	0x54d0
-+#define PCI_DEVICE_ID_INTEL_THC_ADL_M_PORT2	0x54d1
-+#define PCI_DEVICE_ID_INTEL_THC_RPL_S_PORT1	0x7a58
-+#define PCI_DEVICE_ID_INTEL_THC_RPL_S_PORT2	0x7a59
-+
-+/*
-+ * The block is partly filled while the controller is still starting, so a
-+ * missing $TIC tag is retried rather than treated as an error.
-+ */
-+#define THC_IPTS_CFG_TRIES		10
-+#define THC_IPTS_CFG_RETRY_MS		100
-+
-+/* Bytes of the configuration block this driver interprets. */
-+#define THC_IPTS_CFG_KNOWN		40
-+
-+/*
-+ * Layout of the configuration block, as far as this driver reads it. Only the
-+ * fields marked as used are read; the others are here to keep the offsets of
-+ * the block, which the driver hands to the core as a whole.
-+ */
-+struct thc_ipts_cfg {
-+	__le32	irq_cause;	/* pending interrupt causes */
-+	__le32	error;		/* protocol error flags, not used */
-+	__le32	buf_sizes;	/* Rx/Tx sizes, see *_BUF_SIZE() */
-+	__le32	touch_cfg;	/* touch engine control, writable */
-+	__le32	touch_state;	/* touch engine state, not used */
-+	__le32	device_id;	/* THC_IPTS_TIC_ID after a good read */
-+	__le32	spi_cfg;	/* SPI timing the controller asks for */
-+	__le16	vendor;		/* vendor ID reported to HID */
-+	__le16	product;	/* product ID reported to HID */
-+	__le32	revision;	/* product revision */
-+	__le32	fw_version;	/* firmware version word */
-+	u8	rest[THC_IPTS_CFG_SIZE - THC_IPTS_CFG_KNOWN];
-+};
-+
-+static_assert(sizeof(struct thc_ipts_cfg) == THC_IPTS_CFG_SIZE);
-+
-+/* The core is handed the struct itself, so the offsets are part of the deal. */
-+static_assert(offsetof(struct thc_ipts_cfg, buf_sizes) == 0x08);
-+static_assert(offsetof(struct thc_ipts_cfg, touch_cfg) == 0x0c);
-+static_assert(offsetof(struct thc_ipts_cfg, spi_cfg) == 0x18);
-+static_assert(offsetof(struct thc_ipts_cfg, vendor) == 0x1c);
-+
-+/* Buffer sizes are stored as (size / 64) - 1, Rx in bits 13:0, Tx in 23:14. */
-+#define THC_IPTS_DMA_UNIT		64
-+#define THC_IPTS_RX_BUF_SIZE(val)	\
-+	((size_t)(FIELD_GET(GENMASK(13, 0), (val)) + 1) * THC_IPTS_DMA_UNIT)
-+#define THC_IPTS_TX_BUF_SIZE(val)	\
-+	((size_t)(FIELD_GET(GENMASK(23, 14), (val)) + 1) * THC_IPTS_DMA_UNIT)
-+
-+#define THC_IPTS_TOUCH_ENABLE		BIT(0)
-+#define THC_IPTS_TOUCH_HID_REPORT	BIT(2)
-+#define THC_IPTS_TOUCH_POWER_ON	3
-+#define THC_IPTS_TOUCH_POWER_MASK	GENMASK(5, 3)
-+#define THC_IPTS_TOUCH_POWER(val)	\
-+	FIELD_PREP(THC_IPTS_TOUCH_POWER_MASK, (val))
-+
-+#define THC_IPTS_SPI_CLKDIV(val)	FIELD_GET(GENMASK(3, 1), (val))
-+#define THC_IPTS_SPI_CLKDIV8		BIT(4)
-+#define THC_IPTS_SPI_CLKDIV8_DIV	8
-+#define THC_IPTS_SPI_DUAL		BIT(6)
-+#define THC_IPTS_SPI_QUAD		BIT(7)
-+#define THC_IPTS_SPI_BASE_HZ		125000000
-+/* Slowest clock the core can program. */
-+#define THC_IPTS_SPI_MIN_HZ		7812500
-+
-+/*
-+ * Every frame carries a code and a length in front of the payload. Frames
-+ * from the controller have a long header, frames to it a short one, and only
-+ * the second one is padded to a four byte boundary.
-+ */
-+#define THC_IPTS_RX_HDR_SIZE		64
-+#define THC_IPTS_TX_HDR_SIZE		8
-+
-+/**
-+ * struct thc_ipts - state of one THC port in IPTS mode
-+ * @dev: device used for resources and logging
-+ * @thc: shared THC core context
-+ * @cfg: configuration block last read from the controller
-+ * @vendor: vendor ID the controller reports for its HID device
-+ * @product: product ID the controller reports for its HID device
-+ * @max_rx: largest frame the controller may send, in bytes
-+ * @max_tx: largest frame the driver may send, in bytes
-+ * @running: the controller answered and is out of reset
-+ */
-+struct thc_ipts {
-+	struct device		*dev;
-+	struct thc_device	*thc;
-+	struct thc_ipts_cfg	cfg;
-+	u16			vendor;
-+	u16			product;
-+	size_t			max_rx;
-+	size_t			max_tx;
-+	bool			running;
-+};
-+
-+int thc_ipts_port_start(struct thc_ipts *idev);
-+void thc_ipts_port_stop(struct thc_ipts *idev);
-+
-+#endif /* _THC_IPTS_H_ */
-diff --git a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-new file mode 100644
-index 0000000..48046cd
---- /dev/null
-+++ b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-@@ -0,0 +1,125 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * PCI glue for the Intel Touch Host Controller in IPTS mode. Ports that
-+ * the HIDSPI driver already claims are deliberately left out of the ID table.
-+ */
-+
-+#include <linux/dma-mapping.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/workqueue.h>
-+
-+#include "ipts.h"
-+
-+static const struct pci_device_id thc_ipts_pci_ids[] = {
-+	/* Lakefield */
-+	{PCI_DEVICE_DATA(INTEL, THC_LKF_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_LKF_PORT2, NULL)},
-+	/* Tiger Lake */
-+	{PCI_DEVICE_DATA(INTEL, THC_TGL_LP_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_TGL_LP_PORT2, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_TGL_H_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_TGL_H_PORT2, NULL)},
-+	/* Alder Lake */
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_S_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_S_PORT2, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_P_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_P_PORT2, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_M_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_ADL_M_PORT2, NULL)},
-+	/* Raptor Lake */
-+	{PCI_DEVICE_DATA(INTEL, THC_RPL_S_PORT1, NULL)},
-+	{PCI_DEVICE_DATA(INTEL, THC_RPL_S_PORT2, NULL)},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(pci, thc_ipts_pci_ids);
-+
-+static int thc_ipts_probe(struct pci_dev *pci, const struct pci_device_id *id)
++static void thc_ipts_dma_stop(struct thc_ipts *idev)
 +{
-+	struct thc_ipts *idev;
-+	void __iomem *mem;
++	if (!idev->dma_ready)
++		return;
++
++	idev->dma_ready = false;
++	thc_dma_unconfigure(idev->thc);
++	thc_dma_release(idev->thc);
++}
++
++static int thc_ipts_dma_start(struct thc_ipts *idev)
++{
 +	int ret;
 +
-+	idev = devm_kzalloc_obj(&pci->dev, *idev);
-+	if (!idev)
-+		return -ENOMEM;
-+
-+	idev->dev = &pci->dev;
-+	pci_set_drvdata(pci, idev);
-+
-+	ret = pcim_enable_device(pci);
-+	if (ret) {
-+		dev_err(idev->dev,
-+			"cannot enable the PCI function, error %d\n", ret);
-+		return ret;
++	/*
++	 * Allocated once, so each buffer is retried on its own: a failed
++	 * first start must not leave a NULL frame buffer for a resume.
++	 */
++	if (!idev->rx_frame) {
++		/*
++		 * The core rounds the packet size up to a page when it sets
++		 * up the engines, so the buffer has to be that large.
++		 */
++		idev->rx_frame = devm_kzalloc(idev->dev,
++					      round_up(idev->max_rx, SZ_4K),
++					      GFP_KERNEL);
++		if (!idev->rx_frame)
++			return -ENOMEM;
 +	}
 +
-+	pci_set_master(pci);
-+
-+	mem = pcim_iomap_region(pci, 0, KBUILD_MODNAME);
-+	ret = PTR_ERR_OR_ZERO(mem);
-+	if (ret) {
-+		dev_err(idev->dev, "cannot map the register space, error %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	ret = dma_set_mask_and_coherent(idev->dev, DMA_BIT_MASK(64));
++	ret = thc_dma_set_max_packet_sizes(idev->thc, 0, idev->max_rx,
++					   idev->max_tx, 0);
 +	if (ret)
-+		ret = dma_set_mask_and_coherent(idev->dev, DMA_BIT_MASK(32));
++		return ret;
++
++	ret = thc_dma_allocate(idev->thc);
++	if (ret)
++		return ret;
++
++	ret = thc_dma_configure(idev->thc);
 +	if (ret) {
-+		dev_err(idev->dev, "no usable DMA configuration, error %d\n",
-+			ret);
++		thc_dma_release(idev->thc);
 +		return ret;
 +	}
 +
-+	idev->thc = thc_dev_init(idev->dev, mem);
-+	if (IS_ERR(idev->thc))
-+		return PTR_ERR(idev->thc);
-+
-+	ret = thc_ipts_port_start(idev);
-+	if (ret) {
-+		thc_ipts_port_stop(idev);
-+		return ret;
-+	}
-+
-+	dev_info(idev->dev, "controller %04x:%04x rev %u, firmware 0x%08x\n",
-+		 idev->vendor, idev->product, le32_to_cpu(idev->cfg.revision),
-+		 le32_to_cpu(idev->cfg.fw_version));
-+	dev_info(idev->dev, "spi cfg 0x%08x, rx %zu tx %zu bytes\n",
-+		 le32_to_cpu(idev->cfg.spi_cfg), idev->max_rx, idev->max_tx);
++	idev->dma_ready = true;
 +
 +	return 0;
 +}
 +
-+static void thc_ipts_remove(struct pci_dev *pci)
++irqreturn_t thc_ipts_hardirq(int irq, void *data)
 +{
-+	struct thc_ipts *idev = pci_get_drvdata(pci);
++	struct thc_ipts *idev = data;
 +
-+	thc_ipts_port_stop(idev);
-+	pci_clear_master(pci);
++	/*
++	 * The pin is shared and this may be another function's interrupt; the
++	 * cause can only be read in the thread, so claim it. Mask first, or a
++	 * level triggered line stays asserted on the way out.
++	 */
++	if (READ_ONCE(idev->stopping) || !READ_ONCE(idev->dma_ready)) {
++		thc_interrupt_enable(idev->thc, false);
++		return IRQ_HANDLED;
++	}
++
++	thc_interrupt_enable(idev->thc, false);
++
++	return IRQ_WAKE_THREAD;
 +}
 +
-+static void thc_ipts_shutdown(struct pci_dev *pci)
++static int thc_ipts_read_frames(struct thc_ipts *idev)
 +{
-+	struct thc_ipts *idev = pci_get_drvdata(pci);
++	for (;;) {
++		int finished = 0;
++		size_t len = 0;
 +
-+	if (idev)
-+		thc_ipts_port_stop(idev);
++		if (thc_rxdma_read(idev->thc, THC_RXDMA2, idev->rx_frame,
++				   &len, &finished)) {
++			dev_warn_once(idev->dev,
++				      "cannot read a frame from the engine\n");
++			return -EIO;
++		}
++
++		/* Nothing was read: the ring was empty and len is still 0. */
++		if (!len)
++			break;
++
++		thc_ipts_handle_frame(idev, len);
++		if (finished)
++			break;
++	}
++
++	return 0;
 +}
 +
-+static struct pci_driver thc_ipts_driver = {
-+	.name		= "intel-ipts",
-+	.id_table	= thc_ipts_pci_ids,
-+	.probe		= thc_ipts_probe,
-+	.remove		= thc_ipts_remove,
-+	.shutdown	= thc_ipts_shutdown,
-+	/* Bring-up waits for the controller, up to a few seconds. */
-+	.driver.probe_type = PROBE_PREFER_ASYNCHRONOUS,
-+};
-+module_pci_driver(thc_ipts_driver);
++/*
++ * Run from a work item: thc_rxdma_reset() takes the bus lock, which
++ * thc_dma_write() holds while it waits for a completion this thread has to
++ * deliver, so resetting inline would stall until the write times out.
++ */
++void thc_ipts_recover(struct work_struct *work)
++{
++	struct thc_ipts *idev = container_of(work, struct thc_ipts,
++					     recover_work);
 +
-+MODULE_AUTHOR("Emfox Zhou <emfox@debian.org>");
-+MODULE_DESCRIPTION("IPTS transport for the Intel Touch Host Controller");
-+MODULE_LICENSE("GPL");
-+MODULE_IMPORT_NS("INTEL_THC");
++	if (thc_rxdma_reset(idev->thc)) {
++		/* Nothing left: keep the port masked until it restarts. */
++		dev_err(idev->dev, "cannot reset the receive engine\n");
++		return;
++	}
++
++	if (!READ_ONCE(idev->stopping))
++		thc_interrupt_enable(idev->thc, true);
++}
++
++irqreturn_t thc_ipts_thread(int irq, void *data)
++{
++	struct thc_ipts *idev = data;
++	bool recovering = false;
++	int pass;
++
++	/*
++	 * The port stays masked until the end of this handler, so a cause that
++	 * arrives in between leaves only its status bit: keep reading until
++	 * the core reports none.
++	 */
++	for (pass = 0; pass < THC_IPTS_IRQ_CAUSES; pass++) {
++		int mask = thc_interrupt_handler(idev->thc);
++
++		/* The core reports this one when no cause is pending. */
++		if (mask == BIT(THC_UNKNOWN_INT))
++			break;
++
++		if (mask & (BIT(THC_FATAL_ERR_INT) | BIT(THC_TXN_ERR_INT))) {
++			dev_err(idev->dev,
++				"transfer error, resetting the engine\n");
++			recovering = true;
++			/*
++			 * Keep reading: the core stops at the first cause, so
++			 * a Tx completion queued behind the error would wait
++			 * out its timeout under the bus lock.
++			 */
++			continue;
++		}
++
++		if (recovering)
++			continue;
++
++		/*
++		 * A non-DMA cause needs no action: the core acknowledges it,
++		 * and this port moves report data through the DMA engines.
++		 */
++		if (mask & BIT(THC_RXDMA2_INT) && thc_ipts_read_frames(idev))
++			recovering = true;
++	}
++
++	/*
++	 * The work item resets the engine and unmasks the port again; reading
++	 * frames while it rewrites the ring would corrupt the descriptors.
++	 */
++	if (recovering) {
++		schedule_work(&idev->recover_work);
++		return IRQ_HANDLED;
++	}
++
++	if (!READ_ONCE(idev->stopping))
++		thc_interrupt_enable(idev->thc, true);
++
++	return IRQ_HANDLED;
++}
++
+ /**
+  * thc_ipts_port_start - bring one port up
+  * @idev: port to start
+@@ -136,6 +334,8 @@ int thc_ipts_port_start(struct thc_ipts *idev)
+ 	u32 ctrl, hz, mode;
+ 	int ret;
+ 
++	WRITE_ONCE(idev->stopping, false);
++
+ 	ret = thc_ipts_quiesce(idev, true);
+ 	if (ret)
+ 		return ret;
+@@ -206,6 +406,20 @@ int thc_ipts_port_start(struct thc_ipts *idev)
+ 	ret = thc_ipts_touch_set(idev, true);
+ 	if (ret)
+ 		return ret;
++	idev->running = true;
++
++	/*
++	 * thc_interrupt_config() programs the interrupt type field to the
++	 * invalid value; starting RXDMA2 then sets it to the type the engine
++	 * expects, so the configuration has to happen first.
++	 */
++	thc_interrupt_config(idev->thc);
++
++	ret = thc_ipts_dma_start(idev);
++	if (ret)
++		return ret;
++
++	thc_interrupt_enable(idev->thc, true);
+ 
+ 	return 0;
+ }
+@@ -219,6 +433,16 @@ void thc_ipts_port_stop(struct thc_ipts *idev)
+ 	if (!idev->thc)
+ 		return;
+ 
++	/*
++	 * Mask the line, then wait for a handler that may be holding a
++	 * frame for the HID device which is about to go away.
++	 */
++	WRITE_ONCE(idev->stopping, true);
++	thc_interrupt_enable(idev->thc, false);
++	synchronize_irq(idev->irq);
++	cancel_work_sync(&idev->recover_work);
++
++	/* Stop the controller before the buffers it writes into go away. */
+ 	if (idev->running)
+ 		thc_ipts_touch_set(idev, false);
+ 
+@@ -227,4 +451,6 @@ void thc_ipts_port_stop(struct thc_ipts *idev)
+ 			  THC_M_PRT_CONTROL_OFFSET,
+ 			  THC_M_PRT_CONTROL_DEVRST);
+ 	thc_ipts_quiesce(idev, true);
++
++	thc_ipts_dma_stop(idev);
+ }
+diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.h b/drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+index f0493dc..3999ac8 100644
+--- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.h
++++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+@@ -8,6 +8,7 @@
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
+ #include <linux/types.h>
++#include <linux/wait.h>
+ 
+ #include "intel-thc-dev.h"
+ 
+@@ -108,24 +109,38 @@ static_assert(offsetof(struct thc_ipts_cfg, vendor) == 0x1c);
+  * struct thc_ipts - state of one THC port in IPTS mode
+  * @dev: device used for resources and logging
+  * @thc: shared THC core context
++ * @irq: interrupt line of the port
+  * @cfg: configuration block last read from the controller
+  * @vendor: vendor ID the controller reports for its HID device
+  * @product: product ID the controller reports for its HID device
+  * @max_rx: largest frame the controller may send, in bytes
+  * @max_tx: largest frame the driver may send, in bytes
++ * @rx_frame: buffer for one received frame, including its header
++ * @recover_work: resets the receive engine after a transfer error
+  * @running: the controller answered and is out of reset
++ * @dma_ready: DMA engines are configured and may be used
++ * @stopping: the port is being torn down, ignore the interrupt
+  */
+ struct thc_ipts {
+ 	struct device		*dev;
+ 	struct thc_device	*thc;
++	int			irq;
+ 	struct thc_ipts_cfg	cfg;
+ 	u16			vendor;
+ 	u16			product;
+ 	size_t			max_rx;
+ 	size_t			max_tx;
++	u8			*rx_frame;
++	struct work_struct	recover_work;
+ 	bool			running;
++	bool			dma_ready;
++	bool			stopping;
+ };
+ 
++irqreturn_t thc_ipts_hardirq(int irq, void *data);
++irqreturn_t thc_ipts_thread(int irq, void *data);
++void thc_ipts_recover(struct work_struct *work);
++
+ int thc_ipts_port_start(struct thc_ipts *idev);
+ void thc_ipts_port_stop(struct thc_ipts *idev);
+ 
+diff --git a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
+index 48046cd..5342cf2 100644
+--- a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
++++ b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
+@@ -46,6 +46,7 @@ static int thc_ipts_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 
+ 	idev->dev = &pci->dev;
+ 	pci_set_drvdata(pci, idev);
++	INIT_WORK(&idev->recover_work, thc_ipts_recover);
+ 
+ 	ret = pcim_enable_device(pci);
+ 	if (ret) {
+@@ -77,10 +78,38 @@ static int thc_ipts_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	if (IS_ERR(idev->thc))
+ 		return PTR_ERR(idev->thc);
+ 
++	/*
++	 * Interrupt remapping rejects the MSI requests these ports send, so
++	 * take the legacy pin (shared with other functions on the PCH, hence
++	 * IRQF_SHARED); MSI is only for a platform that routes no pin.
++	 */
++	ret = pci_alloc_irq_vectors(pci, 1, 1, PCI_IRQ_INTX);
++	if (ret < 0) {
++		dev_warn(idev->dev, "no interrupt pin, falling back to MSI\n");
++		ret = pci_alloc_irq_vectors(pci, 1, 1,
++					    PCI_IRQ_MSI | PCI_IRQ_MSIX);
++	}
++	if (ret < 0) {
++		dev_err(idev->dev, "no interrupt vector, error %d\n", ret);
++		return ret;
++	}
++
++	idev->irq = pci_irq_vector(pci, 0);
++
++	ret = devm_request_threaded_irq(idev->dev, idev->irq, thc_ipts_hardirq,
++					thc_ipts_thread,
++					IRQF_ONESHOT | IRQF_SHARED,
++					KBUILD_MODNAME, idev);
++	if (ret) {
++		dev_err(idev->dev, "cannot get the interrupt, error %d\n", ret);
++		goto err_vectors;
++	}
++
+ 	ret = thc_ipts_port_start(idev);
+ 	if (ret) {
+ 		thc_ipts_port_stop(idev);
+-		return ret;
++		devm_free_irq(idev->dev, idev->irq, idev);
++		goto err_vectors;
+ 	}
+ 
+ 	dev_info(idev->dev, "controller %04x:%04x rev %u, firmware 0x%08x\n",
+@@ -90,6 +119,11 @@ static int thc_ipts_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 		 le32_to_cpu(idev->cfg.spi_cfg), idev->max_rx, idev->max_tx);
+ 
+ 	return 0;
++
++err_vectors:
++	pci_free_irq_vectors(pci);
++
++	return ret;
+ }
+ 
+ static void thc_ipts_remove(struct pci_dev *pci)
+@@ -97,6 +131,10 @@ static void thc_ipts_remove(struct pci_dev *pci)
+ 	struct thc_ipts *idev = pci_get_drvdata(pci);
+ 
+ 	thc_ipts_port_stop(idev);
++
++	/* The handler has to go before the vector it is bound to is freed. */
++	devm_free_irq(idev->dev, idev->irq, idev);
++	pci_free_irq_vectors(pci);
+ 	pci_clear_master(pci);
+ }
+ 

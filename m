@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794699436;
-	b=D5jtkDP8mEF0RcGsl9pc4iNLwI9HwZxSVT3RIUvg74jlbp3m10p+K42OBc6qj59A/+6W
-	 ozxXJiHrDW620DbAtpIPG3jXn3Q8wTs83t6CCisaBYesloonmGgkccnjErJDh0Fgf3q8w
-	 KPVgGYOaT3w2/GwHxtnIjTgl8cnGSviLhgDMcv1G/sacrpjc0+E0OYOLiT9E91Sft8ZK9
-	 AT5hQ9Rvh6rZN/2W1SpMax7U2akjzJI8pMDWOgewCb7q6kRpS9vJst09kFDS01J/Ljt2u
-	 s4jnDEJwWzTIa7unl1J8dsE75UbWfO39GY/dKBMG0OGneFXn055793MMzO3e+w+E17A==
+	t=1794699580;
+	b=i61NWFBzy2Sgt6Y/9ow1lkMDi3tL5tHoyxJscr1Zid0Jt4FOl8lC4de10jN5SGbYfv4J
+	 FPFycNz04MbDXUMF73ydXKu7B9Vy607Sns44j6myrAIQJz3OZr+ZFGCEZtZ3XsMP6cYF2
+	 yzpkOqUrFHdVZOIa+wmWCfKTrtXsUb1pRK8QMI7EXu5mFgzFM1zg6ynBiymYAJk8zqEcb
+	 9y+fi+vN0nFWN49nN7M6sASumkhx2PkwcmoLaTc6zNCjAYlXgqReKzfM7sRiLFNkizunJ
+	 ocldxb5LgrcBFfyQoWAst9du7YdW4nicHRfmt9e7HVDoSHrseDQuCDwNqM3tRifgVOg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794699436;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794699580;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4uUAVhdHL8M8KltpxvsIZ9Z8R7zTvb1KAh8WtNZOyH4=;
-	b=v5AfKl7V3et7g8kH+dbzTAevuzwzHAS8ciyojmRK5KZn/aQRxJqxaYuOJZQRwmjKo/fj
-	 HhlO9XTkECR/kIucB13H+BQEJcgYtqlVwPMjQASn+6/pqJ5JRE+m32xOTZdPpDMzfjEPY
-	 9NSw9pie0n+z6Wfz2CdBqmk9s6/cjJ+5G3ffeRAIF5JHhfUUiQdoYu83TKk2b/kZ03mLK
-	 oVvx8odJ3rO8J7vSn6HcKd1H8BleX+KQW43jlB0qTT4qdSQHpLmq0G+95HurKu3MOxns6
-	 g7NrS8HtA+YBkoRsQ2IUl4zf4zpxBXD2U6mY72p1Ij46JyzAHPk/Onb72DeZZ4Ww+1g==
+	bh=LI9G/qfltJYghc/lTWkjbrtBN0ameZAHpKSn9LBhWmI=;
+	b=vYg/ILDGcL3GN1p6PdyGwZSbaYCbSWTiMfdPTthqNfpDNLkSw426Uz/pGG0hyPyUNKCz
+	 3+spTT8Ljt9rSJW5vC+Mtdyf1nPG0e+2tjpujbPi93pOF/KDyXl3ILyMk3bc8ce1YUWv8
+	 7OkZxUZHFk0i7gR+7lA1IU0spu9BQLZxDQNADUd0p0S1RRMhLYH2DCQCT+mvAN++Ys//E
+	 zWAkcRrgmzkEOvo+PdcgDH/53ifwpvUd1YMekdF5SHw0jXMqZ2I1h61pbCvHdMteL2yMp
+	 MZkdM0tKQ3dTP9AyRVnZjmz5DrFRadNtO3E+c5cn6SVgkFfFhY/114e9Xke/yynbLMQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tr1gXFyN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OvSKHxNE;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4709606A323;
-	Sat, 14 Nov 2026 23:37:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 149CD606A323;
+	Sat, 14 Nov 2026 23:39:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tr1gXFyN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3821F000C4;
-	Sat, 14 Nov 2026 23:37:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OvSKHxNE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E2E91F000C4;
+	Sat, 14 Nov 2026 23:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794699436;
-	bh=4uUAVhdHL8M8KltpxvsIZ9Z8R7zTvb1KAh8WtNZOyH4=;
+	s=k20260515; t=1794699579;
+	bh=LI9G/qfltJYghc/lTWkjbrtBN0ameZAHpKSn9LBhWmI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Tr1gXFyNbYKkpJpYSQ7C3jgq0khkg6XK+VtPx0poph3fHmI+XjMxoPcdY43To593q
-	 KeOpsuKz/06mr2/9s2sOQibkwa3FaIRb9TY4EnkmlxiKSDCFTo9+R1rzFbWJ0rFFyM
-	 SdyFO5FhnD/tmIe2agctdmOm3cLByv119FGKDnxCjqTBMX4vn8j9UC9BVT6Hm0uYpG
-	 sZxKEk6LIF4aLebUDxwIQ273lK93uGkW020jNEPVvZmiOWs1hUJgWq7BwsYWQICLqW
-	 93pPBIGGogqywYLO9KUNN3HYSMq2Tba54JqWI4zFJP2v+kLtdQVQpwAz3+bC/Xj72e
-	 IhKrgCw+KXMcw==
-Message-ID: <sashiko-outbox-215115@kernel.org>
+	b=OvSKHxNEYUs6wOseHxoUF0b7ndnjFuxeKHBj6IcFac6XMDcu5koAIO4u0YgTaX3nQ
+	 mk/ssu4TMqYuGkMZq6VoP8/lWP/tCJ6MPea3+cGrEVcYTpr0VUzM3sRIUBjLgYSbUc
+	 8HFsYZkC6dsHcg5bsPEltvB08QChNXjpHe64Q0l0PuDqvxd8R5CsGXOeTCFq5VSCuL
+	 MFvhpvfsdTnKheKNdaSOW+aFIeyYvpkHJkcTsnrmAFA1+NVl6AffMKCaVsQwfXMa9y
+	 D6yra8C70EEnGBL+ng3rz0o6eQZXo+nCSuynwyfNefGyDqWHxxker9iMDBTAc74WQi
+	 AaJN17vkM806A==
+Message-ID: <sashiko-outbox-215117@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 02/16] HID: ft260: uart: fix the serial driver
+Subject: Re: [PATCH v3 01/16] HID: ft260: add serial driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Zaidman" <michael.zaidman@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-serial@vger.kernel.org, linux-gpio@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261114230800.1344401-3-michael.zaidman@gmail.com>
+In-Reply-To: <20261114230800.1344401-2-michael.zaidman@gmail.com>
 References: <20261114230800.1344401-1-michael.zaidman@gmail.com>
- <20261114230800.1344401-3-michael.zaidman@gmail.com>
+ <20261114230800.1344401-2-michael.zaidman@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 23:37:15 +0000
+Date: Sat, 14 Nov 2026 23:39:38 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,271 +60,208 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 4 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issues to consider:
-- [High] HID: ft260: undrained xmit_fifo on TX error or remove hangs tty
-  drain and vhangup
-- [High] HID: ft260: race between tty open/reopen and ft260_remove()
-  causes hdev UAF
-- [High] HID: ft260: premature list_del() in ft260_uart_port_remove()
-  causes index reuse
+- [High] HID: ft260: UAF on port->hdev and premature xmit_fifo free on
+  disconnect
+- [High] HID: ft260: use-after-free in ft260_uart_activate() on remove
+  race
 - [Medium] HID: ft260: missing UART_COUNT_MAX check in
   ft260_uart_add_port()
 --
 
-commit 4759b9dbc3d5fe28cb8dc19ab0c19093471e2b92
-Author: Michael Zaidman <michael.zaidman@gmail.com>
+commit 0485244a5cc12377d97264627f49ff95e6a060c7
+Author: Christina Quast <contact@christina-quast.de>
 
-HID: ft260: uart: fix the serial driver
+HID: ft260: add serial driver
 
-This commit fixes buffer sharing, power-save wakeup handling, input report
-validation, TX work queueing, and port lifecycle management in the FT260
-UART driver.
+This commit adds a TTY serial driver (/dev/ttyFTx) for the UART interface
+of FT260 USB HID devices.
 
 > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index 982e2ca7a2de6..8d72a22d7a079 100644
+> index 64c9c940db46e..982e2ca7a2de6 100644
 > --- a/drivers/hid/hid-ft260.c
 > +++ b/drivers/hid/hid-ft260.c
 
 [ ... ]
 
-> @@ -1123,8 +1161,8 @@ static int ft260_uart_add_port(struct ft260_device =
-*port)
->  	int index =3D 0, ret =3D 0;
->  	struct ft260_device *dev;
-> =20
-> -	spin_lock_init(&port->write_lock);
-> -	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
-> +	spin_lock_init(&port->xmit_fifo_lock);
-> +	if (kfifo_alloc(&port->xmit_fifo, XMIT_FIFO_SIZE, GFP_KERNEL))
->  		return -ENOMEM;
-> =20
->  	mutex_lock(&ft260_uart_list_lock);
-> @@ -1135,7 +1173,8 @@ static int ft260_uart_add_port(struct ft260_device =
-*port)
+> @@ -1001,51 +1101,478 @@ static const struct attribute_group ft260_attr_g=
+roup =3D {
 >  	}
+>  };
 > =20
->  	port->index =3D index;
-> -	list_add_tail(&port->device_list, &ft260_uart_device_list);
-> +	/* Before the first gap, or at the end: the list stays sorted */
-> +	list_add_tail(&port->device_list, &dev->device_list);
->  	mutex_unlock(&ft260_uart_list_lock);
-> =20
->  	return ret;
+> +static int ft260_uart_add_port(struct ft260_device *port)
+>  {
+> +	int index =3D 0, ret =3D 0;
+>  	struct ft260_device *dev;
+> +
+> +	spin_lock_init(&port->write_lock);
+> +	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
+> +		return -ENOMEM;
+> +
+> +	mutex_lock(&ft260_uart_list_lock);
+> +	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
+> +		if (dev->index !=3D index)
+> +			break;
+> +		index++;
+> +	}
+> +
+> +	port->index =3D index;
+> +	list_add_tail(&port->device_list, &ft260_uart_device_list);
+> +	mutex_unlock(&ft260_uart_list_lock);
+> +
+> +	return ret;
+> +}
 
 [Severity: Medium]
-Can ft260_uart_add_port() assign port->index >=3D UART_COUNT_MAX when more
-than four FT260 UART interfaces are probed?
+Does ft260_uart_add_port() need to check if index >=3D UART_COUNT_MAX before
+adding the port?  When a fifth FT260 UART interface is probed,
+ft260_uart_probe() passes dev->index =3D=3D 4 to
+tty_port_register_device_attr(), which triggers a WARN_ON(index >=3D
+driver->num) in tty_port_link_device() because ft260_tty_driver was
+allocated with UART_COUNT_MAX (4) lines.
 
-ft260_tty_driver is allocated with UART_COUNT_MAX (4) ports, but
-ft260_uart_add_port() never checks index against UART_COUNT_MAX before
-adding the port and returning 0.  ft260_uart_probe() then passes
-dev->index to tty_port_register_device_attr() -> tty_port_link_device(),
-which hits WARN_ON(index >=3D driver->num).
+While commit "HID: ft260: uart: fix the serial driver" fixes the unsorted
+list insertion here, the missing UART_COUNT_MAX bounds check remains at
+the end of the series.
 
-> @@ -1148,7 +1187,12 @@ static void ft260_uart_port_put(struct ft260_devic=
-e *port)
-> =20
->  static void ft260_uart_port_remove(struct ft260_device *port)
->  {
-> -	timer_delete_sync(&port->wakeup_timer);
-> +	/*
-> +	 * Shut down, not delete: a tty call before the hangup below
-> +	 * must not re-arm the timer.
-> +	 */
-> +	timer_shutdown_sync(&port->wakeup_timer);
-> +	cancel_work_sync(&port->wakeup_work);
-> =20
->  	mutex_lock(&ft260_uart_list_lock);
->  	list_del(&port->device_list);
->  	mutex_unlock(&ft260_uart_list_lock);
-
-[Severity: High]
-Does removing port->device_list in ft260_uart_port_remove() allow a newly
-probed FT260 to reuse port->index while an open file descriptor still
-keeps the old tty_struct in ft260_tty_driver->ttys[index]?
-
-Until the last file descriptor is closed and release_tty() runs,
-ft260_tty_driver->ttys[index] still points to the old hung-up tty_struct.
-If the device is re-plugged before that close, ft260_uart_add_port() sees
-the index as free and assigns it to the new device.  Opening the new
-/dev/ttyFTx then finds the old tty_struct via tty_driver_lookup_tty() and
-calls tty_reopen() -> ft260_uart_open() -> ft260_uart_port_activate() on
-the old removed ft260_device, dereferencing its stopped and freed
-port->hdev.
-
-Moving list_del(&port->device_list) to ft260_uart_port_destroy() would keep
-the index reserved until ft260_tty_driver->ttys[index] has been cleared.
-
-[ ... ]
-
-> @@ -1207,61 +1254,51 @@ static int ft260_uart_transmit_chars(struct ft260=
-_device *port)
->  	struct kfifo *xmit =3D &port->xmit_fifo;
->  	struct tty_struct *tty;
->  	struct ft260_uart_write_request_report *rep;
-> -	int len, data_len, ret =3D 0;
-> +	int len, ret =3D 0;
-> =20
->  	tty =3D tty_port_tty_get(&port->port);
-> +	if (!tty)
-> +		return -EINVAL;
-> =20
-> -	data_len =3D kfifo_len(xmit);
-> -	if (!tty || !data_len) {
-> -		ret =3D -EINVAL;
-> -		goto tty_out;
-> -	}
-> -
-> -	rep =3D (struct ft260_uart_write_request_report *)port->write_buf;
-> -
-> -	do {
-> -		len =3D min(data_len, FT260_WR_DATA_MAX);
-> +	rep =3D (struct ft260_uart_write_request_report *)port->uart_wr_buf;
-> =20
-> +	while ((len =3D kfifo_out_spinlocked(xmit, rep->data,
-> +					   FT260_WR_UART_DATA_MAX,
-> +					   &port->xmit_fifo_lock)) > 0) {
->  		rep->report =3D FT260_UART_DATA_REPORT_ID(len);
->  		rep->length =3D len;
-> =20
-> -		len =3D kfifo_out_locked(xmit, rep->data, len, &port->write_lock);
-> -
-> -		ret =3D ft260_hid_output_report(hdev, (u8 *)rep, len + sizeof(*rep));
-> -		if (ret < 0) {
-> -			hid_err(hdev, "Failed to start transfer, ret %d\n", ret);
-> -			goto tty_out;
-> -		}
-> +		ret =3D ft260_hid_output_report(hdev, (u8 *)rep, len + 2);
-> +		if (ret < 0)
-> +			break;
-> =20
-> -		data_len -=3D len;
->  		port->icount.tx +=3D len;
-> -	} while (data_len > 0);
-> -
-> -	len =3D kfifo_len(xmit);
-> -	if ((FIFO_SIZE - len) > TTY_WAKEUP_WATERMARK)
-> -		tty_wakeup(tty);
-> -
-> -	ret =3D 0;
-> +	}
-> =20
-> -tty_out:
-> +	tty_wakeup(tty);
->  	tty_kref_put(tty);
-> -	return ret;
-> +	return ret < 0 ? ret : 0;
->  }
-
-[Severity: High]
-If ft260_hid_output_report() fails when more than 60 bytes are queued in
-xmit_fifo, does breaking out of this loop leave xmit_fifo non-empty with
-nothing to drain or flush it?
-
-ft260_uart_chars_in_buffer() then continues returning a non-zero
-kfifo_len(&port->xmit_fifo) forever, and ft260_uart_ops has no
-.flush_buffer callback.  As a result, tcdrain() and
-set_termios(TCSADRAIN/TCSAFLUSH) sleep indefinitely in
-wait_event_interruptible(tty->write_wait, !tty_chars_in_buffer(tty)), and
-if the device is unplugged while set_termios() is waiting with an ldisc
-reference held, ft260_uart_port_remove() -> tty_port_tty_vhangup() ->
-tty_ldisc_hangup() blocks forever in tty_ldisc_lock() before reaching
-kfifo_free(&port->xmit_fifo):
-
-CPU0                                  CPU1
-tty_ioctl() [TCSETSW]
-  ld =3D tty_ldisc_ref_wait(tty)
-  ...
-  set_termios()
-    wait_event_interruptible(
-      tty->write_wait,
-      !tty_chars_in_buffer(tty))
-                                      ft260_uart_port_remove()
-                                        tty_port_tty_vhangup(&port->port)
-                                          ...
-                                          tty_ldisc_hangup()
-                                            tty_driver_flush_buffer(tty)
-                                            wake_up_interruptible_poll(
-                                              &tty->write_wait, EPOLLOUT)
-    /* xmit_fifo still non-empty,
-       goes back to sleep */
-                                            tty_ldisc_lock(tty,
-                                              MAX_SCHEDULE_TIMEOUT)
-                                              <-- hangs forever
-
-[ ... ]
-
-> @@ -1503,53 +1548,69 @@ static void ft260_uart_start_wakeup(struct timer_=
-list *t)
-
-[ ... ]
-
-> -static int ft260_uart_activate(struct tty_port *tport, struct tty_struct=
- *tty)
-> +static int ft260_uart_port_activate(struct tty_port *tport, struct tty_s=
-truct *tty)
->  {
-> +	int ret;
-> +	int baudrate;
-> +	struct ft260_get_uart_settings_report cfg;
-> +	struct ft260_device *port =3D container_of(tport, struct ft260_device, =
-port);
 > +
->  	set_bit(TTY_IO_ERROR, &tty->flags);
-> =20
-> -	spin_lock(&port->write_lock);
-> +	spin_lock(&port->xmit_fifo_lock);
->  	kfifo_reset(&port->xmit_fifo);
-> -	spin_unlock(&port->write_lock);
-> +	spin_unlock(&port->xmit_fifo_lock);
-> =20
-> -	ft260_uart_change_speed(port, &tty->termios, NULL);
->  	clear_bit(TTY_IO_ERROR, &tty->flags);
-> =20
-> -	if (port->reschedule_work) {
-> +	/*
-> +	 * The port setting may remain intact after session termination.
-> +	 * Then, when reopening the port without configuring the port
-> +	 * setting, we need to retrieve the baud rate from the device to
-> +	 * reactivate the wakeup workaround if needed.
-> +	 */
-> +	ret =3D ft260_get_uart_settings(port->hdev, &cfg);
+> +static void ft260_uart_port_put(struct ft260_device *port)
+> +{
+> +	tty_port_put(&port->port);
+> +}
+> +
+> +static void ft260_uart_port_remove(struct ft260_device *port)
+> +{
+> +	timer_delete_sync(&port->wakeup_timer);
+> +
+> +	mutex_lock(&ft260_uart_list_lock);
+> +	list_del(&port->device_list);
+> +	mutex_unlock(&ft260_uart_list_lock);
+> +
+> +	tty_port_tty_vhangup(&port->port);
+> +
+> +	spin_lock(&port->write_lock);
+> +	kfifo_free(&port->xmit_fifo);
+> +	spin_unlock(&port->write_lock);
+> +}
 
 [Severity: High]
-Can ft260_uart_port_activate() race with ft260_remove() and dereference
-port->hdev after it has been stopped and freed?
+Can freeing port->xmit_fifo in ft260_uart_port_remove() and leaving
+port->hdev accessible after ft260_remove() cause a use-after-free?
+
+struct ft260_device stays alive until the final tty_port reference is
+dropped in ft260_uart_cleanup() -> ft260_uart_port_destroy(), whereas
+ft260_remove() calls ft260_uart_port_remove(), hid_hw_close(hdev), and
+hid_hw_stop(hdev), after which usbhid_disconnect() -> hid_destroy_device()
+frees hdev.  If a process keeps an open file descriptor across
+ft260_remove() and reopens it (for example via /proc/self/fd/<fd>),
+tty_open_by_driver() takes the tty_reopen() path into tty_port_open() ->
+ft260_uart_activate(), which resets the already freed port->xmit_fifo and
+calls ft260_uart_change_speed() -> ft260_hid_feature_report_set() on the
+freed port->hdev.  Because ft260_uart_activate() also ignores the return
+value of ft260_uart_change_speed() and clears TTY_IO_ERROR, the reopen
+succeeds and subsequent ft260_uart_write() and ft260_uart_set_termios()
+calls operate on the freed FIFO and freed hdev as well.
+
+Commit "HID: ft260: uart: fix the serial driver" and commit "HID: ft260:
+uart: add modem pins control via ioctl" add a port->removed flag for the
+modem control ioctls, but ft260_uart_port_activate() and
+ft260_uart_change_speed() still do not check port->removed and
+port->xmit_fifo is still freed in ft260_uart_port_remove() rather than
+ft260_uart_port_destroy().
+
+[ ... ]
+
+> +static int ft260_uart_install(struct tty_driver *driver, struct tty_stru=
+ct *tty)
+> +{
+> +	int idx =3D tty->index;
+> +	struct ft260_device *port =3D ft260_uart_port_get(idx);
+> +	int ret;
+> +
+> +	if (!port)
+> +		return -ENODEV;
+> +
+> +	ret =3D tty_standard_install(driver, tty);
+>  	if (ret) {
+> +		ft260_uart_port_put(port);
+>  		return ret;
+>  	}
+> =20
+> +	tty->driver_data =3D port;
+> +	return 0;
+> +}
+
+[ ... ]
+
+> +static int ft260_uart_activate(struct tty_port *tport, struct tty_struct=
+ *tty)
+> +{
+> +	struct ft260_device *port =3D
+> +		container_of(tport, struct ft260_device, port);
+> +
+> +	/*
+> +	 * Set the TTY IO error marker - we will only clear this
+> +	 * once we have successfully opened the port.
+> +	 */
+> +	set_bit(TTY_IO_ERROR, &tty->flags);
+> +
+> +	spin_lock(&port->write_lock);
+> +	kfifo_reset(&port->xmit_fifo);
+> +	spin_unlock(&port->write_lock);
+> +
+> +	ft260_uart_change_speed(port, &tty->termios, NULL);
+> +	clear_bit(TTY_IO_ERROR, &tty->flags);
+> +
+> +	if (port->reschedule_work) {
+> +		mod_timer(&port->wakeup_timer, jiffies +
+> +			  msecs_to_jiffies(FT260_WAKEUP_NEEDED_AFTER_MS));
+> +	}
+> +
+> +	return 0;
+> +}
+
+[Severity: High]
+What prevents ft260_uart_activate() from running after ft260_remove() when
+tty_open() races with disconnect?
 
 CPU0                                  CPU1
 tty_open()
-  tty_open_by_driver()
-    tty_init_dev()
-      ft260_uart_install()
-        ft260_uart_port_get()
-    mutex_unlock(&tty_mutex)
-                                      ft260_remove()
-                                        ...
-                                        ft260_uart_port_remove()
-                                          list_del(&port->device_list)
-                                          tty_port_tty_vhangup(&port->port)
-                                            /* port.tty is still NULL */
-                                          kfifo_free(&port->xmit_fifo)
-                                        hid_hw_close(hdev)
-                                        hid_hw_stop(hdev)
-                                        /* hdev freed by HID/USB core */
+  tty_init_dev()
+    ft260_uart_install()
+      ft260_uart_port_get()
+      tty->driver_data =3D port
+                                      usbhid_disconnect()
+                                        hid_destroy_device()
+                                          ft260_remove()
+                                            ft260_uart_port_remove()
+                                              list_del(&port->device_list)
+                                              tty_port_tty_vhangup(&port->p=
+ort)
+                                              kfifo_free(&port->xmit_fifo)
+                                            hid_hw_close(hdev)
+                                            hid_hw_stop(hdev)
+                                          kfree(hdev)
   ft260_uart_open()
     tty_port_open()
-      ft260_uart_port_activate()
-        ft260_get_uart_settings(port->hdev, ...)
-          <-- use-after-free on port->hdev
+      tty_port_tty_set()
+      ft260_uart_activate()
+        kfifo_reset(&port->xmit_fifo)
+        ft260_uart_change_speed()
+          ft260_hid_feature_report_set(port->hdev, ...)
+                                      <-- use-after-free on port->hdev
 
-The same race also happens on reopen when a second opener waits on
-tty_lock_interruptible(tty) in tty_open_by_driver() while
-tty_port_tty_vhangup() runs: vhangup clears the tty_port's initialized
-flag, and tty_reopen() then proceeds to ft260_uart_open() ->
-tty_port_open() -> ft260_uart_port_activate() after ft260_remove() has
-finished.
+Between ft260_uart_install() and tty_port_open(), port->port.tty is still
+NULL, so tty_port_tty_vhangup() in ft260_uart_port_remove() sees no tty to
+hang up.  tty_open() then enters ft260_uart_activate(), resets the freed
+port->xmit_fifo, dereferences the freed port->hdev, and clears
+TTY_IO_ERROR so the open succeeds on the removed device.  Even after commit
+"HID: ft260: uart: fix the serial driver" and commit "HID: ft260: uart:
+add modem pins control via ioctl", ft260_uart_port_activate() still does
+not check whether the device was removed under a lock synchronized with
+disconnect.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114230800.1344=
-401-1-michael.zaidman@gmail.com?part=3D2
+401-1-michael.zaidman@gmail.com?part=3D1

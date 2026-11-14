@@ -1,64 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794681311;
-	b=O/ThwGflH6NhrVkPPRiagZEr06ZDDDEuHvrc14QQpsAKbOxFQs6PBCdX5nJWrZunDupT
-	 R4TO4YCoig7kmm5moOTT+msVHVvtzP9LgCI1jjkkKYuyqnS+4+hBn2pRPzBwZjPWUi68I
-	 /2KPf5tP5lU/BFB+r2kc3gzemKGr5eSgO/rfHpX+Vzl6CdJK9hwhrM2OrBkTVWqzrP7kM
-	 3KJN6ayMz+4abs/AK3DopnrEzzh6l8MtlBA7MoaqF2HUpIUXubUiWNdUEzJnOjGKvn7Ki
-	 rUvIargcHEwK+2sIupuVaaXxPm8CAylHuSYYDyxNstz44ah7dmLTicw8nCRBSGKmWgQ==
+	t=1794681574;
+	b=4aHivfd9rH+eJERy0hJ8/Zd+BmwzNLv1Xtv4KEBxW0yvBsLErR2QuXbrwhDvDLNHc6G9
+	 LiaSbQ1uPEiPWkVAe0GDPWzYrla9QWIOzAG1Bo3cYIP7QLioyMCJYON+sKObMxNdXzayZ
+	 twIi4ckbCy+DV2GXSFGC2V2et44QwhZB2JoZKCBexWEtNvT74sGweNsz2nXJw94Tf/fgk
+	 ERhGGTGQPD55v+MKvOVSY9Ml9RersPopKgUAZpQHzp9cilGHtn0+jMAL2VVHmTvob37w3
+	 Y3Tyzi9zhl7PHZ0253d1WIgslkP1LdHd6p1bcA2S6NViodoCuyINMDztLyuVr90585Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794681311;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=TvSKSRkg9AFrTcntLh7QJ1VF0aRsTmwl0gLaj0FgbTg=;
-	b=d8vzj9dSklRskP8qyfDn6zeE+bU5MDPIHGv1ZV4Q5bDZCVMcCNdMggFNtR2UXN/mfTaN
-	 onhf4pmRnWsnl/a3uwGG+OUay7xcDrhkJ/pX+Ks4qQvpJFvY7oBv7dSgxb64mnQQo1HAC
-	 GbjIuJo2gWQLT8wNDDPsj3RdUbFNod1fkjXqPvOr5ArgTmaSzLreGzsAYeoC0FacCJd2h
-	 Eql1lNwdPgYEVQYOLNSuDS4xyeIEvq3u2cVn4sX4T9BLJTXZJlnNHqUJQ8rpCS9ZeQb7s
-	 igMmnHndDw4raK7aixJuzXRheSgWLKOUYrOnTxw7YKJCUqpvDpyfAQsUcoFWFQ4lT8g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794681574;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Debian-User;
+	bh=0a7lhnldFz0T0GEwHuWehG3KpmUCgohOG9LPG15ZKyw=;
+	b=1bG/aAp0DPe9pXZyYbOZ0oaPvj84Gh2P/vJlvKGkMqqLuFA8vFNeHa/djgybcfgmiyba
+	 oAyzfdamYfj31BznBqsNtREcXOcpE25niWUYmq36duzSY7Wdl/E8nyRmn6zxq5CJVx0Hf
+	 1UPBs17D3E+N48EgNZ95NAZ7jSkcjhBoqwTDkdgjOoLopl0bFadTmrSR1OTVUSAHh7ds8
+	 LrfDNi2QTmzQJIEqms6BUPCpVmumwqah0fc90PC77W5EMYbPSDrxodpQ10DwuZH+8Y4iG
+	 q7KC+JZoPsKDPxfZvtfVMqNMY7fXmLluExwI7Wr/dqlykNzExAkxjv02fu+9RE7JSbA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WkrWyKA0;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=debian.org;
+	spf=pass smtp.mailfrom=debian.org;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=a2Trb5N5;
+	arc=none smtp.remote-ip=82.195.75.108
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD9A606A323;
-	Sat, 14 Nov 2026 18:35:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DED6606A327;
+	Sat, 14 Nov 2026 18:39:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0DED6606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WkrWyKA0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA741F000C4;
-	Sat, 14 Nov 2026 18:35:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794681311;
-	bh=TvSKSRkg9AFrTcntLh7QJ1VF0aRsTmwl0gLaj0FgbTg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=WkrWyKA0yhj2F7gLBdmu0ep02BeBs/qlh6XcoAvZc0PYKQLjrtJEm9Ie9H3qJGCXQ
-	 bBdij8IjcqjGt8Z4S6ix+u5Za/iczJo8mvxr6c6gZhWNJZu8nnfYLIjLI8j3LuZFoy
-	 MK/fMV/BcM4ZaMJGjThZ9wng4q/WDh2i/xaYMv6dx0r4ivkcjw8nzooPv2b/L4C1uK
-	 rGR15aqmdWyHApyC2AiuQnn0fQRvoOopOe71APw7YU7k5E89U6/5fqYCj+8NuddsDq
-	 BXOUtWhw1V6u0dqa4MkdfFN09km3ep7W73HmcsSuFLwUwNzT/4sQTKyezFz04JXBWv
-	 nuzTVQNW3NbFA==
-Date: Sat, 14 Nov 2026 18:34:59 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: Christopher Hoover <ch@murgatroid.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Lixu Zhang
- <lixu.zhang@intel.com>, Joshua Crofts <joshua.crofts1@gmail.com>, David
- Lechner <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/3] iio: hid-sensors: fix shared callbacks in
- temperature and humidity
-Message-ID: <20261114183459.78fc3e31@jic23-hlaptop>
-In-Reply-To: <CACw0PsZ43YAQUcPuP7ec6gjd03Srn5QYUWp74SMZ0gzPLUp71A@mail.gmail.com>
-References: <20261019023420.83976-1-ch@murgatroid.com>
-	<20261102215606.5e36a2a2@jic23-hlaptop>
-	<20261111025336.051fbbcb@jic23-hlaptop>
-	<CACw0PsZ43YAQUcPuP7ec6gjd03Srn5QYUWp74SMZ0gzPLUp71A@mail.gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=a2Trb5N5
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
+	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=0a7lhnldFz0T0GEwHuWehG3KpmUCgohOG9LPG15ZKyw=; b=a2Trb5N5I/QTtOd8+pyYiatNsG
+	JrKV1w4JMFNnpDhvP75GcUeEoqyuf8aw8CL12CYkfcb5atdTjulX9ynMBSORYPhTNfNknjJ0ZTFX3
+	ifcgW9CF1ibUMkwYJIVJqrUcviB+Q7CHECIrkAjwVFkqY/2QPAipPwImQyLfCzwtyhRr2R1TnXFep
+	UjbcpWN3ZlhIODviLCjgRojeRgXm88s8vFz0bz+8LwBlsVpH9hcrQ57mPaK9QzwGbGFjZJqJPL8z7
+	05dK5YPhcUkARe4TZ7wKa5hnGpo/6zc0IKBNoJNI+AX3wjaDFCvyVh9jf+mVaoCgSjxFtLXTnMSHj
+	8U5sGkVQ==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <emfox@debian.org>)
+	id 1xSIet-00FkA3-1F;
+	Sat, 14 Nov 2026 18:39:28 +0000
+From: Emfox Zhou <emfox@debian.org>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/5] HID: intel-thc-hid: intel-ipts: support THC IPTS ports
+Date: Sun, 15 Nov 2026 02:36:19 +0800
+Message-ID: <20261114183624.2379573-1-emfox@debian.org>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -68,101 +69,162 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Debian-User: emfox
 
-On Tue, 10 Nov 2026 19:11:31 -0800
-Christopher Hoover <ch@murgatroid.com> wrote:
+The THC ports on Tiger Lake, Lakefield, Alder Lake and Raptor Lake run in
+IPTS mode: plain SPI with a private framing instead of HIDSPI, which is
+all intel-thc-hid handles today. This adds a backend for them next to
+intel-quickspi and intel-quicki2c, on top of the same core, and is based
+on v7.4-rc2, the first tag with the hid_safe_input_report() it uses.
 
-> >> Dropped patch 1, that should go via the hid tre =20
->=20
-> Do i need to do that ?    Sorry for the possibly dumb question -- I'm
-> well out of practice with the process.
-Ideally Jiri will notice this thread and pick it up.
+Register, DMA and interrupt work goes through the exported intel-thc API,
+except in four places where the core has no call for it: the reset,
+port-supported and quiesce-state bits of THC_M_PRT_CONTROL are accessed
+directly. Nothing outside the new directory changes except Kconfig and
+Makefile.
 
-If that is looking unlikely by say rc5 then send a new version
-with just that patch so that it stands out a little better
+The hardware facts - port IDs, configuration block layout, frame codes
+and header sizes - come from the ithc driver linux-surface ships, at
+https://github.com/quo/ithc-linux 6d53c9c (dual licensed GPL-2.0 /
+BSD-2-Clause); no code is taken from it. The layout, the frame format and
+the ordering between quiesce, interrupt configuration and the DMA engines
+are the parts most likely to need scrutiny; each is argued in the commit
+message that relies on it. All of it was confirmed on a Surface Pro 8 with
+a 045e:0c37 controller.
 
-Thanks,
+The first four patches each leave a state that builds and loads: port
+bring-up, DMA and interrupts, HID registration, system sleep. The fifth
+documents the controller behaviour the driver relies on, none of which is
+written down anywhere else.
 
-Jonathan
+On that machine the touchscreen and the pen work through hidraw and iptsd
+after patch 3, and three suspend/resume cycles (pm_test=devices) bring
+them back after patch 4, with the daemon restarting on its own.
 
->=20
-> -ch
->=20
-> On Tue, Nov 10, 2026 at 6:53=E2=80=AFPM Jonathan Cameron <jic23@kernel.or=
-g> wrote:
-> >
-> > On Mon, 2 Nov 2026 21:56:06 +0000
-> > Jonathan Cameron <jic23@kernel.org> wrote:
-> > =20
-> > > On Sun, 18 Oct 2026 19:34:17 -0700
-> > > Christopher Hoover <ch@murgatroid.com> wrote:
-> > > =20
-> > > > hid-sensor-temperature and hid-sensor-humidity share one static
-> > > > struct hid_sensor_hub_callbacks across instances and overwrite its =
-pdev
-> > > > on every probe. With two temperature sensors, reports for one go to
-> > > > the other's pdev; once that device is removed,
-> > > > temperature_capture_sample() dereferences NULL. I hit this on 7.0
-> > > > with two uhid-created sensors.
-> > > >
-> > > > Patches 2-3 make the callbacks per instance, as the other HID sensor
-> > > > drivers do. Patch 1 makes sensor_hub_remove_callback() take
-> > > > pdata->lock, as sensor_hub_raw_event() does, so a report racing an
-> > > > unbind cannot call through the freed callbacks. =20
-> > > Applied to the fixes-togreg branch of iio.git with the ordering tweak=
-s Andy suggested. =20
-> >
-> > One day I'll remember some bits of this driver are in hid.
-> >
-> > Dropped patch 1, that should go via the hid tree.
-> >
-> > Sorry Jiri / Christopher.
-> >
-> > I only seem to notice I've done this whilst writing pull requests :(
-> >
-> > Jonathan
-> >
-> >
-> > =20
-> > >
-> > > Thanks,
-> > >
-> > > Jonathan =20
-> > > >
-> > > > Changes in v3:
-> > > > - Patches 2-3: set the callbacks with one compound literal (Jonatha=
-n).
-> > > > - Kept Joshua's Reviewed-by on all three; patches 2-3 changed only =
-in
-> > > >   style.
-> > > > - Rebased onto v7.3.
-> > > > - Sent as a new thread, not a reply to v2.
-> > > >
-> > > > Changes in v2:
-> > > > - New patch 1, for the use-after-free on unbind found by the Sashiko
-> > > >   review of v1.
-> > > >
-> > > > v2: https://lore.kernel.org/all/20261007184423.622445-1-ch@murgatro=
-id.com/
-> > > >
-> > > > Christopher Hoover (3):
-> > > >   HID: hid-sensor-hub: Synchronize callback removal with raw events
-> > > >   iio: temperature: hid-sensor-temperature: Use per-instance callba=
-cks
-> > > >   iio: humidity: hid-sensor-humidity: Use per-instance callbacks
-> > > >
-> > > >  drivers/hid/hid-sensor-hub.c                     | 12 ++++++++++--
-> > > >  drivers/iio/humidity/hid-sensor-humidity.c       | 14 +++++++-----=
---
-> > > >  drivers/iio/temperature/hid-sensor-temperature.c | 14 +++++++-----=
---
-> > > >  3 files changed, 24 insertions(+), 16 deletions(-)
-> > > >
-> > > >
-> > > > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222 =20
-> > >
-> > > =20
-> > =20
+The interrupt is the legacy pin: these ports put requester ID 01:05.0 in
+their MSI messages, which is neither their own function nor expressible
+as a DMA alias, so with interrupt remapping on the MSI is rejected and the
+port stays silent. The pin is shared on the PCH, hence IRQF_SHARED; MSI
+is the fallback where no pin is routed.
 
+Ports are matched by PCI ID. These four generations are not in the HIDSPI
+ID table, so nothing else claims them, and a port that firmware drives as
+HIDSPI has no driver today: this driver gives up with -EIO when the $TIC
+tag never appears.
+
+Report handling stops at HID core on purpose: the controller is the one
+declaring itself a HID device, so the descriptor comes from it, Windows
+exposes the same port the same way, and turning the heatmap into contacts
+is user space work that already exists.
+
+Some concerns:
+
+  - Runtime PM is not implemented, and only the Tiger Lake ports were
+    tested; Lakefield, Alder Lake and Raptor Lake share the code path but
+    have not been run. LTR configuration comes with runtime PM.
+
+  - The SPI clock is one of ten gears the core can program, 7.8 to
+    50 MHz, and the core rounds the request down. A controller that asks
+    for less than the slowest gear is raised to 7.8 MHz, warned about
+    once and carried on with.
+
+  - System sleep takes the HID device down and brings it back, so the
+    daemon restarts and asks for the report stream again: the controller
+    does not keep that state, and replaying one set feature would not
+    cover the several the daemon sends. It also means the touchscreen
+    cannot wake the machine.
+
+Link to v2:
+https://lore.kernel.org/r/20261114170740.2068179-1-emfox@debian.org
+
+Link to v1:
+https://lore.kernel.org/r/20261114154611.1683519-1-emfox@debian.org
+
+
+Changes in v3, from the automated review of v2:
+
+  - The running flag is set where the touch engine is enabled, in the
+    patch that enables it. Patch 1 read the flag on teardown but only
+    patch 2 assigned it, so a bisect landed on a kernel that reset the
+    controller with the touch engine still powered.
+
+  - A recovery in flight is device state now, not a local variable in
+    the threaded handler. An interrupt from another function on the
+    shared line woke a second handler that read frames while the work
+    item was rewriting the ring, and unmasked the port mid-reset.
+
+  - The shared line is requested with IRQF_COND_ONESHOT instead of
+    IRQF_ONESHOT. A shared line only accepts handlers that agree on
+    oneshot, and the other functions on this pin do not use it, so the
+    request failed with -EBUSY as soon as one of them had probed first.
+
+  - An interrupt with no cause of ours is reported as not handled: from
+    the thread when the status is empty, and from the hardirq while the
+    port is stopping or has no DMA. Both only after the port has been
+    masked, so the spurious detector cannot see a storm from here.
+
+  - The drain loop stopped one pass short: thc_interrupt_handler()
+    returns early on four causes and the data path is a fifth call, and a
+    cause that arrives while frames are read adds one more. The bound is
+    now a pass per cause plus the one that reports none.
+
+  - The feature reply is taken under a lock shared with the sender. A
+    request that timed out is dropped, and the sender may already be
+    asking for another report: checking the flags and copying the answer
+    has to be one step, or the new request completes with the old one.
+
+  - Teardown takes req_lock before masking the line and resetting the
+    controller. A request already inside thc_dma_write still needs the
+    interrupt that completes it, and with the line masked first it waited
+    out its timeout holding the bus lock.
+
+Changes in v2, from the automated review of v1:
+
+  - The recovery work item is initialised where it is introduced.
+    Patch 2 used it and only patch 3 initialised it, which breaks the
+    bisect.
+
+  - A frame read that finds the ring empty no longer passes an
+    uninitialised length to the frame decoder.
+
+  - The port stays masked while the recovery item resets the engine,
+    and the handler keeps draining the status registers after an error,
+    so a queued transmit completion is acknowledged instead of timing
+    out under the bus lock.
+
+  - Teardown stops and quiesces the controller before the DMA memory is
+    released, and takes req_lock around the release: a send already
+    inside thc_dma_write finishes, later ones fail on ->stopping.
+
+  - SET_REPORT returns the byte count, as hidraw expects; zero was
+    returned before.
+
+  - A late or empty report descriptor no longer overwrites the buffer
+    being parsed, and an empty one is retried instead of registered.
+
+  - Feature reports: empty answers are rejected, and the report ID in
+    an answer is checked against the request. Verified on hardware,
+    where GET_FEATURE for reports 5, 6, 9 and 17 echoes its own ID.
+
+
+Emfox Zhou (5):
+  HID: intel-thc-hid: intel-ipts: bring up the port
+  HID: intel-thc-hid: intel-ipts: receive reports
+  HID: intel-thc-hid: intel-ipts: register the HID device
+  HID: intel-thc-hid: intel-ipts: handle system sleep
+  HID: intel-thc-hid: intel-ipts: document the IPTS mode
+
+ Documentation/hid/intel-thc-hid.rst           |  95 ++-
+ drivers/hid/intel-thc-hid/Kconfig             |  14 +
+ drivers/hid/intel-thc-hid/Makefile            |   4 +
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 776 ++++++++++++++++++
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.h   | 196 +++++
+ .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 203 +++++
+ 6 files changed, 1287 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
+
+
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb

@@ -1,56 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794699580;
-	b=i61NWFBzy2Sgt6Y/9ow1lkMDi3tL5tHoyxJscr1Zid0Jt4FOl8lC4de10jN5SGbYfv4J
-	 FPFycNz04MbDXUMF73ydXKu7B9Vy607Sns44j6myrAIQJz3OZr+ZFGCEZtZ3XsMP6cYF2
-	 yzpkOqUrFHdVZOIa+wmWCfKTrtXsUb1pRK8QMI7EXu5mFgzFM1zg6ynBiymYAJk8zqEcb
-	 9y+fi+vN0nFWN49nN7M6sASumkhx2PkwcmoLaTc6zNCjAYlXgqReKzfM7sRiLFNkizunJ
-	 ocldxb5LgrcBFfyQoWAst9du7YdW4nicHRfmt9e7HVDoSHrseDQuCDwNqM3tRifgVOg==
+	t=1794699774;
+	b=lXQRcxOWPdJywN7GAnSpt4Ai/vl8Xgj68tCpjcmvKQ4ogaHJbgEVvbM4rv58gPINnj5s
+	 r3D7I/6WNAaNv2fXvwzWg3gM6F5LoUWrS+Z11WdCRdVHc7nIcEnMGz7GlNqsovQbgempB
+	 xXCkkIUMD/D/yzbpp9qB0gs7upeJNjC2I817lGd+im2SEEvBKJ31+dHV3IcBIAkrrtPD0
+	 J2QuxRWRNUSpCRNGSNV3acmLI4q1T8JAWkYV9v4R8wj61GwB4JTy7eBW78STeSdYCoiIK
+	 FcJ1jiR09Yf5CTf+l6sDjEb64ko/3lXqe2hJ27A1SH9SzhBINZTIPpNK2DiJSTFVEPA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794699580;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=LI9G/qfltJYghc/lTWkjbrtBN0ameZAHpKSn9LBhWmI=;
-	b=vYg/ILDGcL3GN1p6PdyGwZSbaYCbSWTiMfdPTthqNfpDNLkSw426Uz/pGG0hyPyUNKCz
-	 3+spTT8Ljt9rSJW5vC+Mtdyf1nPG0e+2tjpujbPi93pOF/KDyXl3ILyMk3bc8ce1YUWv8
-	 7OkZxUZHFk0i7gR+7lA1IU0spu9BQLZxDQNADUd0p0S1RRMhLYH2DCQCT+mvAN++Ys//E
-	 zWAkcRrgmzkEOvo+PdcgDH/53ifwpvUd1YMekdF5SHw0jXMqZ2I1h61pbCvHdMteL2yMp
-	 MZkdM0tKQ3dTP9AyRVnZjmz5DrFRadNtO3E+c5cn6SVgkFfFhY/114e9Xke/yynbLMQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794699774;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Debian-User;
+	bh=DMwjjvmYHcGvjsrpj8I7GbC8nvrHBooiUYnDkcVtlP4=;
+	b=lEZ3sgyMgISSgUWJc/ZuQfEE/RNhqKH+GAjWYbArKrGom+oTfxj9L6odyswOb4dP9Smo
+	 nW/KWKJLMvNjcNxPEoJtCkujf56utWt4TWELyTfGOsTZoFyXtWd89wG1s5Ud5p3w8vTp0
+	 vWcjoYAn91wDMQAaILFIMCD8p896aKMZt0GgKsxLZt0IqRcxzsQZ1x+RDWdX14zQS2/f0
+	 V2+nDd1yvX9fxuweCTlsMnwp09MBfMlw6xA6YC77U+jzb746fnmaQNxFk8gCmZjbKHnzK
+	 JhaWLv0ZilrxGHA/30q0Ks8Qy5VtEp7QE11WdsEJJM9DYeA2PGw0Rc5BcFebzl/JAqw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OvSKHxNE;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=debian.org;
+	spf=pass smtp.mailfrom=debian.org;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=TS8vN5Fn;
+	arc=none smtp.remote-ip=82.195.75.108
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 149CD606A323;
-	Sat, 14 Nov 2026 23:39:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A86DE606A8A9;
+	Sat, 14 Nov 2026 23:42:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A86DE606A8A9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OvSKHxNE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E2E91F000C4;
-	Sat, 14 Nov 2026 23:39:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794699579;
-	bh=LI9G/qfltJYghc/lTWkjbrtBN0ameZAHpKSn9LBhWmI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OvSKHxNEYUs6wOseHxoUF0b7ndnjFuxeKHBj6IcFac6XMDcu5koAIO4u0YgTaX3nQ
-	 mk/ssu4TMqYuGkMZq6VoP8/lWP/tCJ6MPea3+cGrEVcYTpr0VUzM3sRIUBjLgYSbUc
-	 8HFsYZkC6dsHcg5bsPEltvB08QChNXjpHe64Q0l0PuDqvxd8R5CsGXOeTCFq5VSCuL
-	 MFvhpvfsdTnKheKNdaSOW+aFIeyYvpkHJkcTsnrmAFA1+NVl6AffMKCaVsQwfXMa9y
-	 D6yra8C70EEnGBL+ng3rz0o6eQZXo+nCSuynwyfNefGyDqWHxxker9iMDBTAc74WQi
-	 AaJN17vkM806A==
-Message-ID: <sashiko-outbox-215117@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 01/16] HID: ft260: add serial driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael Zaidman" <michael.zaidman@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-serial@vger.kernel.org, linux-gpio@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261114230800.1344401-2-michael.zaidman@gmail.com>
-References: <20261114230800.1344401-1-michael.zaidman@gmail.com>
- <20261114230800.1344401-2-michael.zaidman@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 23:39:38 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=TS8vN5Fn
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
+	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=DMwjjvmYHcGvjsrpj8I7GbC8nvrHBooiUYnDkcVtlP4=; b=TS8vN5FnEcnflFB3Wc2OntC41t
+	sorUfvecRAVE8SD03Kw2i1ttHoLFJdJx3i8CxyuI5wDRTnN49eNPdIJrGjHQCeKcGmuxYh3c45Fh/
+	0Qrrj7oUzfL1kksO/VtP+KIfHUQT4IpFiQf44kSmDZp15sbxPftQJCcA2G91PwI+en0RwyspwB7J1
+	nMxGfgheIWJH6WYKgBBOhyIwKrSwx6BUQwAnIIAhUo/t7752U6h9ej7Ko06LpGW6hkDgWozjy4EDm
+	47Ko+JghuX48XBPgZNAK8ZEGhoNjd7k6Xkk81vt1FTt7zK3eyTMXIBz0eOnrx6pxevp9Vq4rBlKo+
+	2bXn4gAQ==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <emfox@debian.org>)
+	id 1xSNOR-00FuFV-0z;
+	Sat, 14 Nov 2026 23:42:48 +0000
+From: Emfox Zhou <emfox@debian.org>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/5] HID: intel-thc-hid: intel-ipts: support THC IPTS ports
+Date: Sun, 15 Nov 2026 07:42:37 +0800
+Message-ID: <20261114234242.177387-1-emfox@debian.org>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,209 +68,99 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Debian-User: emfox
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] HID: ft260: UAF on port->hdev and premature xmit_fifo free on
-  disconnect
-- [High] HID: ft260: use-after-free in ft260_uart_activate() on remove
-  race
-- [Medium] HID: ft260: missing UART_COUNT_MAX check in
-  ft260_uart_add_port()
---
+The THC ports on Tiger Lake, Lakefield, Alder Lake and Raptor Lake run in
+IPTS mode: plain SPI with a private framing instead of HIDSPI, which is
+all intel-thc-hid handles today. This adds a backend for them next to
+intel-quickspi and intel-quicki2c, on top of the same core, and is based
+on v7.4-rc2, the first tag with the hid_safe_input_report() it uses.
 
-commit 0485244a5cc12377d97264627f49ff95e6a060c7
-Author: Christina Quast <contact@christina-quast.de>
+Register, DMA and interrupt work goes through the exported intel-thc API,
+except in four places where the core has no call for it: the reset,
+port-supported and quiesce-state bits of THC_M_PRT_CONTROL are accessed
+directly. Nothing outside the new directory changes except Kconfig and
+Makefile.
 
-HID: ft260: add serial driver
+The hardware facts - port IDs, configuration block layout, frame codes
+and header sizes - come from the ithc driver linux-surface ships, at
+https://github.com/quo/ithc-linux 6d53c9c (dual licensed GPL-2.0 /
+BSD-2-Clause); no code is taken from it. The layout, the frame format and
+the ordering between quiesce, interrupt configuration and the DMA engines
+are the parts most likely to need scrutiny; each is argued in the commit
+message that relies on it. All of it was confirmed on a Surface Pro 8 with
+a 045e:0c37 controller.
 
-This commit adds a TTY serial driver (/dev/ttyFTx) for the UART interface
-of FT260 USB HID devices.
+The first four patches each leave a state that builds and loads: port
+bring-up, DMA and interrupts, HID registration, system sleep. The fifth
+documents the controller behaviour the driver relies on, none of which is
+written down anywhere else.
 
-> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index 64c9c940db46e..982e2ca7a2de6 100644
-> --- a/drivers/hid/hid-ft260.c
-> +++ b/drivers/hid/hid-ft260.c
+On that machine the touchscreen and the pen work through hidraw and iptsd
+after patch 3, and three suspend/resume cycles (pm_test=devices) bring
+them back after patch 4, with the daemon restarting on its own.
 
-[ ... ]
+The interrupt is the legacy pin: these ports put requester ID 01:05.0 in
+their MSI messages, which is neither their own function nor expressible
+as a DMA alias, so with interrupt remapping on the MSI is rejected and the
+port stays silent. The pin is shared on the PCH, hence IRQF_SHARED; MSI
+is the fallback where no pin is routed.
 
-> @@ -1001,51 +1101,478 @@ static const struct attribute_group ft260_attr_g=
-roup =3D {
->  	}
->  };
-> =20
-> +static int ft260_uart_add_port(struct ft260_device *port)
->  {
-> +	int index =3D 0, ret =3D 0;
->  	struct ft260_device *dev;
-> +
-> +	spin_lock_init(&port->write_lock);
-> +	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
-> +		return -ENOMEM;
-> +
-> +	mutex_lock(&ft260_uart_list_lock);
-> +	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
-> +		if (dev->index !=3D index)
-> +			break;
-> +		index++;
-> +	}
-> +
-> +	port->index =3D index;
-> +	list_add_tail(&port->device_list, &ft260_uart_device_list);
-> +	mutex_unlock(&ft260_uart_list_lock);
-> +
-> +	return ret;
-> +}
+Ports are matched by PCI ID. These four generations are not in the HIDSPI
+ID table, so nothing else claims them, and a port that firmware drives as
+HIDSPI has no driver today: this driver gives up with -EIO when the $TIC
+tag never appears.
 
-[Severity: Medium]
-Does ft260_uart_add_port() need to check if index >=3D UART_COUNT_MAX before
-adding the port?  When a fifth FT260 UART interface is probed,
-ft260_uart_probe() passes dev->index =3D=3D 4 to
-tty_port_register_device_attr(), which triggers a WARN_ON(index >=3D
-driver->num) in tty_port_link_device() because ft260_tty_driver was
-allocated with UART_COUNT_MAX (4) lines.
+Report handling stops at HID core on purpose: the controller is the one
+declaring itself a HID device, so the descriptor comes from it, Windows
+exposes the same port the same way, and turning the heatmap into contacts
+is user space work that already exists.
 
-While commit "HID: ft260: uart: fix the serial driver" fixes the unsorted
-list insertion here, the missing UART_COUNT_MAX bounds check remains at
-the end of the series.
+Some concerns:
 
-> +
-> +static void ft260_uart_port_put(struct ft260_device *port)
-> +{
-> +	tty_port_put(&port->port);
-> +}
-> +
-> +static void ft260_uart_port_remove(struct ft260_device *port)
-> +{
-> +	timer_delete_sync(&port->wakeup_timer);
-> +
-> +	mutex_lock(&ft260_uart_list_lock);
-> +	list_del(&port->device_list);
-> +	mutex_unlock(&ft260_uart_list_lock);
-> +
-> +	tty_port_tty_vhangup(&port->port);
-> +
-> +	spin_lock(&port->write_lock);
-> +	kfifo_free(&port->xmit_fifo);
-> +	spin_unlock(&port->write_lock);
-> +}
+  - Runtime PM is not implemented, so LTR is not configured, and only the
+    Tiger Lake ports were tested; Lakefield, Alder Lake and Raptor Lake
+    share the code path but have not been run.
 
-[Severity: High]
-Can freeing port->xmit_fifo in ft260_uart_port_remove() and leaving
-port->hdev accessible after ft260_remove() cause a use-after-free?
+  - System sleep takes the HID device down and brings it back, so the
+    daemon restarts and asks for the report stream again: the controller
+    does not keep that state, and the touchscreen cannot wake the machine.
 
-struct ft260_device stays alive until the final tty_port reference is
-dropped in ft260_uart_cleanup() -> ft260_uart_port_destroy(), whereas
-ft260_remove() calls ft260_uart_port_remove(), hid_hw_close(hdev), and
-hid_hw_stop(hdev), after which usbhid_disconnect() -> hid_destroy_device()
-frees hdev.  If a process keeps an open file descriptor across
-ft260_remove() and reopens it (for example via /proc/self/fd/<fd>),
-tty_open_by_driver() takes the tty_reopen() path into tty_port_open() ->
-ft260_uart_activate(), which resets the already freed port->xmit_fifo and
-calls ft260_uart_change_speed() -> ft260_hid_feature_report_set() on the
-freed port->hdev.  Because ft260_uart_activate() also ignores the return
-value of ft260_uart_change_speed() and clears TTY_IO_ERROR, the reopen
-succeeds and subsequent ft260_uart_write() and ft260_uart_set_termios()
-calls operate on the freed FIFO and freed hdev as well.
+Link to v4:
+https://lore.kernel.org/r/20261114214026.2809740-1-emfox@debian.org
 
-Commit "HID: ft260: uart: fix the serial driver" and commit "HID: ft260:
-uart: add modem pins control via ioctl" add a port->removed flag for the
-modem control ioctls, but ft260_uart_port_activate() and
-ft260_uart_change_speed() still do not check port->removed and
-port->xmit_fifo is still freed in ft260_uart_port_remove() rather than
-ft260_uart_port_destroy().
+Changes in v5:
 
-[ ... ]
+  - A feature answer is no longer matched to its request by a serial
+    number; the frame cannot carry one. A request is sent once, and a
+    timeout closes the channel until the port is started again.
 
-> +static int ft260_uart_install(struct tty_driver *driver, struct tty_stru=
-ct *tty)
-> +{
-> +	int idx =3D tty->index;
-> +	struct ft260_device *port =3D ft260_uart_port_get(idx);
-> +	int ret;
-> +
-> +	if (!port)
-> +		return -ENODEV;
-> +
-> +	ret =3D tty_standard_install(driver, tty);
->  	if (ret) {
-> +		ft260_uart_port_put(port);
->  		return ret;
->  	}
-> =20
-> +	tty->driver_data =3D port;
-> +	return 0;
-> +}
+  - The recovery path masks the port before scheduling the work item; a
+    handler that hit a transfer error left it open.
 
-[ ... ]
+  - A reset leaves the PRD entries as the controller wrote them, so a
+    frame nobody read can make the next one overrun. The fix belongs in
+    the core; the other two backends share the gap.
 
-> +static int ft260_uart_activate(struct tty_port *tport, struct tty_struct=
- *tty)
-> +{
-> +	struct ft260_device *port =3D
-> +		container_of(tport, struct ft260_device, port);
-> +
-> +	/*
-> +	 * Set the TTY IO error marker - we will only clear this
-> +	 * once we have successfully opened the port.
-> +	 */
-> +	set_bit(TTY_IO_ERROR, &tty->flags);
-> +
-> +	spin_lock(&port->write_lock);
-> +	kfifo_reset(&port->xmit_fifo);
-> +	spin_unlock(&port->write_lock);
-> +
-> +	ft260_uart_change_speed(port, &tty->termios, NULL);
-> +	clear_bit(TTY_IO_ERROR, &tty->flags);
-> +
-> +	if (port->reschedule_work) {
-> +		mod_timer(&port->wakeup_timer, jiffies +
-> +			  msecs_to_jiffies(FT260_WAKEUP_NEEDED_AFTER_MS));
-> +	}
-> +
-> +	return 0;
-> +}
+Emfox Zhou (5):
+  HID: intel-thc-hid: intel-ipts: bring up the port
+  HID: intel-thc-hid: intel-ipts: receive reports
+  HID: intel-thc-hid: intel-ipts: register the HID device
+  HID: intel-thc-hid: intel-ipts: handle system sleep
+  HID: intel-thc-hid: intel-ipts: document the IPTS mode
 
-[Severity: High]
-What prevents ft260_uart_activate() from running after ft260_remove() when
-tty_open() races with disconnect?
+ Documentation/hid/intel-thc-hid.rst           |  95 ++-
+ drivers/hid/intel-thc-hid/Kconfig             |  14 +
+ drivers/hid/intel-thc-hid/Makefile            |   4 +
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 747 ++++++++++++++++++
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.h   | 194 +++++
+ .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 198 +++++
+ 6 files changed, 1251 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
 
-CPU0                                  CPU1
-tty_open()
-  tty_init_dev()
-    ft260_uart_install()
-      ft260_uart_port_get()
-      tty->driver_data =3D port
-                                      usbhid_disconnect()
-                                        hid_destroy_device()
-                                          ft260_remove()
-                                            ft260_uart_port_remove()
-                                              list_del(&port->device_list)
-                                              tty_port_tty_vhangup(&port->p=
-ort)
-                                              kfifo_free(&port->xmit_fifo)
-                                            hid_hw_close(hdev)
-                                            hid_hw_stop(hdev)
-                                          kfree(hdev)
-  ft260_uart_open()
-    tty_port_open()
-      tty_port_tty_set()
-      ft260_uart_activate()
-        kfifo_reset(&port->xmit_fifo)
-        ft260_uart_change_speed()
-          ft260_hid_feature_report_set(port->hdev, ...)
-                                      <-- use-after-free on port->hdev
 
-Between ft260_uart_install() and tty_port_open(), port->port.tty is still
-NULL, so tty_port_tty_vhangup() in ft260_uart_port_remove() sees no tty to
-hang up.  tty_open() then enters ft260_uart_activate(), resets the freed
-port->xmit_fifo, dereferences the freed port->hdev, and clears
-TTY_IO_ERROR so the open succeeds on the removed device.  Even after commit
-"HID: ft260: uart: fix the serial driver" and commit "HID: ft260: uart:
-add modem pins control via ioctl", ft260_uart_port_activate() still does
-not check whether the device was removed under a lock synchronized with
-disconnect.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114230800.1344=
-401-1-michael.zaidman@gmail.com?part=3D1
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb

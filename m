@@ -1,67 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794681604;
-	b=WGLFYp+WxYEpv4EL5Wta1vx/vTGnOXzVMvkNVPUpuD248mc/MVHZZqPtjTS6dmyYWeQN
-	 WIM/R7HzlrNAgVdF0HQwrD/gJRt2R1Km00MFwpVyKYcxOmiFnEiiMSJ/ua/fkABOFglCM
-	 J7Mj8HDeSoD/m7TGxbvECDlGqZakKdetFwKaOt6y9Vvh6OQlNLDqP1uMepZiwR8Exjpj0
-	 L/tWZJbEKg4pAShU0e0WktwuFlA+P58iwUGU2i1vFEqxTQZOCSeTJdj4AtrdqLm1OV2Hh
-	 EMxczLYziBD722OoMH19y4We/G/MWKeFJJKS5bJLWSDrfKPWG8A6oesPtOtDvOoaYsA==
+	t=1794682550;
+	b=xXOsNrVNe+ZecUC39VkEXB7sOdJPlioUDQ9OxnVNTseosIdMitmkv4NSdnMV7W/45mtW
+	 5nOgZ0ovWkuFrshlYmjwDx+H75THzgUABLKkZe1eKhz9fa0MSB2G/V23eCqObPhD+p3Sb
+	 25kADPql8+bp7Gv4Urx9us1bMlPHyrh2Vl/d8xNAeFRI9KGJz+s8iHT5KWN0u5nMzxtKS
+	 dlEPUtJVMokXRuBV73x3V8WEsFJQMGFDOBvgmPFXK8Q/tB4d1OT431m/y+unUJHzyeVle
+	 n2Mp9N6ln3KTna4BZEMnezEgfC9dPKNLMldTRoUNWyBUXjHdWJWy5Ckb/0FdSuUELIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794681604;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Debian-User;
-	bh=XMeVd5/pAdE0Kjcm942lSzEXtE5bxTrDwAM5Xj/26mY=;
-	b=LonWpz4yqTKkh2QnLC4tRPMNA6DkrN2RXA6FPM4xZwQ8jGYmSYZFivC8CQ9sxpCRDNSG
-	 /FbsTbp0WRC8mf1Quq5pPSccGeRTHvrkhv9R+gNynSCJWdDn7SdwVQkaTdNKg9LCO14ys
-	 OvevHFm5NhTvBgO3EtiyeFNH5BXVU97KaU9O37Hn+HZ3dRSRnjDWHGj9Da7Ic+YA63Epo
-	 W5nj8dh+xs29WntybefnUbqV/SM80oV6ez7YbxZm5kNVZzhBiBuaZCUff6sMuUsWSITYR
-	 NG+L+dZ+5GUVroBkNjXrHqHtdEAcWmnPU5X2UGmFXmEjwzP8Z8hr8DGpjRKP3N+WdVQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794682550;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=36B4eOzVLwpj7Lqu3/UNfQHE6wNxoBrRS0PSkV8wVp8=;
+	b=jTpwU0EK+nllH3/UXFOE5Nvqo9ByePB+kRBarxmEEOW9zFrHMJ3TPelSdBwQ3SlsSmFg
+	 FInBZcwy1ujiZrAnXyvJXqc8dJ/0Ie1h5rwI7QVQuM0pK9vKIpy9VvPEaAb38mgREJJkY
+	 XAgeZmJRB6yLUyg3w3lyexdDxW9qtVmTgwXS8WKdNS15DYsnN8Gkw+KRN6th/hx0miLF6
+	 dz1B4ClEOdmjyZqN7D8le4RRJ7E/2eYsVVFuuU5MYo7x2Fz/AD4Ufs454L1d7z+q0IN0/
+	 fP+4og8POMCNEqE9eQY844nTJndndnHpLRIuXnvV6A/D4dnn4t4hRrcwE9r9qI3lo4A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=MoibXq03;
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hbkp6+tB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CDF606A327;
-	Sat, 14 Nov 2026 18:40:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69CDF606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B0D606A323
+	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 18:55:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=MoibXq03
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
-	Content-Type:Content-ID:Content-Description;
-	bh=XMeVd5/pAdE0Kjcm942lSzEXtE5bxTrDwAM5Xj/26mY=; b=MoibXq03y/nuy/q3t5iqCNWUPe
-	dn5BBdFlQ0NxhqIJ6gdDR7+SCj5xae948GRW44V5yY7FFdDqFmfh3sXN3OCXr8rgJzrK3IjES4SXS
-	xo6HpD7Vtq6/cEs+BCACCV+5FGzGvtqP2dgzQ9hilVaDlDt+KYM8zWzKj+qtGVlTPVsrvp58jZSai
-	kqQsE3aciEsUhFNzjTh4m/lA6NHEtsiifWsM3lwUM9f+214/YYe3CRGPNLMiJRYtjhR3sBdIKREto
-	qW7MHmhhMvTVxZjpMY2iMMShMblWb9T9fE5Io+2Xp9miGMYZyrRuLIOg0CKJ1Wi1J/7se2iLjmheT
-	GZ3bFOig==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xSIfP-00FkAl-0N;
-	Sat, 14 Nov 2026 18:39:59 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 5/5] HID: intel-thc-hid: intel-ipts: document the IPTS mode
-Date: Sun, 15 Nov 2026 02:36:24 +0800
-Message-ID: <20261114183624.2379573-6-emfox@debian.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261114183624.2379573-1-emfox@debian.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hbkp6+tB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F6F1F000C4;
+	Sat, 14 Nov 2026 18:55:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794682550;
+	bh=36B4eOzVLwpj7Lqu3/UNfQHE6wNxoBrRS0PSkV8wVp8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Hbkp6+tB9rXRGZ0+XO9hcqCh9pBAolt8+q/hoMjgTghVJR3f4pY6zPocDQQcoSmC3
+	 3vhZ4n2Qp8A8JT2IpsEKfMrMhje5GcbCITnTfUW1DBFmanr+f3FllWAkBxoegWgvyQ
+	 zggVaGmY9zdil50bxiO0s+ChqiifStMTS22qD0bnpdLmsxQb09Q85Zi0qm5XJlZRcq
+	 4QCp9iv10Zeyy5fMeuZ2pzOyfQnIp0uTPXL2XBzIbFSmr4HC4D+jvM/txUPU4AT208
+	 DxVcNsEmG6aTxVoBa5YK4Feb1qe/Y2BsXmBx+x5uGOHtTx6bTzJ8tfvo3/hZu2feAL
+	 FJJx4cQSe20Rw==
+Message-ID: <sashiko-outbox-214921@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 1/5] HID: intel-thc-hid: intel-ipts: bring up the
+ port
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Emfox Zhou" <emfox@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261114183624.2379573-2-emfox@debian.org>
 References: <20261114183624.2379573-1-emfox@debian.org>
+ <20261114183624.2379573-2-emfox@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2026 18:55:49 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -70,127 +60,104 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
 
-The THC documentation only covers HIDSPI and HIDI2C. Ports from before
-Meteor Lake run in a third mode, and the intel-ipts driver is
-written against behaviour that is not described anywhere in tree.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] HID: intel-thc-hid: intel-ipts: divisor 3 misses 41MHz gear
+  in thc_ipts_spi_from_cfg()
+--
 
-Record what the driver depends on: the layout of the configuration
-block, the frame codes and header sizes, the bulk data window, and the
-order in which quiesce, interrupt configuration and the DMA engines
-have to be set up.
+commit d50186feb31fcf2b785998e4fb096fab0deec70b
+Author: Emfox Zhou <emfox@debian.org>
 
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
- Documentation/hid/intel-thc-hid.rst | 95 ++++++++++++++++++++++++++++-
- 1 file changed, 94 insertions(+), 1 deletion(-)
+HID: intel-thc-hid: intel-ipts: bring up the port
 
-diff --git a/Documentation/hid/intel-thc-hid.rst b/Documentation/hid/intel-thc-hid.rst
-index 8b378c5..0f6328a 100644
---- a/Documentation/hid/intel-thc-hid.rst
-+++ b/Documentation/hid/intel-thc-hid.rst
-@@ -590,7 +590,100 @@ To debug THC, event tracing mechanism is used. To enable debug logs::
-   echo 1 > /sys/kernel/debug/tracing/events/intel_thc/enable
-   cat /sys/kernel/debug/tracing/trace
- 
--7. Reference
-+7. IPTS Mode
-+============
-+
-+THC also supports IPTS mode, the private Intel Precise Touch and Stylus
-+protocol. The port drives the touch controller over plain SPI and moves the
-+data through the same DMA engines, but the framing is private and the
-+parameters come from the controller itself instead of ACPI. The
-+``intel-ipts`` module handles ports in that mode, which is what Tiger Lake,
-+Lakefield, Alder Lake and Raptor Lake hardware use.
-+
-+This section describes how the driver uses those ports. It is not a
-+specification: everything below comes from observing the controller and is
-+limited to what this driver relies on.
-+
-+7.1 Configuration Block
-+-----------------------
-+
-+At SPI address 0 the controller exposes a 64 byte block. The driver reads it
-+over the PIO path after releasing the controller from reset, and retries
-+until the tag ``$TIC`` (``0x43495424``) appears, because the block is only
-+partially filled while the controller is still starting.
-+
-+Fields the driver uses:
-+
-+======  ==========================================================
-+Offset  Meaning
-+======  ==========================================================
-+0x00    pending interrupt causes
-+0x08    buffer sizes, ``(size / 64) - 1``; Rx bits 13:0, Tx 23:14
-+0x0c    touch engine control, writable
-+0x14    controller tag, ``$TIC``
-+0x18    SPI timing the controller asks for
-+0x1c    vendor and product ID reported to HID
-+0x20    product revision
-+0x24    firmware version word
-+======  ==========================================================
-+
-+The touch engine control word carries an enable bit, a bit asking for HID
-+reports instead of raw data, and a three bit power state. The driver enables
-+it with reports and full power, and clears it again when the port is shut
-+down.
-+
-+7.2 Frames
-+----------
-+
-+Both directions carry a code and a length in front of the payload. Frames
-+from the controller use a 64 byte header, frames to it an 8 byte header, and
-+only the latter has the payload padded to a four byte boundary.
-+
-+==== ========================== =======================
-+Code Received from controller   Sent to controller
-+==== ========================== =======================
-+3    input report               set feature
-+4    feature report             get feature
-+5    report descriptor          output report
-+7    reset request              get report descriptor
-+==== ========================== =======================
-+
-+A report descriptor comes back with eight bytes of preamble that the driver
-+skips.
-+
-+7.3 Data Window
-+---------------
-+
-+Bulk transfers go through address ``0x1000`` of the controller, not through
-+address 0. The DMA engines have to be pointed there explicitly, otherwise
-+they write into the configuration block and the controller drops the frames
-+without reporting an error. The input header address is zero: that is where
-+the controller writes the interrupt cause word, at the start of the
-+configuration block.
-+
-+7.4 Enabling and Flow Control
-+-----------------------------
-+
-+The port has to be released from quiesce before the controller will send
-+anything: quiescing gates the whole data path, not just the interrupt. The
-+interrupt configuration programs the interrupt type field in the device to
-+the invalid value, and starting the receive engine then replaces that field
-+with the type it expects, so the two have to happen in that order.
-+
-+The controller starts streaming once user space asks for it, through a set
-+feature request on report 5. The driver does not do that on its own; the
-+daemon that opens hidraw sends it.
-+
-+7.5 What Is Left to User Space
-+------------------------------
-+
-+The reports carry heatmap data, and turning that into contacts is a
-+substantial image-processing job that already exists in user space. The
-+driver therefore stops at the HID layer: the report descriptor comes from
-+the controller and is not written by the driver, the report stream is
-+available through hidraw, and ``iptsd`` decodes it into input events.
-+
-+8. Reference
- ============
- - HIDSPI: https://download.microsoft.com/download/c/a/0/ca07aef3-3e10-4022-b1e9-c98cea99465d/HidSpiProtocolSpec.pdf
- - HIDI2C: https://download.microsoft.com/download/7/d/d/7dd44bb7-2a7a-4505-ac1c-7227d3d96d5b/hid-over-i2c-protocol-spec-v1-0.docx
+This commit adds a PCI port driver for Intel Touch Host Controller ports in
+IPTS mode, reading the controller configuration block over PIO and applying
+SPI timing to enable the touch engine.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
+tel-thc-hid/intel-ipts/ipts.c
+> new file mode 100644
+> index 0000000000000..264479630ff6e
+> --- /dev/null
+> +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+[ ... ]
+> +static void thc_ipts_spi_from_cfg(struct thc_ipts *idev, u32 *hz, u32 *m=
+ode)
+> +{
+> +	u32 cfg =3D le32_to_cpu(idev->cfg.spi_cfg);
+> +	u32 div =3D THC_IPTS_SPI_CLKDIV(cfg);
+> +
+> +	if (!div) {
+> +		/* Nothing valid asks for this; use the slowest gear. */
+> +		dev_warn_once(idev->dev, "controller asks for divisor 0\n");
+> +		*hz =3D THC_IPTS_SPI_MIN_HZ;
+> +	} else {
+> +		*hz =3D THC_IPTS_SPI_BASE_HZ / div;
+> +		if (cfg & THC_IPTS_SPI_CLKDIV8)
+> +			*hz /=3D THC_IPTS_SPI_CLKDIV8_DIV;
+> +	}
+> +
+> +	if (*hz < THC_IPTS_SPI_MIN_HZ) {
+> +		dev_warn_once(idev->dev,
+> +			      "controller asks for %u Hz, slowest is %u Hz\n",
+> +			      *hz, THC_IPTS_SPI_MIN_HZ);
+> +		*hz =3D THC_IPTS_SPI_MIN_HZ;
+> +	}
+[ ... ]
+> +int thc_ipts_port_start(struct thc_ipts *idev)
+> +{
+[ ... ]
+> +	thc_ipts_spi_from_cfg(idev, &hz, &mode);
+> +	ret =3D thc_ipts_spi_set(idev, hz, mode);
+> +	if (ret) {
+> +		dev_warn(idev->dev,
+> +			 "cannot follow the SPI timing, going slow\n");
+> +		ret =3D thc_ipts_spi_set(idev, THC_IPTS_BOOT_SPI_HZ,
+> +				       THC_SINGLE_IO);
+> +		if (ret)
+> +			return ret;
+> +	} else {
+> +		dev_dbg(idev->dev, "SPI clock asked for %u Hz, rounded down\n",
+> +			hz);
+> +	}
+
+[Severity: Medium]
+Does THC_IPTS_SPI_BASE_HZ / div miss the 41 MHz gear when the controller
+requests divisor 3?
+
+With THC_IPTS_SPI_BASE_HZ set to 125000000, integer division by 3 yields
+41666666 Hz, which is 34 Hz below THC_SPI_FREQUENCY_41M (41666700):
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c:thc_spi_read_config() {
+    ...
+	/* 10M, 35M and 50M CLK need 1.5, 3.5 and 2.5 half divider */
+	if ((freq_div =3D=3D THC_SPI_FRQ_DIV_2 && spi_freq_val >=3D  THC_SPI_FREQU=
+ENCY_50M) ||
+		(freq_div =3D=3D THC_SPI_FRQ_DIV_3 && spi_freq_val <  THC_SPI_FREQUENCY_4=
+1M) ||
+		(freq_div =3D=3D THC_SPI_FRQ_DIV_1 && spi_freq_val <  THC_SPI_FREQUENCY_1=
+5M)) {
+		regmap_write_bits(dev->thc_regmap, THC_M_PRT_SPI_DUTYC_CFG_OFFSET,
+				  THC_M_PRT_SPI_DUTYC_CFG_SPI_TCRF_HALF_DIV_EN,
+				  THC_M_PRT_SPI_DUTYC_CFG_SPI_TCRF_HALF_DIV_EN);
+
+		regmap_write_bits(dev->thc_regmap, THC_M_PRT_SPARE_REG_OFFSET,
+				  THC_M_PRT_SPARE_REG_SPI_CLK_INV_ENABLE,
+				  THC_M_PRT_SPARE_REG_SPI_CLK_INV_ENABLE);
+    ...
+}
+
+Because 41666666 < THC_SPI_FREQUENCY_41M, thc_spi_read_config() and
+thc_spi_write_config() program the 3.5 half-divider (35.7 MHz) with SPI
+clock inversion enabled instead of plain divisor 3.
+
+Also, because thc_ipts_spi_from_cfg() clamps *hz to at least
+THC_IPTS_SPI_MIN_HZ (7812500), thc_get_spi_freq_div_val() never returns
+THC_SPI_FRQ_RESERVED, making the error fallback in thc_ipts_port_start()
+unreachable.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114183624.2379=
+573-1-emfox@debian.org?part=3D1

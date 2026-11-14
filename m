@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794692473;
-	b=nS2Jxmeltt8gvczQtQHDkr1GcMyKRr0QNeiVaWSYHqqu0cdPgYyj2sH0qYYIdA7Eby3x
-	 3afur/Ww1p6zQHsEsl7rfUeZdHCfpY5WUz2x7Nq6sm+oHIx/upykS5YJHDkVXvq0uOmBA
-	 K/EIDE+ZbkLvAozDyTkOFOML98P1u6IsYrxfipbG/G2Vo1B8dksZHpfNqlk33eSujaN14
-	 ByvHSJThhZCPXl+dmtLWyIrwsHTdUGoq8QrJuQq3EM0EMOEB9QbH4AuIxvM/cEhogKuzU
-	 v7RlkfpedSKuDrAPAbEFSvdmu2uKbrhA9n8wmj8BUSL9CO+LOQax2WRmO+J5ytju/Xw==
+	t=1794692479;
+	b=YWCpvCF6OH4QBrzD/LHVwm5a7NidrNDJVKJDzC0+QouJsdYQLoydhA1ykFb2vV01ZXfX
+	 OSiYsKk0COLwX7i81LN9AW9Ank4jo7kglgE94FESm+MgoKvqtEFq1ayOpeFj3iFojTNoH
+	 2z3wdygjbNkKkWAwDJ1rg6nJzF2gdyv3pg4nMoAHlEy3Bwhsu/bTKH3Sl3jy6MzwdhiUC
+	 rGyWsA0FjzyKQaOajH4wmb1YdZiAYBaIHAL7UEInbOzaFyLrYt4N+4SfF1yDE0Fifv5Ec
+	 05qTppxoTIogVgPy09+NQoSjlkZ9UTGe4oO8yxUlajRxq2TFSvBW2ayD3PSV0Bg2yoQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794692473;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794692479;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Debian-User;
-	bh=FGKvHxAMg/XQipNIMm6FiHIgKQQKiV77xmIrKBZJ1qQ=;
-	b=tfFHvypGi9DkgJsXNLrGSEG4zmQ1QydmnIX7zW3zqYcl8aJCiYH6SnPx6ki75tfS3rl6
-	 206E7Kys42y1HUoEWUg5MSbgyJHXblJsvPaV9c35Kj8v5AB+KPurUsaaeNDZXOjxKu7gm
-	 yizqfMMAz9lGfIsAr/3RmADQmT156Nl8fsIQ2tjNpVEe7wJlY1/wpFVEs09WH0n063s77
-	 FJp8+IBV8cvOnPoc9uKrzfLDCwdhJ+zdT4n/bmoV9v4SzF8s/XNCGzTWSysdos8S2WqrE
-	 TQc5Q2Db71HNxl0BDDBi6LYQStujt9uzNSJvnBDuJHtSlt5SkD0YmEv/E0xKeXqUg2A==
+	bh=PFIGH9xbJu42gTzhSh+10H3tdpe8wRFXEMg195TmgLw=;
+	b=KJUpVpXwEf/2RMDJJHtZlanX8hHEmQO8ZI+CKAx+PcGnUUER5ioPJJ51IkcVfb8JWypV
+	 RGGxEbVY1psaBOMdGHxrSiC0uZWAPb6wA4e/TPaM1QNqlmdIRceM5yT321Y7b70H2KCrj
+	 9Ug9QIFpZACdAMWIr10FIZKaBHOyK2s2a0goQs7SqNUZJjCuJuEvcTbvY2ChSDjMiH/16
+	 YRbw7ACFJ8s7IcrW2/IxttIncPtlH30CPFIf3fMU1ybMhSxofnbm/3sqI2sJkL5oSg/fs
+	 dEb8GNyNbO12vtii2jshh3aZD2bhTPfJH/cCb/uoWBrQaoXeWTx9UuXVUWPh3IDysQw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=hV87084V;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=rHh6XbQA;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B628A606A32D;
-	Sat, 14 Nov 2026 21:41:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B628A606A32D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F215C606A329;
+	Sat, 14 Nov 2026 21:41:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F215C606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=hV87084V
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=rHh6XbQA
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
 	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
 	Content-Type:Content-ID:Content-Description;
-	bh=FGKvHxAMg/XQipNIMm6FiHIgKQQKiV77xmIrKBZJ1qQ=; b=hV87084VCw3Xx9Ix4kQ52cHemF
-	fSGCK6nsavvVDLAoZPwJRDclyyd96bXOtLhW5nw/vLz3K9Ym43cgwmGKgCwhkmTLXXxkj7TYpYDiu
-	q1bl6of2qwD8CzeiCvrGbZO0Qw6wS5dzfJDaNr8cIRx47UEgyb1XPTp60H7JNlzzjUDDpEQyXVU1B
-	khEizYRNpxKcAskdGu+6tHqx7/JEimdZ19DfVgTPnoS77eFzABmq7Jwb5a+zTqifcckmBCZA3CDAF
-	sAokPpbcJweQdsa/Z/Xbq1dIpYhUriFxTxjCz3aJUzbFY7mLsTMBHzpXM8/mHX/QLPQT/1vZ7DsGv
-	+VXPXNpg==;
+	bh=PFIGH9xbJu42gTzhSh+10H3tdpe8wRFXEMg195TmgLw=; b=rHh6XbQA/RI5TDfB4ANIAVU99T
+	8SxOdgQ2Xrc2FMfFd/zOaPXTgxuog1XjZfZT89i2fknHAMFZLEuC0tcrSvIsU1yo4HjIG5fqiO28r
+	eVB5RJ2vFnoENGOI3z1pvrm4lPSMfKHMjto1tqqQT+yler4WpVroRE0H0c931hvLDayMOI0NmptRr
+	0WilUyDpg/w9DMVZs+pGDxAIZBdVWPNfa5BiiQ90ZidgECuey0iXr3WMCHFahxXXAFUPPFLopdx56
+	CTDnpo1qVetoihoPaU4r+SF4Pb4+B/rViiFA13C2W88gbq88qCcxksfffFDndXdl+lWZQM0HPGKjG
+	Dopb5BjQ==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xSLUi-00FqAS-05;
-	Sat, 14 Nov 2026 21:41:08 +0000
+	id 1xSLUo-00FqAY-0N;
+	Sat, 14 Nov 2026 21:41:14 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,9 +56,9 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 4/5] HID: intel-thc-hid: intel-ipts: handle system sleep
-Date: Sun, 15 Nov 2026 05:40:25 +0800
-Message-ID: <20261114214026.2809740-5-emfox@debian.org>
+Subject: [PATCH v4 5/5] HID: intel-thc-hid: intel-ipts: document the IPTS mode
+Date: Sun, 15 Nov 2026 05:40:26 +0800
+Message-ID: <20261114214026.2809740-6-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261114214026.2809740-1-emfox@debian.org>
 References: <20261114214026.2809740-1-emfox@debian.org>
@@ -74,68 +74,123 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-System sleep takes the port down and builds it up again rather than
-keeping the HID device across it: the controller forgets the streaming
-mode user space asked it for, and hidraw offers no way to tell user
-space to ask again. The device goes away and comes back, so the daemon
-watching it restarts and repeats the request.
+The THC documentation only covers HIDSPI and HIDI2C. Ports from before
+Meteor Lake run in a third mode, and the intel-ipts driver is
+written against behaviour that is not described anywhere in tree.
+
+Record what the driver depends on: the layout of the configuration
+block, the frame codes and header sizes, the bulk data window, and the
+order in which quiesce, interrupt configuration and the DMA engines
+have to be set up.
 
 Signed-off-by: Emfox Zhou <emfox@debian.org>
 ---
- .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 36 +++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ Documentation/hid/intel-thc-hid.rst | 95 ++++++++++++++++++++++++++++-
+ 1 file changed, 94 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-index 8f8db21d..81a46149 100644
---- a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-+++ b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-@@ -142,6 +142,41 @@ static void thc_ipts_remove(struct pci_dev *pci)
- 	pci_clear_master(pci);
- }
+diff --git a/Documentation/hid/intel-thc-hid.rst b/Documentation/hid/intel-thc-hid.rst
+index 8b378c57..0f6328aa 100644
+--- a/Documentation/hid/intel-thc-hid.rst
++++ b/Documentation/hid/intel-thc-hid.rst
+@@ -590,7 +590,100 @@ To debug THC, event tracing mechanism is used. To enable debug logs::
+   echo 1 > /sys/kernel/debug/tracing/events/intel_thc/enable
+   cat /sys/kernel/debug/tracing/trace
  
-+/*
-+ * The controller forgets the streaming mode and hidraw cannot ask user space
-+ * to repeat itself, so the port is taken down and rebuilt: the HID device
-+ * comes back and the daemon restarts with it.
-+ */
-+static int thc_ipts_suspend(struct device *dev)
-+{
-+	struct thc_ipts *idev = dev_get_drvdata(dev);
+-7. Reference
++7. IPTS Mode
++============
 +
-+	if (!idev)
-+		return -ENODEV;
++THC also supports IPTS mode, the private Intel Precise Touch and Stylus
++protocol. The port drives the touch controller over plain SPI and moves the
++data through the same DMA engines, but the framing is private and the
++parameters come from the controller itself instead of ACPI. The
++``intel-ipts`` module handles ports in that mode, which is what Tiger Lake,
++Lakefield, Alder Lake and Raptor Lake hardware use.
 +
-+	thc_ipts_port_stop(idev);
++This section describes how the driver uses those ports. It is not a
++specification: everything below comes from observing the controller and is
++limited to what this driver relies on.
 +
-+	return 0;
-+}
++7.1 Configuration Block
++-----------------------
 +
-+static int thc_ipts_resume(struct device *dev)
-+{
-+	struct thc_ipts *idev = dev_get_drvdata(dev);
-+	int ret;
++At SPI address 0 the controller exposes a 64 byte block. The driver reads it
++over the PIO path after releasing the controller from reset, and retries
++until the tag ``$TIC`` (``0x43495424``) appears, because the block is only
++partially filled while the controller is still starting.
 +
-+	if (!idev)
-+		return -ENODEV;
++Fields the driver uses:
 +
-+	ret = thc_ipts_port_start(idev);
-+	if (ret)
-+		thc_ipts_port_stop(idev);
++======  ==========================================================
++Offset  Meaning
++======  ==========================================================
++0x00    pending interrupt causes
++0x08    buffer sizes, ``(size / 64) - 1``; Rx bits 13:0, Tx 23:14
++0x0c    touch engine control, writable
++0x14    controller tag, ``$TIC``
++0x18    SPI timing the controller asks for
++0x1c    vendor and product ID reported to HID
++0x20    product revision
++0x24    firmware version word
++======  ==========================================================
 +
-+	return ret;
-+}
++The touch engine control word carries an enable bit, a bit asking for HID
++reports instead of raw data, and a three bit power state. The driver enables
++it with reports and full power, and clears it again when the port is shut
++down.
 +
-+static DEFINE_SIMPLE_DEV_PM_OPS(thc_ipts_pm_ops, thc_ipts_suspend,
-+				thc_ipts_resume);
++7.2 Frames
++----------
 +
- static void thc_ipts_shutdown(struct pci_dev *pci)
- {
- 	struct thc_ipts *idev = pci_get_drvdata(pci);
-@@ -156,6 +191,7 @@ static struct pci_driver thc_ipts_driver = {
- 	.probe		= thc_ipts_probe,
- 	.remove		= thc_ipts_remove,
- 	.shutdown	= thc_ipts_shutdown,
-+	.driver.pm	= pm_ptr(&thc_ipts_pm_ops),
- 	/* Bring-up waits for the controller, up to a few seconds. */
- 	.driver.probe_type = PROBE_PREFER_ASYNCHRONOUS,
- };
++Both directions carry a code and a length in front of the payload. Frames
++from the controller use a 64 byte header, frames to it an 8 byte header, and
++only the latter has the payload padded to a four byte boundary.
++
++==== ========================== =======================
++Code Received from controller   Sent to controller
++==== ========================== =======================
++3    input report               set feature
++4    feature report             get feature
++5    report descriptor          output report
++7    reset request              get report descriptor
++==== ========================== =======================
++
++A report descriptor comes back with eight bytes of preamble that the driver
++skips.
++
++7.3 Data Window
++---------------
++
++Bulk transfers go through address ``0x1000`` of the controller, not through
++address 0. The DMA engines have to be pointed there explicitly, otherwise
++they write into the configuration block and the controller drops the frames
++without reporting an error. The input header address is zero: that is where
++the controller writes the interrupt cause word, at the start of the
++configuration block.
++
++7.4 Enabling and Flow Control
++-----------------------------
++
++The port has to be released from quiesce before the controller will send
++anything: quiescing gates the whole data path, not just the interrupt. The
++interrupt configuration programs the interrupt type field in the device to
++the invalid value, and starting the receive engine then replaces that field
++with the type it expects, so the two have to happen in that order.
++
++The controller starts streaming once user space asks for it, through a set
++feature request on report 5. The driver does not do that on its own; the
++daemon that opens hidraw sends it.
++
++7.5 What Is Left to User Space
++------------------------------
++
++The reports carry heatmap data, and turning that into contacts is a
++substantial image-processing job that already exists in user space. The
++driver therefore stops at the HID layer: the report descriptor comes from
++the controller and is not written by the driver, the report stream is
++available through hidraw, and ``iptsd`` decodes it into input events.
++
++8. Reference
+ ============
+ - HIDSPI: https://download.microsoft.com/download/c/a/0/ca07aef3-3e10-4022-b1e9-c98cea99465d/HidSpiProtocolSpec.pdf
+ - HIDI2C: https://download.microsoft.com/download/7/d/d/7dd44bb7-2a7a-4505-ac1c-7227d3d96d5b/hid-over-i2c-protocol-spec-v1-0.docx

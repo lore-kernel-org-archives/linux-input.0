@@ -1,89 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794751124;
-	b=Jnf4+TNehpU0NWsRtLwOb8v6u8SC/nZv2OsdNYde+jkjfj5V18ktqhiK/suoavu5GMoQ
-	 qfl/3frwqkgHahZP31qXxvmoitsJcQpfAJDRBoe5V8Oq07MIz/YLmljz3RF9rBOigmhsW
-	 7IJ//is13L4HfoGp1m41s93KMzWAU8B/EuX7AR6TVROujqo2Evx0mH5TJYAymeUL1NQbd
-	 2LmZc0oyKbeEKlIWpXkWCp65+V7w6GOXH9CtK5cwBJwZKOWpd43bdltZkofa+rGgIWUTl
-	 pBKuqAl+U0FP8xmDsqHnVDy0A6ZCE9NdTGB/INGL0zqh9kC3XcWlNIp3KVT7X1HN3iA==
+	t=1794751581;
+	b=SztUzgmeWouzkKG0wFPtHF4WQuMhpeQIcsY1VLR+D5clapf7HzEw+CGcY9QqZxo0W0tm
+	 3FH7LwJtopkjeZgWZWUeHQfVm4yNWHtut8cEFTPHQZhO7Q/fJZfGv/IRhpWGDrSN0hQ0Y
+	 0KPdhGjrofIvHO2XsC0qbTC7rkWxc3eYa5aCKboLB9vd6dh5vJ6of3d74Q/OBw0/kKc5X
+	 9PejZjrHxuMqRqGHLNyElAK+U4eYncU1oM4bfRJDpKSiSSK/BV6CYIYq9b5BGaMnsMnIF
+	 raulq4xV/oOPTjlh857MyIQ2xq+FJKe/cW2RfesJEakQIPaHZoe8sHoD4Q2zvlUcfew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794751124;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
-	b=d9S3byz5ocwO/jxZDhUcc9tfjOupznpoHlul7zL9NiqJQrUypMyrecoouXMvdhetQydb
-	 t21diiq7gon8p1m8iEtejf2Ie9mqoC/g6Qu8CntzrlHVZFD2r2BP5VBNS02J0DYAhhiHV
-	 kGmG4ewG6kw0LpVY1HoeBFDSREFDsEArrWu8NBS6q22t4z4es6XhxVGk84M8fH5GYvBpE
-	 BB+PwB3FczAz8wa53HAE3tzUaDnMNzjpJoXy2l00BmAosbfAVDUHkEQROnVkJakBYh5Oq
-	 kwkcv+YyfJgjVWXJeMHPbVOaxcxdPqPuk9NPlAyUtl67Pqk2YRP+6NGs/bXHO3MUbWQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794751581;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=+2fLl+Dwc2NkV1qUrBq7rvYrQ0pDagFJzMN2WwxuH58=;
+	b=xNwtA2oJiGQdUbrbvA50Uefmh1iV+QKnTRJPGx8DE0diV+9kJteMdz2IfGfO05zwJQRr
+	 y+5d74k+Z2BYDRpLhpKvUvrIziPY2wNZE6eXPJlmlXNSHvxfOisA/6qEI/2ZXzWo9TEbp
+	 XSkB5wFuzfG3FJeCw8A/yUOBv9hI7BfFdWctYH+MXZJlna9IUH9CMY3pA4oCYBHZI9L9C
+	 ZIXWGgv1RXviDigN3Mq88qIBQNeCWOAibKsbpDVux/lihjyDMDYYJj9/4Zk0Hdf5ESOXU
+	 5wOO3o1bx1I1F5oQf0RjdQrv/T/NvYSYxQzU592OvLL1p7c4tYD441x5aBgrCAqnwnA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCRILPvU;
-	arc=none smtp.remote-ip=209.85.128.45
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BOloeqNN;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F7B606A31E
-	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 13:58:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 64F7B606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690F8606A31A
+	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 14:06:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCRILPvU
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a214c5c4c0so27180075e9.3
-        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 05:58:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794751123; x=1795355923; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
-        b=WCRILPvU9gf8POX8ju7SYoZRlvFrh6tXp8SMZSIh0+ZErkv4BcD6Cgs+3Y4V5qwc4Q
-         GM+LafhNK214T8sY11Ke5OX/GbYaSC3oYZUvhS+pcZd2Ok7iJuHBFC7LSjrqiFrwBUQw
-         fmHVQGJ8Hy+lELUubFMpaxZR8yd8WW0eRnBPXMiPTtI5pUCV3ZRZIyllPbrZIqZEbO3K
-         d3FyKq4GMtbcY8LtCzJ/btRT/C6C9cKMLaJueoB6WHFFS2ja75t3LO1aWTIa/hgZoQZp
-         UN4VKY4LTWgBBdTBNPnuN69RhzYyt3uglN7SXtohKKfq1PhCDjxIDarnOdGUpiH1bHRs
-         REig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794751123; x=1795355923;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
-        b=vNyIYkgy1O0uWAgZFkovEnTSL966fAgh1rsGT6Wg28MQSOXPzV/cE1o0Mzf7YgiQsX
-         3zlzwaSItxI1IyV367U+/fh9fp2DrjNFI1ejB2FraXZUim1rfBnnxGCjpSt6GALys26U
-         Y0kRwv4I/NX2OuONO8mahyAZ8xT890bOOk7fuP80Vkke77jfUJY0QlcndyV4apMHQFFV
-         FAfifCy7Cc2YkowePgMeJA3xYzMnfop8mAg6jjlLhSISnfB0njiRx8uKRKRhfZLIPgKC
-         QB3oDV7D19H9+8CWC4/SRqgmW7WYH+HgeH44Smjm56SkEVCyfIkl8OUlO4D7cQcGI34o
-         Haow==
-X-Gm-Message-State: APuU4Z8vVRLDyLWWXgVj1sE96RzRsWNoNjI95nXJG+egqx+wGl6I0Fw3
-	7Kp3EvJGd3RSDAOTkXHXwYK/MGaCOEXEe56sNFMmhaqvMY2sdIoIUnKo+hi4PYvCZhY=
-X-Gm-Gg: AYBFou2crf85hICEfRwpV/aAvOl82zF2laHEFD/YtFdw1LbjXcoKWGYJhpycmq5JmC4
-	sR33PO1b8ZW1I30ssORlA4HQhlUTKPEeFE/D+VtY2az9WymrKEXmqiR524ls7Pqq4eBCfAk2Mbp
-	EYIkR0Xd5xwZRDt4rdwqA92EV8bR0o98GEZCfvZvH3jR1W3KcXIinqYcE3DTRDk5mdlx10dmrat
-	Tjuk0viirGOJQwCrxH7VvNZ8uF9XukvgMM7N3xJWzPAGxZdLjqUmz1tFLKS6K3Ip+5jnrsy2SwQ
-	w+qQrnQAgnmQKUQO5Egcg4rb2nNTZ3CpniilqYEYxLvOylY3V2S5RIFXwf7EET6lCxJLPyCY6m/
-	pMGG0POOKOyqCdcZXXxqFuDskXVmFjLuN/m+eneQpdvWZ1wqmldh8URYu3o254mSH1cMP1tceG3
-	ikheukfbfTDaTm8RHoBwkaLpx+hsyX44C9iD+hbPNcL3+tbsZ2oHnnXdeTGwoH7dEMEW5zpeYd6
-	a+YX8ZsbV2pgqPqb4eqtgijRSwskI1WNG/vCZMvQKW3WBvIs6JWVMklMWv45pHiPC2g1gCYBVi+
-	mpJ/rSo3lV4wtRbIz+AUeFCrxLTtJ9dPergf3chK
-X-Received: by 2002:a05:600c:81c9:b0:4a1:83f0:7c91 with SMTP id 5b1f17b1804b1-4bb55a65b31mr157701365e9.18.1794751122786;
-        Sun, 15 Nov 2026 05:58:42 -0800 (PST)
-Received: from alnutz.home ([2a01:e0a:dfb:f440:f7a6:ce5b:75bc:76a5])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5d223b21sm18445396f8f.2.2026.11.15.05.58.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2026 05:58:42 -0800 (PST)
-From: Alexander Gollings <levirootsmanuva2@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexander Gollings <levirootsmanuva2@gmail.com>
-Subject: [PATCH] Input: xpad - add support for GameSir G7 Pro dongle in Xbox mode
-Date: Sun, 15 Nov 2026 14:58:14 +0100
-Message-ID: <20261115135814.34031-1-levirootsmanuva2@gmail.com>
-X-Mailer: git-send-email 2.56.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BOloeqNN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82691F000C4;
+	Sun, 15 Nov 2026 14:06:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794751581;
+	bh=+2fLl+Dwc2NkV1qUrBq7rvYrQ0pDagFJzMN2WwxuH58=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=BOloeqNN6ihhXxCVJzPknLUDiMS/D15QVrqhVvhHQ1VP8VVyuBMfjPvoPdaRwq52X
+	 iUcKJJ+KkbeRYkJH/y7V1wXSBjVajEn/BnApFZFVkfCUiqGKHA3RKqiMHpnFwJoIEh
+	 DS1Wbok18yOJP+lZfF6LMATZt/kirYqHvpir82ncXfXeW2TiEuiubwJd2HiL+8Fque
+	 IWW7bunFGh9g0z1e+EyF0mO2BaKM2YlSou9wZJNBsWIaEY2Z1jXuewomAgYQZSLFN4
+	 LbfvbYAzx5LRCZXII4cTRbGbuzqBnlpjh1lXztsYXe+muluxpXeI4ZFia5CYJ/HlUk
+	 /TroZ94fct9aA==
+Message-ID: <sashiko-outbox-215556@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: xpad - add support for GameSir G7 Pro dongle in
+ Xbox mode
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Alexander Gollings" <levirootsmanuva2@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261115135814.34031-1-levirootsmanuva2@gmail.com>
+References: <20261115135814.34031-1-levirootsmanuva2@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 15 Nov 2026 14:06:20 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -92,97 +59,96 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The GameSir G7 Pro 2.4GHz dongle enumerates as 3537:1004 in its Xbox
-mode, the same VID/PID as the GameSir T4 Kaleid, which was added as an
-Xbox 360 controller in commit 854d2233de0a ("Input: xpad - add GameSir
-T4 Kaleid Controller support"). Unlike the T4 Kaleid, the dongle exposes
-GIP interfaces (class 0xff, subclass 0x47, protocol 0xd0) and speaks the
-Xbox One protocol.
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Critical] Input: xpad - use-after-free in xpad_probe() [1]
+--
 
-xpad binds to the dongle through the vendor-wide GIP match, but the
-device table lookup then forces XTYPE_XBOX360. The GIP power-on packet
-is never sent, so the dongle reports no input at all and rumble requests
-are ignored.
+commit 9da1d473121c33d6a51bd41a4411539bd2d0fc9a
+Author: Alexander Gollings <levirootsmanuva2@gmail.com>
 
-Make the device table lookup skip XTYPE_XBOX360 entries for interfaces
-using the GIP protocol, and add an Xbox One entry for the G7 Pro. Its
-36-byte input report carries the Share button in the same place as the
-Xbox Series controllers, so enable MAP_SHARE_BUTTON. The T4 Kaleid uses
-the Xbox 360 interface protocol and still matches its existing entry.
+Input: xpad - add support for GameSir G7 Pro dongle in Xbox mode
 
-Tested with two G7 Pro controllers, each paired to its own dongle
-(firmware 1.55): sticks, triggers, D-pad, all face, shoulder and stick
-buttons, View, Menu, Guide and Share register, and both rumble motors
-work, including through Steam Input. The back buttons send nothing in
-this mode unless they are remapped on the controller.
+This commit adds an Xbox One device entry for the GameSir G7 Pro 2.4GHz
+dongle and skips Xbox 360 entries in xpad_probe() when the USB interface
+uses the GIP protocol.
 
-This patch was developed with an AI coding assistant (Claude Code,
-Claude Opus 5.5). It found the cause from the USB descriptors and the
-xpad source, wrote the patch and this changelog, and helped capture raw
-GIP reports to locate the Share button. I reviewed the change and tested
-it on the hardware described above.
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index d2eb48d98fead..f0ceb78e40a36 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
 
-Signed-off-by: Alexander Gollings <levirootsmanuva2@gmail.com>
----
- drivers/input/joystick/xpad.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+[ ... ]
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index d2eb48d..f0ceb78 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -406,6 +406,7 @@ static const struct xpad_device {
- 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
- 	{ 0x3507, 0x000b, "ZENAIM LEVERLESS", 0, XTYPE_XBOX360 },
- 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
-+	{ 0x3537, 0x1004, "GameSir G7 Pro", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
- 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
- 	{ 0x3537, 0x1040, "GameSir Nova Lite", 0, XTYPE_XBOX360 },
-@@ -2054,6 +2055,30 @@ err_free_input:
- 	return error;
- }
- 
-+/*
-+ * Some vendors reuse the VID/PID of an Xbox 360 protocol controller for a
-+ * device speaking GIP: GameSir 3537:1004 is the T4 Kaleid, but also the
-+ * G7 Pro 2.4GHz dongle in Xbox mode. Never apply an Xbox 360 entry to a GIP
-+ * interface.
-+ */
-+static bool xpad_device_match(const struct xpad_device *xdev,
-+			      struct usb_device *udev,
-+			      struct usb_interface *intf)
-+{
-+	const struct usb_interface_descriptor *desc = &intf->cur_altsetting->desc;
-+
-+	if (le16_to_cpu(udev->descriptor.idVendor) != xdev->idVendor ||
-+	    le16_to_cpu(udev->descriptor.idProduct) != xdev->idProduct)
-+		return false;
-+
-+	if (xdev->xtype == XTYPE_XBOX360 &&
-+	    desc->bInterfaceClass == USB_CLASS_VENDOR_SPEC &&
-+	    desc->bInterfaceProtocol == 208)
-+		return false;
-+
-+	return true;
-+}
-+
- static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
- 	struct usb_device *udev = interface_to_usbdev(intf);
-@@ -2065,8 +2090,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		return -ENODEV;
- 
- 	for (i = 0; xpad_device[i].idVendor; i++) {
--		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
--		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
-+		if (xpad_device_match(&xpad_device[i], udev, intf))
- 			break;
- 	}
- 
--- 
-2.56.1
+> @@ -2065,8 +2090,7 @@ static int xpad_probe(struct usb_interface *intf, c=
+onst struct usb_device_id *id
+>  		return -ENODEV;
+> =20
+>  	for (i =3D 0; xpad_device[i].idVendor; i++) {
+> -		if ((le16_to_cpu(udev->descriptor.idVendor) =3D=3D xpad_device[i].idVe=
+ndor) &&
+> -		    (le16_to_cpu(udev->descriptor.idProduct) =3D=3D xpad_device[i].idP=
+roduct))
+> +		if (xpad_device_match(&xpad_device[i], udev, intf))
+>  			break;
+>  	}
 
+[Severity: Critical]
+This problem wasn't introduced by this patch, but can xpad_probe() cause a
+use-after-free on xpad [1] if xpad360w_start_input() fails after
+submitting xpad->irq_in?
+
+When probing an XTYPE_XBOX360W device, xpad360w_start_input() submits
+xpad->irq_in before calling xpad_inquiry_pad_presence():
+
+drivers/input/joystick/xpad.c:xpad360w_start_input() {
+	error =3D usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+	if (error)
+		return -EIO;
+
+	/*
+	 * Send presence packet.
+	 * This will force the controller to resend connection packets.
+	 * This is useful in case we have connected a controller before
+	 * the module was loaded.
+	 */
+	error =3D xpad_inquiry_pad_presence(xpad);
+	if (error) {
+		usb_kill_urb(xpad->irq_in);
+		return error;
+	}
+}
+
+If a packet arrives before xpad_inquiry_pad_presence() fails, xpad_irq_in()
+schedules xpad->work, and the error path in xpad_probe() frees xpad without
+canceling the work:
+
+CPU0                              CPU1
+xpad_probe()
+  INIT_WORK(&xpad->work, ...)
+  xpad360w_start_input()
+    usb_submit_urb(xpad->irq_in)
+                                  xpad_irq_in()
+                                    xpad360w_process_packet()
+                                      schedule_work(&xpad->work)
+    xpad_inquiry_pad_presence()
+      /* fails */
+    usb_kill_urb(xpad->irq_in)
+  goto err_deinit_output;
+  ...
+  kfree(xpad)
+                                  xpad_presence_work()
+                                    /* dereferences freed xpad */
+                                    <-- use-after-free
+
+Calling cancel_work_sync(&xpad->work) after usb_kill_urb(xpad->irq_in) in
+xpad360w_start_input() (matching xpad360w_stop_input()) would prevent the
+work item from running after xpad is freed.
+
+[1] https://sashiko.dev/#/bug/linux-0c0def42-a340-45bb-860d-c99ba757f43b
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261115135814.3403=
+1-1-levirootsmanuva2@gmail.com?part=3D1

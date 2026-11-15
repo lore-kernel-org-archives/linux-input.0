@@ -1,102 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794750785;
-	b=zwuAyJpJuVgXAwV44hH+3/WKd4rYSHv/oXPUZynQQCpO4QxeardEmuCuqnN/hwVR7bIa
-	 rqsZr87C+RwIw3wcum3YPQMD04rqPwUflB7PwpxfzE7ZiwuaGqzDyNBtF1txgJAe491Uh
-	 8oldtdLjHsv5PO9xLOAN3N/HTkj8hFGvYj8CmdW+jFqjZwWvkPareIoyV/U18BRe2/j9g
-	 xR2iYEggPld6+8VPaSm8TeiMO6hAMiC45KFRxEH2lNbF/9RDnZ1cJyLPrjJAXYsucpmGk
-	 9vxfXl9cWPHePo8udA5eUSvBZ2WFigNhp+HM15Ga+e+2r2Vlm+Ti6YUkfGkiRDwqZwA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794750785;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794751124;
+	b=Jnf4+TNehpU0NWsRtLwOb8v6u8SC/nZv2OsdNYde+jkjfj5V18ktqhiK/suoavu5GMoQ
+	 qfl/3frwqkgHahZP31qXxvmoitsJcQpfAJDRBoe5V8Oq07MIz/YLmljz3RF9rBOigmhsW
+	 7IJ//is13L4HfoGp1m41s93KMzWAU8B/EuX7AR6TVROujqo2Evx0mH5TJYAymeUL1NQbd
+	 2LmZc0oyKbeEKlIWpXkWCp65+V7w6GOXH9CtK5cwBJwZKOWpd43bdltZkofa+rGgIWUTl
+	 pBKuqAl+U0FP8xmDsqHnVDy0A6ZCE9NdTGB/INGL0zqh9kC3XcWlNIp3KVT7X1HN3iA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794751124;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=UCRCbto+itoVVCJOHQCm5Fub/7/mLHD7BiTv/5zNwUQ=;
-	b=ffBXopeGYZvLCy5+HcoDfmCXGcZTnE5GNQG0EMeK/wVqRmE1USr0+gxZE9kJSwv9XSOD
-	 icKMpbUYbY2ZNQ7xGTJNKth2BYF4YNOzAyFOspWuqVCdmCv0GxFOIxU/Z3NbAkZEZzXWH
-	 27jh86BlsE4xqQ6u1vzsmq7cCClzW+vKY0HnWbjq+sj7H2+XX7uSTSWFP2JGb4xcZfFCs
-	 lkarzV/7PGZ1hY9sYHHKYb2N6R72LeXzYPxVaFayHnkA6idLrU3a5c1mckZ9jmUXVvAKE
-	 p4Z5XgF9rMDSoE6Yy8nPzseXp5YW+CGPEqJh41tsKBvAhHpHw2wMla/h24/FYhZqVhw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
+	b=d9S3byz5ocwO/jxZDhUcc9tfjOupznpoHlul7zL9NiqJQrUypMyrecoouXMvdhetQydb
+	 t21diiq7gon8p1m8iEtejf2Ie9mqoC/g6Qu8CntzrlHVZFD2r2BP5VBNS02J0DYAhhiHV
+	 kGmG4ewG6kw0LpVY1HoeBFDSREFDsEArrWu8NBS6q22t4z4es6XhxVGk84M8fH5GYvBpE
+	 BB+PwB3FczAz8wa53HAE3tzUaDnMNzjpJoXy2l00BmAosbfAVDUHkEQROnVkJakBYh5Oq
+	 kwkcv+YyfJgjVWXJeMHPbVOaxcxdPqPuk9NPlAyUtl67Pqk2YRP+6NGs/bXHO3MUbWQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xHISzKQC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
-Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCRILPvU;
+	arc=none smtp.remote-ip=209.85.128.45
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03013606A32E
-	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 13:53:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 03013606A32E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F7B606A31E
+	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 13:58:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 64F7B606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xHISzKQC
-Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-67da7d18f2fso739845d50.0
-        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 05:53:03 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794750783; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BNb6BvW2s2tdSJsIxraXpyVFT1KH0GR3mPsPfxhep0KUyVvAI8KPQWLtoJ90KQQDFX
-         9WHSx97ddkYHmhEe5nj2mIJ9JelSYiD0LHNfkztDA4f3b9FQFnmQHGJxMPD/TSVYquvp
-         LN/udQ+9EkSXf5gxB7swsby4+lfGl71psNlioj1zYnqE7PTwp+s8e81beOVw551c64cX
-         PNXsnAeoqe5/aslO0f9A+bEtBrZ2G8XpfPXwJsq8zb3uX0VPj/b9xkh1pFXuOHva0YEP
-         Fw3adYdGWLqgHJPswRlNLNOAS5ICJRjn7JecwTk4oHZi9j7/qHoLNXNA2WC7GATRuc3y
-         A1hw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=UCRCbto+itoVVCJOHQCm5Fub/7/mLHD7BiTv/5zNwUQ=;
-        fh=fZuVo1dXiFoK8KgEjP+xekmCR7i1VlUF2GUl+lqssfQ=;
-        b=h8BftdCLc2N/SUMxjb54yamxT747l/p1qHqfvwCDEcAkXzdj6EZmhS1kYz/5K7XirI
-         E5NbxzADPxs+vkYCeMLTQGIbz4cInOpY7mTb42kVSHkVe6nAgqjQ6dWIzG1L4uJ8+RhS
-         b41QxS/SZFjNaX8GgitMLzTElQmOlUcmiItGLTrv2Km7IOPN1cToT3K+6AlcTcU2wnwk
-         cQPz60K3GBpR4VkkICtB6B9LT7nEtkNBE3Vae1PXCusiSCQJMQpLnChmqwVtMChdR4Rz
-         aoGPV39bYJk+GwHivFQff7eFnUUjuT+t5iRUX2nix19UY+M2q+R8zD6czpxKhFJNAcq2
-         x2rw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCRILPvU
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a214c5c4c0so27180075e9.3
+        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 05:58:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794750783; x=1795355583; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=UCRCbto+itoVVCJOHQCm5Fub/7/mLHD7BiTv/5zNwUQ=;
-        b=xHISzKQCob2MIC/7fwGbxd6mATX6RYCkrBRP+jtK7R5lDt25TB+5vsuMqnOz8+yf/7
-         LMvSyZrkL+3u/c5PNGEPJQhkyHe4qWTJNg4o3pVw2NKl63Pz3/eCpMPATs4YPxE3L3LR
-         M51XJDF8+WcZkiD3QeOWNbEW4ZtwIEyRgSe7HXSwkbXp4BpPbPVNzt9DxO2XbCm3VhpU
-         rbGNXcP1IkomRozddP/pAiMJ4TYdzyi4JieBGA5CMnAc+QNv9yMMKohDNskULX2ZK1F9
-         wFs/mOWviYCK3ktAY+IrhBaZ9mkfsACOOhN0U1CZrvJryoIVG+VQqW4KqljT5j6zgD04
-         Ku9Q==
+        d=gmail.com; s=20260707; t=1794751123; x=1795355923; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
+        b=WCRILPvU9gf8POX8ju7SYoZRlvFrh6tXp8SMZSIh0+ZErkv4BcD6Cgs+3Y4V5qwc4Q
+         GM+LafhNK214T8sY11Ke5OX/GbYaSC3oYZUvhS+pcZd2Ok7iJuHBFC7LSjrqiFrwBUQw
+         fmHVQGJ8Hy+lELUubFMpaxZR8yd8WW0eRnBPXMiPTtI5pUCV3ZRZIyllPbrZIqZEbO3K
+         d3FyKq4GMtbcY8LtCzJ/btRT/C6C9cKMLaJueoB6WHFFS2ja75t3LO1aWTIa/hgZoQZp
+         UN4VKY4LTWgBBdTBNPnuN69RhzYyt3uglN7SXtohKKfq1PhCDjxIDarnOdGUpiH1bHRs
+         REig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794750783; x=1795355583;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=UCRCbto+itoVVCJOHQCm5Fub/7/mLHD7BiTv/5zNwUQ=;
-        b=ETkZbw0Dcd5dVfSTMRyE6MSZKb3ceG1CM4r8H8dmRJ9MU/HvDFdQpGgmMIhMQEJiA9
-         n0sU6latd/a86IPA/kcoBJF8ISPotJIJFdC1XmlKTHu3XK4VjmZ91haZfd809DvwRwck
-         P8hJT926111L8FE49SPEKxS+wppe/mY12LmbtCV2D+OHqDstNFHkpz5naktoqzHW6dif
-         mhCRAl64Llt5MmvTCKtRAH+jE2IeurpLprIscg6UWXmQ4xQkCiNeqQEiJH31Ff8komLK
-         UAP36pCdGhjuMsmqOfwr6FqRD/EcaHr7LoDhde7AtrQ3Vswva+3/GAEGaOvbuNdnkI2A
-         +MOw==
-X-Forwarded-Encrypted: i=1; AL+hErHrXp7Tw/9X8axYkIBgGWx9m3GAlfiQ/CarDmZPtTlmFYGTTHwMH9xHBoqf8ARieEOAAVtNx+vSYvqhkA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+3u0sNvPDlU/1yabj0L86LqQpfWf6SydR5szcitjoVo+e9/1Ft
-	jwsx5eReljABgnDGJvqwhV3pBqUp9lmMN6c2whfoR0lUhEn3SULnqz29mcnb7S5PGL08V9yZo/9
-	rHIYqhcitC2OpE/1HO7t3nLLFuKgia34=
-X-Gm-Gg: AYBFou1Q/aLzTifXNZZtkBEV8AdtkEH2p4+9VHUFNW6dfVEAv/+BavJz3TDu4SuAzK6
-	CKYQIU1prs7bzHsDVxXzRvj/7BVZg8KkIK1zkEsJl9BZm1t5K+2yPaZe1KkVMWjD5r+AyVsiYnO
-	KfktOLE1hNlut1jMENHhZ+iVEp83SPYdxM2eQ+my+CTq3B2QZUFvtqs41N5yZXVZ/Kpk0QeCP57
-	qS3mdSDWUXBCqT2FSk/TDgQ90pAtqdjo+mxQX1N47PK/XByh8Gp5yi1I6q+Rqcuo423m2SSE42e
-	rJPivqp/EIDuC2VCXz8oJ/pCy8T7i2qnsmsly/gtQolp4PPWLdl8tGff/7GmvAV1j7QovMp4QpS
-	NUITs7ZX+IR9wjsgFc5NEtfR807E0SRUON1vP+/V//mESMFzM5WLON08XopL7lA+VngpTTwYppY
-	YBQTL2gZMpXXENDSpKR+fiRCnmcOBEoAIjCgSnTD3PO1hVIfuwMKVjQoi5FJj0dobeOW4VNBysd
-	6ywfxjnWSBb
-X-Received: by 2002:a05:690e:4009:b0:67d:a565:a57f with SMTP id
- 956f58d0204a3-67da565a809mr1759360d50.6.1794750783006; Sun, 15 Nov 2026
- 05:53:03 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794751123; x=1795355923;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=puoRQt9p4YyKE9/BzbAjjcae9LvbnX6JUATeqPyecX8=;
+        b=vNyIYkgy1O0uWAgZFkovEnTSL966fAgh1rsGT6Wg28MQSOXPzV/cE1o0Mzf7YgiQsX
+         3zlzwaSItxI1IyV367U+/fh9fp2DrjNFI1ejB2FraXZUim1rfBnnxGCjpSt6GALys26U
+         Y0kRwv4I/NX2OuONO8mahyAZ8xT890bOOk7fuP80Vkke77jfUJY0QlcndyV4apMHQFFV
+         FAfifCy7Cc2YkowePgMeJA3xYzMnfop8mAg6jjlLhSISnfB0njiRx8uKRKRhfZLIPgKC
+         QB3oDV7D19H9+8CWC4/SRqgmW7WYH+HgeH44Smjm56SkEVCyfIkl8OUlO4D7cQcGI34o
+         Haow==
+X-Gm-Message-State: APuU4Z8vVRLDyLWWXgVj1sE96RzRsWNoNjI95nXJG+egqx+wGl6I0Fw3
+	7Kp3EvJGd3RSDAOTkXHXwYK/MGaCOEXEe56sNFMmhaqvMY2sdIoIUnKo+hi4PYvCZhY=
+X-Gm-Gg: AYBFou2crf85hICEfRwpV/aAvOl82zF2laHEFD/YtFdw1LbjXcoKWGYJhpycmq5JmC4
+	sR33PO1b8ZW1I30ssORlA4HQhlUTKPEeFE/D+VtY2az9WymrKEXmqiR524ls7Pqq4eBCfAk2Mbp
+	EYIkR0Xd5xwZRDt4rdwqA92EV8bR0o98GEZCfvZvH3jR1W3KcXIinqYcE3DTRDk5mdlx10dmrat
+	Tjuk0viirGOJQwCrxH7VvNZ8uF9XukvgMM7N3xJWzPAGxZdLjqUmz1tFLKS6K3Ip+5jnrsy2SwQ
+	w+qQrnQAgnmQKUQO5Egcg4rb2nNTZ3CpniilqYEYxLvOylY3V2S5RIFXwf7EET6lCxJLPyCY6m/
+	pMGG0POOKOyqCdcZXXxqFuDskXVmFjLuN/m+eneQpdvWZ1wqmldh8URYu3o254mSH1cMP1tceG3
+	ikheukfbfTDaTm8RHoBwkaLpx+hsyX44C9iD+hbPNcL3+tbsZ2oHnnXdeTGwoH7dEMEW5zpeYd6
+	a+YX8ZsbV2pgqPqb4eqtgijRSwskI1WNG/vCZMvQKW3WBvIs6JWVMklMWv45pHiPC2g1gCYBVi+
+	mpJ/rSo3lV4wtRbIz+AUeFCrxLTtJ9dPergf3chK
+X-Received: by 2002:a05:600c:81c9:b0:4a1:83f0:7c91 with SMTP id 5b1f17b1804b1-4bb55a65b31mr157701365e9.18.1794751122786;
+        Sun, 15 Nov 2026 05:58:42 -0800 (PST)
+Received: from alnutz.home ([2a01:e0a:dfb:f440:f7a6:ce5b:75bc:76a5])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5d223b21sm18445396f8f.2.2026.11.15.05.58.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Nov 2026 05:58:42 -0800 (PST)
+From: Alexander Gollings <levirootsmanuva2@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexander Gollings <levirootsmanuva2@gmail.com>
+Subject: [PATCH] Input: xpad - add support for GameSir G7 Pro dongle in Xbox mode
+Date: Sun, 15 Nov 2026 14:58:14 +0100
+Message-ID: <20261115135814.34031-1-levirootsmanuva2@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,118 +93,96 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260912035306.13130-1-kartikey406@gmail.com> <CADhLXY7UbSmK0aXs9SSM+k+MbYcWHxHSy4_8NOKb88Ys8SbLQQ@mail.gmail.com>
-In-Reply-To: <CADhLXY7UbSmK0aXs9SSM+k+MbYcWHxHSy4_8NOKb88Ys8SbLQQ@mail.gmail.com>
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-Date: Sun, 15 Nov 2026 19:22:50 +0530
-X-Gm-Features: AclHuK9wBrH_chg0fK25v0wArr17Inps9k5_5Hwct0maENlMAwuq3wRoG1IN54Q
-Message-ID: <CADhLXY4zo1m1s_YS_VoLxQb5bdSq+HP-ZiiFyY6SN0Y6W1dggQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: sur40 - fix use-after-free in v4l2_release on disconnect
-To: dmitry.torokhov@gmail.com
-Cc: kees@kernel.org, oliverburns.kernel@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, 
-	syzbot+34957180b0ed2581edaf@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Sun, Oct 18, 2026 at 4:23=E2=80=AFPM Deepanshu Kartikey
-<kartikey406@gmail.com> wrote:
->
-> On Sat, Sep 12, 2026 at 9:23=E2=80=AFAM Deepanshu Kartikey
-> <kartikey406@gmail.com> wrote:
-> >
-> > sur40_disconnect() unconditionally freed the sur40_state struct
-> > (which embeds struct video_device vdev) via kfree(), even while a
-> > userspace process could still hold an open file descriptor on the
-> > video device. video_unregister_device() does not wait for open file
-> > descriptors to close before returning, so if a process closed its fd
-> > after disconnect() had already run, v4l2_release() would dereference
-> > the already-freed vdev, resulting in a slab-use-after-free.
-> >
-> > Fix this by giving vdev a real .release callback (sur40_video_release)
-> > instead of video_device_release_empty, and move the v4l2_device
-> > unregister and the kfree() calls into it. This defers the actual free
-> > until the last reference to vdev drops to zero, whether that happens
-> > during disconnect() (no fd open) or later when the last open fd is
-> > closed.
-> >
-> > Tested-by: syzbot+34957180b0ed2581edaf@syzkaller.appspotmail.com
-> > Reported-by: syzbot+34957180b0ed2581edaf@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=3D34957180b0ed2581edaf
-> > Assisted-by: Claude
-> > Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/sur40.c | 16 ++++++++++++----
-> >  1 file changed, 12 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscr=
-een/sur40.c
-> > index 09d8c5f8d09f..bd8d9f6190fb 100644
-> > --- a/drivers/input/touchscreen/sur40.c
-> > +++ b/drivers/input/touchscreen/sur40.c
-> > @@ -179,6 +179,7 @@ static uint gain =3D SUR40_GAIN_DEF;
-> >  module_param(gain, uint, 0644);
-> >  MODULE_PARM_DESC(gain, "set initial gain"
-> >         SUR40_PARAM_RANGE(SUR40_GAIN_MIN, SUR40_GAIN_MAX));
-> > +static void sur40_video_release(struct video_device *vdev);
-> >
-> >  static const struct v4l2_pix_format sur40_pix_format[] =3D {
-> >         {
-> > @@ -750,6 +751,7 @@ static int sur40_probe(struct usb_interface *interf=
-ace,
-> >         sur40->vdev.v4l2_dev =3D &sur40->v4l2;
-> >         sur40->vdev.lock =3D &sur40->lock;
-> >         sur40->vdev.queue =3D &sur40->queue;
-> > +       sur40->vdev.release =3D sur40_video_release;
-> >         video_set_drvdata(&sur40->vdev, sur40);
-> >
-> >         /* initialize the control handler for 4 controls */
-> > @@ -820,6 +822,16 @@ static int sur40_probe(struct usb_interface *inter=
-face,
-> >         return error;
-> >  }
-> >
-> > +static void  sur40_video_release(struct video_device *vdev)
-> > +{
-> > +       struct sur40_state *sur40 =3D container_of(
-> > +                                               vdev, struct sur40_stat=
-e, vdev);
-> > +
-> > +       v4l2_device_unregister(&sur40->v4l2);
-> > +       kfree(sur40->bulk_in_buffer);
-> > +       kfree(sur40);
-> > +}
-> > +
-> >  /* Unregister device & clean up. */
-> >  static void sur40_disconnect(struct usb_interface *interface)
-> >  {
-> > @@ -829,10 +841,6 @@ static void sur40_disconnect(struct usb_interface =
-*interface)
-> >
-> >         v4l2_ctrl_handler_free(&sur40->hdl);
-> >         video_unregister_device(&sur40->vdev);
-> > -       v4l2_device_unregister(&sur40->v4l2);
-> > -
-> > -       kfree(sur40->bulk_in_buffer);
-> > -       kfree(sur40);
-> >
-> >         usb_set_intfdata(interface, NULL);
-> >         dev_dbg(&interface->dev, "%s is now disconnected\n", DRIVER_DES=
-C);
-> > --
-> > 2.43.0
-> >
->
-> Gentle Reminder. Please let me know the status of this patch.
->
-> Thanks
->
-> Deepanshu
+The GameSir G7 Pro 2.4GHz dongle enumerates as 3537:1004 in its Xbox
+mode, the same VID/PID as the GameSir T4 Kaleid, which was added as an
+Xbox 360 controller in commit 854d2233de0a ("Input: xpad - add GameSir
+T4 Kaleid Controller support"). Unlike the T4 Kaleid, the dongle exposes
+GIP interfaces (class 0xff, subclass 0x47, protocol 0xd0) and speaks the
+Xbox One protocol.
 
+xpad binds to the dongle through the vendor-wide GIP match, but the
+device table lookup then forces XTYPE_XBOX360. The GIP power-on packet
+is never sent, so the dongle reports no input at all and rumble requests
+are ignored.
 
-Gentle Reminder. I have been following up this patch for long time.
-Please let me know the status of this patch.
+Make the device table lookup skip XTYPE_XBOX360 entries for interfaces
+using the GIP protocol, and add an Xbox One entry for the G7 Pro. Its
+36-byte input report carries the Share button in the same place as the
+Xbox Series controllers, so enable MAP_SHARE_BUTTON. The T4 Kaleid uses
+the Xbox 360 interface protocol and still matches its existing entry.
 
-Thanks
+Tested with two G7 Pro controllers, each paired to its own dongle
+(firmware 1.55): sticks, triggers, D-pad, all face, shoulder and stick
+buttons, View, Menu, Guide and Share register, and both rumble motors
+work, including through Steam Input. The back buttons send nothing in
+this mode unless they are remapped on the controller.
 
-Deepanshu
+This patch was developed with an AI coding assistant (Claude Code,
+Claude Opus 5.5). It found the cause from the USB descriptors and the
+xpad source, wrote the patch and this changelog, and helped capture raw
+GIP reports to locate the Share button. I reviewed the change and tested
+it on the hardware described above.
+
+Signed-off-by: Alexander Gollings <levirootsmanuva2@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index d2eb48d..f0ceb78 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -406,6 +406,7 @@ static const struct xpad_device {
+ 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
+ 	{ 0x3507, 0x000b, "ZENAIM LEVERLESS", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
++	{ 0x3537, 0x1004, "GameSir G7 Pro", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+ 	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
+ 	{ 0x3537, 0x1040, "GameSir Nova Lite", 0, XTYPE_XBOX360 },
+@@ -2054,6 +2055,30 @@ err_free_input:
+ 	return error;
+ }
+ 
++/*
++ * Some vendors reuse the VID/PID of an Xbox 360 protocol controller for a
++ * device speaking GIP: GameSir 3537:1004 is the T4 Kaleid, but also the
++ * G7 Pro 2.4GHz dongle in Xbox mode. Never apply an Xbox 360 entry to a GIP
++ * interface.
++ */
++static bool xpad_device_match(const struct xpad_device *xdev,
++			      struct usb_device *udev,
++			      struct usb_interface *intf)
++{
++	const struct usb_interface_descriptor *desc = &intf->cur_altsetting->desc;
++
++	if (le16_to_cpu(udev->descriptor.idVendor) != xdev->idVendor ||
++	    le16_to_cpu(udev->descriptor.idProduct) != xdev->idProduct)
++		return false;
++
++	if (xdev->xtype == XTYPE_XBOX360 &&
++	    desc->bInterfaceClass == USB_CLASS_VENDOR_SPEC &&
++	    desc->bInterfaceProtocol == 208)
++		return false;
++
++	return true;
++}
++
+ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+@@ -2065,8 +2090,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		return -ENODEV;
+ 
+ 	for (i = 0; xpad_device[i].idVendor; i++) {
+-		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+-		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
++		if (xpad_device_match(&xpad_device[i], udev, intf))
+ 			break;
+ 	}
+ 
+-- 
+2.56.1
+

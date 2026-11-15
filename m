@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794700483;
-	b=SPSskRrVSzn/Hks//ohbryDXJq3GEredMnmEX6yVWmz6T11huHSQp7P8OP1qzIYQmybE
-	 CvFZtpbyKFM1vXadTixY/w4w0HuxGfXLwygOiz+0dz9R8EdGG4Q/TuROtGKWrQYJq3wvp
-	 Vkhywwj0rX3/Q7ZRcdkBaaDiAVdKZdyPD3Y91nSFJV6J2/r6qfLdA3YcD5e7eX00dxV7E
-	 7oRZge6NIJUF3jbm/sOHQ3kWfvEV+gyZCDj8XPYr+Bv8fzGQStLELfWOtF3iSVISNjMTR
-	 lEG1upQlHb7OLMEbp99sHqAq+PoTeMInpuY9Vpk6P34IiE5/iP8P1jsDa6F4Avl4zsw==
+	t=1794701224;
+	b=UaDt3YPDfLPFM1myLHm+zUXZ2Gy/zHKpE20WzEBlIgqTH/giHyEd2BU1j1TI/HdPPK7d
+	 UtqvoL5HK8RdlaYq+GLRTeyB49yXZoCLZoCX2tWOofOtdiAMo2rV5x/hcT/Bt3Nb0rLa4
+	 CkG5rQiqmoM5r0i+sIr2/kgWAKoak4DPGPiKP9P3RSQ9DxDVMFoYDhXLDwk5zYjB6X+XR
+	 hvjskLBrK/PNT8d7ZACoBJ+gurVyc9Bt6IBlxl3WXjdDzC8ryGeBlDqm3cF8zpWz7/BtR
+	 i5gIhai4hFwzKWIOnpOO7UWleAopDIfWJN/rKespmKYieeMisdk4kbg7oT5z5B4vWFQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794700483;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794701224;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3AqXVjRVHopdl8c3vjrWXQVWPKQ9kW/h8M9SwpX/geg=;
-	b=yHA/EjmfKr3NtlF55JalbV6hCObyu61DqhZlo3y8+2MmkePst7+LiBorvHaHi19L5Sl8
-	 cOtxv/sINQGLOxqve13kfBQ/HquW0eFrAyJxO7zk8ryxe8A7YV1DRDMS+4EBNM7wqr0Mg
-	 wVtU3eK0NGyIht7hw7Yl+7UR78PiYj26oTKM6fDys5kiKBNLqdJKM6C6jkO6biDDNL/Tv
-	 IgLAJJuTBx3N9KTYp0IHZrg4Y0pMEbr7xgIO9UBNUT6nEKnHMKMZXh+uquS9t+m6ORJv6
-	 baUjZqNgtBV71aIIHiz+fGtZivai6bymVvk+PjsdgyKWyzSmNrt3zWfUDsZrRwrW6zQ==
+	bh=VytKNIQy0C6b1jm25J+uQquMT5LQ5O+WfLfG600neOQ=;
+	b=hFiOOBj5eJLnxxnJCR3M5hjsaMeK6Yd5G8QJzosqfs+wUzPgFjC1pjZ2PWeakk78RAGD
+	 LqgagDWJBbrug41ZtVD14SkzQgR1K84KxuPV/OteVbf5jfR7JQi1NZnMiY1PWlqrnFiWN
+	 X3mreNpKfru1iN9Dk3Pw6qbI1PIbDAm/y8kwvq0FncZzzFRtGFLfV9fR4UoZZtOnlVxy6
+	 0VD7SDOCsHBYK9xzJj7hm38B+s1gnr9ffjMUivj9Imwf8+P3Pi38zr6wI/+halu0r8rnt
+	 kxUgU56h/BPdtFr3uOO+iPVN/kWO0xXwI0QsaQb4lt4/MhIeiSta+o+TvrlXMH2Rfeg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VHOBnrxz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SBSW/mij";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37CEB606A329
-	for <linux-input@vger.kernel.org>; Sat, 14 Nov 2026 23:54:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49F37606A323
+	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 00:07:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VHOBnrxz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC72E1F000C4;
-	Sat, 14 Nov 2026 23:54:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SBSW/mij
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 863541F000C4;
+	Sun, 15 Nov 2026 00:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794700482;
-	bh=3AqXVjRVHopdl8c3vjrWXQVWPKQ9kW/h8M9SwpX/geg=;
+	s=k20260515; t=1794701223;
+	bh=VytKNIQy0C6b1jm25J+uQquMT5LQ5O+WfLfG600neOQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VHOBnrxzocQr8SCvbO12sVB5ITZ4uCmWe1+AQnaSgsigwb+5+I5aIAJzQIaqoxod3
-	 OHNr91f22hEbl6NZVRzWgNFP+SGwotzOKsZ6nH/CD1kZ66Q64XOWhZcABsqCnNT7sF
-	 h33GPOJolZaT37uAZuXwU0vppbqknbXizRut1ZZZ30IWyeJNptk6hWr2xqGUErO0aM
-	 L1B98I2CWiYO6rMiOMccaUwpVejn1dJTRMy3ZY7zHPRHlGA7tVBOfcZcIKByehTr4G
-	 o8Cstdwwq8DHmk0Q/Tu5hk9GeTbMqIbSueIT/aGtU8F2UFyv2L0mHE6s3r3S+qT5vX
-	 YSiugBHKUe29A==
-Message-ID: <sashiko-outbox-215133@kernel.org>
+	b=SBSW/mijDX9UCi2V8XSnHbu1KdQ4lHdVzkIIKiS6OAA3NIDKodAHdBAletVXC5GAv
+	 R5UzFX6m3ou5lqE8U4fFLHIwPoL+PkbIIFnWaSYrHNx/5T4liiq4qBw+g8epkQfX+p
+	 P/s40b38LG8SCgl7eCcn29gCs2ddJ1+83reTOjwR/t6ZbpXGdZBGHwc5mblzhGx2Ri
+	 hUrUtj5v+6n4RKkGHbuLagKRKme804l1TwMxu85FS4XdQfzPUeMzkSdj2YRx7Ytcqy
+	 j9GPzpSPErpEudmYtsag7d6yKO20JsIBubrpxiZt50+5mSTNEYunXQ5JgxWtUVF7oP
+	 Qok6AY5+zhUeg==
+Message-ID: <sashiko-outbox-215139@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/5] HID: intel-thc-hid: intel-ipts: register the HID
- device
+Subject: Re: [PATCH v5 2/5] HID: intel-thc-hid: intel-ipts: receive reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Emfox Zhou" <emfox@debian.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261114234242.177387-4-emfox@debian.org>
+In-Reply-To: <20261114234242.177387-3-emfox@debian.org>
 References: <20261114234242.177387-1-emfox@debian.org>
- <20261114234242.177387-4-emfox@debian.org>
+ <20261114234242.177387-3-emfox@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 23:54:42 +0000
+Date: Sun, 15 Nov 2026 00:07:03 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,124 +60,187 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: intel-thc-hid: intel-ipts: timeout race in
-  thc_ipts_get_feature()
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] HID: intel-thc-hid: intel-ipts: shared IRQ race unmasks
+  thc_ipts_thread()
+- [Medium] HID: intel-thc-hid: intel-ipts: DMA buffer leak on
+  thc_dma_allocate() failure
 --
 
-commit e99496dcf7f84313e5d9ff87c2f348f5f730fd0a
+commit bc2c54076d407e032aad5ea9b6b5fb2d73e4ce2a
 Author: Emfox Zhou <emfox@debian.org>
 
-HID: intel-thc-hid: intel-ipts: register the HID device
+HID: intel-thc-hid: intel-ipts: receive reports
 
-This commit registers a HID device for the IPTS port and implements report
-descriptor parsing, input report forwarding, and feature/output report
-requests over DMA.
+This commit configures the Rx and Tx DMA engines for Intel IPTS ports,
+registers a threaded interrupt handler to drain incoming frames, and adds a
+work item to recover from transfer errors.
 
 > diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
 tel-thc-hid/intel-ipts/ipts.c
-> index 76224f4444828..ea85c9a150899 100644
+> index b0e3fe8ea8aef..76224f4444828 100644
 > --- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
 > +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
 [ ... ]
-> +static void thc_ipts_feature(struct thc_ipts *idev, const u8 *data,
-> +			     size_t len)
-> +{
-> +	if (!len)
-> +		return;
-> +
-> +	/* Only a frame that arrives while a request is waiting is taken. */
-> +	spin_lock_irq(&idev->feature_lock);
-> +	if (!idev->feature_pending ||
-> +	    (idev->feature_id && data[0] !=3D idev->feature_id)) {
-> +		spin_unlock_irq(&idev->feature_lock);
-> +		return;
-> +	}
-> +
-> +	len =3D min(len, idev->max_rx);
-> +	memcpy(idev->feature, data, len);
-> +	idev->feature_len =3D len;
-> +	idev->feature_pending =3D false;
-> +	WRITE_ONCE(idev->feature_done, true);
-> +	spin_unlock_irq(&idev->feature_lock);
-> +
-> +	wake_up(&idev->wq);
-> +}
+> @@ -122,6 +132,198 @@ static int thc_ipts_touch_set(struct thc_ipts *idev=
+, bool enable)
 [ ... ]
-> +/* A feature report comes back as a frame of its own: the request waits.=
- */
-> +static int thc_ipts_get_feature(struct thc_ipts *idev, unsigned char rep=
-ortnum,
-> +				u8 *buf, size_t len)
+> +static int thc_ipts_dma_start(struct thc_ipts *idev)
 > +{
-> +	unsigned long timeout =3D msecs_to_jiffies(THC_IPTS_REQ_TIMEOUT_MS);
 > +	int ret;
 > +
-> +	guard(mutex)(&idev->req_lock);
-> +
-> +	/* The frame carries only the report ID, so a late answer cannot be
-> +	 * told from the next one's: after a timeout the channel stays shut.
-> +	 */
-> +	if (READ_ONCE(idev->feature_off))
-> +		return -EIO;
-> +
-> +	spin_lock_irq(&idev->feature_lock);
-> +	WRITE_ONCE(idev->feature_done, false);
-> +	idev->feature_id =3D reportnum;
-> +	idev->feature_pending =3D true;
-> +	spin_unlock_irq(&idev->feature_lock);
-> +
-> +	ret =3D thc_ipts_send(idev, THC_IPTS_TX_GET_FEATURE, &reportnum, 1);
-> +	if (!ret &&
-> +	    !wait_event_timeout(idev->wq, READ_ONCE(idev->feature_done),
-> +				timeout))
-> +		ret =3D -ETIMEDOUT;
-> +
-> +	/* Past this point no request is waiting for the frame. */
-> +	spin_lock_irq(&idev->feature_lock);
-> +	idev->feature_pending =3D false;
-> +	spin_unlock_irq(&idev->feature_lock);
-> +
-> +	if (ret =3D=3D -ETIMEDOUT) {
-> +		/* An answer may still be on its way. */
-> +		dev_err(idev->dev, "no feature report %u\n", reportnum);
-> +		WRITE_ONCE(idev->feature_off, true);
-> +		return ret;
+> +	/* Allocated once: a start that failed must not leave a NULL buffer. */
+> +	if (!idev->rx_frame) {
+> +		/* The core rounds the packet size up to a page. */
+> +		idev->rx_frame =3D devm_kzalloc(idev->dev,
+> +					      round_up(idev->max_rx, SZ_4K),
+> +					      GFP_KERNEL);
+> +		if (!idev->rx_frame)
+> +			return -ENOMEM;
 > +	}
+> +
+> +	ret =3D thc_dma_set_max_packet_sizes(idev->thc, 0, idev->max_rx,
+> +					   idev->max_tx, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D thc_dma_allocate(idev->thc);
+> +	if (ret)
+> +		return ret;
 
 [Severity: Medium]
-Can a feature report arriving right as wait_event_timeout() expires be
-dropped while still latching idev->feature_off?
+Does this leak config->prd_tbls and scatterlist buffers when
+thc_dma_allocate() fails?
 
-CPU0                                    CPU1 (irq thread)
-thc_ipts_get_feature()
-  wait_event_timeout(...) -> 0
-  ret =3D -ETIMEDOUT;
-                                        thc_ipts_feature()
-                                          spin_lock_irq(&idev->feature_lock=
-);
-                                          /* feature_pending is still true =
-*/
-                                          memcpy(idev->feature, data, len);
-                                          idev->feature_pending =3D false;
-                                          WRITE_ONCE(idev->feature_done, tr=
-ue);
-                                          spin_unlock_irq(&idev->feature_lo=
-ck);
-  spin_lock_irq(&idev->feature_lock);
-  idev->feature_pending =3D false;
-  spin_unlock_irq(&idev->feature_lock);
-  if (ret =3D=3D -ETIMEDOUT) {
-    WRITE_ONCE(idev->feature_off, true);
-    return -ETIMEDOUT;                  <-- drops reply and shuts channel
+idev->max_rx is decoded from a 14-bit field (up to 1 MiB) and only checked
+against THC_IPTS_RX_HDR_SIZE in thc_ipts_port_start().  If idev->max_rx
+exceeds PRD_ENTRIES_NUM * SZ_4K (64 KiB on 4K-page systems) or sgl_alloc()
+fails, setup_dma_buffers() returns -ENOMEM after allocating config->prd_tbls
+and any earlier config->sgls[i], while thc_dma_allocate()'s rollback skips
+the failing channel:
 
-Because idev->feature_done is not re-checked under idev->feature_lock when
-clearing idev->feature_pending, a reply accepted in that window is
-discarded, the request fails with -ETIMEDOUT, and all further feature
-requests fail with -EIO until the port is restarted despite no late answer
-remaining in flight.
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:setup_dma_buffers() {
+    ...
+	config->prd_tbls =3D cpu_addr;
+	config->prd_tbls_dma_handle =3D dma_handle;
+
+	buf_sz =3D dma_get_max_packet_size(dev, config);
+
+	/* Allocate and map the scatter-gather lists, one for each PRD table */
+	for (i =3D 0; i < config->prd_tbl_num; i++) {
+		config->sgls[i] =3D sgl_alloc(buf_sz, GFP_KERNEL, &nent);
+		if (!config->sgls[i] || nent > PRD_ENTRIES_NUM) {
+			dev_err_once(dev->dev, "sgl_alloc (%uth) failed, nent %u\n",
+				     i, nent);
+			return -ENOMEM;
+		}
+    ...
+}
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_dma_allocate() {
+    ...
+release_bufs:
+	while (chan--)
+		release_dma_buffers(dev, &dev->dma_ctx->dma_config[chan]);
+
+	return ret;
+}
+
+Because thc_ipts_dma_start() returns before setting idev->dma_ready,
+thc_ipts_dma_stop() also skips thc_dma_release(), leaking the unmanaged
+coherent PRD table and scatterlists.
+
+> +
+> +	ret =3D thc_dma_configure(idev->thc);
+> +	if (ret) {
+> +		thc_dma_release(idev->thc);
+> +		return ret;
+> +	}
+> +
+> +	WRITE_ONCE(idev->dma_ready, true);
+> +
+> +	return 0;
+> +}
+> +
+> +irqreturn_t thc_ipts_hardirq(int irq, void *data)
+> +{
+> +	struct thc_ipts *idev =3D data;
+> +
+> +	/* Level triggered and shared: mask first, or it stays asserted. */
+> +	thc_interrupt_enable(idev->thc, false);
+> +
+> +	/* A reset in flight: the port is masked, so this is not ours. */
+> +	if (READ_ONCE(idev->recovering))
+> +		return IRQ_NONE;
+> +
+> +	/* Nothing of ours is pending: the cause belongs to a sharer. */
+> +	if (READ_ONCE(idev->stopping) || !READ_ONCE(idev->dma_ready))
+> +		return IRQ_NONE;
+> +
+> +	return IRQ_WAKE_THREAD;
+> +}
+[ ... ]
+> +void thc_ipts_recover(struct work_struct *work)
+> +{
+> +	struct thc_ipts *idev =3D container_of(work, struct thc_ipts,
+> +					     recover_work);
+> +
+> +	/* A handler may have unmasked after the error; keep it masked. */
+> +	thc_interrupt_enable(idev->thc, false);
+> +
+> +	if (thc_rxdma_reset(idev->thc)) {
+> +		/* Nothing left: keep the port masked until it restarts. */
+> +		dev_err(idev->dev, "cannot reset the receive engine\n");
+> +		return;
+> +	}
+> +
+> +	WRITE_ONCE(idev->recovering, false);
+> +	if (!READ_ONCE(idev->stopping))
+> +		thc_interrupt_enable(idev->thc, true);
+> +}
+> +
+> +irqreturn_t thc_ipts_thread(int irq, void *data)
+> +{
+[ ... ]
+> +	if (!READ_ONCE(idev->stopping))
+> +		thc_interrupt_enable(idev->thc, true);
+> +
+> +	return ret;
+> +}
+
+[Severity: Medium]
+Can a shared interrupt cause thc_ipts_thread() or recovery to run with the
+THC port interrupt unmasked?
+
+thc_ipts_probe() requests the interrupt with IRQF_SHARED | IRQF_COND_ONESHO=
+T,
+which leaves IRQS_ONESHOT unset unless an earlier sharer requested
+IRQF_ONESHOT.  While thc_ipts_thread() is running on CPU0, an interrupt from
+another device sharing the INTx line can run thc_ipts_hardirq() on CPU1:
+
+CPU0                                  CPU1
+irq_thread()
+  thc_ipts_thread()
+    for (pass =3D 0; ...; pass++)
+      ...
+                                      thc_ipts_hardirq()
+                                        thc_interrupt_enable(..., false)
+                                        return IRQ_WAKE_THREAD
+                                        /* sets IRQTF_RUNTHREAD */
+    thc_interrupt_enable(..., true)
+  /* sees IRQTF_RUNTHREAD set */
+  thc_ipts_thread()
+    /* runs with port unmasked */     <-- invariant violated
+
+The second invocation of thc_ipts_thread() runs without thc_ipts_hardirq()
+masking the port in between.  In addition, thc_ipts_recover() clears
+idev->recovering before calling thc_interrupt_enable(idev->thc, true), and
+thc_ipts_dma_start() sets idev->dma_ready before thc_ipts_port_start()
+unmasks the port; a shared IRQ in either window can wake thc_ipts_thread()
+(and even enter thc_ipts_request_recover()) before the delayed
+thc_interrupt_enable(idev->thc, true) re-enables the port interrupt.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114234242.1773=
-87-1-emfox@debian.org?part=3D3
+87-1-emfox@debian.org?part=3D2

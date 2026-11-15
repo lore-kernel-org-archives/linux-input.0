@@ -1,65 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794715700;
-	b=sgsYG2QdE1aP4Wlpvth8xjAbd2zidh8u0UbsALmZxJYDqkJ+UeNFCPQAtpmCe0a2sRQT
-	 wwcihMDT6PngC0GNcA2oOlniYGgjXWw28qgNSIsbyyz5kWiUvrKubGVd909aEs0CFNFyf
-	 p9OZktdhtXIaOF/YjzoVm22qgeP6PX4hynEVZqtBTMhM6nvdlXIQ+RYAI51dDYhouyd/S
-	 ZizAlDTqaGPx5uhyySywg/ozX17LfcIyGIc51JERwrCrLsrHp+xnHe0OemOUhZA/S9euD
-	 1EZmmgLUjXv7Vk+/OZA8CeAziwA8XiNGs7NCdrUHIa9jExmJKFDZKnYnNlWY4RuIkyQ==
+	t=1794716784;
+	b=DJ9tB0DDt/lyGhU2PaW0XuP45zcA3lhhr/q3AdtnJspQjUNxttMI6MaQlKid21jGcAGp
+	 pIx391aVZJ/bTkIgEKwZEUwbLl88ul3hUniNjgH+OwbkOx3kDRW9ogV5tv7VU0UMAeIDI
+	 bBo29COB146fsH7HevhPH3mUYM6DHT9CDvSyDsyQZySIxssUgjJbGkPIJdMYrbr6KPnj/
+	 yqWr4bX2Ld2TeGm+QeeOZykIo5hzxFw4gWv10nXW5fnjF1M1LdoTCw8q9+nhNsX1+/ZX+
+	 tMhbZqVLdZnBhnKvhgS+CsRndkxjHNL7rY/0rEW5yJKLc72NcR/Rj2C90T68LcqeZgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794715700;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Debian-User;
-	bh=O1aNnud1hC5sF5Cj79XKOT6k43FxwiLQRFJz6PwV4w0=;
-	b=tCuONMqKJhSFAt/Q+LcpDBJwqKV7HQo+cfCTz0tO9iO4dJrAzc2LsaCo2rSB63MYsUYF
-	 cZD4TbPwFtMQ7JiRpMXC1YpQWt+/62QyHtylNtgs5c1DhMuSIJAJPjW623Ho5Wx6FOe3g
-	 4VEmHOZ0vM1aW28HuEyKdRp/BDVitLOka32jIqhFcZMoOeYflxrPBKWNOWCYY8gutD4ZW
-	 WAzn6hJiYvT97+ZSauqw4sB0PVpYrny5VHXGNmTma6Jw+iwUQEI1IF6lueNmdgFWTnOWy
-	 cI6EKsm+F9iXCeiwXbw3SLu75tiK3lipXQPNbge4vTJcbvVdxrZs3Xad+FzDJx3mVfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794716784;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=KvDRT8fYPlfjUdlGIuJ37hFVoKfyYTemCD84uDS9WoM=;
+	b=OpiKVKohVsZWmXkj9q7IAPQgoHHOeEqLViiFzPcvrCbnROVjV/J7Wr/yXMWXxT4X/fo7
+	 ZF6/JiMb2keCnsfL9HJeRKoNS+lZnw2ndAMv5d6doxvA5YNkALXQ/+5S4vrZW5nnAChcX
+	 FTT7W1QIePLwnA1aPzdZ3//NTbbZ5dVnN6j3OW4TM2mDc9IhKwtAPPQJLT05zVCEvMqv+
+	 F8VN3NeGdcgtRh3gJbkR+HVFrviCA6UEmto0uG84kV2UF010f9zlvVzUFz++4fFq8tesY
+	 jexdjcHA0FtdSo6Y+Qp1Zc0CMJsGUK8987CzbjCFfjzswl84r1id3TwCFzvbF1Tv/yw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=FOskF0Jr;
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="HcyaLyw/";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E72FD606A323;
-	Sun, 15 Nov 2026 04:08:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E72FD606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06674606A323
+	for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 04:26:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=FOskF0Jr
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=O1aNnud1hC5sF5Cj79XKOT6k43FxwiLQRFJz6PwV4w0=; b=FOskF0JrODUjr+o/LBTmc+f6S8
-	jIyccQpozHnowAORmzMCJnXljGXDwUclaAQzJNfuxGL+oRQrcL2qwVOKi61uDdObZjGPqZQcQIhr/
-	9KCgVhAfv2OwAJeerZkLpp54zuDMJt74jOczCHYl4JOVuzYPFofzk18+8Y/FoMIreHPaQIG1+xImK
-	6uovcA7q990kaDNF4KEBQM2rE1h0zfCTFIIqdkPqJY9XXbrrRL9lChWEdENZqoWR1XHJ6VhoNVuie
-	Gf5bUhZs+cLYnRp4hhiOad6G5UeiJXjhvu6Q5hXEK0xMkxsJR/Ftpp3YdiFBtZIST/H0c2RRZw0zv
-	tt3PsFOw==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xSRXJ-00G33F-0Q;
-	Sun, 15 Nov 2026 04:08:13 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3] HID: intel-thc-hid: intel-thc: restore PRD table capacity
-Date: Sun, 15 Nov 2026 12:07:56 +0800
-Message-ID: <20261115040756.602092-1-emfox@debian.org>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HcyaLyw/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692D11F000C4;
+	Sun, 15 Nov 2026 04:26:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794716783;
+	bh=KvDRT8fYPlfjUdlGIuJ37hFVoKfyYTemCD84uDS9WoM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HcyaLyw/s8j/InOxFxypvLla6Wjr9reVlZuN9VdGd8s7qndq5HAQkyycL1KgX8JLo
+	 mPgjcahxlxqHh3PJF6jH3+SLVbK35vDBVVN9hCnW3gruCqKO2jVzrdRIygixJnZ8C9
+	 gfaTjioutblAUAX+2UYOMnsvZqR6tqy+YNJxstP78rSvFPkO9NRopMzemlV/D6GZzO
+	 vf5UpHwGyoa6l7Z6+EBWldkZsYGokOZ9niIzJ4PdmmWExjKzHM0bc2xi1qLzIHePuN
+	 /lRfkmYRmakv/UxbK5qzynLrCXpKWZ22dk7zpVzs8xb4EZOAUJWbxGD87mHPwBQOyo
+	 DaxQICDPBPTxw==
+Message-ID: <sashiko-outbox-215221@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] HID: intel-thc-hid: intel-thc: restore PRD table
+ capacity
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Emfox Zhou" <emfox@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261115040756.602092-1-emfox@debian.org>
+References: <20261115040756.602092-1-emfox@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 15 Nov 2026 04:26:22 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -68,63 +59,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
 
-The controller writes the frame length into the PRD entry it filled and
-marks the end of the frame there; only the read path puts the capacity
-back. thc_reset_dma_settings() rewinds the read pointers, so the ring
-reads as empty while the entries keep those lengths, and the next frame
-that does not fit runs past the end of its table: the controller reports
-a buffer overrun, which is a transfer error and leads back into the same
-reset, with the tables untouched.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] HID: intel-thc-hid: missing THC_SWDMA PRD restore in
+  thc_dma_configure()
+- [Medium] HID: intel-thc-hid: un-restored RxDMA2 PRD capacity in
+  thc_swdma_read()
+--
 
-Rebuild the receive tables in thc_dma_configure(), after the pointers are
-rewound and before the engines are started again, which covers probe, the
-RxDMA reset and the resume path. All four engines are stopped at that
-point, so nothing reads the tables while they are written, and
-thc_copy_sgls_to_prd() returns early for a channel whose tables are gone.
+commit dd12d53039d8c9ed77913f6942ca6c87e513e4db
+Author: Emfox Zhou <emfox@debian.org>
 
-Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
-Changes in v3:
-  - Restore the tables from thc_dma_configure() rather than from
-    thc_reset_dma_settings(): the reset also runs on the SWDMA path, where
-    nothing stops a reader.
-  - Do not touch a table that has already been released.
-  - v1 was posted under an older subject.
+HID: intel-thc-hid: intel-thc: restore PRD table capacity
+
+This commit restores the PRD tables for the THC_RXDMA1 and THC_RXDMA2
+channels in thc_dma_configure() after rewinding the DMA pointers and
+guards thc_copy_sgls_to_prd() against disabled or unallocated channels.
 
 Link: https://lore.kernel.org/r/20261115001100.313270-1-emfox@debian.org
----
- drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index c80ef8c20..64fd890e5 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -211,6 +211,9 @@ static void thc_copy_sgls_to_prd(struct thc_device *dev,
- {
- 	unsigned int i;
- 
-+	if (!config->is_enabled || !config->prd_tbls)
-+		return;
-+
- 	memset(config->prd_tbls, 0, array_size(PRD_TABLE_SIZE, config->prd_tbl_num));
- 
- 	for (i = 0; i < config->prd_tbl_num; i++)
-@@ -491,6 +494,10 @@ int thc_dma_configure(struct thc_device *dev)
- 		return -EINVAL;
- 	}
- 
-+	/* Pointers rewound, entries still short: restore before restart. */
-+	thc_copy_sgls_to_prd(dev, &dma_ctx->dma_config[THC_RXDMA1]);
-+	thc_copy_sgls_to_prd(dev, &dma_ctx->dma_config[THC_RXDMA2]);
-+
- 	for (chan = 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
- 		dma_set_prd_base_addr(dev,
- 				      dma_ctx->dma_config[chan].prd_tbls_dma_handle,
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> index c80ef8c205742..64fd890e5a583 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
 
-base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+[ ... ]
+
+> @@ -491,6 +494,10 @@ int thc_dma_configure(struct thc_device *dev)
+>  		return -EINVAL;
+>  	}
+> =20
+> +	/* Pointers rewound, entries still short: restore before restart. */
+> +	thc_copy_sgls_to_prd(dev, &dma_ctx->dma_config[THC_RXDMA1]);
+> +	thc_copy_sgls_to_prd(dev, &dma_ctx->dma_config[THC_RXDMA2]);
+> +
+>  	for (chan =3D 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
+>  		dma_set_prd_base_addr(dev,
+>  				      dma_ctx->dma_config[chan].prd_tbls_dma_handle,
+
+[Severity: Medium]
+Should this also restore dma_ctx->dma_config[THC_SWDMA]?
+
+thc_reset_dma_settings() rewinds the read pointer for THC_SWDMA as well.
+If thc_swdma_read() is interrupted or times out in
+wait_event_interruptible_timeout() after the controller writes a shorter
+frame into THC_SWDMA's PRD table, thc_dma_read() is never reached to
+restore the entry capacity via thc_copy_one_sgl_to_prd().  Subsequent
+larger SWDMA reads will then fail with a hardware DMA buffer overrun even
+after thc_dma_configure() runs.
+
+[Severity: Medium]
+Does the thc_reset_dma_settings() path in thc_swdma_read() also leave
+THC_RXDMA2 PRD entries shortened?
+
+thc_swdma_read_start() pauses THC_RXDMA1 and THC_RXDMA2 and calls
+thc_reset_dma_settings(), which rewinds their TPCRP pointers to 0, and
+thc_swdma_read_completion() resets them again before restarting
+THC_RXDMA2 with an empty ring (TPCWP set to 0x80).  If the controller
+wrote a short frame into a THC_RXDMA2 PRD slot just before
+thc_swdma_read_start() paused the engine and before the IRQ thread
+consumed and restored it via thc_rxdma_read(), rewinding the pointers
+makes the ring appear empty without restoring that PRD table, so the next
+larger input report on that slot will trigger a buffer overrun and forced
+reset.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261115040756.6020=
+92-1-emfox@debian.org?part=3D1

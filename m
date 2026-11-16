@@ -1,98 +1,129 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.46
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794855252;
-	b=YVlKtUvrqoTv3LSX2F0iEqTpeGsQrMc5Rg/qFWaiU4npLoMnh4iK2FLBJpfoLiaRfu4R
-	 Z5ha3EYjz+YAPqDoUBrLWEXoy7i+XHVALdGbYZ1k02u3IL7odzj6ndggklkusQt5WjzdL
-	 RwOd5yJDP3nrAnsRFc8D7dmCFMebJ1C00URGLBWBMY+4NSSA6P0hsDNHhFpt7l778xymE
-	 8sMz6npNESh6koble5hbQ5yNBv1c1VC4/wYGMjsW1QNXObuHwGghk0BVbVn2hta9ECMAW
-	 4bLGT0jkhWfnx5IIr1rZ0yjwYHzfWuqFfm94DuhTVF0/rhYTiLxAOk6KgTlwsdKX0XQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794855252;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794855860;
+	b=Eci8gecOQv5n5IjMJdeLj5bAiMxWx9wXJXUwIuKJLuGPbqXrjMVwfRTzPoXfHRK4q2xp
+	 uZ1RFZRkU33yzW59kxgPZnWw4c4zrlJ71KzmG7nN7zHZWYRqrEUmEizDYtC30T2bi5Ypo
+	 yt9ChLNIAfeBjG8RlDOJ4v/dtTLDvKjum3cmBOnL36jSD0ByCGrJGMa8BerpKqSvhHKGJ
+	 iJ7ScFwN0JuzyHQwb4XBOtbSIFBEBI4xeKueJPQuztZ/cbM1NuEv7J8npwzbLPmkEcsyG
+	 Vb8BB3ISzns1Ux0HZyzGtdv5V5+ZoHAF12z+Mjjxdc1HaF+gfC0xEK1T7zhGNhfFZXw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794855860;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type;
-	bh=choMbSoYoRkI4EZKogv+on35PXN8ET4WeIfVWxIT3BE=;
-	b=Wfhwyj8Ke6y6Im4MvTnPfg2iQS36VcP7BeLv3Nq3jY10HClsojKL1IWTNLn41WNFIViQ
-	 UdZ4Pdw36oZZjpIUxgXJpjygJNcF3TVUB2yjfiIEGvcQdDRAMgMIdHS/1O/PaK2ad06CH
-	 F0XRYy19UhXBW8bti9qB8btZVrn7IUpvIZRLd3ihV7aSVne+wAmJ5TDnkejFtFu++9szE
-	 pHxupr3bo0ILm/wLG9/feN4aCIAHKm5TkZzvuxQ3T+JXbjnoXgcV157PFGWw8I0kqrbLA
-	 LhRS2xD5qrKWykl/4UJF9Ggpvx7bSKKVRn40ysCXx+Vf2uywzs/gwpdFVHPX0PdLMDw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Td9LqMZB;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.46
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=WvOfbKHC1YhEa2QpW290x7cG/RSkj9nU3s9Pf1uScWc=;
+	b=XWtUnSVbU4ABNsxmZTrfi2Nxlkz9A5K6wMhJToBSKdFS4fr11Rwe5vIkKNZElJOR731r
+	 8fhzw8ex/bo72nGY4V/icFk+fq70B/EWachfzmXe79hd3XGJdXJuAinbDwvXfUnZTVt8K
+	 JTokmg7Qy1yuDnV3cW6pudTm77V/GcOY4gsBhn18vkJul8cOKv/dvuyGeJDEHXGNXjntE
+	 AIsU6UGMjJeMTLdNHspGW/K2LG8XvgSJscZnU6/kiPDL2mdPFg17BWpgdcC00WMpHzkh/
+	 Bt7kniaojYle/hk/o2VyZ6N7ebCfTIdaxrBuT1Xv7D7fFvQepY7EYA+Gmrs47zyxGGA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=ziepe.ca;
+	spf=pass smtp.mailfrom=ziepe.ca;
+	dkim=pass header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=cV6xCUYW;
+	arc=none smtp.remote-ip=209.85.160.175
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C6AE606A31C
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 18:54:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C6AE606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC00F606A329
+	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 19:04:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC00F606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Td9LqMZB
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6ae305e3bd9so6734238a12.0
-        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 10:54:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794855250; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KbXVkhoUHKrhaUxOtDR6PjBcsYgdSojgMugJtFuaQztHwntjFnOiCvFUDkDIEayXvJ
-         cGkXZHXE23nebe7w4Zmba5jVxlIuBBMdmI6opZV5VcRB3kE/vU+RMEv7bmiC3nGMPOYP
-         COXEBnCbvAcENiJWjoCrZYdijIODJhRnQO3waAU5AXks+49uaJarmnYnPSLoObGvopUi
-         D/fu9OsX/knSRuatc9Pdcr2yYPMit1ynBulOVPAV7pY8jiGT4pP4DNNSy/5CFyWyG03Q
-         K418D+1MFIdGhfgIakzZIWVdU+KRZnLtIOtABX1b+wZBJqyil7kto7KpZ6Mj5LloYL+2
-         8ilQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=choMbSoYoRkI4EZKogv+on35PXN8ET4WeIfVWxIT3BE=;
-        fh=aJyvP/+aiUEwb5+BnGWNqDvbivtyxnEqLEB1X/+mgMA=;
-        b=gkuViTEN2gGNf2FLOOqyuCnBexzbsuNinbCQZP+1tN3eU9l0OHUjxxbhlpAYoTkCR0
-         FnQqRmgF35yemAdkwbgq8fsE0LT0uQ2tzKAwsua8DlinZSNyZHvl7zpTg0eGdEyBHKO+
-         1vifjuOqMwtQpf8j9O+tA/gbXAU5AvgG5Lomj62Z+NoC4Fssyr070brdDD86hqrosHis
-         BcZXoGPWVicf8DDAHhZzMs7XGYfoioNasziLsaocbzhHaFXoJOkWuzHyRX6KCseYJ3W1
-         qeFT7/KsZCdoKJX6gAhKMutJKhwWBFSJ5es7eg9WJnTC9vPRdcnJFrvEH/wahz72q2Rm
-         uWFw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=cV6xCUYW
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-53634b8328eso39592771cf.0
+        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 11:04:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794855250; x=1795460050; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=choMbSoYoRkI4EZKogv+on35PXN8ET4WeIfVWxIT3BE=;
-        b=Td9LqMZBHFV+p0mazrBtRu96p5TmeDwPSQL9a0Q0t2RN0IrNFBDVPKczSyar5mB3Bc
-         OafxvqCuCmDeEB57+4beLr4DNjm5m0LyELvSw1ORSrE56d/LA3wyfChdrGA0jxRIykn7
-         hhEfia0r2dUyociyyU72vSMffQK9ZaQbI1r46NRTin5FpTNCmpErvszhgIScGHRXnwWF
-         G5/Q8X/HxWtX0G6+Tb2DGGWMvR6c4u1392Yhg/1oDPLBL0M3ynckTyLSv/KIK/1nSclj
-         meWGOh5PUVcmQpMXPqMIHl6aQ+gXY64pO5HuKJnptk4vmtfaGf9AE7F79tnA2bS5An6C
-         BOfQ==
+        d=ziepe.ca; s=google; t=1794855859; x=1795460659; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=WvOfbKHC1YhEa2QpW290x7cG/RSkj9nU3s9Pf1uScWc=;
+        b=cV6xCUYW6Nj32ATgj9pR3hPHUcXMAswfWFmbofUn9Kj8O2h0vBxKz+gKkblkAcoZs4
+         3Sksf2uZJcrqFHnWfbGA31BNzwsf2S1dv95GJqgZVMfFGYLSB6zg6g2Fr+yuwov/in3t
+         kzMGwphN2MWZmbFV+wYJtbSpA7Il47XDSpoenMocuugAiDnZMkgQe82N6D/LNCvFdxrw
+         g4Vs+tRlvNQP2aXotTXnhkPG5j8fWm0uVGtEmoX6U112LRHDjo2Qmq5iAcSLMow6gR3a
+         CP6w8W/FgL6u2p7O81zc788TpdcCz8lIWVKQDNRHCpvZKfTuZAAb/gE598LmoW33C074
+         z1Cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794855250; x=1795460050;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=choMbSoYoRkI4EZKogv+on35PXN8ET4WeIfVWxIT3BE=;
-        b=k0IJN96QEBtBBV5JrqBSPUD2li8Xv9ed5tqK0/FHFMwFYPe9npExr1wEOgieZT1VJ8
-         oBVrLtFQw6aF0S/ZWdP4bXjjrC+pEv9P9dMiOb37t2COvftWwVA+4XWSH0mJ8BLpCShE
-         7OKIn+OP4dG2HDofwS49yACne0N84ee75oRQsDaFItSwEEI4lt7IafeK0226/tRfEr6A
-         2+zZDB4ddQQCGYmMJrBIdBw/iYUJTB7LgXMgNB8SdLGqeebuHznJSgaDu87DgIgZJlBm
-         XEkUtcX0TJJ5qOYKYcH9qs3F4sQ21eqXk7iQo4Zu+q5xzleFCZ0mRLlSdH5WTaAnl4bM
-         H55A==
-X-Gm-Message-State: APuU4Z/N00ZwUqfb8in434e5U4HFN524XzsfzizMaHXIDJJGojqs5uDy
-	KTr7mvTYgmNBvfZaLuvNbZ5IAYn1s366ATlsJh+fqugERph+fsvrZ1nLQlCZEizwDTuUF5LNdYW
-	bvvSLhTsitXtl9GEzWwgQf/vt20m8V7A=
-X-Gm-Gg: AYBFou25+teZPx0YN+JubqHuDnm6GZ21Ya29Pwo0M7B1weew+SpsgsoTGPrpbB5GzNH
-	z98CCfl5TZeQpGVL6zm69Q+f42CLP1kNoIWYltwl0QVs0wTJ9ikh6WibS/tLQQSS/53IGao1LtR
-	Y6PFk/IMwqbAR3ovA+4YhZcED/doDPBFfav8VXUdrPXfjh1KkZ4mekSwPK+rVZE4757PoLdTplE
-	Y54kwm44Hj95M741sR4QZ9JptuayQqN9fn+imAIsDWmZE+YKQssgro6ynAE6LPs2DRq/JPo5QGl
-	q+yjeE8PmXMbVoUSwMzQGSZov05YkAb+yPNEY2ULmSSoMwJXUP0l7xoAU/Vjhb92nFxCNRwrs80
-	3l2YgtJP+CDIE2gTQozABzSHcAFSD+AlxCn8=
-X-Received: by 2002:a05:6402:3210:b0:6b5:9714:dea8 with SMTP id
- 4fb4d7f45d1cf-6b7c0d24511mr9592011a12.45.1794855249794; Mon, 16 Nov 2026
- 10:54:09 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794855859; x=1795460659;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=WvOfbKHC1YhEa2QpW290x7cG/RSkj9nU3s9Pf1uScWc=;
+        b=HmUT6EOirbc8t5qOd6VPFLBvcD7dTaNxXaTYBOuY71/ZwtTUzeNl00ZwHBEZxTDTaJ
+         HQMWI1W5yg6gyb3iv5HaXLU4WrnbkyNtiZdkopL6II+qVGVATDYKyn4gls1nog3kssXr
+         oyyn3tAewLU3yU/MgkefY9UkLxCZqCRokAxIVPXeXhN91/+KVy7aXpUPm28iSEvLslH8
+         IyBuAM+9sFP1u/L+EsEgAyltcMOjekk40BMoBQPOQLeVhnO9fZPI/dS+CaU7wjzToWE2
+         0qSIKAQfhwz89/Aw+rd56FRadj9sLhKeBof6I/M/SwxOiAlhWEfDOmcMlzSHBggRU5dS
+         etJg==
+X-Forwarded-Encrypted: i=1; AL+hErEV6KjazEfAauPOZzwM53lprSPOFZXU4FjSYRFo/wnZt0Ieq4M8c0xn0tA3Ifx01ngjwmEVAlbw6IIP3g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/+w+5qbsmX5vdCd9NsKqfXMiqWHoZh5PSAfQln63CDiYaKosjm
+	Dx1yoQNlnmpbB2F3Yy/gJhxnPUXA5/MShVjcWIAcZXUGuqELhK7MBFuOmk7yoUOybZE=
+X-Gm-Gg: AYBFou3YG/vg7A7Xj6XbiHp2C4S0oGXl9TdnOO7hERuYIPU+NQmpyMm9w088o7QO/q/
+	wGFmrmpWzH64ml4KotjWdKRhpfNYAnsUp2u/0wFO2i1ycibr1yLOoK1jTNtOQINrAEoZaGjCJIT
+	gj1BjhOAxChh+QZdreqXsT8nl+ER3y7VnnQcsf1IthIYrSa0g85RjX6He7IenWeS0K30lMcnqQA
+	uvRb/zyA+R0Hx4dzufZcAXH2N7R9frH9JxOp7b3V1AFNpKiiEIdIYTHFvNTH4J2L25zEI3gF1MO
+	M+raW70L807g0MMeP+4v9OcnKWbozN0kP4qC/y13E27fZRWXWy+CApUQNIZglbMcc8ygdGpWGMA
+	9zikjtclBy7W21AbYLN/YvoGdqObg5GxRmeLM6w73NhIqPFsr7mzofGCwFL36H0uz8Fz3T5jgWK
+	qrYMxwqwFChhRoVhM5L9H/1y4afYJl74pPLkzTquknbk8JqEyDsARWPnYzLx1ReLb1bKo7EbtCC
+	s4awxgLBbqS4KK+o1/iVnqMFH+ENxxfZweLXsp6ReShMBapjTfNxe40Nz85pEmlu1X7u+qwu4+K
+	m4g6Mw==
+X-Received: by 2002:a05:622a:124b:b0:536:9140:e2be with SMTP id d75a77b69052e-55ac948cc41mr174359441cf.74.1794855858824;
+        Mon, 16 Nov 2026 11:04:18 -0800 (PST)
+Received: from ziepe.ca ([142.166.156.71])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55ad1b13917sm87667361cf.29.2026.11.16.11.04.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 11:04:17 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1xT201-0000000AFsj-03Yl;
+	Mon, 16 Nov 2026 15:04:17 -0400
+Date: Mon, 16 Nov 2026 15:04:17 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Kameron Carr <kameroncarr@linux.microsoft.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev
+Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
+Message-ID: <20261116190417.GD2299285@ziepe.ca>
+References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
+ <193e4130-9c2f-4a0f-b218-f5fcf0b3d508@linux.microsoft.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,42 +133,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261020122712.526797-1-l.scorcia@gmail.com> <avZiZoGO4jXjIP7D@google.com>
-In-Reply-To: <avZiZoGO4jXjIP7D@google.com>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Mon, 16 Nov 2026 19:53:58 +0100
-X-Gm-Features: AclHuK-ct3_bPqNEIOSB1NJrGGSJAI5u9bKqHSATB78hAxnxBRSskimQcv_9q0Q
-Message-ID: <CAORyz2LNRfnvbCLe+49A5kAF4NSi0zuYdpd95+7=Hx=KQh0B1g@mail.gmail.com>
-Subject: Re: [PATCH] Input: goodix - sync the irq controller while starting firmware
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hansg@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <193e4130-9c2f-4a0f-b218-f5fcf0b3d508@linux.microsoft.com>
 
-> There is call to goodix_int_sync() right after call to
-> goodix_start_firmware(). Is it still needed if we call it here? I think
-> the vendor drivers does not do it.
+On Mon, Nov 16, 2026 at 10:46:25AM -0800, Kameron Carr wrote:
+> > @@ -1738,24 +1738,24 @@ static void set_pcie_cxl(struct pci_dev *dev)
+> >  
+> >  }
+> >  
+> > -static void set_pcie_untrusted(struct pci_dev *dev)
+> > +static void pci_set_default_trust_policy(struct pci_dev *dev)
+> >  {
+> > -	struct pci_dev *parent = pci_upstream_bridge(dev);
+> > +	struct pci_dev *parent = pci_physfn(dev);
+> > +
+> > +	if (parent == dev)
+> > +		parent = pci_upstream_bridge(dev);
+> >  
+> >  	if (!parent)
+> >  		return;
+> 
+> Hi Leon,
+> 
+> The default policy here works for physical hierarchies, but there's no
+> opportunity for a paravirtual host bridge to participate in the trust
+> resolution when the host bridge driver itself knows the appropriate
+> trust level for a device.
 
-Hi,
-unfortunately yes, it's needed right there on the Lenovo Tab E7.
-Without it, the REG_SW_WDT right after it fails with the error "Error
-reading 1 bytes from 0x8041: -6".
-The vendor sources for this device [1] show the call to
-goodix_int_sync exactly between the two interactions with the WDT
-register.
+HW doesn't really "know" the trust level, it can suggest a default but
+the kernel command line and userspace should always be able to
+override it.
 
-Actually, in the same sources I see no trace of a second
-goodix_int_sync after firmware has loaded, so the existing call could
-be moved a little earlier instead of introducing a duplicated new one.
-I tested moving the existing call on my device and it works just as
-fine (basically, my patch + commenting out the existing call at the
-end of goodix_firmware_upload.
+> My scenario is pci-hyperv in a confidential VM with a paravisor. The
+> paravisor is inside the guest's trust boundary and owns TDISP. It locks,
+> attests and accepts the device, then answers a VMBus query describing
+> which BAR ranges are private and whether the device's DMA may target
+> private memory. Before a driver can bind pci-hyperv has to:
 
-Which vendor sources are you using for your reference?
+Sounds like a user in such an environment just wouldn't use the trust
+level mechanism at all.
 
-Thank you,
-Luca
+What use do you see for enabling trust level but having all the
+devices unattestable and accepted already?
 
-[1] https://github.com/lscorcia/linux-lenovo-tb7104f/blob/2dad69c9f28611ac6d3db2f1ee11b480a60d83ee/kernel-4.4/drivers/input/touchscreen/mediatek/gt912_p98996/gt9xx_driver.c#L1529
+Your bigger issue is the below:
+
+>   - query the paravisor,
+>   - refuse to operate the device if the query failed or if the response
+>     is invalid,
+>   - decide whether the device may operate.
+> 
+> The modular host bridge driver in this scenario needs a hook to be able
+> to participate in trust resolution.
+> 
+> I'm also looking for the right place to setup MMIO and configure DMA
+> in my scenario. Let me know if you have guidance.
+
+Well, you are very far outside what Linux expects for a CC flow, and
+these special requests conflict with the arch code flows we need to
+have.
+
+So, I don't know. Maybe somewhere in the arch code hyperv can hook and
+say the device is special? You'll have to see when we get more of the
+CC stuff layed out.
+
+Though, FWIW, I don't like it at all as a model. Denying the tenant
+the ability to directly attest the HW is far away from what I'd
+consider as necessary for CC.
+
+Jason

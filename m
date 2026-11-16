@@ -1,92 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794796615;
-	b=kVhePhWEW416JN56jpjMJ00me7z3EeNCBOE4Nd/V4h92B3i0NRK8KcGkH4vkvy+w2YZi
-	 +Wy0Z4513utBsoZVNtHJw8VakXOaguB1wZHaGo6rB33nI7anBMur6MR5/D+0DAHQxtBWZ
-	 +L3TqFGrdI7IVZF24SLGCme+1m7q4/SKgeBL9nJzitks62zjrikBtzjM4LMMr0XYWhFky
-	 eirdHF1D3jPUCgzBTRPvio5Ff8qbI4h1er+CXNi7viNvw6b2TF4rh9R5qoFl5EX+dQxdE
-	 cUBII4MWY3iwDgsbkGp2xyGJYBqWaTuVbqsxbeMoJ6U1few5Ws6EonhkKdQnZiaP8lA==
+	t=1794804111;
+	b=P+fWQ4RjM18IJG8w4nD619oAA4v9sOXfYc4G3SAtbucURbyMDN2NE6SdKoa3jDStMmBA
+	 wmgwknAnfDLBbRv4Gb/xb7qv5a7+AoaFmxO7oXTsFde4+jw9FYwVm+bJtGzL12lmHlSlY
+	 ejzx2Lj3w757IwxWzZAPeistwdrS64bxp9PvKKCqJb0frVVTG7wywcZSeKEb4zgbkqsN8
+	 nqwI5AEWXzK741SSi0DyWXl4k3EFN4afeldxB3XzdDbstCsGypZopTeRhr57F1f+5F/gG
+	 j7EuPaVNuJ2Oe/7cqSlAAGlvEs3I73RhEjnuoXoEWVGgijF/AWsEEc1egUV6BoBs9Ag==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794796615;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794804111;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=xX6CkA6Wx5SU/AcLVgEPrjNCEuQtMzhCBWWoMNoHGPg=;
-	b=w/Hiv6ya4Suw2PvFes5npTEMooR8yaSpDB4f5UqgiCkyO0S0ndG73LXoBlcxH3NqFUoB
-	 EGLPZGsD7QzAUQdp6MY8Ol8jLfLiTG6RwkfARcK9Hgk2opATb7QT1KtQfBCB6dmKPY0B7
-	 qULx3TFU7XLzYO55LdbudGyPZ8ci0hVbNOg3EkQXpR9QItk0qBgctk9ONdVrmCmOsgfVx
-	 8f8VVtg4FEo6vvjpdGDb7w7eEcwnx8iOb0Ew/K7QPZP3H7vwX3dLTk0FYYIsXa7IcUmpV
-	 txmIyGMdh9DwDKxOKP5WfNSRb04/dengTm57o8sZylkQKAuQVf7i1fIjRw0re77+z+A==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
+	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Content-Disposition;
+	bh=VTg76kZYdcgWJGYz+qNwtmcTjFCSvF3hJ+5NhX0RygY=;
+	b=QlRxNdW9jsHyTVroAEfcTqruHMBeoGOM9qEB3V26NK2dxjE9l8YtjGTi6nw4g/yd1yb7
+	 32JV/DjlSGDlIV3BQ2jbkDpWAEVUO1DKtRPW3b36OH+5NE9bXzuHe/yA5BQqDtOqZE1m9
+	 JL30UXAxJKNQ8+uIsGf4Z4CVhQ0cRKNwgZLamijJkoNx81s/nC3ASkpbFujOHffEkT8Dx
+	 ZT/Xkw+r49lpOSMjYGGEsLd/YQlbwcL5yeFdCyVACw41/pO9xV5n8szLnQ5i/eY1BPfwe
+	 gFsWa7+B+KY2k4gVfKGNojsF3gtq5Pwh9p3Y/LKt2fMfv1xYXpjONrNAu05RKlkCUUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l4Rist4w;
-	arc=none smtp.remote-ip=74.125.82.44
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=crDJr2fg;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66EC4606A31F
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 02:36:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 66EC4606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE57606A31F
+	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 04:41:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0FE57606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l4Rist4w
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-14394530ec6so3446070c88.1
-        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 18:36:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=crDJr2fg
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-3704d30b84fso3517932eec.1
+        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 20:41:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794796614; x=1795401414; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=xX6CkA6Wx5SU/AcLVgEPrjNCEuQtMzhCBWWoMNoHGPg=;
-        b=l4Rist4wafGh61eo+v58em7wU81hSwBFHNcD+KdFFPB/2ZsmziQbgN4UCq0bUSgPOQ
-         OCnFSgfdhP+BhEcshU/sZAqDpIZRdp9InRNM+i2epJBSi4G0CPQWPtDfiVWXskF8xqkG
-         Y6yMCfVibIRJi394ZetkeDRrTjcYYJj46Uks2VMnki52NNBd39hKR6e6lyrxmurii+lp
-         idoVVpPPh/o/p738Ayfw0jixFgwvI0Pjbmf66JxDM+vYaU/bMx0f+nJgQPOExfLDSkpQ
-         cOEXtDa+lTuLBBbV9a2Zotb/5yq8vDyi4VjZ4oKoPTw6s5Pkfa51AqqbyXCMauvFdOwk
-         EN0A==
+        d=gmail.com; s=20260707; t=1794804110; x=1795408910; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VTg76kZYdcgWJGYz+qNwtmcTjFCSvF3hJ+5NhX0RygY=;
+        b=crDJr2fgE7IYKY9ipw8yqz6NSK46OAewcvxSzfZtWwosU1qGMmuk90S/wHLwuueoZg
+         zq22Ri1rdlPWHjiqX9Z7VXyagyB/84RrT9nOCcXRixDAQpVYEjnQvWmAWKjKhX/Wownd
+         FK97h2C5q0YDqnktM8FFbDdmwMc/Oit0vH0/UC3io/AHz4XcVAw2K4oSzab1XmxxxvRi
+         /k7vD24tI8/Bz5ZnHE9uAwm3fy7a6Pk9QZuvRLVzfSZt+qhje8l/907jvV6VtB1o/hWH
+         CxSCCY6PZTEZFB0kuTQa+cb1iylIdK+wLs3kxTzdHlKFQ0dy+5z7uIJbUYeT7t7ZHcgz
+         GERw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794796614; x=1795401414;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xX6CkA6Wx5SU/AcLVgEPrjNCEuQtMzhCBWWoMNoHGPg=;
-        b=MIw0e6odKIHWSF6OLf3D3DdtXVbzQ8ADkr4mpxQNvqWp4gebtW1SkG6Sh7mo9H9cLL
-         wNoQOhDS8BAxC+tUWLMPThTtAdMiE5r1gLmGhXETxOzYQQGRduVCZj9S8iN/ShYlCRoQ
-         dz4RBL43BSxBPD4bIfUwsutuhokzum5FkKfGS4HcHIV5jqWB07irbMmVkjKfa/+tF+56
-         Uo5yMxFqPnrdeJY1QW6IPvEfgmaryNcN2ihURlhTJ1Na3oe1IFk1T2lmayhhETLD9oB0
-         xMh2yD1SfygtFXf01JOyb2ANgKZLICQ9Pa0ryfuGeQz89XsNLgjLNNcR0Zs7CbbJ5ZY0
-         Y4Tw==
-X-Gm-Message-State: APuU4Z+nylmAuIg70mMq8LOW7bzmklDtWiSVWdA7Byh5wVEW+tv/mhzo
-	h/+BXktxkfbtNwLFMbseb85GtHVy0Htx4VyMjKrBL4DSnOXD4xEDLF4B
-X-Gm-Gg: AYBFou3SCaVRR8F1dEzTNhcPA2GMkddNjkW8Snr/2HyXf+6eCjqXq/zY+jGGOhjzBCr
-	/H7v/HDrUoxLUmWSQ0joo95/eqg6QKDIUJbP/Y6x4mG7VGezFCPtwSYOKcFf9zhYWw+4Ft05Kps
-	uHpaoOKxyIPP2U0xRu6+QUM9/WfiUbTVM4mxkVJEonAg/AGKuOMSz0aWDuwlEN3Q2G0AIiTrGyz
-	zD5sKSrfTfe27ibgZ3eSffKDH8SN5aZcpIoBo5fOSGuemUOyDv8CzQv5UHSm24nSDqIC5xCSppT
-	vibhwBZmdxnSCG7/eWMb9khRlC/jNtDhiiP404Qo2KM34nTmFbeqruqbzXVX7r1hXMJ8WKwDY7X
-	ozENOSQzvun6iSUAruB+yRc4Ky/Dd2WOjRxojOxDJpxaq8KJXAPIZL0uVDxE/VNktQ/17Ld5bCj
-	bQqnM1lZkQast6rrqzK0drMZU+1kmXM+yQeKBBoRAPInE192UGfkNqY1tKg+WZrVs/lZlf6YCkt
-	KShQv1cN2oHBiEm7vNz8C4Gd0dTkgeMpiIN1I3AQQzA80Jb9qJkryVPqAVHq8DM4l9auS40PWtn
-	kT3LX9i8Z0Z0IFDCpzRiI2x2gyERtD8rnuJ6Xcyh+twluTYE/iURWUnyhI6ghM05K6NGPQ==
-X-Received: by 2002:a05:7022:f109:b0:1ad:4ef5:ffed with SMTP id a92af1059eb24-1b50313d936mr8152988c88.38.1794796614479;
-        Sun, 15 Nov 2026 18:36:54 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:203f:d9b9:dda8:24e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5031918c7sm37357720c88.9.2026.11.15.18.36.53
+        d=1e100.net; s=20260707; t=1794804110; x=1795408910;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=VTg76kZYdcgWJGYz+qNwtmcTjFCSvF3hJ+5NhX0RygY=;
+        b=aQ+kJzH8JYKTmUdkYyrJhicD/FQ5wNsFjI6ztfeF5r62V1vjIQ4qtsl5H09pgNtLJN
+         ZnlzpMmyba8ql5bNO+jW08B0aiU/A/Xg+EttPee57bSvxTuULSdKxAd7q6R4bvpjFNNf
+         CzJnIG5j1gYAPb1fr6oQen2PTC6jzGCi65e8y8D1FHD7JWATdgHgOs5Q1ALx7aiOn/do
+         7DV1qq70cbvC4NhmoLKWQBAaA6uXYfMA+9/xm+CnWn8d5KU2BluRdwSSTwnufPe8ddN1
+         8mmbRGZLU6ot5ybP+xRyk0qv9I1w/allAi5vliUFj8/DTxYKGWd4/5ZPejog6gy9aj7Z
+         fkzg==
+X-Gm-Message-State: APuU4Z/XEMUtidOkGdDFW1V3QlRdrJ+GC4ZcyIKX9DZvI0u1KBsW84vZ
+	1+g441RNgL5NeKsotDcO+96FX3IGNkZTehd26FiTxLye8gfw/tS7Jou5
+X-Gm-Gg: AYBFou1zl49OgRYR6fREEpgXFFSAOTxxGUeUZY1dlrtWBhtBQdV/ML+EhUzf/p5Oltc
+	L/LBD+RVjCssYc9vv/wXuHWpSGt+amTiE8pzhK1D6f90ydgL8JA1ryeZl672+QXdsXBKSoVUZza
+	aXr0yGHtIz5yjVjxG+aCUZ7k6Oa3C33lah5+c54AaL4V7WbJdu5HUo3deC5+m31WN8DjBFQ1dDC
+	Z7LJZ+e842aIZxCjnTTHZ8vfgNy77dTlDJKe0Tf7T8Of6jUy1uOb94ROMjV/ciQwozw0lfI15DL
+	EBuUe41cej9JcXm/9d9hOxOlLzeDorjxt1+6XNoHRWxQ25x8Qp53qkufE3lLht44fh75x4wvzVT
+	WXHCuH/aMO42ybKfk67IDcDcmjjHgrPyWSFFFi4uvRjssqKoL0RZgzqEe+Yocyf1uKbhYdvViAq
+	lkyr6xCnsdQnuyuv65ehxO+kg8rl7Us4QTACx2cGhGrl5iYdkJzMciVFfcjf0rNG+Jcao3plkIJ
+	ukvnFKwE41CgaiOAS0AF7JVz95OPWXrwqGeY+FGij4Fm0guQJv0kZK2R3yaRkF49N7RkAtPeKWD
+	76rNaszR1fXF/oLZWaUfsqOKZjqRoqmN60/8zKkR4bsLzFzaWOIcIKr0SWTV5ptwwetzicGtdDJ
+	9YFAXkJOncw4V5Q==
+X-Received: by 2002:a05:7300:231c:b0:36f:3c7e:3c13 with SMTP id 5a478bee46e88-37967ae7f85mr14170507eec.22.1794804109971;
+        Sun, 15 Nov 2026 20:41:49 -0800 (PST)
+Received: from localhost ([2a00:79e0:2ebe:8:203f:d9b9:dda8:24e])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379559189e8sm30905922eec.11.2026.11.15.20.41.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2026 18:36:53 -0800 (PST)
-Date: Sun, 15 Nov 2026 18:36:50 -0800
+        Sun, 15 Nov 2026 20:41:49 -0800 (PST)
+Date: Sun, 15 Nov 2026 20:41:48 -0800
+Message-ID: <7f9d0adf1f49c5a2b3919130caf0acb7@gmail.com>
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Hongyan Xu <getshell@seu.edu.cn>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] Input: lm8323 - drain PWM work and finish with
- outputs disabled
-Message-ID: <avpr6qngp8rfJ9Fe@google.com>
-References: <179474329214.103840.17616107855531843241@seu.edu.cn>
+To: ahmad baghereslami <ahmad.b1995@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] Input: synaptics - support the touchpad LED on RMI function $30
+In-Reply-To: <20261114090808.2572722-1-ahmad.b1995@gmail.com>
+References: <20261106095658.44166-1-ahmad.b1995@gmail.com> <20261114090808.2572722-1-ahmad.b1995@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,33 +98,41 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <179474329214.103840.17616107855531843241@seu.edu.cn>
 
-Hi Hongyan,
+Hi Ahmad,
 
-On Sun, Nov 15, 2026 at 07:48:12PM +0800, Hongyan Xu wrote:
-> A PWM brightness callback can leave private work pending when the
-> managed LED and chip state are released. Merely cancelling that
-> work also discards the final LED_OFF requested by LED unregister.
-> Flushing alone is insufficient if an earlier fade is still
-> running: the worker waits for an IRQ to requeue it, and the
-> managed IRQ is released before the LEDs during teardown.
-> 
-> Install cleanup before registering each LED. Once LED unregister
-> and IRQ teardown have stopped the producers, cancel its work and
-> use the documented single-END shutdown sequence: put END with
-> RESET set in unused script slot 59, stop the channel and restart
-> at that slot. Do not overwrite a running brightness script. The
-> engine then disables its output autonomously without another IRQ
-> or a worker accessing freed driver data. A current long RAMP can
-> delay completion, as documented by the device specification.
-> 
-> Found by the author's in-house static analysis tool.
-> 
-> Fixes: a48b2d4a0091 ("Input: introduce lm8323 keypad driver")
+On Sat, Nov 14, 2026 at 12:38:08PM +0330, ahmad baghereslami wrote:
+> Some HP laptops have an LED in the top left corner of the Synaptics
+> touchpad that HP's Windows driver lights while the touchpad is disabled
+> (double tap on that corner). On the HP ZBook 17 G3 (SYN3040, TM2706-002)
+> the LED is not driven through the PS/2 deluxe LED command: the Windows
+> driver (SynTP.sys 19.0.19.68) switches the touchpad to RMI register
+> access over PS/2 with mode byte 0x7f, looks up function $30 (GPIO/LED)
+> in the page description table and sets the LED bit in its control
+> register:
+>
+>   register write:  SetScale 2:1, SetRate <reg>, SetRate <value>
+>   register read:   SetScale 2:1, SetRate <reg>, GetInfo (first byte)
+>
+> For touchpads in a new rmi_led_pnp_ids list, look up the F30 LED this
+> way when the touchpad is set up and register a
+> synaptics::touchpad_disabled LED class device.
 
-This driver is being removed, no need to patch it. 
+Why is this touchpad running in legacy PS/2 mode instead of native RMI4
+mode over SMBus (InterTouch / rmi4_smbus)?
+
+Could you please check if booting with psmouse.synaptics_intertouch=1
+switches the touchpad (and the pointing stick via F03) to RMI4 over
+SMBus on the HP ZBook 17 G3?
+
+If InterTouch works on this machine, we should add "SYN3040" to
+smbus_pnp_ids[] in drivers/input/mouse/synaptics.c and implement LED
+class support in drivers/input/rmi4/rmi_f30.c (which already parses
+f30->has_led and the F30 control register layout), rather than adding
+RMI4 PDT scanning and F30 register manipulation over the PS/2 command
+backdoor in the legacy PS/2 driver.
 
 Thanks.
 

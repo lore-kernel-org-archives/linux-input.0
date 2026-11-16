@@ -1,131 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794844785;
-	b=QZ3beqYNDZodyJpZxq1FpAIOMJxEPY7tc6hye54D+XC/ml3l1LhvX8p4yXUOcbJRqnoK
-	 j0afa9tiYjZCbWeeW90v4UwZN5pck/qcj4gn+47bCIrvuFbpFLiTsKuEwfwH8RAAYp4d5
-	 icLJmca8hDOvljctO34LrKX4840LIo1FtFOat7wXNkGIJhYP8LOMB31WQJXkOzltmhZPW
-	 xrTbD4KNbrlvNnoVR9kk4lnp/JicQFHa4gjjrvIvlGqT2YTVl19pdRa1ezW7OpH4p1Aol
-	 2y90gPNkVoDihXkOmnD286aRYuzNHT513+OWGJaGzwSMEL/LMvKyDsVbquA1pGEFeRA==
+	t=1794845069;
+	b=tUgQi221ZERFlk38SfED+RBOZEK2FKNvvDrtt3lTZ6ipcrna8ZYytrbfvpjcz/1+5Q2H
+	 yt7SPzXfxqbn+wqN+LLIEZwf3UZctNKdLYyPGUaEAR9VSTsE9LkTBEH75qmsegPoCMzDh
+	 Yx0l/UQddw0Lx9OOdmP6/yi3iFiD688TboP8+/j387lj06BFBbVOomlT4VPN2c9Y93sA8
+	 pGFaeEjle2OJxj6yvOtMI+2VjuJcW9e22mdb9m7ip2CC8cvQIuLW3a44fh0X4It0uJioZ
+	 EUeTWxwoUWnVgsmFeYOsMK5mYyhDUiP5aktjmh/4EsrBY2ghrOcV1bI2KjautNMwxgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794844785;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794845069;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=8zt6BKnr5OMQnoN+jLF5J5ZxUIjEZ6DGHzLguvsf5vs=;
-	b=MqfOZqfl1qjaVjWXtFUYbRQcGGrDRQzNPJJO8zgOfzQgYYEXXvk+KvMf/nNeeIhXt/nH
-	 p5xA9y1vhNvmFN1ZPYa5XUJEIfkSL8BTS0f23kyqonqL2PgWFsjDtKPIpcwSzY4TJOZqP
-	 YH951HGxU4cQrTl71X7Z9gPjNaXJ7byA5Q6d7kHYet0EJI/QLu2xyPXyT0dpTKMZjPteU
-	 mQYb+/782drwOUISUvJj7ZXSsXuBKSXnTsM+OJPESZBLxfwetmWEj6vqj/kPMw1L949tQ
-	 7318eYxROUHstSDJbNWfka5KR3YGJBkOwmobeUAjch0WfVabpjnoYFbbEK85HvYPk/Q==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=oudFixRtaDN0mNTqiDXHYqi9yn0CpLULW9SIu8yrdcs=;
+	b=HEVbsc+REjlqP8utwt/A9xl+naLvInZVxBtDV6Bweatpvtn64CYBgBAV9R6xbBV0v5U7
+	 zoC8h9vijR8/3HuPPfjGbLTY/p4sQeEb3DmkB1LYG6kw1rl+RrrZFHlybCGB0OKnEAAVe
+	 U9vIx/M0bDYvaphg5svBZNVmrrJJI/MmWEcBJjWxcP1UQG4RK0JnsY1FmoHs+JW7eQQst
+	 Eh7GiRI2FfGFh6/Z7KYWIRxOJzX8I6deKudidX2JvliLRl2oCKRxNcJmayI4nJpn6f2LG
+	 x/x23PCznKD7TaiT0CS4SBcweNTnwJfBlSnbT93qvgi2wrWuIkr8ZGNB4OP/lgMQP9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=ziepe.ca;
-	spf=pass smtp.mailfrom=ziepe.ca;
-	dkim=pass header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b="T4EaFVj/";
-	arc=none smtp.remote-ip=209.85.219.43
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yF9KxRZ7;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4141606A329
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 15:59:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F4141606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F3FD606A31C
+	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 16:04:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0F3FD606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=T4EaFVj/
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-91eb3fea2a9so42080346d6.3
-        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 07:59:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yF9KxRZ7
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4ba013938d7so38644105e9.2
+        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 08:04:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1794844784; x=1795449584; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8zt6BKnr5OMQnoN+jLF5J5ZxUIjEZ6DGHzLguvsf5vs=;
-        b=T4EaFVj/Db2Oh0QQIN6fEsneaLWasSmYdaomNevHcWQV9XfC0eku9uiWRA8yiTc/gq
-         beN2zhlEBUDpPwvlJXNnJXYG7SLeGP2RUl/CIxz8vHb+CRPGvwOGP84P37zc/ASqwdCv
-         a2ZImH/j9PEIljcRTrH9YjQx1m9XzvHX9w4v1GGAYhpr16oDLUf0JwGEJPe+tOCosZjE
-         d53ULE5uBklWCIuWvycUfx9hIvJ8w6anXEcNacgC3MbLl4k/Apkhq6kLpk0rmKpAkcTv
-         Trqjo9GQ8ASe6EH/m27mrq6sK/GeD3Uc4wVkpatMXBaBSojYeEkRpq+DgrGx3awVmJv/
-         hg9A==
+        d=gmail.com; s=20260707; t=1794845067; x=1795449867; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oudFixRtaDN0mNTqiDXHYqi9yn0CpLULW9SIu8yrdcs=;
+        b=yF9KxRZ74V14Ex+oBh1l7en/55NNZQlkrqjVk9oM7FwO54h/Kx4RYp/fIeXUxhcF5l
+         EFS1LQBh+tSXYPrKvtqw0a7V/8BW5wnA6KI/j3ikmxmMs5p2OSdwzo+v9NO9l95Qokgr
+         mBjcxKeqOnNPZszVOlL6A+oPdQVhpVMWxRcr2cox7vsrySovrrBjSi7K29RbStcIN4qT
+         kzQqass0uylTYUua0+9TRjfRizJf9X0LB6ZcLR9thg5EbAbzttfGBAYPDTK/cd8jVJtO
+         ek0LqiE2U69e8KuhPyqGXmQ0Fe2loBLnOVtEcqrrTZFkR344UE4rRUE/+ofZssBlKHkd
+         80qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794844784; x=1795449584;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8zt6BKnr5OMQnoN+jLF5J5ZxUIjEZ6DGHzLguvsf5vs=;
-        b=rjmdIW6mRnMlMoqpOMd+g4aMh1RJPmXfvbvZqFvBapWOv2geBjzgZiTHrzcGuq4Cme
-         4dgS7P+fPzA7VmYY9mqBGQBRVdxoPS1EHFk4thTj/Xncp6gdgR3YEKJtF5s+2woEW89g
-         fANZc1CLrS8OaO8LBsZ//MV0cd6IE5jYgNgRCPMcuafYcdPqauY77op0fkkZoRtLqR7L
-         p6bPCv9SKaMLVAXqCYX/M8bQxRZmqh0vL5dVM7CZQgqAJuSRbijwdTWke8UeULvN/m8V
-         BhZgbf6Nc5TSkP7/j+kcLCiwEwR+ZHZC7jCZlw8VDSs7umoOuSAmf0TvQxeVLEs/Lip4
-         +wow==
-X-Forwarded-Encrypted: i=1; AL+hErHHquRY3g7sksUIT56b1+sqUO+SAqP3GBXKbjausePc5KgDdYAK1jnhwB+z7CvNvUfh1dBFHULUJGPMqQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+1wPvMb5vWeW7IWRnzd4P890t9D8diz8pIyPvv8shLOwylEGtZ
-	n0T0PkKo7MuT3Glcf9FLpTK0BbaCghLqNJr/OVsM0EqKjUXlbscW9H+MPShyqO5waok=
-X-Gm-Gg: AZFdTZcRmfe6BH/wQ08AkyZxQOsQVqLNd5WUXByibP/OfIyTxoQqeg59zZp7CaKlUlq
-	YtjWe4iKlLOFRjrSJqb0NizdgDObnX6c7PEL59d6fDHAzK4Bnyh/x/QJMmTTJQvMXKjBf5ZgZbR
-	WwUM1Uki5/LY0zXd26eMFW8YvmdA/ud2ZVp2w+DsyxX7g3TeWxt1jXB4oDl127vmt4hMOlhVuEu
-	uCstGD/VK2z1TbIyPrdsrGPIDC0gRMzvbVES2kGKmXzj4Ail2Dvmaypov1odn9bgRXfrAGN5m3h
-	1FeFberuryWytld43/uVIsrbUhKIZUGtsOtqfeC3DdqgebaiTok4g3Ck0x0XOd1TxqUoAjzbQny
-	Hv3tCaT7KWQbRYujZ/eMLdy5IKJHeugwvkXKgfVQsQz0BW+LBR5XEgAjmQspd5sSVtgo5dtMtJo
-	9Lv8mVOmDLzWuUn10gZpuAuMdrAHhQapUFh7YANj17r5/4FYrdclyuppIfRcfRoCe2vYMK8itjA
-	bw4Qw7KeUft+UoIKlCK1OJ/RGNnt7SgQMNguF2rzlwzNo+KvhHNIQZB+s1BMf1dioaB4yK3LUU7
-	6Th6cw==
-X-Received: by 2002:a05:6214:2467:b0:91c:7f1f:2c9e with SMTP id 6a1803df08f44-91f24209db6mr171122396d6.55.1794844783992;
-        Mon, 16 Nov 2026 07:59:43 -0800 (PST)
-Received: from ziepe.ca ([142.166.156.71])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91f23d93f10sm87735096d6.30.2026.11.16.07.59.43
+        d=1e100.net; s=20260707; t=1794845067; x=1795449867;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oudFixRtaDN0mNTqiDXHYqi9yn0CpLULW9SIu8yrdcs=;
+        b=vA1waI0G7JpaOTqxQgvvVJJa3hhy3DiKxPFZVzqk8onN3lgwjGZLy2MI8L63FOhu6H
+         lTlTFL+PTB2m7GYhHXuTBGfatFrJQQ3GF/VEyiFCqFqxkbYPfVkh5zQzsOrbsXaulrIq
+         LAnUeZGGgjTQ3hmwsNApNLhumXN2dzAqIbsqGhqCbZQdwEffyN66zC7uCgRxrX7YBvBA
+         EVUGu9+RhLBnkwOTWWdZLc7Ooikdao6nkukBjii7WCev7NOF4zaDBDwUPMlkUpQ95wlO
+         q+TNG3UJo19PheIWf01XcSgn+zBs6H73dcba+L+AIq9wL6+VTenZUBeK76V8F6RleoQB
+         b2uQ==
+X-Gm-Message-State: APuU4Z8dZTX5tVdBDVeDujSZhV0EtfKiNCyYG3pbKrMAlI313jBgBmmA
+	PC6518sH6lmPhVD+r+eNsIXE7yTlsL/5ZnzfJNBxyFjzWDxWrHi/WF3o
+X-Gm-Gg: AYBFou1rerlJIMHKORs+fDdiXg1DpMqvFSv+JT+rMfPMn8pttDfZ2Qk4hDtM9GapCpa
+	fXEvb2P4rctztqSj5PaHGP5kqwww2uZPm3MKyYQz8lmItuACU/v+dIaIkR/trCZSu8ZuCTd2El6
+	Wz3qdLx/IJZkXiRcK6g3KWLcqvPQNvxhZz776hQSc+bYZO36dl5rj7V37FtND6weiF9f/hPSC5V
+	iDr+UmqppaH1Wtrqzrw2dpcJhiaXQzAK3LdEeUnjiSn0ICyrD9KnQc0gHLkDP9eeQoFD9ZTKhFx
+	5cJTX5IPv9Z6OW8yT1sPfFwTj5OPYF06i7PxdISzNJaPEbz4kgho3gdcPH8bjDlZ0FASD8buZli
+	oPe9sZAFyTTVnM6sUhwuEUalXE7AFuPeNjB7GQ6gDUm1yI7jxpTKHs8xobuvfcvsdB1eJ0NxG1I
+	c/MIqjeQTtsgGzYtLF75pdhNQUYjWbIf5cnGv3bPvWxye3yw/prKHitZLElgV4hKxFzASWMg6/A
+	RlMRaIXOADRAtVRdSTqPuHmdlatVmLjbs5WOrOmxn+VO00UNdVyw3kyXGF8sSOkGxPEGb9loFnT
+	/SznWIUWui/PJFm4PgYUpOepxjxOUd5hzf+eI1kisa2Oc+OlhfZHyi67vSELpRxxtJQsQ9YevtA
+	W1e6mwOfoGcWuhg3brg4zMfMPfJhxKlN/jOTdBEIXEZyFVK7k6VBl2X/5fyiWZQqv5qUouXpS7N
+	bASegmM5KVE+WRfZWJyqSP76yINpLFh/B2a+QdUCXs7c76Cr7DD7AfqWBDx+Rni2zp9GYnIrqGQ
+	Ox6VVUhfO5aRB3O6BuUuF6prA+Mb2C+bwPtMT2ztj9A49hIEAXJsyvP
+X-Received: by 2002:a05:600c:4e8c:b0:4bb:60ba:49e0 with SMTP id 5b1f17b1804b1-4bb60ba4a70mr164125695e9.26.1794845067477;
+        Mon, 16 Nov 2026 08:04:27 -0800 (PST)
+Received: from jernej-laptop (95-143-148-21.dynamic.telemach.net. [95.143.148.21])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb55ac0e1esm271456895e9.3.2026.11.16.08.04.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 07:59:43 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1xSz7O-00000009eOI-3Mx3;
-	Mon, 16 Nov 2026 11:59:42 -0400
-Date: Mon, 16 Nov 2026 11:59:42 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev
-Subject: Re: [PATCH 17/17] PCI: Replace untrusted state with device trust
-Message-ID: <20261116155942.GA2299285@ziepe.ca>
-References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
- <20261105-device-trust-core-v1-17-1e536825b4eb@nvidia.com>
- <yq5amrr8yldi.fsf@kernel.org>
- <20261116132046.GI2532299@ziepe.ca>
- <yq5aa4n8ydsk.fsf@kernel.org>
+        Mon, 16 Nov 2026 08:04:26 -0800 (PST)
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Chen-Yu Tsai <wens@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jernej Skrabec <jernej.skrabec@gmail.com>
+Subject: [PATCH v2] Input: axp20x-pek - support the AXP313A power key
+Date: Mon, 16 Nov 2026 17:04:23 +0100
+Message-ID: <20261116160423.39752-1-jernej.skrabec@gmail.com>
+X-Mailer: git-send-email 2.56.1
+In-Reply-To: <20261115150903.16855-1-jernej.skrabec@gmail.com>
+References: <20261115150903.16855-1-jernej.skrabec@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -135,26 +101,65 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5aa4n8ydsk.fsf@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 16, 2026 at 09:22:11PM +0530, Aneesh Kumar K.V wrote:
-> > Once you turn on TDISP you effectively activate DMA, just like turning
-> > on the IOMMU.
-> 
-> We considered two options for doing this:
-> 
-> 1. Via the ->accept() callback in pci_tsm_ops.
-> 2. Via pci_dma_configure(), based on a combination of device trust and device acceptance.
-> 
-> If I understand correctly, you are suggesting that we stick with the
-> former?
+The AXP313A MFD cell is registered as "axp313a-pek", which this driver
+doesn't match, so the power key doesn't work on boards with this PMIC.
 
-It should still be done in #2, just with nothing to do with device
-trust.
+Match it as well. The AXP313A has no AXP20X_PEK_KEY register, so leave
+its driver_data empty and hide the startup and shutdown attributes on
+PMICs without timing info.
 
-You can't run a TDISP run device at all if DMA_ENABLE is not done,
-there is no half step here so it has nothing to do with device trust.
+Acked-by: Chen-Yu Tsai <wens@kernel.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+---
+Changes in v2:
+- Drop empty axp313a_info and check for NULL info instead (Dmitry)
+- Collect Chen-Yu's Acked-by
+- Link to v1: https://lore.kernel.org/linux-input/20261115150903.16855-1-jernej.skrabec@gmail.com/
 
-Jason
+ drivers/input/misc/axp20x-pek.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index c34e002258ee..040aec5f9e4c 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -193,7 +193,20 @@ static struct attribute *axp20x_attrs[] = {
+ 	&dev_attr_shutdown.attr,
+ 	NULL,
+ };
+-ATTRIBUTE_GROUPS(axp20x);
++
++static umode_t axp20x_attr_is_visible(struct kobject *kobj,
++				      struct attribute *attr, int n)
++{
++	struct axp20x_pek *axp20x_pek = dev_get_drvdata(kobj_to_dev(kobj));
++
++	return axp20x_pek->info ? attr->mode : 0;
++}
++
++static const struct attribute_group axp20x_group = {
++	.attrs = axp20x_attrs,
++	.is_visible = axp20x_attr_is_visible,
++};
++__ATTRIBUTE_GROUPS(axp20x);
+ 
+ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+ {
+@@ -392,6 +405,10 @@ static const struct platform_device_id axp_pek_id_match[] = {
+ 		.name = "axp221-pek",
+ 		.driver_data = (kernel_ulong_t)&axp221_info,
+ 	},
++	{
++		/* No AXP20X_PEK_KEY register, so no timing controls. */
++		.name = "axp313a-pek",
++	},
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
+
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+-- 
+2.43.0
+

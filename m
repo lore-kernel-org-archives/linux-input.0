@@ -1,86 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794832061;
-	b=oBoUlboc2QAKK2OXt71E8nlMMaffvHT1bg9XA6MsfylNi7KgF3w6VeXD0+1DtcV2D37k
-	 X4IBGoBpE0bU2U0CGULTOX8vUlfFXo9/QJWqNx6/GmzD83kL36IZQKok+zqrAIC69SP2d
-	 16ZU9FML2fq2hP4qE6T9fhuV6pzYhzZhB6Y/ldZtLrLAbuaYQoMz1HEZq4aMz+/EKRYRG
-	 OgR1S6H3iIy3aEA3F5sJPtLXI3Bl92dSmwslyjW0h2iFlBPSxg48eZkjuISlg4sxiP486
-	 +mxvKawIY6saKBQ/V7NY0rGc4gfMyJ4+agoWFsusOKeH0c0JSM9sn+w8Qm69AQDobxg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794832061;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=wuf/Vb21lAKIWx5bIMQ7gAQDptG7l3Y/m/xV4mQ2rWs=;
-	b=e4oaMBotb5n/8h+rcirX3H74E9CVxNx9ZBkP1O1BFS22wBKKp2hr0SU9u96k6ahayhK8
-	 Esd2ETWrLOkT7fhpXwGySd8y/A8MEjm9J3UQaICnPl/4cneNqLffSAad5HW9n4SWPVugH
-	 Fed1UI9mDVb933lfe/yjNXfykDKhAyeWKVhiad91876UUk/xh9T65osDU9vI3fIwBr6Vs
-	 lvZIb4zGHKgXzeKfJKUi9KE9QTmfAhjsCUf1rP4oGpF3O/CGUjdzcFqyA30vSswx9WD3s
-	 kQ6RtyoT6dYBsQj2wIDzL5jcSpGVJPuNN/NOjbG5hATzgAhj+oWgqkujLSDm75f1zDg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WUogbiZ9;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.174
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794833713;
+	b=uHJXxsEeOMpGFey9IlZQ7AvTJ/fT0Ej3mmDgcfJLcSwv/7OS0J5W+2xaEsc88/KfYZSD
+	 m/+50y+t6zYAS4zhBDriilem+fw069W3hv8m2CH5kL4T8wsfuLuezvz/4WJv2wtWxC5t4
+	 SDTTXZM/gFZhPhmG7l0mTtsQvXSYIR0LCV1oGMMFvNT1/g9tBIZpWb1AKfwPveNH4CewG
+	 5WTLqcDRCbfzAof7F6nu0LWXmnrip1CYRQkldu1NtrYSg/8SA1AhulI3bpajDZ9KaPNh1
+	 egvr5GS8RrZ4nuuwg8PA343z5kpKVQhOcFBVkdf0VDr8YTcNdDAnqn9/TMhAQYOiSDA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794833713;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type;
+	bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+	b=MH+hUy96O99e0dxd9MZqe8s8kdgj6q1JEJqCFBzyDpYKZJbPvqjhbDhCRW42yseoNzl+
+	 R9AX2klsNuXlpqndGD3bIl26X03yyUQECBe5jdUqKbxZzOLhHNlZxytvdZw+2ERTroEaN
+	 cveLF0SNbRGKQB77WSq4BTOFVMXXvtMmjO4O6V4pAbDDetVjT3ewihzCryDA6GpqFa3Cg
+	 x68t+usnXacGq23fbLoXJb3ybV13J1/5ZjT+E4QaSycA6rar2YtYQV5atNBdxPxKA9LcW
+	 PqDpWclIieOLUSnW2DZfR4vdY+MAMz/XXa+LpnE7tlaNmLi7Vn0oxyQZPBRMhPvkx+g==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rDUdkIEF;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.174
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB9E606A31C;
-	Mon, 16 Nov 2026 12:27:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36A3E606A323
+	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 12:55:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36A3E606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WUogbiZ9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE9EA1F000C4;
-	Mon, 16 Nov 2026 12:27:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794832060;
-	bh=wuf/Vb21lAKIWx5bIMQ7gAQDptG7l3Y/m/xV4mQ2rWs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WUogbiZ9t9BJObRmhrxViyzM4DGbGCmdWU+/J509gYJyRcdNJqmvKcp/LNe2UB2Rz
-	 0DQXi+ux8crszv2ki8laXp/UrNNxVXcFFr4Q3hIGMcvsEezkaLulNItc8mPYn6GXfe
-	 Y9wkoN9KmMwSPc3TN3NhdHrOKfTZwDqEv6xsqeL1QTjvZpgIVECXvvOpSwzLXLu2C4
-	 UOnZ1gU/GEz06RPdx3Cv+dW1/R7Te7qGMzGucBd4Yl5lDnQt1Ytn2jqIqj48xRjqGw
-	 kUidydPVFHybinuOJj7J4/beXvQjyP4vFINKWCnzqOlbVXIIwXzobkoHreU29LfZ8h
-	 vmWM2c8JsAHYw==
-Date: Mon, 16 Nov 2026 14:27:36 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Alexey Kardashevskiy <aik@ozlabs.ru>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>,
-	Alexey Kardashevskiy <aik@amd.com>
-Subject: Re: [PATCH v2 11/19] driver core: Introduce a generic device trust
- level
-Message-ID: <20261116122736.GL11319@unreal>
-References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
- <de5772b3-c340-4822-a49a-1434ece1b144@ozlabs.ru>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rDUdkIEF
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-3acff56a300so29783501fa.2
+        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 04:55:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794833711; cv=none;
+        d=google.com; s=arc-20260327;
+        b=RGwd5kSL/XkPzAZFUfK5J+AUUZV8hpIjGgKLc66ZPIB4e55IAXVFTE04LwKiqCpYaH
+         cTuF0ydu4gvEtHAXNjjFI7en0EbRHQp6G88y25fO2ic2uRQ+1KuVFPWyCyZ8Je0zOykE
+         pqx/v14Zc0D0GHIqpl9+zEoQygQyo20JMPsT3/QKL0NEaszQCD1/lSAXbAXB6+zqbjVb
+         q3tbsi/adNp5/q9d7BFCNqq6vGDH+jNl7n4lMGr8yk87WU6qhZgxZ+VEDFqoRw2XbcVg
+         ukucoQrNhpgYRWkyozi/kH6dXVW1GIBPLezyi+VA3hpiMc0dHHM6VYSOJXsTg7LLXzzy
+         PbdQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        fh=SKE3rWmjCtMpCeL+gcXuSr8uBU2Fu5M0J6VuaWhed4o=;
+        b=MYMVv6lWZG46UYkVeqDdJkRpJ436tx2kkgaBSJwhoE4vWvowE58Wce0y8Q+Zo7aqdz
+         66LRV9KXtpJ7gEUsjJZ7HMZxvI2g6eVREs5Ie0ppAAbiwRxsKlkTewmy3qoXu63QvhMK
+         bNDgil5ULMZByQzO4RFUoZPRN7L6eObNi1nPe7jFVk4PpxtFEStrCcAoMi5RJttv3V7S
+         G5LelDpUuUdT1Dx3msZRep5zmk5++f2PRIOWBHvUtjB3mKLulBdgC14cvN1msIYy87+O
+         o8Ik+GRQymChUd8hvDLubRelrx+Pp8MkP9qbYcxeXcZSi0+MJJPfNFvwUr7ogg5KL61B
+         dqaw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794833711; x=1795438511; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        b=rDUdkIEFHrVKOz8Yvn2/z37kQHYyt/RDgEnYYDsxPf9B3RCtONXGSL5Hx8JluI2Y0N
+         BURT4yQEt1oJMuQWNuXyF1iDH5LeQX7hyGplVkJ47E35SMjNM6B2+7LsFZM6bhI6VZsE
+         pfrnsYnz69WuHbP4ykHal2SGhvXiGjMN3qzopwCsZITjeoE8p10L9OgThc575Wmy/iBe
+         hgFZXxHyN85hNo6AstzNv7QuQNwcVveoOFP1qqUH2yB7rAqFGoQpOauS9Ht7+hYcnBVF
+         iYlXG4Yi/iih2ptmiLjZWQ8t9hI9qtTjEDjHLvfLTtD/wCTC+bTOcRbXqyTA3FCliXGK
+         Alvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794833711; x=1795438511;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        b=W76IjWPGVwqYHKRueTQM9Cq/D7ccbggHIUlVNKVc0N3huzXymywElhSk+rF8xQNoUK
+         dwaEB6omVRo77n64rNXTTu8Bp6M4EwR0IKMs6cWSpzz5QOu6J/lE+iz8zIDmItofumWS
+         UpatnKTApQJocpWprQ5jtfQAxgNrHaDsfzxbbIw/j8ShX/mS04uaF1v06jaTbZ2V8/i/
+         Fu50djNlcgterMFLagJiWwhIrB+8KEH1YNjtVQ85nSScDSgA8T/fhtQNbx0WmWbCe8gY
+         ym3TfRQibEDrWLYHL6l8aNgYIVi3zdxvjVOIZ008NsFAOYG+GCVrH9OdZa6MV5kv02eF
+         SThQ==
+X-Forwarded-Encrypted: i=1; AL+hErGRqq7laYyvg2ZSq1S9/JuPPN6BFP/CqGnHi5mHPGI3Ws2HNBFB5YV8QSWgCp+Naxk4zIkOEyES9HLUwg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8HPCNlbJxgfSdU0HtZrLlqjCIdJpYFqFfHubJ9sGnVrXfUAxxj
+	nGJkWL0izX3OoW9swH8k2vXhjUq1yL1wRCROEVZrVbqflG4+TvOv1NchAotICbmeGLtaBlXe416
+	JSv6N8ZNMMPllIaJSLx4VC1AIU9tXU4M=
+X-Gm-Gg: AYBFou1UiBFAbg01nIoOV11lO6KHSGg5uB0DWedTFZHvJPjcMGcZyEi5MB1ouLdxxy5
+	KIsgOVjLmOLPKVkt66dTagv7FvqrgKgNestCshHlDgLkIh/w+aCvQTh6HoXAaBnXdw0jRqDygPQ
+	BSCWg1DrxggMmyqfOga36wnx2ySoV8AHPdjIDyUpJg2vbiIMZcTIDAHgdh6JR9kLPqpGKavH3BM
+	o/yrdCKgCyiK1U0oRB2Sjhb3x7NxROkF+9Qy2oxy1KM8/NHZItfDF1wulsTaAW+vkeIE5Y9BNsK
+	1px/xJIKUJfyKjHgGpPMF7UdQPmgWBFqH6NdCcW6euDCvfdhXhsbVHfb0s28/d3JLNxStnOnQdY
+	Fu031DJ7u38Lh4dNxKWrfVXQtrecki5ydyFCRP5sCskuGpeFmWsnRMRvzou8joW8/+izxsYpxeM
+	3BmsHtR++ABRvbm0ITvE4=
+X-Received: by 2002:a2e:ab07:0:b0:3ae:25c8:dc84 with SMTP id
+ 38308e7fff4ca-3ae2b53a651mr28470961fa.15.1794833710970; Mon, 16 Nov 2026
+ 04:55:10 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,82 +102,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <de5772b3-c340-4822-a49a-1434ece1b144@ozlabs.ru>
+From: A Kishki <alaa6394@gmail.com>
+Date: Mon, 16 Nov 2026 13:54:34 +0100
+X-Gm-Features: AclHuK_wKENosxNMnjaz2CMZgmvlOpLLh8FDu5SjExkjedGch4987GIiOjTGO0s
+Message-ID: <CAO6oLZEsN5gkaDvS97i_7bgPFOE-5eX8WjmGcWCcYHvTMQm9Kw@mail.gmail.com>
+Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
+ -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
+To: testyiprywatnosc@gmail.com
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
+	linux-input@vger.kernel.org, lovekeshsolanki00@gmail.com, 
+	linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, 
+	andriy.shevchenko@linux.intel.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Nov 13, 2026 at 10:30:23PM +1100, Alexey Kardashevskiy wrote:
-> On 9/11/26 18:33, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
-> > 
-> > Device setup needs a common operating policy before driver probing or DMA
-> > configuration. Userspace must be able to hold devices disabled until it
-> > authorizes them.
-> > 
-> > Add generic trust admission with an immutable global boot policy. Restrict
-> > the compatibility attachment API to explicit global full policy and full
-> > operation, checking admission before probe. Keep the operating level
-> > stable until teardown and retain normal locked admission for other callers.
-> > 
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Hi,
 
-<...>
+I found the cause on the same laptop. It is the SDA hold time of the
+touchpad's I2C controller, not a reset race in i2c-hid.
 
-> >   #define to_driver(obj) container_of(obj, struct driver_private, kobj)
-> > +enum device_trust_state {
-> > +	DEVICE_TRUST_SELECTABLE,
-> > +	DEVICE_TRUST_WAITING,
-> 
-> What is the exact difference between these? "Waiting" is waiting for what?
+Machine: HP Pavilion Gaming Laptop 15-ec1xxx, board 87B1, BIOS F.25
+(08/18/2021), Ubuntu kernel 7.0.0-43-generic.
 
-This is internal device trust state which is not visible to the users.
-In this state driver is not yet allowed to be bound, but once will be
-approved, the driver will be able to continue.
+IC_SDA_HOLD of AMDI0010:03 (0xfedc5000 + 0x7c):
 
-The difference between DEVICE_TRUST_WAITING and DEVICE_TRUST_SELECTABLE
-is what happens when you choose a policy: SELECTABLE allows further changes
-before admission, while choosing adversary or full from WAITING immediately
-locks that choice.
+  normal boot, touchpad dead:         0x00010001
+  boot via HP startup menu, works:    0x00010048
 
-> 
-> > +	DEVICE_TRUST_AUTHORIZED,
-> > +	DEVICE_TRUST_COMMITTED,
-> 
-> And exact difference between these two? Some documentation would be great.
-> 
-> dev->trust_policy is how we want the device to operate.
+The ACPI tables give no hold time for this controller, so
+i2c_dw_set_sda_hold() keeps the value it finds ("Keep previous hold
+time setting if no one set it"). After a normal boot that is the reset
+value, a TX hold of one clock, so the touchpad NACKs its address. The
+startup-menu path leaves 0x48, which is why the F9 and UEFI-setup
+workarounds help, and probably why the live ISOs worked, if they were
+booted from the F9 menu.
 
-Yes
+To confirm, in a failed boot I unbound AMDI0010:03 from i2c_designware,
+wrote 0x00010048 to the register through /dev/mem and bound it again.
+The touchpad probed at once and works with hid-multitouch. A rebind
+without the write changes nothing, because the driver reads the same
+value back.
 
-> dev->p->trust_state is where the device is on its way to that final policy.
+I run this as a boot-time workaround:
+https://github.com/AhmedKishki/hp-pavilion-15-ec1-touchpad-fix
 
-Partially, it is not only takes into account authorization (where the
-device on its way), but also commitment (what is possible to do).
+A real fix probably belongs in i2c-designware, for example a DMI quirk
+that sets the hold time for this model. I'm happy to test patches.
 
-<...>
-
-> > +static int __device_trust_prepare(struct device *dev,
-> > +				  const struct device_driver *drv, bool full_only)
-> > +{
-> > +	enum device_trust_policy policy;
-> > +	enum device_trust_level level;
-> > +	int ret;
-> > +
-> > +	policy = dev->trust_policy;
-> > +
-> > +	if (policy == DEVICE_TRUST_POLICY_DISABLED)
-> > +		return -EPERM;
-> > +	if (dev->bus && dev->bus->trust_resolve) {
-> > +		ret = dev->bus->trust_resolve(dev, drv, policy, &level);
-> > +		if (ret)
-> > +			return ret;
-> > +	} else {
-> > +		level = policy == DEVICE_TRUST_POLICY_ADVERSARY ?
-> > +			DEVICE_TRUST_ADVERSARY : DEVICE_TRUST_FULL;
-> > +	}
-> > +	if (level == DEVICE_TRUST_DISABLED)
-> > +		return -EPERM;
-> 
-> This check can go right after trust_resolve() above. Thanks,
-
-Right, thanks
+Thanks,
+Ahmed Alkishki

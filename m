@@ -1,86 +1,64 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794831072;
-	b=CgD79C9EbZqbQdb056FQSlsEeaHs8MwfiT9uEX2NUr6KftHEU9qfmSyLqCYkhfrZTzYD
-	 C96/MCqywQqeyXIvZ+5whi3j7qZQ6oEL1YwVVzKwTa0tqiXjtX1QUQmllGtyX6Os2xC5Y
-	 RU/eVtFC4dIy+TnTyLzUXtwFKWNCy0ot+mlrqx1/ygmXc4FJcwUwi9uTw1SyjPebesGyO
-	 ib+lGMaOPV/H+BPS0tLJ7tYD1yyWQ6BeN27gNOubsZrXSuJ7nqkbv2icIYTrkw3MNGkmw
-	 wZopufI9GJA2ESS16RDwj84nKJTYWo2rxqXOi54M5mBcgxX+YWSNmyde7k5ZZMbvANg==
+	t=1794831247;
+	b=1Dza+Ll80cC/DoFHTXdn4Z2jHra5/zoyfxvid93WmqBEwu4j/NKsNpSAbaeF15NNU4JT
+	 BB1zItgMr/O1kDHOyX5iAHjNYYK/3gG6MNYz8fvjbeTxEuDurQgld2b1IKySZuiugGzNE
+	 lCVqpitMEq30aexaTd74+P6WihrIlI7RjggTnqC+BFuI4GKyRCdL3GqGx4MDvgIAlMvak
+	 3OL9MHC/6zNxKCuzgtksXG/Im3Q2QM2tDpDec8Ce5cXHksLR0HPq5ZibMICC0Fa3FyZI2
+	 34ZgOlg5Zd0GoCNwQoLK77lIejde1xIFhPIM9X2n4M+kfVFScW9sgh0aznmhH291Csw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794831072;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794831247;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=d1QNaqA4UuxT165UtFo9MygMRqXbXgGBeQ/kJMNr1F4=;
-	b=xGYMSqwMFYHMGZcPCU1WsO892slI06zNDHiZR8SDVELP9lb+dSmPcHCAVi1qPPMftqty
-	 1ULWGMVHV5kc3OiKeiqJf29Y92qz9ZtpVea2Dk3oJK0iRRW0pKiqIXYrFvEKiJi88WDRm
-	 bRmgMXDxPgUowTngTFa+DNmWjVJ99nPEUzwhepuR7s9nhTTfoaBaKSMe5tBOeSRyfmLR8
-	 Wz7YuVURdqyX1gCLJXtyo/Hzg3suGvpttPczcPtjGntW7LmYuk/xbFuXI7+FXfUBdZsxJ
-	 aI4Wp80trDIUod6XAWJYFpHMBbNEkjceodSHinbusnmpHT/oAccFjm79tDB9cJjOm3Q==
+	bh=5TQnXyxPKsVYp7Swu6UCLm+jMK/P+KGC0Ry72Fb+tw4=;
+	b=ntnMNVpSztwv3asS7c/vq0zEISxF+7EGvIXPavMo05+PRxGoAtJ64dgfeGG22bGRFC4u
+	 R5S85BKRxgdmGMgsjwMP7jRIj7zSFYXyHIokSQ4/oD5zYyhQ3KBIBPPynQnMfnnhzP83Z
+	 nNvxqdq2A2MVFndDmfvv/llMOB7F3zS5G1shgDWDamJyg/ZksMlYie8+Z09znlg+cy9N7
+	 aI0a9Oe8vU0H5whfeAomZSNLslCIqwXLE3b5zFPdS3BPOgcDElvpgsQRlRe9xa9BN6KUh
+	 ITv+FCZoxP7vQi1S+9o/lKddLp+cZvldU00BwEKzqVef8y6hPq+7gR3JhZWpJ4jn8Pg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JkukwzGb;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ALvci8CB;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DE9C606A31C;
-	Mon, 16 Nov 2026 12:11:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284FA606A31C;
+	Mon, 16 Nov 2026 12:14:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JkukwzGb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF391F000C5;
-	Mon, 16 Nov 2026 12:11:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ALvci8CB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1DC1F000C4;
+	Mon, 16 Nov 2026 12:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794831072;
-	bh=d1QNaqA4UuxT165UtFo9MygMRqXbXgGBeQ/kJMNr1F4=;
+	s=k20260515; t=1794831247;
+	bh=5TQnXyxPKsVYp7Swu6UCLm+jMK/P+KGC0Ry72Fb+tw4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JkukwzGbEvTcRYQiQbZwmA/mk2PVHTyXM6F56jbB+ZEQcpOrHLIY5pxO7kKiM6rQz
-	 0EwP5ZgG9DLK7jFGiSx9rNSP3jecoIEKdDYTO14xW1IttoAG5v+N1Aez3pwlJjjX4h
-	 b9xMXEbfDclbyVeamtQyzfwSgbEfbMjF9uY6+FyAidTnAxdoFPAPVSLekGMi7QSJU1
-	 emdILX1T7g10aAXHkb+Ax2GF/b+k8KVztp14ydhiNTchkHtPM7YD2i4zOANkI1QD4j
-	 LDuHomhf5257ArYnxVdxwLVpbtGt22Thq3Isp2WsCen8vZYobgCtY7pslu+Kg9qXRm
-	 chRxB8ZndPC5g==
-Date: Mon, 16 Nov 2026 14:11:08 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Alexey Kardashevskiy <aik@ozlabs.ru>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, Jason Gunthorpe <jgg@ziepe.ca>,
-	Alexey Kardashevskiy <aik@amd.com>
-Subject: Re: [PATCH v2 11/19] driver core: Introduce a generic device trust
- level
-Message-ID: <20261116121108.GK11319@unreal>
-References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
- <20261109-device-trust-core-v2-11-3b12d9a9f861@nvidia.com>
- <de5772b3-c340-4822-a49a-1434ece1b144@ozlabs.ru>
+	b=ALvci8CBxbM/eosyVK1BjxHfGbw2+ug0PaGwZSi7rRYyfOsz6ojgOENO9i/smX4GU
+	 CU652soiiZ+0qC+m8SIQtGmaF1OTlqs0aFapVfUyAvUfYC8C+Q4ygS5kYmxY6ejkmm
+	 QFZ5fQuQLs4aw5BGeONWggy5rgWpX++X29+SCoaZatkOOwJ10/ir7TeBL2gaEon58h
+	 3i58H4i6SzvddpjLTMxueNlzoT1EnPnKcTp2of3PP5br9hM9DFlvqspWpz7WnZHH3b
+	 auUF9oDP9H3VuM03LAcAJeVYjprTB+6O71Kx/THxRYhxt3kN8bzfxnJ+YMtICJHoKp
+	 HjsGzaww3G46Q==
+Date: Mon, 16 Nov 2026 13:13:56 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Alexander Letuchiy <asalde.le1@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Sean Wang <sean.wang@mediatek.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Mattijs Korpershoek <mkorpershoek@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, 
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-serial@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, phone-devel@vger.kernel.org
+Subject: Re: [PATCH v2 3/9] dt-bindings: watchdog: mediatek,mtk-wdt: Add
+ compatible for MT6895
+Message-ID: <20261116-imposing-chicken-of-strength-108fe5@quoll>
+References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
+ <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,27 +68,23 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <de5772b3-c340-4822-a49a-1434ece1b144@ozlabs.ru>
+In-Reply-To: <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
 
-On Fri, Nov 13, 2026 at 10:30:23PM +1100, Alexey Kardashevskiy wrote:
-> On 9/11/26 18:33, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
-> > 
-> > Device setup needs a common operating policy before driver probing or DMA
-> > configuration. Userspace must be able to hold devices disabled until it
-> > authorizes them.
-> > 
-> > Add generic trust admission with an immutable global boot policy. Restrict
-> > the compatibility attachment API to explicit global full policy and full
-> > operation, checking admission before probe. Keep the operating level
-> > stable until teardown and retain normal locked admission for other callers.
-> > 
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+On Fri, Nov 13, 2026 at 10:04:59PM +0300, Alexander Letuchiy wrote:
+> Add a compatible string for the watchdog of the MediaTek MT6895
+> (Dimensity 8000/8100) SoC. It does not fall back to mediatek,mt6589-wdt,
+> which implies the MT6589 TOPRGU reset layout, as the MT6895 one is not
+> known yet.
 > 
-> this got many CCs except the one where I was (eagerly) looking for it: linux-coco@lists.linux.dev :)
+> Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
+>  1 file changed, 1 insertion(+)
 
-I will pay more attention next time and will CC CoCo list.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Thanks
+Best regards,
+Krzysztof
+

@@ -1,94 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.3
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794851699;
-	b=WXFpB9C1jjzXVtywLoCfMMtvPgciia2gWD4LE60QuifssDRNTwnauq6wqvJTiiTX09B/
-	 eJoyMgDmDVWaUcfsFmZNjMgLsJRYws3YrKxxyWGEaVBL9CHeRNXXJzURghJxe12FpVtbp
-	 eSKcGvvPooa0rVdmcFjfKLSKhsZyBzT0DHafLiTvIJsdih0wp47/8e4x1zQ1H+YIM0PRl
-	 uuyPY0vB6EGuulfm+ejSqAy0Vg/g8boNQCYhJJgCjpFEIdZjLKgb127Aia5lBODFui6lY
-	 ttczGIpV97D6P1ETuRV+G/dOjyGRCwwKVdcamt/xTuuEzc65FbawPrBJujTwzoDSm9Q==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794851699;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Cc:Subject:To:References:From:Content-Language:In-Reply-To:
-	 Content-Type:X-ClientProxiedBy:X-Microsoft-Original-Message-ID:
-	 MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SLBlob-MailProps:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=cwsmVIEMAwGGFSGVAIGu6XJgFp5GZQeD3vuhMLua+Qc=;
-	b=d4H7o5vGsfFUSV0VjBTzGKRvijAZNDNjip1szjRVZgNAyI7DLp/KXK3C8dDUuyG6lV3I
-	 58mQldaaff8RX/qvoOj2QHRvJebKtKKnG/xbcwiqcBob3cvkXmLRajk2b/ZlCfWXvwDUq
-	 am5T90YP4Ytt2J81AzulHao0GBQdGaV+W6cCJyJuIIMXOLFZiMA4RnwJxSfhXyLEKRGb/
-	 N4FCyOYJrUOg0vxonAmwbjGV7FfOEWih8ihLNs4KIcqm8rfzEL5KICpMZSRoltjAV4yNz
-	 3oeiDPMYnZxTLyCYm0GEvbRf6iCGD3AcrsvSkmjlKjk0PKm9qq+4ndirsCE7wWekDcA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=outlook.com;
-	spf=pass smtp.mailfrom=outlook.com;
-	dkim=pass header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=n2JqswJj;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.3
-Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazolkn19010003.outbound.protection.outlook.com [52.103.43.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55A9606A32C
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 17:54:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E55A9606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.77.154.182
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794854804;
+	b=O0C82aFD1yAjysl7pomqH4NV44Q+XztruFDNhaHCxyZMD9BwGFbb2UtjjQsvcLFM0k7M
+	 q409BXCc88PplTPeEfuBVKJGJ8Hj/tqimoUEOTjabHMw5K1WnVB0VJ2HbcGZoqX9R7pfH
+	 GxI5WEKjArfw/H5ZM6HYbFcPP3pVDiZ3Qyr/S8YSWdrhhSMfSZfGnmqevYHvI7OIki6Zm
+	 Gpi6uYHoqU5A2bEDB9JmV2/Gk4El9jgsrRs+Y/57BeLBOVhWXQ3/478Eu/YmbVKAUhMCK
+	 YRV2h2DVXDU0wWL2BweoS8IAifF+xckpugqFpf+IXo53rgMlYxKM/SvCsxnxBwnYDfQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794854804;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spam-Status:
+	 X-Spam-Checker-Version;
+	bh=2YUoAQtat16PZh3hSCS4+DqmjjlkhuzhPF22RNobT8o=;
+	b=zhE3G7H7lMDhplDrhp2nvc+m0WKPoMOJBeXnahO0KyyIa0io0u5dPKD/CnayE8bAsoVJ
+	 v43SzwVQfzVhvJ9bEjCHJyk0Xvdt5VUFjo71kt6PcpDLpV+hbBE9Vuq7tqNSvlbf4HNtQ
+	 sXEfds472n5MGAZJNceK/+dPlLS91HJTN9aly2GRfF06ouYT7+8uaf8OJVkS9dVyMx+UF
+	 I2Hm0xr3asVqTYxJfKpMI/sAvRBn6FmXTd43G5MlvhpLQe2jiNyU2T4cnSsXTGsCLA9XR
+	 l/zJvCQPSQ6jzgk3DEZ+0T8h23jsVXbDJua+YxP0VmSrq2XGBmiOPk5BCs6pjR0uGdA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.microsoft.com;
+	spf=pass smtp.mailfrom=linux.microsoft.com;
+	dkim=pass header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b="ar/HfkpK";
+	arc=none smtp.remote-ip=13.77.154.182
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 40AE3606A887;
+	Mon, 16 Nov 2026 18:46:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40AE3606A887
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=n2JqswJj
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=jFNDxr2Gl0FhkThTP5eP/mQKEnGGbphpu/QouwvlnNuKFs1Ktv2jahNHdhWcJzqJyG+oHgi0BPUy5EwCDsgUS/ZLa4NSYggvpBe5I5OEqJ18l42C0fYnTLpU3e9TzJiPQmANPTsqcNkegfL7GraXQGRk/ws3AL93TXJWGid6M1OLtig3hosewoVsVx+ljsjbAFnO7jq/8kcOq2b2MCtT/xUItwoBczOL4wuuWCW+bx7+bi33Q87+nS1gve0Zm84WXCYIGFGPuXDDZCzzN3YcwOoTCUCQk1q4qid35on3+Jubsp0bsMRTIaprdidkMlUl9acU18NudpFNXGD+8KExKA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cwsmVIEMAwGGFSGVAIGu6XJgFp5GZQeD3vuhMLua+Qc=;
- b=lit4WMuVzT2+J4a4yFOY4wdPjDurqlRsnqJSZbuqz3XlsGS8zUrSdExgiUmLNltR2l1tTXtx0wLZ6IeGqKuA83kgMzJzqer7v3k0/8QE6tNU2wGKMCt+hWWOk+JrWo2Dg2uSvWiE5pjeIGeMgrJlTfXClvbz66bnY6XOh3m/9T0k7jfXwOtrQynCYce1dfDt6DePXexuSOKLY7EFWkfOz6jhX/4d6fKbjnPcavmePQybHi5tuzJECFDdGuaJhJolii3+8CaZJ/b3ClesbQ++VeKHdoI93g32YP2dPeJ5BmSbG+UsKojUgXkBx3imlyLGVjJCZXTyxqqLVIu9Z6LWRg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cwsmVIEMAwGGFSGVAIGu6XJgFp5GZQeD3vuhMLua+Qc=;
- b=n2JqswJjZKGeJD0QnxSKdgqPGeY1Mij/5grtqR5Vayn2kNfAKVy630Uh1EFUpBZFLlBtYxLNKlQmcV35JG2tBFQ8DyeBBJrgUckm1tUH0Qg5aBCY+lnfOGht4jpKgFMVqVTKwZk0iDKuIgK3V6jWEw3/1UW5fYFDavejlw5c7E5Z7k1hY5db3AVJWi4Cq9mQtgsoMgzt3K0CnjnEne9r60DDkBrP1dmY2iU+ApXQ0igM8w8MMoDcDjAxrWkivYeWFuiNYdQ6lyuO20EQGk6JVAxojQgSewvhiImtT/SjLr9oajwr9VwRtxHyZ7Uq6ONfKtBHcWohbeBxcX35VS0+kQ==
-Received: from TYVPR01MB10892.jpnprd01.prod.outlook.com
- (2603:1096:400:29a::13) by OS3PR01MB9800.jpnprd01.prod.outlook.com
- (2603:1096:604:1ea::11) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Mon, 16 Nov
- 2026 17:54:55 +0000
-Received: from TYVPR01MB10892.jpnprd01.prod.outlook.com
- ([fe80::911f:7aa6:717e:cac3]) by TYVPR01MB10892.jpnprd01.prod.outlook.com
- ([fe80::911f:7aa6:717e:cac3%5]) with mapi id 15.21.0615.013; Mon, 16 Nov 2026
- 17:54:54 +0000
-Message-ID:
- <TYVPR01MB108926C926A5BDB204C5FCA94987C2@TYVPR01MB10892.jpnprd01.prod.outlook.com>
-Date: Tue, 17 Nov 2026 01:54:42 +0800
-User-Agent: Mozilla Thunderbird
-Cc: wiagn233@outlook.com
-Subject: Re: [PATCH v7 00/12] Input: xbox_gip - Add new driver for Xbox GIP
-To: Vicki Pfau <vi@endrift.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- linux-input@vger.kernel.org
-References: <20260912030426.2997003-1-vi@endrift.com>
-From: Shengyu Qu <wiagn233@outlook.com>
-Content-Language: en-US
-In-Reply-To: <20260912030426.2997003-1-vi@endrift.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------Ol50KTEqWcN1x6Wdla0X4FVI"
-X-ClientProxiedBy: SL2P216CA0102.KORP216.PROD.OUTLOOK.COM
- (2603:1096:101:3::17) To TYVPR01MB10892.jpnprd01.prod.outlook.com
- (2603:1096:400:29a::13)
-X-Microsoft-Original-Message-ID:
- <5479d5aa-412c-4d66-b208-9358449897a4@outlook.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=ar/HfkpK
+Received: from [10.4.158.9] (unknown [4.194.122.136])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 7265820B7168;
+	Mon, 16 Nov 2026 10:46:22 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7265820B7168
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1794854797;
+	bh=2YUoAQtat16PZh3hSCS4+DqmjjlkhuzhPF22RNobT8o=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ar/HfkpK8k1ZfyLEAMEdfVEdj4XWJ+1H1H5p4+N5kRMVF/qjNy+qJg4OAdqfB9iv6
+	 /GyMsdSGwvn/F858ycbweBk71Yc8fOyK+s49/97ZsaR0580NPH4BYdq2zfYt3tar5I
+	 jrG1L0wqQBpLEjYOex+EamkH/5FPwfT+dGzxHjes=
+Message-ID: <193e4130-9c2f-4a0f-b218-f5fcf0b3d508@linux.microsoft.com>
+Date: Mon, 16 Nov 2026 10:46:25 -0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,206 +53,443 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: TYVPR01MB10892:EE_|OS3PR01MB9800:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3019cfaf-30c9-4d4c-04a5-08df440ab878
-X-MS-Exchange-SLBlob-MailProps:
-	znQPCv1HvwUXBahuwteIkQeW30lJPuxOZA7krvRMWCRkEboGRCdP8CQXDohV7SgdcUbaIQ0flFcjjFOx9hTlgBEInBA4xelQAYLH4R0HXvPIcXIxcHtX5mPIJTsbKEEXwiN9h98000dWQPmVWZIYdYwlP3Xm6MfCjIof8Lpsq5VSLJh66V9pOBSVyPM76CeVyrzhWwqVa4HbymzsULu4bxIsQvxs5PFRv/LLFbfECp7a4RI+tm17W8TyzaF7SVN9aVddiZ/UXoW+5UY7LbR0EoJl0wmNQLPkMu7Ss++iB+4lY2OkP0vL492r6tAe37jk1U2X8G75WFjoLHhpd8cwxWz1Oxv9ozu7dJkwpKRfmLXVBU8Ll6sEi5zPxOPLFd+7EZ/X5LNNYB2vPNYytHk2wOezqfY3O1JW2NMfTfw9mBbcIDTym4wkiiTXg8QrtYYobVUZsb2d9QlpSvjWLDMm1C49UuQ6n2+8bBn49Fk0DsHg43iXkEhV/QB4XiLP19IBESR1oDXkDP2XwQkRpGslzNpWv/XpCW+FoA01Au2svz3A1s4dMlA6pD4ebNopOeDRFaiPrFaLNIulOdzg8RbMhqNGFy2OYYdZs5YWXSkHn+loRa2jErylDsZ5iFEBgLMXy++HXeyf9jf1cTm3ejSSZg6MSLseIRGJmD3/5YTlw1J4oSHQDm3oXeglJIPhsLCNPKxVmf+AVD10Nz1LsfL4oO32ay36yyZ3Cg72UBsHKfW31goo/73ylXHFAjvoDNwDKAbvjIUYPH4=
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|23021999003|15080799012|25010399006|24021099003|5072599009|4140399003|8060799015|12121999013|19110799012|51005399006|440099028|3412199025|26104999009|40105399003|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?MVU5VUVvaDhKNWdJdGR5NkxzRUppbFljTnNvWTlQcXgrS3RBNkp4UWNDMC8r?=
- =?utf-8?B?WnV5QXBjY2w0U3V0Unp6T1MvaldsS2tpcVVyeUY2cWJOdWNHbVh1cnNkY1lx?=
- =?utf-8?B?YzVadHVEellGcFhrWDlvcUY5TXRPTlg5cEdWdW5NOWdML0VQaVBTYzFBRUhD?=
- =?utf-8?B?ZUNHSUJIYWwzenhPZzF0UFZEZ0dzT0ZTc1RGQ3pPbFZwb0JsbjlvOGlzQTF6?=
- =?utf-8?B?eWNpcTBpNVJqekY4ZEZyc2EzNDl5b2NLQWF1Q3h3Zitab3BGM3Y3MGwxV3RQ?=
- =?utf-8?B?eXg2UDZKUEtEREpNb3cvMnBjNW1FYnFkdDBDemxEM0k2VGJ1czdKZG1GTm1E?=
- =?utf-8?B?cVJWL3FDK3BtVlh2bEVvWE5pQXYyU0VVUjNwaEtiU3NJQ0labHRuWWJLampF?=
- =?utf-8?B?Sy9QQnVURUltU1ZYL1BQMHVHZEZXcnVjRFBoRzIvbUhxZXVULzFnU2lSMDlK?=
- =?utf-8?B?SklmMEdTNVZCdmtzUlBSNXFaT1J6Q0p3NXRlZW12QTV0Z294d25KNDc3d0Qz?=
- =?utf-8?B?LzViWmdNZktyVmdiNFl5TWlWbU1PK2YyRTFyTWszTSt6WExHWDBWbytvZVdU?=
- =?utf-8?B?ZlpudFZFK2xLMVJBQmFYTFlRVGo0aGdQbHlBbnNXVklFRmJFLzh1dEJZbW8y?=
- =?utf-8?B?L0RuMGp3RjJnZ3BqdHpIdFZSUWtaTlgvNVk2NmFacDFSbEJCbEtjOXdXb1Jz?=
- =?utf-8?B?MHZTR08zaGRaRW1RbjdUdG03S21uVG10dDJKZ0lBd01zanZBK055K2pEU3Mr?=
- =?utf-8?B?SStVMmtMa0JtMnZWaWlDOUZvaWhoMkd2N3VnZ25BR1ZqU2RVNHVUcktNV1VF?=
- =?utf-8?B?TmMrUVo4cUdVSkhDRVc5QkcwRU04OHRIK2tpTW1IWS9NV0RzdkQvTTUwc3ZS?=
- =?utf-8?B?Q1dKQ2V3QURJMWlDQXo5NWd0VlUvSG5sbktheE1tVVFaZ3ZVRXhBVVd0R01F?=
- =?utf-8?B?eGpFR3MyYnNyMGFMamNnQmgwMk1rYmp1Zk1rOXcveG9LQ0YvQkMrb25rOGpG?=
- =?utf-8?B?U0MyMmg5cUc3Y2ttZ1dlV0xoejJtWG4zN2xWMHFMd21Qclp1R0RQQlRNbHRY?=
- =?utf-8?B?aWt6bW9wblV0a042dVNzSTJkK0c2eHN2N0ZBdG9aTkFKMU1tUk9zWlJlR0VI?=
- =?utf-8?B?NzJDbzByRS9VdnJsYjAyTnF2eE9yTWdNNmN1dFRVNERiVGUxSFdGMi9lNDNQ?=
- =?utf-8?B?d0JIN2F2MlhIcEpUSVFxQTJDMDRKUi9ndnVEWndJeWFKZUVCSm5LZVNwNlBx?=
- =?utf-8?B?T3RyWUNPK1I2cWhOY1dvZXpPOE9ib2FoNnoxanlNVjkxSjRheTVRNG0rQStu?=
- =?utf-8?Q?tiBW70fHcWjbBrPNuRE1Tq4H2SwJa796Hg?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZmJncWpKNktsV09SS1lPRnY3SkF6eERMMkJEMFdCNWYvMCtyejR3MzdyRU8x?=
- =?utf-8?B?N2t4UXNueTdpNjE5RW9SZ2RMT2QvOWtyOUNnZ3VaT1NrRmg2RjlYTmdUTG1O?=
- =?utf-8?B?bTlkWFBjMHFwcnM0andlajZaM3FuME81M1hBZ0x5ajMzN0tjOFFSMnh1bFZp?=
- =?utf-8?B?VjlyTHByOHJyaG5LWG1pNHhOaVM4SmJjQXQzaVRSNkthK2JBYTZGK0Z4R2pT?=
- =?utf-8?B?ZXVFS3QxaFluUmVTNlNLVGlVVnBqcXN4NU9IdzlOT3oyY2g5MDc4cEhzWXV2?=
- =?utf-8?B?RWxjNXZRYzA0Rk5zQ3ZBV1p2SkVydHhnNlRYTVkyRlp4clVNYUlaSUUzNW52?=
- =?utf-8?B?b1VMSDN3SU5acHRtcDdJbmJhSjRVTWVaS0h1U0I0YTV5QSsxT3NCMWs2VXdX?=
- =?utf-8?B?R3pYbEhHUGlLM2hDZG9nTEFxY0xzalpObnFBQXBheUlCajh5TkQ3VkNJZXBQ?=
- =?utf-8?B?R1VNNk9JeXN2LzY5Y2E0TlJGYkJ0cllFVDdpWmFLYjE4QTJxR2w1cXdpQnNo?=
- =?utf-8?B?QkRjYnhTcGxRWGxudWFvdXpnb0ZsMUpreldsMXhDNEhIMytrYnY4UkpsWWJi?=
- =?utf-8?B?RnlJVlQ1S2tiSzFRL2dUaEZkcnlxUDNCZFZpYmJKaVBYNWxrdmtJbkoyWnFQ?=
- =?utf-8?B?WldVaitCcWN5MFIwTnVNbGI5SU1zN0FXL3Z0eHVZb1g4WWlVQm41eW0rbzNJ?=
- =?utf-8?B?YkFHcHAwaWdhb3hadjBFTmg0Z1g4a2pWK2RGQ0lQRWMrbTh0VTJHOWxqckxl?=
- =?utf-8?B?YWtjUlZkL1p4SFAyaTBrRlo1eWV1ZHZOUUNET3doSzhKekFrR0QvZnNFOXg0?=
- =?utf-8?B?RnFMYWpKMDlVZmRvcE9veDJrc1YrTGxZdVBEaExibU9xd00zUzFwYmRBVE95?=
- =?utf-8?B?V2hLb0JldWhzVkp5ektPVzJxbDVFN3JIYW9pakhFeG0yYmFoVXhqbUNPOFVo?=
- =?utf-8?B?ZER3M2hIOGNwaHpPMjF3bFEyRWIwMk9uQ2RqQ2kvck83R2ozTHRzSk1uNy9N?=
- =?utf-8?B?WFpJS3B2NEh0YnZnUDFscHVKeTE1K2dTRHdjVWFFSHFaK2E4WnlMSnpHSGlH?=
- =?utf-8?B?VUxPQkV3d0V0UEtsZ2Ywa2d1MVFVald2TkFOTXJQYXFJU1hmUU81b2NIWDJv?=
- =?utf-8?B?RzU5MWxtT0FrQVAwRzVQMW92MURVOFBKQ1BIOW1KUDVSdEhKQ1E2bk5WUk5G?=
- =?utf-8?B?VkhPbTcrbzB2UDMvOC94dkJjbFZHNmNNOUdXNTVLYkhTeXNlN2ZRZGdTd3NE?=
- =?utf-8?B?QkEzUkVXMnFpd0RBQ1VsWUFicGF1MlFaQlJwRW5XeVcvcHhPZDNOUW5Td3Vh?=
- =?utf-8?B?NUY0ZU1oUnZQS01GazhGUWtTQ3BvU3VRRzBCUm95M2pTUHptM2ZRMXg5UnBw?=
- =?utf-8?B?ME9udGxVYk1GOXdTZ1d6aW1KTi9uNGx5YzNQbVcwbTB1aExNYUU1TURKaDVQ?=
- =?utf-8?B?cFdwRUJZQTcxREsvRmxhU1oxT1h2cjFZMFo4UzYySHZyY2JkVGk1NlI1bkh2?=
- =?utf-8?B?WlJWeVVvMGgxSUhpanNWVS9reXYxLytCZjBBSTBtalVZYlV4MzI2dWptL3Zr?=
- =?utf-8?B?czRyTk14YlFSejJZWHNnQ3VZTTAvWUdVYkZ3UlhFajYyRVY0bnRGZXZyZ0la?=
- =?utf-8?B?L3JuTW1XVDM2QlN2Rk1PK0dIZkowekZuejQreFM2Ym1qT1lVMDFySjE3dll5?=
- =?utf-8?B?dzU4NVViK05mMkViaTBFOEoxVlJIUzVRbWpOM21MQUg3bFREMTF6bUJwVi9Z?=
- =?utf-8?B?Uk5mRTU0ZnpDUU53c0VjYlU1YkkrSk5scUw1Y2VWVzh1MHIxSWtYRHd4ODJr?=
- =?utf-8?B?NzIzVmtlMDllSnRSYnFFMVoyOEY1VDhBNmlUSUNjNXlZVkVBN1JNRjdxZ3JO?=
- =?utf-8?B?UkRUOVh2Z1krODY2VmRsY1JIWFQ3bWRHTHNvOGtTVytpcGRDNUViVjNUaVBo?=
- =?utf-8?Q?yMOppnZBiR41u71wVZxfCb1mF6ATlbfG?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3019cfaf-30c9-4d4c-04a5-08df440ab878
-X-MS-Exchange-CrossTenant-AuthSource: TYVPR01MB10892.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Nov 2026 17:54:54.8736
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB9800
-
---------------Ol50KTEqWcN1x6Wdla0X4FVI
-Content-Type: multipart/mixed; boundary="------------QAiOFZAMExEvWBBxAELL0Twv";
- protected-headers="v1"; hp="clear"
-Message-ID: <5479d5aa-412c-4d66-b208-9358449897a4@outlook.com>
-Date: Tue, 17 Nov 2026 01:54:42 +0800
-MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Cc: wiagn233@outlook.com
-Subject: Re: [PATCH v7 00/12] Input: xbox_gip - Add new driver for Xbox GIP
-To: Vicki Pfau <vi@endrift.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- linux-input@vger.kernel.org
-References: <20260912030426.2997003-1-vi@endrift.com>
-From: Shengyu Qu <wiagn233@outlook.com>
+Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
+To: Leon Romanovsky <leon@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+ Heiner Kallweit <hkallweit1@gmail.com>, Russell King
+ <linux@armlinux.org.uk>, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>,
+ Lu Baolu <baolu.lu@linux.intel.com>, Johan Hovold <johan@kernel.org>,
+ Eric Dumazet <edumazet@kernel.org>, Marcel Holtmann <marcel@holtmann.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>
+Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+ linux-input@vger.kernel.org, netdev@vger.kernel.org,
+ linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-pci@vger.kernel.org, iommu@lists.linux.dev,
+ Jason Gunthorpe <jgg@ziepe.ca>
+References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
 Content-Language: en-US
-In-Reply-To: <20260912030426.2997003-1-vi@endrift.com>
+From: Kameron Carr <kameroncarr@linux.microsoft.com>
+In-Reply-To: <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
---------------QAiOFZAMExEvWBBxAELL0Twv
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+On 11/8/2026 11:33 PM, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
+> 
+> Convert the PCI specific untrusted to use the common device trust
+> level. Adversarial means the same thing untrusted does.
+> 
+> PCI discovery keeps the logic that set untrusted: it looks for removable
+> PCI devices with arch_pci_dev_is_removable() and defaults them to an
+> adversarial policy. Treat a disabled policy the same way when choosing
+> the IOMMU domain. Do not record the ATS capability of such a device, as
+> pci_ats_supported() rejected untrusted ones. Let the Intel write-buffer
+> quirk apply, as it only adds flushing.
+> 
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> ---
+>  drivers/iommu/amd/iommu.c   |  3 +--
+>  drivers/iommu/dma-iommu.c   | 14 +++++---------
+>  drivers/iommu/intel/iommu.c | 17 +++++------------
+>  drivers/iommu/iommu.c       | 17 +++++++++--------
+>  drivers/pci/ats.c           |  4 ++--
+>  drivers/pci/pci.c           |  5 +++--
+>  drivers/pci/probe.c         | 22 +++++++++++-----------
+>  drivers/pci/quirks.c        |  7 ++++---
+>  include/linux/device.h      |  5 +++++
+>  include/linux/pci.h         | 30 ++++++++++++++++++++++--------
+>  10 files changed, 67 insertions(+), 57 deletions(-)
+> 
+> diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+> index 960e1dc05ec69..e358bbb1f2baa 100644
+> --- a/drivers/iommu/amd/iommu.c
+> +++ b/drivers/iommu/amd/iommu.c
+> @@ -3401,8 +3401,7 @@ static int amd_iommu_def_domain_type(struct device *dev)
+>  	if (!dev_is_pci(dev))
+>  		return 0;
+>  
+> -	/* Always use DMA domain for untrusted device */
+> -	if (to_pci_dev(dev)->untrusted)
+> +	if (pci_dev_default_is_restricted(to_pci_dev(dev)))
+>  		return IOMMU_DOMAIN_DMA;
+>  
+>  	/* Apply device specific quirks */
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index 78742aeba932d..a48fb511bfe6f 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -589,16 +589,11 @@ static int iova_reserve_iommu_regions(struct device *dev,
+>  	return ret;
+>  }
+>  
+> -static bool dev_is_untrusted(struct device *dev)
+> -{
+> -	return dev_is_pci(dev) && to_pci_dev(dev)->untrusted;
+> -}
+> -
+>  static bool dev_use_swiotlb(struct device *dev, size_t size,
+>  			    enum dma_data_direction dir)
+>  {
+>  	return IS_ENABLED(CONFIG_SWIOTLB) &&
+> -		(dev_is_untrusted(dev) ||
+> +		(device_is_adversarial(dev) ||
+>  		 dma_kmalloc_needs_bounce(dev, size, dir));
+>  }
+>  
+> @@ -611,7 +606,7 @@ static bool dev_use_sg_swiotlb(struct device *dev, struct scatterlist *sg,
+>  	if (!IS_ENABLED(CONFIG_SWIOTLB))
+>  		return false;
+>  
+> -	if (dev_is_untrusted(dev))
+> +	if (device_is_adversarial(dev))
+>  		return true;
+>  
+>  	/*
+> @@ -1189,7 +1184,8 @@ static phys_addr_t iommu_dma_map_swiotlb(struct device *dev, phys_addr_t phys,
+>  	 * swiotlb_tbl_map_single() has initialized the bounce buffer proper to
+>  	 * the contents of the original memory buffer.
+>  	 */
+> -	if (phys != (phys_addr_t)DMA_MAPPING_ERROR && dev_is_untrusted(dev)) {
+> +	if (phys != (phys_addr_t)DMA_MAPPING_ERROR &&
+> +	    device_is_adversarial(dev)) {
+>  		size_t start, virt = (size_t)phys_to_virt(phys);
+>  
+>  		/* Pre-padding */
+> @@ -1790,7 +1786,7 @@ size_t iommu_dma_max_opt_mapping_size(void)
+>  
+>  size_t iommu_dma_max_mapping_size(struct device *dev)
+>  {
+> -	if (dev_is_untrusted(dev))
+> +	if (device_is_adversarial(dev))
+>  		return swiotlb_max_mapping_size(dev);
+>  
+>  	return SIZE_MAX;
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 5a2e705a2f2e0..66942a91b992f 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -2624,8 +2624,8 @@ static void __init platform_optin_force_iommu(void)
+>  		return;
+>  
+>  	/*
+> -	 * If Intel-IOMMU is disabled by default, we will apply identity
+> -	 * map for all devices except those marked as being untrusted.
+> +	 * If Intel-IOMMU is disabled by default, an external device could
+> +	 * otherwise receive an identity map despite its adversarial policy.
+>  	 */
+>  	if (dmar_policy_off()) {
+>  		pr_info("Intel-IOMMU force enabled due to platform opt in\n");
+> @@ -3629,16 +3629,12 @@ static bool intel_iommu_is_attach_deferred(struct device *dev)
+>  	return translation_pre_enabled(info->iommu) && !info->domain;
+>  }
+>  
+> -/*
+> - * Check that the device does not live on an external facing PCI port that is
+> - * marked as untrusted. Such devices should not be able to apply quirks and
+> - * thus not be able to bypass the IOMMU restrictions.
+> - */
+> +/* Bypass quirks must not prevent later adversarial operation. */
+>  static bool risky_device(struct pci_dev *pdev)
+>  {
+> -	if (pdev->untrusted) {
+> +	if (pci_dev_default_is_restricted(pdev)) {
+>  		pci_info(pdev,
+> -			 "Skipping IOMMU quirk for dev [%04X:%04X] on untrusted PCI link\n",
+> +			 "Skipping IOMMU quirk due to trust policy [%04X:%04X]\n",
+>  			 pdev->vendor, pdev->device);
+>  		pci_info(pdev, "Please check with your BIOS/Platform vendor about this\n");
+>  		return true;
+> @@ -4124,9 +4120,6 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x163D, quirk_iommu_igfx);
+>  
+>  static void quirk_iommu_rwbf(struct pci_dev *dev)
+>  {
+> -	if (risky_device(dev))
+> -		return;
+> -
+>  	/*
+>  	 * Mobile 4 Series Chipset neglects to set RWBF capability,
+>  	 * but needs it. Same seems to hold for the desktop versions.
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index b486b8bbd1fcd..8be2a246d4903 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1879,7 +1879,7 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
+>  static int iommu_get_default_domain_type(struct iommu_group *group,
+>  					 int target_type)
+>  {
+> -	struct device *untrusted = NULL;
+> +	struct device *restricted = NULL;
+>  	struct group_device *gdev;
+>  	int driver_type = 0;
+>  
+> @@ -1901,14 +1901,15 @@ static int iommu_get_default_domain_type(struct iommu_group *group,
+>  		driver_type = iommu_get_def_domain_type(group, gdev->dev,
+>  							driver_type);
+>  
+> -		if (dev_is_pci(gdev->dev) && to_pci_dev(gdev->dev)->untrusted) {
+> +		if (dev_is_pci(gdev->dev) &&
+> +		    pci_dev_default_is_restricted(to_pci_dev(gdev->dev))) {
+>  			/*
+> -			 * No ARM32 using systems will set untrusted, it cannot
+> -			 * work.
+> +			 * No ARM32 using systems select a restricted trust
+> +			 * policy; it cannot work.
+>  			 */
+>  			if (WARN_ON(IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)))
+>  				return -1;
+> -			untrusted = gdev->dev;
+> +			restricted = gdev->dev;
+>  		}
+>  	}
+>  
+> @@ -1924,11 +1925,11 @@ static int iommu_get_default_domain_type(struct iommu_group *group,
+>  			driver_type = IOMMU_DOMAIN_IDENTITY;
+>  	}
+>  
+> -	if (untrusted) {
+> +	if (restricted) {
+>  		if (driver_type && driver_type != IOMMU_DOMAIN_DMA) {
+>  			dev_err_ratelimited(
+> -				untrusted,
+> -				"Device is not trusted, but driver is overriding group %u to %s, refusing to probe.\n",
+> +				restricted,
+> +				"Device trust policy restricts DMA, but driver is overriding group %u to %s, refusing to probe.\n",
+>  				group->id, iommu_domain_type_str(driver_type));
+>  			return -1;
+>  		}
+> diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
+> index 9cb23780093dd..c8c96acc26343 100644
+> --- a/drivers/pci/ats.c
+> +++ b/drivers/pci/ats.c
+> @@ -21,7 +21,7 @@ void pci_ats_init(struct pci_dev *dev)
+>  {
+>  	int pos;
+>  
+> -	if (pci_ats_disabled())
+> +	if (pci_ats_disabled() || pci_dev_default_is_restricted(dev))
+>  		return;
+>  
+>  	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ATS);
+> @@ -40,7 +40,7 @@ void pci_ats_init(struct pci_dev *dev)
+>   */
+>  bool pci_ats_supported(struct pci_dev *dev)
+>  {
+> -	if (!dev->ats_cap || dev->untrusted)
+> +	if (!dev->ats_cap)
+>  		return false;
+>  
+>  	if (dev->is_virtfn)
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index 7c6f2aba81443..b08adba03f96b 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -1016,8 +1016,9 @@ static void pci_std_enable_acs(struct pci_dev *dev, struct pci_acs *caps)
+>  	/* Upstream Forwarding */
+>  	caps->ctrl |= (dev->acs_capabilities & PCI_ACS_UF);
+>  
+> -	/* Enable Translation Blocking for external devices and noats */
+> -	if (pci_ats_disabled() || dev->external_facing || dev->untrusted)
+> +	/* Enable Translation Blocking when ATS is unavailable or restricted. */
+> +	if (pci_ats_disabled() || dev->external_facing ||
+> +	    !pci_dev_ats_permitted(dev))
+>  		caps->ctrl |= (dev->acs_capabilities & PCI_ACS_TB);
+>  }
+>  
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index 5b6960bbb35bc..607569c31b5b9 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -1738,24 +1738,24 @@ static void set_pcie_cxl(struct pci_dev *dev)
+>  
+>  }
+>  
+> -static void set_pcie_untrusted(struct pci_dev *dev)
+> +static void pci_set_default_trust_policy(struct pci_dev *dev)
+>  {
+> -	struct pci_dev *parent = pci_upstream_bridge(dev);
+> +	struct pci_dev *parent = pci_physfn(dev);
+> +
+> +	if (parent == dev)
+> +		parent = pci_upstream_bridge(dev);
+>  
+>  	if (!parent)
+>  		return;
 
-SGkgRG1pdHJ5LA0KDQpTb3JyeSB0byBib3RoZXIgYnV0IHRoaXMgcGF0Y2ggc2VyaWVzIGhh
-cyBiZWVuIGZsb2F0aW5nIGluIG1haWwgbGlzdCBmb3IgDQphIGxvbmcgdGltZS4uIEkgdGhp
-bmsgeW91ciByZXZpZXcgaXMgbmVlZGVkIGhlcmU/DQoNCkJlc3QgcmVnYXJkcywNClNoZW5n
-eXUNCg0K5ZyoIDIwMjYvOS8xMiAxMTowNCwgVmlja2kgUGZhdSDlhpnpgZM6DQo+IFRoaXMg
-aXMgYSBuZXcgdmVyc2lvbiBvZiB0aGUgcHJldmlvdXNseSBzdWJtaXR0ZWQgeGJveC1naXAg
-c2VyaWVzLg0KPiANCj4gVGhpcyBpbnRyb2R1Y2VzIGEgbmV3IGRyaXZlciBmb3IgdGhlIFhi
-b3ggT25lL1NlcmllcyBjb250cm9sbGVyIHByb3RvY29sLA0KPiBvZmZpY2lhbGx5IGtub3du
-IGFzIHRoZSBHYW1pbmcgSW5wdXQgUHJvdG9jb2wsIG9yIEdJUCBmb3Igc2hvcnQuDQo+IA0K
-PiBNaWNyb3NvZnQgcmVsZWFzZWQgZG9jdW1lbnRhdGlvbiBvbiAoc29tZSBvZikgR0lQIGlu
-IGxhdGUgMjAyNCwgdXBvbiB3aGljaA0KPiB0aGlzIGRyaXZlciBpcyBiYXNlZC4gVGhvdWdo
-IHRoZSBkb2N1bWVudGF0aW9uIHdhcyBpbmNvbXBsZXRlLCBpdCBzdGlsbA0KPiBwcm92aWRl
-ZCBlbm91Z2ggaW5mb3JtYXRpb24gdG8gd2FycmFudCBhIGNsZWFuIHN0YXJ0IG92ZXIgdGhl
-IHByZXZpb3VzLA0KPiBpbmNvbXBsZXRlIGltcGxlbWVudGF0aW9uLg0KPiANCj4gVGhpcyBk
-cml2ZXIgaXMgYWxyZWFkeSBhdCBmZWF0dXJlIHBhcml0eSB3aXRoIHRoZSBHSVAgc3VwcG9y
-dCBpbiB4cGFkLA0KPiBhbG9uZyB3aXRoIHNldmVyYWwgbW9yZSBlbmhhbmNlbWVudHM6DQo+
-IA0KPiAtIFByb3BlciBzdXBwb3J0IGZvciBwYXJzaW5nIG1lc3NhZ2UgbGVuZ3RoIGFuZCBm
-cmFnbWVudGVkIG1lc3NhZ2VzDQo+IC0gTWV0YWRhdGEgcGFyc2luZywgYWxsb3dpbmcgZm9y
-IGF1dG8tZGV0ZWN0aW9uIG9uIHZhcmlvdXMgcGFyYW1ldGVycywNCj4gICAgaW5jbHVkaW5n
-IHRoZSBwcmVzZW5jZSBhbmQgbG9jYXRpb24gaW4gdGhlIG1lc3NhZ2Ugb2YgdGhlIHNoYXJl
-IGJ1dHRvbiwNCj4gICAgYXMgd2VsbCBhcyBkZXRlY3Rpb24gb2Ygc3BlY2lmaWMgZGV2aWNl
-IHR5cGVzDQo+IC0gQ29udHJvbGxhYmxlIExFRCBzdXBwb3J0DQo+IC0gSElEIHBhc3N0aHJv
-dWdoIGZvciB0aGUgQ2hhdHBhZA0KPiAtIEJhdHRlcnkgaW5mb3JtYXRpb24gc3VwcG9ydA0K
-PiAtIEFyY2FkZSBzdGljayBzdXBwb3J0DQo+IC0gUmFjaW5nIHdoZWVsIHN1cHBvcnQNCj4g
-LSBTdXBwb3J0IGZvciB0aGUgc2VjdXJpdHkgZmxvdywgYWxsb3dpbmcgdXNlIHdpdGggd2ly
-ZWxlc3MgY29udHJvbGxlcnMNCj4gICAgdGhhdCBpbmNsdWRlIHRoZWlyIG93biBkb25nbGVz
-LiAoVGhpcyBkb2VzIG5vdCBpbmNsdWRlIHN1cHBvcnQgZm9yIHRoZQ0KPiAgICBmaXJzdC1w
-YXJ0eSBkb25nbGUgeWV0LikNCj4gDQo+IFRoZSBmcmFtZXdvcmsgc2V0IG91dCBpbiB0aGlz
-IGRyaXZlciBhbHNvIGFsbG93cyBmdXR1cmUgZXhwYW5zaW9uIGZvcg0KPiBzcGVjaWFsaXpl
-ZCBkZXZpY2UgdHlwZXMgYW5kIGFkZGl0aW9uYWwgZmVhdHVyZXMgbW9yZSBjbGVhbmx5IHRo
-YW4geHBhZC4NCj4gDQo+IEZ1dHVyZSBwbGFucyBpbmNsdWRlOg0KPiANCj4gLSBBZGRpbmcg
-c3VwcG9ydCBmb3IgbW9yZSBkZXZpY2UgdHlwZXMsIHN1Y2ggYXMgZmxpZ2h0IHN0aWNrcy4N
-Cj4gLSBFeHBvc2luZyBhIHJhdyBjaGFyYWN0ZXIgZGV2aWNlIHRvIGVuYWJsZSBzZW5kaW5n
-IHZlbmRvci1zcGVjaWZpYw0KPiAgICBjb21tYW5kcyBmcm9tIHVzZXJzcGFjZS4NCj4gLSBF
-dmVudCBsb2dnaW5nIHRvIGVpdGhlciBzeXNmcyBvciBkbWVzZy4NCj4gLSBTdXBwb3J0IGZv
-ciB0aGUgaGVhZHBob25lIGphY2suDQo+IA0KPiBUaGlzIHZlcnNpb24gY2xlYW5zIHVwIG1v
-cmUgaXNzdWVzIGZvdW5kIGJ5IHNhc2hpa28uDQo+IA0KPiBWaWNraSBQZmF1ICgxMik6DQo+
-ICAgIElucHV0OiB4Ym94X2dpcCAtIEFkZCBuZXcgZHJpdmVyIGZvciBYYm94IEdJUA0KPiAg
-ICBJbnB1dDogeHBhZCAtIFJlbW92ZSBYYm94IE9uZSBzdXBwb3J0DQo+ICAgIElucHV0OiB4
-Ym94X2dpcCAtIEFkZCBjb250cm9sbGFibGUgTEVEIHN1cHBvcnQNCj4gICAgSW5wdXQ6IHhi
-b3hfZ2lwIC0gQWRkIEhJRCByZWxheWluZw0KPiAgICBJbnB1dDogeGJveF9naXAgLSBBZGQg
-YmF0dGVyeSBzdXBwb3J0DQo+ICAgIElucHV0OiB4Ym94X2dpcCAtIEFsbG93IHNlbmRpbmcg
-ZnJhZ21lbnRlZCBhbmQgQUNNRSBtZXNzYWdlcw0KPiAgICBJbnB1dDogeGJveF9naXAgLSBB
-ZGQgc2VjdXJpdHkgaW1wbGVtZW50YXRpb24gZnJvbSB4b25lDQo+ICAgIElucHV0OiB4Ym94
-X2dpcCAtIEFkZCBhcmNhZGUgc3RpY2sgc3VwcG9ydA0KPiAgICBJbnB1dDogeGJveF9naXAg
-LSBBZGQgc3VwcG9ydCBmb3IgUERQIGd1aXRhciBjb250cm9sbGVycw0KPiAgICBJbnB1dDog
-QWRkIEFCU19DTFVUQ0gsIEhBTkRCUkFLRSwgYW5kIFNISUZURVINCj4gICAgSElEOiBNYXAg
-bW9yZSBhdXRvbW9iaWxlIHNpbXVsYXRpb24gaW5wdXRzDQo+ICAgIElucHV0OiB4Ym94X2dp
-cCAtIEFkZCB3aGVlbCBzdXBwb3J0DQo+IA0KPiAgIERvY3VtZW50YXRpb24vaW5wdXQvZGV2
-aWNlcy94cGFkLnJzdCAgICAgICAgICB8ICAgMTcgKy0NCj4gICBNQUlOVEFJTkVSUyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICA2ICsNCj4gICBkcml2ZXJzL2hp
-ZC9oaWQtZGVidWcuYyAgICAgICAgICAgICAgICAgICAgICAgfCAgIDE2ICstDQo+ICAgZHJp
-dmVycy9oaWQvaGlkLWlucHV0LmMgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiArDQo+
-ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9LY29uZmlnICAgICAgICAgICAgICAgIHwgICAg
-MiArDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9NYWtlZmlsZSAgICAgICAgICAgICAg
-IHwgICAgMSArDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9naXAvS2NvbmZpZyAgICAg
-ICAgICAgIHwgICAyNCArDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9naXAvTWFrZWZp
-bGUgICAgICAgICAgIHwgICAgOCArDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9naXAv
-Z2lwLWFyY2FkZS1zdGljay5jIHwgIDE3MyArDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGlj
-ay9naXAvZ2lwLWNvcmUuYyAgICAgICAgIHwgMzMyMCArKysrKysrKysrKysrKysrKw0KPiAg
-IGRyaXZlcnMvaW5wdXQvam95c3RpY2svZ2lwL2dpcC1kcml2ZXJzLmMgICAgICB8ICAyMjIg
-KysNCj4gICBkcml2ZXJzL2lucHV0L2pveXN0aWNrL2dpcC9naXAtcGRwLWphZ3Vhci5jICAg
-fCAgMTI5ICsNCj4gICBkcml2ZXJzL2lucHV0L2pveXN0aWNrL2dpcC9naXAtc2VjdXJpdHku
-YyAgICAgfCAgODEwICsrKysNCj4gICBkcml2ZXJzL2lucHV0L2pveXN0aWNrL2dpcC9naXAt
-d2hlZWwuYyAgICAgICAgfCAgMzUxICsrDQo+ICAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9n
-aXAvZ2lwLmggICAgICAgICAgICAgIHwgIDQ0MSArKysNCj4gICBkcml2ZXJzL2lucHV0L2pv
-eXN0aWNrL3hwYWQuYyAgICAgICAgICAgICAgICAgfCAgNjg0ICstLS0NCj4gICBpbmNsdWRl
-L3VhcGkvbGludXgvaW5wdXQtZXZlbnQtY29kZXMuaCAgICAgICAgfCAgICAzICsNCj4gICBp
-bmNsdWRlL3VhcGkvbGludXgvaW5wdXQuaCAgICAgICAgICAgICAgICAgICAgfCAgICAxICsN
-Cj4gICAxOCBmaWxlcyBjaGFuZ2VkLCA1NTEzIGluc2VydGlvbnMoKyksIDY5NyBkZWxldGlv
-bnMoLSkNCj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9pbnB1dC9qb3lzdGljay9n
-aXAvS2NvbmZpZw0KPiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L2pveXN0
-aWNrL2dpcC9NYWtlZmlsZQ0KPiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0
-L2pveXN0aWNrL2dpcC9naXAtYXJjYWRlLXN0aWNrLmMNCj4gICBjcmVhdGUgbW9kZSAxMDA2
-NDQgZHJpdmVycy9pbnB1dC9qb3lzdGljay9naXAvZ2lwLWNvcmUuYw0KPiAgIGNyZWF0ZSBt
-b2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L2pveXN0aWNrL2dpcC9naXAtZHJpdmVycy5jDQo+
-ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaW5wdXQvam95c3RpY2svZ2lwL2dpcC1w
-ZHAtamFndWFyLmMNCj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9pbnB1dC9qb3lz
-dGljay9naXAvZ2lwLXNlY3VyaXR5LmMNCj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVy
-cy9pbnB1dC9qb3lzdGljay9naXAvZ2lwLXdoZWVsLmMNCj4gICBjcmVhdGUgbW9kZSAxMDA2
-NDQgZHJpdmVycy9pbnB1dC9qb3lzdGljay9naXAvZ2lwLmgNCj4gDQoNCg==
+Hi Leon,
 
---------------QAiOFZAMExEvWBBxAELL0Twv--
+The default policy here works for physical hierarchies, but there's no
+opportunity for a paravirtual host bridge to participate in the trust
+resolution when the host bridge driver itself knows the appropriate
+trust level for a device.
 
---------------Ol50KTEqWcN1x6Wdla0X4FVI
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Could we add an optional host bridge callback?
 
------BEGIN PGP SIGNATURE-----
+    struct pci_host_bridge {
+        ...
+        int (*trust_resolve)(struct pci_host_bridge *bridge,
+                     struct pci_dev *dev,
+                     const struct device_driver *drv,
+                     enum device_trust_policy policy,
+                     enum device_trust_level *level);
+    };
 
-iQIzBAEBCgAdFiEEndez/blurJ1OdxJq0EdkUReHwWwFAmr7Q2IACgkQ0EdkUReH
-wWy3MA/9HI8va69NrU2pEADGA6eZ5P3ieEp9tukXNL15zhS6cv+0GsM/Lb/9Um9I
-AXUlGZtM7w+TuobUT1yA53W7z+URCUOmCwN/tN9bokY7YfM3CD7QZU6p4Lst8jRK
-+HIme9aFmoM+pegZQWpw82wlxfc307VHy0pcD5vwXMQuDfZk6+ncPJrDl37oFp9U
-Iivg6F7C+2XmWhYk4XWS1ZdcaXtyj2hwGLW6gc8IapPA77BcJ8/nzT5zhztzyff9
-OTHYIIMExtxrqXNkDWF2bWSdaqJlCgKXiyQ2ltXiU3FMTAAFhnx/BgfidlCdqXtj
-kApsAw9c0H1HyHMjvy4wJv/PAzYlaAn0jtm3B56/WnWmWD2gHTIk/4f3S1hXSPPX
-3zlE/CpvuBhwbmwAhI3vGRaQwuCkNRgOS6qLIoEZE+aLRlPL5PGANesY7WvAxCNm
-2GW5hEnSnCgi6m790qnIEoR+1D/CnXO4os7E9ECOXRWR+pWEUDu/VPO/KYbZhP6U
-qfRn+Gee3APB2Er6i2AGp9G3hS+4uhwEY/P8HMNu1xRwCxvzQ2beQA4jZJu4d7pk
-lJeh0Kk5v2OQkZgIcFMl29Gkp5jHo9n+A5EAwgMGcbAXOkQsj5StDX7IdGS2C1MN
-xTPgLE+i6spo1GBrs2Us9SW7fdgcBttU4ANNFzUGqzmTEGjtZf8=
-=xALV
------END PGP SIGNATURE-----
+An implementation of trust_resolve() in pci_bus_type could default to
+calling the hook and fall back to the current default policy when the
+host bridge does not provide a callback.
 
---------------Ol50KTEqWcN1x6Wdla0X4FVI--
+My scenario is pci-hyperv in a confidential VM with a paravisor. The
+paravisor is inside the guest's trust boundary and owns TDISP. It locks,
+attests and accepts the device, then answers a VMBus query describing
+which BAR ranges are private and whether the device's DMA may target
+private memory. Before a driver can bind pci-hyperv has to:
+
+  - query the paravisor,
+  - refuse to operate the device if the query failed or if the response
+    is invalid,
+  - decide whether the device may operate.
+
+The modular host bridge driver in this scenario needs a hook to be able
+to participate in trust resolution.
+
+I'm also looking for the right place to setup MMIO and configure DMA
+in my scenario. Let me know if you have guidance.
+
+--
+Regards,
+Kameron
+
+
+> -	/*
+> -	 * If the upstream bridge is untrusted we treat this device as
+> -	 * untrusted as well.
+> -	 */
+> -	if (parent->untrusted) {
+> -		dev->untrusted = true;
+> +
+> +	if (device_policy_is_adversarial(&parent->dev)) {
+> +		dev->dev.trust_policy = DEVICE_TRUST_POLICY_ADVERSARY;
+>  		return;
+>  	}
+>  
+>  	if (arch_pci_dev_is_removable(dev)) {
+> -		pci_dbg(dev, "marking as untrusted\n");
+> -		dev->untrusted = true;
+> +		pci_dbg(dev, "setting adversarial trust policy\n");
+> +		dev->dev.trust_policy = DEVICE_TRUST_POLICY_ADVERSARY;
+>  	}
+>  }
+>  
+> @@ -2082,7 +2082,7 @@ int pci_setup_device(struct pci_dev *dev)
+>  
+>  	set_pcie_cxl(dev);
+>  
+> -	set_pcie_untrusted(dev);
+> +	pci_set_default_trust_policy(dev);
+>  	device_trust_init(&dev->dev);
+>  
+>  	/* "Unknown power state" */
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index 7f1f47ea2ee41..9ed3e7660bab2 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -5525,8 +5525,8 @@ static void pci_quirk_enable_intel_rp_mpc_acs(struct pci_dev *dev)
+>   * Currently this quirk does the equivalent of
+>   * PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF
+>   *
+> - * TODO: This quirk also needs to do equivalent of PCI_ACS_TB,
+> - * if dev->external_facing || dev->untrusted
+> + * TODO: This quirk also needs to do the equivalent of PCI_ACS_TB when the
+> + * device is external-facing or ATS is restricted by trust policy.
+>   */
+>  static int pci_quirk_enable_intel_pch_acs(struct pci_dev *dev)
+>  {
+> @@ -5567,7 +5567,8 @@ static int pci_quirk_enable_intel_spt_pch_acs(struct pci_dev *dev)
+>  	ctrl |= (cap & PCI_ACS_CR);
+>  	ctrl |= (cap & PCI_ACS_UF);
+>  
+> -	if (pci_ats_disabled() || dev->external_facing || dev->untrusted)
+> +	if (pci_ats_disabled() || dev->external_facing ||
+> +	    !pci_dev_ats_permitted(dev))
+>  		ctrl |= (cap & PCI_ACS_TB);
+>  
+>  	pci_write_config_dword(dev, pos + INTEL_SPT_ACS_CTRL, ctrl);
+> diff --git a/include/linux/device.h b/include/linux/device.h
+> index e3e7457cd50f4..770c3040fd2b9 100644
+> --- a/include/linux/device.h
+> +++ b/include/linux/device.h
+> @@ -933,6 +933,11 @@ static inline bool device_iommu_mapped(struct device *dev)
+>  	return (dev->iommu_group != NULL);
+>  }
+>  
+> +static inline bool device_policy_is_adversarial(const struct device *dev)
+> +{
+> +	return READ_ONCE(dev->trust_policy) == DEVICE_TRUST_POLICY_ADVERSARY;
+> +}
+> +
+>  static inline bool device_policy_is_disabled(const struct device *dev)
+>  {
+>  	return READ_ONCE(dev->trust_policy) == DEVICE_TRUST_POLICY_DISABLED;
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index aa3765a20a96c..087c63b177c85 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -490,14 +490,6 @@ struct pci_dev {
+>  	unsigned int	shpc_managed:1;		/* SHPC owned by shpchp */
+>  	unsigned int	is_thunderbolt:1;	/* Thunderbolt controller */
+>  	unsigned int	is_cxl:1;               /* Compute Express Link (CXL) */
+> -	/*
+> -	 * Devices marked being untrusted are the ones that can potentially
+> -	 * execute DMA attacks and similar. They are typically connected
+> -	 * through external ports such as Thunderbolt but not limited to
+> -	 * that. When an IOMMU is enabled they should be getting full
+> -	 * mappings to make sure they cannot access arbitrary memory.
+> -	 */
+> -	unsigned int	untrusted:1;
+>  	/*
+>  	 * Info from the platform, e.g., ACPI or device tree, may mark a
+>  	 * device as "external-facing".  An external-facing device is
+> @@ -616,6 +608,28 @@ static inline struct pci_dev *to_pci_dev(const struct device *dev)
+>  {
+>  	return container_of(dev, struct pci_dev, dev);
+>  }
+> +
+> +static inline bool
+> +pci_dev_default_is_restricted(const struct pci_dev *pdev)
+> +{
+> +	enum device_trust_policy policy = READ_ONCE(pdev->dev.trust_policy);
+> +
+> +	return policy == DEVICE_TRUST_POLICY_DISABLED ||
+> +	       policy == DEVICE_TRUST_POLICY_ADVERSARY;
+> +}
+> +
+> +static inline bool pci_dev_ats_permitted(const struct pci_dev *pdev)
+> +{
+> +	enum device_trust_level level = device_get_trust_level(&pdev->dev);
+> +	enum device_trust_policy policy = READ_ONCE(pdev->dev.trust_policy);
+> +
+> +	if (level == DEVICE_TRUST_DISABLED)
+> +		return policy != DEVICE_TRUST_POLICY_ADVERSARY &&
+> +		       policy != DEVICE_TRUST_POLICY_DISABLED;
+> +
+> +	return level == DEVICE_TRUST_FULL;
+> +}
+> +
+>  #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+>  #define for_each_pci_dev_reverse(d) \
+>  	while ((d = pci_get_device_reverse(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+> 

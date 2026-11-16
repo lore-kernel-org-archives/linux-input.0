@@ -1,131 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.181
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794840359;
-	b=CMj3x1gEveyjDa2GndWarBcUVhUc3CglN//8itpODcxbl+FmH02exCzEzNWgLcCH42fK
-	 nFa1hpdLxF29jwVaULviV8Gve8XyxIdqTzcdKBHRonEFVxXktKEjgYTMWstk6e6FGJd6A
-	 K+b0I4qVz+ydIQl5AiYgSCKAWgkk5jOTffThGVhIrLiQDfYCFklGubRcoWfwh5C5m2SOU
-	 udhwpGhgq5RZwWctDWs3YgLrocGTv2G0x80EqLtCi+fkBMSjNpC9pZ2AGcDGkYqSUZmyQ
-	 xzxE1N4YWSVZfb7YYjY8PH1ZryL22KY9/8VTsZgAoHhyNBK8586BZspsjvNyyzpLNiQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794840359;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.50
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794840849;
+	b=T8FHwU0Cvq7M2LcDnp2RgiiBGAyIwGVK00DsAVfeD2lHeTx4xe+YAF/pQga7YCNfYYKL
+	 O6gdy+SsPi+Mci3+XRB7yf64HzZ3tPp5lKSAY9hqSrATPe2ikCqnRZwGXnTC1RPopTnOc
+	 ugI2nBAgFkEgoPwB42jl+8glmAdYv7HTOq9NLdCwkN7PWjkcWjDBzxx08qyeiO8Mr1mJk
+	 egAdRffNIzmnCHZmMDmVc+jdZeC8iWMjbQPh2jrl50+aEPz/wAIAD9HsUupn4t4n9jn6E
+	 zvl8mEJhq+ByWZT3ii/seGXHBziyTGhjyt6M/PpJr4I5lXaCH5NDE9zIiJij5DENATg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794840849;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=9cuLg5FPbuoxv94oaCvgpjnZpkxbSwN3Cw2dU0btsKg=;
-	b=c7W3sCgj/oM0TDgih5CzuRTQxs2P/WUTFs4p05tcKVOY2nTsBClBT2h4VFjVeNOlXVbj
-	 A4X01c5s1hasPBy4rdzZfkcQ25D2tDOMmBCj3u1wHMX4qdU3L5wmQQ4tqnVxEYcA9APtL
-	 GmyqHHteu8GSEhIAfu+iXfVzfv+lsdOvO5oy2OBonJ4DaZ0tHwfLfdK5C2m3au1dwMaTT
-	 ecIDMDNx2jyzHZci2sEvg5eHqWxqZAUg1sIXJhuSvBIDRJ40Pth52kPw7zpkhZDt8cuQc
-	 h55EJ8uRmMoM+G8/ec6CfxIYbvDShKHonAMQgMRcwOeha/UXdCap0Du7RzuNeErGHmg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=ziepe.ca;
-	spf=pass smtp.mailfrom=ziepe.ca;
-	dkim=pass header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=dLdJyonb;
-	arc=none smtp.remote-ip=209.85.222.181
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Content-Type;
+	bh=WIApOm7lPIj6q7bZuws0uGQ6LAfOH5frDdzHGgC6ryg=;
+	b=lZ/no8QPkYeLi+cCgBSMXJIy5XSpVcYaN7PS6MlXHi5QgUfNoRfZNpoZligIxMMK5qWP
+	 8A5VAMLHEeFDofzBIJlGbwzaWnsIkOC7l/X0vKxpaW7kP3mkiQYZQMnMmlSEFZEinwaBy
+	 Wq6dgxY7lTrDoCnbPkDabtx/Atc/nwyj0s24DLpJuZ8TzfOi28cwKWtXCSLxKldPvmX2z
+	 ypUENTDXnW/T62uxcsiI2t8yo3540Fq4uxCRdZXhr5lucN8O0RCQxP9aHAkiCoqWwnph8
+	 6lMDoRBy8Y1bdGbluNWg5oNz986yub3y9yNQEm7d+Sa2OuviTvHyU0PQgkdmU9WZaXg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q7fewveR;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.50
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92037606A337
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 14:45:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 92037606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABE7606A32F
+	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 14:54:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BABE7606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=dLdJyonb
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-9496400270fso215429285a.1
-        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 06:45:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q7fewveR
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5be3ed646a5so5019909e87.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 06:54:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794840847; cv=none;
+        d=google.com; s=arc-20260327;
+        b=f80YBJhJy8NRBPd7ShyavaEvxHjGQh2iw+RjuaJivFeKSMzELvvYkGgLR4bgqGg49W
+         zNujcMf04MbdFc6KMPC49QfKc9aWdN7kX3xc/xKQ2seo9VaBFt7qK5ULFs69PbS4p86u
+         TsbhmN6Lqb6ixYkHC8MhZV3xArKRq4k3teT7jcKQECvGA8gIPCU5L6y0yXs4UGT43qxG
+         2h+wS3/OO2cDBINbkZJSexAbVjSkCqgT6ADiqFWypMkW9RnthhseG5sNT/ogi+RREZxv
+         z0I3cpEmL+ZQWv8adXAV9rZhKL5rTaOnW5uiWuOL+I32hQAgGg2U1fkakvyOc+728q2k
+         S0xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=WIApOm7lPIj6q7bZuws0uGQ6LAfOH5frDdzHGgC6ryg=;
+        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
+        b=cU1FnoG/vL1rir5LW9WEB0XpSzLxMfEz7Mf+vuhpWDBPVCPbMrjoplZrCq3C2ZcGyV
+         5hgzNh5M58ZU7KQ2T8E3IdFIzCFIPn12AMhzNogl8POJoRiKAsvqT9xNaEdRFP35OD1u
+         AyJRrqcvjucd845Tidmp/qh6H5V+RWL4ds3LuWF4vs7IIUtvGtgU2esS/xWYO8rmrBn7
+         5JrW8qqgVQRD7BhtY6BhbRPjufveYSg4M4UKZJ7bNxJrnShWc2PXyUT5jG2TrGzO3KG0
+         maNXyyYpeKijYm9gwuXsT+nI04DHlj1Verrga/seEDJ2vVL75eF42oEodFNn8Qd7r2od
+         SWyQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1794840358; x=1795445158; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9cuLg5FPbuoxv94oaCvgpjnZpkxbSwN3Cw2dU0btsKg=;
-        b=dLdJyonbx/GT9GciisxRrbnKJNPmXRO37SMr0DcL0fOWPt4npP7q6oSEFPRBxyhYBG
-         VwQv88je59xwJGF1tzvO02VHIK2UoI2gFnHM+RoqxVUasg9DyQA32ToeKqV0tOS8H2/F
-         utZ+RQHXMciPdHoqR96pmDBV9oFbAflIPtcSFhX2+r9dDE0rLhaGZCPsZ1j517doL9zB
-         RpfAbapy98a71EK1akS809jjM1beUX7TmDUaCrtYNcz/JJbJ2sGjj2UfCKl0NoQ68uWW
-         NnufbW7FWZvXAJBZh4GXQ7J60xB7eIn/T76+zn9Pq4vvTPBJTSoxoiKRgL0R3QgrjVbx
-         3mVQ==
+        d=gmail.com; s=20260707; t=1794840847; x=1795445647; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=WIApOm7lPIj6q7bZuws0uGQ6LAfOH5frDdzHGgC6ryg=;
+        b=Q7fewveRrehEjRutx/AQAP9nGicOInWay2N1Y2BadIW+YkSHjhD41nWZPNZcVJDjxB
+         C2ccC8ZxqkAsjNjgz3gQOgTU7kUIdYN0u7ZssRxHdFp+lPYKDE/ChehptDrukAryrHbx
+         8zyuLBsjdAQQuvJG/OuTAawdcAiQiyU9HctzAQjjAInYwJt+QaPO8WAUdsFHcx+i24Bh
+         xwZyi5HXMKBuOLGKgYe0IaqAa8UTNgaf79FEvGlU9Mn/JhkPNrGOSdnyBFqZ6jA4LdTd
+         uSC36/mx0U4dvBQqo3ZqSOtqXNhd0gLB/F6aVebDDWyv/goFQwbDpeWrmH/4pI83Swx9
+         Q2NQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794840358; x=1795445158;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1794840847; x=1795445647;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9cuLg5FPbuoxv94oaCvgpjnZpkxbSwN3Cw2dU0btsKg=;
-        b=NFfNx1HjJKVcYk7joF7ocXbQU7xw324skmpI1cgOWDU2quuBISCd9NUeL1p65LYA2i
-         Q9bdumK0vDPB63Sa5aYALJDCqlJKX6qP0nIZqu9UN1hIT9Yhgu5cRkRrINK738VZAKkW
-         NHW6NHiM6jKaus7VDNpljR4CbUQRgfTW1AkIcjyAFS19EobQGLddMD2o+T5D3ulFVbm+
-         soLg1Y0Rvli/o+6uNaP4BCFvXDWAv1V/N1EQUlUZL6S9oz6b0K2FBnx+5bPe282FMBwk
-         ZGlLeLx2As03PD2XTi9kd1kMpL8awxoniq0X20YegTins1ndvgZwsdLXHHQ3grrE1lav
-         F3uQ==
-X-Forwarded-Encrypted: i=1; AL+hErFudelFd5TcFApPjUrt0BgMKJ7jIrXStBE6hu94wKTq6V7qL9xR3uMps0QtfG7xHXBz9FUpqhvdn/Ij6w==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/HhbaEHzxTjf3BJO4bc+TGliJ7dDm3nZ2PSOUcxf9pRuNOxGzd
-	eFp4GWCJoWAUuMgKLK9md64eLJTAstJaejFZ6q98ffULvx/8PWlR3VrF4ahWM8jZMcY=
-X-Gm-Gg: AYBFou2prswe7WrvJIWjNwEykKnnyHXIlEG1enceKNppZboTfxnlWuEdiZvh9noAS3h
-	g+XdlKJVT0SvLpKIpuMRG9qGKnX6unC6n27vaETmNChAZO+JkRR+dykK1CKJ/CbCFCcuW1qflbw
-	D5L5PShAMwuHxtMT/g7/bB40v5GnrXfanI8DyNRFCKL45jrvx7il4Iu+PrSZeCfuc4KAai5h3hg
-	r4OP/O4LDlh4XQe3E02rum7D19oW8JVBp8LB52tLtM3Edf1+/imgImCndPg1IiwBCsZ9iLzlWpa
-	TjrPqzo0r9X2TPC9eV8PmKHH/elxQiy8eeIfVkMEsHGlfBrA4QtolGVrqAWWUHFWuGSc8BcBWn0
-	7HJlWmVD7zzVPq0HA2ezmQdhWkrzv2w6S5cMMVAzHouU6SdJ64t3ywekgYiILCoV2KQbOTapOCE
-	EwPKwG8+ULjS6z2yrAUBfLNN4Bhzyo7iCHYgHFJ3ac7ixXMI0KPhlQekP0G5+6SPtXfFfRTTxaz
-	Q5V3bVQzx5MiYQ1XwozQRVkN6piboxaToLmYtGDd6mMyWc+qKu4mOxKcMpUHxBWen8iu/7jbkAr
-	G2SzRw==
-X-Received: by 2002:a05:620a:a41a:20b0:949:5872:be1b with SMTP id af79cd13be357-9495872d3c0mr1015844485a.39.1794840357475;
-        Mon, 16 Nov 2026 06:45:57 -0800 (PST)
-Received: from ziepe.ca ([142.166.156.71])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c836079sm858473985a.18.2026.11.16.06.45.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 06:45:56 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1xSxxz-00000009V73-1sJy;
-	Mon, 16 Nov 2026 10:45:55 -0400
-Date: Mon, 16 Nov 2026 10:45:55 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev
-Subject: Re: [PATCH 17/17] PCI: Replace untrusted state with device trust
-Message-ID: <20261116144555.GM2532299@ziepe.ca>
-References: <20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com>
- <20261105-device-trust-core-v1-17-1e536825b4eb@nvidia.com>
- <yq5amrr8yldi.fsf@kernel.org>
- <20261116132046.GI2532299@ziepe.ca>
- <20261116144103.GU11319@unreal>
+        bh=WIApOm7lPIj6q7bZuws0uGQ6LAfOH5frDdzHGgC6ryg=;
+        b=tR6M2CCDMAHfN/+akuoIBvsF2kLigGKvAKA3qhauL1c7I2p8pp6z+SwsYYjObzajXc
+         YKG5TYPGSAj/imCbU/RKOH27//DVfDO7J2iCHd9knyEvw1jxba5mf72h7zCwu6VUxjYy
+         MScOZImknSH7/neet5xSblCb0oR0PrGfCGROcQaKa0UlaEiHLd41MhYuItP9YeRF0zGk
+         T0ZbzPvKIScXaA+RPY1PXBTWa5XX8/6E8RQm78G26eyl4N3OQhgwuNY4dvKppKunbay1
+         uRKzpyYoDthRlaOSTRCxo3/hHvg69fTkoY2qyaY0OEm3mZx+7Eenp4gIzZzNK1oByGoT
+         IE+A==
+X-Gm-Message-State: APuU4Z/GPYXhbPGwD+QQrzQXkUB0AZ2i4QPndydZuei9SBF8lnHSGnhA
+	94czeBQILQeXxyawB3l9YIu9kvD8yQEYWAHb6lMheJnW1D6iN0yqL2TFaKXZj8gAmKgdC+jqtrM
+	gtT8bTCQVCSmSXAaTuTnZ6aJHohMd3lLZACG1
+X-Gm-Gg: AYBFou3yyWBg/Y8RexYGJvz1qxKOTAitBZMqaRTtQPBG5e6iAnEbZi3NQP7e0DNOmZY
+	9NJ6RMwZrzQggrNdBQL9m2vCTNEFimI8CM8TPrmWfrv5l1wuAZqzGkHCsQy1f0t6O+YJ4OJsy3U
+	yLY4gAgMyW1dTDgga5xbpjge7V3O6AlWGp890JiG9SBRoXasBGcMbU69MeQiJDuKnIVYHESdQke
+	z2nczM8z45e9tKri0RIcM5fid/lZZODnzVg7ztMqiAXPHil+TXe0B5tti0h122VPLUygXQlJ5eQ
+	GazT+9Y8mw2l3c1WiE7ps6gwswWtBkFDa4vFMI93RzY0srdFWQ86EQQJx5qhvszT5j3OlNFPST9
+	stv6CYTwf5jXqr/x13dV5bsRz41yvtjFbSjwNU5/AXP8UV3OCVcU7WBy2f+MzlTHTeU9P
+X-Received: by 2002:a05:6512:a84:b0:5c1:57b6:5ffd with SMTP id
+ 2adb3069b0e04-5c17043606emr4019894e87.0.1794840846748; Mon, 16 Nov 2026
+ 06:54:06 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -135,18 +99,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261116144103.GU11319@unreal>
+From: Jakob Golasowski <j.golasowski@gmail.com>
+Date: Mon, 16 Nov 2026 15:53:55 +0100
+X-Gm-Features: Aa3M54rhwFZ1ChA4CYIg-DW5eYt5lhHOO3m9Nofa20nPZhXmAH0Uodd-oP1P96E
+Message-ID: <CA+5f=NYJA0BtUMtRs6ZpLxgngjd1FWjma1UvpB_9cv7zwHV3qQ@mail.gmail.com>
+Subject: Input: synaptics - Dynabook/Toshiba Portege X30-D (PNP TOS0214):
+ AccuPoint and buttons not working
+To: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Nov 16, 2026 at 04:41:03PM +0200, Leon Romanovsky wrote:
-> > I think it should only be for the duration of a bound driver?
-> 
-> For now, I decided to disallow state changes because the IOMMU may outlive the
-> bound device. Unbinding does not fully reset the device, so we must quiesce it
-> to ensure complete security.
+Hello,
 
-When we refine the lifecycle for the iommu this issue should go away
-too
+On my Toshiba Portege X30-D (PNP ID TOS0214, not TOS0213 as in the
+existing InterTouch quirk) the AccuPoint and the two physical buttons
+above the touchpad do not work on Linux (Mint, kernel 7.0.0-43-generic).
+Both work fine under Windows. In the BIOS setup the buttons work, the
+stick does not. The touchpad itself works.
 
-Jason
+Touchpad (dmesg):
+  psmouse serio1: synaptics: Your touchpad (PNP: TOS0214 PNP0f03) says
+  it can support a different bus. ...
+  Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
+  caps: 0xf00123/0x840300/0x12e800/0x200000,
+  board id: 3323, fw id: 2553465
+
+With psmouse.synaptics_intertouch=1 the touchpad is bound via
+rmi4_smbus (product TM3323-001). RMI functions present: fn01, fn12,
+fn17, fn30, fn34, fn54, fn55 (no fn03). No stick or button events
+appear in libinput debug-events. rmi_f34 probe fails with
+"Unrecognized bootloader version: 13" (probably unrelated).
+
+Without the parameter (plain PS/2), i8042.debug shows:
+- pressing the two buttons sends packets like "84 0a 00 c4 00 00"
+  (second byte 08/09/0a/0b for none/left/right/both), which are not
+  turned into events, and no extra input device is created;
+- moving the stick produces no packets at all.
+
+So the buttons arrive over the touchpad's PS/2 stream, but the stick
+seems to need to be enabled first. The patch for TM3322 / TOS0213
+does not fix this variant (TM3323 / TOS0214).
+
+I can test patches and provide more logs on request.
+
+Thanks,
+Jakob Golasowski

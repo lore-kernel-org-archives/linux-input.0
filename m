@@ -1,66 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.14
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794817663;
-	b=E59Hw4AEFs/qQRAaYbkqc28JTZjtUOICGufYynIvk4OCWGLSBXjrTvo9D2XfZQU4yFYR
-	 lGzWvSFT820wxO+JRjl0GqAm2dOqlNtG1vvZnmbQgnzS46bW660qdlwJLMuJ/NIIseT+g
-	 uHzkprZhzxDkU15w9F0Z6iNoLzIUDRGowxECK1w//dIE7FBV1neY4z595Vgoagw/fW8SC
-	 itZ20Js09/b1z9ueCa7q/L5z4L+A77L1B52f4MyesFq46ifT0MpTsSen0GZwFktphDHm5
-	 Hbg9S4UPhQGaEz8HlXkE3lAfR9WcxMScQHSl6VmlKkL0QJIUpez/PAbbbvaIUL1eLpg==
+	t=1794817681;
+	b=B8KAJI/lGn3yUGmQUtUEM1KjvcQ7ixyvGUXOmnQsjnTshuunPabGCqUPPngFCYBNNzJM
+	 oW3N3POgZ71dviDaEpqNikPc5j/AcQB11TUZF5EQTc94R47+bpdl1Fs9OspX3wAbEq2ak
+	 sKakKtTYLe1zFG7UJG6+6LiMkYYCjVm+ATmcIfw1qJH/1rp1hkrxFp/ELXoB4UZlSkquj
+	 IPlAaeUBF40dyQzNd0Ypl3ur3ldezdxnrmgjMq5bwemTMRmd6zm4mnAaU/jPm2uYlqbIK
+	 HMP3MZ/4pTydIxAjUpL1464X6cjQHd1av3jc9sw0N8uqkuyKGlR81hPoRv7xu8VqyDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794817663;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794817681;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
 	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=Hd2Csajs6QatLjzeHDvmKsZYjSymBjV2lsfaQ+GJTao=;
-	b=ghcIuTrrVOq+AF0BWXjqti5bQ+BU3KnagbiTNpcJBnNYC3i/VY6CmDC95miKkwfGfqIA
-	 HAXd+GOH8qKFZDRlgj9LqJsOdTKYYMExFkHnZ8/Yme997LIZ3dCxzM5FJvrN3D9QihLi6
-	 HR5kxnKL36LkDJ2wwXuwPvWAL3PkLZlsVy08Bis2XnmNo5luYdmBjfkah7UPi+dfzcmzh
-	 lruUFYboye5zYLcT+Vfq3ltHyFjcvkvJahQm5tNqZT5hynkeLdjt6M+NT/zqfp7/6xrNA
-	 wk9bR6vMpCqkZ9vppNsy29Nkl/Ymh6nuEKOye06D0+9T5+oOU4ECXoss9vOIg3+iMUQ==
+	bh=yjkL79qbgx1RcVh92Ok4UeomTYQI487EiTDK3+DMMiA=;
+	b=SBwEQGvLKU6w1XARNV+oxzyanU4D5YyGyRxdGNeolAJ6ZN8cUyG5BPz/vfQfwFVZAUeg
+	 8yHf/uQjAmNFhGfEv7kq7YaIAm9nzA/QfPiTe2oP3I3eoj0sID6V3wJaMNbXo/544Fkvx
+	 8iCFOu372RNh8nS91xrbuj0+QJZPgbsVOy0ccA9UNGwcKBX+jsaZTI1oy+s2DtdZIpQEU
+	 5+H5k1VMR65s1S/WM9DoZmDewAB7447Dhf8FvGM4X0yopKWVOQZDDXeTrrXswnTCajoP2
+	 csi76cqUCAIBUYmSzN27/hw9jAYIbwZs/LrsOiWzgOhYYS9R5wxkw0r91aOcEn6RgNA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=intel.com;
 	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ZggPQoTr;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PTvDIZAb;
 	arc=none smtp.remote-ip=192.198.163.14
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51EA8606A336;
-	Mon, 16 Nov 2026 08:27:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 51EA8606A336
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46C35606A323;
+	Mon, 16 Nov 2026 08:28:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 46C35606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ZggPQoTr
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PTvDIZAb
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794817664; x=1826353664;
+  t=1794817681; x=1826353681;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=4gBVZ2VY2XYLOo6xK93Mzf1jW2dGoKpsCUqo6aSQIbs=;
-  b=ZggPQoTr1KXHBb4dPsWA3tw4/LZEkecJ48jp+JXohvNPYyGZuoF82dmu
-   51hiwUnYKJgwVQvgDawLlxuAFPGqNupVd0h+0/16bBLsbnqd/dMQFgWPu
-   wH9HBnbCiEhItAAHPRwdHhC/SbKxjJlQ8Q+RcqpiOU42/1U7grMwjyUrX
-   PRPKPyXpRj8f6JOE7LnKI3UAvomkfOQDQASLCD5F70cTc82kFTrgjIBhn
-   r2xkAVFl09iAaXgfToQqC9IrPV1bKIlLYTpmMpuDXXNYLufOoegbmfcLp
-   9kh56X/byo97LPwgbZWDTlTXM2QbL+6cfPF88/y5o/nPEIux6n2bN9Skw
+  bh=4sIZXJzXOMqGBwQlmS3gd/5uz+7dGEuRXqX4orYgfWQ=;
+  b=PTvDIZAb2MrF7R6pvzX4kOWAYpdBf5LcFV672TjCNZQym/o6zbAOUJi/
+   lv3qxN5AmVLiIaOflRezGItRJHH2X9olKKaXGeyanE68Eic0N1XH0+5Dj
+   8wCNUzxEajiTh2v8qQC/DCksYbVIy6mqbqmsu/pn0FXppdDmORJp3WH00
+   3M/bR63d14fBCVfj8VbOMHTqq/fd+2lOd8uoOud5Zdgsr9ImTOMNcFdPk
+   aD82mEHVwe2woxhCCjeeQiThYdKzvZtlBsbtonI91uVKY+NjdcQEVa//R
+   7lKlMPqJB+Iex37T1zrgH9Cf2Rm36QZDWXclRr7npVOFa3Kghfsa39+Sw
    g==;
-X-CSE-ConnectionGUID: KVxJs7fcQF6LU2CzcCKlig==
-X-CSE-MsgGUID: WxsVI5UcRFqocsCSxMJBhg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11967"; a="3436372"
+X-CSE-ConnectionGUID: U1xO60PLR56iPhlGH8HTkw==
+X-CSE-MsgGUID: Y1MWGPPGRbmRM7OTwn7l6A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11967"; a="3436443"
 X-IronPort-AV: E=Sophos;i="6.27,216,1787036400"; 
-   d="scan'208";a="3436372"
+   d="scan'208";a="3436443"
 Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2026 00:27:43 -0800
-X-CSE-ConnectionGUID: 7RiNxRwIS+G2xDQaGk9m+w==
-X-CSE-MsgGUID: jqghDoisTnOHiP+rmjrYJg==
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2026 00:28:00 -0800
+X-CSE-ConnectionGUID: B4Oz/kbySsOWupWng78nXg==
+X-CSE-MsgGUID: kyBWsgbEQ0u/3xN2mxxZOw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.27,216,1787036400"; 
-   d="scan'208";a="9293543"
+   d="scan'208";a="9293568"
 Received: from shsensorbuild.sh.intel.com ([10.239.132.194])
-  by orviesa008.jf.intel.com with ESMTP; 16 Nov 2026 00:27:41 -0800
+  by orviesa008.jf.intel.com with ESMTP; 16 Nov 2026 00:27:57 -0800
 From: Even Xu <even.xu@intel.com>
 To: bentiss@kernel.org,
 	jikos@kernel.org
@@ -69,9 +69,9 @@ Cc: srinivas.pandruvada@linux.intel.com,
 	linux-kernel@vger.kernel.org,
 	Even Xu <even.xu@intel.com>,
 	Rui Zhang <rui1.zhang@intel.com>
-Subject: [PATCH 3/4] HID: Intel-thc-hid: Intel-quicki2c: Use safe DMA reads
-Date: Mon, 16 Nov 2026 16:27:59 +0800
-Message-ID: <20261116082805.3986615-4-even.xu@intel.com>
+Subject: [PATCH 4/4] HID: Intel-thc-hid: Intel-thc: Restore RXDMA after SWDMA operation errors
+Date: Mon, 16 Nov 2026 16:28:00 +0800
+Message-ID: <20261116082805.3986615-5-even.xu@intel.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261116082805.3986615-1-even.xu@intel.com>
 References: <20261116082805.3986615-1-even.xu@intel.com>
@@ -86,65 +86,50 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use thc_rxdma_read_safe() and thc_swdma_read_safe(). Pass
-HIDI2C_PACKET_LEN(input_len) as the destination capacity for RXDMA input
-reports and SWDMA GET_REPORT responses. Handle -EMSGSIZE in the receive
-loop by continuing pending reports instead of scheduling full RXDMA
-recovery.
+thc_swdma_read_start() quiesces device interrupts, stops RXDMA and
+temporarily disables the I2C special controls. If reading the response
+of a completed SWDMA transfer fails, thc_swdma_read_safe() skips
+thc_swdma_read_completion(), leaving RXDMA stopped and the saved I2C
+controls unrestored. Normal input processing can no longer resume.
 
-Fixes: 66b59bfce6d9 ("HID: intel-thc-hid: intel-quicki2c: Complete THC QuickI2C driver")
+Call thc_swdma_read_completion() even when reading the completed
+response fails, so RXDMA and the saved I2C controls can be restored.
+
+Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
 Signed-off-by: Even Xu <even.xu@intel.com>
 Tested-by: Rui Zhang <rui1.zhang@intel.com>
 ---
- drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c  | 9 ++++++---
- .../hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c | 7 ++++---
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index 29319b6227f3..f87f33f61d34 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -292,9 +292,12 @@ static int handle_input_report(struct quicki2c_device *qcdev)
- 	int ret;
+diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+index 11d29c8daebe..7f9c9017049c 100644
+--- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
++++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+@@ -911,6 +911,7 @@ static int thc_swdma_read_completion(struct thc_device *dev)
+  * @read_len: The pointer of the read data length
+  *
+  * Oversized frames are discarded without copying data and @read_len is zero.
++ * The completed transaction is restored before returning the read error.
+  *
+  * Return: 0 on success, other error codes on failed.
+  */
+@@ -949,12 +950,11 @@ int thc_swdma_read_safe(struct thc_device *dev, void *write_buff, size_t write_l
  
- 	while (!rx_dma_finished) {
--		ret = thc_rxdma_read(qcdev->thc_hw, THC_RXDMA2,
--				     (u8 *)pkt, &report_len,
--				     &rx_dma_finished);
-+		ret = thc_rxdma_read_safe(qcdev->thc_hw, THC_RXDMA2, (u8 *)pkt,
-+					  HIDI2C_PACKET_LEN(qcdev->input_len), &report_len,
-+					  &rx_dma_finished);
-+		if (ret == -EMSGSIZE)
-+			continue;
+ 	ret = thc_dma_read(dev, &dev->dma_ctx->dma_config[THC_SWDMA],
+ 			   read_buff, read_buff_len, read_len, NULL);
+-	if (ret)
+-		goto end;
+-
+-	ret = thc_swdma_read_completion(dev);
+ 
+ end:
++	if (thc_swdma_read_completion(dev))
++		dev_err(dev->dev, "Failed to restore DMA after SWDMA read\n");
 +
- 		if (ret)
- 			return ret;
- 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
-index 41271301215a..aab17c4aaca8 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
-@@ -122,8 +122,8 @@ int quicki2c_get_report_descriptor(struct quicki2c_device *qcdev)
- 	size_t read_len = le16_to_cpu(qcdev->dev_desc.report_desc_len);
- 	u32 prd_len = read_len;
- 
--	return thc_swdma_read(qcdev->thc_hw, (u8 *)&desc_reg, HIDI2C_REG_LEN,
--			      &prd_len, qcdev->report_descriptor, &read_len);
-+	return thc_swdma_read_safe(qcdev->thc_hw, (u8 *)&desc_reg, HIDI2C_REG_LEN,
-+				   &prd_len, qcdev->report_descriptor, read_len, &read_len);
+ 	mutex_unlock(&dev->thc_bus_lock);
+ 	return ret;
  }
- 
- int quicki2c_get_report(struct quicki2c_device *qcdev, u8 report_type,
-@@ -153,7 +153,8 @@ int quicki2c_get_report(struct quicki2c_device *qcdev, u8 report_type,
- 
- 	rpt = (struct hidi2c_report_packet *)qcdev->input_buf;
- 
--	ret = thc_swdma_read(qcdev->thc_hw, qcdev->report_buf, len, NULL, rpt, &read_len);
-+	ret = thc_swdma_read_safe(qcdev->thc_hw, qcdev->report_buf, len, NULL, rpt,
-+				  HIDI2C_PACKET_LEN(qcdev->input_len), &read_len);
- 	if (ret) {
- 		dev_err_once(qcdev->dev, "Get report failed, ret %d, read len (%zu vs %zu)\n",
- 			     ret, read_len, buf_len);
 -- 
 2.43.0
 

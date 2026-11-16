@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794831247;
-	b=1Dza+Ll80cC/DoFHTXdn4Z2jHra5/zoyfxvid93WmqBEwu4j/NKsNpSAbaeF15NNU4JT
-	 BB1zItgMr/O1kDHOyX5iAHjNYYK/3gG6MNYz8fvjbeTxEuDurQgld2b1IKySZuiugGzNE
-	 lCVqpitMEq30aexaTd74+P6WihrIlI7RjggTnqC+BFuI4GKyRCdL3GqGx4MDvgIAlMvak
-	 3OL9MHC/6zNxKCuzgtksXG/Im3Q2QM2tDpDec8Ce5cXHksLR0HPq5ZibMICC0Fa3FyZI2
-	 34ZgOlg5Zd0GoCNwQoLK77lIejde1xIFhPIM9X2n4M+kfVFScW9sgh0aznmhH291Csw==
+	t=1794831260;
+	b=po/RXB2EbcoackT+YwmB9E4L8CJbld+m4CZSVtKwLQ0NtaAEFzRVxeCfHzd4hjg+cKZk
+	 iNx6yH9PzgUmhfJ1NDFdi5GGjlRzZesOLP2i15S4H4ubUQZtv4JnaRhVjSnbJq8JpnIDf
+	 F2KWekC7slFciOSnjFYZa+ylrFCYMBuRfMMI8K0l/68/9DMy1kkFyfCMXib60hhaS2JWY
+	 w9My+G6XGGYD7yhyyYvUOktfyVrUzCWeo8V7eALHzo/6+66UmEH9bKiBmgbWqXJFHZvW2
+	 CHJy1YTeLqXpeiTDWG1qpctIO5LYFigqXEcPZzHyae9/YeK5bJ1sqA2R3fpTfHMwJmA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794831247;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794831260;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=5TQnXyxPKsVYp7Swu6UCLm+jMK/P+KGC0Ry72Fb+tw4=;
-	b=ntnMNVpSztwv3asS7c/vq0zEISxF+7EGvIXPavMo05+PRxGoAtJ64dgfeGG22bGRFC4u
-	 R5S85BKRxgdmGMgsjwMP7jRIj7zSFYXyHIokSQ4/oD5zYyhQ3KBIBPPynQnMfnnhzP83Z
-	 nNvxqdq2A2MVFndDmfvv/llMOB7F3zS5G1shgDWDamJyg/ZksMlYie8+Z09znlg+cy9N7
-	 aI0a9Oe8vU0H5whfeAomZSNLslCIqwXLE3b5zFPdS3BPOgcDElvpgsQRlRe9xa9BN6KUh
-	 ITv+FCZoxP7vQi1S+9o/lKddLp+cZvldU00BwEKzqVef8y6hPq+7gR3JhZWpJ4jn8Pg==
+	bh=MbbNnl/jR3I2yk7n0pnhFk5B2IOyBxzkEUr5ZXc5j/I=;
+	b=YA1V7nSc3UWY78A+GlR+VFzwr+n8nhvOWhzSxKOW4Sss26+KTI2o8KBBVxMewNfpUTOO
+	 jQY+TdwTy9nO3lEAyPGD+hvABvEQWwMMXh6LB7xsutrDhN0rgncNVkcP1MFDQiHgHHmrc
+	 00iYprWwaIaeIQr2Rei77+LTrEFgpglczWrieD/PJZMpaNRnxah+RK7P7hTEXgMv3G9ud
+	 y6Sfn+tWMlvZMZssbdq58UfKUHnSKw6ErHUwzxe0MFg1gPx3YJSpXwX990dGwqmhxHS1e
+	 JrAQjMO+mYWZUyhDqRo7hilVgy0URuPo9Ptjn8Bo2VJM+ifvTdDSKMMK9AJN9wnToSw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ALvci8CB;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8G00Yrp;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284FA606A31C;
-	Mon, 16 Nov 2026 12:14:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12F9F606A32A;
+	Mon, 16 Nov 2026 12:14:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ALvci8CB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1DC1F000C4;
-	Mon, 16 Nov 2026 12:14:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8G00Yrp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B25D1F000C5;
+	Mon, 16 Nov 2026 12:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794831247;
-	bh=5TQnXyxPKsVYp7Swu6UCLm+jMK/P+KGC0Ry72Fb+tw4=;
+	s=k20260515; t=1794831259;
+	bh=MbbNnl/jR3I2yk7n0pnhFk5B2IOyBxzkEUr5ZXc5j/I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ALvci8CBxbM/eosyVK1BjxHfGbw2+ug0PaGwZSi7rRYyfOsz6ojgOENO9i/smX4GU
-	 CU652soiiZ+0qC+m8SIQtGmaF1OTlqs0aFapVfUyAvUfYC8C+Q4ygS5kYmxY6ejkmm
-	 QFZ5fQuQLs4aw5BGeONWggy5rgWpX++X29+SCoaZatkOOwJ10/ir7TeBL2gaEon58h
-	 3i58H4i6SzvddpjLTMxueNlzoT1EnPnKcTp2of3PP5br9hM9DFlvqspWpz7WnZHH3b
-	 auUF9oDP9H3VuM03LAcAJeVYjprTB+6O71Kx/THxRYhxt3kN8bzfxnJ+YMtICJHoKp
-	 HjsGzaww3G46Q==
-Date: Mon, 16 Nov 2026 13:13:56 +0100
+	b=Z8G00YrpMZOFOLqZjGfm3ltH/GlUUkVKqMZNf93IProiIv/J7xu2U8EjH0ShqbYoc
+	 AZTrr8aN+PE0KX8sGiQ0y0J/Af511zBRVAkPbsNdA5vE5tATFeEZRJbHeMVOodUZrv
+	 OH1aN31qJVt1rpseTxC3rHTlTYnuyrNYpUlGw5A5PbRDYoSzFc3F6b2XBju34Zudl+
+	 RcugStbk3rSR74W9Rt2YP7q0bzjHJ+Ult/PEzZ1vAAU3fBqcYeBuLE94ldhW7znMf7
+	 xu60wi38paiT0gTQauw4tOmTwpYX+2FK+rymiMhTGpfJvg6me3WtKQr0zB/0LOfVks
+	 cdnhwm6iYT9PA==
+Date: Mon, 16 Nov 2026 13:14:10 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Alexander Letuchiy <asalde.le1@gmail.com>
 Cc: Rob Herring <robh@kernel.org>, 
@@ -54,11 +54,11 @@ Cc: Rob Herring <robh@kernel.org>,
 	"Guilherme G. Piccoli" <gpiccoli@igalia.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-serial@vger.kernel.org, 
 	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, phone-devel@vger.kernel.org
-Subject: Re: [PATCH v2 3/9] dt-bindings: watchdog: mediatek,mtk-wdt: Add
+Subject: Re: [PATCH v2 5/9] dt-bindings: timer: mediatek,timer: Add
  compatible for MT6895
-Message-ID: <20261116-imposing-chicken-of-strength-108fe5@quoll>
+Message-ID: <20261116-shiny-encouraging-mushroom-dc03de@quoll>
 References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
- <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
+ <20261113-initial-mt6895-v2-5-4ab0aa9fa391@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -70,18 +70,16 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
+In-Reply-To: <20261113-initial-mt6895-v2-5-4ab0aa9fa391@gmail.com>
 
-On Fri, Nov 13, 2026 at 10:04:59PM +0300, Alexander Letuchiy wrote:
-> Add a compatible string for the watchdog of the MediaTek MT6895
-> (Dimensity 8000/8100) SoC. It does not fall back to mediatek,mt6589-wdt,
-> which implies the MT6589 TOPRGU reset layout, as the MT6895 one is not
-> known yet.
+On Fri, Nov 13, 2026 at 10:05:01PM +0300, Alexander Letuchiy wrote:
+> Add a compatible string for the system timer (SYST) of the MediaTek
+> MT6895 (Dimensity 8000/8100) SoC. It works with the existing driver
+> through the mediatek,mt6765-timer fallback.
 > 
 > Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 > ---
->  Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+>  Documentation/devicetree/bindings/timer/mediatek,timer.yaml | 1 +
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 

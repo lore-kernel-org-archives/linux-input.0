@@ -1,96 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.14
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794814764;
-	b=cQDL/+F7UV3XJdBaeoECvVSzZNdOmLyG0E1I09InBtDD6PqxdfLls59kIz9pcI8nUPtl
-	 /8mt323JchZgZEhdu72OCGSwURZiP4GaHDzIjQD6yx8EC2yvT7c5v2qzyiShI69znpOPu
-	 tk2J0nE2m1OGHGuIA5g+DeTC/Rcb5c0cr94lHi6Yl1avHERyAWbQL80TOANsAwhn5sy+3
-	 +O0/DVY68uv05iw2IRf48kYvgdGv6+d/cH/wU4IbqlHDkDn4b3Y6RD7suTnOo35VGHAtx
-	 Ko6UgSjYXoMm/tCAZygMHIs445oXZqdK9BVJyLK8um/nsTb/CTQxh0l1rgTNUwaKE7A==
+	t=1794817641;
+	b=wEjmlTkME/8olmlCaRT5PMhOb5hymiPbGIJakCHwzcSpCfPxp0opYUM63n2pDrlVDKsA
+	 acmrOlhRAwxkFtqUHPdzno8TFp1oTTfzp5T8MPHwhlcATcToIQM+yEuf/VQHkTm8iUiUT
+	 i9d7mxQTpJqRhH6hQDvdnXI75dcAiMid8uFk9+L/BFk9OHem+GlumoUC4TPCFRi80XO8E
+	 7rG1tfOuL5z0z7k/sQEWOQpVcYQg80f9O7GU5Z0LSHm2FW/OkBJa8uGpSP5qRmJh95o8X
+	 Y/a17Sbdlh2toEkf2dgptM1I+wxQHJL5xn1Yf5yp/DyZrjblxhtrjUt9ztVT4fDxDEw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794814764;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Content-Disposition;
-	bh=UeZc8ScP5phq/mylPhGfZEPbU2/5SkeiQIEf4wyfYM0=;
-	b=yteoWvE450SlKPGB2IrFf7466VyHUVOeQ5eMuOBmM/kdqILP7aSjqiyUHskMSTHPHabN
-	 zh5zrFWdOupV1vM4QkuNCMg2GsIsZrsC/CjyFmmXDMP4IYLk0lcxpQLD4bLLxruHKxm/L
-	 JwgVGTYujBEvzMGwshmiwA+DobBGAKecOF9PaZin1xuFRPoGP0ZcD7DOmEAfgfWa4dsF7
-	 A+NoRMujVQMMlXjCnbTubJV88ImI6Us61iVpCT0qZjSPcv6ByU/DOpK6SlQxfus1AyYg3
-	 VT3dVHrV7G721bi60qNfugdVGWN7JO6b0s9/wAa7GG8KemYb9B5QP9YLFGENVafgmRg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794817641;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=GFw3U8Bd+OtR5vH4CllQ/QamxV5duSdgL+vSBRZ0ODA=;
+	b=ziFMwN925OepaBnk5+KclEL16vhVFOT4H9KVs910Ls2P2Y2rQeboukYll9taIevT/rit
+	 OAnxBtJnaWYyGkTfpk+5968Zh4KedrXdcW+GIh1phyORXuLGkay3I9bv4NRn3q8FzhiyZ
+	 8m2eeYDvSeMH6AVwCpm2NgER9gsbUsz6J5FSo3+k/Z2AwAnqjCkrCfdYXLt2a7gcfrnio
+	 TsAmFP2rUqrgElwez3L1i6fcMxAA4pPO+1v++fXScfcIZXeJIsJoLCIgUblAtuzdH/ib9
+	 G72w9Py0H+Tl+KE83LlW2f25hyB18rwBuB3FTFfaIFU8s1kzGcn2qZxAVfF+IdRlLfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=e8QGPVGc;
-	arc=none smtp.remote-ip=74.125.82.51
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lfGyu7rr;
+	arc=none smtp.remote-ip=192.198.163.14
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43DA8606A8A4
-	for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 07:39:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 43DA8606A8A4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8706606A330;
+	Mon, 16 Nov 2026 08:27:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8706606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=e8QGPVGc
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-170135e43c7so4961734c88.0
-        for <linux-input@vger.kernel.org>; Sun, 15 Nov 2026 23:39:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794814763; x=1795419563; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UeZc8ScP5phq/mylPhGfZEPbU2/5SkeiQIEf4wyfYM0=;
-        b=e8QGPVGcIJk/acexgXCbZBKNJeoKTJHpMuSwfSvBT/KOSejyR+U62mYzuQWaSPBTBa
-         iIDEPKn7VTw6QtMDRHsmsU8v0MrG7Fra5bWFrvZAg7uSJcnhJKd2LypSeyFZ1Cl4g3cM
-         wJOyBPFZclGXxIz6U3vw75FTJgfkZlYV54hNfzN+93CquaRDkAwWJjbMB9E1lrD1PWqH
-         x0v7jfDrPPWEy/jgzDzoOMTtWpqeRh8RfOHXDJZ3ksAYSmWiOkuffs//aQefF6Ydh5/m
-         2mmEZNA8saFLtaimpJxc28yeWaf7EhDQ0SMDCPoA9T2KMP3ujHXh4XvZ8UmywiM8yHJs
-         ZfUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794814763; x=1795419563;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=UeZc8ScP5phq/mylPhGfZEPbU2/5SkeiQIEf4wyfYM0=;
-        b=Aj/TmDQ8/CjYAYVzHubC5ub0a0ljnqSpz8GfGTpMqFik1H9fXPtq3ZNIuXLFAfcRfw
-         ciH7njrkjC3AMOi2/Ho3B/jojJ532zICIUyxA+WWgcVBzm5bj25srtUG3AXV0ZS9XWAn
-         l8fK+VO6m4nyhJjffTM9Q9v8a+1fyGAgNRLFx8a0nURdEUE444pcjMjXrk/NFcswGSoL
-         1PBLTty9UjtzYZdnVUEkv20WjN/4tpW72xTdR+zbIr925tJTdOS7QX8BqP1mllQO5K0X
-         Ov/L1B8V6APxzkcqYvIJj2MLFrEp8RR2p0BD/wywgPTqnrH1N6+2yPqG1xNnalm75fZb
-         6A2g==
-X-Forwarded-Encrypted: i=1; AL+hErF8z2ajz2h+OgDsomlUz1WtZgnvRVAviOgVGnv3SWC/WVOKkvoiS6eFrUmjsZxFlBaU6HVhK+Ug8R0GKg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/lS5jRLbDq+3fLX5lcVvHgBhorq0nPVnfJYLfSeqilQz3vKyYx
-	4nkVWWD+HuEft+6bqLz3CTyteYl2O/wzRAjF184YSEY4PwDe8dxdmJPa
-X-Gm-Gg: AYBFou3AX5h+RBQ0OZMvrsQ/p/dSN+Pwld6oR4jTSPgzqycn3FhKDfKEgBqGNh9/np4
-	1HHG7sckDUYZhVbiGALcV9+yWduAkRV9IgbZDXCIy0QMuWTfSVLTT44cmbsGc/HNsGGO0oI72o8
-	WyJyMTZcCBbjFnF+PG2DzsUqCuPuBNmYV6CKj+1abBwU2tBcd6Xz91LCkjD5FxKIJtQoAX3EUiX
-	4G6gJQlqURD9Pg6PqrZJGYDCRVhu+LZ8xfTOXQkfKNCiiYLsQ6b/w4NMnam2YngLTfpfHGnvGqm
-	w9hcS0I8RgmF1lEd2J4y7ozc9GKn7S7+xkHF4uug3QQwl1ahkWNcux5si5zEiV3m+4VRD6UBoLb
-	9kPVCoWl0MnTd2SJ6r31fbZJhS2IYFmayGIklzR40qCEDrcqCUyA2dQtF97RhYrmPdZO5ix4HmN
-	7AVP0LtkgERLSpqtRAdEn0JnwaDMT5pB5JvpDylHjNiRcT3vYMZR5sHAAfTbAWSUv9hUyaZhfK/
-	1tNQDI1i0s65zHzVfieoBVAW4z61Z+AKgmJLuYedFuWmNnUQ1vXtjyCGvEPdN/JAFBhZKBuD8Mk
-	so83fFjitPReen4CnQslPJtX5s6EsSNtTxxyY6SIz63YVpD/cHGUsk7Car1Nu9bdCzYTCTWXXAp
-	qdGMoVIRzSgPGB8/h
-X-Received: by 2002:a05:7022:f4c:b0:1b2:6cba:7f48 with SMTP id a92af1059eb24-1b50315622fmr8755891c88.31.1794814763158;
-        Sun, 15 Nov 2026 23:39:23 -0800 (PST)
-Received: from localhost ([2a00:79e0:2ebe:8:f133:af41:7614:f46c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5031b2519sm26795070c88.13.2026.11.15.23.39.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2026 23:39:22 -0800 (PST)
-Date: Sun, 15 Nov 2026 23:39:21 -0800
-Message-ID: <9639a3578bf1cae847b4b0cdddd1a0e0@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc: Chen-Yu Tsai <wens@kernel.org>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lfGyu7rr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794817641; x=1826353641;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=GwTMfIZWZG9Cg3O2oJKoSVHTCiKHDa0jwqgpIdtjfSI=;
+  b=lfGyu7rrwZn6euSU2yEDuWbeC95zteAoqw8ih+9Tp9pBXTPBN/zZoUfw
+   54sJ9bqtJsDBQEtBxn8rrbqMXNAq2LmoWlJouyOIUR1tVJOMev8FEMNwt
+   hrniLCey1L348fhyXMrgwZj5sUMMlJ6tc/7ftR8GMGmA4S3wuq4skFTAJ
+   gTqVPs6nuztSrUOsfRfzH9L4XmW6vSaSSjwSXETTH9pAmAdVRzgSq8A2h
+   khUyhx15XT8vNYX317AtRdilfOgmGmbGnb/HMWl7JVGsGJDoFWyt9MNKN
+   c9xadP2JvzySkoEVeNWEY4uhVtgyRS1v9dad/axfci8S6jwJggXsxMsN1
+   Q==;
+X-CSE-ConnectionGUID: BzhgAW0uRpu3/EDAnsT6TA==
+X-CSE-MsgGUID: AidSt+0dRMK8TTR9/8YghA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11967"; a="3436341"
+X-IronPort-AV: E=Sophos;i="6.27,216,1787036400"; 
+   d="scan'208";a="3436341"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2026 00:27:19 -0800
+X-CSE-ConnectionGUID: ARE+CHOCRi+4gIoyVWDaTA==
+X-CSE-MsgGUID: rxk2iqpYSzaH8pdN91ABuw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,216,1787036400"; 
+   d="scan'208";a="9293464"
+Received: from shsensorbuild.sh.intel.com ([10.239.132.194])
+  by orviesa008.jf.intel.com with ESMTP; 16 Nov 2026 00:27:17 -0800
+From: Even Xu <even.xu@intel.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: axp20x-pek - support the AXP313A power key
-In-Reply-To: <20261115150903.16855-1-jernej.skrabec@gmail.com>
-References: <20261115150903.16855-1-jernej.skrabec@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Even Xu <even.xu@intel.com>,
+	Rui Zhang <rui1.zhang@intel.com>
+Subject: [PATCH 1/4] HID: Intel-thc-hid: Intel-thc: Add safe DMA read interfaces
+Date: Mon, 16 Nov 2026 16:27:57 +0800
+Message-ID: <20261116082805.3986615-2-even.xu@intel.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261116082805.3986615-1-even.xu@intel.com>
+References: <20261116082805.3986615-1-even.xu@intel.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,52 +84,234 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hi Jernej,
+THC DMA buffers are rounded up to a 4 KB boundary, but callers may
+allocate smaller receive buffers. Checking a frame against the DMA
+capacity alone does not protect the destination when do DMA buffer
+copying.
 
-On Sun, Nov 15, 2026 at 04:09:03PM +0100, Jernej Skrabec wrote:
-> The AXP313A MFD cell is registered as "axp313a-pek", which this driver
-> doesn't match, so the power key doesn't work on boards with this PMIC.
-...
-> +/* The AXP313A has no AXP20X_PEK_KEY register, so no timing controls. */
-> +static const struct axp20x_info axp313a_info = { };
-> +
->  static ssize_t axp20x_show_attr(struct device *dev,
->  				const struct axp20x_time *time,
->  				unsigned int mask, char *buf)
-> @@ -193,7 +196,26 @@ static struct attribute *axp20x_attrs[] = {
->  	&dev_attr_shutdown.attr,
->  	NULL,
->  };
-> -ATTRIBUTE_GROUPS(axp20x);
-> +
-> +static umode_t axp20x_attr_is_visible(struct kobject *kobj,
-> +				      struct attribute *attr, int n)
-> +{
-> +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(kobj_to_dev(kobj));
-> +
-> +	if (attr == &dev_attr_startup.attr && !axp20x_pek->info->startup_time)
-> +		return 0;
-> +
-> +	if (attr == &dev_attr_shutdown.attr && !axp20x_pek->info->shutdown_time)
-> +		return 0;
-> +
-> +	return attr->mode;
-> +}
+Add thc_rxdma_read_safe() and thc_swdma_read_safe() with an explicit
+destination capacity to check both the DMA capacity and the supplied
+size before copying.
 
-axp20x_pek->info is only used by the startup and shutdown sysfs
-attributes, and we do not have variants that support only one of them.
-Can we drop the empty axp313a_info structure (leaving driver_data as 0
-for "axp313a-pek") and simplify this to:
+Keep the original interfaces as compatibility wrappers.
 
-	return axp20x_pek->info ? attr->mode : 0;
+Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
+Signed-off-by: Even Xu <even.xu@intel.com>
+Tested-by: Rui Zhang <rui1.zhang@intel.com>
+---
+ .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 95 ++++++++++++++++---
+ .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  6 ++
+ 2 files changed, 86 insertions(+), 15 deletions(-)
 
-?
-
-Thanks.
-
+diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+index c80ef8c20574..11d29c8daebe 100644
+--- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
++++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+@@ -614,7 +614,7 @@ EXPORT_SYMBOL_NS_GPL(thc_rxdma_reset, "INTEL_THC");
+ 
+ static int read_dma_buffer(struct thc_device *dev,
+ 			   struct thc_dma_configuration *read_config,
+-			   u8 prd_table_index, void *read_buff)
++			   u8 prd_table_index, void *read_buff, size_t read_buff_len)
+ {
+ 	struct thc_prd_table *prd_tbl;
+ 	struct scatterlist *sg;
+@@ -640,6 +640,13 @@ static int read_dma_buffer(struct thc_device *dev,
+ 		return -EMSGSIZE;
+ 	}
+ 
++	if (mes_len > read_buff_len) {
++		dev_err(dev->dev,
++			"Message length %zu is bigger than destination buffer length %zu\n",
++			mes_len, read_buff_len);
++		return -EMSGSIZE;
++	}
++
+ 	sg = read_config->sgls[prd_table_index];
+ 	ret = sg_copy_to_buffer(sg, nent, read_buff, mes_len);
+ 	if (ret != mes_len) {
+@@ -680,21 +687,26 @@ static int is_dma_buf_empty(struct thc_device *dev,
+ 
+ static int thc_dma_read(struct thc_device *dev,
+ 			struct thc_dma_configuration *read_config,
+-			void *read_buff, size_t *read_len, int *read_finished)
++			void *read_buff, size_t read_buff_len,
++			size_t *read_len, int *read_finished)
+ {
+ 	u8 read_ptr, write_ptr, prd_table_index;
+-	int status;
++	int status = 0;
++
++	*read_len = 0;
+ 
+ 	if (!is_dma_buf_empty(dev, read_config, &read_ptr, &write_ptr)) {
+ 		prd_table_index = write_ptr & THC_POINTER_MASK;
+ 
+-		status = read_dma_buffer(dev, read_config, prd_table_index, read_buff);
+-		if (status <= 0) {
++		status = read_dma_buffer(dev, read_config, prd_table_index,
++					 read_buff, read_buff_len);
++		if (status <= 0 && status != -EMSGSIZE) {
+ 			dev_err_once(dev->dev, "read DMA buffer failed %d\n", status);
+ 			return -EIO;
+ 		}
+ 
+-		*read_len = status;
++		if (status > 0)
++			*read_len = status;
+ 
+ 		/* Clear the relevant PRD table */
+ 		thc_copy_one_sgl_to_prd(dev, read_config, prd_table_index);
+@@ -711,22 +723,27 @@ static int thc_dma_read(struct thc_device *dev,
+ 	if (read_finished)
+ 		*read_finished = is_dma_buf_empty(dev, read_config, &read_ptr, &write_ptr) ? 1 : 0;
+ 
+-	return 0;
++	return status < 0 ? status : 0;
+ }
+ 
+ /**
+- * thc_rxdma_read - Read data from RXDMA buffer
++ * thc_rxdma_read_safe - Read data from RXDMA buffer with a destination size limit
+  *
+  * @dev: The pointer of THC private device context
+  * @dma_channel: The RXDMA engine of read data source
+  * @read_buff: The pointer of the read data buffer
++ * @read_buff_len: The allocated size of the read data buffer in bytes
+  * @read_len: The pointer of the read data length
+  * @read_finished: The pointer of the flag indicating if all pending data has been read out
+  *
++ * Oversized frames are discarded and their PRD table is recycled without
++ * copying data. In this case, @read_len is zero and @read_finished is updated.
++ *
+  * Return: 0 on success, other error codes on failed.
+  */
+-int thc_rxdma_read(struct thc_device *dev, enum thc_dma_channel dma_channel,
+-		   void *read_buff, size_t *read_len, int *read_finished)
++int thc_rxdma_read_safe(struct thc_device *dev, enum thc_dma_channel dma_channel,
++			void *read_buff, size_t read_buff_len,
++			size_t *read_len, int *read_finished)
+ {
+ 	struct thc_dma_configuration *dma_config;
+ 	int ret;
+@@ -749,10 +766,31 @@ int thc_rxdma_read(struct thc_device *dev, enum thc_dma_channel dma_channel,
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = thc_dma_read(dev, dma_config, read_buff, read_len, read_finished);
++	ret = thc_dma_read(dev, dma_config, read_buff, read_buff_len, read_len, read_finished);
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_NS_GPL(thc_rxdma_read_safe, "INTEL_THC");
++
++/**
++ * thc_rxdma_read - Read data from RXDMA buffer
++ *
++ * @dev: The pointer of THC private device context
++ * @dma_channel: The RXDMA engine of read data source
++ * @read_buff: The pointer of the read data buffer
++ * @read_len: The pointer of the read data length
++ * @read_finished: The pointer of the flag indicating if all pending data has been read out
++ *
++ * Legacy callers do not provide a destination capacity.
++ *
++ * Return: 0 on success, other error codes on failed.
++ */
++int thc_rxdma_read(struct thc_device *dev, enum thc_dma_channel dma_channel,
++		   void *read_buff, size_t *read_len, int *read_finished)
++{
++	return thc_rxdma_read_safe(dev, dma_channel, read_buff, SIZE_MAX,
++				   read_len, read_finished);
++}
+ EXPORT_SYMBOL_NS_GPL(thc_rxdma_read, "INTEL_THC");
+ 
+ static int thc_swdma_read_start(struct thc_device *dev, void *write_buff,
+@@ -862,19 +900,23 @@ static int thc_swdma_read_completion(struct thc_device *dev)
+ }
+ 
+ /**
+- * thc_swdma_read - Use software DMA to read data from touch device
++ * thc_swdma_read_safe - Read touch device data with a destination size limit
+  *
+  * @dev: The pointer of THC private device context
+  * @write_buff: The pointer of write buffer for SWDMA sequence
+  * @write_len: The write data length for SWDMA sequence
+  * @prd_tbl_len: The prd table length of SWDMA engine, can be set to NULL
+  * @read_buff: The pointer of the read data buffer
++ * @read_buff_len: The allocated size of the read data buffer in bytes
+  * @read_len: The pointer of the read data length
+  *
++ * Oversized frames are discarded without copying data and @read_len is zero.
++ *
+  * Return: 0 on success, other error codes on failed.
+  */
+-int thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
+-		   u32 *prd_tbl_len, void *read_buff, size_t *read_len)
++int thc_swdma_read_safe(struct thc_device *dev, void *write_buff, size_t write_len,
++			u32 *prd_tbl_len, void *read_buff, size_t read_buff_len,
++			size_t *read_len)
+ {
+ 	int ret;
+ 
+@@ -905,7 +947,8 @@ int thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
+ 		goto end;
+ 	}
+ 
+-	ret = thc_dma_read(dev, &dev->dma_ctx->dma_config[THC_SWDMA], read_buff, read_len, NULL);
++	ret = thc_dma_read(dev, &dev->dma_ctx->dma_config[THC_SWDMA],
++			   read_buff, read_buff_len, read_len, NULL);
+ 	if (ret)
+ 		goto end;
+ 
+@@ -915,6 +958,28 @@ int thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
+ 	mutex_unlock(&dev->thc_bus_lock);
+ 	return ret;
+ }
++EXPORT_SYMBOL_NS_GPL(thc_swdma_read_safe, "INTEL_THC");
++
++/**
++ * thc_swdma_read - Use software DMA to read data from touch device
++ *
++ * @dev: The pointer of THC private device context
++ * @write_buff: The pointer of write buffer for SWDMA sequence
++ * @write_len: The write data length for SWDMA sequence
++ * @prd_tbl_len: The prd table length of SWDMA engine, can be set to NULL
++ * @read_buff: The pointer of the read data buffer
++ * @read_len: The pointer of the read data length
++ *
++ * Legacy callers do not provide a destination capacity.
++ *
++ * Return: 0 on success, other error codes on failed.
++ */
++int thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
++		   u32 *prd_tbl_len, void *read_buff, size_t *read_len)
++{
++	return thc_swdma_read_safe(dev, write_buff, write_len, prd_tbl_len,
++				   read_buff, SIZE_MAX, read_len);
++}
+ EXPORT_SYMBOL_NS_GPL(thc_swdma_read, "INTEL_THC");
+ 
+ static int write_dma_buffer(struct thc_device *dev,
+diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
+index 715423453a9d..f6152b4209f7 100644
+--- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
++++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
+@@ -150,6 +150,12 @@ int  thc_rxdma_read(struct thc_device *dev, enum thc_dma_channel dma_channel,
+ 		    void *read_buff, size_t *read_len, int *read_finished);
+ int  thc_swdma_read(struct thc_device *dev, void *write_buff, size_t write_len,
+ 		    u32 *prd_tbl_len, void *read_buff, size_t *read_len);
++int  thc_rxdma_read_safe(struct thc_device *dev, enum thc_dma_channel dma_channel,
++			 void *read_buff, size_t read_buff_len,
++			 size_t *read_len, int *read_finished);
++int  thc_swdma_read_safe(struct thc_device *dev, void *write_buff, size_t write_len,
++			 u32 *prd_tbl_len, void *read_buff, size_t read_buff_len,
++			 size_t *read_len);
+ int  thc_dma_write(struct thc_device *dev, void *buffer, size_t buf_len);
+ 
+ struct thc_dma_context *thc_dma_init(struct thc_device *dev);
 -- 
-Dmitry
+2.43.0
+

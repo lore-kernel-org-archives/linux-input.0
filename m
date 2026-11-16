@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794835932;
-	b=JrJ54PodkwqmxyGHc4UFI7GDcZaLzfFpKswtAEr2kcTn8GwV0LqlIuYO+NNxLTAYY41Z
-	 kmxwdKT768/RZKLg8i56TxH7w+6n/jPCErsC0disalO1GeWxmxLfVWRzD3q/8IBZEyd/s
-	 U+SrdCZIjeKEZxDrwoztCM92C27roFYkJdLd3ZMuN98vWG6HRn4KsI+t4FL971nkXb6tl
-	 edVr0l7QDh+tFJuIbNdEJPU0wMIKLM3ggDysJfjTUwD4a36G1gR3LumhmVPL/0FL26voT
-	 Bq+iwvvIRAdwJ9QTPGj7aExMRXl2dPRqFzny+x5cv7eyTUUKBP7S8Tg2MOhbByFxCUA==
+	t=1794835940;
+	b=fv5QiCDfEDXJtsf/yrshdbHji82DHODK2dQJA7NgPYKwh/vBHtpo8zZlEf6KYpsEjddH
+	 68FTwRkVu1NTwMLlD9MXQhbSyJhc5QmFi1rchZV66iqMdyF42D05e2yIed7D4cllxA9yX
+	 YGuIQM1ZjmwW7kuGzCIKJZ6+IkvwRNLD9yUAAaJJH+K+VVRUtx9NUfXTp8624LQMnAXwM
+	 2PdvvNpxDrO6oCgrfy3BpQdZzUZX0bjUkbpBxmw0V0xLCD8fSuD2B8LqmUq5JhjmRc4AL
+	 VL8reUrmGfTlFcVlcSzjoNMtqVOcqMbWSQOLlec/yy7sQkxQolq8ea/GapVUkLF+cRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794835932;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794835940;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Debian-User;
-	bh=CuigUoXzcxtfp7cDRhGDVJuTzYDUgteXb5DFzwjuBU8=;
-	b=tdKt/0eIrY2a68RRKeU9Vo986Rc38BWMkAVtLeDijXf4toN2QtISen3TfW9xg19KLqVO
-	 rdgjr6PhHbV6+4pRssf39VpIwHhUCdav2RT4zMSlCdj5TLvuS0O5Lb1K87DugWmBA/sL+
-	 yaHtrz5aXPzafRaOv9jBawEw1asr8bEOP4GXgWGSje0AlikwPqe0/e36NB8XDeDlQsiYv
-	 ZsEU4mgcAEGaGdwAZDbLaI6mvQAkh1i14i+9/xGs+3dYDFQe/jiIllGTmHpk+tRCwsjKI
-	 NMU6Gn1l8tN4UhEJOXqWV46bv7nNi3i+4hbd5Iif0inST5gqr0T23ZF9hrFs7zOEyyg==
+	bh=O66WQhp15wYn61FOktozXGhiXKtOGH/hvfWxN7C9R+Y=;
+	b=c51eVnfLsBLu/qjoId7ljhzcmjGiKuSUbRsu6uSiaNQ5gZvB7JhxGuRTYHBBZ763ADYi
+	 Szv1Xpc8gbWpKGj8X44PwDRzSj91ZQh3vdsRW3tl0f9n8WqaWoGDa3g1wgPJGV/IVXv8L
+	 4tg2RTgwCckWG75T0wcUmYb1op9ZfJou8kbtXtsjO5qSCU4XXpbRFCTFiwNUDnErfzqqx
+	 xuilasMdfEUNrAlwIOcuGh8947vYlqxnv/XRXBZ5s2dm1Zz+V5Wz1TRy51sZ/7qR7bC0v
+	 /8C1kbUxN6oK4UYYUvkh61370st7M+Uk0YLIoqDWCBUx2dfQD34yasiNCHfbCAqP7qA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=GzX44fSq;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=GzzlgmWJ;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F309A606A330;
-	Mon, 16 Nov 2026 13:32:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F309A606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3786606A31C;
+	Mon, 16 Nov 2026 13:32:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C3786606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=GzX44fSq
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=GzzlgmWJ
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
 	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
 	Content-Type:Content-ID:Content-Description;
-	bh=CuigUoXzcxtfp7cDRhGDVJuTzYDUgteXb5DFzwjuBU8=; b=GzX44fSqUGfM4965LLu2Z+yC/L
-	3zHdM2Pr3dyW363KdaHcOB2hdqkL4KmLjVzMkVK3awHoRgqsCmCAFCyMb0iQnBZZNpJBV4ORK3GyQ
-	6/Jlz+u6NN2mFCPSlQIkz+Frk3pjkpTxp08MSb6XUnIwSbPc0PD/xj6joZoM1yr+w6zkncCKx2ZqZ
-	mCHQ3Hhj6/vByW1BpZdQ4LPW6HOIRbcfxR3GSYAKmnV+BSmQ3G/ZR/eo1SharvMACJDswIIooSVpP
-	mx7SA3MOxGV/Z/FA1FBzrE+9942y3mFOlHxz9hq+W+qVJ8g/dCEJw0cnDEoVTxFuOIXeMe05FOyUR
-	qL5AzPMA==;
+	bh=O66WQhp15wYn61FOktozXGhiXKtOGH/hvfWxN7C9R+Y=; b=GzzlgmWJp3Cs73nfbH/R3aMSKI
+	4e2JttXs8IyU1kF9hnqkoJdo35ecRYqlXnwtTrbKvTLTmnlEmtmcQd1EKC68/NEGFkWm0KWjs3EVh
+	XPZ222oKgxYO47lnJ6x8joeMo4tXXEkLSSppyrCXVnP6GDisDqUfDZj1Vlju+qZFmCRnZkjAK5ZsU
+	uFSD4IzUpz/KAdnAZ5pY5zhieY0pvPExj82wb6SytYa2PrHalcJ2eZhqXIkFwW1aks7Cs4cC16o4S
+	rEFz7jYq+BTMioG8E81pLtrQNcY0UgdQs0vt1fkDP+ale4dMo1BBb0tkqpS5iNp6rK4OeglfD+MPd
+	SNfyk82w==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xSwoZ-00HCU5-0n;
-	Mon, 16 Nov 2026 13:32:07 +0000
+	id 1xSwog-00HCUB-2V;
+	Mon, 16 Nov 2026 13:32:15 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,9 +56,9 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/5] HID: intel-thc-hid: intel-thc: free the failed channel
-Date: Mon, 16 Nov 2026 21:31:29 +0800
-Message-ID: <20261116133132.1282020-3-emfox@debian.org>
+Subject: [PATCH 3/5] HID: intel-thc-hid: intel-thc: stop all engines first
+Date: Mon, 16 Nov 2026 21:31:30 +0800
+Message-ID: <20261116133132.1282020-4-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261116133132.1282020-1-emfox@debian.org>
 References: <20261116133132.1282020-1-emfox@debian.org>
@@ -74,64 +74,81 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-thc_dma_allocate() unwinds with "while (chan--)". The condition is read
-before the decrement, so the first channel released is the one before the
-failure, and the failed channel keeps the PRD tables and the
-scatter-gather lists it did manage to allocate.
+thc_dma_unconfigure() clears the PRD base address and the control
+registers of every channel, but stops only the two receive engines. The
+write and software DMA engines keep their start bit, so an engine that is
+still running is left pointing at a table base of zero.
 
-Unwind through thc_dma_release() instead, which walks every channel and
-skips the ones that were never set up, and free a scatter-gather list that
-was allocated but never mapped: sgl_alloc() leaves one behind when its
-entry count is too large.
-
-That leaves release_dma_buffers() with a configuration whose prd_tbls may
-still be NULL, which its unconditional memset() does not survive. Clear the
-tables only when there are any.
+Stop all four engines first, and clear the tables afterwards. The four
+start clears move to thc_clear_start_bits(), next to the per channel
+setter, and thc_reset_dma_settings() uses it as well, so the set of
+engines is written down once.
 
 Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
 Signed-off-by: Emfox Zhou <emfox@debian.org>
 ---
- .../hid/intel-thc-hid/intel-thc/intel-thc-dma.c   | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 33 +++++++++++--------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index c0dc44e26..704c02822 100644
+index 704c02822..41efdfaf0 100644
 --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
 +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -297,20 +297,20 @@ static void release_dma_buffers(struct thc_device *dev,
- 		return;
- 
- 	for (i = 0; i < config->prd_tbl_num; i++) {
--		if (!config->sgls[i] || !config->sgls_nent[i])
-+		if (!config->sgls[i])
- 			continue;
- 
--		dma_unmap_sg(dev->dev, config->sgls[i],
--			     config->sgls_nent_pages[i],
--			     config->dir);
-+		if (config->sgls_nent[i])
-+			dma_unmap_sg(dev->dev, config->sgls[i],
-+				     config->sgls_nent_pages[i],
-+				     config->dir);
- 
- 		sgl_free(config->sgls[i]);
- 		config->sgls[i] = NULL;
+@@ -94,6 +94,18 @@ static void dma_set_start_bit(struct thc_device *dev,
  	}
- 
--	memset(config->prd_tbls, 0, prd_tbls_size);
--
- 	if (config->prd_tbls) {
-+		memset(config->prd_tbls, 0, prd_tbls_size);
- 		dma_free_coherent(dev->dev, prd_tbls_size, config->prd_tbls,
- 				  config->prd_tbls_dma_handle);
- 		config->prd_tbls = NULL;
-@@ -425,8 +425,7 @@ int thc_dma_allocate(struct thc_device *dev)
- 	return 0;
- 
- release_bufs:
--	while (chan--)
--		release_dma_buffers(dev, &dev->dma_ctx->dma_config[chan]);
-+	thc_dma_release(dev);
- 
- 	return ret;
  }
+ 
++static void thc_clear_start_bits(struct thc_device *dev)
++{
++	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_1_OFFSET,
++			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
++	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_2_OFFSET,
++			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
++	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_SW_OFFSET,
++			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
++	regmap_write_bits(dev->thc_regmap, THC_M_PRT_WRITE_DMA_CNTRL_OFFSET,
++			  THC_M_PRT_WRITE_DMA_CNTRL_THC_WRDMA_START, 0);
++}
++
+ static void dma_set_prd_control(struct thc_device *dev, u8 entry_count, u8 cb_depth,
+ 				struct thc_dma_configuration *dma_config)
+ {
+@@ -267,14 +279,7 @@ static int setup_dma_buffers(struct thc_device *dev,
+ static void thc_reset_dma_settings(struct thc_device *dev)
+ {
+ 	/* Stop all DMA channels and reset DMA read pointers */
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_1_OFFSET,
+-			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_2_OFFSET,
+-			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_SW_OFFSET,
+-			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_WRITE_DMA_CNTRL_OFFSET,
+-			  THC_M_PRT_WRITE_DMA_CNTRL_THC_WRDMA_START, 0);
++	thc_clear_start_bits(dev);
+ 
+ 	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_1_OFFSET,
+ 			  THC_M_PRT_READ_DMA_CNTRL_TPCPR,
+@@ -518,16 +523,16 @@ void thc_dma_unconfigure(struct thc_device *dev)
+ {
+ 	int chan;
+ 
++	/*
++	 * Stop the engines first: one that is running keeps writing through
++	 * a table whose base is already gone.
++	 */
++	thc_clear_start_bits(dev);
++
+ 	for (chan = 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
+ 		dma_set_prd_base_addr(dev, 0, &dev->dma_ctx->dma_config[chan]);
+ 		dma_clear_prd_control(dev, &dev->dma_ctx->dma_config[chan]);
+ 	}
+-
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_1_OFFSET,
+-			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+-
+-	regmap_write_bits(dev->thc_regmap, THC_M_PRT_READ_DMA_CNTRL_2_OFFSET,
+-			  THC_M_PRT_READ_DMA_CNTRL_START, 0);
+ }
+ EXPORT_SYMBOL_NS_GPL(thc_dma_unconfigure, "INTEL_THC");
+ 

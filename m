@@ -1,65 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.207.19.206
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794781315;
-	b=fYr9GWWXoZGJpPJOHzNAca4zngiviyAw2GTkJVFGTso5yhaONeOoja+DcNzxqXgGzv3t
-	 phkhh32cSGLw50xsTYPILq9eTv+/HTEHduP1MtFnxDES7Jzzbg1t0Zxee01oFdRKjR18z
-	 K+2rehd4MT+Du58L0a7kRA+cdU1AJEOr3MwdAshm5sBaFnGqI9piVMaGIevKjQEXL+pIw
-	 Z6Ge1lJnLmBgdpZjzMgAfMlpX2fPamZbnFEiFySxGAzG2hp8i6VOc89gpgqOVeUjCNKDA
-	 8sf337I6BZzjnfDpXHI7nm6tQQ3XOZNlWMANjIDjR9veS1GZJnMejIf8PKkcdaHDVag==
+	t=1794795970;
+	b=h0Wgq55IdOmTweQ+HYCum8AGtdr4+Nh4PAjeU/hbJndEza7YCsHRdjgEHJBDhmNIksPn
+	 vYwtQ6eVfmSaegJVCAAnP9jaIi0iAv6Ab5F+6sA6kWcoPaK+VnBK4vrTOLel1qjXXlTVh
+	 lyWwGFvfQgJuNKYZIp0Y4V472shfUg+QBhKlI4yNICk6RXkUva2lSiI5uPgzl7nVXvowt
+	 oiBV7lOfPt2mNA7PcstnMYzltdmGp/oeV5fO4NKU0dUGtPHlJcNlEMBARt9xWnqS8Jk1A
+	 QU3vAyJ+KEux05sFApIXUoIpOF/GO+A1TemWj+8hqQUYqVrU+sRTf0ebBM9tuio7YqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794781315;
-	h=DMARC-Filter:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=okQNacVGW0GUvXWHX1z1j8nSeLN8GKo8PtYO0Ji0Mc0=;
-	b=ee4B//As/VyfZXGSbpFOv5FEUHQ6FwryVD/18lSXu27X0Ieo0oAJpt1GP+1dcg5sBSXE
-	 3bMK0fMzbpv5iJK2gvU0XP+TTObvbMnjHDPSYhxsfaDPwOBZl6oz/4wt7cF5iBPeiVKYI
-	 HHTVmCVfMeS07NHSd6o9MhYsSCojXeAnde4iPPq5qFx89IGn6hMBqvesek8RNx3k2SFr7
-	 i3YR1OPbL6JCmm7IqOqDPrgy4c465LLuGM5CMDqUKb92WQOsfNbybWc8IgRpNn8ytMgc6
-	 cYKfJ6JYn/K3AvoghmE4WB+ChVO3zEWJPBwGahsI+ZygYbjm+Hfpu3go7YDNBr2rMgQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794795970;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
+	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
+	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
+	bh=iMwI1VtTle8M9U1HzORWMowXiI+tJHvMIGehr7XKFPA=;
+	b=DG9zzTfkMaPd92dd+rA9YMovqzjgqIMAaRa1k9HrNewP5S1Py6gQ+/XwHVtE2m2oEIh+
+	 YCOKbgrgDLwxQGMfMybmr7+6Q4l8qrFfnDBLx3eGEbjThS5XHrExpVHHVVZ+VfA7arZUC
+	 2al4bgYBHCamHhC5f+b0A3Dl4JvX50UkYsbRAaQ3eg7bricpojQQHbxixjYiVH38w0ovE
+	 T1jbwIJIuZu6SP4eoGcm3Z3qttVcq5ZsL+32xiM0Nb8p5v/0siRCUZvkMI8NS8ySMd7Vt
+	 g0IquqXSjhSInGblOu+k8GmgfAWiymiv307J8yP4GdxL9W9sCWkA0RTfmNpZaQpflbA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=kemnade.info;
-	spf=pass smtp.mailfrom=kemnade.info;
-	dkim=pass header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=5jGnU8sJ;
-	arc=none smtp.remote-ip=178.238.236.174
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=uniontech.com;
+	spf=pass smtp.mailfrom=uniontech.com;
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=j+DMDLtr;
+	arc=none smtp.remote-ip=54.207.19.206
+Received: from smtpbgbr1.qq.com (smtpbgbr1.qq.com [54.207.19.206])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A615606A323;
-	Sun, 15 Nov 2026 22:21:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2A615606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 115E2606A329;
+	Mon, 16 Nov 2026 02:26:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 115E2606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=5jGnU8sJ
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=References:In-Reply-To:Subject:Cc:To:From:
-	Reply-To:Content-ID:Content-Description;
-	bh=okQNacVGW0GUvXWHX1z1j8nSeLN8GKo8PtYO0Ji0Mc0=; t=1794781314; x=1795990914; 
-	b=5jGnU8sJMiBDHvn9IaaJFJb1bM9aE59qJ4L/p1p1zDXS7E9U5XWYgX042oThWu84m9QfX7FBDC0
-	pT7rKvIVFIE5Fr6TuY/+DDGooh5Ujmzg39DuI7cyFoQxOwG4rYH3JPTfYSBpDgRvOuukywueXidrW
-	kIsFCwSJTL0xcZd88zveOpehs/E/Bozsr4LnemW0gSiLl29H++oqFQKt2RDXHTElaqXRX9wbv1CRG
-	LJXHtN1a5BPSHZ37UmroUQnsb7d7PpE8FugIIXNOlfIXu+/MThKA/aOx+pVWbQS/Y4hJFbC3ca8NZ
-	1vF2kT+66bZUTCm34UXh1XP9URSfPcWfnFxQ==;
-Date: Sun, 15 Nov 2026 23:21:34 +0100
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Svyatoslav Ryhel <clamor95@gmail.com>, "H . Nikolaus Schaller"
- <hns@goldelico.com>, John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>, Yoshinori Sato
- <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Andy
- Shevchenko <andy.shevchenko@gmail.com>, Johannes Kirchmair
- <johannes.kirchmair@skidata.com>, Yuki Horii <yuuki198708@gmail.com>, Geert
- Uytterhoeven <geert+renesas@glider.be>, Kuninori Morimoto
- <kuninori.morimoto.gx@renesas.com>, linux-input@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Input: tsc2007 - drop platform data support and
- cleanups
-Message-ID: <20261115232117.463f601a@kemnade.info>
-In-Reply-To: <20261112065037.1800467-1-dmitry.torokhov@gmail.com>
-References: <20261112065037.1800467-1-dmitry.torokhov@gmail.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
+	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=j+DMDLtr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1794795900;
+	bh=iMwI1VtTle8M9U1HzORWMowXiI+tJHvMIGehr7XKFPA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=j+DMDLtrzPISajByd2CEXW1vk5mRx4Z29d1DJ1sMT/bx5YCgKvYqYxj31JMmo1oii
+	 kZcx87MCb+UFWodRVglWiFPX1543yMd3qJgtBiYCh+yR5de5kCd2mYmCdwk3HyTYr9
+	 tZxQSIxyq4H0CUetJwpa6H/cPsJtCE+QKiAkBTtQ=
+X-QQ-mid: zesmtpsz5t1794795885t8c81686d
+X-QQ-Originating-IP: cFmbniOkH1g3yGyZqiLib/FZuxHl6JNGbIW4KR2ghyY=
+Received: from PEC004119 ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Mon, 16 Nov 2026 10:24:44 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 16673752541823333651
+EX-QQ-RecipientCnt: 4
+From: Haowen Tu <tuhaowen@uniontech.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haowen Tu <tuhaowen@uniontech.com>
+Subject: [PATCH] Input: max77693-haptic - disable bias on failed open
+Date: Mon, 16 Nov 2026 10:24:42 +0800
+Message-ID: <98F5ACA9EADBEC89+20261116022442.3298673-1-tuhaowen@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -69,34 +68,55 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpsz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
+X-QQ-XMAILINFO: MqYBrkL3Jva45cpPfqEbhpDyh5WMta+8lGtPKSu1X/fF2LlqC6DDpIpM
+	vMkGrMXuTiP2XeAtOITd6eerIkKY8a+mKr8j7i8hy6ImKGbpB39PIHgz688VN3TRLDHgfg+
+	BFRk+cjoa1ImLhzjDL4YKMutCyq+kSPgWiXjAOTjRf2ZzB36M+fV36tLDT4Z6QLQIbZTWLk
+	0qVXH99cfHrid4aVi6NmpqrdOUVBJTT1yXGO6Qq2o9UFZ3Vxr7z6y7mYFzjTWt9SEw1frZt
+	3WQOMew0zzkD9wK0PnkE+JGG2grfo4zMqR35l5FiMswBTBeMpE/CZjotwFtCCaTjA9vGnE2
+	Tyz5v0pwZcvDpqn/1DF63ubpJmq2Ff4Wiqfw0Zd4tqkLIeOS94SDXhdyA+kO2mh8iMg59hA
+	uvwrf3MLOCryEXPc0LNnGbRwVPrXbP9HSx1qjmbEUfc2yEwdmRHSSx7+DueVt+gB4OnYMiH
+	jk6caQH2OBVWDVq4CRhwnsODelnGK4++7wZU0RvkKVe39kGFyNtZ8zBLx7d07dR+tfPSetv
+	XUtdTn98PaFNv9odWP+vwxAqQV2oNKGzN4bep9pw5r6Ui+2+y7X6oZazPI/vzo9j61hsP6Q
+	TkS2ZOi/Rbz5XmNhkcgnZWN+Is8IWkNQCbjEWvpCNbjM6XUvOKrdtjcdmKLzH/+1VVKJhcU
+	xWVsE2T8nxJlzU7S5SgfJ00+K2nKh+kHo/yXtGJsMAhKFha3SV4UwgNemKijhn5ZKgssaDA
+	VhPSyWlB9u+AeY/a+WQsOSKYfcRTSHl6LnWSCMPmCAzhO5+C1OW+IJwbhGmjHb0c+T3RTXT
+	vMxcZFDzMIUmAj69ACvjxAeWcLRHkUtLGL+QcPlUkWiGzpTipYzFFMFxJBX9kXal1BdpvNU
+	PR43EiT64pFeed6kNgtBprz0N9RGgnmmftM44kdG01LbrRRFHON3XgcnjEKH5Y81NKoZHG/
+	w9WigALj+mZoNXKGPiuVpNaTCb6vW7fOTwYbFkUvbwwZ7sKQO/Ef/sjXjVB+wGQnaWAMZUX
+	KTR7z/OYrniZiQdM0vdx2y4Y6V5+4=
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+X-QQ-RECHKSPAM: 0
 
-On Wed, 11 Nov 2026 22:50:32 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+max77693_haptic_open() enables the MAX77843 bias before enabling the motor
+regulator. If regulator_enable() fails, the function returns without
+turning the bias off. The input core does not call the close callback
+after a failed open, so its bias cleanup does not run either.
 
-> Now that all in-tree boards using tsc2007 (including SuperH ecovec24)
-> have been converted to generic device properties, this series drops
-> legacy platform data support and its header file, removes redundant
-> memory barriers, fixes minor coding style issues, skips registering a
-> non-functional input device when no interrupt is wired (when the chip is
-> used purely as an IIO ADC), and uses IRQF_NO_AUTOEN when requesting the
-> threaded interrupt.
-> 
-> Thanks.
-> 
-> Dmitry Torokhov (5):
->   Input: tsc2007 - drop platform data support
->   Input: tsc2007 - remove unneeded memory barriers
->   Input: tsc2007 - fix minor coding style issues
->   Input: tsc2007 - do not register input device without IRQ
->   Input: tsc2007 - use IRQF_NO_AUTOEN when requesting interrupt
-> 
->  arch/sh/boards/mach-ecovec24/setup.c     |   1 -
->  drivers/input/touchscreen/tsc2007.h      |   5 +-
->  drivers/input/touchscreen/tsc2007_core.c | 183 ++++++++---------------
->  include/linux/platform_data/tsc2007.h    |  23 ---
->  4 files changed, 60 insertions(+), 152 deletions(-)
->  delete mode 100644 include/linux/platform_data/tsc2007.h
-> 
-Tested-by: Andreas Kemnade <andreas@kemnade.info> # GTA04
+Disable the bias before returning the regulator error. The bias helper
+already handles reporting register access errors and is a no-op for the
+other supported chip variants.
+
+Fixes: 56bbc99e6914 ("Input: max77693: Add support for Maxim 77843")
+Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
+---
+ drivers/input/misc/max77693-haptic.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
+index 96d6d4620eb4..2bf4581b6adc 100644
+--- a/drivers/input/misc/max77693-haptic.c
++++ b/drivers/input/misc/max77693-haptic.c
+@@ -278,6 +278,7 @@ static int max77693_haptic_open(struct input_dev *dev)
+ 	if (error) {
+ 		dev_err(haptic->dev,
+ 			"failed to enable regulator: %d\n", error);
++		max77843_haptic_bias(haptic, false);
+ 		return error;
+ 	}
+ 
+-- 
+2.50.1
+

@@ -1,80 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794920820;
-	b=BDCSv4duKTIFWoQ4ZqQoMoF073z+aJIpRmjDIWqpoK5VJZFylOUVlOsbKx+RNIQw+QCV
-	 tceKmi/bB+Q+7MNavviiFNQuQS0IAXLMbaZGYQyDcCxyIGNAYSijJZhTgo6vpKxmOnEE3
-	 s1wlwc5LJ0oTyT2ykCeWUqn010F/fjnoiaHPOxDJnexbmaQ3vZvDjJeYxJI9vftZ6Hi54
-	 KmROmEcTzKgaenQ4g+lK8oOX6F7XU7sB445WXZIcmLPOcwLf5em7aJco9ZFX765uw0rOn
-	 W80bmSsqx10Y1pR9uwByitLCxQINTuItUCAF47sKN0bd26IZiInut5w04CK7vnuOg1g==
+	t=1794920821;
+	b=LI+TnnGHwd7j5/rIjJ0SxedXwhRxuS/O8XRaJwM3/ClQu+VpTCkCGr+Plu/vVpZiencX
+	 8aVIJGs7dvTd1xCULjNwdFFyLKmRBdDAg+F0O+J338VuyPGxPoEIShs7tHXd8N22PhLJE
+	 EhdaP07qL6ZmL/ZI9dfnl7mZ5TEUHS+IZFqYqwnnBff7v0UfqFztvcaaBV5klJAGS9Sqk
+	 Edqvn1IsySizmuh/5TMPxXFSeS4NilzQIbcPHcVEv3Ek6dhO5QUFT5sURCxWyOo79YOAP
+	 iGQ2TfpW+nb/r53ucnZqXupHLHfHPguLDO+tCbg4eX49J5jnnKwz/HFs3V956JS0R1A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920820;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=HVEE3Tcbne75iVGjTL3VoYX5NV8IDX+fOPLq54L1FA0=;
-	b=KHC9X0D73LsIykY2KpLde5Hv9pwVrfgrS2LeJ7JqS6bjl6fHcS853TH0wGLobwH2fG2Z
-	 Jki9EOvQnZzad80C30ivbZ6w2E+mtTTpJVOY903DOlzO8YstNJ8APuiucRjAcOJhgRdGr
-	 9LeOXsHHOeppRxO1av3lhViEG0LrBZ03l4Wud/cwfd5pwvppOJaYRkBBcSN9/sUlac3DC
-	 mWs7QoPd1zMTIkyk9rf7Mi/Xfn2cWRKln7he99iFd0YrbYxzBrXsQ9UxtfF9mLwXHxjeN
-	 1BDZH3QOg4cEq/7YrQS1mZAiQwIDVNVrgpgycd6fGxQpcWpQpopi83jZMV/U7c2ujAQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920821;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=nf3fn+myjMBG8LoaA4KjbdQr6OzjSMjhPMXD3rPLoGE=;
+	b=1EYgJCAQFXP/LkX+aBdqB9IkmB9OsIzRkYY8Q2er2njUsWNuBbrtl7Ea/aiFbU/qHaAE
+	 D17zCJzkW2pJ7F+jmIkct8wPnOY+bVT/tn/v2R2e8N9v8MzyjXV15oOVIJN9VRFG3jIlC
+	 7VDdaTHimMd3Zd3BK9WSfjBKvRK0mfm/jVdcs7K7QPEpDsfE2uxnCajEhaMz6hBvl12wt
+	 E9bcLLi5PNZNXhEzRHdHL4JseXJqWKQ+EYAtx7dQcuKIi8aqNhG9dvJN4XfGzffW4AK84
+	 Low3EMq1R6zyudjU/E6Xs8otmDlPma4gT/niI8YUCBiu2eXd15fYdxl+ZEoZEbKdrYw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KusGYfdX;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YxTxJCJJ;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B50606A330;
-	Tue, 17 Nov 2026 13:06:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71CA0606A88F;
+	Tue, 17 Nov 2026 13:07:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KusGYfdX
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YxTxJCJJ
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794920819;
-	b=0r9uRdivsCoewUCIvlrK4zMxlXevmaH6yWMBF+nT7p7HRRZwZyZ5PsWuYdrw6719GIgp
-	 dFzSInt/f9S19cPSXf2QiPx6zOnJIt3+RZNMSK03yqEl6juUkILnEQ+af5h32WmT9jiEJ
-	 h1S7UhkxbfJ79ZDOFZX+X9217yluSyE41q6v6R9Kv70ghOK10WTY2TmQRE8QIe13dX8ca
-	 auTwZmNEMwep+/oh4QxP5y8AkSnXfHaXo2ZJXoptZBW2jdjzXpBVB81OrmmhKVKmVviQg
-	 BHR76q/vVpWLF1ZvB6eCxWagW7rBasBykwESyrQPGlTVtUOnBsxpqE0H1zeBizIGPQQ==
+	t=1794920821;
+	b=cjGPWaIFoxrz7B2dUYOIT3Ux0+vNdgmi2PAf8ThHhC86bTc0HV8TTJL3o4aNo8XevrJp
+	 VvX+DA4RNeTWW5gCUg7JnqU8cDZafrhVWABlKrZmvPW/iV3nw7fGDJpZt7ECwt5cSxfFp
+	 +InW+Pc5ebW/Psm1/N530qI6G4XUHzXyDUVTGerUm5T8+E7UXr8686uta4Gi6OVrMhzkX
+	 4EaJBp/ZuIl/buzbvWS+GCw/CALnaM5hOOp/nG78CyiyexTyon0w1Xz7t6VoxaRjc6Sjo
+	 Itt6urX/sG/RZU3Sq5u/p4+XDNXfPcVdHAr/PnYE1WWY+ltKQ0arDpuc9eULCXQFctw==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794920819;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=HVEE3Tcbne75iVGjTL3VoYX5NV8IDX+fOPLq54L1FA0=;
-	b=QuwfeivrjGypZTmqkpMEujYkm3IHy0bLqL7n4tt0kO118sRj+oTPiPYVck0QOVqfFGux
-	 a9wjEalkmDuqeBoewJMa9AD2qTRJtDA6rMGCoiNpBWu7G+6BP7UWl8AjbeSt79XGjBOtF
-	 D04LgHeMNB1sHrdOp0HAyuCL02AjCusuOIIU60BFm+siaFYycxAog+ycZO98rI0IFUkvo
-	 Xq3GhLBWqdJzPPRfxf4CZ/UFcQFHDLs/qUcOGFYjBH/Ki0fmUlMb7LUt/ZZs/q73vrcPs
-	 oAV38JDwbXSBdVUn0S8QGhPTyS94qbPM33HsjgbqpNf5NLPPMdN0CsFm5MYaTRxWuUg==
+	c=relaxed/relaxed; t=1794920821;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=nf3fn+myjMBG8LoaA4KjbdQr6OzjSMjhPMXD3rPLoGE=;
+	b=pIZLbrRXY9zitBWeGJvc3A2q9Al1DVsOWUcG+HayHAC6bJhCCJosX5TibuWwCcGDfCI5
+	 Cz2Lac0PSJ2Fq9MBQ8ARgEFC1aUKGIiFve8nQszVd3tE4ZA3wPsth5im7VHUtxi3DRfn3
+	 rSPGvqMiqISfohp/p2R3tK7p98pxH5DJYPhNmIXQ38HowoT4CHJcOSi1E4oqol2729mSo
+	 4F5ywOhTypjFczHQe2iShCXaMAkb9z9TfOGSs4VZMlFep6OgnY+7+ziYDe/3MHaAMiLig
+	 DBpIiFbGMIIpeeqVVOYN5EUjULy2GThftQjpK30CugNbVDw4LBRvby8bSojgttIDOYw==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 22FEB1F000C5;
+	by smtp.kernel.org (Postfix) with ESMTPS id 753571F000C9;
 	Tue, 17 Nov 2026 13:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920819;
-	bh=HVEE3Tcbne75iVGjTL3VoYX5NV8IDX+fOPLq54L1FA0=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=KusGYfdXQi2wznXRCzHL7Aq4lwcI8FtpRcxI+2rN3pyAUNIB3woFzVIh3AutC1hgi
-	 fYAFXsw46f1BdQHReX7Dbig8Rgg55iTaNTfyUm2CO1fz/iWIJGZL1B08w/Of9Zey3G
-	 kv7GV2YQFIgFqLSwMzDgWD9Xtl4nCR13o6Qz4+igw1oTdUZ64qW7tg/RwNpryK0SrX
-	 TW5wiftGS8u73LDaPHWh52KpWh48T3vEK5iEPkQG8kUXW6EstME8pCEE5iXBG+3I2i
-	 sxegNTHNEumVyHqKukHUZrw5YAPhSYI7tZPVfFPH/DIpBc8nOgI6UITtZmwaDtGZnQ
-	 X7LKRPH5JMZ0Q==
+	s=k20260515; t=1794920821;
+	bh=nf3fn+myjMBG8LoaA4KjbdQr6OzjSMjhPMXD3rPLoGE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=YxTxJCJJETKqDuuMLO/JDIY2xPwepH2vrkBB8l2v292ukBOhIdO6khzAYpdWmXehJ
+	 AVNrarWAbO3b7ETuWsXTIbN6Fj6HMlu9pybv5R+5BQp2YoMvzHa/AnwbaaUKmfxu0G
+	 aK4DqHgR3ihpnUCDqOBmfURu4c04W9eoFwuVEuSvMQwTl08riN9Img7hKZpUSlBI3M
+	 FqdGZVC33lIszlE/dQYRQTu3CuTEmSbDRqcvdlpTPXFUBa+9QoOJG0+9tiTOEWtxIy
+	 +Tq6xZNoBvnopXmXyDzPmfMfo3c/lbwwJX60D3Uf/f283ksJEzVOf5ad08doAZh5Gx
+	 EdM3oNw+jDt6g==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 934E14A97F;
-	Tue, 17 Nov 2026 13:06:58 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 0031C4A98B;
+	Tue, 17 Nov 2026 13:06:59 +0000 (UTC)
 From: yy-Local-LLM via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
-Subject: [PATCH RFC 0/6] SiRF AT550 / YPL514si initial RAM-boot platform
+Date: Tue, 17 Nov 2026 22:06:54 +0900
+Subject: [PATCH RFC 4/6] Input: add polled SiRF AT550 resistive touch
  support
-Date: Tue, 17 Nov 2026 22:06:50 +0900
-Message-Id: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -85,11 +84,9 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzNDQ0Nz3cQSU1MD3aK0ZN0yQ10jU0tDQwvTRKO0VAsloJaCotS0zAqwcdF
- KQW7OSrEQweLSpKzU5BKQQUq1tQBphOzAdQAAAA==
-X-Change-ID: 20261117-at550-rfc-v1-2591185a2fe8
+Message-Id: <20261117-at550-rfc-v1-v1-4-5879573cb825@gmail.com>
+References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
+In-Reply-To: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
 To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
 Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -105,112 +102,192 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794920817; l=5303;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794920817; l=6122;
  i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
- bh=2VJuHtWvJ/6kBBAKkOQqaxVnf8LunGjT3BvQbOpAQfM=;
- b=TqlrSuhkixWIR2lMSrU1nGDY+ADJU4gjIR3CMH3zWTCgohhAVNsc4WHccWXgrO6bUMFtL6UWE
- irl8pnb2GR4D1jPLdZS1FC97ZoM/BZRsaNtgzdRlcZRgSrzz+BDGTh1
+ bh=4S1aTi+unk74MXK+J63dLTnVcbz6m2tdAaKPHjtbsec=;
+ b=ez1fyL3NeM0iCsiIeh4TpbfqIc7q0PKL8bu8dxVHuzeK9UKlDw5OD6PetT571k20Dcp1naRHN
+ bHSjreB2/0WC+xK5JOGdlBzwToAFihkTCUni3KlOTSq2/lOzWQwLMDh
 X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
  pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
 X-Endpoint-Received: by B4 Relay for
  yogo.0917.sabu@gmail.com/ypl514-20261117 with auth_id=1550
 X-Original-From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 Reply-To: yogo.0917.sabu@gmail.com
+Content-Transfer-Encoding: 7bit
 
-This RFC adds initial SiRF AT550 support for the ARM1136-based Yupiteru
-YPL514si navigation device. It splits the working 6.12.60 bring-up into
-normal kernel subsystems and ports it to the 7.4-rc3 development tree.
+From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 
-The device owner has now booted this 7.4-rc3 candidate on the YPL514si
-through the JWM desktop, with the console and screen keyboard. The CE
-handoff record confirms a 32 MiB Linux-owned allocation, all 8192 PFNs,
-and a counter rate of 124387750 Hz. The deployed EXE/DLL hashes match the
-prepared kit. The WM result is reported by the device owner, rather than
-being inferred from the CE pre-handoff log.
-
-The kernel uses standard IRQCHIP_DECLARE, TIMER_OF_DECLARE, common clock,
-input polling, SDHCI PIO and simplefb paths. Generic ARM head.S, init/main.c,
-MMU and RealView execution code are unchanged. The CE RAM allocator,
-page-table checks, handoff bridge, DT fixups and GUI software are not part
-of this kernel series.
-
-Firmware must initialize SDRAM, peripheral clocks, pin multiplexing and
-the LCD. The bootloader supplies the actual usable RAM and post-divider
-counter rate in the DT, and enables only peripherals handed to Linux.
-Memory/clock zero values in the source DTS are explicit fixup placeholders.
-The timer driver preserves the divider and rejects a running watchdog.
-
-Validation:
-- AT550-only defconfig Image/DTB build, plus built-in/module leaf drivers.
-- W=1 on the new drivers, dt_binding_check with examples/yamllint, scoped
-  dtbs_check, and ARM32 tests of the actual loader DT fixups.
-- ARM1136 QEMU at 16/24/32 MiB through JWM, five-point calibration,
-  screen-keyboard input into rxvt/PTY/ash and a readonly SD fixture.
-- Physical YPL514si boot through WM, reported by the device owner.
-QEMU uses GIC/SP804/PL181 and synthetic touch, so it is not being presented
-as validation of the physical AT550 controllers. The no-VFP defconfig also
-produces an existing unused-variable W=1 warning in unmodified signal.c;
-there are no reported new-driver warnings.
-
-Initial limits: firmware clock/pin setup is inherited; cold initialization,
-clock-tree control, DMA translation and board suspend are not implemented.
-The board DT limits SD to 25 MHz, no 1.8 V, no MMC and no SDIO. SD writes,
-card removal and suspend/resume have not been separately validated. The
-AT551 draft was cross-checked with AT550 CE mappings and prior hardware
-behavior; it is not claimed to be a complete AT550 specification.
-
-I would appreciate early feedback on the initial platform scope and the
-firmware/DT handoff contract before extending clock, pinctrl or DMA support.
+Report raw ABS_X/ABS_Y and BTN_TOUCH using the input polling framework.
+Preserve the firmware settling settings and reject streaming/AUX
+ownership. Use standard touchscreen axis properties; keep affine
+calibration in userspace. Polling is the initial supported acquisition
+mode.
 
 Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
-
 ---
-yy-Local-LLM (6):
-      dt-bindings: add SiRF AT550 and Yupiteru YPL514si descriptions
-      irqchip: add the SiRF AT550 interrupt controller
-      clocksource: add the SiRF AT550 counter and match timer
-      Input: add polled SiRF AT550 resistive touch support
-      mmc: sdhci: add SiRF AT550 programmed-I/O support
-      ARM: add the SiRF AT550 platform and YPL514si board
+ MAINTAINERS                          |   1 +
+ drivers/input/touchscreen/Kconfig    |  10 ++++
+ drivers/input/touchscreen/Makefile   |   2 +
+ drivers/input/touchscreen/at550-ts.c | 108 +++++++++++++++++++++++++++++++++++
+ 4 files changed, 121 insertions(+)
 
- Documentation/arch/arm/at550.rst                   |  55 +++++++++
- Documentation/arch/arm/index.rst                   |   1 +
- .../devicetree/bindings/arm/sirf,at550.yaml        |  22 ++++
- .../bindings/input/touchscreen/sirf,at550-ts.yaml  |  36 ++++++
- .../interrupt-controller/sirf,at550-intc.yaml      |  46 +++++++
- .../devicetree/bindings/mmc/sirf,at550-sdhci.yaml  |  51 ++++++++
- .../bindings/timer/sirf,at550-timer.yaml           |  47 ++++++++
- .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
- MAINTAINERS                                        |  17 +++
- arch/arm/Kconfig                                   |   1 +
- arch/arm/Makefile                                  |   1 +
- arch/arm/boot/dts/Makefile                         |   2 +
- arch/arm/boot/dts/sirf/Makefile                    |   2 +
- arch/arm/boot/dts/sirf/at550-ypl514si.dts          |  52 ++++++++
- arch/arm/boot/dts/sirf/at550.dtsi                  |  66 ++++++++++
- arch/arm/configs/at550_defconfig                   |  34 ++++++
- arch/arm/mach-at550/Kconfig                        |  13 ++
- arch/arm/mach-at550/Makefile                       |   2 +
- arch/arm/mach-at550/at550.c                        |  11 ++
- drivers/clocksource/Kconfig                        |   6 +
- drivers/clocksource/Makefile                       |   2 +
- drivers/clocksource/timer-at550.c                  | 134 +++++++++++++++++++++
- drivers/input/touchscreen/Kconfig                  |  10 ++
- drivers/input/touchscreen/Makefile                 |   2 +
- drivers/input/touchscreen/at550-ts.c               | 108 +++++++++++++++++
- drivers/irqchip/Kconfig                            |   5 +
- drivers/irqchip/Makefile                           |   2 +
- drivers/irqchip/irq-at550.c                        | 110 +++++++++++++++++
- drivers/mmc/host/Kconfig                           |  10 ++
- drivers/mmc/host/Makefile                          |   2 +
- drivers/mmc/host/sdhci-at550.c                     |  62 ++++++++++
- 31 files changed, 914 insertions(+)
----
-base-commit: 666539eecdf4db623f5e3c3e55cf9f2dfad24aa4
-change-id: 20261117-at550-rfc-v1-2591185a2fe8
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3fea2160a..441492230 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -25856,6 +25856,7 @@ F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+ F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
+ F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
+ F:	drivers/clocksource/timer-at550.c
++F:	drivers/input/touchscreen/at550-ts.c
+ F:	drivers/irqchip/irq-at550.c
+ 
+ SIS 190 ETHERNET DRIVER
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 9b9ae8ac3..e68af1dd6 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -1414,4 +1414,14 @@ config TOUCHSCREEN_HIMAX_HX83112B
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called himax_hx83112b.
+ 
++config TOUCHSCREEN_AT550
++	tristate "SiRF AT550 resistive touchscreen"
++	depends on OF && HAS_IOMEM
++	help
++	  Say Y to enable polled coordinate acquisition on the AT550.
++	  Coordinates and pen state are exposed through the input subsystem.
++	  Firmware must initialize the touchscreen peripheral clock.
++	  Board-specific affine calibration belongs in userspace.
++	  To build as a module, choose M; it will be called at550-ts.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index bfd9de833..6b8d09601 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -119,3 +119,5 @@ obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
+ obj-$(CONFIG_TOUCHSCREEN_IQS7211)	+= iqs7211.o
+ obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
+ obj-$(CONFIG_TOUCHSCREEN_HIMAX_HX83112B)	+= himax_hx83112b.o
++
++obj-$(CONFIG_TOUCHSCREEN_AT550) += at550-ts.o
+diff --git a/drivers/input/touchscreen/at550-ts.c b/drivers/input/touchscreen/at550-ts.c
+new file mode 100644
+index 000000000..0a208f4a9
+--- /dev/null
++++ b/drivers/input/touchscreen/at550-ts.c
+@@ -0,0 +1,108 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* SiRF AT550 coordinate acquisition. Layout cross-checked with AT551 draft. */
++#include <linux/bitfield.h>
++#include <linux/input.h>
++#include <linux/input/touchscreen.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#define AT550_CTRL1 0x00
++#define AT550_CTRL2 0x04
++#define AT550_INTR 0x08
++#define AT550_COORD 0x0c
++#define AT550_STREAM 0x44
++#define AT550_DOWN BIT(31)
++#define AT550_VALID (BIT(29) | BIT(30))
++struct at550_ts {
++	void __iomem *base;
++	struct touchscreen_properties prop;
++	u32 ctrl1;
++	u32 ctrl2;
++};
++static void at550_ts_poll(struct input_dev *input)
++{
++	struct at550_ts *ts = input_get_drvdata(input);
++	u32 data = readl(ts->base + AT550_COORD);
++
++	if (!(data & AT550_DOWN)) {
++		input_report_key(input, BTN_TOUCH, 0);
++		input_sync(input);
++		return;
++	}
++	if ((data & AT550_VALID) != AT550_VALID)
++		return;
++	touchscreen_report_pos(input, &ts->prop, data & GENMASK(11, 0),
++			       (data >> 12) & GENMASK(11, 0), false);
++	input_report_key(input, BTN_TOUCH, 1);
++	input_sync(input);
++}
++static int at550_ts_open(struct input_dev *input)
++{
++	struct at550_ts *ts = input_get_drvdata(input);
++
++	/* Polling keeps the interrupt sources disabled. Preserve CE settling. */
++	writel(3, ts->base + AT550_INTR);
++	writel(ts->ctrl2 | GENMASK(15, 14), ts->base + AT550_CTRL2);
++	writel((ts->ctrl1 & GENMASK(7, 4)) | BIT(11) | BIT(10),
++	       ts->base + AT550_CTRL1);
++	return 0;
++}
++static void at550_ts_close(struct input_dev *input)
++{
++	struct at550_ts *ts = input_get_drvdata(input);
++
++	writel(3, ts->base + AT550_INTR);
++	writel(ts->ctrl1, ts->base + AT550_CTRL1);
++	writel(ts->ctrl2, ts->base + AT550_CTRL2);
++}
++static int at550_ts_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct at550_ts *ts;
++	struct input_dev *input;
++	int ret;
++
++	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++	ts->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(ts->base))
++		return PTR_ERR(ts->base);
++	ts->ctrl1 = readl(ts->base + AT550_CTRL1);
++	ts->ctrl2 = readl(ts->base + AT550_CTRL2);
++	if ((ts->ctrl1 & ~0xffffU) || (ts->ctrl2 & ~0xc2ffU) ||
++	    readl(ts->base + AT550_STREAM))
++		return dev_err_probe(dev, -ENODEV, "unexpected TSC state\n");
++	input = devm_input_allocate_device(dev);
++	if (!input)
++		return -ENOMEM;
++	input->name = "SiRF AT550 touchscreen";
++	input->id.bustype = BUS_HOST;
++	input->open = at550_ts_open;
++	input->close = at550_ts_close;
++	input_set_drvdata(input, ts);
++	input_set_capability(input, EV_KEY, BTN_TOUCH);
++	input_set_abs_params(input, ABS_X, 0, 4095, 2, 0);
++	input_set_abs_params(input, ABS_Y, 0, 4095, 2, 0);
++	touchscreen_parse_properties(input, false, &ts->prop);
++	ret = input_setup_polling(input, at550_ts_poll);
++	if (ret)
++		return ret;
++	input_set_poll_interval(input, 10);
++	return input_register_device(input);
++}
++static const struct of_device_id at550_ts_of_match[] = {
++	{ .compatible = "sirf,at550-ts" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, at550_ts_of_match);
++static struct platform_driver at550_ts_driver = {
++	.probe = at550_ts_probe,
++	.driver = {
++		.name = "at550-ts",
++		.of_match_table = at550_ts_of_match,
++	},
++};
++module_platform_driver(at550_ts_driver);
++MODULE_DESCRIPTION("SiRF AT550 resistive touchscreen");
++MODULE_LICENSE("GPL");
 
-Best regards,
---  
-yy-Local-LLM <yogo.0917.sabu@gmail.com>
+-- 
+2.56.0
 
 

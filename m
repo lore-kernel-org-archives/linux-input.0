@@ -1,57 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.138
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794921157;
-	b=qeNZ2RTFjIg56pVzW9Dc01BMe3dgj2pcfJ/GmB97NdVrv7xEgLmWBYik+DFNLGzlUwvq
-	 XL5cgCmrHfEiOsnab9K38h6j5Wo9HqmCppgwC5EozG2ArcoSNu8Ty+9oXWr+JYkKdgGv8
-	 0KWRnveJojtWJE2XTGCx6iypsonAiXtfg0pQpFxRU5hNvjjJtWraJ9xfFY3cn/Qze5qID
-	 /tjJu33UDBEGx/ku1yTac11xb0OyjvyNr9Y7aanM+hZCkxMhYUp1cBHPbqMw9bf7Qi4pm
-	 uGTQUUmkpKaUdOFm5vytomeRkPZdedQXnFfmP45xDp4rYcz+sMwKqvxvwRtyBCRrnig==
+	t=1794921518;
+	b=TvclZTwFMH+KePfsp9ag9voRbqYC5qoi9sZI3P5YvjYOfZ1AQ2mthXhBF61JJD82ievW
+	 oeidOz9fXgRqNtbiOEi1x4Ei6OMG84ymy/Qyax6cBi7dHTdH1rR7pel4Br7RlOzqbd1ab
+	 aQqnmCVpSYfhJELxpnwS8LdRav4irjtS196nR3im66HG3mPTplSXCisLpGY0lYk7Stlq/
+	 CKE3NzC7kxCT3ndKqbuW/gmN8UnzNo65IJF82ZRyrABxYiS5LVBZL3W5jQO6hYC1Fvmaw
+	 KvBsSAEEtegCazGH7Hf+Xc0oFIePlgmeiDAVYIg1MSNZ/IXwCXSDhKMeq+zHmIV7Trg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794921157;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=MdVqw0F5CfoMgltcebKZnz2NwUzBuH6PWbQR6PRHA8w=;
-	b=cyQTPZ8X0bZe9kE1i5H2YDgNZ1tRzOmEEN1V+ciivwYUcM6OTayaQOJpLDprBH4v84nS
-	 AvjlQ4dnme2wXu9Gcl7OnnbTq08iSWHFmE75HZtdC6bFdXWyDmVrufrFK5YVpScbdp9AG
-	 gBkpjAQoVJSIDm8N/9Y4/w7V7zcyq6dt3YfQERti4+plWy/bWisMP+5BE1xbVbSeEU7t1
-	 Aenxjzw309Dgo5T6VJ0TWgKz40VqAnzpfKD8+vVy93NLChjpdVwXkJKF3AurnHvlTC2XG
-	 9Fl6goHCUhQ8pjUK0sLt2qI2oHT7PAPPYz3j/T9YUapaXbiv7v7g/yVnykbQXEzJ0/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794921518;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=X5Rz2Ygap5kebIv8LKY3vVFeHVyc95pMyChBqQQNkts=;
+	b=ng33q5FAo0zKfqYoh7hW+N4pmH3uLmxVQb6mrAL8LONLHecYkBqsKoquo39dMSOapkhq
+	 TEUVOs4yZtfvb82XPC5Zh5XGK0+vUZX7uTJk0XZ/IE+8HT/yvd9wQYcfH5sKQZqNUe4Ql
+	 t7LUN0ZT0PzURtL5UtgL9nzuVtaUgRUMJ6rAJhGoZTVNe9NnH/wtjh1I7xsYra1Rz3Q3c
+	 pRLk+bfZUSyNyNmU9HpgSPQvAe3W1XcjlF2Z+vR5KpstMR06LWRjZpOKK/Ce8Vj9krrzB
+	 Pz/Sfc7CVSsLsQXWTZftFw5X2+8+ME0vo5q2ODQa+eipkc7COexgkneOZopIO8gwKhw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CTfP8oKv;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=WKdnVgri;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=rl5FsS4I;
+	arc=none smtp.remote-ip=103.168.172.138
+Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3904F606A31C;
-	Tue, 17 Nov 2026 13:12:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22BAB606A337
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 13:18:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22BAB606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CTfP8oKv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C4F81F000C4;
-	Tue, 17 Nov 2026 13:12:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794921156;
-	bh=MdVqw0F5CfoMgltcebKZnz2NwUzBuH6PWbQR6PRHA8w=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CTfP8oKvQiGbvvW8+dwm34sXTVzlnAdMybf9ixbWZHqnXLu926UDeXWb9bepTvgaz
-	 qND2/U1G1We7VZDgvq9ea/4XG34Cpl5ikgycFCaxYunknd+Irm8FoGUcpgHXMWXDtS
-	 RFqEVgwTbp67qQdNC94v6vvd738SKj66o5TRvuFBO3Y1AMi06v/jf7AR4mPhIrYe2Z
-	 fVRh+qehQg344DuzFylDMY2X89OImK2lhskqa+zNynBirMCZ0/OAO4hdE3DQEGn1uA
-	 1nL+c879a4q3LaqqtP7j5r30Fp0P51Bw7GTFw6jIBQ9yrjYwFaP3dPN22L+bauIcfa
-	 zArAAfyzZY8Kg==
-Message-ID: <sashiko-outbox-218846@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 08/11] arm64: dts: qcom: sm8250-lge-timelm: enable
- SW43103 panel
-Reply-To: sashiko-reviews@lists.linux.dev
-To: rofikkerneldev <rofikcoga@gmail.com>
-Cc: devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261117123946.668557-9-rofikcoga@gmail.com>
-References: <20261117123946.668557-1-rofikcoga@gmail.com>
- <20261117123946.668557-9-rofikcoga@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 17 Nov 2026 13:12:36 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=WKdnVgri;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=rl5FsS4I
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.phl.internal (Postfix) with ESMTP id 3FFAF1381BD3
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 08:18:37 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Tue, 17 Nov 2026 08:18:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1794921506;
+	 x=1794928706; bh=X5Rz2Ygap5kebIv8LKY3vVFeHVyc95pMyChBqQQNkts=; b=
+	WKdnVgriXweWZY4U1+3kve1Va7e1M/Pj8ATLzphElORes34pUpLyH3bHbrZCHO0n
+	wsBP+6b9ZTG66/Fk9E3ETVSXuyxFZ8YnxzVpLnBDzwhG3GSn72tl2ifD3mZ7ZTEG
+	n0MI3+tzPkoeKfW/aPsBUfAj8ujAwEihGOVYWBk6FieNHgSSycXFOKmi9sjcssvA
+	vbxwQ1i6ZI07uaDP+nsNxSWKv/2STM6+kICF07pu01ESt7hNLjIQyP+Gu3AlmmsL
+	7sj+zajL/M/eLzJM4B8lOCPzpzCv2dwkUckoGi9zvoCiEKK/A9PxsLowBvsKMXXt
+	m9dNjTVqFyeEq6zOz4R0AA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794921506; x=
+	1794928706; bh=X5Rz2Ygap5kebIv8LKY3vVFeHVyc95pMyChBqQQNkts=; b=r
+	l5FsS4IDuyP752/h1Jb6fS61PRMZoiCuMXTKa3VYNVTdykFf5oSzlx1fTq9Mne+z
+	tswNEnclYS+YFaCJZwxUyUlUGB+K3XNfya/YoGUwnBtBbt0/ASY2d+8VGdapj1Qa
+	VIJ4t9qv8XXWj2Wt0AHdQiIEM4asJ3irmDiwbfjcTivM3PecnjnCa/zXV3rMmz+1
+	piik4/axMNMt6+lY9/RXFrYr1s5OVgj5Ds8ZSK+ocG1Nag1ZSfqQbyfkxsa9sgq0
+	9ONmtzN+cRmqoqNtUn0kQAq9yX3XvCBdKbBV1URJVneUr1JK6VPo8n0gn9EqMLzb
+	ZnxuKQoj+gmZH6yuK/Dgw==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1794921506; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:hGM/azMsTODIcsNwDn3vqBvCtDsMyaJNdP9jgjGua8H72GQ
+	EBQ4hOlOOyNHntbMTGPaFq7LYCxS2dDbiBZtewXq3WrI/9J3s+yqOaPTYJMRF99D
+	EVURJax3ZBXHm8eK8SVKCYVWSrxj8AdymrRSX104Z0IrOrhVIMNEUDggeNUsf8mt
+	4aNqFu7KhVNVuAiNkEJYfFy5iBjznMbdYXpH5hjjtAgjTT+sFnK4iCaOGRoYtwFe
+	vq45WhmAjqgSp8BZ9qP8wUThhUyKQwm3TYywy809NhTNKsh5PizTeYretKJcmtUg
+	lsqita4qhtQzlIMneAB4V+jUcjLNTrwblHSIWlQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:E4p+jgEjA6z4YOh+zG8xI2+TIk/z5V7O3REzuJQl8e0=:s3MaRm4deGZPyFhIC/OTW6d1TxrbpBC2jMCuDZt0O64=;
+X-ME-Sender: <xms:G1T8akqR9LXxK17B3VNCjPaUZv57ob7Yn46_dzb14CXweKQFfcsvSw>
+    <xme:G1T8alcscSthCjjkEkXgL3qIRo-bMunpt4OBXbN78KGGfcuTDxoOWm0DixukFZnAB
+    3jwegdzC0Na_olzE9jxlu50q8T7-2oo-ZplwiPDT5uLUjQ65k0u1q9j>
+X-ME-Proxy-Cause: dmFkZTGybI4vNsfJtZzIBSKeQUH0Qakpa4RCkhFfnaLfC6yUDA+d0FhnQKXWZPDy/kj75y
+    /NHXCGCkIIRkpWzs7V9nOux+5xMy4D//gORpgKSuDZagCYoHdROAEolXCtxYlk0V1qzgQ7
+    tcyU5IV832OfArLFKi2C/fRZinN6cp9vGaENPPMTnNQB1tBH54th32q6znhW6538GoSMEE
+    EhVz6USd1rgWFhLy5dx+8gopg3Q2n02hhp9Ut/26LIFIBBrr6XDaNrQr3uc7JLxPG1YIcm
+    CXvYq72ZJ4TSsSUhaxEqTJ4r5trqsjQG41MN2FyVjBHM4jh7jdH8iSN98sq8Kket5g8KTq
+    KPawFUnDmboDkfTjXA1nO+6db8zom9yA7ww/NF516/xY8wRTARG4qPKmjfyMlz5FZzA4+a
+    UmK8pc0Ig7ijBU+s+TdVHbSuTD7IF1SFl3/OCRO1wCGCX1MOwhgdWVLrswT1xBdYUb5IZo
+    q2MKDq7HBY1HPpvVYhu0TUuc2fFf0gvDTmeNvi4jjM/cWX23SJ0vmGopOyiS+K3gGgeuiH
+    JaLkcuenAxN7oIrhjnHLdpKm8HwRus9h/Xb6D/dA3byDadtX8Q5Z2zWcygswz7dG3P6d1U
+    aOIqYoTzVsKgm58c6yLw2B2ghJF5wUPpSx0T9gzjYz+50yTWNagB3MCcR8WA
+X-ME-Proxy: <xmx:H1T8atf0rCO8nggJRHa3MyNETIrNXBA9ztat274b8BY8M91kpbOlSQ>
+    <xmx:H1T8apDGPcEkAr2z3ZJXbIveHkxb4ZSuzFvSStwP3wvf13bTz57KtA>
+    <xmx:H1T8anZqVdU-2n1FqALuJcgxj9pguX_xsdvzfQXPKL-6O-W2_l3BxQ>
+    <xmx:H1T8ah5fpGKSVyEDLsEzjKY9JbCEw_GPFnc29qLNYFLNdcNn_pni1g>
+    <xmx:IlT8ah8jKTg2Mn15xl3Eu9v6m_LkhV9tQB8vZpV-ATMNI6ddq304vKIJ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 45C6C32A0099; Tue, 17 Nov 2026 08:18:19 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,130 +114,62 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+X-ThreadId: AruObr9CcEcw
+Date: Tue, 17 Nov 2026 14:17:58 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: yogo.0917.sabu@gmail.com, linux-arm-kernel@lists.infradead.org,
+ devicetree@vger.kernel.org
+Cc: "Rob Herring" <robh@kernel.org>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>,
+ "Conor Dooley" <conor+dt@kernel.org>,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Radu Rendec" <radu@rendec.net>,
+ "Ulf Hansson" <ulfh@kernel.org>,
+ "Daniel Lezcano" <daniel.lezcano@kernel.org>,
+ "Adrian Hunter" <adrian.hunter@intel.com>,
+ "Jonathan Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>,
+ "Randy Dunlap" <rdunlap@infradead.org>,
+ "Russell King" <linux@armlinux.org.uk>,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Linus Walleij" <linusw@kernel.org>, "Drew Fustini" <fustini@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ "linux-mmc @ vger . kernel . org" <linux-mmc@vger.kernel.org>,
+ linux-doc@vger.kernel.org, soc@lists.linux.dev
+Message-Id: <c3832ce3-4605-4810-9348-c6fee394fe04@app.fastmail.com>
+In-Reply-To: <20261117-at550-rfc-v1-v1-6-5879573cb825@gmail.com>
+References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
+ <20261117-at550-rfc-v1-v1-6-5879573cb825@gmail.com>
+Subject: Re: [PATCH RFC 6/6] ARM: add the SiRF AT550 platform and YPL514si board
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issues to consider:
-- [High] arm64: dts: qcom: Signed-off-by and Author use handle
-  rofikkerneldev
-- [High] arm64: dts: qcom: enabling mdss with gmu disabled breaks
-  a6xx_gmu_init()
-- [Medium] arm64: dts: qcom: missing enable-gpios in sm8250-lge-timelm
-  panel@0 node
-- [Medium] drm/panel: sw43103_remove() calls sw43103_unprepare()
-  unconditionally
-- [Low] arm64: dts: qcom: redundant dispcc status and unsorted mdss
-  nodes
---
+On Tue, Nov 17, 2026, at 14:06, yy-Local-LLM via B4 Relay wrote:
+> From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
+>
+> Add a minimal DT machine using standard IRQ, timer and simplefb paths.
+> Describe the SoC and the firmware-configured YPL514si display. Leave
+> usable memory and the divided counter rate for the bootloader to
+> populate. Keep optional peripheral nodes disabled until firmware hands
+> them over. Disable unvalidated board suspend; limit this board to SD PIO
+> at 25 MHz. Document the RAM-boot contract and the missing
+> cold-boot/clock-tree support.
+>
+> Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 
-commit 3038d85d6373aad3b6104c371b0b0d8abde1a320
-Author: rofikkerneldev <rofikcoga@gmail.com>
+Please use a real name for signoff and make sure you understand
+the legal meaning of this.
 
-> arm64: dts: qcom: sm8250-lge-timelm: enable SW43103 panel
->=20
-> Enable DISPCC, MDSS, DSI0, and its PHY. Attach the SW43103 panel with
-> its power rails, reset GPIO, and four-lane DSI link.
->=20
-> Signed-off-by: rofikkerneldev <rofikcoga@gmail.com>
+> +config ARCH_AT550
+> +	bool "SiRF AT550 platforms"
+> +	depends on ARCH_MULTI_V6
+> +	select ARM_ERRATA_411920
+> +	select AT550_IRQ
+> +	select CLKSRC_AT550
+> +	select CPU_V6
 
-[Severity: High]
-The Author header and Signed-off-by trailer use an account handle
-(rofikkerneldev) instead of a real human name, which does not meet the
-Developer Certificate of Origin requirements in
-Documentation/process/submitting-patches.rst.
+Which CPU is this specifically? You need to select CPU_ARM1136R0,
+CPU_ARM1136R1 or CPU_ARM1176 instead CPU_V6 since b5fdfa208175
+("ARM: deprecate support for ARM1136r0").
 
-> diff --git a/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts b/arch/arm64/=
-boot/dts/qcom/sm8250-lge-timelm.dts
-> index ecbff27976fc2..fca48472f5dfe 100644
-> --- a/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts
-> +++ b/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts
-> @@ -557,3 +557,42 @@ &usb_1_qmpphy {
->  	vdda-phy-supply =3D <&vreg_l9a_1p2>;
->  	vdda-pll-supply =3D <&vreg_l18a_0p9>;
->  };
-> +
-> +&dispcc {
-> +	status =3D "okay";
-> +};
-
-[Severity: Low]
-This isn't a bug, but dispcc in arch/arm64/boot/dts/qcom/sm8250.dtsi is
-already enabled by default, so this status override is redundant.  Also,
-board-level label overrides in Qualcomm device trees are sorted
-alphabetically, so the &mdss* nodes below belong between &gpu and
-&pm8150_gpios rather than after &usb_1_qmpphy.
-
-> +
-> +&mdss {
-> +	status =3D "okay";
-> +};
-
-[Severity: High]
-Does enabling &mdss fail to bind the DRM device because &gmu is still
-disabled?
-
-In sm8250-lge-timelm.dts, &gpu is enabled, while gmu in sm8250.dtsi
-defaults to status =3D "disabled" and is never enabled by the board DTS.
-When dpu_dev_probe() calls msm_drv_probe(), add_gpu_components() includes
-the GPU in the DRM component master match list alongside mdss_dsi0.
-During component_bind_all() in msm_drm_init(), adreno_bind() ->
-a6xx_gpu_init() -> a6xx_gmu_init() looks up the GMU platform device via
-of_find_device_by_node(), which returns NULL because the gmu node is
-disabled.  a6xx_gmu_init() returns -ENODEV, aborting component_bind_all()
-and preventing both the display controller and the SW43103 panel from
-initializing unless &gmu is also enabled.
-
-> +
-> +&mdss_dsi0 {
-> +	vdda-supply =3D <&vreg_l9a_1p2>;
-> +	status =3D "okay";
-> +
-> +	panel@0 {
-> +		compatible =3D "lg,sw43103";
-
-[Severity: Medium]
-Does instantiating "lg,sw43103" expose an unbalanced regulator disable in
-sw43103_remove() on driver unbind or module unload?
-
-drivers/gpu/drm/panel/panel-lg-sw43103.c:sw43103_remove() {
-	ret =3D sw43103_unprepare(&ctx->base);
-	if (ret < 0)
-		dev_err(&dsi->dev, "failed to unprepare panel: %d\n", ret);
-
-	ret =3D mipi_dsi_detach(dsi);
-	if (ret < 0)
-		dev_err(&dsi->dev, "failed to detach from DSI host: %d\n", ret);
-
-	drm_panel_remove(&ctx->base);
-}
-
-Calling the raw sw43103_unprepare() callback directly bypasses
-drm_panel_unprepare() and ctx->base.prepared tracking, unconditionally
-calling regulator_bulk_disable() on vddi and vpnl.  If the panel is
-already unprepared, this underflows the regulator enable count and
-triggers a WARN in _regulator_disable().  If the panel is prepared and
-enabled, sw43103_unprepare() asserts reset and cuts power while
-ctx->base.prepared remains true, before mipi_dsi_detach() triggers DRM
-atomic shutdown to send MIPI DSI commands and call drm_panel_unprepare()
-a second time.
-
-> +		reg =3D <0>;
-> +
-> +		vddi-supply =3D <&vreg_l14a_1p8>;
-> +		vpnl-supply =3D <&vreg_l11c_3p0>;
-> +		reset-gpios =3D <&tlmm 75 GPIO_ACTIVE_LOW>;
-
-[Severity: Medium]
-Should this panel node also specify enable-gpios =3D <&pm8150l_gpios 4
-GPIO_ACTIVE_HIGH>?
-
-The binding example for the timelm panel in
-Documentation/devicetree/bindings/display/panel/lg,sw43103.yaml specifies
-that GPIO alongside the same vddi-supply, vpnl-supply, and reset-gpios.
-Without enable-gpios here, devm_gpiod_get_optional(dev, "enable",
-GPIOD_OUT_LOW) in panel-lg-sw43103 returns NULL, and sw43103_prepare() and
-sw43103_unprepare() never toggle the panel's PM8150L GPIO 4 enable line
-across display power cycles.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117123946.6685=
-57-1-rofikcoga@gmail.com?part=3D8
+     Arnd

@@ -1,85 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=81.169.146.165
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=85.215.255.52
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794921972;
-	b=OPsB2yxMIYEl7Op2m0YV93nyGVo7LUpIpF+dZyOYphc/b8RdqtlvXD9PtPgiRjV2+EAX
-	 gsWYGzfEfkJhhvqGrcifg1HSm8HqdWWc7jG1GQmNsad3g6Ps2SRASGCA0y0e88/NgP55Y
-	 1/Hm01q3QWBhU9NihVdBk3WePl5stNmTOPOacMowgg7SEaienDAOeBWw/NE1DkUcioaBG
-	 5XTYv/1OLsxWMHH6cS329KOaFD1PP8USJCnxo1wXwJJlYAm2owgDmPtxqTRIsy1yo/TIm
-	 ykwWyRlZ6CG845PjiafO2cG1Z+jYrtIHjHN1EPkIU8DvN53N8m5tjYCr4Zzekpt9dcw==
+	t=1794921975;
+	b=q059YibiqY8F2XX5MlGCNIRsVQvvNYiAZ1K8hj/XbYnvGIBvMkDsNY3EkYkwIvFn2AZG
+	 T54I7cxlnfrHDHEwxRCTje8cndDh65AyHHD6LqbBfUdgH/bvxRxjg9jvToLLQikOkVBhm
+	 qNElSAybtc8IpJd/D+UDP/+xntwNP5YHHXcAq4/WPOE/T8t7ZaCKLvBJA4nIlM4Y1oIes
+	 wuJ5PEoU8Lw+gSWOUYrGK7Ht2jSswg7/glWgXhkcBQcO4sBVZwitMiXuJwb/oQ3oFTmYy
+	 CiWpy7MUF5bmyvNUPBhBeKIYhVRGsMM+XczuVQYw3IGTwAcZ32NmjeV8jnK67h4aAJQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794921972;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794921975;
 	h=DMARC-Filter:X-RZG-CLASS-ID:DKIM-Signature:DKIM-Signature:X-RZG-AUTH:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding:Content-Type;
-	bh=p4vrw8s3NMYgTpsOMB83VZK3t2Fq4wxlG8L1umjJ0s0=;
-	b=Vtum1mDlkBf9iRqq82G62pz3SNzEh6s+HmKaQZOneb0up2G0n4g6JE4PPIOsrsx1OfFi
-	 +hzzAG1iSH8buQ4VuGLRcMhEl8l0O3liEoj1v2zn42rvtOj23yesH/LL2EuyS+5TpzPDo
-	 AdmrVqrFl4kYXBZbBgRJar8t1dPAT9mD6fXpbDW6v6cLJeRmSBGZHKZa14Qkl9FQi1Q3Q
-	 B1KM/O1Ys8uKG6K6cv+/MgqAGJD8GFurF8L8/GuJuB3d38iC0ZrDwjXKA3qpAdKFNOnXL
-	 gltqUC8RP811SMqIqR86l2eiACHAcb+yFbOJE76aE88WfGCwAl7+1uQo5Ta9UuzIM+Q==
+	bh=JLgV/lBDqG6GZ1zXBD8D34tpWmlQDGgMfYhw/O/fKmw=;
+	b=nKn/ACvcdq97PBogufbF9vcCCbs0LY7xEE5cVe4Q8cy7ZPdp6RorQAJ454DgAhxau4YY
+	 fEPTyJ4m+iMUUT+3ycfnSylO/HzTDRNeRezahRjuwOr8CYRlwe8CmZHrj7vCOTckF0Dfg
+	 aqbaLYA8cDsKWbxg0c+bodk1qWlqZuXVe5Rv3SnjA5j3H0Wjcm0ugVERNzDJDqIPJJs4T
+	 2DEvsSd/asSbtwgt2y2VgWgqhOIMhsoY/99dV3PQokc+EFBVsJxCSrPzHqBdB6hbOd/4F
+	 a3THz+Ip9ZlxV4VOdA5Pr5nCfV67aQ+DRcuehCDKNWU/+p/RmoJrlshhMa4V2hFeNvA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=none header.from=ommer.net;
 	spf=fail smtp.mailfrom=ommer.net;
-	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=mg4MOIeQ;
-	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=YIT4Y44n;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=81.169.146.165
-Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
+	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=XZRcdpBt;
+	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=sPrGpKkk;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=85.215.255.52
+Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [85.215.255.52])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57198606A31C;
-	Tue, 17 Nov 2026 13:26:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 57198606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD59D606A330;
+	Tue, 17 Nov 2026 13:26:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD59D606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ommer.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=ommer.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ommer.net header.i=@ommer.net header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=mg4MOIeQ;
-	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=YIT4Y44n
-ARC-Seal: i=1; a=rsa-sha256; t=1794921963; cv=none;
+	dkim=pass (2048-bit key) header.d=ommer.net header.i=@ommer.net header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=XZRcdpBt;
+	dkim=pass header.d=ommer.net header.i=@ommer.net header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=sPrGpKkk
+ARC-Seal: i=1; a=rsa-sha256; t=1794921972; cv=none;
     d=strato.com; s=strato-dkim-0002;
-    b=fTPDUceiLxG0LCWduPKi0zI00oIhUJD/qVHk59ix2Wfcqg/tuo9l37Ep9Mkaw931X4
-    ErlMK3zMewg/zUcjNVpCF/XzTUk+zXfq+kwLjXwYDddjpE9+r/TsuN5r1b3feGJVY3N8
-    2Fn8Rt8xPl2eKxCqOQZB/7MQYQBb2d3rY3IhLbpsyPY4uFspHII5aPhQWsY6zLm2nO8Q
-    Y76Fsy3G7Z5nGwFDL48/kF68GijfuwkmkOElXu711F5K7QSLx4osHoBig7V5TG+jGzib
-    2p+RUFwGckLFmz7S0ykPgt7o0E1BH6AUdh3vBJXFxWrAPxp2KN9g/+umn/OS7sXGPVmT
-    uaMg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794921963;
+    b=JePVK9fehY7HHm8ZzZmyyIUWwFiiZZfhE5EnZ0AEaG/jlcRgdXt5dJ65AUBkLfkg45
+    ygX74FB0kFVFXd0vroWFG1IF5+ORyEr7ts1DVXTbBMxPuW/4OgQjpvpHjcs7aT8gtiSA
+    qFvn+qeITRhoBAVlTravMLpL5gAg8TF5imBus9WskifY6m7cd+QVyUoPW4+u50/9rAXx
+    Cor0/CwJeeAL15Iacbz9Eldh8ghYSzqIa2AizQVMQ+JgL0SHo82byOeW8DKemnBC0m46
+    Od59FoowBcHKhfsKIQwcGwa0PnkDrZaSfJEnDluyCyCg+O3ryGs7GDdz9L4msOi0KBfN
+    zQvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794921972;
     s=strato-dkim-0002; d=strato.com;
     h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=p4vrw8s3NMYgTpsOMB83VZK3t2Fq4wxlG8L1umjJ0s0=;
-    b=H4wsJf9a3KLl+3tZbAIOUGi+BGKzlL6hC/vMftzoh2m2MOueNKfLwg2H9m/aUTKKLz
-    WJtQ45bfm3a36bQGkrx9hzs/F0HZZ1UpGX0IsQ6JWfXLykrB2X5yGyf0bVNQj1Pm99mV
-    cPTEJz9L1EhFkQDaCpIqYhIv02r/r6vqawcWkLVxNt0sjYvDMcTHlyG42Rbtte+520id
-    nS6ZshKIwwPfby+UHDCcrZ29HN2lpeffjYw8RhqWZCNb3TyLTj683lvfD0HUsGfeJApA
-    ogC1+LyB2Eo4xr1JJhSpz9Ogk0oNdmdAhfAcs3qJX4IAEUIEyTmCQxqtjne2SM1/H3rO
-    anlw==
+    bh=JLgV/lBDqG6GZ1zXBD8D34tpWmlQDGgMfYhw/O/fKmw=;
+    b=ivNC4Sy1kz6ZhXgKPr4QvBotFT68NQ/TFHk3sh+2p1Qna/fljk80eW8Z254e/gDyBf
+    R3WUCjJzXwdZBjdkqDotdjICdOykDGMpPED3NQPYC9Ez8H+P32l99yUiCGRBsEjMyQml
+    K068Sqd+ksy1OusJlM82HOVkW7ctQfjvC64WrZRrcjdqAQ7a7jpzOES0EG6fWs5VkVCU
+    RCVfLxys2qjikDP7nMuic2OxEzd0W0xqyPlWWNReqU9RoiA7XyJvsOpZUzCp7BV9GTt4
+    WG2NXL1YIST0jUzzwvPWt01HUx1p1EAfWdXCzRAwwAwuDZZXmMEWKovWr3+CeOITY4Nd
+    PsGA==
 ARC-Authentication-Results: i=1; strato.com;
     arc=none;
     dkim=none
 X-RZG-CLASS-ID: mo01
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1794921963;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1794921972;
     s=strato-dkim-0002; d=ommer.net;
     h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=p4vrw8s3NMYgTpsOMB83VZK3t2Fq4wxlG8L1umjJ0s0=;
-    b=mg4MOIeQMrWztn0j316tXCHZSMeB+Nfyf8CAFcT8+tjFpc7f/bTjanEqHAS3BlCIEZ
-    0ZdTbZ21curdgYKCpV3cNuVPbZQQR9e7fMVZCB2PXcpRsuPV85O085KbxV7zjsyMK+6v
-    selh9gM3Z74ugwHopuMQ3oTu1ylNMDanuyhg44ltThnmE2gy7SFzWuEQlbYtGzZn3Qey
-    8xKn3gjqxlANupb8+BszUP2Y8E44/M2wSmyGYCDLym0wpzgfZcUhglbuVyNo44FjI+aE
-    oPMvVWCRs+bQtYN02ecKDHHEmVqvXZRIXrSOveKtkUz2mHzgyqhhEqCgowr7KrtWY9Wj
-    qURQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1794921963;
+    bh=JLgV/lBDqG6GZ1zXBD8D34tpWmlQDGgMfYhw/O/fKmw=;
+    b=XZRcdpBtKkVP6fhWeMm/bBPX/NP0o//wxOue0I0bdFddAZhipeIVErIyPfjjDO3ymT
+    lkUBh5PZDBYZ4sC443kspnaFyYe7kfamHumhpZ6vNHxmnj48xnD+hkBG0yHWbHsUgEFs
+    n30MktV0c2bkKvgyoShNA563XgwlCGJ3zmiKKchD+UmGqkujDdw2QCWcty9VJfX8I6ZH
+    Zs/egacuaWIrrlbpP84jFi7EQoqtqfyMt2MEez8Z5Dfh3nrr3ZZ1Sl5HPVM+Ee7MBjE1
+    XPG38pXZyNbgq8ULzKhQEAJm30lPfZoBJSn767kVWpACaV4BM1NtMzDL9tqyEFmdgPXA
+    eVYA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1794921972;
     s=strato-dkim-0003; d=ommer.net;
     h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=p4vrw8s3NMYgTpsOMB83VZK3t2Fq4wxlG8L1umjJ0s0=;
-    b=YIT4Y44nks5XCWnqmXOo6VcjSagPv5cmh+O2FrOXEQl4AG7ga8cfGhlXUVViPBClNc
-    Q0a0CQaKJBIfLbtEv5Bw==
+    bh=JLgV/lBDqG6GZ1zXBD8D34tpWmlQDGgMfYhw/O/fKmw=;
+    b=sPrGpKkkDPjE219C0HVU/1PJG+bDT9uBKrGCocs/Jj/ptvZCg7tndSstLTIhyue6lf
+    lcNx2KZbQAgNdCgb+HDg==
 X-RZG-AUTH: ":JGkKZ0mIdPJLfj3rk5MOrv6kH/tvwFubxUqMvsWOyVXJkOABZnPqvKUstHY8FQgnq3rT6NoXCyjULwIut1Tf8meVypGj6A=="
 Received: from localhost.localdomain
     by smtp.strato.de (RZmta 55.6.3 AUTH)
-    with ESMTPSA id n2f42d2AHDQ3vuK
+    with ESMTPSA id n2f42d2AHDQCvuM
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
 	(Client did not present a certificate);
-    Tue, 17 Nov 2026 14:26:03 +0100 (CET)
+    Tue, 17 Nov 2026 14:26:12 +0100 (CET)
 From: Henri Ommer <henri@ommer.net>
 To: job@noorman.info,
 	dmitry.torokhov@gmail.com
@@ -87,9 +87,9 @@ Cc: phone-devel@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Henri Ommer <henri@ommer.net>
-Subject: [PATCH v2 0/3] Add himax hx83102d touchscreen support
-Date: Tue, 17 Nov 2026 14:25:46 +0100
-Message-ID: <20261117132546.12041-1-henri@ommer.net>
+Subject: [PATCH v2 1/3] input: himax_hx83112b: Make reset optional
+Date: Tue, 17 Nov 2026 14:26:11 +0100
+Message-ID: <20261117132611.12145-1-henri@ommer.net>
 X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -103,26 +103,42 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="us-ascii"
 
-Adds bindings and driver modifications to support the himax hx83102d
-touchscreen used for example in the Samsung Galaxy A20e and Motorola moto
-e7 plus. Also adds support for himax touchscreens without a reset GPIO.
-
-Tested on: Samsung Galaxy A20e
+Some versions of Himax touchscreen chips do not have a reset GPIO. In the downstream driver these chips are only reset for firmware flashes.
+Since firmware flashes aren't implemented in this driver, resets can be skipped.
 
 Signed-off-by: Henri Ommer <henri@ommer.net>
+---
+ drivers/input/touchscreen/himax_hx83112b.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-Henri Ommer (3):
-  input: himax_hx83112b: Make reset optional
-  input: himax_hx83112b: Add hx83102d support
-  dt-bindings: touchscreen: trivial-touch: Add hx83102d
-
- .../input/touchscreen/trivial-touch.yaml      |  4 ++--
- drivers/input/touchscreen/himax_hx83112b.c    | 21 ++++++++++++++++++-
- 2 files changed, 22 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
+index 345ece27fe74..3521b05d509f 100644
+--- a/drivers/input/touchscreen/himax_hx83112b.c
++++ b/drivers/input/touchscreen/himax_hx83112b.c
+@@ -132,6 +132,14 @@ static int himax_bus_read(struct himax_ts_data *ts, u32 address, void *dst,
+ 
+ static void himax_reset(struct himax_ts_data *ts)
+ {
++	/*
++	 * Some versions of himax touchscreen chips do not contain a reset
++	 * GPIO. The downstream driver only resets these chips for firmware
++	 * updates (which aren't implemented in this driver)
++	 */
++	if (!ts->gpiod_rst)
++		return;
++
+ 	gpiod_set_value_cansleep(ts->gpiod_rst, 1);
+ 
+ 	/* Delay copied from downstream driver */
+@@ -349,7 +357,7 @@ static int himax_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
+-	ts->gpiod_rst = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
++	ts->gpiod_rst = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+ 	error = PTR_ERR_OR_ZERO(ts->gpiod_rst);
+ 	if (error) {
+ 		dev_err(dev, "Failed to get reset GPIO: %d\n", error);
 -- 
-I had to switch email provider because my old one didn't let me send multiple emails in a row.
-Best regards,
---
-Henri
+2.56.0
 

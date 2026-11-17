@@ -1,55 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794888813;
-	b=5WpARQF3CVIn7ZFJGcJLPF7UOYJpz4ueZCcuuCzcVGTbeUi9sKktg8Eig34fDnCiU0EK
-	 /SuZ+GOmIWgNegxsbNIU+ndm17mqVwLI4X6Pdmt5VK+rH0DW9B3UEEQBUrQ4XJSiyKjrh
-	 GBszY+++ISWucKKe8XvquqQCmVtUdfzhK1R+iegs7uL6N1EHJXE9oSJNvUIa8En5j5w4i
-	 1LewTMU8kv/dwG03GIwKiSvGFR+8yD/Z2FJjBoU3R+WuOkir/nXGW4S3FBUxhJc/O55BE
-	 aofwOKFVF11CaC6dQr/l9RYvbHYnrSaFXsJZ0B+IcBMoyGvKswrhQe4vLUiMhkwR56A==
+	t=1794892877;
+	b=t7yJ0PKdZGXs7Uq7TGnVhXkS5yUxEh/goLfmhmN0Syus3crkAJRTbd0uV9opWLwwmh/R
+	 RBiv+b2if5uuha3BTHzjfY0QytIFa52sFxTh0++CGaz9lIcRQdpEkJnduY/fOjuKA7U7/
+	 xKLXXN9/hpFj8JxKU3/QHd2fJ0Gi9JFlTT0TGWjlAUGHKejzsclpxSVoasWIO1sS7H0EF
+	 BI/1khBJDWmiACLQEmOLIX1cHEq8PtgJBjgbLZ3xdoVDH33hAKBOiCEea29NCE2HyE6u/
+	 /cKsOkqlho74QVjqJagGSkwaKThyHiU3CdcXdmuiYZKo539jD8p1QK1uwblVV6MOWhQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794888813;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794892877;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer:X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
-	bh=qwTaxhhy8rcwybJtjSGgH9NPf1UmCFM/LYMRCH45yBM=;
-	b=i3Aeb7oSOcmbDSY6sz9vl752K6akUxQA8mkWD/s6NdcNVfpx5psIMycUARrIIwaKZ4fe
-	 uN88qo0pHKNFK2SK3WcK6F4FibcBsOQMQmnp08BnJF9Opc4mCB8aHR95Dx516yo7HC76M
-	 I6SMR//3cU3tsWpoPM2qRUqg1r4TG28osqz6YCdpO7Kl8HhuqTyDAll9L2X0ljQg99TRE
-	 e77ueCbcb0AC6gQEUSRmvkst1G7ave1JQnqLYJGZxNUbKKnn78uBgJRjk7yuFgPzYQaW1
-	 u7FuZSJ1XKfKhiAMTUblX8Imo5HvgVKDyiRcl9Kse2mRdlH2kw/JbqQjsRAMRQ31nPQ==
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
+	 X-CM-SenderInfo;
+	bh=6zRJ+UUYcI1M1J+0zvWC1eyTD4Wl/xFBBOIvtWTygCg=;
+	b=VBs036KTMHU1pvutNww9ENe8f0cR8iighcHZHaZ/YL4KgoZ3+T8RcYMfSTCDA88fheZG
+	 h6Zycgk5r2qa/W3rF8Cv5EUke7BGETNmmOo5rqiBOKaMgGw+XnURVd98uYZjRmDqRB3C4
+	 XOITuP5ltVeg/yd3S1BzlYFEoISPHnp3COINttlUl6eaNsiCvtaMIyJrRU51wM69qrCJj
+	 UpHAsyGa6wHviR9Z5fImrzrqvZf0oZIpNSbz+D+FEfqP2WDAgRVRyI7adfsr9OAbuG/wp
+	 tst1qlBRHwHi9yIgxYxfEUMWRPKnvYeLPV2yDh0a84IiQmYb23nJDuFg7gr3Dm6hWFw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=DONOgjAt;
-	arc=none smtp.remote-ip=220.197.31.4
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 497CA606A323;
-	Tue, 17 Nov 2026 04:13:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 497CA606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	dmarc=pass header.from=mail.ustc.edu.cn;
+	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=li4+X7aB;
+	arc=none smtp.remote-ip=202.38.64.46
+Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D9D5E606A331;
+	Tue, 17 Nov 2026 05:21:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D9D5E606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=DONOgjAt
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version:
-	Content-Type; bh=qwTaxhhy8rcwybJtjSGgH9NPf1UmCFM/LYMRCH45yBM=;
-	b=DONOgjAtiUQELL42UXvBE3URTJyYGPyJ2QvJYtwvfXtm51/vbBRDlRInxyemeM
-	8kGf8SAkoCGOPkOVTOz5UWmVcNnEx7PQkxcMJtOBX9vTn262MHXH8HOVj86D/fyy
-	jMe1x9FH42/ETyZUG3NAEagi0rkSHqr65paVAfkCUfj0I=
-Received: from WIN-TOG0NDEIICD.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wD3HxVZ1PtqHveJIA--.26682S3;
-	Tue, 17 Nov 2026 12:13:16 +0800 (CST)
-From: Shirong Zhao <shxzhaosr@163.com>
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: gembird: bound the report descriptor check by the
- pattern size
-Date: Tue, 17 Nov 2026 12:13:15 +0800
-Message-ID: <20261117121315.827019-1-shxzhaosr@163.com>
+	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=li4+X7aB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-ID:In-Reply-To:References:MIME-Version:
+	Content-Transfer-Encoding; bh=6zRJ+UUYcI1M1J+0zvWC1eyTD4Wl/xFBBO
+	IvtWTygCg=; b=li4+X7aBb/zg9MhrugbBA3j1lQ/+q7HuSJfEV36lpi1ThscdL5
+	4JYGvLGKLYq+d3svFzbHSrBkl7rPpJLfXM4kUgWEAoMNRH7CPS+4QfU7cRE3khu1
+	u3Tcl2Yz5PNQ/fp6HBkUwL//smb1X+GiUC8CC45B/d+H/OM+NLwMS1dHs=
+Received: from xuqianhui.ustc.edu.cn (unknown [114.214.190.181])
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgBHxTlI5Ptqc0LLAA--.214S6;
+	Tue, 17 Nov 2026 13:21:14 +0800 (CST)
+From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Subject: [PATCH v2 4/6] Input: aw86927 - add support for Awinic AW86937
+Date: Tue, 17 Nov 2026 13:21:10 +0800
+Message-ID: <20261117052112.32527-5-xiaqinghuan@mail.ustc.edu.cn>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261117052112.32527-1-xiaqinghuan@mail.ustc.edu.cn>
+References: <20261117052112.32527-1-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,53 +64,75 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
-X-Mailer: git-send-email 2.53.0
-X-CM-TRANSID:_____wD3HxVZ1PtqHveJIA--.26682S3
-X-Coremail-Antispam: 1Uf129KBjvJXoWxJr1fCw1kJF15Gw1fAF1xuFg_yoW8AFW5pa
-	n5ta1UKrsrtrn2qF1jkw4kGayFva97Xa4DurWUC3429a1Yyr95Ja1Ut3yUWFZYgrWkCrsx
-	Gr1kta17uas8JaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jcsqJUUUUU=
-X-CM-SenderInfo: hvk06xhdrv2qqrwthudrp/xtbC7hzlJGr71FxgbQAA3n
+X-CM-TRANSID:3pYKCgBHxTlI5Ptqc0LLAA--.214S6
+X-Coremail-Antispam: 1UD129KBjvJXoW7uF4fCF15Zr1kur15Kw1Dtrb_yoW8GFW8pF
+	yDGr4DtFWYqFW7Kws7tr1jvFy3C347WFZrKrZI93W2qwnxGa1rKFnYg3yfZFyUKrW5GF4f
+	Ja97JF15uanrJr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
+	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
+	jxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI
+	8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2
+	jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4
+	CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvj
+	eVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUAVWUtwCY02
+	Avz4vE14v_GrWl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAq
+	x4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r
+	1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF
+	7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI
+	0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	U8LL05UUUUU==
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREOB2r7WdojVwAUsr
 
-gembird_report_fixup() compares the report descriptor against the
-26-byte faulty pattern starting at offset GEMBIRD_START_FAULTY_RDESC
-(8), so memcmp() reads rdesc[8,34).  The guard only requires
-*rsize >= 31, so a device reporting a 31-33 byte descriptor triggers a
-1-3 byte heap out-of-bounds read.
+The AW86937 reports CHIPID 0x9370 and is register compatible with the
+AW86938 as far as the boost setup is concerned, so it joins that branch of
+the haptic initialisation.  Detection stays by CHIPID, so the existing
+AW86927 compatible keeps working as fallback.
 
-If the adjacent heap bytes happen to match the tail of the pattern,
-the fixup body then runs and memcpy()s the fixed pattern at offset 8
-into a buffer sized *rsize + delta_size, overflowing it as well.
-
-Any descriptor that really contains the faulty pattern is at least 34
-bytes long, so requiring GEMBIRD_START_FAULTY_RDESC +
-sizeof(faulty pattern) does not change behaviour for real hardware.
-
-Fixes: 931830aa5c25 ("HID: gembird: add new driver to fix Gembird JPD-DualForce 2")
-Signed-off-by: Shirong Zhao <shxzhaosr@163.com>
+Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 ---
- drivers/hid/hid-gembird.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/input/misc/aw86927.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-gembird.c b/drivers/hid/hid-gembird.c
-index 20a8de7..ae56ba9 100644
---- a/drivers/hid/hid-gembird.c
-+++ b/drivers/hid/hid-gembird.c
-@@ -66,9 +66,11 @@ static const __u8 *gembird_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			    sizeof(gembird_jpd_faulty_rdesc);
- 	size_t new_size = *rsize + delta_size;
+diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
+index 9dda96c..690726a 100644
+--- a/drivers/input/misc/aw86927.c
++++ b/drivers/input/misc/aw86927.c
+@@ -147,6 +147,7 @@
+ #define AW86927_CHIPIDH_REG			0x57
+ #define AW86927_CHIPIDL_REG			0x58
+ #define AW86927_CHIPID				0x9270
++#define AW86937_CHIPID				0x9370
+ #define AW86938_CHIPID				0x9380
  
--	if (*rsize >= 31 && !memcmp(&rdesc[GEMBIRD_START_FAULTY_RDESC],
--				    gembird_jpd_faulty_rdesc,
--				    sizeof(gembird_jpd_faulty_rdesc))) {
-+	if (*rsize >= GEMBIRD_START_FAULTY_RDESC +
-+		    sizeof(gembird_jpd_faulty_rdesc) &&
-+	    !memcmp(&rdesc[GEMBIRD_START_FAULTY_RDESC],
-+		    gembird_jpd_faulty_rdesc,
-+		    sizeof(gembird_jpd_faulty_rdesc))) {
- 		new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
- 		if (new_rdesc == NULL)
- 			return rdesc;
+ #define AW86927_TMCFG_REG			0x5b
+@@ -183,6 +184,7 @@ enum aw86927_work_mode {
+ 
+ enum aw86927_model {
+ 	AW86927,
++	AW86937,
+ 	AW86938,
+ };
+ 
+@@ -589,6 +591,7 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
+ 		if (err)
+ 			return err;
+ 		break;
++	case AW86937:
+ 	case AW86938:
+ 		err = regmap_update_bits(haptics->regmap,
+ 					 AW86938_PLAYCFG1_REG,
+@@ -751,6 +754,9 @@ static int aw86927_detect(struct aw86927_data *haptics)
+ 	case AW86927_CHIPID:
+ 		haptics->model = AW86927;
+ 		break;
++	case AW86937_CHIPID:
++		haptics->model = AW86937;
++		break;
+ 	case AW86938_CHIPID:
+ 		haptics->model = AW86938;
+ 		break;
+-- 
+2.53.0
 

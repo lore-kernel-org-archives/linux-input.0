@@ -1,57 +1,130 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794870258;
-	b=GTJXrrZO0vEzowjj+lcHoQXdMnvRFEDmKkkwD34OpbRXI1Q3qAflgJ+QpRvGmK7vEq5k
-	 W2lS56qZ1fCBfhPb65ZWP/uRVs+LmNiUnipL+3LvfaMptYWx4oJDh6i3Lo4Z6x8jiNXNh
-	 N61OuJamOqg4xWHQnPM6FcPshPLf9/ujlYQF/aqxepkGPa3iYNNjVmDoBs4FbQBjoZ479
-	 x6evH6ifZ6EG7eQcAH9kNEZj/rG1ycNl0QZqMSr5wvvyW8Pxs+pmDY844w+2GdU2cZMjD
-	 m0sX+cJNdIYbbaKFYH3id0LSfyhxwNiv7W/Abq1qHoT7T9TC50cLlsENeO7fVVXqwxw==
+	t=1794873921;
+	b=HUsTht6Tn6IVSKc7Ts7KkpTzni2OEok+XubD/AzB6SUoQiymUe7wAyVlqtMPGx8a93Fi
+	 wMuAkDRhFX9BnQHhmtuB4Jiphsr5CMGtYM1OFGw/CZuHNgZHexqW5gKGm6vw/w4qAxyhh
+	 ZcMeVVXH92ds4P5oYBvy+kPZBU3KK/SwYuXSTLnMOqNd7ZHYvJGmO9p7lvRQ6B0yHZB1X
+	 PriZJp8m4lAPNyUUDF/41kUZTnBdpVr5WE8BoT2eWjnvEWz9/VJE9WBbRr8qe1AlEVBOO
+	 uAMrqLruykfr7o1H/D+lXeWyRclpaQkFhbw1+5sX+OUbo+UsKpqwgTgFrwa4kXpPHdw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794870258;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=S0acPnlP0iV4l14pkqFont0JxRMUVVKJeDeW8DxDcNc=;
-	b=stYoUpYC96m3c4euSfzxfqT0ikr6FF+jxnKSba5oEsT/acB5h0FVp87LaSrlRvq86g8n
-	 ky313DZ9/antdktpazMXIXJr2+GVYmr/uIEB6dc9RkLwemUR7dZX4XCgnWYL+fIERGhkM
-	 r5CzOgwPRIdZbCF5xcgUHnkfGlfyRkP1MMo7MRhXjnvbl2L+jjSpITkvL56HODNuT3wGw
-	 7qAI10z3TeglzoQuSP/nRHHSZo6y75iQMQP8GVm2nF7XUsc541pnUK1ZrFkHfmX9eahDI
-	 P5YetOGTYUL4PJ5Akjz54FZs3N+eI+lEo0ZvqiN413ilwM0s/sluUsapzcYEP4rLb8Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794873921;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=eMx+CTkXv1VoOtSvi+6D1nYsmWu0vpvPd8N8huVVt6c=;
+	b=LiDbpdLpK+qfMuztZZXNriELI9klelAG1wteV6bpbvnQMF89TLuCdId1Y2hXgTizOTsW
+	 ziR6RlY/kM3E1r/yfMvAUrNmpJkEFcCmnWnFs6NPIUkP2+gvvEu/+0c0RogRIakgtxMOZ
+	 lL0KeKLsHZuhsqZ2kOffV4w0zuT7CfFxuTg+tNfXF2IbNlEJ6AEimzjSMqtenFmocquZ0
+	 FuffRTD+20Bj5/Fnj/G/Zihm9zQXEA2CL9qUFXu+F9zU08QtCLLL04sReCPfghA1motkN
+	 5mxEcowa0UeXdJWGbOqL3Q9HQch0XG9bRFGdzjwzp69ffDPiVHptAXyEUR7rr1KT9+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TFWGzYyx;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=ziepe.ca;
+	spf=pass smtp.mailfrom=ziepe.ca;
+	dkim=pass header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=o+1molFf;
+	arc=none smtp.remote-ip=209.85.222.182
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FC73606A323;
-	Mon, 16 Nov 2026 23:04:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C81A606A329
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 00:05:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1C81A606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TFWGzYyx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 574741F000C5;
-	Mon, 16 Nov 2026 23:04:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794870257;
-	bh=S0acPnlP0iV4l14pkqFont0JxRMUVVKJeDeW8DxDcNc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TFWGzYyxvGEgfi/6lnZ/VLb1khT131zO9GI+vShC6DPINblSIjN4nb6UN/1TjKxvn
-	 E8OXYzShUMq4u6eGOktjoGvTIvV594e56+lDVjrCRMLWODC7rawt90CsbcIf7Deoua
-	 1uz5m0VZ7QfG2BTcgbfho5oD3NZoL1ZqTgWS04Xg4Rn+pDAmvKk9QDp/ep8GC9uiH7
-	 lIG3oazl0jiAx3RqbdMiQ8xJ+TMTso93EDWhDj9/P9id8yJr5lIScCYFLJ7WCGxcoM
-	 JHPtYnKPWd+AmgYc+wo/k+WB8ANju9KA31t9elBF1ldXB5NXRaimyEc7XdF8T2A4Yk
-	 QoGylNVtuYwWA==
-Message-ID: <sashiko-outbox-217846@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/4] mfd: mxs-lradc: Pass parent IRQs to child
- drivers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fabio Estevam" <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, imx@lists.linux.dev, robh@kernel.org, conor+dt@kernel.org, Frank.Li@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261116224803.61154-3-festevam@gmail.com>
-References: <20261116224803.61154-1-festevam@gmail.com>
- <20261116224803.61154-3-festevam@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 23:04:16 +0000
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=o+1molFf
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-94937a33cfbso433827685a.0
+        for <linux-input@vger.kernel.org>; Mon, 16 Nov 2026 16:05:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1794873920; x=1795478720; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=eMx+CTkXv1VoOtSvi+6D1nYsmWu0vpvPd8N8huVVt6c=;
+        b=o+1molFffc9e6T9ddIDnNeseSjzEf2bQKujHs4vpOVw4OzSSGS4YQo8BJrSN9kd667
+         k9JFBOotGGRYa0PkAFx2E0FiQp1pgsnwgn6pcnUL3Eya4+1ObVIZXwVWtTnGOXsLpAKM
+         Qm4w4F5jBIoZdwaJAnrycuNhvr/nMKvlaRPWeoY+KemZwqtCHlIRV3pKlOZAan8ZiPyk
+         dg+rWFVtziAEodqueYjujOY8FQIiLOIqi0nCOki4SNuEx/vo4myxz/px2YhfTxnQyYx8
+         5SnT2fX1BMMsw9KBqqyDMrnK6kEETUe11lAAN+nPzvpxO9VlnJiaiLVZSGU+NSdcdbag
+         q8ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794873920; x=1795478720;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=eMx+CTkXv1VoOtSvi+6D1nYsmWu0vpvPd8N8huVVt6c=;
+        b=EPOFLBmmwP/LBW1aIczZEyiGX7XJgtUkwKqs0ip2mH83xpdYVooL/pBbhxvN19gzuq
+         h8WchmLfdzs0mDOV7bKgUesATI+NOVBZcVDqVaJGFlFfQs57ewxWgkmANp1e7+sl3LEH
+         k+lu3XyNj6pv0Heul67lJC1d/H9akS2tCcjuB5u6UQmhL6o8humlWvIK0a6+On8fTh7i
+         vPmd1skh9cp8p3qmLWgVwz58pNkfnrIqdLS6CT3vfwj8tTAsDEfAqsR81oG+RM369ORo
+         d65DRFsC/fC2GOlHSRDRkjcuf4Ovl1GteZMX0mK21ipnjXeaNjyoNRCXbOEuCRAXGKH9
+         AGKA==
+X-Forwarded-Encrypted: i=1; AL+hErHHSLGmgoDZhZA2OuB890wSMn0vpW9gJ/3ryPScR24IvWLEEK0EQXE7f/LthIgKqTPiPFJXote1uVCl9A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9GvWzWp67/LBL7ATwmIbIgEArAgufEY40nQeikgJRgxKxQ5jFn
+	DUEmN6vayjrPlEQJKScY3TdsCo0yQTgKZ9956g3kf1xq7NYPovHkhmU02ioz+78bErY=
+X-Gm-Gg: AYBFou3cS6lqzQUtKZQnHTF1cjg3uf2uT3vweVxkZlPZ02RYliNxYfWddxzr8Opoey/
+	IQJV2Wz/n4lq6n1c1qRjGJ/Z+L89z/ciSqm7iJhKq77oGFjQT7QvlIcS/kKf75rSzJ36pTXhy1I
+	YzE5eaizwPV/Hj0tIYw57usoTqnCWonmQCzvQ0nhTV2zK3VCjtWB6QpjOFveS9DuHVB7SwjnHG+
+	QJSyePWBwy75DsRvKNLe1fDjxHAPLuUKL/Tolp4PT5VNy2kammlnZIxnPEjw6njF8d0yHQCr7h5
+	aieyIi7YeddvGxFmQPZewKpU/l5nQY/3VXuya3BtfdxA3H0oxhIoJV/p8hxkhc5Ke6itqUBiIi+
+	3m4nHtZYaQoncdgdrxbaSFqX7m9v5KhUXWQ+sILEtGQo2JyKrvNkuZBMqLUv2efW81Bt8rdkgTJ
+	paINmBWGGgyEsKChhEaO+L5WdDojBfkwfkPUFmEWAmRt9V+gltqXU4xB1U4ZpMH5SpSs1j/MRJQ
+	ql85JpMs7mE252+iaOFYrQcW+dv4t9nRz/yrACuZCe8X2dS/WfPOR79rEAgIgjRlxo7qEuTUGHn
+	A0DluQ==
+X-Received: by 2002:a05:620a:aa0b:b0:949:7473:b1a5 with SMTP id af79cd13be357-9497473c077mr807892285a.55.1794873920005;
+        Mon, 16 Nov 2026 16:05:20 -0800 (PST)
+Received: from ziepe.ca ([142.166.156.71])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c8b889csm969866585a.32.2026.11.16.16.05.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 16:05:10 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1xT6h7-0000000Apgy-1pGN;
+	Mon, 16 Nov 2026 20:05:05 -0400
+Date: Mon, 16 Nov 2026 20:05:05 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev
+Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
+Message-ID: <20261117000505.GA2488304@ziepe.ca>
+References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
+ <d0999161-3b27-4c3b-9d66-1d117c4836fd@arm.com>
+ <20261110122237.GG8635@unreal>
+ <b4c2538f-8021-4abc-be2e-fcd1596f84ca@arm.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,36 +133,54 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b4c2538f-8021-4abc-be2e-fcd1596f84ca@arm.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] mfd: mxs-lradc: commit message mismatches MMIO mapping in
-  mxs_lradc_probe()
---
+On Mon, Nov 16, 2026 at 05:13:59PM +0000, Robin Murphy wrote:
+> Even with the slightly dubious argument that this series only intends to
+> shuffle the existing PCI code around rather than fully introduce the generic
+> abstraction that it claims to, if the PCI behaviour is still just based on
+> propagating the internal "untrusted" flag plus the new global override, both
+> of which *are* known at add_device time into the common trust state, then
+> there seems little excuse for not doing that up-front so that the new API
+> *can* just work as expected.
 
-commit 7eada64ceb6fbaa203e6af701a0c04cb0afc5c33
-Author: Fabio Estevam <festevam@gmail.com>
+The desired iommu flow is to start out as blocking and create the
+default domain only right before driver binding when we have the
+correct trust level.
 
-mfd: mxs-lradc: Pass parent IRQs to child drivers
+If we try to do that without this series then we have to do it all the
+time, which I'm really scared will break some embedded thing that
+expects scanout to work or something like that. My hope was this
+becomes opt-in based on the new command line stuff in this series.
 
-This commit resolves LRADC interrupts and maps the MMIO region in the MFD
-parent driver, sharing them with the ADC and touchscreen child drivers via
-struct mxs_lradc instead of passing child platform resources.
+On the other hand this series works properly on systems without an
+iommu, which is pretty much all CC VMs today.
 
-> Resolve the interrupts with platform_get_irq() in the MFD parent and
-> store the mapped IRQs in the shared LRADC data. Drop the child IRQ
-> resources and duplicated name arrays, and have both child drivers
-> request the mapped IRQs directly. Use the MFD memory base support to
-> translate a single relative memory resource shared by both cells.
+There are probably around 15 series to complete all of this PCI device
+attestation. Without everything it isn't really usable, IMHO. I'm not
+that worried about the series ordering.
+> > We have two levels: policy - that describes the default of all devices
+> > for that bus. level - actual decision on how that device is going to be
+> > operated.
+> > 
+> > "Disabled" prevents driver probing until the device is authorized,
+> > "Adversary" permits probing and requests the available protections
+> > for operating an untrusted device.
+> > 
+> > Both need conservative initial IOMMU setup: a disabled device may later
+> > be authorized as adversary, and authorization does not rebuild its IOMMU
+> > domain.
+> 
+> Urgh, I can be absolutely certain I'm not the only one who is going to be
+> confused this way... I see "disabled" and instinctively take it to mean
+> disabling the device_trust *mechanism*, as the logical thing that people
+> will reach for in terms of "I don't care what this new thing is, just get it
+> out of my way and let my drivers work like they always used to; I want to
+> disable the new thing."
 
-[Severity: Low]
-Does the last sentence of this paragraph still match the code?
+Maybe "isolated" is a better word?
 
-mxs_lradc_probe() maps the MMIO region once into lradc->base via
-devm_platform_ioremap_resource() and passes NULL for mem_base to
-devm_mfd_add_devices(), while both child drivers use lradc->base directly
-without any IORESOURCE_MEM resources in mxs_lradc_cells[].
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116224803.6115=
-4-1-festevam@gmail.com?part=3D3
+Jason

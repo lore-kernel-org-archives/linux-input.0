@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794875460;
-	b=OOnzWcON4qdxFLoGf3tKf/26FFDHKHVxEIlgFMMZFLBRr1MAsP2jjUCMHhwwX+LTYx93
-	 BPlQvFvHlec/UTN3mfqxnw92R3he+efcjAh2NKLY85vizlogOpaIDlRkPLXUEySJgMU1o
-	 ts6COlr+a+eONS8ZEjg8CTAXg80l6ggRfaNXEE/FbTVsCx4F0b2GPrQjEhYfH6RWF62Xm
-	 dXuej4klqR/Xu/d5UeQEPt+Wof3WcbxjCQy6wvK/uPRlT/F1Ob06j8plpzliHR08xQtDB
-	 g+XDBI0a4JHkmdEotEuOJyWCUOHvJ/dDb35e8a0O3gOZfs8CIzxWffBzh1U4Ppvcb4w==
+	t=1794875578;
+	b=KZqwTNOhxM0vLH6fr9JcLHfJsMhiqksqUBjzY64CBBaHxxJK3PrIVad0GvSqsnp1i9gT
+	 F2w1+4TFyUw1/rrYXlR2OLwtxTps0tG3MWrhgbPrqvGLJn3rUApWuTv+tE5xgq/Xk+99O
+	 lKnyxbj4a0lhYomIT0vl4WVOHjgWu06JFq8IqZZh3WZDUH1Y7JEMCeXSjnxKOXzVR+UpN
+	 TouJqJBO/lWYdGXK4r5IFWP/t3WCCLm7NftqIk4gjhyp83pAjqOu5TO7tj3wQlroYZoW1
+	 VY5HkzWzekuKRaTm6LsRnlDv38Cx6unD7mvPSIxPWWVJ9Uz9DjjL24K99tLPFTD9ATw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794875460;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794875578;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
 	 X-Debian-User;
 	bh=ZJaGE4hmAwAu3ci11rwBq8atZ3mF8O9TjUp2VfkCbf4=;
-	b=H2K/gAoohpmdwiffgSh7X9Ot3V1R6Wu+Wm4mqMvoue1cbRRi6HChKQx1M1gahldmrCD1
-	 WPQDukBtbGq076xkL/olEIQUdhxH11hrmJW7b0TftGpwCU2JZtq6x51fwSsV6nBKQ4qiL
-	 7d6hoRN2ThdhwccdO4vCkOdQkBSN/O1jLc1aoIco432s8hJWtFc20WUC/aj4iNr+e+lMh
-	 MZ9p4lF6rLZ1NCKTLBY9GjOF2wB69izDJ1WDbsANdrmlqCDWv3IcYWAXilg/VTeEwrpaD
-	 5SclTfFV5efkmED4CWzwqk9ulmAY2MHxTNapa5ECVO1R7sqRoB4Od/MekMlH0AbWmrQ==
+	b=gK+yZko0gjBz8Klr7AA8HNa9Xi1eI9jmejU/BGgfQi8piq9x9PmuvW1LIGiYJDamOGxN
+	 cbdH7o38luO9MDzeOY7+yWKwxlX85rQTRVYgmNC01yTYzjAxpa7cYTOJbjQXW4aToJUL+
+	 hU8wzKICf4VsMQQYrDyO+SVwvFYdfPJCIlcZTleah1sxgqIJoNkvrrGqZHoipVG0H02Rk
+	 pIvdd5M5m6PVk/5cdj3i+xcSiKFhRT80IgUtyAHHH+WQ/VdO1OTfrWzmrfTcHTmlDhAif
+	 xFM1Vfj10HUC/kgy42L6VfLUa8+ZqnWMx6wO3HSgOjgSepmleaiwdTn9xBtzG7G7ziQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=Rug6qZeI;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b="tI/ce3g4";
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE9B606A31C;
-	Tue, 17 Nov 2026 00:30:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CEE9B606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70FD4606A323;
+	Tue, 17 Nov 2026 00:32:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 70FD4606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=Rug6qZeI
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=tI/ce3g4
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
 	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=ZJaGE4hmAwAu3ci11rwBq8atZ3mF8O9TjUp2VfkCbf4=; b=Rug6qZeIX2SF8N2kSW5wWPXpcE
-	YM9Kbql2jDN+i6pGt00oG4yorjcWqL2awETcJvu9XXUfon/FntVFe5CURlPG/X2HePo8saH30P/Rn
-	OXNUABAzDkfFFQUU1hl4rZO6YHRiRvIpYarw3Hk+ty4qcQ1fqJ8QLzyDTdr2JWP/gpmRNw/wUu6tS
-	CqVPE8F01BC71uMLHauTMZDxakhvmN12SOf9nBVxELsMAgRO8GAQOS9r/A9YPY+aG6VxlaSFdgV1K
-	UGMozESDyCQY42P7icBvvyA+FRIAGQ7h/dD4gNP4LF9uDJBFQbNYp4wTwpRK//aN+u0aZ1h11jw9W
-	xhuVa6Uw==;
+	bh=ZJaGE4hmAwAu3ci11rwBq8atZ3mF8O9TjUp2VfkCbf4=; b=tI/ce3g44ASlkorJjwjSc9Pr4z
+	BDE3oljIP+EozzaBr7sS66Z0mHUe7x8rDA5re6DVDBmndW5TMVcRuYltb5PNlgqpQLUZqUoJHP0w3
+	e0yFl9urGAdoqae2PKxLRrQNRb9bSaUiJpWIkFzUJy9FdbFzMVVhiFxYaTgVhqvTQsPOJtx3glbvx
+	YsW8x3N98XBJlfNyChIkvZojhw5XbPDTKGE1GawUgGd6ISJok1X13CTVLo77TAriXA3lpvE7NTOWH
+	gdR9IWpDCKo+WW9snVx11TC11POPq+k3M5ZKU2YTDN7crtSkJ0AMrCSbySOFm55pDoUKrXF2QwD53
+	Cku2xvRg==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xT764-0009Cw-0c;
-	Tue, 17 Nov 2026 00:30:53 +0000
+	id 1xT781-0009Ez-0N;
+	Tue, 17 Nov 2026 00:32:53 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -57,8 +57,8 @@ To: Even Xu <even.xu@intel.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: [PATCH v4] HID: intel-thc-hid: intel-thc: restore PRD table capacity
-Date: Tue, 17 Nov 2026 08:27:55 +0800
-Message-ID: <20261117002755.936097-1-emfox@debian.org>
+Date: Tue, 17 Nov 2026 08:32:47 +0800
+Message-ID: <20261117003247.940876-1-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>

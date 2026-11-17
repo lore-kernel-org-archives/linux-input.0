@@ -1,65 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794875578;
-	b=KZqwTNOhxM0vLH6fr9JcLHfJsMhiqksqUBjzY64CBBaHxxJK3PrIVad0GvSqsnp1i9gT
-	 F2w1+4TFyUw1/rrYXlR2OLwtxTps0tG3MWrhgbPrqvGLJn3rUApWuTv+tE5xgq/Xk+99O
-	 lKnyxbj4a0lhYomIT0vl4WVOHjgWu06JFq8IqZZh3WZDUH1Y7JEMCeXSjnxKOXzVR+UpN
-	 TouJqJBO/lWYdGXK4r5IFWP/t3WCCLm7NftqIk4gjhyp83pAjqOu5TO7tj3wQlroYZoW1
-	 VY5HkzWzekuKRaTm6LsRnlDv38Cx6unD7mvPSIxPWWVJ9Uz9DjjL24K99tLPFTD9ATw==
+	t=1794876487;
+	b=vgazJBhbfaM56P3JQfBDwvk12uPXoSpJozHyaBniIVGXT4YB4HnsvHDEd6Mvhqfpe5k7
+	 MfMIMfJRD/gUzYP7OtP8fV9+4+/ynZ0GyPm3KO8c0qnpz2MmYWejR36o8hpa3/MI0F7aU
+	 uu0faf7rExxMtt/YNLH/Djtum/E5qsLAPBh+y52/sw7qSgf/4M2B3u++gXgTE2tFwTrDp
+	 hks5cuKIIq2sCIIxHzs+CJaeFiVSBJ1dK4tnDP49lOUJ67RSkmOdbKL5zYtXihN388nAl
+	 C6z8LA4iRaEl7uvbvgJcgpO5I0tole9ZPXUYy4NJUUxH+nNkX2s5Hjion7DKyrzuNYw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794875578;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Debian-User;
-	bh=ZJaGE4hmAwAu3ci11rwBq8atZ3mF8O9TjUp2VfkCbf4=;
-	b=gK+yZko0gjBz8Klr7AA8HNa9Xi1eI9jmejU/BGgfQi8piq9x9PmuvW1LIGiYJDamOGxN
-	 cbdH7o38luO9MDzeOY7+yWKwxlX85rQTRVYgmNC01yTYzjAxpa7cYTOJbjQXW4aToJUL+
-	 hU8wzKICf4VsMQQYrDyO+SVwvFYdfPJCIlcZTleah1sxgqIJoNkvrrGqZHoipVG0H02Rk
-	 pIvdd5M5m6PVk/5cdj3i+xcSiKFhRT80IgUtyAHHH+WQ/VdO1OTfrWzmrfTcHTmlDhAif
-	 xFM1Vfj10HUC/kgy42L6VfLUa8+ZqnWMx6wO3HSgOjgSepmleaiwdTn9xBtzG7G7ziQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794876487;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=/GxTeIJgufz0vwsUTaeBgCid36oa7FA8YPPS7Hn8GEI=;
+	b=eYLrKywdispfY90KngUJOY3bUROIPPFUC8If/60HkrGL25RAV4ddcFCXdyTRFV+LMXeY
+	 OsnjXQJU272EKupMqD1Ljgs2WZQNe1wDOuflW+efW8vuXans3vjGw6NcKyBfikopBRNeN
+	 U1X9DbaCR9o5s7dz4LNywjcVn98d+TgFFgwCgqyxMMPamMsjmZukWili80+PAijkganPE
+	 qW14NZ7D9fIJ0HEkxMtAA/pCxl6jXU34a01FF0DEScJafTZd0LZai3+bMv0rlsYnm3cWK
+	 fA7V1Mz9iiu5ShBmhoPx8uXYbVbONAIMi2Y211O6OIilr9zvTNqamNHx8HODLNHPl4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b="tI/ce3g4";
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NRfwrNFK;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70FD4606A323;
-	Tue, 17 Nov 2026 00:32:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 70FD4606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039A1606A31C
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 00:48:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=tI/ce3g4
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=ZJaGE4hmAwAu3ci11rwBq8atZ3mF8O9TjUp2VfkCbf4=; b=tI/ce3g44ASlkorJjwjSc9Pr4z
-	BDE3oljIP+EozzaBr7sS66Z0mHUe7x8rDA5re6DVDBmndW5TMVcRuYltb5PNlgqpQLUZqUoJHP0w3
-	e0yFl9urGAdoqae2PKxLRrQNRb9bSaUiJpWIkFzUJy9FdbFzMVVhiFxYaTgVhqvTQsPOJtx3glbvx
-	YsW8x3N98XBJlfNyChIkvZojhw5XbPDTKGE1GawUgGd6ISJok1X13CTVLo77TAriXA3lpvE7NTOWH
-	gdR9IWpDCKo+WW9snVx11TC11POPq+k3M5ZKU2YTDN7crtSkJ0AMrCSbySOFm55pDoUKrXF2QwD53
-	Cku2xvRg==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xT781-0009Ez-0N;
-	Tue, 17 Nov 2026 00:32:53 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v4] HID: intel-thc-hid: intel-thc: restore PRD table capacity
-Date: Tue, 17 Nov 2026 08:32:47 +0800
-Message-ID: <20261117003247.940876-1-emfox@debian.org>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NRfwrNFK
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565111F000C5;
+	Tue, 17 Nov 2026 00:48:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794876486;
+	bh=/GxTeIJgufz0vwsUTaeBgCid36oa7FA8YPPS7Hn8GEI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NRfwrNFK/HdoigCo2ATTvsODYnwIjUgUhRMDzAsQwNvJU00im4OMJDZmAnbLDUH4Q
+	 EXTS0e3WFoJHDDMZH2LcUM06XRZR+AjJTAm1hltpMAtY8Tx2fVy7EZ7MvDa69QGOYm
+	 rqg8Zc93aOD5lvUXMMNY/7PtKh4RUCfmuj4lDsxW4Eczbz7A1WEvlhmB4+y7y3fljC
+	 M3+5TVTL0rcoK+xcI6SeNKA7rLorvd1Q4q8OhdfgWk7CLcaVso5xB/QNTG3uqr9Y8B
+	 y/sIRE9AxN9ee5slbsjlzLLTPkm3JqGXQ7UVcGKHq9cQGPX1RB7Ko83UncDMUnw0tk
+	 /w5+WjnYMkf7w==
+Message-ID: <sashiko-outbox-218024@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] HID: intel-thc-hid: intel-thc: restore PRD table
+ capacity
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Emfox Zhou" <emfox@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261117002755.936097-1-emfox@debian.org>
+References: <20261117002755.936097-1-emfox@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 17 Nov 2026 00:48:04 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -68,167 +59,151 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
 
-The controller writes the frame length into the PRD entry it filled and
-marks the end of the frame there; only a read puts the capacity back.
-thc_reset_dma_settings() rewinds the read pointers but not those lengths:
-a frame still queued when it runs is dropped, and the next frame that does
-not fit runs past the end of its entry. The controller reports a buffer
-overrun, which is a transfer error and leads back into the same reset,
-with the table still short.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] HID: intel-thc-hid: race between ring pointer reset and
+  thc_dma_read()
+--
 
-Rebuild a table before the engine that reads it is started:
-thc_dma_configure() for probe, resume and the RxDMA reset, the SWDMA start
-for its own table once that engine reports idle (a transfer that timed out
-leaves it running), and the end of an SWDMA round trip for the receive
-tables that the same reset rewound.
+commit c665e6597716a85d87cab2130b44755b45a6cc6e
+Author: Emfox Zhou <emfox@debian.org>
 
-A drain in the threaded handler reads a table without the bus lock, so a
-rebuild can land in the middle of it, and a reset does not rule the
-handler out either. Give the tables a mutex taken by both, inside the bus
-lock where the caller holds it, and no path takes the two in the other
-order.
+HID: intel-thc-hid: intel-thc: restore PRD table capacity
 
-thc_copy_sgls_to_prd() returns early for a channel whose tables are gone.
-
-Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
-Changes in v4:
-  - The tables are rebuilt under a mutex that the receive path takes as
-    well: the threaded handler drains the ring outside the bus lock, so a
-    rebuild could land in the middle of a read.
-  - The SWDMA table is rebuilt after its engine is waited for, and the
-    receive tables are rebuilt where an SWDMA round trip restarts the
-    receive engine.
+This commit reinitializes RxDMA and SWDMA PRD table entries from their
+scatter-gather lists before starting the DMA engines and adds a mutex to
+serialize PRD table rebuilds with thc_dma_read().
 
 Link: https://lore.kernel.org/r/20261115040756.602092-1-emfox@debian.org
----
- .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 31 ++++++++++++++++++-
- .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  7 +++++
- 2 files changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index c80ef8c20..413f264e3 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -211,12 +211,27 @@ static void thc_copy_sgls_to_prd(struct thc_device *dev,
- {
- 	unsigned int i;
- 
-+	guard(mutex)(&dev->dma_ctx->prd_lock);
-+
-+	if (!config->is_enabled || !config->prd_tbls)
-+		return;
-+
- 	memset(config->prd_tbls, 0, array_size(PRD_TABLE_SIZE, config->prd_tbl_num));
- 
- 	for (i = 0; i < config->prd_tbl_num; i++)
- 		thc_copy_one_sgl_to_prd(dev, config, i);
- }
- 
-+/*
-+ * A frame that is never read leaves its entry short, and the engine reads
-+ * the table again on every start: put the capacity back.
-+ */
-+static void thc_rebuild_rx_prd(struct thc_device *dev)
-+{
-+	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA1]);
-+	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA2]);
-+}
-+
- static int setup_dma_buffers(struct thc_device *dev,
- 			     struct thc_dma_configuration *config,
- 			     enum dma_data_direction dir)
-@@ -327,6 +342,7 @@ struct thc_dma_context *thc_dma_init(struct thc_device *dev)
- 		return NULL;
- 
- 	dev->dma_ctx = dma_ctx;
-+	mutex_init(&dma_ctx->prd_lock);
- 
- 	dma_ctx->dma_config[THC_RXDMA1].dma_channel = THC_RXDMA1;
- 	dma_ctx->dma_config[THC_RXDMA2].dma_channel = THC_RXDMA2;
-@@ -491,6 +507,9 @@ int thc_dma_configure(struct thc_device *dev)
- 		return -EINVAL;
- 	}
- 
-+	/* An entry may still be short from a frame nobody read. */
-+	thc_rebuild_rx_prd(dev);
-+
- 	for (chan = 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
- 		dma_set_prd_base_addr(dev,
- 				      dma_ctx->dma_config[chan].prd_tbls_dma_handle,
-@@ -685,6 +704,8 @@ static int thc_dma_read(struct thc_device *dev,
- 	u8 read_ptr, write_ptr, prd_table_index;
- 	int status;
- 
-+	guard(mutex)(&dev->dma_ctx->prd_lock);
-+
- 	if (!is_dma_buf_empty(dev, read_config, &read_ptr, &write_ptr)) {
- 		prd_table_index = write_ptr & THC_POINTER_MASK;
- 
-@@ -765,11 +786,16 @@ static int thc_swdma_read_start(struct thc_device *dev, void *write_buff,
- 	if (ret)
- 		return ret;
- 
--	if (thc_wait_for_dma_pause(dev, THC_RXDMA1) || thc_wait_for_dma_pause(dev, THC_RXDMA2))
-+	if (thc_wait_for_dma_pause(dev, THC_RXDMA1) ||
-+	    thc_wait_for_dma_pause(dev, THC_RXDMA2) ||
-+	    thc_wait_for_dma_pause(dev, THC_SWDMA))
- 		return -EIO;
- 
- 	thc_reset_dma_settings(dev);
- 
-+	/* A transfer that timed out left its frame length in the entry. */
-+	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_SWDMA]);
-+
- 	/*
- 	 * Max input size control feature is only available for RxDMA, it must keep disabled
- 	 * during SWDMA operation, and restore to previous state after SWDMA is done.
-@@ -854,6 +880,9 @@ static int thc_swdma_read_completion(struct thc_device *dev)
- 
- 	thc_reset_dma_settings(dev);
- 
-+	/* The receive engine starts again just below. */
-+	thc_rebuild_rx_prd(dev);
-+
- 	dma_set_start_bit(dev, &dev->dma_ctx->dma_config[THC_RXDMA2]);
- 
- 	ret = thc_interrupt_quiesce(dev, false);
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-index 715423453..264cd26b7 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-@@ -6,6 +6,7 @@
- 
- #include <linux/bits.h>
- #include <linux/dma-mapping.h>
-+#include <linux/mutex.h>
- #include <linux/sizes.h>
- #include <linux/time64.h>
- #include <linux/types.h>
-@@ -123,6 +124,9 @@ struct thc_dma_configuration {
-  * struct thc_dma_context - THC DMA context
-  * @thc_dma_configuration: Array of all THC Channel configures
-  * @use_write_interrupts: Indicate TxDMA using interrupt or polling
-+ * @prd_lock: Keeps a table from being rebuilt while the DMA read path is
-+ *            using it; a sleeping lock, taken inside the bus lock where the
-+ *            caller holds that one.
-  * @rx_max_size_en: Temp flag to indicate THC I2C Rx max input size control feature
-  *                  enabled or not, only be used during SWDMA operation.
-  * @rx_int_delay_en: Temp flag to indicate THC I2C Rx interrupt delay feature
-@@ -132,6 +136,9 @@ struct thc_dma_context {
- 	struct thc_dma_configuration dma_config[MAX_THC_DMA_CHANNEL];
- 	u8 use_write_interrupts;
- 
-+	/* Serialises a rebuild of the tables with the DMA read path. */
-+	struct mutex prd_lock;
-+
- 	bool rx_max_size_en;
- 	bool rx_int_delay_en;
- };
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> index c80ef8c205742..413f264e30106 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> @@ -211,12 +211,27 @@ static void thc_copy_sgls_to_prd(struct thc_device =
+*dev,
+>  {
+>  	unsigned int i;
+> =20
+> +	guard(mutex)(&dev->dma_ctx->prd_lock);
+> +
+> +	if (!config->is_enabled || !config->prd_tbls)
+> +		return;
+> +
+>  	memset(config->prd_tbls, 0, array_size(PRD_TABLE_SIZE, config->prd_tbl_=
+num));
+> =20
+>  	for (i =3D 0; i < config->prd_tbl_num; i++)
+>  		thc_copy_one_sgl_to_prd(dev, config, i);
+>  }
+> =20
+> +/*
+> + * A frame that is never read leaves its entry short, and the engine rea=
+ds
+> + * the table again on every start: put the capacity back.
+> + */
+> +static void thc_rebuild_rx_prd(struct thc_device *dev)
+> +{
+> +	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA1]);
+> +	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_RXDMA2]);
+> +}
 
-base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
+[ ... ]
+
+> @@ -491,6 +507,9 @@ int thc_dma_configure(struct thc_device *dev)
+>  		return -EINVAL;
+>  	}
+> =20
+> +	/* An entry may still be short from a frame nobody read. */
+> +	thc_rebuild_rx_prd(dev);
+> +
+>  	for (chan =3D 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
+>  		dma_set_prd_base_addr(dev,
+>  				      dma_ctx->dma_config[chan].prd_tbls_dma_handle,
+> @@ -685,6 +704,8 @@ static int thc_dma_read(struct thc_device *dev,
+>  	u8 read_ptr, write_ptr, prd_table_index;
+>  	int status;
+> =20
+> +	guard(mutex)(&dev->dma_ctx->prd_lock);
+> +
+>  	if (!is_dma_buf_empty(dev, read_config, &read_ptr, &write_ptr)) {
+>  		prd_table_index =3D write_ptr & THC_POINTER_MASK;
+> =20
+> @@ -765,11 +786,16 @@ static int thc_swdma_read_start(struct thc_device *=
+dev, void *write_buff,
+>  	if (ret)
+>  		return ret;
+> =20
+> -	if (thc_wait_for_dma_pause(dev, THC_RXDMA1) || thc_wait_for_dma_pause(d=
+ev, THC_RXDMA2))
+> +	if (thc_wait_for_dma_pause(dev, THC_RXDMA1) ||
+> +	    thc_wait_for_dma_pause(dev, THC_RXDMA2) ||
+> +	    thc_wait_for_dma_pause(dev, THC_SWDMA))
+>  		return -EIO;
+> =20
+>  	thc_reset_dma_settings(dev);
+> =20
+> +	/* A transfer that timed out left its frame length in the entry. */
+> +	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_SWDMA]);
+
+[ ... ]
+
+> @@ -854,6 +880,9 @@ static int thc_swdma_read_completion(struct thc_devic=
+e *dev)
+> =20
+>  	thc_reset_dma_settings(dev);
+> =20
+> +	/* The receive engine starts again just below. */
+> +	thc_rebuild_rx_prd(dev);
+> +
+>  	dma_set_start_bit(dev, &dev->dma_ctx->dma_config[THC_RXDMA2]);
+> =20
+>  	ret =3D thc_interrupt_quiesce(dev, false);
+
+[Severity: High]
+Can thc_dma_read() race with the ring pointer reset around
+thc_rebuild_rx_prd() and overflow qsdev->input_buf?
+
+prd_lock is only held inside thc_copy_sgls_to_prd(), leaving
+thc_reset_dma_settings() and dma_set_start_bit() outside the lock in both
+thc_dma_configure() and thc_swdma_read_start() /
+thc_swdma_read_completion():
+
+CPU0                                  CPU1 (IRQ thread)
+thc_dma_configure()
+  thc_reset_dma_settings()
+    /* TPCRP =3D 0, TPCWP =3D 0 */
+  thc_rebuild_rx_prd()
+    guard(mutex)(&prd_lock)
+    /* PRD len =3D max_packet_size */
+                                      quickspi_irq_thread_handler()
+                                        thc_rxdma_read()
+                                          thc_dma_read()
+                                            guard(mutex)(&prd_lock)
+                                            !is_dma_buf_empty()
+                                            read_dma_buffer()
+                                              <-- copies SZ_4K-aligned entry
+                                            update_write_pointer()
+  dma_set_start_bit()
+
+is_dma_buf_empty() only treats the ring as empty when the masked pointers
+match and the wraparound bits differ, so between thc_reset_dma_settings()
+(TPCRP =3D=3D 0, TPCWP =3D=3D 0) and dma_set_start_bit() (TPCWP =3D=3D 0x80=
+) it
+returns false.  thc_dma_read() then copies a rebuilt PRD entry whose
+length was restored to max_packet_size (aligned up to SZ_4K by
+dma_set_max_packet_size()), which exceeds qsdev->input_buf in
+quickspi_irq_thread_handler() and corrupts TPCWP when
+update_write_pointer() races with dma_set_start_bit().
+
+Conversely, if the reset and dma_set_start_bit() finish emptying the ring
+before thc_dma_read() acquires prd_lock, is_dma_buf_empty() returns true
+and thc_dma_read() returns 0 without setting *read_len, causing
+quickspi_irq_thread_handler() and handle_input_report() to process stale
+input_buf data and an uninitialized stack input_len.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117002755.9360=
+97-1-emfox@debian.org?part=3D1

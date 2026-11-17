@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794876487;
-	b=vgazJBhbfaM56P3JQfBDwvk12uPXoSpJozHyaBniIVGXT4YB4HnsvHDEd6Mvhqfpe5k7
-	 MfMIMfJRD/gUzYP7OtP8fV9+4+/ynZ0GyPm3KO8c0qnpz2MmYWejR36o8hpa3/MI0F7aU
-	 uu0faf7rExxMtt/YNLH/Djtum/E5qsLAPBh+y52/sw7qSgf/4M2B3u++gXgTE2tFwTrDp
-	 hks5cuKIIq2sCIIxHzs+CJaeFiVSBJ1dK4tnDP49lOUJ67RSkmOdbKL5zYtXihN388nAl
-	 C6z8LA4iRaEl7uvbvgJcgpO5I0tole9ZPXUYy4NJUUxH+nNkX2s5Hjion7DKyrzuNYw==
+	t=1794876710;
+	b=Uy90rL1eTdTl1OtUhL2BQGK7krETGVSv5VFxe0hZ71viLj9k44PWfN7lRtXZqdysB2Vc
+	 yF7+mn36KXBua0Bnvuc7M0vB55RhWF0YeFfPYsNYZDjqSV7WsQISoNcdJ5ivLyw7hk8rf
+	 EKspXTNEZm8nuw5S1wd75/SZo/slzN/Hp0oDZzlC/7WRfEas2Rnpyaj1STSbjOj9vXcpd
+	 2KAtmGqQ/E/fpbfST5Zp2L2Cj0Rp7I7lE2Aje8m1hPDqSr79hHfBXnlFVeXK5L2+5Xnim
+	 VSlfj/CM8vlMF7waFKrsulxexMHCR8Ab7EACS0ugCyTK1nIbhJSliw5op1CwyNcoWQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794876487;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794876710;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/GxTeIJgufz0vwsUTaeBgCid36oa7FA8YPPS7Hn8GEI=;
-	b=eYLrKywdispfY90KngUJOY3bUROIPPFUC8If/60HkrGL25RAV4ddcFCXdyTRFV+LMXeY
-	 OsnjXQJU272EKupMqD1Ljgs2WZQNe1wDOuflW+efW8vuXans3vjGw6NcKyBfikopBRNeN
-	 U1X9DbaCR9o5s7dz4LNywjcVn98d+TgFFgwCgqyxMMPamMsjmZukWili80+PAijkganPE
-	 qW14NZ7D9fIJ0HEkxMtAA/pCxl6jXU34a01FF0DEScJafTZd0LZai3+bMv0rlsYnm3cWK
-	 fA7V1Mz9iiu5ShBmhoPx8uXYbVbONAIMi2Y211O6OIilr9zvTNqamNHx8HODLNHPl4Q==
+	bh=NtvuJ69TT4Qqf3lt1vrFnuV9Ky7hbB9jnALzJnwZ2jk=;
+	b=YibKQzJcncEWB5jZJQDA6TuVlPheQ5XD1+Nby+MtvwNJn3aPS4MrrYCAwJS43bLwkWG/
+	 xN2ibcIfl6OO0maEcsIpANyQNNrOkqtTXX2SJqUuFOpfoNlxeZ1LC/zozZMse7OY4rHIs
+	 1pDpMd8eVtjw8BnXhIcPfRcVJoSHhF80l/tkxN2FeObabYXQUWjHqXqF2PsA6afQzludN
+	 8uxoteT7kYFfGgPKcQ6vlS3hERa4Z7VcEzVtLt23RfNBe9nkR7OMqGFi+8Rglsf9Z6CUk
+	 sKf9F+Mph6nDecqC6g7k53gyGv1iQiKeO5/0PJ3UxDfvyDeaumjj3J23cGeU4l9sPfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NRfwrNFK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gj0XIZRe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039A1606A31C
-	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 00:48:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3E9606A334
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 00:51:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NRfwrNFK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565111F000C5;
-	Tue, 17 Nov 2026 00:48:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gj0XIZRe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21571F000C4;
+	Tue, 17 Nov 2026 00:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794876486;
-	bh=/GxTeIJgufz0vwsUTaeBgCid36oa7FA8YPPS7Hn8GEI=;
+	s=k20260515; t=1794876710;
+	bh=NtvuJ69TT4Qqf3lt1vrFnuV9Ky7hbB9jnALzJnwZ2jk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NRfwrNFK/HdoigCo2ATTvsODYnwIjUgUhRMDzAsQwNvJU00im4OMJDZmAnbLDUH4Q
-	 EXTS0e3WFoJHDDMZH2LcUM06XRZR+AjJTAm1hltpMAtY8Tx2fVy7EZ7MvDa69QGOYm
-	 rqg8Zc93aOD5lvUXMMNY/7PtKh4RUCfmuj4lDsxW4Eczbz7A1WEvlhmB4+y7y3fljC
-	 M3+5TVTL0rcoK+xcI6SeNKA7rLorvd1Q4q8OhdfgWk7CLcaVso5xB/QNTG3uqr9Y8B
-	 y/sIRE9AxN9ee5slbsjlzLLTPkm3JqGXQ7UVcGKHq9cQGPX1RB7Ko83UncDMUnw0tk
-	 /w5+WjnYMkf7w==
-Message-ID: <sashiko-outbox-218024@kernel.org>
+	b=gj0XIZRejIV07+NJgV7XBr3bkvB5xuHN53AKLJzoUQYzbFOOHvRXiF2WQ3nNnpxEE
+	 cOg6fh1f3nVINZqYXByfUByFAd0zCjV1p0Vg+zZVkFUa4eZW3Mj+yHVT/R2GQz+4G0
+	 epy/1udP1qfOxF7LFYzvLRtxeYIj0oRD2eiZh178xg3BTVs5nUALceey0TcbtGYK+T
+	 +6M7MjwOvAh/54ZHntuD1COOnCh24EnBT0e0enf987fwAd1vmwaflohYac9j/6OKQ7
+	 q/gu1JBtXzhdmblS3Fjc+XuZHmQ27lNKw201po6slREUD7i/VzGxUwfaOVejVG0BbM
+	 mW195tsuq/dOQ==
+Message-ID: <sashiko-outbox-218028@kernel.org>
 From: sashiko-bot@kernel.org
 Subject: Re: [PATCH v4] HID: intel-thc-hid: intel-thc: restore PRD table
  capacity
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Emfox Zhou" <emfox@debian.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261117002755.936097-1-emfox@debian.org>
-References: <20261117002755.936097-1-emfox@debian.org>
+In-Reply-To: <20261117003247.940876-1-emfox@debian.org>
+References: <20261117003247.940876-1-emfox@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 17 Nov 2026 00:48:04 +0000
+Date: Tue, 17 Nov 2026 00:51:49 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,18 +62,18 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [High] HID: intel-thc-hid: race between ring pointer reset and
-  thc_dma_read()
+- [High] HID: intel-thc-hid: race between thc_dma_read() and DMA pointer
+  reset
 --
 
-commit c665e6597716a85d87cab2130b44755b45a6cc6e
+commit 16c1e87f8c9f9a7660927e9a01abdc216355c96d
 Author: Emfox Zhou <emfox@debian.org>
 
 HID: intel-thc-hid: intel-thc: restore PRD table capacity
 
-This commit reinitializes RxDMA and SWDMA PRD table entries from their
-scatter-gather lists before starting the DMA engines and adds a mutex to
-serialize PRD table rebuilds with thc_dma_read().
+This commit rebuilds the RxDMA and SWDMA PRD tables before starting the DMA
+engines to restore entry capacities overwritten by unread frames, and adds a
+mutex to serialize table rebuilds with thc_dma_read().
 
 Link: https://lore.kernel.org/r/20261115040756.602092-1-emfox@debian.org
 
@@ -147,9 +147,12 @@ ev, THC_RXDMA2))
 > =20
 > +	/* A transfer that timed out left its frame length in the entry. */
 > +	thc_copy_sgls_to_prd(dev, &dev->dma_ctx->dma_config[THC_SWDMA]);
-
-[ ... ]
-
+> +
+>  	/*
+>  	 * Max input size control feature is only available for RxDMA, it must =
+keep disabled
+>  	 * during SWDMA operation, and restore to previous state after SWDMA is=
+ done.
 > @@ -854,6 +880,9 @@ static int thc_swdma_read_completion(struct thc_devic=
 e *dev)
 > =20
@@ -163,47 +166,74 @@ e *dev)
 >  	ret =3D thc_interrupt_quiesce(dev, false);
 
 [Severity: High]
-Can thc_dma_read() race with the ring pointer reset around
-thc_rebuild_rx_prd() and overflow qsdev->input_buf?
+Can thc_dma_read() still race with thc_reset_dma_settings() and
+dma_set_start_bit() because prd_lock only covers thc_copy_sgls_to_prd()?
 
-prd_lock is only held inside thc_copy_sgls_to_prd(), leaving
-thc_reset_dma_settings() and dma_set_start_bit() outside the lock in both
-thc_dma_configure() and thc_swdma_read_start() /
-thc_swdma_read_completion():
+is_dma_buf_empty() treats the ring as empty only when the masked TPCRP and
+TPCWP pointers match with different wraparound bits.  thc_reset_dma_setting=
+s()
+rewinds TPCRP to 0 without setting TPCWP to THC_POINTER_WRAPAROUND (0x80), =
+and
+TPCWP is only set to 0x80 when dma_set_start_bit() restarts THC_RXDMA2.
+Because both register updates happen outside prd_lock in thc_dma_configure(=
+),
+thc_swdma_read_start() and thc_swdma_read_completion(), the threaded IRQ
+handler can enter thc_dma_read() in between:
 
-CPU0                                  CPU1 (IRQ thread)
-thc_dma_configure()
+CPU0                                  CPU1 (threaded IRQ)
+thc_swdma_read_completion()
   thc_reset_dma_settings()
-    /* TPCRP =3D 0, TPCWP =3D 0 */
+    /* TPCRP =3D 0, TPCWP !=3D 0x80 */
   thc_rebuild_rx_prd()
-    guard(mutex)(&prd_lock)
-    /* PRD len =3D max_packet_size */
+    thc_copy_sgls_to_prd()
+      lock(&dma_ctx->prd_lock)
+      /* restores entry.len =3D SZ_4K */
+      unlock(&dma_ctx->prd_lock)
                                       quickspi_irq_thread_handler()
                                         thc_rxdma_read()
                                           thc_dma_read()
-                                            guard(mutex)(&prd_lock)
-                                            !is_dma_buf_empty()
-                                            read_dma_buffer()
-                                              <-- copies SZ_4K-aligned entry
+                                            lock(&dma_ctx->prd_lock)
+                                            is_dma_buf_empty() -> false
+                                            read_dma_buffer()  <-- buffer o=
+verflow
                                             update_write_pointer()
+                                            unlock(&dma_ctx->prd_lock)
   dma_set_start_bit()
 
-is_dma_buf_empty() only treats the ring as empty when the masked pointers
-match and the wraparound bits differ, so between thc_reset_dma_settings()
-(TPCRP =3D=3D 0, TPCWP =3D=3D 0) and dma_set_start_bit() (TPCWP =3D=3D 0x80=
-) it
-returns false.  thc_dma_read() then copies a rebuilt PRD entry whose
-length was restored to max_packet_size (aligned up to SZ_4K by
-dma_set_max_packet_size()), which exceeds qsdev->input_buf in
-quickspi_irq_thread_handler() and corrupts TPCWP when
-update_write_pointer() races with dma_set_start_bit().
+When thc_dma_read() sees the non-empty pointers after thc_rebuild_rx_prd(),
+read_dma_buffer() copies a rebuilt PRD table entry whose length was restored
+to max_packet_size (aligned to SZ_4K) instead of a frame length written by
+hardware, overflowing qsdev->input_buf in intel-quickspi when
+HIDSPI_INPUT_BODY_SIZE(max_input_len) is smaller than SZ_4K and corrupting
+TPCWP.  The same window remains open across the entire SWDMA transfer after
+thc_swdma_read_start() calls thc_reset_dma_settings() while THC_RXDMA2 is
+stopped.
 
-Conversely, if the reset and dma_set_start_bit() finish emptying the ring
-before thc_dma_read() acquires prd_lock, is_dma_buf_empty() returns true
-and thc_dma_read() returns 0 without setting *read_len, causing
-quickspi_irq_thread_handler() and handle_input_report() to process stale
-input_buf data and an uninitialized stack input_len.
+Even if the reset and dma_set_start_bit() complete before the woken IRQ thr=
+ead
+calls thc_dma_read(), is_dma_buf_empty() now returns true on the first call,
+so thc_dma_read() returns 0 without setting *read_len:
+
+drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_irq_thread=
+_handler() {
+	...
+		while (!read_finished) {
+			ret =3D thc_rxdma_read(qsdev->thc_hw, THC_RXDMA2, qsdev->input_buf,
+					     &input_len, &read_finished);
+			if (ret) {
+				err_recover =3D 1;
+				goto end;
+			}
+
+			quickspi_handle_input_data(qsdev, input_len);
+		}
+}
+
+quickspi_irq_thread_handler() then passes an uninitialized input_len and st=
+ale
+qsdev->input_buf to quickspi_handle_input_data() (and quicki2c's
+handle_input_report() replays stale data in qcdev->input_buf).
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117002755.9360=
-97-1-emfox@debian.org?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117003247.9408=
+76-1-emfox@debian.org?part=3D1

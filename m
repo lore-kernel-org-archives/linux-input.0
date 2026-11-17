@@ -1,78 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794920822;
-	b=HwcEeQOTqi7vvPfUdE1IyiC2n8fAyK+26WS+iS6MaC7HbMEeuy6kOmAyFgwjI9fH5CVH
-	 +BjXbID/vBZ6aUgT+ZO4LoNotXdA7YCBUhXeEuNPgsJnumuVs4G2ivhk5Ld1aX2Rhzrg7
-	 XSg7tjyQuHaDU3hFtQElxVUB9140wHF8q1bPh9hjVb4B9g6RTxCN2ZSqOu3D3w4PhglZJ
-	 OJ0lVBL9xODziuNUfdGFu1Jh260fWNv0xv4wqj4/QZjMIXJtfuZ2o9J0BR5fI/yCAsfL1
-	 jkwBup5tR74LqMxg/bFu4hiLq7tJqrIlpq+xfQehUu+7xf71tMXXzmiPaRa2vXDVw0Q==
+	t=1794920820;
+	b=JHDRGYaUNOLn0WrB5A7SmdF0M/JWKbM9upvYRWsu7EfoFtlxMzV2zpstQmJIgV40+Ium
+	 SwGHPC8nmYlQJnOEFLcQjINrqkbC8uuZebhX1Cz9F0PoGWpWX6+h/uTwLLZ60fkiaoHGE
+	 CpAsFJ4dyIueWcMnw5mo+fWpDwma9/Huq0E6C2NzNauXj55G71fTt8USC74ZFFPjLlE+g
+	 XpA3I/mBEJXhC9e7ZhNnbAhGKV28j+HM8TaHoi24gch4yvrfUSnWCR2YY5A02XGQeS0Pr
+	 DnpJDHVUmoX8S+7lPGFa4n8VbjOdUmfGphQCb+/cu+x9FbL2Fgvu7jExeQAnJfl0qkA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920822;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920820;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=14s9/XhWZ4H00XZEj8YbcuRVSxhBvNdnPj1htsr8Sl8=;
-	b=kSXGzCUv2lYiKEtLPHSGMa+X/u/B9o0Txji5gc1jB10ZThgDhZagL6pZjSGdyAOE2WCc
-	 imIRxpMoSmLoCRvBy/rDRV9uGUa9alH9tj1OzsO4AEZT2Tz+SNWN3qjGIvt2vHfMi/fz2
-	 F96c7+tCkFanardwbKVOOZPgfz1nreYpvZemN+d6zuMxq9xLEH4Ud7e5AVHry2ZTyqJLK
-	 putcJoBX8Lky6HbpfW0oj4ltJJ9q3Zl5q6cQX4H03x+hozdcGWSGoEbuBgmfer68sr19c
-	 UEwq81qrVWmbo8C4DMOXXrWVK0WCM5YHkwp1LUbGr+w5L83BlhY3i3FmUp5l2/j9lyA==
+	bh=RdzTRbCpWIMv59MYJJ2oMPglBLxs64dSWoLNVEoHROY=;
+	b=qIwJljdHiFWDrQW6d12ir2UI81NZMkQW3SKY8ThwixrLE7qR0h9Ckwpz3S98Lu0yx6OD
+	 o+pGiUI3RaLtsQZCmi8snwaIV57kd9AS7ooNgGdzA52UxBrhqoy9rJSngHeRIbbIBEQUx
+	 x/aZdY15on5imvmYdFuOYwC/zxLv6zPk77n1B7XjLo+89h0iHpqBpW3pLQM9bP6TnBNW1
+	 EHh6GyVqLjl/W1l4jUI46/Li2eUZFuaJw4gTFRwOjk3TQSQ4y/KWYh6QsAf9/A3H6CZGL
+	 lHkioeng+oggsO+rT05rCWwqNEu3SZACFWOEhQk2ml3UlMNJkWZXu73YmhbOgCr4mtA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpAEPO0j;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZpoBQTw0;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1501A60A2602;
-	Tue, 17 Nov 2026 13:07:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A798606A338;
+	Tue, 17 Nov 2026 13:07:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpAEPO0j
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZpoBQTw0
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794920821;
-	b=g2ykkNrnxfck8s6gbpUChwUlSxpMuaR8XZINGfc5svJSObV64vIq1RTKNdJ5oZElTzBu
-	 Kzw1+EsBtoPQ8EVxJsWWqhAHeg0sWtZAjAgdPwd+GDWTXqxZwXjqj812JCnXEwwuN8hRq
-	 9n7SMsDbYAUD7bzOtIRY06OAFGHXWAC06y8tLBPd4Ebyreqv0Vf3jO91jgkchi9uEHl6D
-	 oBmnnTyYhQAtwiQPMFXJHWssnbX4z0uE7V3GyA0qV+Dn/DR9t6RnsantIQH4qZZhxayKW
-	 eEdjow7JMz8FiVTCyJXXPCw4HvpQBfrMgL+wr0ECkH/Cmnni5T8OARfE9QIpA4Lj7eg==
+	t=1794920820;
+	b=lbNqImIct6/BNzlqbb4PA7yKGbcKgSiq6/C5uVPFeXFSUQ4Rrsu4ZoKEn+kJ9VZqfZoB
+	 SIClO53kblXOIN0i79QHVBaOD/8FOBIPzEgSzdg5Ab4MFWXS26v7LusB6gh7J7dnJUtRA
+	 4ah5Mo80eiS+GRRebxqRRySfVOyiIJR3lKJHRiM6d7lgimgk5EhRr1EToYauAAB5qLPca
+	 Ez4AFdDY1NimRfkqeFLH1a1ZWAQefT9Fk2IYE7rY74+CkHWfWAjXmiJeuAECW5zu4eS5v
+	 4ESKrdhugtHhNPckLuM0W4peQd81FAivOrw4pqAxjZa/tRncje4nAG0ccAwUtx4gSYA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794920821;
+	c=relaxed/relaxed; t=1794920820;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=14s9/XhWZ4H00XZEj8YbcuRVSxhBvNdnPj1htsr8Sl8=;
-	b=HqLzmBhxjECwVI4VnSJTQGDM+6w2exyaLisRw4iCS489yYgn1gu4NKikTfVYOlrCnWDQ
-	 Eiu5cJL9He35oalKVYiA3ySV2kR0BTYlxDW4UnDEb1BoFR2QCRhh35lEc7a0uODy430gN
-	 APhi1qgzwf52NUNvxZkF2zx03L9YVSEoAVLfk7v4sIomyc2qr3ff8qCtWjWiMSQngf8jc
-	 LrrOSbctrNBi4Gj+jgdHyE4gV3VzxY+aiF073zIOHG9Rv+uRktw8Spm5dA2YTLKT8j6Gd
-	 F+c0wegLLoRTMfziQz0m0tRqZD26UcM4hMq5BxQNv8ic6ARXsEScJOaf3F/SfMQcVIA==
+	bh=RdzTRbCpWIMv59MYJJ2oMPglBLxs64dSWoLNVEoHROY=;
+	b=EYvlSZy29WMKesijKDO6jXR+tzCpYyFw6hOs+LghJP700KtCb7GkXfw9HTL0zcANtbmC
+	 Z8+2NHzwKajACY8vnLy8vjI1Q2D2ZGc+rEfhv0C7MA5Yfh/E+S9Z15eT6NHvhiFtE4Jvb
+	 vIc49mZ+zq1uDyvoRaQvz71cSo1ebsx1UWAg8y1jjX4zh/5u9k67DH/aTpV4sJt73Ll+G
+	 qsn5HSBM9o20KvM7YBvw0njtOTqjc2r7x2xrcgPqlnE8GJrYDfkNB4mhFTz1OGND6qNEX
+	 NcICo+Wk7USYxXMeeBZmnEfL+lIFGHn6a1FWKJcwSHmghcUVHjSEDrGAe8jWdDjpOrA==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 471CF1F000C7;
+	by smtp.kernel.org (Postfix) with ESMTPS id 316381F000C6;
 	Tue, 17 Nov 2026 13:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920821;
-	bh=14s9/XhWZ4H00XZEj8YbcuRVSxhBvNdnPj1htsr8Sl8=;
+	s=k20260515; t=1794920820;
+	bh=RdzTRbCpWIMv59MYJJ2oMPglBLxs64dSWoLNVEoHROY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=HpAEPO0jPME0JrBd+4xxvO5RpT2Ku40Q5ZI4ODhX0WunTsSoPyDy41gh4ODVvoRup
-	 v/wjbYBFdpta5Sdl456kV4l+QbDv1EtLsTaTMhKIzg45K8Pxez9azewX8CKLs/Vpr6
-	 yEUymeNvMNqUmlhFq1GJOArvY1qE+9gWTm1LQ1AiU8YzZfD87uyhCXtk1iiUhRWmjd
-	 8AT3NKkIPGMyViUzHWRS2mcaiebnGB1RRF8HK9BPAmVtluufZ/cJrgtp+v+ZwTngCE
-	 21525rwCoNsi/FtB8Seod4RqQHu7bmoqCuAtDiWKRUYSzuUQaLRuWYEHuHSg+FLU0K
-	 Bg+pBRP3edu3A==
+	b=ZpoBQTw0taBPWXPbTzglrviXyT4Z8NfmgTYcT+zpTnmjcDnf5+qUdlQ93DWy8mwkm
+	 Aq8+XIjDaC1y5G7xEII58wbEV11U0KJJd4rHMzHaHyjKODgaLPlKIqejxxBnEOz1jL
+	 rRxUwcXlEPLiuuhDOjUMvsCHt2Zv9O3cBpW+5rToIZvZUZvobUavcTziKmnMthip2Q
+	 OxxtAJRPjAtjDg5xSNh4rLuZaRqToJiT3K77igrSa4/G4KbceOGRPc0DJGNaUi+Wlm
+	 juxrEzTooLxG5Fn7U/viNo+CWmMB0//PmA/UlgIcWxLzKOAIt2SojnER3k4S3p1SVN
+	 vUioOmhI6luzw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id C57014A983;
+	by lkml.kernel.org (Postfix) with ESMTP id AF6B34A97E;
 	Tue, 17 Nov 2026 13:06:58 +0000 (UTC)
 From: yy-Local-LLM via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
-Date: Tue, 17 Nov 2026 22:06:52 +0900
-Subject: [PATCH RFC 2/6] irqchip: add the SiRF AT550 interrupt controller
+Date: Tue, 17 Nov 2026 22:06:51 +0900
+Subject: [PATCH RFC 1/6] dt-bindings: add SiRF AT550 and Yupiteru YPL514si
+ descriptions
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,7 +84,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261117-at550-rfc-v1-v1-2-5879573cb825@gmail.com>
+Message-Id: <20261117-at550-rfc-v1-v1-1-5879573cb825@gmail.com>
 References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
 In-Reply-To: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
 To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
@@ -101,11 +102,11 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794920817; l=5243;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794920817; l=8505;
  i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
- bh=9f0nqZv4WQhgKV1VvrZgloZ85kHakrrDVLP2DGNKTf4=;
- b=m6zb8HTiPIox5b7xSvz+83eHXlrLwsdjRIptcxLk4j6673ysoDkYCiWcdc0fUQqBy0mqGhciz
- 4utdk7k6o5uDMYJ5wLW5zRTjBmMg2r77oYpeU8rxeonbhVQaT3Zj1RH
+ bh=PPMFmty+X1fB4x1sTCUWuwl5IruxK1aahzVZzgQU0DI=;
+ b=/M56w7i6wjjKb7hkQhlFL4AB7O0JGYb32FY8M87pw5hDp1BHmErXvZVs4yqdXAIaIoI0HuWL3
+ x7h42a21k0HBJ0HskfUmHsNgeVwKeAgdVZzsePenB1Nq51EwaHtImmM
 X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
  pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
 X-Endpoint-Received: by B4 Relay for
@@ -116,173 +117,288 @@ Content-Transfer-Encoding: 7bit
 
 From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 
-Register the root controller through IRQCHIP_DECLARE and a linear
-domain. Validate the chip ID before writes, mask both banks during setup
-and route sources to IRQ. Keep dispatch bounded and leave the DSP mask
-registers alone. The register operations derive from the 6.12.60
-YPL514si bring-up. The device owner has now booted the 7.4-rc3 candidate
-through JWM on this upstream initialization path.
+Describe the 64-source interrupt controller, counter/match timer,
+resistive touch input and PIO SD host, together with the YPL514si board
+compatible. The counter clock is supplied by boot firmware after its
+configured divider. The initial platform inherits firmware clock and pin
+setup.
 
 Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 ---
- MAINTAINERS                 |   1 +
- drivers/irqchip/Kconfig     |   5 ++
- drivers/irqchip/Makefile    |   2 +
- drivers/irqchip/irq-at550.c | 110 ++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 118 insertions(+)
+ .../devicetree/bindings/arm/sirf,at550.yaml        | 22 ++++++++++
+ .../bindings/input/touchscreen/sirf,at550-ts.yaml  | 36 +++++++++++++++
+ .../interrupt-controller/sirf,at550-intc.yaml      | 46 +++++++++++++++++++
+ .../devicetree/bindings/mmc/sirf,at550-sdhci.yaml  | 51 ++++++++++++++++++++++
+ .../bindings/timer/sirf,at550-timer.yaml           | 47 ++++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml       |  2 +
+ MAINTAINERS                                        |  9 ++++
+ 7 files changed, 213 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/arm/sirf,at550.yaml b/Documentation/devicetree/bindings/arm/sirf,at550.yaml
+new file mode 100644
+index 000000000..f538f7ccc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/arm/sirf,at550.yaml
+@@ -0,0 +1,22 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/arm/sirf,at550.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 platforms
++
++maintainers:
++  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
++
++properties:
++  $nodename:
++    const: '/'
++  compatible:
++    items:
++      - const: yupiteru,ypl514si
++      - const: sirf,at550
++
++additionalProperties: true
++
++...
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
+new file mode 100644
+index 000000000..0458db241
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
+@@ -0,0 +1,36 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/sirf,at550-ts.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 resistive touchscreen
++
++maintainers:
++  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: sirf,at550-ts
++  reg:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    touchscreen@80120000 {
++        compatible = "sirf,at550-ts";
++        reg = <0x80120000 0x1000>;
++        touchscreen-size-x = <4096>;
++        touchscreen-size-y = <4096>;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+new file mode 100644
+index 000000000..ec68afa80
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+@@ -0,0 +1,46 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/interrupt-controller/sirf,at550-intc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 interrupt controller
++
++maintainers:
++  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
++
++description:
++  The AT550 controller routes 64 level-sensitive interrupt sources to the
++  ARM1136 IRQ input. Each source has a fixed active level; the single interrupt
++  cell is the source number. Firmware FIQ routes are not exposed by this driver.
++
++properties:
++  compatible:
++    const: sirf,at550-intc
++  reg:
++    maxItems: 1
++  interrupt-controller: true
++  '#interrupt-cells':
++    const: 1
++  '#address-cells':
++    const: 0
++
++required:
++  - compatible
++  - reg
++  - interrupt-controller
++  - '#interrupt-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    interrupt-controller@90020000 {
++        compatible = "sirf,at550-intc";
++        reg = <0x90020000 0x1000>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        #address-cells = <0>;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml b/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
+new file mode 100644
+index 000000000..7129aaeec
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
+@@ -0,0 +1,51 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mmc/sirf,at550-sdhci.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 SDHCI host controller
++
++maintainers:
++  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
++
++description:
++  AT550 removable SD controller. Initial support uses programmed I/O and
++  firmware-configured clocks and pin multiplexing. DMA address translation
++  and 1.8 V operation are not described by this binding.
++
++allOf:
++  - $ref: mmc-controller.yaml#
++
++properties:
++  compatible:
++    const: sirf,at550-sdhci
++  reg:
++    maxItems: 1
++  interrupts:
++    maxItems: 1
++  bus-width:
++    enum: [1, 4]
++  no-1-8-v: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - no-1-8-v
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    mmc@56000000 {
++        compatible = "sirf,at550-sdhci";
++        reg = <0x56000000 0x1000>;
++        interrupt-parent = <&intc>;
++        interrupts = <36>;
++        bus-width = <4>;
++        max-frequency = <25000000>;
++        no-1-8-v;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml b/Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
+new file mode 100644
+index 000000000..d1465d438
+--- /dev/null
++++ b/Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
+@@ -0,0 +1,47 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/timer/sirf,at550-timer.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 system timer
++
++maintainers:
++  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
++
++description:
++  A free-running counter with six match channels. The Linux driver uses the
++  low 32 counter bits and match channel zero. Firmware configures the divider
++  before boot and supplies the resulting counter clock. A running watchdog
++  must be disabled by firmware before this block is handed to Linux.
++
++properties:
++  compatible:
++    const: sirf,at550-timer
++  reg:
++    maxItems: 1
++  interrupts:
++    maxItems: 1
++  clocks:
++    items:
++      - description: Counter clock after the firmware-configured divider
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++additionalProperties: false
++
++examples:
++  - |
++    timer@90050000 {
++        compatible = "sirf,at550-timer";
++        reg = <0x90050000 0x1000>;
++        interrupt-parent = <&intc>;
++        interrupts = <0>;
++        clocks = <&counter_clk>;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 5471a06f9..a8927fea3 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1985,6 +1985,8 @@ patternProperties:
+     description: Shenzhen Yashi Changhua Intelligent Technology Co., Ltd.
+   "^ysoft,.*":
+     description: Y Soft Corporation a.s.
++  "^yupiteru,.*":
++    description: Yupiteru
+   "^yuridenki,.*":
+     description: Yuridenki-Shokai Co. Ltd.
+   "^yuzukihd,.*":
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 6c3702cd8..acb6fde49 100644
+index d73899016..6c3702cd8 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -25855,6 +25855,7 @@ F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
- F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
- F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
- F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-+F:	drivers/irqchip/irq-at550.c
+@@ -25847,6 +25847,15 @@ F:	drivers/gpio/gpio-siox.c
+ F:	drivers/siox/*
+ F:	include/trace/events/siox.h
  
++SIRF AT550 PLATFORM
++M:	yy-Local-LLM <yogo.0917.sabu@gmail.com>
++S:	Odd Fixes
++F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
++F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
++F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
++F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
++F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
++
  SIS 190 ETHERNET DRIVER
  M:	Francois Romieu <romieu@fr.zoreil.com>
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 136bab41f..abf704110 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -852,4 +852,9 @@ config IRQCHIP_XILINX_SMMU_CSR
- 	  ZynqMP-class platforms where a vendor CSR block mediates SMMU
- 	  interrupts.
- 
-+config AT550_IRQ
-+	bool
-+	depends on ARM
-+	select IRQ_DOMAIN
-+
- endmenu
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index 16a5fd126..0aa36c7b8 100644
---- a/drivers/irqchip/Makefile
-+++ b/drivers/irqchip/Makefile
-@@ -136,3 +136,5 @@ obj-$(CONFIG_MCHP_EIC)			+= irq-mchp-eic.o
- obj-$(CONFIG_SOPHGO_SG2042_MSI)		+= irq-sg2042-msi.o
- obj-$(CONFIG_SUNPLUS_SP7021_INTC)	+= irq-sp7021-intc.o
- obj-$(CONFIG_IRQCHIP_XILINX_SMMU_CSR)	+= irq-xilinx-smmu-csr.o
-+
-+obj-$(CONFIG_AT550_IRQ) += irq-at550.o
-diff --git a/drivers/irqchip/irq-at550.c b/drivers/irqchip/irq-at550.c
-new file mode 100644
-index 000000000..33eb18cd1
---- /dev/null
-+++ b/drivers/irqchip/irq-at550.c
-@@ -0,0 +1,110 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/* SiRF AT550 interrupt controller. */
-+#include <linux/io.h>
-+#include <linux/irq.h>
-+#include <linux/irqchip.h>
-+#include <linux/irqdomain.h>
-+#include <linux/of_address.h>
-+#include <asm/exception.h>
-+
-+#define AT550_IRQ_COUNT	64
-+#define AT550_MASK	0x18
-+#define AT550_LEVEL	0x20
-+#define AT550_CHIP_ID	0x34
-+#define AT550_IRQ_ID	0x38
-+
-+static void __iomem *at550_intc;
-+static struct irq_domain *at550_domain;
-+
-+static void at550_irq_mask(struct irq_data *data)
-+{
-+	void __iomem *reg = at550_intc + AT550_MASK + (data->hwirq / 32) * 4;
-+
-+	writel(readl(reg) & ~BIT(data->hwirq % 32), reg);
-+}
-+
-+static void at550_irq_unmask(struct irq_data *data)
-+{
-+	void __iomem *reg = at550_intc + AT550_MASK + (data->hwirq / 32) * 4;
-+
-+	writel(readl(reg) | BIT(data->hwirq % 32), reg);
-+}
-+
-+static struct irq_chip at550_chip = {
-+	.name = "at550-intc",
-+	.irq_mask = at550_irq_mask,
-+	.irq_unmask = at550_irq_unmask,
-+};
-+
-+static int at550_irq_map(struct irq_domain *domain, unsigned int irq,
-+			irq_hw_number_t hwirq)
-+{
-+	if (hwirq >= AT550_IRQ_COUNT)
-+		return -EINVAL;
-+	irq_set_chip_and_handler(irq, &at550_chip, handle_level_irq);
-+	irq_set_noprobe(irq);
-+	return 0;
-+}
-+
-+static const struct irq_domain_ops at550_domain_ops = {
-+	.map = at550_irq_map,
-+	.xlate = irq_domain_xlate_onecell,
-+};
-+
-+static void __exception_irq_entry at550_handle_irq(struct pt_regs *regs)
-+{
-+	unsigned int count, hwirq;
-+
-+	for (count = 0; count < AT550_IRQ_COUNT; count++) {
-+		hwirq = readl(at550_intc + AT550_IRQ_ID) & 0xff;
-+		if (hwirq == 0xff)
-+			return;
-+		if (hwirq >= AT550_IRQ_COUNT) {
-+			pr_err_ratelimited("at550-intc: invalid source %u\n", hwirq);
-+			return;
-+		}
-+		if (generic_handle_domain_irq(at550_domain, hwirq))
-+			return;
-+	}
-+}
-+
-+static int __init at550_irq_init(struct device_node *node,
-+				struct device_node *parent)
-+{
-+	int ret;
-+
-+	if (parent || at550_intc)
-+		return -EINVAL;
-+	at550_intc = of_iomap(node, 0);
-+	if (!at550_intc)
-+		return -ENOMEM;
-+	if ((readl(at550_intc + AT550_CHIP_ID) & 0xffff) != 0x1230) {
-+		ret = -ENODEV;
-+		goto unmap;
-+	}
-+	/* A set mask bit enables a source; clear level bits route it to IRQ. */
-+	writel(0, at550_intc + AT550_MASK);
-+	writel(0, at550_intc + AT550_MASK + 4);
-+	writel(0, at550_intc + AT550_LEVEL);
-+	writel(0, at550_intc + AT550_LEVEL + 4);
-+	at550_domain = irq_domain_create_linear(of_fwnode_handle(node), AT550_IRQ_COUNT,
-+					   &at550_domain_ops, NULL);
-+	if (!at550_domain) {
-+		ret = -ENOMEM;
-+		goto unmap;
-+	}
-+	ret = set_handle_irq(at550_handle_irq);
-+	if (ret)
-+		goto remove_domain;
-+	irq_set_default_domain(at550_domain);
-+	return 0;
-+
-+remove_domain:
-+	irq_domain_remove(at550_domain);
-+	at550_domain = NULL;
-+unmap:
-+	iounmap(at550_intc);
-+	at550_intc = NULL;
-+	return ret;
-+}
-+IRQCHIP_DECLARE(at550, "sirf,at550-intc", at550_irq_init);
+ L:	netdev@vger.kernel.org
 
 -- 
 2.56.0

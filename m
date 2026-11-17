@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794922073;
-	b=gWcxfm29Rh1Kve5cv6SKuqwdjYsM5voFD/IBzZ43UaJTRpKrnPlbds1HqVowxA0aBorr
-	 2w75RnbeuvldZAsgyRpNSJKVVIV9TNNpADbBbKZsbWcSd8vWcRM9p5TYYIW9h+jvFY49N
-	 HpggVEQokbCx61zn+35Gfn+dcmQI/IXZJnaxMRs2Zd6d9hH3uexSV6K3ILuxzwvv4MaUZ
-	 v30FRRbqBaGznNqLimrs8cPvIj+zwDoInjh25GkD5sXTnTyfWAQc6o/ujyoIgiv83S9Kk
-	 bCpkWsxLzpti4Dm+BS/TcW0Gyn+tljJwVjKLk2IB/uYBxSKxfvHPof2HANn1FNVAgzQ==
+	t=1794922729;
+	b=o+8UWYyZTLnxrmj4wLsjmz0A0n1Io+aczdYcmItDDRtfyY+j9zKDELM/w2giLue0wXnP
+	 WMyd3MTE7YZK+sgcJVNoiA6FZCZewHhvRLSEkPUVDlOczYEXvPAgv9yl4Q/vNjee9GdMq
+	 k+ngp7RS4aUUyfxE6mdA4cUkCYpxUJMMbEHbAvdHik60tTL+QVNqwHjOwfoA2pfQIE0R5
+	 X40t6qVM/nWlfM24EAoMKltSLAnhmbS+FPZ1tX1bcfheclKhWGIy5BMdNJj3jtm9hFsJi
+	 wAfptKfDy1rGxbsg/YTX90LEtwSqPWEbAOtvnVwbMA1mc/JzNanfV3j7e5nlbvv5LLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794922073;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794922729;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=YhjXNHza9stxE6aDiZMREAEWAEnmWCKBDC0S5X7bxvY=;
-	b=nmUC0t33KIjVunzx3DqXnI+fwshmuV2n5ll2XVoMwLwJ9cTxbT3rIEe3GW+0NQdDFCh4
-	 gywXrVCjRoeDwzH40J+JPv0/gRi8hU4HyKuBCebGkpTEOD6aP+5LtlXILhsLYV7Mw2M1y
-	 Z9OKjY2h3UPwgwghRfP0CoRZXZ/Wmg2XmDoxE583prkpoAIAQ4/RUZU1l9xdIljowCguh
-	 ShGebFWa7W0+xs7QY63ZHj49TEFDUk2F3ueuqwC+YY7XDxCbgmec85FEGfBQH0BDaTfQf
-	 Zl7obIiQAzz0n6hy0E5WA2FHt86quWWAYw5AYA3Hl/XLF/ls1BoIoX9WEHyn7qudBUA==
+	bh=UYydpXgMwJhMx6WxgvE6BeJyiQWGTJheG3NMC8OcOc0=;
+	b=UyDGZbGuOWgVbtvPVE84+3rrEaAWg2/zc9jpyq7Z08B8eta9fWpv8qe0pjceMC/0x/bN
+	 XriU69Sv+ebcH7pBXfR5Esln12D1nfPAcITWk116mQa2FAZCPHxf6w1SZKUX1uRpVKZda
+	 RnHQ+CGeeRJfWIKcq/8Xt3QNDbY/ndLKDCq+TCf2zzs+ZHt8kl/uDvrSaIeGGoUjtd5/d
+	 7GnQ5YGoHbq6fz14odMiGTH9wTRhgXQZu4p8liRsWzdiLb0MuQYy/0hmBNvjbvDD9cfuF
+	 XcsC2A7OY+79UQKa+jKIFMnxtU5++rC4i7uzcaQC+SAtv7eleIAXRoKvQBMwl+Wqptg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="L/r4+/gI";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWGRJosp;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 270E5606A31C;
-	Tue, 17 Nov 2026 13:27:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B5F606A323;
+	Tue, 17 Nov 2026 13:38:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L/r4+/gI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCAFF1F000C4;
-	Tue, 17 Nov 2026 13:27:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWGRJosp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B3A1F000C4;
+	Tue, 17 Nov 2026 13:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794922072;
-	bh=YhjXNHza9stxE6aDiZMREAEWAEnmWCKBDC0S5X7bxvY=;
+	s=k20260515; t=1794922729;
+	bh=UYydpXgMwJhMx6WxgvE6BeJyiQWGTJheG3NMC8OcOc0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L/r4+/gITyGZlxzXBACe/JxVESNv8GaswYw6gp5XoFfeY2fTKGsYA2ojT5CyANwpm
-	 ZuUPcZM4RIZL+scmI2yPyLolkZ3NUyw9CxO+/376iMWntrgglPbwFq7W8qP8bI7PZJ
-	 dgaD2wcNq76oPBcw6yYvpa6GMt3YRdYE+uQ72V2Cf2MfVubc8U8Y9aHbEs5grh6Hpd
-	 E5tf1XjlTrfYjHHGhWNKgBF9JXNQxukkZljRJG72qXhdAC3Wq0azMC3JPcGLDoADdn
-	 3/AycKSp0xwkkc2RgKCq7xSrHumaFC86ULjyK0aJbQLsh7ABW2E1X+a5WMM12WSvFV
-	 3/cQLlztUw5mg==
-Message-ID: <sashiko-outbox-218876@kernel.org>
+	b=nWGRJosp5juLjl8H7ig9EYjakn8Scm9Nlkidn9ASBs2uitwqkU2PCLxhEVGhDSy3W
+	 VR5ff4ORJurs8XCD9OhbgKPhClmPmz4jVW12iwgiCU+nVw5LNmjU18hYU0/U5g7XIN
+	 hLf4WV3+y5P191NYLmN37k7zbDZWOpDHdXTsquNoIK4QmTiOtFEHPIkK3LtChF52gp
+	 0zFejPcU41AF6XmOKgT0IaY3+PMFI1O37K5e4FC7gMOXRC7mQbskxUS2Yuz6cwBMkL
+	 tNO5JQHCrirkl/UXZe+CiQ2VmmCwHaWwCl1fIDh/9Dfxep+Dj/Mo71pJcSL5Yi8a4L
+	 sdt732QnW9SaA==
+Message-ID: <sashiko-outbox-218891@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 2/6] irqchip: add the SiRF AT550 interrupt
- controller
+Subject: Re: [PATCH RFC 4/6] Input: add polled SiRF AT550 resistive touch
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: yy-Local-LLM <yogo.0917.sabu@gmail.com>, devicetree@vger.kernel.org
 Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261117-at550-rfc-v1-v1-2-5879573cb825@gmail.com>
+In-Reply-To: <20261117-at550-rfc-v1-v1-4-5879573cb825@gmail.com>
 References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
- <20261117-at550-rfc-v1-v1-2-5879573cb825@gmail.com>
+ <20261117-at550-rfc-v1-v1-4-5879573cb825@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 17 Nov 2026 13:27:51 +0000
+Date: Tue, 17 Nov 2026 13:38:48 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,65 +61,124 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issues to consider:
-- [High] irqchip:at550: non-human handle in Signed-off-by trailer
-- [Medium] irqchip:at550: missing IRQ_LEVEL flag in at550_irq_map()
+- [High] Input: at550-ts: non-human handle in Signed-off-by and commit
+  author
+- [Medium] Input: at550-ts: unsafe register restore and IRQ clear order
+  in at550_ts_close()
+- [Low] Input: at550-ts: violation of Input subsystem error-handling and
+  style rules
 --
 
-commit d5dea66e73a21d9dc175a050a6d6978545bc229c
+commit cf7c284aeaacb1e8a41814f52eee2edf5d3fbc10
 Author: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 
-> irqchip: add the SiRF AT550 interrupt controller
+> Input: add polled SiRF AT550 resistive touch support
 >
-> Register the root controller through IRQCHIP_DECLARE and a linear
-> domain. Validate the chip ID before writes, mask both banks during setup
-> and route sources to IRQ. Keep dispatch bounded and leave the DSP mask
-> registers alone. The register operations derive from the 6.12.60
-> YPL514si bring-up. The device owner has now booted the 7.4-rc3 candidate
-> through JWM on this upstream initialization path.
+> Report raw ABS_X/ABS_Y and BTN_TOUCH using the input polling framework.
+> Preserve the firmware settling settings and reject streaming/AUX
+> ownership. Use standard touchscreen axis properties; keep affine
+> calibration in userspace. Polling is the initial supported acquisition
+> mode.
 >
 > Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
 
 [Severity: High]
-The Author header and Signed-off-by trailer use the handle "yy-Local-LLM"
-rather than a known real full human name, which does not comply with the
-Developer's Certificate of Origin in
-Documentation/process/submitting-patches.rst.
+Documentation/process/submitting-patches.rst requires a real human name (kn=
+own
+identity) in the Author header and Signed-off-by trailer rather than a hand=
+le
+or bot identifier such as yy-Local-LLM.
 
-> diff --git a/drivers/irqchip/irq-at550.c b/drivers/irqchip/irq-at550.c
+> diff --git a/drivers/input/touchscreen/at550-ts.c b/drivers/input/touchsc=
+reen/at550-ts.c
 > new file mode 100644
-> index 0000000000000..33eb18cd1e9ec
+> index 0000000000000..0a208f4a92f55
 > --- /dev/null
-> +++ b/drivers/irqchip/irq-at550.c
+> +++ b/drivers/input/touchscreen/at550-ts.c
+> @@ -0,0 +1,108 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/* SiRF AT550 coordinate acquisition. Layout cross-checked with AT551 dr=
+aft. */
+> +#include <linux/bitfield.h>
+> +#include <linux/input.h>
+> +#include <linux/input/touchscreen.h>
+> +#include <linux/io.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+
 [ ... ]
-> +static int at550_irq_map(struct irq_domain *domain, unsigned int irq,
-> +			irq_hw_number_t hwirq)
+
+> +static int at550_ts_open(struct input_dev *input)
 > +{
-> +	if (hwirq >=3D AT550_IRQ_COUNT)
-> +		return -EINVAL;
-> +	irq_set_chip_and_handler(irq, &at550_chip, handle_level_irq);
-> +	irq_set_noprobe(irq);
+> +	struct at550_ts *ts =3D input_get_drvdata(input);
+> +
+> +	/* Polling keeps the interrupt sources disabled. Preserve CE settling. =
+*/
+> +	writel(3, ts->base + AT550_INTR);
+> +	writel(ts->ctrl2 | GENMASK(15, 14), ts->base + AT550_CTRL2);
+> +	writel((ts->ctrl1 & GENMASK(7, 4)) | BIT(11) | BIT(10),
+> +	       ts->base + AT550_CTRL1);
 > +	return 0;
 > +}
+> +static void at550_ts_close(struct input_dev *input)
+> +{
+> +	struct at550_ts *ts =3D input_get_drvdata(input);
 > +
-> +static const struct irq_domain_ops at550_domain_ops =3D {
-> +	.map =3D at550_irq_map,
-> +	.xlate =3D irq_domain_xlate_onecell,
-> +};
+> +	writel(3, ts->base + AT550_INTR);
+> +	writel(ts->ctrl1, ts->base + AT550_CTRL1);
+> +	writel(ts->ctrl2, ts->base + AT550_CTRL2);
+> +}
 
 [Severity: Medium]
-Should at550_irq_map() also call irq_set_status_flags(irq, IRQ_LEVEL)?
+Can at550_ts_close() leave pending interrupt status latched or re-enable
+coordinate acquisition and hardware interrupts?
 
-Because at550_domain_ops uses irq_domain_xlate_onecell() and at550_chip has
-no .irq_set_type callback, IRQ_LEVEL is never set on the descriptor.  If a
-level interrupt fires while lazily disabled via disable_irq(),
-handle_level_irq() masks the source and sets IRQS_PENDING, and a later
-enable_irq() -> check_irq_resend() sees irq_settings_is_level(desc) as
-false and schedules a software resend on top of the unmasked hardware line,
-running the handler twice and reporting the interrupt as edge-triggered in
-procfs and sysfs.
+Clearing AT550_INTR before writing AT550_CTRL1 and AT550_CTRL2 allows an
+in-flight conversion to complete and reassert interrupt status before the
+controller stops.  In addition, at550_ts_probe() accepts any boot-time bits
+within 0xffff in ts->ctrl1 and 0xc2ff in ts->ctrl2, so restoring the unmask=
+ed
+values on close (unlike at550_ts_open(), which masks ts->ctrl1 to
+GENMASK(7, 4)) can re-enable acquisition or interrupt generation if firmware
+or a bootloader left those bits set.
+
+> +static int at550_ts_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev =3D &pdev->dev;
+> +	struct at550_ts *ts;
+> +	struct input_dev *input;
+> +	int ret;
+
+[ ... ]
+
+> +	ret =3D input_setup_polling(input, at550_ts_poll);
+> +	if (ret)
+> +		return ret;
+> +	input_set_poll_interval(input, 10);
+> +	return input_register_device(input);
+> +}
+
+[Severity: Low]
+This isn't a bug, but Input subsystem convention is to name the error varia=
+ble
+error or err, check the result of input_register_device(input), and explici=
+tly
+return 0 on success:
+
+	error =3D input_register_device(input);
+	if (error)
+		return error;
+
+	return 0;
+
+Also, linux/bitfield.h is unused here while linux/bits.h (for BIT and GENMA=
+SK)
+and linux/mod_devicetable.h (for struct of_device_id) should be included
+directly, and blank lines should separate top-level definitions and functio=
+ns.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117-at550-rfc-=
-v1-v1-0-5879573cb825@gmail.com?part=3D2
+v1-v1-0-5879573cb825@gmail.com?part=3D4

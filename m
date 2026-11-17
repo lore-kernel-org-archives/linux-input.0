@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794902112;
-	b=QpJ2kO2llspbmHBm8Ue99lq60Uo5HAsGuSgHPAhgjVEAZHO1vbcjPANyJnNnP02x2WZH
-	 MaeUuftizNNLUbLs/SwVAqQyUzRJ4z3ghoScGz9BksRmnu9FDq5rFQPaXUJbrcEEDQ8RW
-	 PdG7hvOKGntlghODB1Wb7dyvJA7vSrynmpTK4wwCSpk0rcCmim1Z/ZjayIP1NF7JwtHPh
-	 cRGLBEqBxqv89Av1ntB2X75eBEMVBHHMYXfEz2iYjr7BM80ihm+nmK5QoFImCYE71k+y2
-	 pL3Fd/qKU3Mik1gpuX6apGM47pLcvJ6O84yzgqwts0V4qKFbGbFsRXfpO0X5k7Opjig==
+	t=1794902462;
+	b=EmPJIH8c6CDpoaOuyZ8HftsXZmdHMevnCVKWm3ZcfO0fywI076oqHEKYh9YYrXEDfWSg
+	 hjDJvFB0nfe76DSE2X9tGqLZ+wcPZjydU6SFmMCGG4EjJWvDtmJ81jKRss7MU5TLBa0NA
+	 asl99SbWkC4rUUeo9L6T8oWmCFLUlg5J/1FxwEnYPl/7om9VVisuF68apsul2sxmbZ3+L
+	 5/lrAfJ2YZ72XBG+H92KySwIjFJEwlqZ7SxyFAC25s84abuBDeXuNBs/4BOYgUKUYn79E
+	 edMpG/jNU/qkiTHJjdBnfiJfk6XOP+EyFOsL9IzfAHx0Yq6cOCGb9v217sjMbyyaE0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794902112;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794902462;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=GR7RZlP019AoXAmFmHpWDu1e6YlqP+A+yZ+JhfMb/YQ=;
-	b=ufIj5HWVImYm4CIayZ2k6cSoAb6xFLaeoxrbNGgAo/6vzBIbYzqkM5JbygRyGSerC+4R
-	 fZ0MpoUkNaejZuvZfgjjCDcKw2pl7E94JGzq4Up8j0uesJLhxdxvMFxxLZ1vLJeq/AG7s
-	 jo7EnJbuSIUJRli/ri0IKkRBml7fAGDVl17MXifHadyGXQWUSgobiW9N/zzcFhrNyWqtG
-	 eNLsRsxbPjHO9pYBTB78/IlOZ5ZdOrBdxYAhpDm/RxuZ/10wdj7C3vJ9rZ4QZWgo0rKxB
-	 Hot5JqKfy4gkH98ntlRr/YJTwXoAMi0128oVYEu4TzTQ6+Gv+kKUoXFK+2pS7Upjrew==
+	bh=kwp8eFATo6MZC47TVutvw3L5hk5j6/5NcPvxcFPJiTE=;
+	b=H3RRsT4VvePvzT+tvhDFuv9sdz4NDw3EZ/hCw7tPMPPPF4AebljbRlntRA3TCb/OT9Ie
+	 KN/Zr50rmBOvFXligp+/nENm7jlkZuiGSroxNKy/Fen0N2sZYBJSJU0LVFykW/On5PsSh
+	 QxW7baP8V/SYP0TzK+GO3JIDBVbPN07tW7VAo6nBsSbRy6ZJJf9+Yh5vgWZO7FEq5rbuT
+	 7anzlAo5ExImASmhTrKBh1zlBIUmy2+1eH6GBlZbEbwwcowwZhrbfhwrYB5UwqttooloV
+	 BiwImqApKs408c8CKUZmtNrY+9lhSCEaMIGCrmqgOqvIdYBavlkpWxRA88oMiaS0ncw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=abyaKQLW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AwZiSbyl;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB7D606A31C
-	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 07:55:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F96606A31C
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 08:01:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=abyaKQLW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 861EB1F000C4;
-	Tue, 17 Nov 2026 07:55:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AwZiSbyl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC0CB1F000C4;
+	Tue, 17 Nov 2026 08:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794902112;
-	bh=GR7RZlP019AoXAmFmHpWDu1e6YlqP+A+yZ+JhfMb/YQ=;
+	s=k20260515; t=1794902462;
+	bh=kwp8eFATo6MZC47TVutvw3L5hk5j6/5NcPvxcFPJiTE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=abyaKQLW6eGO43SQL8dIb7JXPgiEp5OZK75lzOzG/l/edGWJixHknDOpnFBUQLjlW
-	 pQ5k1M8+nbpHpFeVeLko1wEflPEMw2uyfAJQwbF64YOtUMutI9VEL7JRdU/jdDFdbE
-	 HImBgjvXhA86iQxZyQSnVuQypqr+2zKkvjC23g4rIBzpQHqGAw+oYRm7U09HH1pq0S
-	 cNzvtwQ60wrMvu4fIr2cFNEk3CcUP90pg0o/lYl3UJHBUmn3uBShqhQ8bAA3X81mi9
-	 OKxBIOLERj+wV5JQSH3EGxVD/1k/v5iITvJG3q3IfvF7U5TBkWh4xv5/Sp562PxLMv
-	 +daBi02dgfiGQ==
-Message-ID: <sashiko-outbox-218389@kernel.org>
+	b=AwZiSbylS7v7pC5O3VcOwP1uM8AxemhsrkV/ZlqRxN+xSLx4pskMEsClGm2yJdhM5
+	 zF7bm+y3LpNLof62T6/dQC/07qnZlEFkFSOFfBE25GxCVc9zBJZnjK922sEA1rl6FZ
+	 jw1x0DTBiaoggvtLxWrx6NCsQb2kUE3RUyKMUmEyNJK1QZtGjXHYDN43k8jAZUdc74
+	 L3f4AuvWKlqKNhywGGHerJRdfNXyHhD9SXSoK8IWHPcpgn+GiocNfKeGSLI6K6nsyx
+	 zbgGD2af1Tx7NWaHWMlCviG4tY4mtxWj/CAWsqtDgukEpuMFWYc/Wy8RGgv5zGyw6J
+	 HY7dag+jtRLYw==
+Message-ID: <sashiko-outbox-218393@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 3/5] HID: intel-thc-hid: intel-ipts: register the HID
- device
+Subject: Re: [PATCH v6 2/5] HID: intel-thc-hid: intel-ipts: receive reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Emfox Zhou" <emfox@debian.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261117073554.11557-4-emfox@debian.org>
+In-Reply-To: <20261117073554.11557-3-emfox@debian.org>
 References: <20261117073554.11557-1-emfox@debian.org>
- <20261117073554.11557-4-emfox@debian.org>
+ <20261117073554.11557-3-emfox@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 17 Nov 2026 07:55:12 +0000
+Date: Tue, 17 Nov 2026 08:01:01 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,212 +60,215 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [Medium] HID: intel-thc-hid: intel-ipts: unset feature_off on
-  thc_dma_write() timeout
-- [Medium] HID: intel-thc-hid: intel-ipts: premature stopping flag in
-  thc_ipts_port_stop()
-- [Medium] HID: intel-thc-hid: intel-ipts: recovery masks in-flight
-  thc_dma_write() IRQ
+- [Medium] HID: intel-thc-hid: intel-ipts: race between
+  thc_ipts_thread() and recovery
+- [Medium] HID: intel-thc-hid: intel-ipts: invalid wait context in
+  thc_ipts_hardirq()
 --
 
-commit 4704713917ed8c2f944a8f47ba40eb93a02b398c
+commit e88c3279dbafcea638f20c7e327484d006236ae1
 Author: Emfox Zhou <emfox@debian.org>
 
-HID: intel-thc-hid: intel-ipts: register the HID device
+HID: intel-thc-hid: intel-ipts: receive reports
 
-This commit registers a HID device for each IPTS port and implements the
-report descriptor, feature report, and input report handling over the THC
-DMA transport.
+This commit configures the receive and transmit DMA engines, requests the
+port interrupt with legacy INTx preference and threaded recovery, and
+decodes incoming frame headers.
 
 > diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
 tel-thc-hid/intel-ipts/ipts.c
-> index 2265d07355221..5fc396e1b3d13 100644
+> index 696a33d17f703..2265d07355221 100644
 > --- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
 > +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
 [ ... ]
-> @@ -144,8 +146,75 @@ static int thc_ipts_touch_set(struct thc_ipts *idev,=
- bool enable)
->  				 &touch);
->  }
-> =20
-> +/* Frames are built in @idev->tx_frame, so callers hold @req_lock. */
-> +static int thc_ipts_send(struct thc_ipts *idev, u32 code, const void *da=
-ta,
-> +			 size_t len)
+> +irqreturn_t thc_ipts_hardirq(int irq, void *data)
 > +{
-> +	size_t padded =3D round_up(len, 4);
-> +	u8 *frame =3D idev->tx_frame;
+> +	struct thc_ipts *idev =3D data;
 > +
-> +	if (READ_ONCE(idev->stopping))
-> +		return -ESHUTDOWN;
-> +	/* The port is masked: the write would wait out its timeout. */
-> +	if (READ_ONCE(idev->recovering))
-> +		return -EAGAIN;
-> +	/* No engine to write into: waiting for a reset would not help. */
+> +	/* Level triggered and shared: mask first, or it stays asserted. */
+> +	thc_interrupt_enable(idev->thc, false);
+
+[Severity: Medium]
+Does calling thc_interrupt_enable() from thc_ipts_hardirq() violate the
+hardirq wait context when the shared INTx line uses oneshot?
+
+thc_ipts_probe() requests a legacy PCI_IRQ_INTX vector with
+IRQF_SHARED | IRQF_COND_ONESHOT.  When another device on the shared line
+uses IRQF_ONESHOT, __setup_irq() sets IRQF_ONESHOT on this action as well,
+and __handle_irq_event_percpu() runs thc_ipts_hardirq() in LD_WAIT_SPIN
+context without calling lockdep_hardirq_threaded().  thc_interrupt_enable()
+calls regmap_write_bits() on dev->thc_regmap, whose regmap_config sets
+.fast_io =3D true without .use_raw_spinlock =3D true:
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c:
+static const struct regmap_config thc_regmap_cfg =3D {
+	...
+	.cache_type =3D REGCACHE_NONE,
+	.fast_io =3D true,
+};
+
+Because regmap protects this map with a non-raw spinlock_t, taking it in
+thc_ipts_hardirq() triggers a lockdep invalid wait context warning under
+CONFIG_PROVE_RAW_LOCK_NESTING=3Dy and sleeps in hardirq context on PREEMPT_=
+RT.
+
+> +
+> +	/* Nothing of ours is pending: the cause belongs to a sharer. */
 > +	if (!READ_ONCE(idev->dma_ready))
-> +		return -ENODEV;
-> +	if (THC_IPTS_TX_HDR_SIZE + padded > idev->max_tx)
-> +		return -EMSGSIZE;
+> +		return IRQ_NONE;
 > +
-> +	put_unaligned_le32(code, frame);
-> +	put_unaligned_le32((u32)len, frame + 4);
-> +	memset(frame + THC_IPTS_TX_HDR_SIZE, 0, padded);
-> +	if (len && data)
-> +		memcpy(frame + THC_IPTS_TX_HDR_SIZE, data, len);
+> +	/*
+> +	 * A reset or a teardown in flight still gets the thread: the status it
+> +	 * drains is where a pending transmit completion is delivered, and a
+> +	 * write waiting for that one holds the bus lock the reset needs.
+> +	 */
+> +	return IRQ_WAKE_THREAD;
+> +}
+[ ... ]
+> +static void thc_ipts_request_recover(struct thc_ipts *idev)
+> +{
+> +	if (READ_ONCE(idev->recovering))
+> +		return;
 > +
-> +	return thc_dma_write(idev->thc, frame, THC_IPTS_TX_HDR_SIZE + padded);
+> +	WRITE_ONCE(idev->recovering, true);
+> +	thc_interrupt_enable(idev->thc, false);
+> +	schedule_work(&idev->recover_work);
+> +}
+> +
+> +/*
+> + * From a work item: the reset waits for the bus lock a pending write ho=
+lds
+> + * until the threaded handler delivers its completion.
+> + */
+> +void thc_ipts_recover(struct work_struct *work)
+> +{
+> +	struct thc_ipts *idev =3D container_of(work, struct thc_ipts,
+> +					     recover_work);
+> +
+> +	/* A handler may have unmasked after the error; keep it masked. */
+> +	thc_interrupt_enable(idev->thc, false);
+> +
+> +	if (thc_rxdma_reset(idev->thc)) {
+> +		/* Nothing left: keep the port masked until it restarts. */
+> +		dev_err(idev->dev, "cannot reset the receive engine\n");
+> +		return;
+> +	}
+> +
+> +	/* The reset drops whatever the engines had queued. */
+> +	WRITE_ONCE(idev->recover_seq, READ_ONCE(idev->recover_seq) + 1);
+> +	WRITE_ONCE(idev->recovering, false);
+> +	if (!READ_ONCE(idev->stopping))
+> +		thc_interrupt_enable(idev->thc, true);
+> +}
+> +
+> +irqreturn_t thc_ipts_thread(int irq, void *data)
+> +{
+> +	struct thc_ipts *idev =3D data;
+> +	irqreturn_t ret =3D IRQ_NONE;
+> +	bool need_recover =3D false;
+> +	int pass;
+> +
+> +	/* A sharer can queue a second run of this thread with no hardirq of
+> +	 * ours in between: mask again, the write is idempotent. The port then
+> +	 * stays masked, so a cause that arrives meanwhile leaves only its
+> +	 * status bit.
+> +	 */
+> +	thc_interrupt_enable(idev->thc, false);
+> +
+> +	for (pass =3D 0; pass < THC_IPTS_IRQ_PASSES; pass++) {
+> +		int mask =3D thc_interrupt_handler(idev->thc);
+> +
+> +		if (mask =3D=3D BIT(THC_UNKNOWN_INT))
+> +			break;
+> +
+> +		ret =3D IRQ_HANDLED;
+> +		if (mask & (BIT(THC_FATAL_ERR_INT) | BIT(THC_TXN_ERR_INT))) {
+> +			dev_err(idev->dev,
+> +				"transfer error, resetting the engine\n");
+> +			/* The teardown has its own reset to wait for. */
+> +			if (!READ_ONCE(idev->stopping))
+> +				need_recover =3D true;
+> +			/* The core stops at the first cause: a Tx completion
+> +			 * behind the error would time out under the bus lock.
+> +			 */
+> +			continue;
+> +		}
+> +
+> +		/* A reset is in flight or the port is going away: the ring is
+> +		 * not ours to read, only its status was.
+> +		 */
+> +		if (need_recover || READ_ONCE(idev->recovering) ||
+> +		    READ_ONCE(idev->stopping))
+> +			continue;
+> +
+> +		if (mask & BIT(THC_RXDMA2_INT) && thc_ipts_read_frames(idev))
+> +			need_recover =3D true;
+> +	}
+> +
+> +	/* The work item resets the engine and unmasks again; a frame read
+> +	 * meanwhile would corrupt the ring.
+> +	 */
+> +	if (need_recover) {
+> +		thc_ipts_request_recover(idev);
+> +		return IRQ_HANDLED;
+> +	}
+> +
+> +	if (!READ_ONCE(idev->stopping) && !READ_ONCE(idev->recovering))
+> +		thc_interrupt_enable(idev->thc, true);
+> +
+> +	return ret;
 > +}
 
 [Severity: Medium]
-Can a concurrent receive recovery mask the port interrupt while
-thc_dma_write() is already waiting for its transmit completion?
+Can a shared interrupt waking thc_ipts_thread() during thc_ipts_recover()
+drop post-reset frames or recovery requests?
 
-thc_ipts_send() checks idev->recovering without synchronization against
-thc_ipts_request_recover():
+thc_ipts_hardirq() returns IRQ_WAKE_THREAD whenever idev->dma_ready is true,
+so a shared interrupt can run thc_ipts_thread() concurrently with
+thc_ipts_recover().  Inside thc_rxdma_reset(), thc_dma_configure() restarts
+THC_RXDMA2 and thc_interrupt_quiesce(dev, false) re-enables device interrup=
+ts
+before thc_ipts_recover() clears idev->recovering:
 
-CPU0                              CPU1 (thc_ipts_thread)
-thc_ipts_send()
-  READ_ONCE(idev->recovering) -> false
-  thc_dma_write()
-    mutex_lock(&dev->thc_bus_lock)
-    dma_set_start_bit(... THC_TXDMA)
-                                  thc_ipts_request_recover()
-                                    WRITE_ONCE(idev->recovering, true)
-                                    thc_interrupt_enable(idev->thc, false)
-                                    schedule_work(&idev->recover_work)
-    wait_event_interruptible_timeout()
-      <-- 1s timeout (-ETIMEDOUT)
+CPU0 (kworker)                        CPU1 (irq thread)
+thc_ipts_recover()
+  thc_rxdma_reset()
+    thc_dma_configure()
+    thc_interrupt_quiesce(..., false)
+                                      <new frame or error arrives>
+                                      thc_ipts_thread()
+                                        thc_interrupt_handler()
+                                          /* clears EOF or error status */
+                                        if (READ_ONCE(idev->recovering))
+                                          continue;  <-- skips frame read
+                                        thc_ipts_request_recover()
+                                          if (READ_ONCE(idev->recovering))
+                                            return;  <-- drops recovery
+  WRITE_ONCE(idev->recovering, false)
+  thc_interrupt_enable(..., true)
 
-Disabling THC_M_PRT_INT_EN_GBL_INT_EN prevents the TXDMA completion
-interrupt from firing, so thc_dma_write() stalls for its full 1-second
-timeout while holding thc_bus_lock (which also blocks thc_rxdma_reset() in
-thc_ipts_recover()).  In thc_ipts_hid_parse(), only -EAGAIN is retried on
-reset, so -ETIMEDOUT from thc_dma_write() aborts report descriptor
-parsing and fails HID registration.
+If a frame arrives right after thc_rxdma_reset() restarts the engine,
+thc_interrupt_handler() clears THC_M_PRT_READ_DMA_INT_STS_EOF_INT_STS in
+hardware, but thc_ipts_thread() still sees idev->recovering =3D=3D true and=
+ skips
+thc_ipts_read_frames(), leaving the frame unread in the ring.  If a transfer
+error occurs in that same window, thc_interrupt_handler() clears the error
+status bit and thc_ipts_request_recover() returns early because
+idev->recovering is still true, leaving the engine stalled once
+thc_ipts_recover() finishes.
 
-[ ... ]
-
-> +/* A feature report comes back as a frame of its own: the request waits.=
- */
-> +static int thc_ipts_get_feature(struct thc_ipts *idev, unsigned char rep=
-ortnum,
-> +				u8 *buf, size_t len)
-> +{
-> +	unsigned long timeout =3D msecs_to_jiffies(THC_IPTS_REQ_TIMEOUT_MS);
-> +	unsigned int seq;
-> +	int ret;
-> +
-> +	guard(mutex)(&idev->req_lock);
-> +
-> +	/* The frame carries only the report ID, so a late answer cannot be
-> +	 * told from the next one's: after a timeout the channel stays shut.
-> +	 */
-> +	if (READ_ONCE(idev->feature_off))
-> +		return -EIO;
-> +
-> +	mutex_lock(&idev->feature_lock);
-> +	WRITE_ONCE(idev->feature_done, false);
-> +	idev->feature_id =3D reportnum;
-> +	idev->feature_pending =3D true;
-> +	mutex_unlock(&idev->feature_lock);
-> +
-> +	seq =3D READ_ONCE(idev->recover_seq);
-> +
-> +	/* A frame that never reached the wire says nothing about the
-> +	 * controller, so it is reported and the channel stays open.
-> +	 */
-> +	ret =3D thc_ipts_send(idev, THC_IPTS_TX_GET_FEATURE, &reportnum, 1);
-> +	if (ret) {
-> +		mutex_lock(&idev->feature_lock);
-> +		idev->feature_pending =3D false;
-> +		mutex_unlock(&idev->feature_lock);
-> +
-> +		return ret;
-> +	}
-
-[Severity: Medium]
-Does an error from thc_ipts_send() guarantee that the request never
-reached the wire?
-
-thc_ipts_send() calls thc_dma_write(), which starts the hardware TXDMA
-engine before waiting on dev->write_complete_wait:
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_dma_write() {
-    ...
-	dma_set_start_bit(dev, &dev->dma_ctx->dma_config[THC_TXDMA]);
-
-	ret =3D wait_event_interruptible_timeout(dev->write_complete_wait, dev->wr=
-ite_done, 1 * HZ);
-	if (ret <=3D 0 || !dev->write_done) {
-		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
-		ret =3D -ETIMEDOUT;
-		goto end;
-	}
-    ...
-}
-
-If wait_event_interruptible_timeout() is interrupted by a signal or times
-out, thc_dma_write() returns -ETIMEDOUT after dma_set_start_bit() has
-already put the THC_IPTS_TX_GET_FEATURE frame on the wire.  Returning here
-without setting idev->feature_off =3D true allows the next
-thc_ipts_get_feature() call for the same report ID to consume the late
-reply from this request and return stale data.
-
-[ ... ]
-
-> @@ -485,11 +817,15 @@ int thc_ipts_port_start(struct thc_ipts *idev)
->   */
->  void thc_ipts_port_stop(struct thc_ipts *idev)
->  {
-> -	/*
-> -	 * Mask the line, then wait for a handler that may be holding a
-> -	 * frame for the HID device which is about to go away.
-> +	/* Refuse new requests first, then wait for one that is already inside
-> +	 * thc_dma_write(): it needs the interrupt the mask below takes away.
-> +	 * The lock is not held across synchronize_irq(), because the threaded
-> +	 * handler can issue a request of its own from a HID callback.
->  	 */
->  	WRITE_ONCE(idev->stopping, true);
-> +	mutex_lock(&idev->req_lock);
-> +	mutex_unlock(&idev->req_lock);
-> +
->  	thc_interrupt_enable(idev->thc, false);
-
-[Severity: Medium]
-Does setting idev->stopping before acquiring idev->req_lock still cut off
-interrupts and incoming frames for an in-flight request?
-
-If an interrupt fires on the shared line while thc_ipts_port_stop() is
-waiting on idev->req_lock (for example from an incoming RXDMA2 frame or a
-shared IRQ peer), thc_ipts_hardirq() masks the port and wakes
-thc_ipts_thread(), which sees idev->stopping =3D=3D true and exits without
-unmasking:
-
-CPU0 (request)            CPU1 (thc_ipts_port_stop)  CPU2 (IRQ)
-mutex_lock(&idev->req_lock)
-thc_ipts_send()
-  thc_dma_write()
-    dma_set_start_bit()
-                          WRITE_ONCE(stopping, true)
-                          mutex_lock(&idev->req_lock)
-                                                     thc_ipts_hardirq()
-                                                       thc_interrupt_enable=
-(false)
-                                                     thc_ipts_thread()
-                                                       if (!stopping && ...)
-                                                         /* skipped */
-    wait_event_interruptible_timeout()
-      <-- 1s timeout
-
-Because the port interrupt stays masked, an in-flight thc_dma_write()
-still waits out its 1-second timeout.  Similarly, if the holder of
-idev->req_lock is waiting on idev->wq in thc_ipts_get_feature() or
-thc_ipts_hid_parse(), thc_ipts_thread() skips thc_ipts_read_frames() when
-idev->stopping is true and nothing wakes idev->wq, forcing a 300 ms
-timeout and a false dev_err() message on teardown.
+Similarly, if thc_ipts_thread() drains a pre-reset error status bit during
+thc_rxdma_reset() and reaches thc_ipts_request_recover() just after
+thc_ipts_recover() clears idev->recovering, it queues a second reset on the
+freshly reset engine, and the trailing thc_interrupt_enable(idev->thc, true)
+in thc_ipts_recover() (or in thc_ipts_port_start() after thc_ipts_dma_start=
+()
+sets idev->dma_ready) can unmask the port while thc_ipts_thread() or recove=
+ry
+expects it to stay masked.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117073554.1155=
-7-1-emfox@debian.org?part=3D3
+7-1-emfox@debian.org?part=3D2

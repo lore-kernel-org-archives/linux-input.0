@@ -1,70 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794936487;
-	b=rqABnmo3WoRDc3CMPM3dhPh3YLWbTrQwSvFIfCIUGkELPPZlqbNLehiEFH27RyqD+BTM
-	 9+txQi2BcVZLmIEuPEyACVbPriQBiiFvSS027gQhPNZAo0d9XIT6f7pxsbejwjMbC9LML
-	 OvlqlFQ/x1zCWMakIlWuadpONEbd+BiAQcNIMAPAMSHKi8KuRa4hAw39PZkQE/endjM2B
-	 vrU/vX5qs2lVFYZUjsRLKKMooRd6mBokVzJ7odT01AxX2IH9IH651MdfxUZa67g3+wZ/w
-	 TpHLBaSvy7ltUwjkIriVCu2uGrO1Vt1uU4CvmvF5mbRJ/Fxgx4w1qjPTzDSbDAgp8LA==
+	t=1794945904;
+	b=3dovUEs4P5LfO9MxZzrTN/C3a5wB51ITVuO7x+nH/bj2akg2JzHeszXyWssxN1he4bbI
+	 Sxs9oL8Tpc22LwgfquX+LlNvJ3oueFLgD+HM/HU8LC/aV9XZVXTrE1FUXjjM0hCQFcRrE
+	 j+jbc2jsP2aPi24yuO71LLuSgu0mXah1BYEjUk4Bs92ZXCGdp43r2VkgZtBS07PpV3bNQ
+	 ASmK5x5/v//gXka2DQdXiUdeim2VumO60ToSDwPwkgUSMOSWql23z085pO5GsQ0V57Hqs
+	 MApP8PMaWkpbI5ZNeism63DGmUYxNlvQw6VMMiY3g0pEwcmlbyUaGSlQGs9KhODarew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794936487;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=CGNf1O2wX9MR4NQSLoWq+A36asloTIZogkdNhe+ZehE=;
-	b=fchpVoPXtYqIjKmJP4O0xaW9pmOVLf5mVT0uCO6RniDnE59OaecVNc8Fg0UZyIJhTy/+
-	 hWFmqVy4njLb7IdDAVmrNynVratw2sFyFUTq51uWplgCtYEV5cRZTD6mPXplNHywlsvgg
-	 SvWqLrb4qdQiI+y8bFgMt3xMwI6nL0noM7I0YbREtzke7QVjUMbVw0tlo55U92GBStd+c
-	 bfNULZf7WLs0/ZFG2GlpBiNzD315GQ9HRQQPXkjr5AGKyyZcRGAkUd9GfShTafQqPStN/
-	 K2n2x2xNh68mQTf11poe/z+cVxlx+pIw9HcAPJdm7qQXCOpoDQ3SLEuR5veq9J31p7w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794945904;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=rbt3Rhy1XEaIZQdvDh/UUWSNfD774dI3KIhZaPLXG14=;
+	b=GoPlQBUkD71zyEQaXirwK5pabM5hqCBy4inAXRhICvmMlxfhMHEBI9MiXuvlcu+G8SS+
+	 FrEWcUwzpu4mcmpGLGe6KtLfPzHzndXH+uxXmR6Mb6lJXCFtsFhg2Rzm/keRBswJllmkQ
+	 DFkvEik12nYZpEdEkn356sVRtqqEVD4Qd9wu9FmHgj35k3EMP0GF0kLNkBdo1C/AkWzLy
+	 fMzbFgagRJxiCyWw5+5LimYejpaJi4XKL+whmeoxWvXgZv3VtJeyHd+f4vFMts3yFdVoa
+	 lrPrjQVOFoQnahvqeeUOs+KsgaMgfbfgh1slPGfeRHuM92YZfHcaGUps1Qh1Ec7wRpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lnnlh9in;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="Rl3RG/9/";
+	arc=none smtp.remote-ip=209.85.221.46
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34EF3606A31C;
-	Tue, 17 Nov 2026 17:28:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFA97606A8AF
+	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 20:05:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFA97606A8AF
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lnnlh9in
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB051F000C5;
-	Tue, 17 Nov 2026 17:28:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794936487;
-	bh=CGNf1O2wX9MR4NQSLoWq+A36asloTIZogkdNhe+ZehE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lnnlh9inJ6o/1qosKUEp7PBgwZdkUXA3L5+hn3VKZsEsWYIppauWnJbAquuI8srjb
-	 7eroWmMabep0wZPx7ktACoKM594ZaI4W5AeYOPpHBn4vzfkZ3g1fbAiuJUbie+C4Ga
-	 ovUa0zMtehCMIFlCU8mMtI+oxFxfEXE0cmqFwRPnkGN7LLL3nt5Szkh5WX8K972KHH
-	 vDzIdy7vsHhCB4IU1s5eOiO85WdKCteVdRdub7/eWGae0Ee+VX6wK0tufHECCd7JKE
-	 dLFZhcZW5WHVdHiK4ooH2O4IEBMrNHdDA1WASSDX+uhfXct9DRpZ6nogkeApyAipHk
-	 +A0hwzPJrJ7zQ==
-Date: Tue, 17 Nov 2026 17:28:00 +0000
-From: Conor Dooley <conor@kernel.org>
-To: yogo.0917.sabu@gmail.com
-Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Ulf Hansson <ulfh@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Drew Fustini <fustini@kernel.org>, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-doc@vger.kernel.org, soc@lists.linux.dev
-Subject: Re: [PATCH RFC 1/6] dt-bindings: add SiRF AT550 and Yupiteru
- YPL514si descriptions
-Message-ID: <20261117-tableware-geologic-c2bc6f295a4a@spud>
-References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
- <20261117-at550-rfc-v1-v1-1-5879573cb825@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Rl3RG/9/
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-490d59c3edaso51271f8f.1
+        for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 12:05:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794945902; x=1795550702; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rbt3Rhy1XEaIZQdvDh/UUWSNfD774dI3KIhZaPLXG14=;
+        b=Rl3RG/9/xZYVC0CxWmQNFvRhK2NwjXwdPqGVzkDVM0hVx4uVtIf5s+llV6tvNAe5sL
+         j8sg1nBHfVJzwU3v7Iwkm35zWbvB+T0tWqMYr2HCVCV+MdEsTqArWfYtNK013VpVBtBw
+         XB10U3MY58xqgocAUcU7JPFon23tpiyycY1uJjcp51uNugRdWgLxDKkVCYMwBCBXcTZ0
+         MZcyqBKLsCj394UHMGmbX9LeIWI+tlSD65ls1aIOpa0wEmirfHKlDDJWrv5wEbNU/VvS
+         Qbb2KAVJJLoavkN5TLKhapxwJPG9zZeQ8N9cAsic2igbnbSOM2SYO7ERc2hYjlNRqQyx
+         DVAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794945902; x=1795550702;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=rbt3Rhy1XEaIZQdvDh/UUWSNfD774dI3KIhZaPLXG14=;
+        b=IJij8Ep7ztGBGGSX48JPVJKtoCiKR1xDTzhTUtT13ZUdXkwCAqOHvWoOt49IPEYgJO
+         f5h9xa+wGESYVlw3mMpqqATa2+e9l+y7KPWF5CuEMQ1P66tQPqF2xTaofxWjDV9hyA38
+         n8B/E+znXj7kSUxyTBEntXAMttnAO2K9/HMx5hc+zgDX7KoATlP1ylgImBrOwSouBaPc
+         7PnUTpkj0Efl7Htrp23ZNFS6N4y6HwBtsen0+vCOopBG4d0B+vcJZGbDt2r8TGm0LHTe
+         d4j51oKqwx6HejLTo2gBp5UFvLKIQnPHstAcBuo+lqC9DUZC+Dd4dedqgLUkK1/PALMW
+         aFJw==
+X-Forwarded-Encrypted: i=1; AL+hErGn/qh3oyey5AvYHgDIXhFf9gRubm8rHLQM5K570QFATaR8JQ91PDLrt5OR+YIxLuolrSphhhD5gVIJ5Q==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+HcNFFcQjliVAMZkWwJLhTx5brMEBrUHfdlkOUNxqWRUtI0V9g
+	4paUdyJpBwwqrVwNNXv/XF7DJawz19UeYMVpykkNb2LdxC0Og9HZu6pc
+X-Gm-Gg: AZFdTZeuTn3HlLPFSOaidf4/nUqXbgEKpcitWxZmz1rFT8is73O7KpTlcg1TPDZzBsh
+	os0kWY4l1MhWOHZfqjyP7AOBNiT8/1js7ZUQAfa5IKbOsM1CRvo0ubqK/mzHglk0LWXeexJPL0D
+	hiK26HZmtUV7LXpSwNTmX5aQ+P5qhoG9r2/dCcDnFddA5ejiDMS7dDC2gexNDe6+dLGp0ebjgR8
+	xkwMLQwYVx/Cqmn1h9+CflZsLXpT9U5p3ZzQ8Etx5pjJHvPG8IUKfLq2uh4Jp/NoqzZ8/YJe6Io
+	OFgrUlgxBz9vKUeY+vXtrIt+F2ECv7fEwfy4O4sPBrTD2R5WGv5Krw6uuea14LBQ0hn5Str1Em0
+	cbUAAslNJ4yBtwA+iM0WJI9SdRvS3ED411yk+Owa1q8LOZMGUjr0Zya66/F+lcPSPcINRDTxvxr
+	rjLD8PjBCW+ne+yRMw2GerVzGYgDGo+HCwSUKlbZmNosDDW9aonWGpW5y30QjcH0s1LdIgDGeDo
+	IU+DiKnIwbIRJMk0pY4ad9EMxJmy3d75lhsyWoH3t8PgW1F5NGILtlsGS5/IM+0G4uehnbYVyBH
+	6CZpm/6AJBATEJetCnps5eXj37wG
+X-Received: by 2002:adf:e18a:0:b0:491:d721:548f with SMTP id ffacd0b85a97d-4a3735b4463mr8160153f8f.12.1794945901961;
+        Tue, 17 Nov 2026 12:05:01 -0800 (PST)
+Received: from m2.. ([37.142.154.208])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4a64b60940csm625528f8f.0.2026.11.17.12.04.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 12:05:01 -0800 (PST)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
+	Germain Hebert <germain.hebert@ca.abb.com>,
+	Christina Quast <contact@christina-quast.de>,
+	Rio Liu <rio@r26.me>,
+	Bruno Giacomazzi <brunoceg1@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Michael Zaidman <michael.zaidman@gmail.com>,
+	Maarten Brock <Maarten.Brock@sttls.nl>
+Subject: [PATCH v4 00/16] HID: ft260: add UART and GPIO support, plus I2C fixes
+Date: Tue, 17 Nov 2026 22:04:06 +0200
+Message-ID: <20261117200423.19561-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,346 +109,119 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="uyL+d5MTotBFRQBA"
-Content-Disposition: inline
-In-Reply-To: <20261117-at550-rfc-v1-v1-1-5879573cb825@gmail.com>
+Content-Transfer-Encoding: 8bit
 
---uyL+d5MTotBFRQBA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Mainline supports only the FT260's I2C bridge. This series adds the
+UART/TTY interface and GPIO on top of it, and carries the I2C fixes
+made alongside them [1].
 
-On Tue, Nov 17, 2026 at 10:06:51PM +0900, yy-Local-LLM via B4 Relay wrote:
-> From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
->=20
-> Describe the 64-source interrupt controller, counter/match timer,
-> resistive touch input and PIO SD host, together with the YPL514si board
-> compatible. The counter clock is supplied by boot firmware after its
-> configured divider. The initial platform inherits firmware clock and pin
-> setup.
->=20
-> Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
+Patch 1 is Christina Quast's v4 serial driver, ported to the current
+I2C code. Patch 2 holds the fixes it needed on hardware and the fixes
+for the review findings in the patch 1 code. As agreed with Jiri, the
+series keeps the order in which the code was developed, and each patch
+keeps its own author. So the UART work is split: patches 7 and 8 add
+flow control and the modem pins after the GPIO and I2C patches.
 
-It's okay to use an LLM, it's not okay to submit something like that
-that appears to not have any human in the loop that understands what is
-being submitted. Look around the tree, what other recent submissions
-look anything like this? None.
-pw-bot: changes-requested
+The v1, v2 and v3 threads:
+https://lore.kernel.org/linux-input/20260822213941.98882-1-michael.zaidman@gmail.com/T/#t
+https://lore.kernel.org/linux-input/20261030223637.86907-1-michael.zaidman@gmail.com/T/#t
+https://lore.kernel.org/linux-input/20261114230800.1344401-1-michael.zaidman@gmail.com/T/#t
 
-Conor.
+Changes in v4:
 
-> ---
->  .../devicetree/bindings/arm/sirf,at550.yaml        | 22 ++++++++++
->  .../bindings/input/touchscreen/sirf,at550-ts.yaml  | 36 +++++++++++++++
->  .../interrupt-controller/sirf,at550-intc.yaml      | 46 ++++++++++++++++=
-+++
->  .../devicetree/bindings/mmc/sirf,at550-sdhci.yaml  | 51 ++++++++++++++++=
-++++++
->  .../bindings/timer/sirf,at550-timer.yaml           | 47 ++++++++++++++++=
-++++
->  .../devicetree/bindings/vendor-prefixes.yaml       |  2 +
->  MAINTAINERS                                        |  9 ++++
->  7 files changed, 213 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/arm/sirf,at550.yaml b/Docu=
-mentation/devicetree/bindings/arm/sirf,at550.yaml
-> new file mode 100644
-> index 000000000..f538f7ccc
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/sirf,at550.yaml
-> @@ -0,0 +1,22 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/arm/sirf,at550.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: SiRF AT550 platforms
-> +
-> +maintainers:
-> +  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +
-> +properties:
-> +  $nodename:
-> +    const: '/'
-> +  compatible:
-> +    items:
-> +      - const: yupiteru,ypl514si
-> +      - const: sirf,at550
-> +
-> +additionalProperties: true
-> +
-> +...
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sirf,at5=
-50-ts.yaml b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550=
--ts.yaml
-> new file mode 100644
-> index 000000000..0458db241
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.y=
-aml
-> @@ -0,0 +1,36 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/touchscreen/sirf,at550-ts.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: SiRF AT550 resistive touchscreen
-> +
-> +maintainers:
-> +  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: sirf,at550-ts
-> +  reg:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    touchscreen@80120000 {
-> +        compatible =3D "sirf,at550-ts";
-> +        reg =3D <0x80120000 0x1000>;
-> +        touchscreen-size-x =3D <4096>;
-> +        touchscreen-size-y =3D <4096>;
-> +    };
-> +
-> +...
-> diff --git a/Documentation/devicetree/bindings/interrupt-controller/sirf,=
-at550-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/si=
-rf,at550-intc.yaml
-> new file mode 100644
-> index 000000000..ec68afa80
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-i=
-ntc.yaml
-> @@ -0,0 +1,46 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/interrupt-controller/sirf,at550-intc.=
-yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: SiRF AT550 interrupt controller
-> +
-> +maintainers:
-> +  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +
-> +description:
-> +  The AT550 controller routes 64 level-sensitive interrupt sources to the
-> +  ARM1136 IRQ input. Each source has a fixed active level; the single in=
-terrupt
-> +  cell is the source number. Firmware FIQ routes are not exposed by this=
- driver.
-> +
-> +properties:
-> +  compatible:
-> +    const: sirf,at550-intc
-> +  reg:
-> +    maxItems: 1
-> +  interrupt-controller: true
-> +  '#interrupt-cells':
-> +    const: 1
-> +  '#address-cells':
-> +    const: 0
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupt-controller
-> +  - '#interrupt-cells'
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    interrupt-controller@90020000 {
-> +        compatible =3D "sirf,at550-intc";
-> +        reg =3D <0x90020000 0x1000>;
-> +        interrupt-controller;
-> +        #interrupt-cells =3D <1>;
-> +        #address-cells =3D <0>;
-> +    };
-> +
-> +...
-> diff --git a/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml =
-b/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
-> new file mode 100644
-> index 000000000..7129aaeec
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
-> @@ -0,0 +1,51 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mmc/sirf,at550-sdhci.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: SiRF AT550 SDHCI host controller
-> +
-> +maintainers:
-> +  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +
-> +description:
-> +  AT550 removable SD controller. Initial support uses programmed I/O and
-> +  firmware-configured clocks and pin multiplexing. DMA address translati=
-on
-> +  and 1.8 V operation are not described by this binding.
-> +
-> +allOf:
-> +  - $ref: mmc-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: sirf,at550-sdhci
-> +  reg:
-> +    maxItems: 1
-> +  interrupts:
-> +    maxItems: 1
-> +  bus-width:
-> +    enum: [1, 4]
-> +  no-1-8-v: true
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - no-1-8-v
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    mmc@56000000 {
-> +        compatible =3D "sirf,at550-sdhci";
-> +        reg =3D <0x56000000 0x1000>;
-> +        interrupt-parent =3D <&intc>;
-> +        interrupts =3D <36>;
-> +        bus-width =3D <4>;
-> +        max-frequency =3D <25000000>;
-> +        no-1-8-v;
-> +    };
-> +
-> +...
-> diff --git a/Documentation/devicetree/bindings/timer/sirf,at550-timer.yam=
-l b/Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-> new file mode 100644
-> index 000000000..d1465d438
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-> @@ -0,0 +1,47 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/timer/sirf,at550-timer.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: SiRF AT550 system timer
-> +
-> +maintainers:
-> +  - yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +
-> +description:
-> +  A free-running counter with six match channels. The Linux driver uses =
-the
-> +  low 32 counter bits and match channel zero. Firmware configures the di=
-vider
-> +  before boot and supplies the resulting counter clock. A running watchd=
-og
-> +  must be disabled by firmware before this block is handed to Linux.
-> +
-> +properties:
-> +  compatible:
-> +    const: sirf,at550-timer
-> +  reg:
-> +    maxItems: 1
-> +  interrupts:
-> +    maxItems: 1
-> +  clocks:
-> +    items:
-> +      - description: Counter clock after the firmware-configured divider
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - clocks
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    timer@90050000 {
-> +        compatible =3D "sirf,at550-timer";
-> +        reg =3D <0x90050000 0x1000>;
-> +        interrupt-parent =3D <&intc>;
-> +        interrupts =3D <0>;
-> +        clocks =3D <&counter_clk>;
-> +    };
-> +
-> +...
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Doc=
-umentation/devicetree/bindings/vendor-prefixes.yaml
-> index 5471a06f9..a8927fea3 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> @@ -1985,6 +1985,8 @@ patternProperties:
->      description: Shenzhen Yashi Changhua Intelligent Technology Co., Ltd.
->    "^ysoft,.*":
->      description: Y Soft Corporation a.s.
-> +  "^yupiteru,.*":
-> +    description: Yupiteru
->    "^yuridenki,.*":
->      description: Yuridenki-Shokai Co. Ltd.
->    "^yuzukihd,.*":
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d73899016..6c3702cd8 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -25847,6 +25847,15 @@ F:	drivers/gpio/gpio-siox.c
->  F:	drivers/siox/*
->  F:	include/trace/events/siox.h
-> =20
-> +SIRF AT550 PLATFORM
-> +M:	yy-Local-LLM <yogo.0917.sabu@gmail.com>
-> +S:	Odd Fixes
-> +F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
-> +F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
-> +F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-int=
-c.yaml
-> +F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
-> +F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-> +
->  SIS 190 ETHERNET DRIVER
->  M:	Francois Romieu <romieu@fr.zoreil.com>
->  L:	netdev@vger.kernel.org
->=20
-> --=20
-> 2.56.0
->=20
->=20
+All 5 issues Sashiko reported on v3 are fixed, and patch 8 changes
+after Maarten Brock's question on it. The v4 note of each patch lists
+its changes, with the same words as below. Patches 7, 9, 11 and 15
+change only in the context lines that patches 2 and 8 changed. The
+other patches are unchanged from v3.
 
---uyL+d5MTotBFRQBA
-Content-Type: application/pgp-signature; name=signature.asc
+Patch 2:
+Fixes for the issues reported by Sashiko:
+- Port marked as removed at unplug; port get, activate and the speed
+  change refuse it, so an open that races with the unplug does not
+  use the freed HID device.
+- Port taken off the list only in ->destruct, so a new device does
+  not get the index of a tty that is still open.
+- FIFO reset after a failed output report, and .flush_buffer added,
+  so tcdrain() and TCSETSW do not wait for data that is never sent.
+- Probe fails with -ENOSPC when all tty indexes are in use, in place
+  of a WARN_ON in tty_port_link_device().
 
------BEGIN PGP SIGNATURE-----
+Patch 3:
+ft260_uart_change_speed() does not take port->lock here any more,
+because patch 2 takes it for the whole function since v4.
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavyOoAAKCRB4tDGHoIJi
-0nZWAQD2VwX1lmubRbbDr8OPc7uw3FcgQZVFRko0QaMOvllh2QEA6OXdvFQ8xQKf
-wwavfkXRS5p/uAyJYH6posMgOG8V8wA=
-=f1Ec
------END PGP SIGNATURE-----
+Patch 8:
+TIOCMGET does not fail while modem pins are in UART function. It
+reports such a line as serial_core.h asks, and RTS or DTR under flow
+control as active (Maarten Brock).
 
---uyL+d5MTotBFRQBA--
+TIOCMSET ignores the line that flow control owns and sets the other
+one, in place of -EINVAL.
+
+The removed flag is now added and set by patch 2, in
+ft260_uart_port_remove() before the hangup. This patch only checks it.
+
+Patch 16:
+The scoped_guard() list follows the patch 2 changes of v4:
+ft260_uart_port_get() and ft260_uart_port_destroy() added,
+ft260_remove() removed.
+
+Fix for the issue reported by Sashiko:
+- The i2c_exit and smbus_exit labels removed, so goto and guard are
+  not mixed in one function.
+
+Testing:
+
+The kernel is built from hid/for-next 720806515cb6 with KASAN,
+PROVE_LOCKING and DEBUG_ATOMIC_SLEEP. The driver is built as a module
+from the last patch.
+
+The pytest suite [2] passed: 198 tests passed and 22 were skipped,
+with no KASAN or lockdep report. 5 of the skipped tests need fault
+injection; they passed with a test-only build of the driver that adds
+it. Without the patch 2 FIFO fix, the two new UART TX error tests
+fail: the data stays queued, and the unbind waits for the TCSETSW
+caller.
+
+For the TN_189 workaround, a HW setup that resets the FT260 chip by
+its RESETN pin ran 7,781 cycles. 101 of them hit the endpoint STALL,
+and each of these recovered with one USB reset (details in patch 11).
+
+Every patch builds with W=1 without warnings. checkpatch --strict
+reports no errors. It warns once, in patch 15, for a quoted kernel log
+line.
+
+[1] https://github.com/MichaelZaidman/hid-ft260
+[2] https://github.com/MichaelZaidman/hid-ft260/tree/main/tests
+
+Christina Quast (1):
+  HID: ft260: add serial driver
+
+Michael Zaidman (15):
+  HID: ft260: uart: fix serial driver
+  HID: ft260: add GPIO support
+  HID: ft260: i2c: reduce driver module loading time
+  HID: ft260: fix sysfs store failure notice for big numbers
+  HID: ft260: i2c: reduce bus-error message severity
+  HID: ft260: uart: enable flow control
+  HID: ft260: uart: add modem pins control via ioctl
+  HID: ft260: group sysfs attrs per HID interface
+  HID: ft260: i2c: fix large write transaction failure
+  HID: ft260: workaround for TN_189 errata endpoint STALL after
+    enumeration
+  HID: ft260: i2c: abort in-flight transfers with STOP before reset
+  HID: ft260: i2c: reject an I2C clock outside the supported range
+  HID: ft260: i2c: fix i2c_reset sysfs store return value
+  HID: ft260: i2c: recover a bus held by a slave
+  HID: ft260: use lock guards
+
+ drivers/hid/Kconfig     |   10 +-
+ drivers/hid/hid-ft260.c | 2667 ++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 2390 insertions(+), 287 deletions(-)
+
+
+base-commit: 720806515cb6921ab05caaa6f470f7054b56385e
+-- 
+2.43.0
+

@@ -1,57 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794911799;
-	b=aqdwOnX3kJD292Hcx/vx/JiVzmnqfS8B7Nu23wlQVhLSTYTEeEbJzg8L5FotbdQ8YKBO
-	 feQCq+70ePbHA9E7y5bCvaNNPRSnCvmP7oLktVaNaS2VFX/QXKFNx933UcLgl1sY/7qJL
-	 LLFQkKyyDduYmUq1I+qBpTDd4bDzFm0XQuu8ZB2SwGImx3sgXl0/dvbMPnKdvbqwyVzRu
-	 +5UY8aFUYFPQyt0Em5u2u9D9lLHZk0Xy6n3Y7GrQOHUsQVj+iRt2gf2n5YVEADhbKOZPC
-	 ADRD+WwhzS8TijFJ7WjDep8/pkGPPAoxhbd7CBIFA07n44yLERAd3pM2SIFM4dK2njA==
+	t=1794912880;
+	b=1vS1BAW5Wc2cQN0sjcGxZRePTM4uCRpY+u2jijiRY1o/ZY+WlxXJzWQLHUz5VL1TFIbc
+	 3gAev2eDf7sqJDDZgmpo1tJh4Y9IhoMJa8arROp4TH08by7ouBqtSpo3S6GCHLHj1acwe
+	 nB8GnimO2TVgDvwRfNK+b9iWbeIEbvwB9D6ye/S85wXp5mnxJrF4QnCkA3rRi5bGU53Ul
+	 4SgsbRgtN1IMNEe33WrIs4txHCM9aLy0eReHH9Op6dlnpff6OanwUy336uB4A6nR3mKC1
+	 +CMbKCwoj93w7ob+4kzic6n0R44MBTmdwel14+0Rxuk0pn9nAGfg9WNfrbMnMFTUYRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794911799;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3MNXyzkV7BpwCpVv/hJGI0Gwr07sz+o77clTU2h3Nqw=;
-	b=4jIuRQxi5TopzDYAuiOjGCxYH2LR/OASAj0t8kf7eWgJJjGEzy8km2F6E7s/L8aeMzRI
-	 Q4VSDkg2vkOjTxjK75FvKePcTNTjyyGrKkQqrR94vzAzS1MT9A7f7jLLHNwLXTlI3AKOF
-	 stGVqWJOWeh5ndGDa5JTR1T4rDC3Nb+1ae0S5ju5/A5ugXIywnG0xs5J+38rH/LOQq6aW
-	 B2svjZvJjwAfFM/jhKmOse/AleUTrrp9cT+P4eaFyj8TfSOUl3CC2V5K4rdFAmH3n4LjD
-	 LLqUwZxBfvaUvSeB5AVwokDa6fHY/ZNr+xMxkfYwyu0rd9pCwUSaoHAGhJK3aVJEnkA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794912880;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Debian-User;
+	bh=lMR0V5iCeG8r9cnlEj7OlCRe10wKQ+/vRrGaJzms+/E=;
+	b=VSk+1BVscxKsqetH4R+62iGiRrshlvaAgMtCHcECVJ94HR7DLzUFlEASPt0KP4EKl3zJ
+	 FpxuvQEhpBoOd5X64TbFgi2KyABm7BPK1XdbKcqusz6R4UnPL9mzrKj+vTKe8nhdqT7d2
+	 yEDMcq2t+eAiupTjZb7XjrHqQ5mLY5XBafnzqRB4qByxowNoLZDMWTznRISqQqA658Pog
+	 StlGATJVKpB2OyEf7TWM9+hFkhQnBatuTFpuiwgBvHNfwtSj328z1a7r4wZNk1/c48wun
+	 v3xzZwdFFzCRUhNaTftL8NqTowwx9QdzuiIBSKV1ymoTynEaso4MNhfy/5z3qpFdhmA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AU4gTn62;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=debian.org;
+	spf=pass smtp.mailfrom=debian.org;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=Jidcw0md;
+	arc=none smtp.remote-ip=82.195.75.108
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47435606A896
-	for <linux-input@vger.kernel.org>; Tue, 17 Nov 2026 10:36:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9494E606A32C;
+	Tue, 17 Nov 2026 10:54:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9494E606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AU4gTn62
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEF561F000C5;
-	Tue, 17 Nov 2026 10:36:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794911799;
-	bh=3MNXyzkV7BpwCpVv/hJGI0Gwr07sz+o77clTU2h3Nqw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AU4gTn62wNU2ZK8FLWWrUKNOSVwKFEc5mxR4jZIjDnOZ/yszJWvlGDJ9oFPZXdMa6
-	 aAwZZzi9L8VRmY9pri3osaUUtzn8d0PVhPVbWy/ZzQG8iDwQwwZMczYNngTfM/KAPX
-	 lb+VRoO5IXrDhHPmvTXs9e6LFoDji7zpElJwTHLQezzxd3dnLREwsqkgxuufIsszQI
-	 c964bee/PMpH660Af3r2Y3kXq55DG2BSpacW4T7dMi4bZtcos2Ez3LxbQM3WuSc/0F
-	 vTIVavaW1Ub7UYgF1BfjMqe/w/p7XKlzcQiLm078JSm3LVYOW1VsI9PeqISTs9FS9n
-	 5lh5DgTQfXnqQ==
-Message-ID: <sashiko-outbox-218628@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/2] HID: intel-thc-hid: quickspi, quicki2c: skip an
- empty read
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Emfox Zhou" <emfox@debian.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261117102726.271503-3-emfox@debian.org>
-References: <20261117102726.271503-1-emfox@debian.org>
- <20261117102726.271503-3-emfox@debian.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 17 Nov 2026 10:36:37 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=Jidcw0md
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
+	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=lMR0V5iCeG8r9cnlEj7OlCRe10wKQ+/vRrGaJzms+/E=; b=Jidcw0mdKO5/+YI/WdS+8+sJut
+	tJG0/HfubMn4HntOD5bR+vBKASbdfzqiNmHVUZwHzUcsHt3Fu0BbQR0dWM2/YUCtdrQt/O10Lhghb
+	4ZMVWHH6PuPkFLPyvHWE64cTKQ36bgqdmgUQWBTaebwVDWqwH/eHl7QIQikCXy8kl2CKIEsiO9Au0
+	e8MVBrMaCTE2hDUUCHft68PAD1SMDXhrJ4v3/SA/J7+p0nU2blLxUb2WiFIkrZIBM1UaYpg/fEAcG
+	blw3SIwcRuX2FVfi473nXzVpCGBegbAdLxNdLXDM+Oqmkn+NXzFwPAZ9MyzYf/EPmA0JEoxAqeUlR
+	H6G2FP4Q==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <emfox@debian.org>)
+	id 1xTGpd-000Tyn-0j;
+	Tue, 17 Nov 2026 10:54:33 +0000
+From: Emfox Zhou <emfox@debian.org>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v7 0/2] HID: intel-thc-hid: PRD tables under a drain
+Date: Tue, 17 Nov 2026 18:54:25 +0800
+Message-ID: <20261117105427.319242-1-emfox@debian.org>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,39 +68,35 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Debian-User: emfox
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] HID: intel-thc-hid: missing Fixes trailers for empty RxDMA read
-  fix
---
+The PRD tables lose capacity when a frame is left unread, and a drain can
+reach a ring that a reset already rewound. Rebuild the tables before the
+engine that reads them starts, hold every path that stops an engine or
+moves its pointers under the lock the drain takes, and stop the drain from
+treating an empty read as a frame.
 
-commit 43159f2f56e537320c5a32041e1e942435685267
-Author: Emfox Zhou <emfox@debian.org>
+Patch 1 does the ring side in the core. Patch 2 fixes the two callers that
+go by the buffer instead of the length they were given.
 
-> HID: intel-thc-hid: quickspi, quicki2c: skip an empty read
->
-> A drain ends when the ring holds no frame, and thc_rxdma_read() reports
-> that as a successful read of zero bytes. Both handlers go by the buffer
-> instead of the length: quickspi hands the zero on and its own length check
-> then rejects the frame still left in the buffer, while quicki2c reads
-> pkt->len from the previous frame and sends that report again.
->
-> Tell the two cases apart by the length. A frame with an empty payload is
-> still a frame, and quicki2c needs that one for its reset ack.
->
-> Signed-off-by: Emfox Zhou <emfox@debian.org>
+Changes in v7:
 
-[Severity: Low]
-This fixes a bug where handle_input_report() and
-quickspi_irq_thread_handler() process stale buffer contents when
-thc_rxdma_read() returns zero bytes on an empty ring.  Should this include:
+  - The two Fixes: trailers the second patch was missing, pointed out in
+    review.
 
-  Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC Qu=
-ickSPI driver")
-  Fixes: 66b59bfce6d9 ("HID: intel-thc-hid: intel-quicki2c: Complete THC Qu=
-ickI2C driver")
+Link to v6: https://lore.kernel.org/r/20261117102711.270303-1-emfox@debian.org
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117102726.2715=
-03-1-emfox@debian.org?part=3D2
+Emfox Zhou (2):
+  HID: intel-thc-hid: intel-thc: restore PRD table capacity
+  HID: intel-thc-hid: quickspi, quicki2c: skip an empty read
+
+ .../intel-quicki2c/pci-quicki2c.c             |  3 +
+ .../intel-quickspi/pci-quickspi.c             |  3 +
+ .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 89 ++++++++++++++++++-
+ .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  8 ++
+ 4 files changed, 99 insertions(+), 4 deletions(-)
+
+
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3

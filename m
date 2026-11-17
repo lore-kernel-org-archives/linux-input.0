@@ -1,46 +1,46 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794892877;
-	b=t7yJ0PKdZGXs7Uq7TGnVhXkS5yUxEh/goLfmhmN0Syus3crkAJRTbd0uV9opWLwwmh/R
-	 RBiv+b2if5uuha3BTHzjfY0QytIFa52sFxTh0++CGaz9lIcRQdpEkJnduY/fOjuKA7U7/
-	 xKLXXN9/hpFj8JxKU3/QHd2fJ0Gi9JFlTT0TGWjlAUGHKejzsclpxSVoasWIO1sS7H0EF
-	 BI/1khBJDWmiACLQEmOLIX1cHEq8PtgJBjgbLZ3xdoVDH33hAKBOiCEea29NCE2HyE6u/
-	 /cKsOkqlho74QVjqJagGSkwaKThyHiU3CdcXdmuiYZKo539jD8p1QK1uwblVV6MOWhQ==
+	b=rcdeCLxjTKoM6KiRRHGCQhU85khNQBBbwEEhw0vVjr0ZrCk5YiZeVFxvx6TpHqx34981
+	 ndu4jc/txrzxM1d89254hfGi+EJHE3ekT61GJ9MkioJOfK0yOWSdPgVQ9QEQGCTppYuDm
+	 Gk9nTWTzmgx/6jl4IUvtxeOXk7paTc2paxG2xsxO/viBMDm45/FTbMClGB7EGISZAPSnC
+	 O6y87Ndr2epClMIDQU7SC+0AP3Vhro17GhFdvPIBYY2tUiRvGdUD+5lMEg8LAyMlSn/kt
+	 jRC6fjn4qjuRoArXcmBgTksKdBUlxRpv6+NxlzmkA2g6k2fvv9hMW0oHEux+NKHOrSw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794892877;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
 	 X-CM-SenderInfo;
-	bh=6zRJ+UUYcI1M1J+0zvWC1eyTD4Wl/xFBBOIvtWTygCg=;
-	b=VBs036KTMHU1pvutNww9ENe8f0cR8iighcHZHaZ/YL4KgoZ3+T8RcYMfSTCDA88fheZG
-	 h6Zycgk5r2qa/W3rF8Cv5EUke7BGETNmmOo5rqiBOKaMgGw+XnURVd98uYZjRmDqRB3C4
-	 XOITuP5ltVeg/yd3S1BzlYFEoISPHnp3COINttlUl6eaNsiCvtaMIyJrRU51wM69qrCJj
-	 UpHAsyGa6wHviR9Z5fImrzrqvZf0oZIpNSbz+D+FEfqP2WDAgRVRyI7adfsr9OAbuG/wp
-	 tst1qlBRHwHi9yIgxYxfEUMWRPKnvYeLPV2yDh0a84IiQmYb23nJDuFg7gr3Dm6hWFw==
+	bh=pHAujE1Ath5iRxmpv3rGkwlvlFQgNk5kTuTPa7ERj80=;
+	b=TFK5gAp9mAXzxExiX75UHm3mJyfiR0Epfn5TJ203i1TwKLy1c+VzEzwyU5tagJgBwK2y
+	 DVHcPsOCpfoOVeHXksWdoI6s3eA03GBCFtZI21LUpfeILPDjX5Gfx2xoXKhwjJjlUrjHi
+	 ECtW0mlhWtz3WHFfZkQE/Z6p+A78C6IHjHyxYWfG9+8ZS5AGURcAXRveZ3LBWrZcgh0VD
+	 c7+ipRAE0HJuIjMXX3ienMUPD/bIBk9HRlNC6hFCC3udWmWHMFyN0vqm7QW6VZQDqg5La
+	 p+Wj9jMfJEWdOThkjdhBoNEY4oW2F+8p9SO9B2Ahn5EEzR08gsd0DUy+cTHDjTeNfgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mail.ustc.edu.cn;
 	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
-	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=li4+X7aB;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=d2UmH5Ak;
 	arc=none smtp.remote-ip=202.38.64.46
 Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D9D5E606A331;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1D325606A332;
 	Tue, 17 Nov 2026 05:21:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D9D5E606A331
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1D325606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=li4+X7aB
+	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=d2UmH5Ak
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
 	Message-ID:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=6zRJ+UUYcI1M1J+0zvWC1eyTD4Wl/xFBBO
-	IvtWTygCg=; b=li4+X7aBb/zg9MhrugbBA3j1lQ/+q7HuSJfEV36lpi1ThscdL5
-	4JYGvLGKLYq+d3svFzbHSrBkl7rPpJLfXM4kUgWEAoMNRH7CPS+4QfU7cRE3khu1
-	u3Tcl2Yz5PNQ/fp6HBkUwL//smb1X+GiUC8CC45B/d+H/OM+NLwMS1dHs=
+	Content-Transfer-Encoding; bh=pHAujE1Ath5iRxmpv3rGkwlvlFQgNk5kTu
+	TPa7ERj80=; b=d2UmH5AkcjVmhuG3XkTZ3gh53ilO3fNZDBEeSViQOeZJ2nKhR0
+	TdS3NNSJ8NPi+s6HxnIVzLK3cK88C2uh4z2836mD+nxTgS1XOqv39DW9lb2YiA/U
+	Vsy/8mDeqJ+ijzao6PxkBL9tP2Gt1Y2k7R0gNX/VwiAXY/2qPi2BdgtqE=
 Received: from xuqianhui.ustc.edu.cn (unknown [114.214.190.181])
-	by mailimap2024 (Coremail) with SMTP id 3pYKCgBHxTlI5Ptqc0LLAA--.214S6;
-	Tue, 17 Nov 2026 13:21:14 +0800 (CST)
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgBHxTlI5Ptqc0LLAA--.214S5;
+	Tue, 17 Nov 2026 13:21:13 +0800 (CST)
 From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
@@ -49,9 +49,9 @@ Cc: devicetree@vger.kernel.org,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>
-Subject: [PATCH v2 4/6] Input: aw86927 - add support for Awinic AW86937
-Date: Tue, 17 Nov 2026 13:21:10 +0800
-Message-ID: <20261117052112.32527-5-xiaqinghuan@mail.ustc.edu.cn>
+Subject: [PATCH v2 3/6] dt-bindings: input: awinic,aw86927: document the AW86937 variant
+Date: Tue, 17 Nov 2026 13:21:09 +0800
+Message-ID: <20261117052112.32527-4-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261117052112.32527-1-xiaqinghuan@mail.ustc.edu.cn>
 References: <20261117052112.32527-1-xiaqinghuan@mail.ustc.edu.cn>
@@ -65,74 +65,49 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:3pYKCgBHxTlI5Ptqc0LLAA--.214S6
-X-Coremail-Antispam: 1UD129KBjvJXoW7uF4fCF15Zr1kur15Kw1Dtrb_yoW8GFW8pF
-	yDGr4DtFWYqFW7Kws7tr1jvFy3C347WFZrKrZI93W2qwnxGa1rKFnYg3yfZFyUKrW5GF4f
-	Ja97JF15uanrJr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
-	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
-	jxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI
-	8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2
-	jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4
-	CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvj
-	eVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUAVWUtwCY02
-	Avz4vE14v_GrWl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAq
-	x4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r
-	1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF
-	7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI
-	0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7I
-	U8LL05UUUUU==
-X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREOB2r7WdojVwAUsr
+X-CM-TRANSID:3pYKCgBHxTlI5Ptqc0LLAA--.214S5
+X-Coremail-Antispam: 1UD129KBjvdXoWrKr1xtF13KFWrWF17KF15Jwb_yoWDGFc_Za
+	yxJw48u34UGF4FganYvrs7tF17Wa18Ar9rZ3WrAF4kt3W0yrZrGaykJw17Ar1rGw4xurWU
+	ur4kW347Gan3GjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbq8YjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Wr0E3s1l1xkIjI8I
+	6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l82xGYIkIc2x26280x7
+	IE14v26r1rM28IrcIa0xkI8VCY1x0267AKxVW5JVCq3wA2ocxC64kIII0Yj41l84x0c7CE
+	w4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6x
+	kF7I0E14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY
+	1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4
+	xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCa
+	FVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4kS14v26r126r1DMxkIecxEwV
+	AFwVW8WwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIx
+	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAF
+	wI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
+	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU2LID
+	DUUUU
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREOB2r7WdojVwATss
 
-The AW86937 reports CHIPID 0x9370 and is register compatible with the
-AW86938 as far as the boost setup is concerned, so it joins that branch of
-the haptic initialisation.  Detection stays by CHIPID, so the existing
-AW86927 compatible keeps working as fallback.
+The AW86937 is a sibling of the AW86938 with the same register layout and
+a distinct CHIPID.  It is described the same way as the AW86938, with the
+AW86927 compatible as fallback; software tells the parts apart by reading
+the CHIPID registers.
 
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 ---
- drivers/input/misc/aw86927.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-index 9dda96c..690726a 100644
---- a/drivers/input/misc/aw86927.c
-+++ b/drivers/input/misc/aw86927.c
-@@ -147,6 +147,7 @@
- #define AW86927_CHIPIDH_REG			0x57
- #define AW86927_CHIPIDL_REG			0x58
- #define AW86927_CHIPID				0x9270
-+#define AW86937_CHIPID				0x9370
- #define AW86938_CHIPID				0x9380
+diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+index bd74b81..42b8f5f 100644
+--- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
++++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+@@ -15,6 +15,7 @@ properties:
+       - const: awinic,aw86927
+       - items:
+           - enum:
++              - awinic,aw86937
+               - awinic,aw86938
+           - const: awinic,aw86927
  
- #define AW86927_TMCFG_REG			0x5b
-@@ -183,6 +184,7 @@ enum aw86927_work_mode {
- 
- enum aw86927_model {
- 	AW86927,
-+	AW86937,
- 	AW86938,
- };
- 
-@@ -589,6 +591,7 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
- 		if (err)
- 			return err;
- 		break;
-+	case AW86937:
- 	case AW86938:
- 		err = regmap_update_bits(haptics->regmap,
- 					 AW86938_PLAYCFG1_REG,
-@@ -751,6 +754,9 @@ static int aw86927_detect(struct aw86927_data *haptics)
- 	case AW86927_CHIPID:
- 		haptics->model = AW86927;
- 		break;
-+	case AW86937_CHIPID:
-+		haptics->model = AW86937;
-+		break;
- 	case AW86938_CHIPID:
- 		haptics->model = AW86938;
- 		break;
 -- 
 2.53.0
 

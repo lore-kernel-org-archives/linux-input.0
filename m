@@ -1,79 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794920822;
-	b=W29S2QMC+hlK7WWk7v9N15ZoHb/XB19SahzTIvv7TZoEdVKrDGBtZuknTlNa/Po1BjIh
-	 W1NhxxHNCAoMQUSVNGeoTxFYpUhvsoo5v+DQTbGxAzZIPrBckZ/usECLBBLFbYEZy4TXu
-	 BE8K7oR0F1fo3IK5cAwEOVNfU9lyI1Hu9BdfjwDFZA2MQYi+sdHvFvmXz5XmXJwGUMIcq
-	 S8VQwij3y8Xf5w3i9P5Iq2p08l+kmOZwVaQs00yCWrkBm4JQKXdt8nlq+k/8B27qZQzGX
-	 Ty7LkkFJCSAd4gLJVaLh6gOIwCfE5KyIWzmo+xUJEPWVa4otVuD7twuwI+DuNSxN2zg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920822;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=ji3BQH3lq+y5sanafS6wJ4ZmE17KIDdPozwcPUSY3P4=;
-	b=lxafKxJtO5v5vDZE54M1xjZDcucAYnBYrodb0Pl9ibYLE6xLq5ecL78Wt+ZDtQ32PPM6
-	 Y4Hnj8OWykeVP39XBAdJA5BVr6FGb64/XkBz5P1h0RMVk/fcrv+7dN2Xs1e236niDE2Ev
-	 hMAIuCqur3v2jk3lF+yaB9GcAX1yyUPIj6anN6qQuNiaeheaDCx90D5PN2UN6EI9GJCKl
-	 BfKDXvsyE2dZdfG5PUU7kAdaUnbu5BKEnlEpLtXyVusm5moM9wRDH0bOdH0t2hmscFRto
-	 QjsiS0zMa8jLzyuc2AxnCmHDflkl1HumXn3gNco8puoKzULDHdfLGucJV1kb6z25c1Q==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CCNWe2pt;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794920955;
+	b=fhxdrfMXpWKfQc/FVm+/GNuv5+3Azz+ty5/vmWzC1Yyev5eQ6Iu2gMvgfqB/8p08DzXm
+	 LQZJIrGMm+Pvqb+bFCbE+kCD33Y9CEmV3qxoW+Q9z+3DD1lAD2qr+ae6CciXrwl+STbIW
+	 2eJfakjyiFVu2Gt+jvDFteckoOBWk8qk8zSG09VspK6V1y7+QlAFB4TiV+DGIfoju2vGS
+	 CcFeCmD++sBYDbjKi3iKPcZ4st6rXJWkagg2kWZH5LdiUmkynEiiPvoFLDtngTo6X3vjG
+	 tyj/THk6P33TiIh6KAy4bIpFrmyltH/LseWrs7P0erhlorus6LHdTeMrPitIQlpouCg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920955;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=tqwfXbj3ZR7mRZUcNEreZ1uIDndR1OB4dKoeTEFs4pc=;
+	b=xGcFxmI8Q4L5WdyFXRXGizgqKKMSwSivXdWJuOpcBtAWHsoftIF/c1U3YbZ1Ve7VeWTC
+	 /NL9V8hTgFrJhShK6LjOCtoYuuPzTxBBDeAK3MwfTV+yNRKPpviKX8pKwrq4qiDiJs2oh
+	 869iRPjflXRAIQpjGha0IWZOBmzuwl1AymV3VExfeExcyJkt3EadMbpkRHJxjs5uiNyYX
+	 DtYUFWGphs0tlFFG4gd4l3rljBGnPiYRHVIMQt9rklKB1FrloufwimSJ/mzHUegWSzh+E
+	 Re+KkH0NmRJkbKvblqgL4KDVKqZGs+Jbxe3VkW3QGDYdlnII23XRzJlDIB73uQO++OA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QFrkNRPC;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586D8606A89D;
-	Tue, 17 Nov 2026 13:07:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AABE606A338;
+	Tue, 17 Nov 2026 13:09:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CCNWe2pt
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794920822;
-	b=1nqiLu09YYA5vbLzmVgqfABLDcnl1p3vbgJk6a+/zNcwj3tSG+M6oGU2WklxhtUoKoV1
-	 FS8j+RjX8dg05//QiIQcm6BDmQUFVeLCeR1k1bqDOMujlNRdhZDqbGR1MmmWwxu2vsuVH
-	 to42J2G2/8ih0vn6aa8AcUjR4CmFNgsECrQPH62p5jaeq20C+NXpKtLBRMiTN4YH0b/z1
-	 Ycyi1WaJG/7w4SjbjUK198ytcrHjR9BL2shbazFYSJx0ifK7aajQ84opi0SzEiE2hJB+e
-	 t5Rmwnn3cSlO+D5k0QiezU7jtVVG9M+5L+i8DjkovHrn6zBLVBwBumbdjGS7yNSRn9g==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794920822;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=ji3BQH3lq+y5sanafS6wJ4ZmE17KIDdPozwcPUSY3P4=;
-	b=OBm/pkvivEtBmfmuUN7kTFyoKKv6jYllVMKv1UvczDVud6lwZFh9xwnPY0MFXQ9C5ZLk
-	 ty+16PxMDpdfqrn10gyBvHwEriKNJi+UgGrkTrVqQiaTYctxhrWtlG0WZs8QukC8Rla1C
-	 ZXx/xQr5wXE74exBhjrm6wgg0vKxFFv227SZNeJXDa4uq4fRXV7HpsCMywjoxBh72BMRO
-	 ZWV7KUJSn9R6Fm9D4XDW08SvVlHBdkqaL37BPEScUqyy//GAbo1eTm8iL9RlLOv+/oiZk
-	 +M3CtOBORBqmMMhrQuBHFicZD6PYsgDfwW+kjiAcoKq1mkTF9GXOkkjMKOOrl8ooigA==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 6BE161F000D1;
-	Tue, 17 Nov 2026 13:07:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QFrkNRPC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59F9C1F000C4;
+	Tue, 17 Nov 2026 13:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920822;
-	bh=ji3BQH3lq+y5sanafS6wJ4ZmE17KIDdPozwcPUSY3P4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=CCNWe2ptT92e8D4O+3DAAqLkoGjRn8BXHajxxdHJuj2+09BxzrxZm+V2lcBgPl6Q+
-	 FdMv4aU2BImVdRHEs/3KoqzzVxxS55DM6c+kVmYaLPpgKEnsW2v0lDdP4mxoqPyeu4
-	 S5T0ZwjAVseOelR3iXIwrx9nVgtmLSTo5ZHsHuFe0L3J8gerzsd6dOP+zUoXxGVdyw
-	 jf5ZwB65VxbOvtKXUEUHWHNDoMoF1MFCuuLs+zK023OrqJ1PqARQztCMaEoEpwjQaB
-	 450D07xPzZUR5zM47iaUc3tCU8Paw3uHSXz9prlPSSFAqy/GGBrCpsz6rrcP3d7g3k
-	 polokb2a2+crw==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 2D0E14A993;
-	Tue, 17 Nov 2026 13:06:59 +0000 (UTC)
-From: yy-Local-LLM via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
-Date: Tue, 17 Nov 2026 22:06:56 +0900
-Subject: [PATCH RFC 6/6] ARM: add the SiRF AT550 platform and YPL514si
- board
+	s=k20260515; t=1794920954;
+	bh=tqwfXbj3ZR7mRZUcNEreZ1uIDndR1OB4dKoeTEFs4pc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=QFrkNRPCLNgFrdbcUQ0CR0aOhr8TILgrCZCB9zl1CeqvFgJ9Pd8VYouqAp+b1j4Fv
+	 D3pLWlJPzbWTpiC3BMjY5RFWDXZRL6iE8LK5Z6/g9F0TenC3TkjL7/2lCNpN0Y3DYp
+	 MyWgT36FnxjBWJU5zGK9t6cX4xtjdUgCUM6ppDWj62eEXalVQtapTl7rquzdK+zmO0
+	 nZs2/EV8yXFaRx+IA5GDOPZBJkNXcwc+pmlCRMYSQpvQoKP3LCpAwE4S0zVilWMy/J
+	 OeslIAdIZPMeLlizPzZzl6Wa1IbS2ho+tYdYDoqRv6vpkF2hNrxG++vF/uC8DO+t7u
+	 tzohtIbAuLCjA==
+Message-ID: <sashiko-outbox-218840@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1 11/11] arm64: dts: qcom: sm8250-lge-timelm: add
+ QCA6390 Bluetooth
+Reply-To: sashiko-reviews@lists.linux.dev
+To: rofikkerneldev <rofikcoga@gmail.com>
+Cc: devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261117123946.668557-12-rofikcoga@gmail.com>
+References: <20261117123946.668557-1-rofikcoga@gmail.com>
+ <20261117123946.668557-12-rofikcoga@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 17 Nov 2026 13:09:13 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,418 +60,71 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261117-at550-rfc-v1-v1-6-5879573cb825@gmail.com>
-References: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
-In-Reply-To: <20261117-at550-rfc-v1-v1-0-5879573cb825@gmail.com>
-To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
- Ulf Hansson <ulfh@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
- Adrian Hunter <adrian.hunter@intel.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, Russell King <linux@armlinux.org.uk>, 
- Arnd Bergmann <arnd@arndb.de>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Linus Walleij <linusw@kernel.org>, Drew Fustini <fustini@kernel.org>, 
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
- linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794920817; l=12332;
- i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
- bh=fkERuernoI+JItcwimoOR1zmbwQwQilTSUah3wY/Zo4=;
- b=eXqihrP6VYmO4pZ4Eu2ludgvyRZfv0EfU6bocwmks3nUU5dZgek1LSs5gUvgJCifx9H2F/qTj
- gtONxnWHFOmCyVyztEhKFWTpWAS2zV8p/wFNQNvqyCG5Fk8cA9rdu6S
-X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
- pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
-X-Endpoint-Received: by B4 Relay for
- yogo.0917.sabu@gmail.com/ypl514-20261117 with auth_id=1550
-X-Original-From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
-Reply-To: yogo.0917.sabu@gmail.com
-Content-Transfer-Encoding: 7bit
 
-From: yy-Local-LLM <yogo.0917.sabu@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [High] arm64: dts: qcom: non-real-name handle in Signed-off-by trailer
+- [High] arm64: dts: qcom: sm8250-lge-timelm: under-volted QCA6390 PMU
+  supplies
+--
 
-Add a minimal DT machine using standard IRQ, timer and simplefb paths.
-Describe the SoC and the firmware-configured YPL514si display. Leave
-usable memory and the divided counter rate for the bootloader to
-populate. Keep optional peripheral nodes disabled until firmware hands
-them over. Disable unvalidated board suspend; limit this board to SD PIO
-at 25 MHz. Document the RAM-boot contract and the missing
-cold-boot/clock-tree support.
+commit c689e882729fccea2deb0c720da66bf756537580
+Author: rofikkerneldev <rofikcoga@gmail.com>
 
-Signed-off-by: yy-Local-LLM <yogo.0917.sabu@gmail.com>
----
- Documentation/arch/arm/at550.rst          | 55 ++++++++++++++++++++++++++
- Documentation/arch/arm/index.rst          |  1 +
- MAINTAINERS                               |  4 ++
- arch/arm/Kconfig                          |  1 +
- arch/arm/Makefile                         |  1 +
- arch/arm/boot/dts/Makefile                |  2 +
- arch/arm/boot/dts/sirf/Makefile           |  2 +
- arch/arm/boot/dts/sirf/at550-ypl514si.dts | 52 ++++++++++++++++++++++++
- arch/arm/boot/dts/sirf/at550.dtsi         | 66 +++++++++++++++++++++++++++++++
- arch/arm/configs/at550_defconfig          | 34 ++++++++++++++++
- arch/arm/mach-at550/Kconfig               | 13 ++++++
- arch/arm/mach-at550/Makefile              |  2 +
- arch/arm/mach-at550/at550.c               | 11 ++++++
- 13 files changed, 244 insertions(+)
+> arm64: dts: qcom: sm8250-lge-timelm: add QCA6390 Bluetooth
+>
+> Describe the QCA6390 power sequencer and its PMU regulators. Enable the
+> Bluetooth HCI controller on GENI UART6 with the supplies provided by the
+> PMU.
+>
+> Signed-off-by: rofikkerneldev <rofikcoga@gmail.com>
 
-diff --git a/Documentation/arch/arm/at550.rst b/Documentation/arch/arm/at550.rst
-new file mode 100644
-index 000000000..8925a9ffb
---- /dev/null
-+++ b/Documentation/arch/arm/at550.rst
-@@ -0,0 +1,55 @@
-+.. SPDX-License-Identifier: GPL-2.0-only
-+
-+SiRF AT550 and Yupiteru YPL514si
-+================================
-+
-+The initial AT550 port supports the ARM1136 CPU, the 64-source interrupt
-+controller, the low 32 bits of the system counter and match channel zero,
-+polled resistive touch input, and SDHCI programmed I/O. The YPL514si board
-+can use a firmware-configured 480 by 272 RGB565 simple framebuffer.
-+
-+Firmware handoff
-+----------------
-+
-+Use the standard ARM boot protocol and a flattened device tree. Firmware must
-+initialize SDRAM, peripheral clocks, and pin multiplexing before entering the
-+kernel. No firmware-specific virtual mappings or page-table inspection are
-+used by the Linux drivers.
-+
-+The bootloader must update the following parts of the board device tree:
-+
-+* Supply the actual Linux-owned region in the memory node. The zero size in
-+  the source DTS is a placeholder, not a description of all installed memory.
-+  RAM still owned by another operating system must not be advertised to Linux.
-+* Set the fixed counter clock frequency to the rate after the programmed
-+  hardware divider. The driver deliberately does not reset the counter or
-+  change the divider. A zero rate is rejected.
-+* Disable the timer watchdog before handing the timer block to Linux.
-+* Enable the simple framebuffer only when its physical address, dimensions,
-+  stride, and format have been verified. Reserve its memory from other uses.
-+* Enable the touch and SD nodes only for peripherals actually handed to Linux.
-+  The touchscreen driver rejects an active streaming/AUX configuration.
-+
-+A Windows CE RAM loader is one possible bootloader. Its allocation checks,
-+volatile driver registration, MMU transition, and DT fixups are outside the
-+kernel port. The Linux Image and all its runtime memory must fit inside the
-+region returned to the kernel; a static firmware RAM mapping is insufficient
-+proof that memory is available.
-+
-+Initial limits
-+--------------
-+
-+The port depends on firmware clock and pin setup; cold reset initialization
-+and clock-tree programming are not implemented. Board suspend is disabled in
-+the defconfig because firmware state restoration has not been established.
-+
-+DMA address translation has not been validated, so the SDHCI driver uses PIO.
-+The YPL514si DT disables MMC and SDIO discovery and limits SD to 25 MHz and
-+3.3 V. Filesystem write support, card removal, and suspend/resume require
-+separate hardware validation. No flash or bootloader update is required to
-+use the RAM boot path.
-+
-+The touchscreen exports raw coordinates. Initial five-point affine calibration
-+is performed in userspace, rather than placing a board-specific transform in
-+the input driver. GPS/baseband, USB, UART, and native LCD modesetting are not
-+part of the initial support.
-diff --git a/Documentation/arch/arm/index.rst b/Documentation/arch/arm/index.rst
-index b15621093..9cf1fb834 100644
---- a/Documentation/arch/arm/index.rst
-+++ b/Documentation/arch/arm/index.rst
-@@ -62,6 +62,7 @@ SoC-specific documents
-    stm32/stm32mp157-overview
-    stm32/stm32-dma-mdma-chaining
- 
-+   at550
-    sunxi
- 
-    samsung/index
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 347d46a20..75f5a827e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -25850,11 +25850,15 @@ F:	include/trace/events/siox.h
- SIRF AT550 PLATFORM
- M:	yy-Local-LLM <yogo.0917.sabu@gmail.com>
- S:	Odd Fixes
-+F:	Documentation/arch/arm/at550.rst
- F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
- F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
- F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
- F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
- F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-+F:	arch/arm/boot/dts/sirf/at550*
-+F:	arch/arm/configs/at550_defconfig
-+F:	arch/arm/mach-at550/
- F:	drivers/clocksource/timer-at550.c
- F:	drivers/input/touchscreen/at550-ts.c
- F:	drivers/irqchip/irq-at550.c
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 0cc289a71..7fcf2a28f 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -367,6 +367,7 @@ source "arch/arm/mach-artpec/Kconfig"
- 
- source "arch/arm/mach-aspeed/Kconfig"
- 
-+source "arch/arm/mach-at550/Kconfig"
- source "arch/arm/mach-at91/Kconfig"
- 
- source "arch/arm/mach-axxia/Kconfig"
-diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-index 573813ef5..508cbad8b 100644
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -176,6 +176,7 @@ machine-$(CONFIG_ARCH_ACTIONS)		+= actions
- machine-$(CONFIG_ARCH_ALPINE)		+= alpine
- machine-$(CONFIG_ARCH_ARTPEC)		+= artpec
- machine-$(CONFIG_ARCH_ASPEED)           += aspeed
-+machine-$(CONFIG_ARCH_AT550)		+= at550
- machine-$(CONFIG_ARCH_AT91)		+= at91
- machine-$(CONFIG_ARCH_AXXIA)		+= axxia
- machine-$(CONFIG_ARCH_BCM)		+= bcm
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 28fba538d..a4844a80b 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -40,3 +40,5 @@ subdir-y += vt8500
- subdir-y += xen
- subdir-y += xilinx
- subdir-y += zte
-+
-+subdir-y += sirf
-\ No newline at end of file
-diff --git a/arch/arm/boot/dts/sirf/Makefile b/arch/arm/boot/dts/sirf/Makefile
-new file mode 100644
-index 000000000..d1d3d5bfe
---- /dev/null
-+++ b/arch/arm/boot/dts/sirf/Makefile
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+dtb-$(CONFIG_ARCH_AT550) += at550-ypl514si.dtb
-diff --git a/arch/arm/boot/dts/sirf/at550-ypl514si.dts b/arch/arm/boot/dts/sirf/at550-ypl514si.dts
-new file mode 100644
-index 000000000..d45328fa0
---- /dev/null
-+++ b/arch/arm/boot/dts/sirf/at550-ypl514si.dts
-@@ -0,0 +1,52 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+/dts-v1/;
-+/memreserve/ 0xc0100000 0x40000;
-+#include "at550.dtsi"
-+
-+/ {
-+	model = "Yupiteru YPL514si";
-+	compatible = "yupiteru,ypl514si", "sirf,at550";
-+
-+	memory@c0000000 {
-+		device_type = "memory";
-+		/* The bootloader supplies the region allocated for Linux. */
-+		reg = <0xc0000000 0>;
-+	};
-+
-+	chosen {
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges;
-+
-+		framebuffer@c0100000 {
-+			compatible = "simple-framebuffer";
-+			reg = <0xc0100000 0x3fc00>;
-+			width = <480>;
-+			height = <272>;
-+			stride = <960>;
-+			format = "r5g6b5";
-+			status = "disabled";
-+		};
-+	};
-+};
-+
-+&touchscreen {
-+	touchscreen-size-x = <4096>;
-+	touchscreen-size-y = <4096>;
-+};
-+
-+&sd0 {
-+	bus-width = <4>;
-+	max-frequency = <25000000>;
-+	no-1-8-v;
-+	no-mmc;
-+	no-sdio;
-+};
-+
-+&sd2 {
-+	bus-width = <4>;
-+	max-frequency = <25000000>;
-+	no-1-8-v;
-+	no-mmc;
-+	no-sdio;
-+};
-diff --git a/arch/arm/boot/dts/sirf/at550.dtsi b/arch/arm/boot/dts/sirf/at550.dtsi
-new file mode 100644
-index 000000000..62d9842cb
---- /dev/null
-+++ b/arch/arm/boot/dts/sirf/at550.dtsi
-@@ -0,0 +1,66 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+/ {
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	interrupt-parent = <&intc>;
-+
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		cpu@0 {
-+			device_type = "cpu";
-+			compatible = "arm,arm1136jf-s";
-+			reg = <0>;
-+		};
-+	};
-+
-+	counter_clk: clock-counter {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		/* Boot firmware supplies the rate after the hardware divider. */
-+		clock-frequency = <0>;
-+	};
-+
-+	soc {
-+		compatible = "simple-bus";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges;
-+
-+		intc: interrupt-controller@90020000 {
-+			compatible = "sirf,at550-intc";
-+			reg = <0x90020000 0x1000>;
-+			interrupt-controller;
-+			#interrupt-cells = <1>;
-+			#address-cells = <0>;
-+		};
-+
-+		timer@90050000 {
-+			compatible = "sirf,at550-timer";
-+			reg = <0x90050000 0x1000>;
-+			interrupts = <0>;
-+			clocks = <&counter_clk>;
-+		};
-+
-+		touchscreen: touchscreen@80120000 {
-+			compatible = "sirf,at550-ts";
-+			reg = <0x80120000 0x1000>;
-+			status = "disabled";
-+		};
-+
-+		sd0: mmc@56000000 {
-+			compatible = "sirf,at550-sdhci";
-+			reg = <0x56000000 0x1000>;
-+			interrupts = <36>;
-+			status = "disabled";
-+		};
-+
-+		sd2: mmc@56200000 {
-+			compatible = "sirf,at550-sdhci";
-+			reg = <0x56200000 0x1000>;
-+			interrupts = <20>;
-+			status = "disabled";
-+		};
-+	};
-+};
-diff --git a/arch/arm/configs/at550_defconfig b/arch/arm/configs/at550_defconfig
-new file mode 100644
-index 000000000..698b2f675
---- /dev/null
-+++ b/arch/arm/configs/at550_defconfig
-@@ -0,0 +1,34 @@
-+# CONFIG_LOCALVERSION_AUTO is not set
-+CONFIG_SYSVIPC=y
-+CONFIG_NO_HZ_IDLE=y
-+CONFIG_HIGH_RES_TIMERS=y
-+CONFIG_BLK_DEV_INITRD=y
-+CONFIG_ARCH_MULTI_V6=y
-+CONFIG_ARCH_AT550=y
-+# CONFIG_SUSPEND is not set
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+CONFIG_PARTITION_ADVANCED=y
-+CONFIG_NET=y
-+CONFIG_UNIX=y
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+CONFIG_INPUT_EVDEV=y
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+CONFIG_INPUT_TOUCHSCREEN=y
-+CONFIG_TOUCHSCREEN_AT550=y
-+CONFIG_FB=y
-+CONFIG_FB_SIMPLE=y
-+CONFIG_FRAMEBUFFER_CONSOLE=y
-+CONFIG_MMC=y
-+CONFIG_MMC_SDHCI=y
-+CONFIG_MMC_SDHCI_PLTFM=y
-+CONFIG_MMC_SDHCI_AT550=y
-+CONFIG_VFAT_FS=y
-+CONFIG_TMPFS=y
-+CONFIG_NLS_CODEPAGE_437=y
-+CONFIG_NLS_ISO8859_1=y
-+CONFIG_NLS_UTF8=y
-+CONFIG_FONTS=y
-+CONFIG_FONT_8x8=y
-diff --git a/arch/arm/mach-at550/Kconfig b/arch/arm/mach-at550/Kconfig
-new file mode 100644
-index 000000000..c6380e529
---- /dev/null
-+++ b/arch/arm/mach-at550/Kconfig
-@@ -0,0 +1,13 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+config ARCH_AT550
-+	bool "SiRF AT550 platforms"
-+	depends on ARCH_MULTI_V6
-+	select ARM_ERRATA_411920
-+	select AT550_IRQ
-+	select CLKSRC_AT550
-+	select CPU_V6
-+	help
-+	  Support SiRF AT550 systems, including the Yupiteru YPL514si.
-+	  The initial support uses firmware-configured peripheral clocks,
-+	  pin multiplexing and SDRAM. A bootloader-supplied device tree must
-+	  describe the usable RAM region and the divided counter clock rate.
-diff --git a/arch/arm/mach-at550/Makefile b/arch/arm/mach-at550/Makefile
-new file mode 100644
-index 000000000..98a51d234
---- /dev/null
-+++ b/arch/arm/mach-at550/Makefile
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+obj-y += at550.o
-diff --git a/arch/arm/mach-at550/at550.c b/arch/arm/mach-at550/at550.c
-new file mode 100644
-index 000000000..affcc9eb3
---- /dev/null
-+++ b/arch/arm/mach-at550/at550.c
-@@ -0,0 +1,11 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <asm/mach/arch.h>
-+
-+static const char *const at550_dt_compat[] __initconst = {
-+	"sirf,at550",
-+	NULL,
-+};
-+
-+DT_MACHINE_START(AT550_DT, "SiRF AT550")
-+	.dt_compat = at550_dt_compat,
-+MACHINE_END
+[Severity: High]
+The Author header and Signed-off-by trailer use an account handle
+(rofikkerneldev) instead of a known real human name, which does not meet
+the Developer's Certificate of Origin requirements in
+Documentation/process/submitting-patches.rst.
 
--- 
-2.56.0
+> diff --git a/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts b/arch/arm64/=
+boot/dts/qcom/sm8250-lge-timelm.dts
+> index 6b57c658cf918..38816268fcf53 100644
+> --- a/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts
+> +++ b/arch/arm64/boot/dts/qcom/sm8250-lge-timelm.dts
+> @@ -95,6 +95,67 @@ key-assistant {
+>  		};
+>  	};
+> =20
+> +	qca6390-pmu {
+> +		compatible =3D "qcom,qca6390-pmu";
+> +
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&bt_en_state>, <&wlan_en_state>;
+> +
+> +		vddaon-supply =3D <&vreg_s6a_0p6>;
+> +		vddpmu-supply =3D <&vreg_s6a_0p6>;
+> +		vddrfa0p95-supply =3D <&vreg_s6a_0p6>;
+> +		vddrfa1p3-supply =3D <&vreg_s8c_1p2>;
+> +		vddrfa1p9-supply =3D <&vreg_s5a_1p9>;
+> +		vddpcie1p3-supply =3D <&vreg_s8c_1p2>;
+> +		vddpcie1p9-supply =3D <&vreg_s5a_1p9>;
+> +		vddio-supply =3D <&vreg_s4a_1p8>;
 
+[Severity: High]
+Does wiring vddaon-supply, vddpmu-supply and vddrfa0p95-supply to
+vreg_s6a_0p6, and vddrfa1p3-supply and vddpcie1p3-supply to vreg_s8c_1p2,
+under-volt the QCA6390 PMU?
 
+pwrseq-qcom-wcn only enables these regulators without calling
+regulator_set_voltage(), so the RPMh regulator driver initializes them to
+their regulator-min-microvolt constraints when enabled.  In this board DT,
+vreg_s6a_0p6 has regulator-min-microvolt =3D <600000> and vreg_s8c_1p2 has
+regulator-min-microvolt =3D <1200000>, with no other consumer voting a high=
+er
+voltage.  That drives the 0.95V PMU inputs at 0.6V (below the PMU's own
+0.8V and 0.85V LDO outputs) and the 1.35V inputs at 1.2V.  Should the
+minimum voltages on smps6 and smps8 be raised to ~950000 uV and ~1350000 uV
+like on other SM8250 QCA6390 boards?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117123946.6685=
+57-1-rofikcoga@gmail.com?part=3D11

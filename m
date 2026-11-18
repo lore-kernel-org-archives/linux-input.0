@@ -1,90 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=34.2.64.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795012390;
-	b=VkUdl2Yi1AVz6VqC1NvbL23aQo4hzEp7xGjxyK8jnWSXy+rSwV2GInpMu8sE+2Ye3XJR
-	 H2AfmcJyNd1HnY6OUBKNGSfNpJkFVXgfJinQkmFxZsEyqwXTfG3VNAgoTAqt/L31QvFol
-	 kZ0MVzzs9aPLWYR7tTb9VkLD4hOedRl3U9y5xyxBIz6g9sqq7yeg2wf/HnFb8yA0gKj2L
-	 hGcahDiJDatPu0Jj7pdXfwC2ZTi4dHiDWQKRaFzUsev9L+kLbk/iiE2qn+hCg3qSqDA6s
-	 U2qFJ3jPKMKQ6sSkozk00BWGYscYDCDMM6CKLu5wHrRjkrMppoVGQxjN+jRJqNSwu1A==
+	t=1795014028;
+	b=uBaLkl3dkmmc8A4G5cChpbMeR3KAoR/LJ5r1XFDw0cYvgDs6rbTXcU1raZ3WsoMhPVx8
+	 i+d8C8hUCkUBPO1EHHzbVj55TIGwzBttCesiGyJ9iUmwcvvH48NKHOwuYEecTX+3pzTN0
+	 MCjOSjTnpFTDHjivhlbXA18OFTYCFkTVq+vNgSbq4YyJ6NoAcZJvujGcNFOBKZ4H9EBzN
+	 7Mh/SYXD9Rg1n94H91NJOt7gbEqt6H6bZhDwb+0f/Xxl6nK8LGWVDy+i++R5EGbtgdeof
+	 m/6E9qg7fIYFuGZ7oDSxNo6QPGNvhxDM4Df4fFh9mj2JpSuBPSbEWy9N4uVun+6hKtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795012390;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=EoOYpwXa3FwcofkB3w93rNoXlsDX4Ki1d9gUL32/mLo=;
-	b=v11au9JNOqCRMpCKDdY3LXiNZ9vGK/3SdYyArrPd2DE8qQ02CxEKY1UBhQCtreSBIptG
-	 gSDrbm0fh5dGgfculg6NCPqqzqsxPWTUSTpy/aI0904gT2GtdKB7PoXdQkXk8KAO+Dyhw
-	 4t8WAIAZUTU5fYuMX6Tb326eMILfJqWHl0/3E2P5N2a3pYkMXFdt5uPoappkmFj8Jg381
-	 o3K9eLUSnvRVSC1p2HOPXpeBDEnyl+fe09ihqYBYfVx1Br4LlJNzaLj5/UkKokjVEzPra
-	 gd5otQlW1MysP3v7/rSlvJeNY0Id6ilSeYMBlchEe5ZgAGJkFfsuY28jgoNWWDrCEhA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795014028;
+	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
+	 X-Sonic-ID:Received:Received:From:To:Cc:Subject:In-Reply-To:
+	 References:Content-Type:Content-Transfer-Encoding:MIME-Version:Date:
+	 Message-ID:X-Mailer;
+	bh=xIqP9DW0MNb8cbUSMB4qwOLD6IctYX6wVFr0Jt4lshg=;
+	b=gga4T7aARx+nwzeFy1ogqIN5qULERtWCJWho/7Vkkpkk45GK+2lhdFxmY4RGBZOmiaAb
+	 XKf76Ln+IR+ND1x4opWIg/vpuZPyz8f9q26CikJVjhyKQCKUAMWTBU7lR7ucDm5NjteEH
+	 GTBNNonWuDlu4rzy0gM/rndRGaCX6bkmpJQ+Tfy2AKE7vqtb+bJt0oGQhbqB2xPV2kQHm
+	 MI2xFt8WAcUazFyDqT/2GZtwWIOH3zhqyS6WCuefwxLi79hrwcl4XXppFzJIM2vTjr415
+	 b7pG10GShVBOzEUvvPmQHdO+9Tiv+IZB4rU4RemDHN3UXSvJwESsWJC9H9cS5/CAucg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="l/3xigK0";
-	arc=none smtp.remote-ip=209.85.128.45
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	dmarc=pass header.from=yahoo.com;
+	spf=pass smtp.mailfrom=yahoo.com;
+	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=EwfrE1wC;
+	arc=none smtp.remote-ip=34.2.64.18
+Received: from sonic.asd.mail.yahoo.com (sonic-usea1-0019.asd.mail.yahoo.com [34.2.64.18])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE21606A335
-	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 14:33:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ABE21606A335
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB0AE606A325
+	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 15:00:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB0AE606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l/3xigK0
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a35d5d4a20so11237205e9.2
-        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 06:33:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795012388; x=1795617188; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EoOYpwXa3FwcofkB3w93rNoXlsDX4Ki1d9gUL32/mLo=;
-        b=l/3xigK0pcV0rpkfZpt9/JakEufW/L/1yiRP0ejf7oOOPqd6jmejFWGLGm5s5uA+Cb
-         pIoaL7H8ERq+A9I8esI3GFasIae0x2Jg2F+2lOTAcxisGOIv5OSuiC27w0wHcs6sbo4t
-         lKStbblosvwB2G7b1O1WUrd90JBN3r+XLm/FHQkJ5D79217ah1j6pZ15yChi3WC+iYXy
-         1GiYodP6q15FM7jHu33kDEFbxqCKRKYcjZ0B8HkoV6Bkh34URQJp95AHue8pFkT0K/RV
-         m6zqv0CdVxDA9Dr+PhI0vl6eILm7CezVhb9KLeb1fvLhK4x/gEPE1W31I6sSSCmqu4Vq
-         YBdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795012388; x=1795617188;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=EoOYpwXa3FwcofkB3w93rNoXlsDX4Ki1d9gUL32/mLo=;
-        b=NC+gfO0ABED3Sbhqf7wwArb+N0b0PCY1UvhrKr5d5sv9dUbkY3fNaIbHmPGrXJ5kdK
-         bnNfX/LC+OV4CqAeSCjgLpa4GxVMehD/mRYhpgd2HA16/KZ7Xqgh92ZFc8aTE5bnkl9Y
-         e0gRZC/hWzKGcqeNl9HSA2rJMh5MOZtB9JtOPVJAYV323MzKXWTzLxvCue5B2/Z6bekU
-         yMKI1m47lcjl8x9yoHk3koBiJRz6Mw0QzqbDMAWgPybc7io0wDa87EuXzj58t3W2zMqH
-         wRFjfZpJI2MP1+bCa7t8dx30dsLqyX5HmR78ANOIKEV8dcKEjlTazQhaPnBEYbdl5kAQ
-         IuQQ==
-X-Gm-Message-State: APuU4Z+TDhi4ecFyHrwF8e9i/ps2aU8cNNAh/ooXZuHVEcDu0dQ63lD8
-	VM7Rti9XMuaYJqr3qMWn9WUj/r81qn9Z7toowOy1+tpK4oZe+/Tb/ulyVQ9GOwEmvco=
-X-Gm-Gg: AYBFou1DXjIVQYFr8ELjfQCvrKq3hz13q+FrPLU3g/m973QfQZ6Eku73zmSGDHOKNB8
-	Lfz0RuNTSpU1OWGhj7sU2BCKv8kYoHlOgqO2WMEzn8wbUA4rGSUe0Weaa95wCMguLbWxhwNLIIm
-	LS8dckkdIgatCukB4l+t/X7wD7B+HDRT0lZFytDiitbN1RQCjRE+s3LIilvl99Tr1/B3I6+HQ1n
-	U9GHWV04xIWjqbL+gT8gHmTrLcgaOYgA/bNFBu1k8dhg0Py8n/dI304mhYnfBtgDrTLs/NDzOMX
-	UOpI5j+GXEYPzQFR69NK+TNwVDfg/2w5Tv9gNXS9DBTsFLhQvWCi3q9peRkfGBw5dVpW0qypBj9
-	SgGKLEbKh2yjJKKomTGJL10b1y0tISueGCaBr2WF7Vfun5nW65RJjMaDrZ+1fF22WdHV3lJW7vF
-	SkKa6ORmxM9F0SwMz1JUHSWiiuaUVravdHviC0tDSn+omjX6aVlomhX4qRCTp8ESDFdp2cDBAPM
-	H/w75+uZB4BgBG9bUMKzndxGJRkmuT4s/Qj9bMcUSsF6K5Ez8+A+LB6VPAe7z0mTLYLZgafLLq1
-	ZYJMEUiTtsdfB5Y2korjd59XWiDJwPQ4F78tQGK3dtUkg0jVvhYIre+UMySCMoNpKkcEVXq9e+O
-	nQ1YbPXb2TJm8jasVGfO13ghrPo8YD2ZmJ24DQTUQ17iseCBSc4wqle/awNGVfc0MUrIX1OM=
-X-Received: by 2002:a05:600c:4585:b0:4a1:f625:2108 with SMTP id 5b1f17b1804b1-4bb7da4645fmr53971835e9.33.1795012387905;
-        Wed, 18 Nov 2026 06:33:07 -0800 (PST)
-Received: from localhost ([86.110.253.12])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb7d2cfce7sm70917355e9.14.2026.11.18.06.33.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 06:33:07 -0800 (PST)
-From: Jozef Riha <jose1711@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: betop: add support for SPEEDLINK TORID
-Date: Wed, 18 Nov 2026 15:32:17 +0100
-Message-ID: <20261118143306.75858-1-jose1711@gmail.com>
-X-Mailer: git-send-email 2.56.1
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=EwfrE1wC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1795014026; bh=xIqP9DW0MNb8cbUSMB4qwOLD6IctYX6wVFr0Jt4lshg=; h=From:To:Cc:Subject:In-Reply-To:References:Content-Type:Date:From:Subject:Reply-To:Content-Type; b=EwfrE1wCkMIAcRR52/xuNkW0E0Ov6fHUpOiyxLAC/lctf1qGNJAW2luqgTHKGLlftnB2fhdAze4QhaOAQn5tfjkruKWER9trRMmf/BqGUnD+u4dz2tcJP04CbCD3YaOzojlNeCj9DumqtkeGQytfQ4Py/LLTNoZS0C5m/o5hsiQkim4DAJ5t7HoZQ8q93BloJ/yTobH6e+GZQWs4tCsHCYAzs3QuwU8nmdzxySYTLqe0GXtuy1WrYZsVrZEE9FKDYpIpPpciNRvd4CmiycFWUh71gdGe/Q7sXO4ts5G7T3RN6yIhd8PSNo/HtTl+1tnd4Osljb5HKE9jVmeHL8o4eg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1795014026; bh=RCiGym3CU8r0C6LVzkksbr0t+PRx3iPkDnpOh/F0JH/=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=IlTqul6xKUFAiLZIi4rLoN6m92Gkkwke1N3kthHmAfbx2DPRmmVgc2Aq0FhgqRf8WmzbwqCvglXsHsYQXznpE3Y8RBsOdyFm0vFSoEYrLIFf5i3gpkYusUulcJRe1KnHLNz9Jg4jE8B6uay1otHYXze3caLZDk3vtd/XUTnVPGO+yALIDW3pKlwXfghzDAB9YPlwz8k2Bpq/N+RCCUjZK+e6WGZ+KY9bBE121UeYj3f45ecarKFD14H+e8iAzZkNmoJxAdrovjOwT8f0b8VND45uIvigmS4qHAsz1ABsMJb3tRyegYGb2+jsLFn4zYbxVulyeC7OsmrZol+NBTw+Xw==
+X-YMail-OSG: zaODDQ8VM1m9mxg_ufJDXxMzGJbO2SaJab0zLytJvodbZTOCEywBLhb9WAbpj3d
+ b2LrtS9VpZAWpHGf89y78SzazHRDGJWLya45YxJWLM34WoJR03KBoKiGG3fKxUpLfda3E5YimCs6
+ AYal_2A4fUh8OXB5zgZM_YEsJMHAKhJY4DEKEuqHbdPBIbwH.dW_mo42dumYV6SK21JqHiCRntIj
+ GJtFf1qFLXF6BuHpksgB9MJheAi2MYSu2S8lRID5yKz8SUd4vcMDm6zzEhOX41yCOyZu8iJOvvgQ
+ .SqV60DDDFT7MqkGHHGenfRGGWV33uZDptIN8BfhbAZiD6NNMbKEn.SXZI4LXvz4HcETexf_F6EF
+ yLp589K9KziCyi7CZ_bEJhXnjroAt7Ix4xBbE.Da1WiwtPUD9s0GwHScdry4kXIT88NmMhZ6nsEt
+ eoGCdC1nkNa6UeJnqtW9T2jnsAyDsclJNX0WAPwjWHn5ovNYBXqk0fvtelKXaV2R0s64grL2L6qe
+ 73Vja.OlgInt6OexGTGN7sjG9TRiJw5FnbQIVgnAjOyiPbMEsWKSAMqZf2Bk._SV8XKkCgaw883D
+ 7t65GCWnBp0D03j2aYaJr7a.dfGgK0SeV0ifUaqW8KdFG79dEKfm9S0bC3grxpN2y5JWDC0nWYfm
+ VQC7T_3Gw9HBfgLnjVTSkTgN.PlO7Zcfix4242ouynu4tw2KJ_79S9ju.F2AjpbSP5FAPzwqDgcE
+ 8Kdd59VRj_P3HCf9B2TxGCn10nqViKbSTBZbYNtUW1zu4df7L9Roz6feZ5iQpr5xirc87vdmBQ94
+ 5o_zeLV.4rBLTDJk1d_zMQ2PdkUrfBCGg5F1E.qoRRbZ5CCoRy0fNrqhjF9Tebt0lPtUaNc._dNn
+ 2WBF3_0dbBuz18dCCvNzf0K0Imj.AHPhkHKZeZl2HslEk_7cf_EckNgJKlnqKTahxedpAt8kuBPX
+ INTIJXjIUOGUUmpyDD8d86GnfTHeGI87jNM3gIyxc46XXfx7S5Yw78djbUD_cyGWmZAd0mIssH4d
+ LLlPJUzDByc3OkTzIk4jAc0bfIZ2lRzeGxKEwiVIXnUdbxuUp3v9smxKBwX5qrja0WgB4EaIlYkH
+ qN0TwEfCuJjxlzAaJ8yG8xB70bZHMlyj.erX6xMy3wd.oV8UcJMx7pja3D.h740PnpvaBlmj7beT
+ Po8QmZSkEefjRjxq8ttHsviw_5zJbMBL7eV2O70QJ6TxXydrUmihQ5T8S0Hru97rbEuuRS_EfN4j
+ 1hgHEe5VJ8O6YuYeMBg.W67BvWySaJr08FKkG2LyC2V_8Z4WKCBFbEIITeoDh08uY8mLGyofOmu8
+ dEtCHVxCMA6tI.V9Sfi13p7OoPMsQZUOT5XgnvPNUQAhbVWwbT8TPCJZZv8yYE8kgkWRERaPol8F
+ gZ3763n4Baydyp7AyCO2N_qWmdQ2LuaWS5_71SdJf3LI7DJZdcHDByMkLL9gkd9p_pI_SIATcyL.
+ QSEI9agH.hnndAd0RGKins9y0zIryqxqBEstsQUSlN2buss5V2..R.j5tKaArc_MZb7C3WGOBD0_
+ QBjUUVZgOxBNi2EOwtZu9CQcq58nipN7RlcRi6HxCWoP33wbDHvJiulcRlo9noXj51YvphrpS9xn
+ p.eoCbOhz87rsxBzggTzO31YCCToT3ZhBvxwEyGcwJQ09tjSAYCcIvo02dNpzqMrJRZmobkQOHc5
+ a1Kgok3COxRF6EeaMqzdXEK9MHNYfFwXY0r3iRxl0NXZk2aioJiECEBYXCLXx2TdVJBr1TccKZJp
+ MzSSy3pJwGvG4GEghvQ3OSPntal3QPppTEMgJXzBTLiQ.lWHsc1yEIr8yqDlLAl9AT5Rmjhqe83n
+ 56IBv9Z7rxd.ku1E9j5Qi63Pye2kWlmUEWTrYYPYyEo7I_JCpxRwQdy9lGUcQDDutYpfIqNtehsA
+ OQJQGVt93dQdhk5PiCdSAvYs5Cq656SZle73ZztDQYk1bd1iKsUUHVLNG1qrrw0Gc5d1quTBrJq7
+ yf6ZLgcVN_wGB
+X-Sonic-MF: <capitain_jack@yahoo.com>
+X-Sonic-ID: b63a302d-7415-4630-ad1f-8e1de52c2318
+Received: from sonic.gate.mail.ne1.yahoo.com by mail-asdoutdeli-p-cin-usea1-prod-sonicconsumer-svc-102 with HTTP; Wed, 18 Nov 2026 15:00:26 +0000
+Received: from dip20.lsn.bf1.yahoo.com ([67.195.177.29])
+          by hello (SMTP) with SMTP ID 18b76bb473d01ac89d7404256b7eb674;
+          Wed, 18 Nov 2026 15:00:20 +0000 (UTC)
+From: Daniel Campos Ramos <capitain_jack@yahoo.com>
+To: Tomasz =?utf-8?q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+Cc: dmitry.torokhov@gmail.com, corbet@lwn.net, jikos@kernel.org,
+ bentiss@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, vi@endrift.com, linux-kernel@altimeter.info,
+ peter.hutterer@who-t.net, Ricardo Esteves <ricardo.lopes.esteves@oracle.com>
+Subject: Re: [RFC PATCH 0/6] Input: New EV_BTN event for generic buttons
+In-Reply-To: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
+References: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -94,47 +90,74 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Wed, 18 Nov 2026 12:00:15 -0300
+Message-ID: <179501401503.113617.9596561330028866042@yahoo.com>
+X-Mailer: WebService/1.1.27017 mail.core.serving.mcws.prd.acl:role.token.mcws.jsmtp.yahoo
 
-The SPEEDLINK TORID wireless gamepad (11c0:9105) is a Betop based
-device. Its output report has the same 4 byte layout as the other
-devices handled by hid-betopff, with the motors in bytes 2 and 3.
+Hi Tomasz,
 
-Without the device ID the gamepad is bound to hid-generic and has no
-force feedback. Add it to betop_devices[].
+Your EV_BTN series has a home. I carry the six patches as posted in
+the kernel of Sparky Stereo OS, my edition of SparkyLinux, in all
+three flavours we build (normal, x86-64-v3 and PREEMPT_RT), on 7.3.4.
+Your SDL pull request 14758 and your Wine merge request 9853 are in
+our SDL and Wine packages beside it.
 
-Assisted-by: Claude:claude-opus-5-5
-Signed-off-by: Jozef Riha <jose1711@gmail.com>
----
-v2:
- - Fix From/Signed-off-by name mismatch
- - Cc linux-input and LKML, v1 was sent to the HID maintainers only
+Thank you for this work. Thanks also to Ivan Gorinov and Ricardo
+Esteves, whose patches of December and February went at the same
+limit from the other side.
 
- drivers/hid/hid-betopff.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Why I wanted it: more than 80 buttons is ordinary hardware now. Sim
+racing and flight cockpits, button boxes, control surfaces and
+accessibility devices built from many switches all pass that number.
+Linux can be the platform for these, and today it stops at button 80.
 
-diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-index f802046a688a..28ab0acce6ad 100644
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -16,6 +16,9 @@
-  *
-  *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
-  *   - tested with BTP2171s.
-+ *
-+ *  0x11c0:0x9105 "SPEEDLINK TORID"
-+ *   - tested with Speedlink TORID wireless gamepad.
-  *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
-  */
+What I measured, with a virtual HID joystick (uhid) of 128 buttons,
+eight hats and twelve axes:
+
+  With the series:
+    EVIOCGBTNCNT gives 128.
+    All 128 buttons arrive as EV_BTN, the first 80 also as EV_KEY.
+    SDL3 with pull request 14758 reads 128 buttons, and so do SDL2
+    programs through sdl2-compat.
+    Wine with merge request 9853 gives DirectInput 128 buttons, by
+    the udev backend and by the SDL bus.
+  Without the series:
+    80 buttons as EV_KEY, and SDL reads 79.
+
+Two notes on those results. The SDL number is with one small fix on
+top of the pull request: built against kernel headers that have no
+EV_BTN, its fallback define never asks the kernel, and SDL stays at
+79 buttons. The Wine number needed two small fixes in Wine itself,
+outside your merge request. Both belong to those projects and not to
+this thread.
+
+One thing for a next version. A report that changes many buttons at
+once overflows the evdev client buffer. With all 128 buttons changing
+in one report the client received 44 of the 128 EV_BTN events and a
+SYN_DROPPED. input_estimate_events_per_packet() makes room for "KEY
+and MSC events" with a constant 7 and does not count EV_BTN. Counting
+one event per button when the device has EV_BTN gives 128 of 128 and
+no SYN_DROPPED here:
+
+ 	/* Make room for KEY and MSC events */
+ 	events += 7;
  
-@@ -137,6 +140,7 @@ static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
- static const struct hid_device_id betop_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x9105) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
- 	{ }
--- 
-2.56.1
++	/* Every generic button can change in one report */
++	if (test_bit(EV_BTN, dev->evbit))
++		events += dev->button_count;
++
+ 	return events;
 
+It only makes sense on top of your patch 2, so take it into the
+series if it is useful.
+
+Benjamin's review of patches 3 and 4 reads to me as the way to a
+next version. The test device's descriptor and the result tables are
+available to anyone who wants them.
+
+I work with AI partners on this distribution. I read and ran what is
+reported here and I answer for it.
+
+Daniel Campos Ramos
+Sparky Stereo OS
+https://github.com/Sparky-OS/sparky-stereo-os

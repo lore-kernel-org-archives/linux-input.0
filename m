@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794979932;
-	b=nQ2/9kf86RL8SIwYAAp8uzObTkikub/FbZLSI7zlO997h7Lqy+mDwAeOnLbPfPkvEdcl
-	 M1Ch6GnAQE17SR/vAAHCeLHzvq7I+f/9HOlzZUnprZ731PsBepkHNTZLn5VjMx2yPrgMd
-	 wdmgoNHfmwrHEVMT1R3lQMm18E2YhIrWSUkXsh2TMYaU3QLtDhMA4dM2igApnEb7WPZ9d
-	 0+FvSjffVE9pxt/XAkXRXsKLCc0EImclvML199AEJpka2qMZQIPXHtfamCHl3+ym3Q+Lp
-	 BCchXqUOGano2i5VhlnWOr641k7/fwCm7sPdMPboEdbtXqGpiY5LZFIF3rZWzIk/vmw==
+	b=n/U6j5rq/a+EyHG5AZMd4AXDIIKvSIeFoCQUSryJf+/zpzBJg7+0YQZJEQ81bPGShzX0
+	 dYo9dW+XB7n0oabAMaYiP3IGbtNzrxiTtgf5k5zKLlpAI0W2c4/eG58+GPwHbDEv3eYJM
+	 yxA7Gp9U13kCmVIGhgy39Q/6o96ck3XNu9lPHf9df9bUf8VFXpm6hg4EzZy6gkaDmiNOm
+	 WJ1Hh413Y/sZ/3guqbnYOufczfgzavQ7M6mOEN4QnFVe5++IPHxbw+gsge2tuBk2KRKvH
+	 DgF550ZyFyxZ5orZj/0EldQR1zobDCDc4qwEim001oH7/ROB1zB9wgA33F/hvlBfjQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794979932;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Debian-User;
-	bh=F1abZW9KdHqAJb6r2vfcjqGF17wKq2fQTvN2iS747O0=;
-	b=or+aeSk9JMC7v27ZYHWKR3kv8OAIDlvciESWRIL54IsvYm7rbV9hpex0lGGDo2BFNexN
-	 VbhJ0k7ML5hDgFWTkZmkhk2Ng52sdnytF7Hyc2P04eiA0ANnFjY9k6E3K7iDuCoeXg7aG
-	 9qY/sh/SLCtRIl3M98qXKpy18jSMQXMAq2swFV+rz5UVn0+H15S/R5wrEcymHd/pTpSU6
-	 m3RfbQB7Xgi1xmKZKqLe9l2CJU9aEz/NqIbWBsd390lOQuvN44Aw6TcNYTPlJ2DUUQEaF
-	 c2Bld6PBtT4QTV1H4qJo6YoX7DThpQ0/+TqXwA8RqDnlZbBOtDgFNCfQ3cO1hmiNlww==
+	bh=CuigUoXzcxtfp7cDRhGDVJuTzYDUgteXb5DFzwjuBU8=;
+	b=Xi2zvslB8UWZtkGJdQutheNBCqqrJoH/RmWdVql/2VOiUS6IsoWnx9dF9RJfRlL8mq30
+	 Ori1+VBzUewcJzKw8UOkujmYJiBuZyVLQX8oEulM4PCwVbQMinpZ0q0xQU5jHlLHX/Ffj
+	 ZjvxjXJOSTTQUH+wFifk6toLeNxS0LGaqX1mqn/KAljiHku60Eecx3jsAf/sNNgzd10XJ
+	 671Hqs+zwdpvsQfYFYA8RTwB5MpGAAJ/n/6hOSrK44+p8BEr08PbvHU6pbO8/IeWgTUgY
+	 nVko/OiNfQSQCfTd4kd4wQWKSCoQqx2Cifk/BMVxuPME9t9yxMwh+XvSCMfLtKZqxeg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=lPdrJfnS;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=okHoPfJI;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444BE606A339;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5535B606A33B;
 	Wed, 18 Nov 2026 05:32:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 444BE606A339
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5535B606A33B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=lPdrJfnS
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=okHoPfJI
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
 	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
 	Content-Type:Content-ID:Content-Description;
-	bh=F1abZW9KdHqAJb6r2vfcjqGF17wKq2fQTvN2iS747O0=; b=lPdrJfnSz8XLqJpXPoxkUmzSap
-	kc41m07HY+IbN61ntZzfa/rJTZtCbtlyWT7OQuyDItYvtO9cHUEv33z8QgGoj0krbVJNB9ETYeDk1
-	9/80Ax1AI7fxiqat4APeCaX9TOHCZa+YSPN5bD5/v9Oa5j6QN7Ajj9OSd6KBMjWwgTBbnxk0lXhY0
-	cLuk3jgiggMjieMrwWWvOmwlpfBhdGRO7UNsXkmVR8H5/wuenYAb4Do0axT1UrRKpE7+c+4clNjw4
-	By+EHktVjosddLv70idZ7TD/4uWofHh47HLmJL6WI6/QWtFu/S7G/qvyNt5YX6TgZ6q6aNRSdqhSR
-	XgAAn93g==;
+	bh=CuigUoXzcxtfp7cDRhGDVJuTzYDUgteXb5DFzwjuBU8=; b=okHoPfJIDJII7ZN6lf3Egf226i
+	kpvudIE4VlO7z6YZhJNRxQPyhXNZQN+M6v5Gg1/2pZ7dNemGTzYEaCv31yAPV769hBTpHKl7AqZ5m
+	H76UbR3PCtPSYM8/0hzpeEzksoJ0Ut21XpX3tekqAR6gxJV3v8blDcDy2XAoZm988PXM82PY0DzPN
+	NK35Gwe0nbbNZKcE9uNrRR5OEAzR1YA8LUCdbj6we6iLGPoVaTThyBWPZUymNqVx9G42jDB3wVyiQ
+	JM4+dm87wjUew6ALYa6WpA67GzAzfZGkWWClB7SFQAsupuTa/lcjgAPoucYUwNtZkL1Z3iPMKuO16
+	nvHQ+m2w==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xTYH4-00151W-07;
-	Wed, 18 Nov 2026 05:32:02 +0000
+	id 1xTYH9-00151m-31;
+	Wed, 18 Nov 2026 05:32:08 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,9 +56,9 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/5] HID: intel-thc-hid: intel-thc: keep TxDMA write errors
-Date: Wed, 18 Nov 2026 13:31:28 +0800
-Message-ID: <20261118053132.253448-2-emfox@debian.org>
+Subject: [PATCH v2 2/5] HID: intel-thc-hid: intel-thc: free the failed channel
+Date: Wed, 18 Nov 2026 13:31:29 +0800
+Message-ID: <20261118053132.253448-3-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261118053132.253448-1-emfox@debian.org>
 References: <20261118053132.253448-1-emfox@debian.org>
@@ -74,65 +74,64 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-thc_dma_write() reports success after a timeout: the cleanup at the end
-overwrites the error with the result of thc_interrupt_quiesce(), so a
-frame that never left the device is taken as sent.
+thc_dma_allocate() unwinds with "while (chan--)". The condition is read
+before the decrement, so the first channel released is the one before the
+failure, and the failed channel keeps the PRD tables and the
+scatter-gather lists it did manage to allocate.
 
-That wait also ends on a signal, and the no-completion branch folds the
-result into -ETIMEDOUT. There is nothing to restart here: the frame is
-already in the engine, so a restarted write() would hand the same report
-to the controller twice. Wait without interruption, the window is one
-second, and report a failing interrupt restore instead of dropping it.
+Unwind through thc_dma_release() instead, which walks every channel and
+skips the ones that were never set up, and free a scatter-gather list that
+was allocated but never mapped: sgl_alloc() leaves one behind when its
+entry count is too large.
 
-The completion interrupt wakes the queue with wake_up_interruptible(),
-whose mask does not intersect TASK_UNINTERRUPTIBLE: a completion that
-arrives after the task sleeps is dropped, and the write waits out its
-timer with the bus lock held. Wake all waiters instead.
+That leaves release_dma_buffers() with a configuration whose prd_tbls may
+still be NULL, which its unconditional memset() does not survive. Clear the
+tables only when there are any.
 
 Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
 Signed-off-by: Emfox Zhou <emfox@debian.org>
 ---
- drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c | 2 +-
- drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c | 9 +++++----
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ .../hid/intel-thc-hid/intel-thc/intel-thc-dma.c   | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-index 7feda4160..7429f851c 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-@@ -990,7 +990,7 @@ int thc_interrupt_handler(struct thc_device *dev)
- 			     THC_M_PRT_WRITE_INT_STS_OFFSET, write_sts);
- 
- 		dev->write_done = true;
--		wake_up_interruptible(&dev->write_complete_wait);
-+		wake_up(&dev->write_complete_wait);
- 
- 		interrupt_type |= BIT(THC_TXDMA_INT);
- 	}
 diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index c80ef8c20..c0dc44e26 100644
+index c0dc44e26..704c02822 100644
 --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
 +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -1045,8 +1045,9 @@ int thc_dma_write(struct thc_device *dev, void *buffer, size_t buf_len)
+@@ -297,20 +297,20 @@ static void release_dma_buffers(struct thc_device *dev,
+ 		return;
  
- 	dma_set_start_bit(dev, &dev->dma_ctx->dma_config[THC_TXDMA]);
+ 	for (i = 0; i < config->prd_tbl_num; i++) {
+-		if (!config->sgls[i] || !config->sgls_nent[i])
++		if (!config->sgls[i])
+ 			continue;
  
--	ret = wait_event_interruptible_timeout(dev->write_complete_wait, dev->write_done, 1 * HZ);
--	if (ret <= 0 || !dev->write_done) {
-+	ret = wait_event_timeout(dev->write_complete_wait,
-+				 dev->write_done, 1 * HZ);
-+	if (!ret || !dev->write_done) {
- 		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
- 		ret = -ETIMEDOUT;
- 		goto end;
-@@ -1059,8 +1060,8 @@ int thc_dma_write(struct thc_device *dev, void *buffer, size_t buf_len)
- end:
- 	mutex_unlock(&dev->thc_bus_lock);
+-		dma_unmap_sg(dev->dev, config->sgls[i],
+-			     config->sgls_nent_pages[i],
+-			     config->dir);
++		if (config->sgls_nent[i])
++			dma_unmap_sg(dev->dev, config->sgls[i],
++				     config->sgls_nent_pages[i],
++				     config->dir);
  
--	if (restore_interrupts)
--		ret = thc_interrupt_quiesce(dev, false);
-+	if (restore_interrupts && thc_interrupt_quiesce(dev, false))
-+		dev_err(dev->dev, "failed to restore interrupts after TxDMA write\n");
+ 		sgl_free(config->sgls[i]);
+ 		config->sgls[i] = NULL;
+ 	}
+ 
+-	memset(config->prd_tbls, 0, prd_tbls_size);
+-
+ 	if (config->prd_tbls) {
++		memset(config->prd_tbls, 0, prd_tbls_size);
+ 		dma_free_coherent(dev->dev, prd_tbls_size, config->prd_tbls,
+ 				  config->prd_tbls_dma_handle);
+ 		config->prd_tbls = NULL;
+@@ -425,8 +425,7 @@ int thc_dma_allocate(struct thc_device *dev)
+ 	return 0;
+ 
+ release_bufs:
+-	while (chan--)
+-		release_dma_buffers(dev, &dev->dma_ctx->dma_config[chan]);
++	thc_dma_release(dev);
  
  	return ret;
  }

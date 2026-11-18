@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794979953;
-	b=RMWn54JFruvQPJjdsp6wqP4EbMPwy4sRbDCe7/8dGJFOHPnq4sUVajKtKwply9XxBNUe
-	 0mNti58/SDs0JIM+DXR5IC9lit9Psd+6k3YDd7UgXdf9Rnt6o98oeDmX84iB58SzbVyaG
-	 k2/Vfn1qPh1qZKNnL5XyKj20TrRzCPkgGRL7YqC3YNJhws+NsJhpmmDShnmvv3X868cK2
-	 eBL5Zqd0kyo9ghpw30Zte5NHdG2xbzNY5v3nGWleqMqJiF84JMZ1iGIMnX7Huc79vbPSz
-	 u+q7883+cnCcYQnbptpuOGt3BV5vabgxehDK8hWZ8N7z+vJ0n7Yob5S/ouciGK+DU8g==
+	t=1794980417;
+	b=uY61DzfB2zHY/jXyhSCyF8tL+jKACms0vRNaj/+L5Nssyb1ZTAk9d7ZJcmpXc43fCJgF
+	 T+HbCC4UJ3s1gXETI2Xiv9F3t9g3lnehwhMeffBTLN2uWHhbWyvlwPhBAwJ36/qvbi4mT
+	 aMr48FCScFv6GIEQkvSyazOSnwOGze/UAGNfWuboQEa9gRY1WhUhp4kVasI1aUhB2cfCx
+	 HhU83x9HESmeKvMBHMyPXbFj6PRAZvBdveGEwt2l64dtF6Pe9GUdsYplIM60B+jJJSWwf
+	 h/kPuNUKGO++bA58d5qMOl+jvqvXrzAI7Zba10jmppJZ4bQ1uxJbMqWBKCFEjYw7SDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794979953;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794980417;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Debian-User;
-	bh=R+QF+fqmINy5rh8QyT3ILfwAXekLTUaNL1h6LprObuA=;
-	b=0No6txLoHpRMDdRJmIj/q3cKTiPUdSbLPgFDb3qdZsfjx3HQIvMfdD2Y6vAQT8qPgPzb
-	 kwjgOJBLzxHaeHvYOKTObqp4qVJlBFnz59QlMGTQvXGdQRvSob6nos+feuQAKlP5iijlb
-	 QD6Fm/fCdfsWVRhNxC54RoMA4XSOqp0Z4dg8R4VbMue78t6O1qDNj6Wb66JELkcRFD/83
-	 21dh5XlF0IyNK7wPwqyP8ISVAzTZyaPOulyDeLhLpkRXRo/PglxU23oUP2QJGOZsCNHoU
-	 IthrniqotBNVOAV7Yy0ESv8nv6oE0Oxve4cIConzMiaKlUMzGBpGfG4fF13zGmy/3Gw==
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Debian-User;
+	bh=GqV/HuIUXYu3NJal3ATCEuPQ0viX5TerGyzwkL7k/e0=;
+	b=cy+AzKOJiVv7DLzfrDkQdrvoiIgDCO7x/1swVh9n04WgPB3RrI2gy8kZTxhrgtjTyOCa
+	 +98esnJJS69yrFKdsZ4DgQ+uDKk2ThfdvqP4/IVLWmo+4/Sy9cbt2abNj1q9P2MAV+UFF
+	 ZGOKymmX4TAtmtkXHsuFeMlcHkE5UcOJUrI+ANMqUWgh8jEB01SsgMXPyUJfohjoIEdKk
+	 TWl+xXbBb2yDWVLcvvEB1nh5mc3WPqdnFkyMnl9Q6D/Ii4D83PAAT3FwZJF2BxPQQQckR
+	 pOonW3vEjxFfWdtAXgpMrxWYr02l/UdXkR1/lDt2Zsc0TsvA+5WgHw1l+/ahIYfOctw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=OP1WUKbH;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=kfFEGjCr;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD7AB606A325;
-	Wed, 18 Nov 2026 05:32:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CD7AB606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91639606A31C;
+	Wed, 18 Nov 2026 05:40:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91639606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=OP1WUKbH
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=kfFEGjCr
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
-	Content-Type:Content-ID:Content-Description;
-	bh=R+QF+fqmINy5rh8QyT3ILfwAXekLTUaNL1h6LprObuA=; b=OP1WUKbHleocybRoCkDWo91X0M
-	f8ML4zj/dVo2wSIdRthtf2l9i6/SCo4N9Bw8iBIbQx/TUJpxwewM7KzPUhnS7c/8LQjdIrnZRFk0+
-	chhRlEXNzF6DoF+blFofbt+eDPDca563DFfPBDMBLeZrHcfjqm/Fo4AviFTjMtHKQLaUrk1zLno3E
-	sn0tP8HFpMObuGPdybcOKy+7F1wkAFXhZqfpg6S85veFjQibCFG3lLU271SEFIBK9etu3S9SKMNrC
-	IMcC/+zvkd4MW7z1jYCrgtTpvkDXETz9dnwBdCdLrt36qsK3rtW7V8b4Zbio6rOkWFFAFgGhprpmE
-	m45RC0qg==;
+	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=GqV/HuIUXYu3NJal3ATCEuPQ0viX5TerGyzwkL7k/e0=; b=kfFEGjCrO+Zc+GHniNt/fhEXA2
+	1VoGoNwaqgae2D0LdvowfO2TCuvHRVgFooHPebPi3qDIrTx0IQvwiI41s5kBQMT9Sxd0Pl3s1UF4t
+	eUCLJH+7HT7rVhIHQhEpObURh76aMaMHl0uDA2U7zg7PtSfAdnopuK9GIYiGtBDAig1udQ/CGvtWG
+	Zc/+LNJhVd1kx9aDgzOVegJZ64B2q9LHM1G3BP07akH9OmL+RiAQfg49m7nvDYW0buuUw08pwdhLH
+	hOBEKStgtUpT9YnhxuPhEsvSJorWO+fJZMbi4suKYnyol7Jp6dzTBj2uPNiPx0ndV15vB6ZW54e1u
+	NaFs0IrA==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xTYHT-00152C-1Y;
-	Wed, 18 Nov 2026 05:32:28 +0000
+	id 1xTYOv-0015JH-1S;
+	Wed, 18 Nov 2026 05:40:10 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,12 +56,10 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 5/5] HID: intel-thc-hid: intel-thc: budget the engine drain
-Date: Wed, 18 Nov 2026 13:31:32 +0800
-Message-ID: <20261118053132.253448-6-emfox@debian.org>
+Subject: [PATCH v7 0/5] HID: intel-thc-hid: intel-ipts: support THC IPTS ports
+Date: Wed, 18 Nov 2026 13:39:59 +0800
+Message-ID: <20261118054004.363766-1-emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261118053132.253448-1-emfox@debian.org>
-References: <20261118053132.253448-1-emfox@debian.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,177 +72,103 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-thc_wait_for_dma_pause() gives every engine 10 ms to report idle, but a
-receive engine can be draining a whole frame. Its buffer comes from the
-HIDSPI device descriptor's max_input_len, rounded up to 4 KB and capped at
-16 PRD entries, so up to 64 KB; at the 2.23 MHz gear that takes about
-235 ms, and a timed out pause makes thc_rxdma_reset() return before the
-engines are reconfigured, leaving the controller quiesced with the
-interrupts off.
+The THC ports on Tiger Lake, Lakefield, Alder Lake and Raptor Lake run in
+IPTS mode: plain SPI with a private framing instead of HIDSPI, which is
+all intel-thc-hid handles today. This adds a backend for them next to
+intel-quickspi and intel-quicki2c, on top of the same core.
 
-Let the callers pass the budget. thc_rxdma_reset() gets one that covers a
-full frame at the slowest gear. The SWDMA path keeps the old one: it
-pauses the receive engines with the bus lock held and the interrupts
-quiesced, and its frames are small.
+It is based on v7.4-rc3 with two core fix series applied, both still
+under review:
 
-thc_dma_unconfigure() needs the same budget from the other side: it stops
-all four engines but returns before they report idle, and the caller
-releases the tables right after. Wait for them there too, or an engine
-still writing reaches pages that are already back in the allocator.
+  https://lore.kernel.org/r/20261118053132.253448-1-emfox@debian.org
+  https://lore.kernel.org/r/20261117105420.318995-1-emfox@debian.org
 
-Fixes: 1d46b8d40655 ("HID: Intel-thc-hid: Intel-thc: Add API to reset read DMA")
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
- .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 72 ++++++++++++++-----
- .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  6 ++
- 2 files changed, 61 insertions(+), 17 deletions(-)
+One gives the DMA engines a lifetime, the other keeps a PRD table from
+overrunning after a reset, and the recovery path here relies on both.
+They overlap in intel-thc-dma.c: apply the first, then the second.
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-index 41efdfaf0..d182f3c42 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
-@@ -514,6 +514,10 @@ int thc_dma_configure(struct thc_device *dev)
- }
- EXPORT_SYMBOL_NS_GPL(thc_dma_configure, "INTEL_THC");
- 
-+static int thc_wait_for_dma_pause(struct thc_device *dev,
-+				  enum thc_dma_channel channel,
-+				  u32 timeout_us);
-+
- /**
-  * thc_dma_unconfigure - Unconfigure DMA settings for all DMA engines
-  *
-@@ -525,9 +529,14 @@ void thc_dma_unconfigure(struct thc_device *dev)
- 
- 	/*
- 	 * Stop the engines first: one that is running keeps writing through
--	 * a table whose base is already gone.
-+	 * a table whose base is already gone. The start bit is only a
-+	 * request, so let each engine drain the frame it has in flight
-+	 * before the table it writes into goes away.
- 	 */
- 	thc_clear_start_bits(dev);
-+	for (chan = 0; chan < MAX_THC_DMA_CHANNEL; chan++)
-+		thc_wait_for_dma_pause(dev, (enum thc_dma_channel)chan,
-+				       THC_DMA_DRAIN_US_TIMEOUT);
- 
- 	for (chan = 0; chan < MAX_THC_DMA_CHANNEL; chan++) {
- 		dma_set_prd_base_addr(dev, 0, &dev->dma_ctx->dma_config[chan]);
-@@ -536,25 +545,48 @@ void thc_dma_unconfigure(struct thc_device *dev)
- }
- EXPORT_SYMBOL_NS_GPL(thc_dma_unconfigure, "INTEL_THC");
- 
--static int thc_wait_for_dma_pause(struct thc_device *dev, enum thc_dma_channel channel)
-+static int thc_wait_for_dma_pause(struct thc_device *dev,
-+				  enum thc_dma_channel channel,
-+				  u32 timeout_us)
- {
--	u32 ctrl_reg, sts_reg, sts;
-+	u32 ctrl_reg, ctrl_bit, sts_reg, sts_bit, sts;
- 	int ret;
- 
--	ctrl_reg = (channel == THC_RXDMA1) ? THC_M_PRT_READ_DMA_CNTRL_1_OFFSET :
--			((channel == THC_RXDMA2) ? THC_M_PRT_READ_DMA_CNTRL_2_OFFSET :
--						   THC_M_PRT_READ_DMA_CNTRL_SW_OFFSET);
--
--	regmap_write_bits(dev->thc_regmap, ctrl_reg, THC_M_PRT_READ_DMA_CNTRL_START, 0);
-+	switch (channel) {
-+	case THC_RXDMA1:
-+		ctrl_reg = THC_M_PRT_READ_DMA_CNTRL_1_OFFSET;
-+		sts_reg = THC_M_PRT_READ_DMA_INT_STS_1_OFFSET;
-+		ctrl_bit = THC_M_PRT_READ_DMA_CNTRL_START;
-+		sts_bit = THC_M_PRT_READ_DMA_INT_STS_ACTIVE;
-+		break;
-+	case THC_RXDMA2:
-+		ctrl_reg = THC_M_PRT_READ_DMA_CNTRL_2_OFFSET;
-+		sts_reg = THC_M_PRT_READ_DMA_INT_STS_2_OFFSET;
-+		ctrl_bit = THC_M_PRT_READ_DMA_CNTRL_START;
-+		sts_bit = THC_M_PRT_READ_DMA_INT_STS_ACTIVE;
-+		break;
-+	case THC_SWDMA:
-+		ctrl_reg = THC_M_PRT_READ_DMA_CNTRL_SW_OFFSET;
-+		sts_reg = THC_M_PRT_READ_DMA_INT_STS_SW_OFFSET;
-+		ctrl_bit = THC_M_PRT_READ_DMA_CNTRL_START;
-+		sts_bit = THC_M_PRT_READ_DMA_INT_STS_ACTIVE;
-+		break;
-+	case THC_TXDMA:
-+		ctrl_reg = THC_M_PRT_WRITE_DMA_CNTRL_OFFSET;
-+		sts_reg = THC_M_PRT_WRITE_INT_STS_OFFSET;
-+		ctrl_bit = THC_M_PRT_WRITE_DMA_CNTRL_THC_WRDMA_START;
-+		sts_bit = THC_M_PRT_WRITE_INT_STS_THC_WRDMA_ACTIVE;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 
--	sts_reg = (channel == THC_RXDMA1) ? THC_M_PRT_READ_DMA_INT_STS_1_OFFSET :
--			((channel == THC_RXDMA2) ? THC_M_PRT_READ_DMA_INT_STS_2_OFFSET :
--						   THC_M_PRT_READ_DMA_INT_STS_SW_OFFSET);
-+	regmap_write_bits(dev->thc_regmap, ctrl_reg, ctrl_bit, 0);
- 
- 	ret = regmap_read_poll_timeout(dev->thc_regmap, sts_reg, sts,
--				       !(sts & THC_M_PRT_READ_DMA_INT_STS_ACTIVE),
-+				       !(sts & sts_bit),
- 				       THC_DEFAULT_RXDMA_POLLING_US_INTERVAL,
--				       THC_DEFAULT_RXDMA_POLLING_US_TIMEOUT);
-+				       timeout_us);
- 
- 	if (ret) {
- 		dev_err_once(dev->dev,
-@@ -588,13 +620,15 @@ int thc_rxdma_reset(struct thc_device *dev)
- 		goto end;
- 	}
- 
--	ret = thc_wait_for_dma_pause(dev, THC_RXDMA1);
-+	ret = thc_wait_for_dma_pause(dev, THC_RXDMA1,
-+				     THC_DMA_DRAIN_US_TIMEOUT);
- 	if (ret) {
- 		dev_err(dev->dev, "Wait for RxDMA1 pause failed during RxDMA reset\n");
- 		goto end;
- 	}
- 
--	ret = thc_wait_for_dma_pause(dev, THC_RXDMA2);
-+	ret = thc_wait_for_dma_pause(dev, THC_RXDMA2,
-+				     THC_DMA_DRAIN_US_TIMEOUT);
- 	if (ret) {
- 		dev_err(dev->dev, "Wait for RxDMA2 pause failed during RxDMA reset\n");
- 		goto end;
-@@ -769,7 +803,10 @@ static int thc_swdma_read_start(struct thc_device *dev, void *write_buff,
- 	if (ret)
- 		return ret;
- 
--	if (thc_wait_for_dma_pause(dev, THC_RXDMA1) || thc_wait_for_dma_pause(dev, THC_RXDMA2))
-+	if (thc_wait_for_dma_pause(dev, THC_RXDMA1,
-+				   THC_DEFAULT_RXDMA_POLLING_US_TIMEOUT) ||
-+	    thc_wait_for_dma_pause(dev, THC_RXDMA2,
-+				   THC_DEFAULT_RXDMA_POLLING_US_TIMEOUT))
- 		return -EIO;
- 
- 	thc_reset_dma_settings(dev);
-@@ -834,7 +871,8 @@ static int thc_swdma_read_completion(struct thc_device *dev)
- {
- 	int ret;
- 
--	ret = thc_wait_for_dma_pause(dev, THC_SWDMA);
-+	ret = thc_wait_for_dma_pause(dev, THC_SWDMA,
-+				     THC_DEFAULT_RXDMA_POLLING_US_TIMEOUT);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-index 715423453..fa4cdc380 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.h
-@@ -19,6 +19,12 @@
- #define THC_DEFAULT_RXDMA_POLLING_US_INTERVAL 100
- #define THC_DEFAULT_RXDMA_POLLING_US_TIMEOUT  (10 * USEC_PER_MSEC)
- 
-+/*
-+ * A 64 KB frame takes 235 ms at the slowest gear, so 500 ms covers one with
-+ * room to spare.
-+ */
-+#define THC_DMA_DRAIN_US_TIMEOUT  (500 * USEC_PER_MSEC)
-+
- /*
-  * THC needs 1KB aligned address, dest_addr is 54 bits, not 64,
-  * so don't need to send the lower 10-bits of address.
+Register, DMA and interrupt work goes through the exported intel-thc API,
+except in four places where the core has no call for it: the reset,
+port-supported and quiesce-state bits of THC_M_PRT_CONTROL are accessed
+directly. Nothing outside the new directory changes except Kconfig and
+Makefile.
+
+The hardware facts - port IDs, configuration block layout, frame codes and
+header sizes - come from the ithc driver linux-surface ships, at
+https://github.com/quo/ithc-linux 6d53c9c (dual licensed GPL-2.0 /
+BSD-2-Clause); no code is taken from it. The layout, the frame format and
+the ordering between quiesce, interrupt configuration and the DMA engines
+are the parts most likely to need scrutiny; each is argued in the commit
+message that relies on it. All of it was confirmed on a Surface Pro 8 with
+a 045e:0c37 controller.
+
+The first four patches each leave a state that builds and loads: port
+bring-up, DMA and interrupts, HID registration, system sleep. The fifth
+documents the frame format and the IPTS handshake.
+
+Link to v6: https://lore.kernel.org/r/20261117073554.11557-1-emfox@debian.org
+
+Changes in v7:
+
+  - A reset no longer races the threaded handler: the port is masked,
+    synchronize_irq() waits for a run already inside, and only then is the
+    engine reset. A run that acknowledged the end of a frame the reset had
+    just re-armed the engine for would lose the interrupt announcing it
+    again. The two flags are cleared in an order that cannot turn away a
+    run which found the reset finished.
+
+  - A request that cannot complete is refused instead of sent: one issued
+    from inside the threaded handler, which is the thread that has to
+    deliver its completion, and one issued while a reset is queued or
+    running, where the write would wait out its timeout holding the bus
+    lock the reset needs. The descriptor path retries both a reset's
+    refusal and a write that lost its completion to one, since a
+    descriptor request carries nothing a late answer could spoil.
+
+  - The waits happen outside the lock, which now covers only the write.
+    The handler calls into the HID core on its way to a report, so a
+    request issued there would wait for a lock its own thread holds. A
+    queued reset leaves the line open for the same reason, and reports an
+    overrun once instead of once per frame.
+
+  - The feature gate is released by the caller that takes the answer, not
+    by the frame that brings it, and the check and the copy happen under
+    one lock hold. Only a timeout shuts the channel: an answer dropped by
+    a reset was never left out there.
+
+  - The port is masked before the interrupt handler is registered, so an
+    enable left by firmware cannot make the shared level line assert with
+    nothing to acknowledge it. Teardown keeps the line open until the
+    write already inside thc_dma_write() gets its completion, and waits
+    for the handler once more after the buffers are gone.
+
+  - Smaller ones: a descriptor larger than HID_MAX_DESCRIPTOR_SIZE is
+    rejected before it reaches hid_parse_report(); the SPI timing comment
+    says fastest, not slowest; the DEVRST comment says which way the bit
+    goes; the two comments that disagreed about masking are one.
+
+  - The documentation names the two steps that precede the first
+    configuration read, gives the bit positions it had only described in
+    words, points at ipts.h for the offsets it restates, and says what
+    system sleep does to the hidraw node.
+
+Emfox Zhou (5):
+  HID: intel-thc-hid: intel-ipts: bring up the port
+  HID: intel-thc-hid: intel-ipts: receive reports
+  HID: intel-thc-hid: intel-ipts: add the HID device
+  HID: intel-thc-hid: intel-ipts: handle system sleep
+  HID: intel-thc-hid: intel-ipts: document the IPTS mode
+
+ Documentation/hid/intel-thc-hid.rst           | 109 +-
+ drivers/hid/intel-thc-hid/Kconfig             |  14 +
+ drivers/hid/intel-thc-hid/Makefile            |   4 +
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.c   | 975 ++++++++++++++++++
+ drivers/hid/intel-thc-hid/intel-ipts/ipts.h   | 200 ++++
+ .../hid/intel-thc-hid/intel-ipts/pci-ipts.c   | 193 ++++
+ 6 files changed, 1494 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/ipts.h
+ create mode 100644 drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
+
+
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3

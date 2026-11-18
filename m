@@ -1,53 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.200
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795022627;
-	b=0V2tyVcsqHqW6ldyGEVABiS1hmK40d2lzatvXaa3ZoV+okIOO3bGgrjBZMArkMxZKFPE
-	 Dv0sT9ZjqGCt1FSGvwsOFOLYfqCRadRGu+b7yfP2kDGQu2M1S0jP2EdwuS3V1AbsDqqrt
-	 QXT0qM+w5f2ObfgYuP0ERwHHZgf21qkUYL99i4K11+AQNR/4y5LURT841Vy2xEUw5pXwu
-	 ga/JWgn3TIAX5P5h/9j11WSX2NDVUSQ6Wyv+zpglF3v6nbGmg/UyfM2jygZi/TH1ZsT7Z
-	 TlKpxc0p0E5Rsx6Y0iHhuu5nPdu4YUHNZWJ+UcPN8FN39t2yD4aBCuQAR+ghlLF0YjQ==
+	t=1795030038;
+	b=W6Z0Zc8e7CyAHCqiq3xEB2+gT3AW08/eGTtC2GgINPY4ZELWX0lqIJmb8faxdGtdeoCr
+	 1I80uNT85/R1iMkcg545sNduNM6UaUIQG73DtEiw5IlG+fLWVoj9R4v6+MeLgkyjCDwfF
+	 XQhefAIurmFJ4CT/IbS2wHcOMHP2mbwFACSTsgO0tj3iBiJlRi4T4f9XH2t6Gzvq0sOq3
+	 pKTTzJzlIhFGYgph+6mBxohUvrh6Y5HW8G81jQ2C9Vjml0K0eTIsoBYB4676iA63yyT+k
+	 Vk1BUIr/W96cdN8oZfBcQOY44X2b816kFBNqCnQrsMvMDuhDdmqHYpJ4qSzBzN48BfA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795022627;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Gm-Message-State:
-	 MIME-Version:X-Received:Date:X-Google-Appengine-App-Id:
-	 X-Google-Appengine-App-Id-Alias:Message-ID:Subject:From:To:
-	 Content-Type;
-	bh=0WVHmYGkgwACuyPT41zz46ARoB/OgpyaQBkCGhDyddQ=;
-	b=JEowJzKRh8+SoIiUQG66udOqwQam+c/Q6Qm9LztQ/ElRFr7045KGNWsJISe1ezJ2ATHS
-	 xh+yVT7NnRZptS8+onY7CSACtbjz+g7hRm6Zs58RM31pZXr1VbtLhR5ZQPRp1/UqIodYu
-	 Ea2blrse/wh/RpCK27Wk4RaHqjuubKVSZnKMsiDcHp5vRkWxhxVDESYApK87x6aytYhlQ
-	 Whq7S8574ID2kfqf9iVp9V5jGvErPd6tgrTdk0gcQnE0zq5hSz1WfzUZ2baiSGIXdqjqQ
-	 jm4eEMG6ZNTDIlX4QtHASNbTQv2tRcS4zYZUSmBqPsxC7ZGNanyqKW0jQ33CemXfkvw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795030038;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:X-Change-ID:X-Mailer:
+	 Content-Transfer-Encoding;
+	bh=BCQjSl+UyhKmnMy/FBBwR/Y4e953R9N1RQvuUIFqeFQ=;
+	b=flpPtnm39v+R5IusfTqWCEA8gZVsuiQ+BXmRL/2ObC9vVm2AYKfkzutpmdm539j2pvDS
+	 6f1cLt6m1WPwbkssvARHY6jgUPCD0XwdxXQOVy0p23dfKHE4KtVLKqUjaF/yxTxRvS0A7
+	 YHtep93XwPVsUKc21cOAbZvXIiyvsjzgm1U8CHjW84Axk27f/RL/IA8ZIYyHpB9bKvAfV
+	 en+uNgcWqdK8ue9k/ocZGChR120C9obei0FGQTeeqmRjetT+4NwSP1S/xnnHHb7eWP3fV
+	 P5jJ6PHL+uJU0CM2nOSBwybtnnRX+FIBYJw75mgBeA8gxqYr3qU/YLHxDTq6M6MzPPw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=syzkaller.appspotmail.com;
-	spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com;
-	arc=none smtp.remote-ip=209.85.167.200
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com [209.85.167.200])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a8Lbe58D;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD52C606A332
-	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 17:23:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD52C606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f200.google.com with SMTP id 5614622812f47-4cc89e86e9eso1249680b6e.3
-        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 09:23:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795022625; x=1795627425;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0WVHmYGkgwACuyPT41zz46ARoB/OgpyaQBkCGhDyddQ=;
-        b=c+M+Vst6EQ076VYhN979SiZvK/hz4i6o4O6+cRlAyX8hts0Tr3vq0gxV/Y89XLoqRD
-         WhMiPqkjeO57EKe9zHUeOBYFjh4zYeXLxNpJrR7zKd8gc5o2m4fd1Zb/s6MdfTsHZNGA
-         uSgELSd0SXbKGy8fc0iUfealuHyX7KzMjf+5mRmsEAnVMMA2HvMIw9jKvPnhf1aRXq0Q
-         mEu+IIRuCnVgou/5TKPs0nt+KDBR5JYbRqWOG9gJC47n9hNdnZvavMzQy8txFV9ccx2v
-         0D74jrVmlma0CEG0cn5R34FmyVBLTPlCMUgIY6Ku1AT/umTbKhvhWtglvQ8nnZZGyGbC
-         zgrw==
-X-Gm-Message-State: APuU4Z+ceOpRTGV6KzKX1Np+2GVwkhLdrzqYz4dUHCfLY+wU1IvFEqc2
-	TcF/0PCRmPv2QM19stqD7PnBSXe2NQJsOPOfhb82OPUsKkqoHG7PR3wATvCXqJG3Ap8YbGclHN3
-	KO8ZwEOPWSkVoe7PsDS0ub/Eygt7UxJkBV9IKLc/J1ud+7yD2zsLGJH7Mvi8=
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E33606A320;
+	Wed, 18 Nov 2026 19:27:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a8Lbe58D
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F01CE1F000C7;
+	Wed, 18 Nov 2026 19:27:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795030037;
+	bh=BCQjSl+UyhKmnMy/FBBwR/Y4e953R9N1RQvuUIFqeFQ=;
+	h=From:To:Cc:Subject:Date;
+	b=a8Lbe58DBMpEAxA4r5TOCAf5iBHegruQvn97EQlvPBNS2hiv5VsV2CjJBwo5W4mbu
+	 oIAeInveN8MblMw+kpDuK/6mgRi7IVOyBJgREqeYEktOY4OdPuKAdqaD/1LZ20CRde
+	 cgCB5ZP2dBG7mPXEBP+kgSrAfcRezYxd036OqOPLAcwE8a9aZ3/17QJ4xnzwgyH0F4
+	 c+9BE02vkk76YO/ShOPrfbD2oCU8ah/bI6m/UvTFN0RjS5sr55RkzcZsmiglLh0C7D
+	 5LHv5ObEfaX5sUGCO0BqnpYBDm1TVF19qfO7cDynDmqHe1qmxvcri9pvkK3ecNS17h
+	 mKbVdiaPFFVSw==
+From: Leon Romanovsky <leon@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	Chris Lu <chris.lu@mediatek.com>,
+	Mans Rullgard <mans@mansr.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Cornelia Huck <cornelia.huck@de.ibm.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev,
+	linux-coco@lists.linux.dev,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	linux-sound@vger.kernel.org,
+	Jason Gunthorpe <jgg@ziepe.ca>
+Subject: [PATCH v3 00/31] driver core: Authorize device trust before driver binding
+Date: Wed, 18 Nov 2026 21:26:30 +0200
+Message-ID: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -57,423 +109,172 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:250c:b0:4ea:14ab:142d with SMTP id
- 5614622812f47-57741131c55mr3283044b6e.40.1795022625426; Wed, 18 Nov 2026
- 09:23:45 -0800 (PST)
-Date: Wed, 18 Nov 2026 09:23:45 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6afddf21.a11fe2ad.1b4426.0003.GAE@google.com>
-Subject: [syzbot] [input?] [usb?] possible deadlock in sensor_hub_raw_event
-From: syzbot <syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20260915-device-trust-core-12934e618489
+X-Mailer: b4 0.15-dev-18f8f
+Content-Transfer-Encoding: 8bit
 
-Hello,
+Device trust policies need to precede driver setup, including manual
+attachment, so userspace can authorize devices before they operate.
 
-syzbot found the following issue on:
+This series introduces device trust policy, authorization, and lifetime
+commitment. Authorization does not reconfigure ATS capabilities or replace
+IOMMU domains selected during discovery and further ATS and IOMMU integration
+will follow in a separate series.
 
-HEAD commit:    6628e7d4c6b2 Linux 7.4-rc1
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
-console output: https://syzkaller.appspot.com/x/log.txt?x=12f94d3d580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=f9bf69220d319004
-dashboard link: https://syzkaller.appspot.com/bug?extid=fb951970a334aaff00ba
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17b1ef35580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=175834d9580000
+The table below tries to summarize the possible kernel command line
+options and system behavior after that:
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/d415be35d54e/disk-6628e7d4.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/69e49385122b/vmlinux-6628e7d4.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/51be81fff25f/bzImage-6628e7d4.xz
+Command line                        Initial behavior
+----------------------------------  ---------------------------------------
+No device_trust options             General: existing driver binding.
+                                    PCI: existing ACPI/topology
+                                      restrictions.
+                                    USB: existing authorized sysfs flow.
 
-AI-generated root cause summary:
-In sensor_hub_remove() (drivers/hid/hid-sensor-hub.c),
-spin_lock_irqsave(&data->lock, flags) is held while calling
-device_for_each_child(&hdev->dev, NULL, sensor_hub_finalize_pending_fn).
-device_for_each_child() traverses child devices via klist_next(), which acquires
-the driver core's &k->k_lock. Because &data->lock is also acquired in softirq
-context by sensor_hub_raw_event() on incoming HID reports, while &k->k_lock is
-acquired elsewhere with softirqs enabled, taking &k->k_lock while holding
-&data->lock creates a classic irq lock inversion dependency that can trigger an
-ABBA deadlock between process context and softirq context.
+device_trust.default=default        General: use each bus's initial policy.
+                                    PCI: use platform trust policy; keep
+                                      existing domain and ATS decisions.
+                                    USB: devices and interfaces denied by
+                                      USB defaults wait for authorization
+                                      before binding.
 
-full analysis:  https://syzkaller.appspot.com/x/ai_root_cause?x=fb951970a334aaff00ba
+device_trust.default=blocked        General: block driver binding until
+                                      authorization.
+                                    PCI: keep existing domain and ATS
+                                      decisions while binding is blocked.
+                                    USB: leave devices and interfaces
+                                      unbound until authorized.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+device_trust.default=adversary      General: allow binding as an adversary.
+                                    PCI: keep existing platform-based DMA
+                                      handling, domain and ATS decisions.
+                                    USB: allow binding as an adversary,
+                                      overriding USB authorization
+                                      defaults.
 
-usb 4-1: USB disconnect, device number 2
-=====================================================
-WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
-syzkaller #0 Not tainted
------------------------------------------------------
-kworker/1:0/23 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
-ffff888122166c18 (&k->k_lock){+.+.}-{3:3}, at: klist_next+0x86/0x510 lib/klist.c:390
+device_trust.default=unrestricted   General: allow unrestricted binding;
+                                      freeze trust policy changes.
+                                    PCI: unrestricted active trust; keep
+                                      existing domain and ATS decisions.
+                                    USB: authorize devices and interfaces
+                                      regardless of USB defaults.
 
-and this task is already holding:
-ffff888121fa2cd8 (&sd->lock){..-.}-{3:3}, at: sensor_hub_remove+0x69/0xf0 drivers/hid/hid-sensor-hub.c:823
-which would create a new lock dependency:
- (&sd->lock){..-.}-{3:3} -> (&k->k_lock){+.+.}-{3:3}
+device_trust=...                    General: matching rules select policy;
+or device_trust.driver=...            unmatched devices stay blocked.
+without an explicit default         PCI: rules select admission policy;
+                                      existing domain and ATS decisions
+                                      remain.
+                                    USB: matching rules select device or
+                                      interface policy.
 
-but this new dependency connects a SOFTIRQ-irq-safe lock:
- (&sd->lock){..-.}-{3:3}
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+Changes in v3:
+- Rewrote all commit messages
+- Split USB patches to smaller chunks
+- Introduced special device attach function which works only in
+  untrusted mode
+- Remove the special PHY -EBUSY IRQ handling.
+- Clarify that further ATS and IOMMU integration follows separately.
+- Link to v2: https://patch.msgid.link/20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com
 
-... which became SOFTIRQ-irq-safe at:
-  lock_acquire kernel/locking/lockdep.c:5942 [inline]
-  lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:155 [inline]
-  _raw_spin_lock_irqsave+0x3a/0x60 kernel/locking/spinlock.c:181
-  sensor_hub_raw_event+0x124/0x1340 drivers/hid/hid-sensor-hub.c:550
-  __hid_input_report.constprop.0+0x319/0x470 drivers/hid/hid-core.c:2175
-  hid_ctrl+0x4a4/0x560 drivers/hid/usbhid/hid-core.c:486
-  __usb_hcd_giveback_urb+0x38e/0x610 drivers/usb/core/hcd.c:1657
-  usb_hcd_giveback_urb+0x3ca/0x4a0 drivers/usb/core/hcd.c:1741
-  dummy_timer+0xdb5/0x3840 drivers/usb/gadget/udc/dummy_hcd.c:2051
-  __run_hrtimer kernel/time/hrtimer.c:2079 [inline]
-  __hrtimer_run_queues+0x448/0x9a0 kernel/time/hrtimer.c:2136
-  hrtimer_run_softirq+0x1ca/0x360 kernel/time/hrtimer.c:2153
-  handle_softirqs+0x209/0xa00 kernel/softirq.c:669
-  __do_softirq kernel/softirq.c:703 [inline]
-  invoke_softirq kernel/softirq.c:542 [inline]
-  __irq_exit_rcu+0x17a/0x220 kernel/softirq.c:786
-  irq_exit_rcu+0x9/0x30 kernel/softirq.c:809
-  instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
-  sysvec_apic_timer_interrupt+0x8f/0xb0 arch/x86/kernel/apic/apic.c:1062
-  asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-  finish_task_switch.isra.0+0x214/0xad0 kernel/sched/core.c:5434
-  context_switch kernel/sched/core.c:5586 [inline]
-  __schedule+0x132d/0x4900 kernel/sched/core.c:7382
-  schedule_idle+0x54/0x80 kernel/sched/core.c:7500
-  do_idle+0x365/0x5b0 kernel/sched/idle.c:384
-  cpu_startup_entry+0x4f/0x60 kernel/sched/idle.c:458
-  start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
-  common_startup_64+0x13e/0x158
-
-to a SOFTIRQ-irq-unsafe lock:
- (&k->k_lock){+.+.}-{3:3}
-
-... which became SOFTIRQ-irq-unsafe at:
-...
-  lock_acquire kernel/locking/lockdep.c:5942 [inline]
-  lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-  __raw_spin_lock include/linux/spinlock_api_smp.h:190 [inline]
-  _raw_spin_lock+0x2e/0x40 kernel/locking/spinlock.c:173
-  spin_lock include/linux/spinlock.h:347 [inline]
-  add_tail lib/klist.c:104 [inline]
-  klist_add_tail+0x38/0x150 lib/klist.c:138
-  bus_add_driver+0x306/0x620 drivers/base/bus.c:780
-  driver_register+0x1e2/0x360 drivers/base/driver.c:174
-  faux_bus_init+0x6e/0xc0 drivers/base/faux.c:249
-  driver_init+0x33/0x60 drivers/base/init.c:35
-  do_basic_setup init/main.c:1514 [inline]
-  kernel_init_freeable+0x473/0x7b0 init/main.c:1732
-  kernel_init+0x21/0x1e0 init/main.c:1622
-  ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
-  ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-other info that might help us debug this:
-
- Possible interrupt unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&k->k_lock);
-                               local_irq_disable();
-                               lock(&sd->lock);
-                               lock(&k->k_lock);
-  <Interrupt>
-    lock(&sd->lock);
-
- *** DEADLOCK ***
-
-locks held by kworker/1:0/23: 7, last CPU#1:
- #0: ffff888105ea3948 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x1461/0x1b10 kernel/workqueue.c:3470
- #1: ffffc9000018fd18 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0xa2c/0x1b10 kernel/workqueue.c:3471
- #2: ffff88810a7971d8 (&dev->mutex){....}-{4:4}, at: device_lock include/linux/device.h:1109 [inline]
- #2: ffff88810a7971d8 (&dev->mutex){....}-{4:4}, at: hub_event+0x1bb/0x4510 drivers/usb/core/hub.c:5917
- #3: ffff888104a851d8 (&dev->mutex){....}-{4:4}, at: device_lock include/linux/device.h:1109 [inline]
- #3: ffff888104a851d8 (&dev->mutex){....}-{4:4}, at: usb_disconnect+0x10a/0x9a0 drivers/usb/core/hub.c:2346
- #4: ffff8881212521a0 (&dev->mutex){....}-{4:4}, at: device_lock include/linux/device.h:1109 [inline]
- #4: ffff8881212521a0 (&dev->mutex){....}-{4:4}, at: __device_driver_lock drivers/base/dd.c:1046 [inline]
- #4: ffff8881212521a0 (&dev->mutex){....}-{4:4}, at: device_release_driver_internal+0xa7/0x610 drivers/base/dd.c:1377
- #5: ffff888121fb1a58 (&dev->mutex){....}-{4:4}, at: device_lock include/linux/device.h:1109 [inline]
- #5: ffff888121fb1a58 (&dev->mutex){....}-{4:4}, at: __device_driver_lock drivers/base/dd.c:1046 [inline]
- #5: ffff888121fb1a58 (&dev->mutex){....}-{4:4}, at: device_release_driver_internal+0xa7/0x610 drivers/base/dd.c:1377
- #6: ffff888121fa2cd8 (&sd->lock){..-.}-{3:3}, at: sensor_hub_remove+0x69/0xf0 drivers/hid/hid-sensor-hub.c:823
-
-the dependencies between SOFTIRQ-irq-safe lock and the holding lock:
--> (&sd->lock){..-.}-{3:3} {
-   IN-SOFTIRQ-W at:
-                    lock_acquire kernel/locking/lockdep.c:5942 [inline]
-                    lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-                    __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:155 [inline]
-                    _raw_spin_lock_irqsave+0x3a/0x60 kernel/locking/spinlock.c:181
-                    sensor_hub_raw_event+0x124/0x1340 drivers/hid/hid-sensor-hub.c:550
-                    __hid_input_report.constprop.0+0x319/0x470 drivers/hid/hid-core.c:2175
-                    hid_ctrl+0x4a4/0x560 drivers/hid/usbhid/hid-core.c:486
-                    __usb_hcd_giveback_urb+0x38e/0x610 drivers/usb/core/hcd.c:1657
-                    usb_hcd_giveback_urb+0x3ca/0x4a0 drivers/usb/core/hcd.c:1741
-                    dummy_timer+0xdb5/0x3840 drivers/usb/gadget/udc/dummy_hcd.c:2051
-                    __run_hrtimer kernel/time/hrtimer.c:2079 [inline]
-                    __hrtimer_run_queues+0x448/0x9a0 kernel/time/hrtimer.c:2136
-                    hrtimer_run_softirq+0x1ca/0x360 kernel/time/hrtimer.c:2153
-                    handle_softirqs+0x209/0xa00 kernel/softirq.c:669
-                    __do_softirq kernel/softirq.c:703 [inline]
-                    invoke_softirq kernel/softirq.c:542 [inline]
-                    __irq_exit_rcu+0x17a/0x220 kernel/softirq.c:786
-                    irq_exit_rcu+0x9/0x30 kernel/softirq.c:809
-                    instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
-                    sysvec_apic_timer_interrupt+0x8f/0xb0 arch/x86/kernel/apic/apic.c:1062
-                    asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-                    finish_task_switch.isra.0+0x214/0xad0 kernel/sched/core.c:5434
-                    context_switch kernel/sched/core.c:5586 [inline]
-                    __schedule+0x132d/0x4900 kernel/sched/core.c:7382
-                    schedule_idle+0x54/0x80 kernel/sched/core.c:7500
-                    do_idle+0x365/0x5b0 kernel/sched/idle.c:384
-                    cpu_startup_entry+0x4f/0x60 kernel/sched/idle.c:458
-                    start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
-                    common_startup_64+0x13e/0x158
-   INITIAL USE at:
-                   lock_acquire kernel/locking/lockdep.c:5942 [inline]
-                   lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-                   __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:155 [inline]
-                   _raw_spin_lock_irqsave+0x3a/0x60 kernel/locking/spinlock.c:181
-                   sensor_hub_raw_event+0x124/0x1340 drivers/hid/hid-sensor-hub.c:550
-                   __hid_input_report.constprop.0+0x319/0x470 drivers/hid/hid-core.c:2175
-                   hid_ctrl+0x4a4/0x560 drivers/hid/usbhid/hid-core.c:486
-                   __usb_hcd_giveback_urb+0x38e/0x610 drivers/usb/core/hcd.c:1657
-                   usb_hcd_giveback_urb+0x3ca/0x4a0 drivers/usb/core/hcd.c:1741
-                   dummy_timer+0xdb5/0x3840 drivers/usb/gadget/udc/dummy_hcd.c:2051
-                   __run_hrtimer kernel/time/hrtimer.c:2079 [inline]
-                   __hrtimer_run_queues+0x448/0x9a0 kernel/time/hrtimer.c:2136
-                   hrtimer_run_softirq+0x1ca/0x360 kernel/time/hrtimer.c:2153
-                   handle_softirqs+0x209/0xa00 kernel/softirq.c:669
-                   __do_softirq kernel/softirq.c:703 [inline]
-                   invoke_softirq kernel/softirq.c:542 [inline]
-                   __irq_exit_rcu+0x17a/0x220 kernel/softirq.c:786
-                   irq_exit_rcu+0x9/0x30 kernel/softirq.c:809
-                   instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
-                   sysvec_apic_timer_interrupt+0x8f/0xb0 arch/x86/kernel/apic/apic.c:1062
-                   asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-                   finish_task_switch.isra.0+0x214/0xad0 kernel/sched/core.c:5434
-                   context_switch kernel/sched/core.c:5586 [inline]
-                   __schedule+0x132d/0x4900 kernel/sched/core.c:7382
-                   schedule_idle+0x54/0x80 kernel/sched/core.c:7500
-                   do_idle+0x365/0x5b0 kernel/sched/idle.c:384
-                   cpu_startup_entry+0x4f/0x60 kernel/sched/idle.c:458
-                   start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
-                   common_startup_64+0x13e/0x158
- }
- ... key      at: [<ffffffff94568d40>] __key.104+0x0/0x40
-
-the dependencies between the lock to be acquired
- and SOFTIRQ-irq-unsafe lock:
--> (&k->k_lock){+.+.}-{3:3} {
-   HARDIRQ-ON-W at:
-                    lock_acquire kernel/locking/lockdep.c:5942 [inline]
-                    lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-                    __raw_spin_lock include/linux/spinlock_api_smp.h:190 [inline]
-                    _raw_spin_lock+0x2e/0x40 kernel/locking/spinlock.c:173
-                    spin_lock include/linux/spinlock.h:347 [inline]
-                    add_tail lib/klist.c:104 [inline]
-                    klist_add_tail+0x38/0x150 lib/klist.c:138
-                    bus_add_driver+0x306/0x620 drivers/base/bus.c:780
-                    driver_register+0x1e2/0x360 drivers/base/driver.c:174
-                    faux_bus_init+0x6e/0xc0 drivers/base/faux.c:249
-                    driver_init+0x33/0x60 drivers/base/init.c:35
-                    do_basic_setup init/main.c:1514 [inline]
-                    kernel_init_freeable+0x473/0x7b0 init/main.c:1732
-                    kernel_init+0x21/0x1e0 init/main.c:1622
-                    ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
-                    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-   SOFTIRQ-ON-W at:
-                    lock_acquire kernel/locking/lockdep.c:5942 [inline]
-                    lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-                    __raw_spin_lock include/linux/spinlock_api_smp.h:190 [inline]
-                    _raw_spin_lock+0x2e/0x40 kernel/locking/spinlock.c:173
-                    spin_lock include/linux/spinlock.h:347 [inline]
-                    add_tail lib/klist.c:104 [inline]
-                    klist_add_tail+0x38/0x150 lib/klist.c:138
-                    bus_add_driver+0x306/0x620 drivers/base/bus.c:780
-                    driver_register+0x1e2/0x360 drivers/base/driver.c:174
-                    faux_bus_init+0x6e/0xc0 drivers/base/faux.c:249
-                    driver_init+0x33/0x60 drivers/base/init.c:35
-                    do_basic_setup init/main.c:1514 [inline]
-                    kernel_init_freeable+0x473/0x7b0 init/main.c:1732
-                    kernel_init+0x21/0x1e0 init/main.c:1622
-                    ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
-                    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-   INITIAL USE at:
-                   lock_acquire kernel/locking/lockdep.c:5942 [inline]
-                   lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-                   __raw_spin_lock include/linux/spinlock_api_smp.h:190 [inline]
-                   _raw_spin_lock+0x2e/0x40 kernel/locking/spinlock.c:173
-                   spin_lock include/linux/spinlock.h:347 [inline]
-                   add_tail lib/klist.c:104 [inline]
-                   klist_add_tail+0x38/0x150 lib/klist.c:138
-                   bus_add_driver+0x306/0x620 drivers/base/bus.c:780
-                   driver_register+0x1e2/0x360 drivers/base/driver.c:174
-                   faux_bus_init+0x6e/0xc0 drivers/base/faux.c:249
-                   driver_init+0x33/0x60 drivers/base/init.c:35
-                   do_basic_setup init/main.c:1514 [inline]
-                   kernel_init_freeable+0x473/0x7b0 init/main.c:1732
-                   kernel_init+0x21/0x1e0 init/main.c:1622
-                   ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
-                   ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- }
- ... key      at: [<ffffffff946a2560>] __key.0+0x0/0x40
- ... acquired at:
-   check_prevs_add kernel/locking/lockdep.c:3328 [inline]
-   validate_chain kernel/locking/lockdep.c:3952 [inline]
-   __lock_acquire+0x1528/0x1f40 kernel/locking/lockdep.c:5288
-   lock_acquire kernel/locking/lockdep.c:5942 [inline]
-   lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
-   __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:155 [inline]
-   _raw_spin_lock_irqsave+0x3a/0x60 kernel/locking/spinlock.c:181
-   klist_next+0x86/0x510 lib/klist.c:390
-   next_device drivers/base/core.c:4028 [inline]
-   device_for_each_child+0xdb/0x1a0 drivers/base/core.c:4106
-   sensor_hub_remove+0x7d/0xf0 drivers/hid/hid-sensor-hub.c:824
-   hid_device_remove+0xd1/0x200 drivers/hid/hid-core.c:2897
-   device_remove+0xcb/0x180 drivers/base/dd.c:617
-   __device_release_driver drivers/base/dd.c:1357 [inline]
-   device_release_driver_internal+0x441/0x610 drivers/base/dd.c:1380
-   bus_remove_device+0x2bc/0x560 drivers/base/bus.c:678
-   device_del+0x376/0x9b0 drivers/base/core.c:3967
-   hid_remove_device drivers/hid/hid-core.c:3126 [inline]
-   hid_destroy_device+0x19c/0x240 drivers/hid/hid-core.c:3148
-   usbhid_disconnect+0xa0/0xe0 drivers/hid/usbhid/hid-core.c:1486
-   usb_unbind_interface+0x1dd/0x9b0 drivers/usb/core/driver.c:460
-   device_remove drivers/base/dd.c:619 [inline]
-   device_remove+0x12a/0x180 drivers/base/dd.c:611
-   __device_release_driver drivers/base/dd.c:1357 [inline]
-   device_release_driver_internal+0x441/0x610 drivers/base/dd.c:1380
-   bus_remove_device+0x2bc/0x560 drivers/base/bus.c:678
-   device_del+0x376/0x9b0 drivers/base/core.c:3967
-   usb_disable_device+0x367/0x810 drivers/usb/core/message.c:1484
-   usb_disconnect+0x2e2/0x9a0 drivers/usb/core/hub.c:2355
-   hub_port_connect drivers/usb/core/hub.c:5425 [inline]
-   hub_port_connect_change drivers/usb/core/hub.c:5725 [inline]
-   port_event drivers/usb/core/hub.c:5889 [inline]
-   hub_event+0x1d46/0x4510 drivers/usb/core/hub.c:5971
-   process_one_work+0xac7/0x1b10 kernel/workqueue.c:3495
-   process_scheduled_works kernel/workqueue.c:3578 [inline]
-   worker_thread+0x5ef/0xe50 kernel/workqueue.c:3659
-   kthread+0x373/0x450 kernel/kthread.c:436
-   ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
-   ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-
-stack backtrace:
-CPU: 1 UID: 0 PID: 23 Comm: kworker/1:0 Not tainted syzkaller #0 PREEMPT(lazy) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/06/2026
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
- print_bad_irq_dependency kernel/locking/lockdep.c:2660 [inline]
- check_irq_usage+0x87d/0x8b0 kernel/locking/lockdep.c:2901
- check_prev_add+0xfe/0xe60 kernel/locking/lockdep.c:3213
- check_prevs_add kernel/locking/lockdep.c:3328 [inline]
- validate_chain kernel/locking/lockdep.c:3952 [inline]
- __lock_acquire+0x1528/0x1f40 kernel/locking/lockdep.c:5288
- lock_acquire kernel/locking/lockdep.c:5942 [inline]
- lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
- __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:155 [inline]
- _raw_spin_lock_irqsave+0x3a/0x60 kernel/locking/spinlock.c:181
- klist_next+0x86/0x510 lib/klist.c:390
- next_device drivers/base/core.c:4028 [inline]
- device_for_each_child+0xdb/0x1a0 drivers/base/core.c:4106
- sensor_hub_remove+0x7d/0xf0 drivers/hid/hid-sensor-hub.c:824
- hid_device_remove+0xd1/0x200 drivers/hid/hid-core.c:2897
- device_remove+0xcb/0x180 drivers/base/dd.c:617
- __device_release_driver drivers/base/dd.c:1357 [inline]
- device_release_driver_internal+0x441/0x610 drivers/base/dd.c:1380
- bus_remove_device+0x2bc/0x560 drivers/base/bus.c:678
- device_del+0x376/0x9b0 drivers/base/core.c:3967
- hid_remove_device drivers/hid/hid-core.c:3126 [inline]
- hid_destroy_device+0x19c/0x240 drivers/hid/hid-core.c:3148
- usbhid_disconnect+0xa0/0xe0 drivers/hid/usbhid/hid-core.c:1486
- usb_unbind_interface+0x1dd/0x9b0 drivers/usb/core/driver.c:460
- device_remove drivers/base/dd.c:619 [inline]
- device_remove+0x12a/0x180 drivers/base/dd.c:611
- __device_release_driver drivers/base/dd.c:1357 [inline]
- device_release_driver_internal+0x441/0x610 drivers/base/dd.c:1380
- bus_remove_device+0x2bc/0x560 drivers/base/bus.c:678
- device_del+0x376/0x9b0 drivers/base/core.c:3967
- usb_disable_device+0x367/0x810 drivers/usb/core/message.c:1484
- usb_disconnect+0x2e2/0x9a0 drivers/usb/core/hub.c:2355
- hub_port_connect drivers/usb/core/hub.c:5425 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5725 [inline]
- port_event drivers/usb/core/hub.c:5889 [inline]
- hub_event+0x1d46/0x4510 drivers/usb/core/hub.c:5971
- process_one_work+0xac7/0x1b10 kernel/workqueue.c:3495
- process_scheduled_works kernel/workqueue.c:3578 [inline]
- worker_thread+0x5ef/0xe50 kernel/workqueue.c:3659
- kthread+0x373/0x450 kernel/kthread.c:436
- ret_from_fork+0x69f/0xc90 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-usb 4-1: new high-speed USB device number 3 using dummy_hcd
-usb 4-1: New USB device found: idVendor=8086, idProduct=0000, bcdDevice=0.00
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has invalid wMaxPacketSize 0
-usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-hid-sensor-hub 0003:8086:0000.0002: hiddev0,hidraw0: USB HID v1.11 Device [HID 8086:0000] on usb-dummy_hcd.3-1/input0
-hid-sensor-hub 0003:8086:0000.0002: No report with id 0xffffffff found
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: failed to setup common attributes
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: probe with driver hid_sensor_accel_3d failed with error -22
-usb 4-1: new high-speed USB device number 4 using dummy_hcd
-usb 4-1: New USB device found: idVendor=8086, idProduct=0000, bcdDevice=0.00
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has invalid wMaxPacketSize 0
-usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-hid-sensor-hub 0003:8086:0000.0003: hiddev0,hidraw0: USB HID v1.11 Device [HID 8086:0000] on usb-dummy_hcd.3-1/input0
-hid-sensor-hub 0003:8086:0000.0003: No report with id 0xffffffff found
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: failed to setup common attributes
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: probe with driver hid_sensor_accel_3d failed with error -22
-usb 4-1: USB disconnect, device number 4
-usb 4-1: new high-speed USB device number 6 using dummy_hcd
-usb 4-1: New USB device found: idVendor=8086, idProduct=0000, bcdDevice=0.00
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has invalid wMaxPacketSize 0
-usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-hid-sensor-hub 0003:8086:0000.0005: hiddev0,hidraw0: USB HID v1.11 Device [HID 8086:0000] on usb-dummy_hcd.3-1/input0
-hid-sensor-hub 0003:8086:0000.0005: No report with id 0xffffffff found
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: failed to setup common attributes
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: probe with driver hid_sensor_accel_3d failed with error -22
-usb 4-1: USB disconnect, device number 6
-usb 4-1: new high-speed USB device number 7 using dummy_hcd
-usb 4-1: New USB device found: idVendor=8086, idProduct=0000, bcdDevice=0.00
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-usb 4-1: config 1 interface 0 altsetting 0 endpoint 0x81 has invalid wMaxPacketSize 0
-usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-hid-sensor-hub 0003:8086:0000.0006: hiddev0,hidraw0: USB HID v1.11 Device [HID 8086:0000] on usb-dummy_hcd.3-1/input0
-hid-sensor-hub 0003:8086:0000.0006: No report with id 0xffffffff found
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: failed to setup common attributes
-hid_sensor_accel_3d HID-SENSOR-200073.1.auto: probe with driver hid_sensor_accel_3d failed with error -22
-
+Changes in v2:
+- Replace the serio and PHY attachment conversions with
+  device_driver_attach_unrestricted(), restricted to device_trust.default=unrestricted.
+- Add USB authorization on top of device trust: export
+  device_trust_set_policy() and convert the USB authorized attributes.
+- Documentation and commit messages fixes
+- Small USB patches rewrote and split
+- Link to v1: https://patch.msgid.link/20261105-device-trust-core-v1-0-1e536825b4eb@nvidia.com
 
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Leon Romanovsky (31):
+      wifi: mac80211_hwsim: lock device for manual driver binding
+      Bluetooth: btusb: Fix MediaTek ISO claim locking
+      USB: Lock interfaces during manual driver binding
+      USB: serial: Register USB drivers with their owning module
+      USB: Reject claims of DT-disabled interfaces
+      USB: Release interface claims according to binding state
+      USB: Reject claims after interface registration failure
+      ALSA: usb-audio: Release interface claims when probe fails
+      USB: Pin modules for unregistered interface claims
+      USB: Add helpers to release unpublished interface claims
+      USB: Unwind interface claims after registration or binding failure
+      PNP: Attach card devices through the driver core
+      cdx: Propagate DMA configuration errors
+      driver core: Report deferred probes through sysfs drivers_probe
+      driver core: Add a compatibility API for manual driver attachment
+      Input: gameport - use the compatibility driver attachment API
+      Input: serio - use the compatibility driver attachment API
+      net: phy: Use the compatibility driver attachment API
+      driver core: Introduce a generic device trust level
+      driver core: Expose device trust authorization interfaces
+      driver core: Accept device trust policy on the kernel command line
+      driver core: Accept device trust policy by driver name
+      driver core: Expose committed device trust level
+      driver core: Cover trust authorization and binding with KUnit
+      driver core: Document trust admission and initrd authorization
+      PCI: Use device trust for platform restrictions
+      iommu: Use device trust for DMA restrictions
+      driver core: Allow driver attachment with the device lock held
+      USB: Retain the result of configuration requests
+      USB: Authorize interfaces through device trust
+      USB: Authorize devices through device trust
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+ Documentation/ABI/testing/sysfs-bus-drivers-probe  |   14 +
+ Documentation/ABI/testing/sysfs-bus-usb            |   18 +
+ Documentation/ABI/testing/sysfs-devices-trust      |   37 +
+ Documentation/admin-guide/kernel-parameters.txt    |   35 +
+ .../driver-api/driver-model/device-trust.rst       |  323 +++
+ Documentation/driver-api/driver-model/index.rst    |    1 +
+ Documentation/usb/authorization.rst                |   37 +
+ MAINTAINERS                                        |    2 +
+ drivers/base/Makefile                              |    2 +-
+ drivers/base/base.h                                |   52 +
+ drivers/base/bus.c                                 |    9 +-
+ drivers/base/core.c                                |   52 +-
+ drivers/base/dd.c                                  |  192 +-
+ drivers/base/test/Makefile                         |    1 +
+ drivers/base/test/device-trust-test.c              | 2461 ++++++++++++++++++++
+ drivers/base/trust.c                               |  508 ++++
+ drivers/bluetooth/btusb_main.c                     |   57 +-
+ drivers/cdx/cdx.c                                  |    2 +-
+ drivers/input/gameport/gameport.c                  |   22 +-
+ drivers/input/serio/serio.c                        |   29 +-
+ drivers/iommu/amd/iommu.c                          |    3 +-
+ drivers/iommu/dma-iommu.c                          |   14 +-
+ drivers/iommu/intel/iommu.c                        |   14 +-
+ drivers/iommu/iommu.c                              |    9 +-
+ drivers/net/phy/phy_device.c                       |   28 +-
+ drivers/net/wireless/virtual/mac80211_hwsim_main.c |    2 +
+ drivers/pci/ats.c                                  |    4 +-
+ drivers/pci/pci.c                                  |    5 +-
+ drivers/pci/probe.c                                |   18 +-
+ drivers/pci/quirks.c                               |    7 +-
+ drivers/pnp/card.c                                 |   12 +-
+ drivers/usb/core/driver.c                          |  121 +-
+ drivers/usb/core/generic.c                         |    2 +-
+ drivers/usb/core/hub.c                             |   39 +-
+ drivers/usb/core/message.c                         |  106 +-
+ drivers/usb/core/sysfs.c                           |    9 +-
+ drivers/usb/core/trace.h                           |    2 +-
+ drivers/usb/core/usb.c                             |    5 +
+ drivers/usb/core/usb.h                             |    6 +-
+ drivers/usb/serial/usb-serial.c                    |    4 +-
+ include/linux/device.h                             |   21 +
+ include/linux/device/bus.h                         |   10 +
+ include/linux/device/trust.h                       |   54 +
+ include/linux/pci.h                                |   18 +-
+ include/linux/usb.h                                |   25 +-
+ include/linux/usb/serial.h                         |    4 +-
+ sound/usb/card.c                                   |    7 +
+ 47 files changed, 4190 insertions(+), 213 deletions(-)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20260915-device-trust-core-12934e618489
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Best regards,
+--  
+Leon Romanovsky <leonro@nvidia.com>
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup

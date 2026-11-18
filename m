@@ -1,107 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795030162;
-	b=H02fUXr4PS14D5X8rJ4K+l/YocePioZWW7bHE+RU7Idt1NQROi0AMF9OV1bFf/7ZWssW
-	 36jE8zGl4ZRETwKVoKNDUGgYd06gd5Hflcny36aV1b0NrLtl5Xb74t2J3GXWziPGiSyEw
-	 JKzT0AXqt8gk+clkCbyfqxhQCB9wWKiPaEF1jdiCgZZwsgUg71aviH3OpHEUMwV5uRsdm
-	 A1qRdtKdmuUTX4vI6EuNtyQQRh+mJ9qsmqUjXr4OW4TtiBVyeVEFd2n6u/2XH1kIyxyyo
-	 tZU8Isa5EFdsH3+QOYvGCplxddQ12KNeLHh4svXvWK3FcqC5cYjyVdx4dkKy9F/BVZw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795030162;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
-	 Content-Transfer-Encoding;
-	bh=izaoDFFlfbOL5o2AeSm9ffJ1CFTRgMmeFIApGBCueOM=;
-	b=hZcm7q6Dlug/YsyiD23dperFf+HJESmqxXDxCUh2OHt+QmEJVUAXagAncEViaki6e40Q
-	 vy8zGncOZVEC79w3z3SldaabivhF9Q77fOr5OlSR2f22NAN2rUyIhduMoxQGn3DxGsXIe
-	 ShHFqPCPMbFUECbTNPdzvosD2Cn3eiJ7CqkyS1XeJRLIjuRFxqRSRhJdF5FC/+4NI+2PF
-	 6r4/frQy2bb7Vs9Fth1SN0XX2iWAQ4h7v0sqE/IQNsXryQy8fcql2XCiQt6JJi46N9h6F
-	 SceOGvQqJbudoQ5HzWLvV+ipwTqs42V22I9DMNS3q/wXv7HKtHB1L4+hUkPWFQ4BP8Q==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XUBWeYSk;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795030266;
+	b=z+3X37+946N41HAeTpyf9tVhzNtKzGFbq5DGkPV5nqDR6isu4YlVyAMsT2wVB1b/mbLy
+	 /CoxDJaU/BYsEo/SvNHUmrMIN8xTocvpJ6SdZZCtrH7RkRt+S/0T/3f5EvIGQee70pBbe
+	 hbRNSgixZ1BQ8w/3kEOqpydEvADODM//5Z12s5Okbxyv6oPyW2e8hecg0P2Rj43kMUlFT
+	 HvIPCtf8dT2tacRnmcIfP4sNXZRpRQsu4Yro/e4S+KLrhdwxP6m0+lmbXWc56Wymcm+Q+
+	 BxAUDQtCKVEaT1QCaWTxWA8bz7E61SBwFLFfTXba9DFSRyxYgsoRk2R5TR5oK57E79g==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795030266;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
+	b=LaeWlyLb8F++qilbKTqx+DBqeekwcyq3GZhxlbfhcD0/Lt4cW5VPlS5xtGtSUhug/w4Y
+	 zW9eg//L6Payt3UpT9Of99snrZqlhqtVJ5n8+whu3zogMtLbvucdLJLEmy7mx0qu6Gr6N
+	 DPzLo32uRq5SqxIaxfxDR/RGIQNM1oBHP0D/anY1sdXeaCkuYreJDfOi2/KP9TVw6/3PB
+	 aaneydFliDZSZ7x5RVNHEAo/Nx3IouOvdXZb3hmY6k2lETQDjs+9coIu4bac1RWy04Tan
+	 4b2NPzFhxK0hhGEqcILTNqq0Yi4yQbujcBXGum68oz2Ltj+ZyFEjtvzdNw5PxB+OflQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YYTxxlax;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E76BF606C718;
-	Wed, 18 Nov 2026 19:29:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61F2606F50F
+	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 19:31:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B61F2606F50F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XUBWeYSk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC2AE1F000C6;
-	Wed, 18 Nov 2026 19:29:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795030161;
-	bh=izaoDFFlfbOL5o2AeSm9ffJ1CFTRgMmeFIApGBCueOM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=XUBWeYSkdFLuQxucZ3b0go3s7CrVcxZ9UvMssUSShGSltmRmQnC5bZE6Zxln+wBx9
-	 PTYYuY4j7u9YAxAwixjxxwGaZjxX3BDJ/PX/7dl7H49TgUSGZoUXDO4wYC3nnn0OCN
-	 xfpO/BHVb8j7fO4GWedms5W7YE9L1hAKLabqLKS1eofblH0HRrQe5Dws5tXzNTDOf7
-	 qET96OZ6XY8g+ZM1Qypj/mCx3dcJagkIakQBlGKGD6Ku86l6H93cNNy0Um2fY+Xcay
-	 FJyu6SVLOOI2L7Y1Z4nxFG2vSg3jBVufXxpR9L9YaIriJFoMjSIq7WHXV63zJ6maFR
-	 Ie/RqNFr05XTA==
-From: Leon Romanovsky <leon@kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>,
-	Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	Chris Lu <chris.lu@mediatek.com>,
-	Mans Rullgard <mans@mansr.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Cornelia Huck <cornelia.huck@de.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org,
-	driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev,
-	linux-coco@lists.linux.dev,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	linux-sound@vger.kernel.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v3 29/31] USB: Retain the result of configuration requests
-Date: Wed, 18 Nov 2026 21:26:59 +0200
-Message-ID: <20261118-device-trust-core-v3-29-d655875c4bfb@nvidia.com>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
-References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YYTxxlax
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c505b2e1cb9so211581566b.2
+        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 11:31:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795030264; cv=none;
+        d=google.com; s=arc-20260327;
+        b=XU/ZUo+pb0wmqyw8SIHYkFGp2LB8Nxuf7DkTC2gsyQUQfAMWd4h2pnxmdb/sN+D28q
+         HFZIr/i1GskopKqqu8ZnVBpVMTs5FJBsjZA+L4p/VSre+ArbDQDbkGO/7n5dq5tVF+VC
+         GVCeMn7qAizeR62eX9knOHUxnk30Tj4Dx9HlnbrRh1ATeN0jUDk9x4SH/Axs6t72xndV
+         ISrTsVpkImJMqoqdRuqeont7xeL0L4tOR9GsC5VIWGtBK2vnzZfccCTwpsyqw1IdYtkh
+         mqffH+nEEO8bWJj0SwbJMOvKPHn/JOnapZIkbq1FVwD8/+XdF0zvRS3940hs7xcCEa9Z
+         NAWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
+        fh=3ioeJ6tNPKJUA5jAZ6G06loEkPDvmdka4KTEurNc09c=;
+        b=Xy4FYhLz8GigZBs7WaB7YN8Be0WV3l0OnrEhq0Gz7wffTT/GYS9boYgt+a5Oxx7nRr
+         tn7siO7rrViw9guH9k8hwydCXsHnH3uHzCXLexBuIlCckUk1Gr9SGbRkrICs/GpYARSM
+         xydPc2eeaHQOBBXsl0Zb0w8MmFBwM1w1BTKjs56qvJJZUZLSMvRgKsK1KSFgOwXcWhkq
+         PEEbXZXt2m7I5OSe8G2WwlCGK4ra2IWB1pKwXxiGsV4bPYcHL1Kb8hIQUpSvC4rFJAEQ
+         zD/q26bwuI4FBRzxdA6IM5OUi4o+6XKt7VAY3GZ3Db7NEaRT24O4viA/R/cl1d9IDWlM
+         V+OA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795030264; x=1795635064; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
+        b=YYTxxlaxQ2WfhHso/oEI2r56Wf/FngEvX4IGgjBf48e9sct9kQaN5+W9clSYP5LlZW
+         9lGoVnhGTEg9+TUbmq/jjF0sC+rmU+Buy7VOy6sH/tPxGdqjjnXGgl2MbLOCk/+k9Rho
+         IZJxpHNo6bOT5jZstLoYdAJHZylRxqvtOwCldTOD8whfdnvEhqKJXAdU83+/L7lRIx9v
+         fzcCiYcUTwNu01GC9OfJiH6YaqiVEysh0kMaSWmSU8YUIYlmG2BvarbXEefoJFvoMsw5
+         PH5l2eEIFL9NtYcZ9lHXeSizazga9SFSOqqZtZ+ipAiyUSM6RiF73meQ1GDoIrwk7+Wd
+         OScA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795030264; x=1795635064;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
+        b=C6XhKnpxfzRjPw8os9/VzyE7kAh5WNDfFkkZsdNinjYJ2HuIfSmNv8Ldcbz5MNnl9u
+         YEm7NN6nzv4GJd82T/BXnVVR6O9t7+ENUtzBNIbJfZuBKk3mDZMrrAbkp+ccUl/Feov6
+         Dg0WSktvaeoqK2/fvrIuRxhrKOSf8UiMt9yYBtTYbrkVT5nnDoWUQQe4UqDVxcnhtn0Q
+         qUaSbcQUHs4yAqH4rYvcXkROS9RpNR5lsXsZmkn3npkjY2nzmSBwf7ZxctV2ECC6PQ4b
+         FeCouGB/qlJ0cJ0FwM8STYLKc0RgzD1HPgxbIDooxgsyp17k6z34rxi8kYC6jV2K0I1G
+         uX8Q==
+X-Forwarded-Encrypted: i=1; AL+hErG7uGWeLI0/IDg/hRnQrfyy4wlPXqgLWj4b2h/C7zXK2fj+1JkCprMGRnrK5w7kcnr5qZVAN3cY8Ln2vQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8ShekHRFcP2PH14iEnTkZ9HkQ9SDuZLWXR2Or+PYhfHrxD0Uc4
+	/mj2YV5l5E45y/xiFNnu1bOhZNkKspytPke1b5kDDRyWK328tG44XLl4TgJHUpOBTdalEe9ilcG
+	BXUBiJegRan0KFU4aTHJUszKFuI3WrL8ZwfX0VQc=
+X-Gm-Gg: AYBFou2UtuynW1N6oaWq0oXal41BMVh9noOdfn6NHn+48FijhOfjpP8IJuoA0X5CvRb
+	BJRYFRo7vyCMQ3p0J09HLL3kpNJRass7OeRFAOdHw+SWK6TzJ8o95/i8/Yxus70nJ5w8Lyxykev
+	MCqWKCf2o79FIOVZP2lfrUhCoTESNV+w+CD73kHM1TcE6KSgGG8Z5cQTIoDSLC5Zlh86o8orB5u
+	7OlOJCuspXAoN7jKOhhtZDjU4HbLjkoZFKesH6lUmbpJEk+LOBLZHPhqLjq/JPtMziDDnoTFPl5
+	w1ZuaIaLXiU/NPHLoJk8XDDbAAjNpefxG6heXxbhLF3Z+Bvse73K3LwoDtGUUOwZyMy5PgWMWIp
+	AVJwK0R7WvyhtWyasp1H9F68VbS4ALqnG1Ac=
+X-Received: by 2002:a17:907:f816:b0:c2e:317e:d711 with SMTP id
+ a640c23a62f3a-c510e398889mr303013866b.27.1795030263845; Wed, 18 Nov 2026
+ 11:31:03 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -111,85 +103,43 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: b4 0.15-dev-18f8f
-Content-Transfer-Encoding: 8bit
+References: <20261105194426.1113050-1-l.scorcia@gmail.com> <20261118152346.GC98456@joneslee-macbookpro.roam.internal>
+In-Reply-To: <20261118152346.GC98456@joneslee-macbookpro.roam.internal>
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Date: Wed, 18 Nov 2026 20:30:52 +0100
+X-Gm-Features: AclHuK-Q_ZR_eSDZWgs8r4i-RTkFZUMV5FI3ZV4LgWAQGQjLtUrjcLbEIObtllI
+Message-ID: <CAORyz2+7q3BTeW3NsaiwN9riAbHV0Q_tCm6bBV7RoiDeAbcLrg@mail.gmail.com>
+Subject: Re: [PATCH v12 0/8] Add support for MT6392 PMIC
+To: Lee Jones <lee@kernel.org>, Mark Brown <broonie@kernel.org>
+Cc: linux-mediatek@lists.infradead.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>, 
+	Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-From: Leon Romanovsky <leonro@nvidia.com>
+> MFD looks okay now.  How many more Acks do you need?
+Still need the regulator Ack. Mark Brown provided an Ack for the first
+version (almost a year ago) of the regulator patch [1], but it was
+substantially modified in later revisions so I dropped that Ack.
+I'll move Mark Brown from Cc to To tag in this email for a gentle
+ping, I hope that's not against the ML etiquette.
 
-The generic USB device driver can bind successfully even when setting its
-configuration fails. Authorization that attaches this driver therefore
-cannot use the attachment result to report configuration errors or decide
-whether setup can be retried.
+> NB: This patch-set looks split in two in my inbox?
+Now that you mention it, I see the split too. Weird, I sent it using
+git send-email as always. I can resend it if it's an issue.
 
-Retain the last configuration result for callers holding the device lock.
-Keep driver binding successful so userspace can recover by selecting
-another configuration.
+Thank you
 
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- drivers/usb/core/message.c | 12 +++++++++++-
- include/linux/usb.h        |  2 ++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+[1] https://lore.kernel.org/linux-mediatek/20261105195206.3440-5-l.scorcia@gmail.com/
 
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index b8e2d864faa46..0a022ce8739c2 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -2042,6 +2042,8 @@ static bool usb_has_claimant(struct usb_device *dev,
- 	return false;
- }
- 
-+static int usb_set_configuration_internal(struct usb_device *dev, int configuration);
-+
- /*
-  * usb_set_configuration - Makes a particular device setting be current
-  * @dev: the device whose configuration is being updated
-@@ -2089,6 +2091,15 @@ static bool usb_has_claimant(struct usb_device *dev,
-  * drivers currently known to the kernel.
-  */
- int usb_set_configuration(struct usb_device *dev, int configuration)
-+{
-+	int ret = usb_set_configuration_internal(dev, configuration);
-+
-+	dev->config_error = ret;
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(usb_set_configuration);
-+
-+static int usb_set_configuration_internal(struct usb_device *dev, int configuration)
- {
- 	int i, ret;
- 	struct usb_host_config *cp = NULL;
-@@ -2349,7 +2360,6 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
- 	usb_autosuspend_device(dev);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(usb_set_configuration);
- 
- static LIST_HEAD(set_config_list);
- static DEFINE_SPINLOCK(set_config_lock);
-diff --git a/include/linux/usb.h b/include/linux/usb.h
-index a5e706f67f33a..d372712eba34c 100644
---- a/include/linux/usb.h
-+++ b/include/linux/usb.h
-@@ -599,6 +599,7 @@ struct usb3_lpm_parameters {
-  * @descriptor: USB device descriptor
-  * @bos: USB device BOS descriptor set
-  * @config: all of the device's configs
-+ * @config_error: Result of the last configuration request.
-  * @actconfig: the active configuration
-  * @ep_in: array of IN endpoints
-  * @ep_out: array of OUT endpoints
-@@ -686,6 +687,7 @@ struct usb_device {
- 	struct usb_host_config *config;
- 
- 	struct usb_host_config *actconfig;
-+	int config_error;
- 	struct usb_host_endpoint *ep_in[16];
- 	struct usb_host_endpoint *ep_out[16];
- 
-
--- 
-2.56.1
-
+--
+Luca Leonardo Scorcia
+l.scorcia@gmail.com

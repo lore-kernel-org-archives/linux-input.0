@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795030066;
-	b=yz0YLaNJh/MRi0Hgr/EzqTcGTt1IVpUUFhTFmObumSZJb9Za9190LCaI3iM8K18JNgV1
-	 8rjzi1MJj81FPlHUtxBaEqfQZHmoNm2mBxBt/zBoBn1mm/PLm5KS6CnPcNJ3CDlDSt2ye
-	 QO/+II0GaLf045zHg0VqRSo4gpLU4w++kChpbNtxJD9VuUPdBfawJK62NQ3y2LXhkOku3
-	 Z5xNGoi7ZsigiyAMKTUOQ0H0GEG6BZJwFQHG7oBH9VM6jBlwo2PiEr8PG+BmYJrDOmyOH
-	 9JL8ZWnc9rfbPl9dlECfmlxhrYL5UZzzHEVm/KdzK2z7b8h8vYySSxJGFy7JuYXBfgQ==
+	t=1795030078;
+	b=tCLDYYrC6gbIvMsybsDQrQZONgU++BFzm2vPAYQtcJ3e/h5wCiYD9tkQDdfft4SqN2La
+	 qelWx8vmkGEXY58yt3vpLM4VkdKVePOrI6EoUSBhlP7ZX3uv4Crc4/QxJ8QLUh63RAvQ+
+	 wUNaUUy+VxU84DfnTw2MiirCQeUwjbcCmMeK6012w+vdmzD10scYYyrsdAJ9jzN5JPk5h
+	 9Mmit8z6a1hD6FxsQ4gJqf5nN+PxWq/tG8uefI3YVJGwHTUeJizHs4CmRLpru8o6M29Vh
+	 lYKxbO3F87sCC2ddqnnE72b48JSRBr3T2dHNzIWERkfkXLCQmz0d8AUiHf9uDKL4z5Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795030066;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795030078;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=Z/yKhrxLxY5/QLlKEzAf373V1QSOWce0k8iO5P+HaBs=;
-	b=FXaRw/nk/YOJT3FO+BkfaK8x+mgTm2cfGHYMXws4ImCl2KBRO4KBxULO+HtO0Y5M1mxx
-	 /bA5YPbkHtF7sIkG3jRgXK8LKLliYUr74HCiQxyBhBs+poKPyD6ClLHoUSFDVk9B3uSOk
-	 unZtoWGXTe/JmRt6CnzwO1vfY5Nw1hU9icYBX4QMyXh3ymCDT6tiBzW8LzKbYO4IN8fya
-	 nu6wEH/lA/1pRB5PL/7pTpDVnODUKBQXYY2xIeGMjPsq8/YeF9N2pnd9oKGy+QupBxvnk
-	 YdnmAImyKK4ls2kIG3aPmjLQa/DnlqF0+VaL54SbYg5EEdm3RY7vo/P12aa5Zxmom5g==
+	bh=anRl7XzxmWAd4I65xBnGqpxFVe3h8V+5KB72VF6S6NQ=;
+	b=eDMeOB2p6by1ukgaurpwRK/RYiymCOwTPNTNhIRjtUGnHcP217oTe5AhEGjsbHntCsjJ
+	 h09WSnVUdYkyhER5pw8mG9ae8V2EiCcFg5Sed2hlssT6iNg0VC+dsb4r37ulxFgjGKH1r
+	 EtcRy36F2rVRdeDja1f1OVocbHO1dlp7c0VxsuroPIfvVYLzUbRlkkDjhtSQF0qBtDcu4
+	 1PcFqfNaD6HEkkoxmObGWi7tMWk3xXUFHfdaO3tT74xC9krDyWiVodhZsZP3BW1bShwwv
+	 viICwoBAvdQBCddKheph0rDuSAB5Uh/tBWOpr55c/RCaw+vjYQS/tGdZfqp81/dJSVg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DY78JipM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="e/eyfjil";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 499D2606A7E4;
-	Wed, 18 Nov 2026 19:27:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F07F1606BB7F;
+	Wed, 18 Nov 2026 19:27:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DY78JipM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8611F000CC;
-	Wed, 18 Nov 2026 19:27:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e/eyfjil
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B6A1F000CA;
+	Wed, 18 Nov 2026 19:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795030066;
-	bh=Z/yKhrxLxY5/QLlKEzAf373V1QSOWce0k8iO5P+HaBs=;
+	s=k20260515; t=1795030077;
+	bh=anRl7XzxmWAd4I65xBnGqpxFVe3h8V+5KB72VF6S6NQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=DY78JipMgP+vOpyauGUGl2mB3jhx3Nu9So6YsoE/1eiKzLgjO91sWehBucvfbScsw
-	 9L/YSO3/27XCyHQOs9O8Ylu0IvfIe9bLJxBKQkyLbq4lzjbUgBgiSAwYrxg4nJDz9F
-	 kH20O63ggrUQyN5pHqP4c3vn+ghLeX3qWvuaykzSy5znn6efz6V0i9oRa5hoFXltxe
-	 AamHO42vQYCzpnewQgp3dXfwCtQ9tZYR1Ojaks4vjPr5pFUaW8PYriawUckaYX7Kcn
-	 HMvdb21DTuWso54liwHmmoHvgulXyhfk/gE6usf8OG1t6cIBwd/L4TlnaYM7Om0boS
-	 V6MJz0ewGC3TQ==
+	b=e/eyfjilUUstnvPzcYoDzASy0RPKzQsGaViyRBBOGePQ+Iuxs73dYZ5tDM+NmiNtK
+	 +/D+Z8ufPIGyqcHz+FnMlOvbzd/o6X14iLkhfhKwjsiOHhyHSDODYnduZEEmfPcI96
+	 NsryVnKHLf9WzxdC2LVJbYlyPFn/LBpgN/sFRUi2B6UQDrfPabGCNNMLZUxsIklzAS
+	 ibHYfRAGALN/EGQE+GoL/8gisbKLvL4EfyuNGCYrGfmDWdoad95d4hNQlEhMv9HT1e
+	 xDEdmeO9RBo741cwzNyjqtZLFbiep8sCpCsvD+Ezq8rvTR8nTQP1f/L4HNYV0f0JRA
+	 24/Ma14tSgc/Q==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -96,9 +96,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@suse.de>,
 	linux-sound@vger.kernel.org,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v3 02/31] Bluetooth: btusb: Fix MediaTek ISO claim locking
-Date: Wed, 18 Nov 2026 21:26:32 +0200
-Message-ID: <20261118-device-trust-core-v3-2-d655875c4bfb@nvidia.com>
+Subject: [PATCH v3 11/31] USB: Unwind interface claims after registration or binding failure
+Date: Wed, 18 Nov 2026 21:26:41 +0200
+Message-ID: <20261118-device-trust-core-v3-11-d655875c4bfb@nvidia.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
 References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
@@ -117,114 +117,130 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-MediaTek ISO claims are performed from HCI setup work outside USB probe.
-Locking only the interface does not protect the claim against teardown
-of the parent device. Unconditionally waiting for the parent lock can
-deadlock with disconnect while it drains the setup work.
+A successful USB-audio control probe can claim unregistered playback and
+capture interfaces. If playback registration fails, releasing its claim
+alone leaves the card active, its disconnect callback returns immediately.
 
-Resume the interface before acquiring the parent lock and use bounded
-retries to keep the interface locked while claiming it. This change
-propagates claim errors to setup together with -EHOSTUNREACH which means
-that the parent is suspended, since subsequent controller setup requires
-the parent device.
+usb_set_configuration()
+  device_add(control)
+    usb_audio_probe()
+      snd_usb_create_streams()
+        snd_usb_create_stream(playback)
+          usb_driver_claim_interface(playback)
+        snd_usb_create_stream(capture)
+          usb_driver_claim_interface(capture)
+  device_add(playback) [fails]
 
-Fixes: ceac1cb0259d ("Bluetooth: btusb: mediatek: add ISO data transmission functions")
+Configuration removal skips unregistered claims and binding failure can
+also clear dev->driver without disconnecting the claimant.
+
+Release the failed claim, remove the configuration if sibling claims
+remain, and disconnect unpublished claims before freeing interfaces or
+dropping the module reference.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 86d30741e480f ("[PATCH] USB: Usbcore: Don't try to delete unregistered interfaces")
+Fixes: c6a46696f97ff ("driver core: don't fail attaching the device if it cannot be bound")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/bluetooth/btusb_main.c | 55 +++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 17 deletions(-)
+ drivers/usb/core/driver.c  |  3 ++-
+ drivers/usb/core/message.c | 41 ++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 42 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb_main.c b/drivers/bluetooth/btusb_main.c
-index 92a78a7e60396..8307fd819cc2e 100644
---- a/drivers/bluetooth/btusb_main.c
-+++ b/drivers/bluetooth/btusb_main.c
-@@ -2993,40 +2993,57 @@ static int btusb_recv_event_realtek(struct hci_dev *hdev, struct sk_buff *skb)
- 	return hci_recv_frame(hdev, skb);
- }
+diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+index 3beed56fabf3d..e2a120c64f6e1 100644
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -488,7 +488,8 @@ static int usb_unbind_interface(struct device *dev)
+ 		/* Already in altsetting 0 so skip Set-Interface.
+ 		 * Just re-enable it without affecting the endpoint toggles.
+ 		 */
+-		usb_enable_interface(udev, intf, false);
++		if (!intf->unregistering)
++			usb_enable_interface(udev, intf, false);
+ 	} else if (!error && !intf->dev.power.is_prepared) {
+ 		r = usb_set_interface(udev, intf->altsetting[0].
+ 				desc.bInterfaceNumber, 0);
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 306978caaf1ef..b2e5ed35a4a59 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1489,6 +1489,9 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
+ 			device_del(&interface->dev);
+ 		}
  
--static void btusb_mtk_claim_iso_intf(struct btusb_data *data)
-+#define BTUSB_MTK_ISO_LOCK_TRIES	5
-+static int btusb_mtk_claim_iso_intf(struct btusb_data *data)
- {
- 	struct btmtk_data *btmtk_data;
--	int err;
-+	int err, i;
- 
- 	if (!data->hdev)
--		return;
-+		return 0;
- 
- 	btmtk_data = hci_get_priv(data->hdev);
- 	if (!btmtk_data)
--		return;
-+		return 0;
- 
- 	if (!btmtk_data->isopkt_intf) {
- 		bt_dev_err(data->hdev, "Can't claim NULL iso interface");
--		return;
-+		return 0;
- 	}
- 
--	/*
--	 * The function usb_driver_claim_interface() is documented to need
--	 * locks held if it's not called from a probe routine. The code here
--	 * is called from the hci_power_on workqueue, so grab the lock.
--	 */
-+	err = usb_autopm_get_interface(data->intf);
-+	if (err)
-+		goto err_clear_iso_intf;
++		for (i = 0; i < dev->actconfig->desc.bNumInterfaces; i++)
++			usb_release_unregistered_interface(dev->actconfig->interface[i]);
 +
-+	/* Disconnect may hold the parent lock while waiting for this work. */
-+	for (i = 0; i < BTUSB_MTK_ISO_LOCK_TRIES; i++) {
-+		err = usb_lock_device_for_reset(data->udev, data->intf);
-+		if (err != -EBUSY)
-+			break;
+ 		/* Now that the interfaces are unbound, nobody should
+ 		 * try to access them.
+ 		 */
+@@ -2020,6 +2023,25 @@ int usb_set_wireless_status(struct usb_interface *iface,
+ }
+ EXPORT_SYMBOL_GPL(usb_set_wireless_status);
+ 
++static bool usb_has_claimant(struct usb_device *dev,
++			     const struct device_driver *claimant)
++{
++	struct usb_host_config *config = dev->actconfig;
++	int i;
++
++	for (i = 0; i < config->desc.bNumInterfaces; i++) {
++		struct device *intf = &config->interface[i]->dev;
++		bool claimed;
++
++		device_lock(intf);
++		claimed = intf->driver == claimant;
++		device_unlock(intf);
++		if (claimed)
++			return true;
 +	}
-+	if (err)
-+		goto err_put_interface;
++	return false;
++}
 +
- 	device_lock(&btmtk_data->isopkt_intf->dev);
- 	err = usb_driver_claim_interface(&btusb_driver,
- 					 btmtk_data->isopkt_intf, data);
- 	device_unlock(&btmtk_data->isopkt_intf->dev);
--	if (err < 0) {
--		btmtk_data->isopkt_intf = NULL;
--		bt_dev_err(data->hdev, "Failed to claim iso interface: %d", err);
--		return;
--	}
-+	if (err)
-+		goto err_unlock;
+ /*
+  * usb_set_configuration - Makes a particular device setting be current
+  * @dev: the device whose configuration is being updated
+@@ -2270,6 +2292,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 	 */
+ 	for (i = 0; i < nintf; ++i) {
+ 		struct usb_interface *intf = cp->interface[i];
++		struct device_driver *claimant;
+ 		struct module *claim_owner;
  
--	set_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags);
- 	init_usb_anchor(&btmtk_data->isopkt_anchor);
-+	set_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags);
-+	usb_unlock_device(data->udev);
-+	usb_autopm_put_interface(data->intf);
-+	return 0;
+ 		if (intf->dev.of_node &&
+@@ -2285,6 +2308,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 			intf->cur_altsetting->desc.bInterfaceNumber);
+ 		device_enable_async_suspend(&intf->dev);
+ 		device_lock(&intf->dev);
++		claimant = intf->dev.driver;
+ 		claim_owner = xchg(&intf->claim_owner, NULL);
+ 		device_unlock(&intf->dev);
+ 		ret = device_add(&intf->dev);
+@@ -2293,7 +2317,22 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+ 			intf->unregistering = 1;
+ 			device_unlock(&intf->dev);
+ 		}
+-		module_put(claim_owner);
++		if (claimant && (ret || !intf->dev.driver) &&
++		    usb_driver_release_refused_claim(intf, claimant)) {
++			bool unconfigure = usb_has_claimant(dev, claimant);
 +
-+err_unlock:
-+	usb_unlock_device(data->udev);
-+err_put_interface:
-+	usb_autopm_put_interface(data->intf);
-+err_clear_iso_intf:
-+	bt_dev_err(data->hdev, "Failed to claim iso interface: %d", err);
-+	return err;
- }
- 
- static void btusb_mtk_release_iso_intf(struct hci_dev *hdev)
-@@ -3169,7 +3186,11 @@ static int btusb_mtk_setup(struct hci_dev *hdev)
- 	/* Claim ISO data interface and endpoint */
- 	if (!test_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags)) {
- 		btmtk_data->isopkt_intf = usb_ifnum_to_if(data->udev, MTK_ISO_IFNUM);
--		btusb_mtk_claim_iso_intf(data);
-+		err = btusb_mtk_claim_iso_intf(data);
-+		if (err) {
-+			btmtk_data->isopkt_intf = NULL;
-+			return err;
++			get_device(&intf->dev);
++			if (unconfigure)
++				usb_set_configuration(dev, -1);
++			module_put(claim_owner);
++			put_device(&intf->dev);
++			if (unconfigure) {
++				usb_autosuspend_device(dev);
++				return ret ? ret : -ENODEV;
++			}
++		} else {
++			module_put(claim_owner);
 +		}
- 	}
- 
- 	err = btmtk_usb_setup(hdev);
+ 		if (ret != 0) {
+ 			dev_err(&dev->dev, "device_add(%s) --> %d\n",
+ 				dev_name(&intf->dev), ret);
 
 -- 
 2.56.1

@@ -1,67 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794980449;
-	b=3GAZrFRk7cxjQe6oi2uCz5IudRZ8A7k4yJp6JX3qSeqk4wQsgjHeVGSTuJ3Xj7z/0/B1
-	 KXtiIVnQQDjnAtQp9LrNBHsC3cUcVjMrF9K+2g14vpKV7dj9AS4DGEmLLh02rxJ3YjhtX
-	 II/V8EqKqyN/nKN0mDiUVgPsUCPKemwMJnaUL0z4fM/9PQyX1F5oDPkGkW70tpkZIGkKB
-	 zWol07CHOjuPZfsn7ctm1HO085rGIdqgJH/yesQ7MHiXhBpSng3RaxofM3bwmTwfHvAlk
-	 niOG/8O5Lm/FR+NrzROgNahUd8gKwYLLg9uJr+gKu7ruWfIz+9QfCWof0uc6MBP79iQ==
+	t=1794981604;
+	b=AbHB22P/fnoKm6VMZ9t2/ABJIR27EbwzN2P0mCZ9ki4wdc+gzoX9EjBh/UyWQ+awV6FC
+	 drQ4RaogU+o1J9pW3B4LEhA200FTAqVNwBnL6+z3JAfWn/PvnHfL3Wq74aC8a/XS7O+oO
+	 NSfBsm+FyZVIJDJ2dtnUn7yS1mJV9dMyvhHBD7eS8DGfwTSt8ZwEUXS0AVpG3K+rTKeE8
+	 psBJIX7721hb6e41oFzDIuzppEsZ3ApVPSqn9z+fW1o5cFw+6zYHU7jvINm0Ut2JOJNPD
+	 NBfOvSaLomB0YdvD9VCp1Co8Oh2IMYpf1lq/lkUIqmw4cylQx5iRTN5H+xtMlv5NseQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794980449;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Debian-User;
-	bh=4tGFP33VkTrDJmEm8l02YsCNfXgeLphumCyL2ku8Avg=;
-	b=QVR7vucjxH98q5jWqbE63O72BYWDTOn1+XH/uwYizBtmpkSVNHLOLP3fZOGfsSNurGUu
-	 8Ocx/0OW5gLS6zVesJlmS/LRLQ0VuIM51/vQefm9YQJDfAYicFZv9AdGnJy9tAjl/NjU/
-	 pZ7yPUXt6qu03Wen+IxIDj7d9fdt+8HpZkknzuetSNVfclQvu99WoGik41lC6EbzHhhRf
-	 KcomU8GyOvEysJTUSuxeQnHuzEYssOc3TPPCBnj//VO0uT8LbaeHo4acz/q2Kj88g9nHj
-	 erjae3THJBFEZhIjKI0y94nSndgwj0yfUPVDdQa6Ts02sKsDiOrKZvXfTD7kABsW6rw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794981604;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=QVM22WD958MBL5p5NSrVBiAwTrKQQhx+pwYntXsgL5Q=;
+	b=vpP1svqojm4P99kAuohbf5W/6SZro+j0eiU1kWnmjQwIIviz+1i8KWs0WuqLD33oDag7
+	 aMpyWEFquOS03jmDX+87xscK3iHsLql7jACeK+VEWNWhFoW6c3bwcKURLPhSaeXWkovdV
+	 /5J5kH5W13t9mCtxksLEZ2QI0POXSZZ4ekuFfNH77+izAOE6YtUXB6TJ4b77mJqhYlj7m
+	 1itHvTLMru5XC8UHe6irXjAUpwOZvEbQktNn+tvL+TEx32AuXUWa3YElv+TRhnfQ7Tia0
+	 uX9GSXn8nQ8A94Zbi36f1iitIw8+hsOjrn2UJKhuWBo3nxMPTdk7V4HEF2uQH8aBSng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=PclmspPO;
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X1Ro6tog;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C845606A32A;
-	Wed, 18 Nov 2026 05:40:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7C845606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CBFA606A31C
+	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 06:00:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=PclmspPO
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
-	Content-Type:Content-ID:Content-Description;
-	bh=4tGFP33VkTrDJmEm8l02YsCNfXgeLphumCyL2ku8Avg=; b=PclmspPOSxHVc9EGsnSKvBKYpU
-	TRMexHLATIUCVgfNEKMBYwriDsXkvWd//LHhcSbEsoXAbhdnM44Gd0A2x/xCWdTopjGe6BBcS3auM
-	OA20zMJ1drdt/m16D8MvpsIvV78ToasKFxqYcWtRWLCokdoEouEBjHMYITqc6sXK8OoYq2zd+G3Tr
-	3DltSFb8hyuSlDKdM1deTZe7pB3rTldSdXtTwEp7pbKSZlFmycf8f1/oY1zead9/E6iwhKzD2vGaG
-	AWZi7OWIod7tN7tVyTNe3e+qMWJHfHSK/f8aGkSwVzJXu/Qs/S4z2iGKxdrPADjAjyBq1BchxLu6p
-	l1IBKdkA==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xTYPU-0015Jt-1f;
-	Wed, 18 Nov 2026 05:40:45 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v7 5/5] HID: intel-thc-hid: intel-ipts: document the IPTS mode
-Date: Wed, 18 Nov 2026 13:40:04 +0800
-Message-ID: <20261118054004.363766-6-emfox@debian.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261118054004.363766-1-emfox@debian.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X1Ro6tog
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF7D1F000C5;
+	Wed, 18 Nov 2026 06:00:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794981603;
+	bh=QVM22WD958MBL5p5NSrVBiAwTrKQQhx+pwYntXsgL5Q=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=X1Ro6togGN098J6z5A0ayReojcVxdz8uZ/O7U0Qr+1gh5S1YGnZOuGa0oJtEG5FUH
+	 u3i8n8C+DMa9vmTbaEm1hCPiyxqj9IBK4PbGKlfHkeYB3j0TjlLNap8QI2SsDQpuLf
+	 WsePKfF9aFTalVLgsZyKkMcLQmsjH4gVGn5FV07ClXHpSZGH920iapB6OwCBAxDpbv
+	 dY4GpDyrfYPO7KRGnCm8I2va+ckz6DQhcBi0A7QC1bdeYimOf8/aQjti0AypLApcdF
+	 itdUkQEV/KkuSDFwFr6/A1No7K4uIP7/kZuJGCt+GCdIbnZt0kjerXm8KgEzlN0IP8
+	 zDcaTf/6qS+Qg==
+Message-ID: <sashiko-outbox-220188@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v7 3/5] HID: intel-thc-hid: intel-ipts: add the HID
+ device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Emfox Zhou" <emfox@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261118054004.363766-4-emfox@debian.org>
 References: <20261118054004.363766-1-emfox@debian.org>
+ <20261118054004.363766-4-emfox@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 18 Nov 2026 06:00:02 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -70,141 +60,203 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
 
-The THC documentation only covers HIDSPI and HIDI2C. Ports from before
-Meteor Lake run in a third mode, and the intel-ipts driver is
-written against behaviour that is not described anywhere in tree.
+Thank you for your contribution! Sashiko AI review found 3 potential
+issues to consider:
+- [High] HID: intel-thc-hid: device-wide in_thread in thc_ipts_send()
+  causes -EBUSY
+- [Medium] HID: intel-thc-hid: early recover_seq read in
+  thc_ipts_get_feature()
+- [Medium] HID: intel-thc-hid: IRQ unmask race in thc_ipts_thread() on
+  reset and stop
+--
 
-Record what the driver depends on: the layout of the configuration
-block, the frame codes and header sizes, the bulk data window, and the
-order in which quiesce, interrupt configuration and the DMA engines
-have to be set up.
+commit 6e11ece02bde2a13fad79dc0bf400dc9dc7577a0
+Author: Emfox Zhou <emfox@debian.org>
 
-Signed-off-by: Emfox Zhou <emfox@debian.org>
----
- Documentation/hid/intel-thc-hid.rst | 109 +++++++++++++++++++++++++++-
- 1 file changed, 108 insertions(+), 1 deletion(-)
+HID: intel-thc-hid: intel-ipts: add the HID device
 
-diff --git a/Documentation/hid/intel-thc-hid.rst b/Documentation/hid/intel-thc-hid.rst
-index 8b378c57b..e6bdf30b6 100644
---- a/Documentation/hid/intel-thc-hid.rst
-+++ b/Documentation/hid/intel-thc-hid.rst
-@@ -590,7 +590,114 @@ To debug THC, event tracing mechanism is used. To enable debug logs::
-   echo 1 > /sys/kernel/debug/tracing/events/intel_thc/enable
-   cat /sys/kernel/debug/tracing/trace
- 
--7. Reference
-+7. IPTS Mode
-+============
-+
-+THC also supports IPTS mode, the private Intel Precise Touch and Stylus
-+protocol. The port drives the touch controller over plain SPI and moves the
-+data through the same DMA engines, but the framing is private and the
-+parameters come from the controller itself instead of ACPI. The
-+``intel-ipts`` module handles ports in that mode, which is what Tiger Lake,
-+Lakefield, Alder Lake and Raptor Lake hardware use.
-+
-+This section describes how the driver uses those ports. It is not a
-+specification: everything below comes from observing the controller and is
-+limited to what this driver relies on.
-+
-+7.1 Configuration Block
-+-----------------------
-+
-+At SPI address 0 the controller exposes a 64 byte block. The driver reads it
-+over the PIO path after releasing the controller from reset, and retries
-+until the tag ``$TIC`` (``0x43495424``) appears, because the block is only
-+partially filled while the controller is still starting.
-+
-+Two steps come before that read: the DMA engines are unconfigured first, so
-+engines the firmware left armed do not keep writing through the PRD base it
-+had mapped, and the interrupt trigger is switched to edge, without which the
-+first read is unreliable.
-+
-+Fields the driver uses:
-+
-+======  ==========================================================
-+Offset  Meaning
-+======  ==========================================================
-+0x00    pending interrupt causes
-+0x08    buffer sizes, ``(size / 64) - 1``; Rx bits 13:0, Tx 23:14
-+0x0c    touch engine control: enable BIT(0), HID reports BIT(2),
-+        power state GENMASK(5, 3)
-+0x14    controller tag, ``$TIC``
-+0x18    SPI timing: clock divisor GENMASK(3, 1), divide-by-8 and
-+        dual/quad bits
-+0x1c    vendor and product ID reported to HID
-+0x20    product revision
-+0x24    firmware version word
-+======  ==========================================================
-+
-+The driver enables the touch engine with reports and full power, and clears
-+it again when the port is shut down.
-+
-+The offsets above, the frame codes and the header sizes below are compiled
-+into ``ipts.h``; a ``static_assert()`` on every offset makes a mismatch a
-+build failure rather than a quiet misread.
-+
-+7.2 Frames
-+----------
-+
-+Both directions carry a code and a length in front of the payload. Frames
-+from the controller use a 64 byte header, frames to it an 8 byte header, and
-+only the latter has the payload padded to a four byte boundary.
-+
-+==== ========================== =======================
-+Code Received from controller   Sent to controller
-+==== ========================== =======================
-+3    input report               set feature
-+4    feature report             get feature
-+5    report descriptor          output report
-+7    reset request              get report descriptor
-+==== ========================== =======================
-+
-+A report descriptor comes back with eight bytes of preamble that the driver
-+skips.
-+
-+7.3 Data Window
-+---------------
-+
-+Bulk transfers go through address ``0x1000`` of the controller, not through
-+address 0. The DMA engines have to be pointed there explicitly, otherwise
-+they write into the configuration block and the controller drops the frames
-+without reporting an error. The input header address is zero: that is where
-+the controller writes the interrupt cause word, at the start of the
-+configuration block.
-+
-+7.4 Enabling and Flow Control
-+-----------------------------
-+
-+The port has to be released from quiesce before the driver enables the
-+touch engine: quiescing holds back the device interrupt and the data path,
-+not the configuration access, which is why the block above is read while the
-+port is still quiesced. The interrupt configuration programs the interrupt
-+type field in the device to the invalid value, and starting the receive
-+engine then replaces that field with the type it expects, so the two have to
-+happen in that order.
-+
-+The controller starts streaming once user space asks for it, through a set
-+feature request on report 5. The driver does not do that on its own; the
-+daemon that opens hidraw sends it.
-+
-+7.5 What Is Left to User Space
-+------------------------------
-+
-+The reports carry heatmap data, and turning that into contacts is a
-+substantial image-processing job that already exists in user space. The
-+driver therefore stops at the HID layer: the report descriptor comes from
-+the controller and is not written by the driver, the report stream is
-+available through hidraw, and ``iptsd`` decodes it into input events.
-+
-+System sleep tears the port down and brings it back, so the hidraw node is
-+destroyed and re-created: a daemon has to reopen it after resume.
-+
-+8. Reference
- ============
- - HIDSPI: https://download.microsoft.com/download/c/a/0/ca07aef3-3e10-4022-b1e9-c98cea99465d/HidSpiProtocolSpec.pdf
- - HIDI2C: https://download.microsoft.com/download/7/d/d/7dd44bb7-2a7a-4505-ac1c-7227d3d96d5b/hid-over-i2c-protocol-spec-v1-0.docx
+This commit registers a HID device for the Intel IPTS transport and
+implements report descriptor parsing, input report forwarding, and raw
+feature and output report requests over THC DMA.
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
+tel-thc-hid/intel-ipts/ipts.c
+> index 17f6f664e95b5..347a705719e6e 100644
+> --- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+> +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+[ ... ]
+> @@ -144,8 +146,86 @@ static int thc_ipts_touch_set(struct thc_ipts *idev,=
+ bool enable)
+>  				 &touch);
+>  }
+> =20
+> +/*
+> + * Frames are built in @idev->tx_frame, so the lock is taken here rather=
+ than
+> + * by the callers: none of them may hold it across a wait.
+> + */
+> +static int thc_ipts_send(struct thc_ipts *idev, u32 code, const void *da=
+ta,
+> +			 size_t len)
+> +{
+> +	size_t padded =3D round_up(len, 4);
+> +	u8 *frame =3D idev->tx_frame;
+> +
+> +	/* The completion of a write is delivered by the threaded handler, so
+> +	 * one issued from there would wait out its timeout: refuse it instead,
+> +	 * and let the caller retry from its own context.
+> +	 */
+> +	if (READ_ONCE(idev->in_thread))
+> +		return -EBUSY;
+
+[Severity: High]
+Does checking the device-wide idev->in_thread flag reject normal process-co=
+ntext
+callers on other CPUs whenever thc_ipts_thread() is running?
+
+thc_ipts_thread() sets idev->in_thread for its entire execution, including
+when woken by a shared INTx interrupt or while delivering touch input
+reports.  In thc_ipts_port_start(), interrupts are enabled while
+idev->dma_ready is true before calling thc_ipts_hid_add() ->
+hid_add_device() -> thc_ipts_hid_parse():
+
+CPU0                              CPU1
+thc_ipts_port_start()
+  thc_interrupt_enable(..., true)
+                                  thc_ipts_thread()
+                                    WRITE_ONCE(idev->in_thread, true)
+  thc_ipts_hid_add()
+    ...
+      thc_ipts_hid_parse()
+        thc_ipts_send()
+          if (READ_ONCE(idev->in_thread))
+            return -EBUSY;  <-- aborts hid_add_device() and probe
+
+Because thc_ipts_hid_parse() only retries -EAGAIN and -ETIMEDOUT, -EBUSY
+immediately fails HID registration and driver probe, and at runtime hidraw
+feature and output requests fail with -EBUSY whenever they overlap with
+incoming touch frames.
+
+[ ... ]
+> @@ -399,17 +525,19 @@ irqreturn_t thc_ipts_thread(int irq, void *data)
+>  			need_recover =3D true;
+>  	}
+> =20
+> -	/* The work item resets the engine and unmasks again; a frame read
+> -	 * meanwhile would corrupt the ring.
+> +	/*
+> +	 * The work item resets the engine in its own time; a frame read
+> +	 * meanwhile would corrupt the ring, so only queue the reset.
+>  	 */
+> -	if (need_recover) {
+> +	if (need_recover)
+>  		thc_ipts_request_recover(idev);
+> -		return IRQ_HANDLED;
+> -	}
+> =20
+> -	/* A reset unmasks when it is done. A teardown masks on its own, so the
+> -	 * line stays open here: a write already on the wire needs the
+> -	 * completion this handler delivers.
+> +	/*
+> +	 * A reset unmasks when it is done, and a teardown masks on its own.
+> +	 * Leaving the line open here is what a write already on the wire
+> +	 * needs: this handler is where its completion is delivered, and
+> +	 * masking it away would make that write time out over the bus lock
+> +	 * the reset is waiting for.
+>  	 */
+>  	if (!READ_ONCE(idev->recovering))
+>  		thc_interrupt_enable(idev->thc, true);
+
+[Severity: Medium]
+Can thc_ipts_thread() unmask interrupts while thc_ipts_recover() or
+thc_ipts_port_stop() expects the port to stay masked?
+
+In the recovery path, thc_ipts_recover() does not mask interrupts again
+after synchronize_irq(), so a handler that checked idev->recovering just
+before it was set leaves interrupts enabled across thc_rxdma_reset() and
+after a reset failure:
+
+CPU0 (thc_ipts_thread)            CPU1 (thc_ipts_recover)
+if (!READ_ONCE(idev->recovering))
+                                  WRITE_ONCE(idev->recovering, true)
+                                  thc_interrupt_enable(idev->thc, false)
+  thc_interrupt_enable(..., true)
+                                  synchronize_irq(idev->irq)
+                                  thc_rxdma_reset(idev->thc)  <-- IRQ unmas=
+ked
+
+Inaddition, thc_ipts_thread() does not check idev->stopping before calling
+thc_interrupt_enable(idev->thc, true), so any shared interrupt that wakes
+the thread in thc_ipts_port_stop() before thc_ipts_dma_stop() clears
+idev->dma_ready will re-enable device interrupts during teardown.
+
+[ ... ]
+> @@ -419,6 +547,274 @@ irqreturn_t thc_ipts_thread(int irq, void *data)
+[ ... ]
+> +/* A feature report comes back as a frame of its own: the request waits.=
+ */
+> +static int thc_ipts_get_feature(struct thc_ipts *idev, unsigned char rep=
+ortnum,
+> +				u8 *buf, size_t len)
+> +{
+[ ... ]
+> +	seq =3D READ_ONCE(idev->recover_seq);
+> +
+> +	/* A refusal happens before anything is written, so the channel stays
+> +	 * open for it; a timeout is a different matter, see below.
+> +	 */
+> +	ret =3D thc_ipts_send(idev, THC_IPTS_TX_GET_FEATURE, &reportnum, 1);
+[ ... ]
+> +	wait_event_timeout(idev->wq, READ_ONCE(idev->feature_done) ||
+> +			   READ_ONCE(idev->recover_pending) ||
+> +			   READ_ONCE(idev->recovering) ||
+> +			   READ_ONCE(idev->stopping), timeout);
+> +
+> +	mutex_lock(&idev->feature_lock);
+> +	/* An answer that landed while the wait was expiring counts too. */
+> +	if (!idev->feature_done) {
+> +		/* A reset discards what the engines had queued, so an answer
+> +		 * that was on its way is gone and cannot be waited for.
+> +		 */
+> +		if (READ_ONCE(idev->recover_seq) !=3D seq ||
+> +		    READ_ONCE(idev->recover_pending) ||
+> +		    READ_ONCE(idev->recovering) ||
+> +		    READ_ONCE(idev->stopping))
+> +			ret =3D -EIO;
+> +		else
+> +			ret =3D -ETIMEDOUT;
+> +
+> +		idev->feature_pending =3D false;
+> +		/* Only a timeout leaves a frame out there: after a reset the
+> +		 * answer was dropped and the channel is still in step.
+> +		 */
+> +		if (ret =3D=3D -ETIMEDOUT)
+> +			WRITE_ONCE(idev->feature_off, true);
+
+[Severity: Medium]
+Can sampling idev->recover_seq before thc_ipts_send() leave idev->feature_o=
+ff
+false after a feature request times out on the wire?
+
+CPU0 (thc_ipts_get_feature)       CPU1 (thc_ipts_recover)
+seq =3D READ_ONCE(idev->recover_seq)
+                                  WRITE_ONCE(idev->recover_seq, ... + 1)
+                                  WRITE_ONCE(idev->recover_pending, false)
+                                  WRITE_ONCE(idev->recovering, false)
+thc_ipts_send()
+  guard(mutex)(&idev->tx_lock)
+  thc_dma_write()  <-- sent after reset
+wait_event_timeout()  <-- times out
+if (READ_ONCE(idev->recover_seq) !=3D seq ...)
+  ret =3D -EIO;  <-- feature_off not set
+
+Because thc_ipts_recover() finishes before thc_ipts_send() checks
+idev->recover_pending and idev->recovering under idev->tx_lock, the request
+is transmitted after the reset, but a subsequent timeout sees
+idev->recover_seq !=3D seq and leaves the feature channel open while an
+unanswered request is still in flight.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118054004.3637=
+66-1-emfox@debian.org?part=3D3

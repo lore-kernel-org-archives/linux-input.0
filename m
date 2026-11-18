@@ -1,99 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.161.50
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795030266;
-	b=z+3X37+946N41HAeTpyf9tVhzNtKzGFbq5DGkPV5nqDR6isu4YlVyAMsT2wVB1b/mbLy
-	 /CoxDJaU/BYsEo/SvNHUmrMIN8xTocvpJ6SdZZCtrH7RkRt+S/0T/3f5EvIGQee70pBbe
-	 hbRNSgixZ1BQ8w/3kEOqpydEvADODM//5Z12s5Okbxyv6oPyW2e8hecg0P2Rj43kMUlFT
-	 HvIPCtf8dT2tacRnmcIfP4sNXZRpRQsu4Yro/e4S+KLrhdwxP6m0+lmbXWc56Wymcm+Q+
-	 BxAUDQtCKVEaT1QCaWTxWA8bz7E61SBwFLFfTXba9DFSRyxYgsoRk2R5TR5oK57E79g==
+	t=1795033276;
+	b=RRhGOm8W02hkltDWApcjHJtLGyMSGLMPVmNC43Uetl6tOHB6K+BLSGT4IlPOw1CyxTeO
+	 PJK/HbdDQUAiE2xJnIon39GCBYL09yGEfjhwmFLOhguiR1zIgfr8JiYy8JuNE0y/Ij+Yf
+	 8riSmdIE0KyAjJQBRfh2SAkFVhsxKiVDQni3gcWJkXjFNhNEw25ES/snfKj5Ze/WZ6KUS
+	 TFlho1BUH9w91a1bxNon4xpTZCF0F+uPYB8Sjd3/Ju06o/w+YkBi0SIy8eckOMxeAGfaC
+	 vfNhpzP7BX4A8AVGgSbJFTIzCmj7QaVWD8SoKQfyybfT72e7TL9h4YhvLJywQD6fz6A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795030266;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795033276;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
-	b=LaeWlyLb8F++qilbKTqx+DBqeekwcyq3GZhxlbfhcD0/Lt4cW5VPlS5xtGtSUhug/w4Y
-	 zW9eg//L6Payt3UpT9Of99snrZqlhqtVJ5n8+whu3zogMtLbvucdLJLEmy7mx0qu6Gr6N
-	 DPzLo32uRq5SqxIaxfxDR/RGIQNM1oBHP0D/anY1sdXeaCkuYreJDfOi2/KP9TVw6/3PB
-	 aaneydFliDZSZ7x5RVNHEAo/Nx3IouOvdXZb3hmY6k2lETQDjs+9coIu4bac1RWy04Tan
-	 4b2NPzFhxK0hhGEqcILTNqq0Yi4yQbujcBXGum68oz2Ltj+ZyFEjtvzdNw5PxB+OflQ==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=hFHXy5vmKV/1YpuCgLPgzSMHYH+DeX18yV+aEJiMe4M=;
+	b=YKn5J14enAbyI6koFqKNP3b4uPbGm48Gf13qpQbrVDOMiLob8IGfquQqGUHVH/PYZqKR
+	 jU6naJwbtPGWFjzAUOyTlyiKLxi34YtVOf0foKDkZayKIlZzUzmuEWaZXdWudSNiurYV4
+	 QgUkOKkxSmjCuyt5wwWA/oRvPyChtwg/mNYjcH5c2/xr3+DScsPNn+StRjsXj/C8YECnb
+	 1oaHHIgAOeCYu1LpcqlCTKDm+BAyNxOHyNP/PNcy/xpYomtmqx643nAevDmAwZditBvys
+	 syOS2aTVx9KK7rrGnjfk/WjpoqavPDQtjv6s84U8wwDDHsSZBwulXKB2Pc6tIaItnSQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YYTxxlax;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lfM7TXRz;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.161.50
+Received: from mail-oo1-f50.google.com (mail-oo1-f50.google.com [209.85.161.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61F2606F50F
-	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 19:31:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B61F2606F50F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7313060A260B
+	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 20:21:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7313060A260B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YYTxxlax
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c505b2e1cb9so211581566b.2
-        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 11:31:05 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795030264; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lfM7TXRz
+Received: by mail-oo1-f50.google.com with SMTP id 006d021491bc7-6d68de53053so1066959eaf.0
+        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 12:21:16 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795033275; cv=none;
         d=google.com; s=arc-20260327;
-        b=XU/ZUo+pb0wmqyw8SIHYkFGp2LB8Nxuf7DkTC2gsyQUQfAMWd4h2pnxmdb/sN+D28q
-         HFZIr/i1GskopKqqu8ZnVBpVMTs5FJBsjZA+L4p/VSre+ArbDQDbkGO/7n5dq5tVF+VC
-         GVCeMn7qAizeR62eX9knOHUxnk30Tj4Dx9HlnbrRh1ATeN0jUDk9x4SH/Axs6t72xndV
-         ISrTsVpkImJMqoqdRuqeont7xeL0L4tOR9GsC5VIWGtBK2vnzZfccCTwpsyqw1IdYtkh
-         mqffH+nEEO8bWJj0SwbJMOvKPHn/JOnapZIkbq1FVwD8/+XdF0zvRS3940hs7xcCEa9Z
-         NAWg==
+        b=IhROM1l9RTsixtfmGpJ82dHvPAkXnQrxGArpW/gcRIsJfhvbzAV8VNPyVWLVo8y8SF
+         5Th6ONOq2gXMmkEr/ocbCv52ouTyTLfWjqXSutEvQvqoK3ngq8k5dZu5yf3qb8HnY/gc
+         xF0LoXaLMZfiBacc1BPVoEVQqBJIUVzBYoqEfEiz8N6Lf0cIWHmXknezrmNJKqUMh4Dx
+         uMaxF5bI01N48NcAMT8eltfFz/33YDi7nNy2zd1Q092tlDv34hXPUMSDD1wKoPO1aKZK
+         P+8qUDaxNuG4Nrcaw6XxsC8OLGCY5ShZ/E/X4sj+NSZRqyImrlHGTCNYsTiNKlXCfx+C
+         DpPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :mime-version:dkim-signature;
-        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
-        fh=3ioeJ6tNPKJUA5jAZ6G06loEkPDvmdka4KTEurNc09c=;
-        b=Xy4FYhLz8GigZBs7WaB7YN8Be0WV3l0OnrEhq0Gz7wffTT/GYS9boYgt+a5Oxx7nRr
-         tn7siO7rrViw9guH9k8hwydCXsHnH3uHzCXLexBuIlCckUk1Gr9SGbRkrICs/GpYARSM
-         xydPc2eeaHQOBBXsl0Zb0w8MmFBwM1w1BTKjs56qvJJZUZLSMvRgKsK1KSFgOwXcWhkq
-         PEEbXZXt2m7I5OSe8G2WwlCGK4ra2IWB1pKwXxiGsV4bPYcHL1Kb8hIQUpSvC4rFJAEQ
-         zD/q26bwuI4FBRzxdA6IM5OUi4o+6XKt7VAY3GZ3Db7NEaRT24O4viA/R/cl1d9IDWlM
-         V+OA==;
+        bh=hFHXy5vmKV/1YpuCgLPgzSMHYH+DeX18yV+aEJiMe4M=;
+        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
+        b=GxdGBg4u3eSSmrM9pZlSNv+EHqGS/8cuBjunWdSdHilquBOnsXCj16Uom45gb2eXsG
+         fwjJ7xyNKZ4uO80TfzZdbKcUZXqKxbqICopqnHzGsUR7O5FiGpCHsADatIn0jTnfPFDr
+         6bSluwr3sGP8lklp8Xxo2iqbMTwfuS34lg0B+eaK/4tY0MAJV/mmsN4pRfWpXnMp/jgs
+         vXFGXQ9qp4DGT8Eae+1m5YfcQcicuZHSlU3VAlE+TvS6N2AMc5h60wTR+tiNwibCenm+
+         gwunnfegkyEaq7JV0UjG5YrsmCQ7KC7e1y+ZPaJXStUbiSuB4jy/jiVNBDt+HISbkHbC
+         s/RA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795030264; x=1795635064; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20260707; t=1795033275; x=1795638075; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
-        b=YYTxxlaxQ2WfhHso/oEI2r56Wf/FngEvX4IGgjBf48e9sct9kQaN5+W9clSYP5LlZW
-         9lGoVnhGTEg9+TUbmq/jjF0sC+rmU+Buy7VOy6sH/tPxGdqjjnXGgl2MbLOCk/+k9Rho
-         IZJxpHNo6bOT5jZstLoYdAJHZylRxqvtOwCldTOD8whfdnvEhqKJXAdU83+/L7lRIx9v
-         fzcCiYcUTwNu01GC9OfJiH6YaqiVEysh0kMaSWmSU8YUIYlmG2BvarbXEefoJFvoMsw5
-         PH5l2eEIFL9NtYcZ9lHXeSizazga9SFSOqqZtZ+ipAiyUSM6RiF73meQ1GDoIrwk7+Wd
-         OScA==
+        bh=hFHXy5vmKV/1YpuCgLPgzSMHYH+DeX18yV+aEJiMe4M=;
+        b=lfM7TXRz+oVE/RAdOt80dJEmqE3JN11NDrNY80v34KTJh0zq8xU3sI+P4qJ3N1dH5q
+         QrBfzJymZjcIecoCVSogc6pzBvNqwzy4FcZBe/bAdynmdC1rwvFNm9DBZPsug+BrABrs
+         lk3DSQa0qyjzsv7FMCdvh+rIdnxc1YPIjY2xQ3mRZ3EU1TRKBWY1f4xRMwNEBU9QPOza
+         RResMn43vt7t6d85z7wVloiIVWNXtKMVigXleiMrAACDNf4pNUtYAGX6NX2BdM9LNzh2
+         GQhBO/hRjagTx4oY+7Zm03ySpKThT8opzwYdzoVXG8pWpqnlX825hadS4ObuLQk0BAFU
+         GD7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795030264; x=1795635064;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=iAbjlXus0iw2LllxqZoryy58tCqmnnXTzlAaD4u02/I=;
-        b=C6XhKnpxfzRjPw8os9/VzyE7kAh5WNDfFkkZsdNinjYJ2HuIfSmNv8Ldcbz5MNnl9u
-         YEm7NN6nzv4GJd82T/BXnVVR6O9t7+ENUtzBNIbJfZuBKk3mDZMrrAbkp+ccUl/Feov6
-         Dg0WSktvaeoqK2/fvrIuRxhrKOSf8UiMt9yYBtTYbrkVT5nnDoWUQQe4UqDVxcnhtn0Q
-         qUaSbcQUHs4yAqH4rYvcXkROS9RpNR5lsXsZmkn3npkjY2nzmSBwf7ZxctV2ECC6PQ4b
-         FeCouGB/qlJ0cJ0FwM8STYLKc0RgzD1HPgxbIDooxgsyp17k6z34rxi8kYC6jV2K0I1G
-         uX8Q==
-X-Forwarded-Encrypted: i=1; AL+hErG7uGWeLI0/IDg/hRnQrfyy4wlPXqgLWj4b2h/C7zXK2fj+1JkCprMGRnrK5w7kcnr5qZVAN3cY8Ln2vQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8ShekHRFcP2PH14iEnTkZ9HkQ9SDuZLWXR2Or+PYhfHrxD0Uc4
-	/mj2YV5l5E45y/xiFNnu1bOhZNkKspytPke1b5kDDRyWK328tG44XLl4TgJHUpOBTdalEe9ilcG
-	BXUBiJegRan0KFU4aTHJUszKFuI3WrL8ZwfX0VQc=
-X-Gm-Gg: AYBFou2UtuynW1N6oaWq0oXal41BMVh9noOdfn6NHn+48FijhOfjpP8IJuoA0X5CvRb
-	BJRYFRo7vyCMQ3p0J09HLL3kpNJRass7OeRFAOdHw+SWK6TzJ8o95/i8/Yxus70nJ5w8Lyxykev
-	MCqWKCf2o79FIOVZP2lfrUhCoTESNV+w+CD73kHM1TcE6KSgGG8Z5cQTIoDSLC5Zlh86o8orB5u
-	7OlOJCuspXAoN7jKOhhtZDjU4HbLjkoZFKesH6lUmbpJEk+LOBLZHPhqLjq/JPtMziDDnoTFPl5
-	w1ZuaIaLXiU/NPHLoJk8XDDbAAjNpefxG6heXxbhLF3Z+Bvse73K3LwoDtGUUOwZyMy5PgWMWIp
-	AVJwK0R7WvyhtWyasp1H9F68VbS4ALqnG1Ac=
-X-Received: by 2002:a17:907:f816:b0:c2e:317e:d711 with SMTP id
- a640c23a62f3a-c510e398889mr303013866b.27.1795030263845; Wed, 18 Nov 2026
- 11:31:03 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795033275; x=1795638075;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=hFHXy5vmKV/1YpuCgLPgzSMHYH+DeX18yV+aEJiMe4M=;
+        b=cCoyGX5IeNol8f/xiYOPuz+040jEbFB/wvgEosAxHo3SG1i0inc4cQGrx96wFxMFES
+         K4N+oL4ySrbaul7Yo4Ad+qqbd0Z7BjH1jgGE1eZjJvjgZIITnPshRnHwA6atmlN9up45
+         a1QGV//nCBxnhYvdkynFsc+FQu2fkNfOgWbDMNete5DKJWMOzQKDFDcl35J3H1AvMpAJ
+         psdHaM+XjiALymLAdsjxSP5cE07CzILcHCZLh1XcLPbKlm9H3+DXwv1vCGYzrFdrG1iJ
+         tOFu7vkl2AIXd3xzm5LohOLK3BnC/m+M6fMU+jtUdUoN3rzmB99z4+1RF5/ZleDTeBbZ
+         Y10A==
+X-Gm-Message-State: APuU4Z/vicT2fpy0p+QDIMJhSyzgIXhIvUsoTnNXypuvWnxCoQO9ULCU
+	G/e5nLrFPoxUM5/wh1YZYJnVlPpakSdjOpIb3WJU4QuCUiEQowGiBnSNmuwtlafvit96882Rd1Y
+	Nntp2m9vurR6jZj05JeqKEZ/jVuy9wFA/nBXu
+X-Gm-Gg: AYBFou3kI3frHjVMM9uQ7jEPm9rr2pbK9lebjCr4uMKvnvQZS5r7tE6kgAI+WYI5Wmc
+	g46BloD4SY8B/QFtvWR4b/AFgiEkghvHsn03cWugJURMIwC7Mfh2a6z/hbU3rXj0m1x+8soVjOW
+	/AS5/pnbzzA7HOVEErE2XMeuZUPdz0gq1lAqqBqQVxxGq9sxIW2WIH/mDkILhJ2V0k53FTsY45i
+	TwI74B8Oq0pXEdbfeNndNF05P4iN5tkw1LEoICxEmX4/SwYrYBpXzUkSVIRQfiGtDs4oPBWEpCv
+	YfONL3cDKf84tcLOabioJqcJArK0SjkbXc+v4yfuoYh6ZpzIGQrc6suvtu2OTyvWZ7OlF0pTSPp
+	CGWOhtlEAEFz4dpCbuTJPE8jWjr/HOpRHtNzaMMR4wraoloaH+ymLgqmI2bDEKupSgE09
+X-Received: by 2002:a05:6820:a006:b0:71a:7b15:6159 with SMTP id
+ 006d021491bc7-71b1858a8acmr2210052eaf.52.1795033275224; Wed, 18 Nov 2026
+ 12:21:15 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,43 +102,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261105194426.1113050-1-l.scorcia@gmail.com> <20261118152346.GC98456@joneslee-macbookpro.roam.internal>
-In-Reply-To: <20261118152346.GC98456@joneslee-macbookpro.roam.internal>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Wed, 18 Nov 2026 20:30:52 +0100
-X-Gm-Features: AclHuK-Q_ZR_eSDZWgs8r4i-RTkFZUMV5FI3ZV4LgWAQGQjLtUrjcLbEIObtllI
-Message-ID: <CAORyz2+7q3BTeW3NsaiwN9riAbHV0Q_tCm6bBV7RoiDeAbcLrg@mail.gmail.com>
-Subject: Re: [PATCH v12 0/8] Add support for MT6392 PMIC
-To: Lee Jones <lee@kernel.org>, Mark Brown <broonie@kernel.org>
-Cc: linux-mediatek@lists.infradead.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
-	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>, 
-	Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa <akkun11.open@gmail.com>, 
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+From: =?UTF-8?Q?Rog=C3=A9rio_Valois?= <valois.rogerio@gmail.com>
+Date: Wed, 18 Nov 2026 17:21:03 -0300
+X-Gm-Features: AclHuK8MFzTDZoqIwqo71-o5VOzU_3WzA8lr7HeX_JO8N11gx-nGKkenPJ-p5H4
+Message-ID: <CAGwXKD-WZRwa5O9b2zjLUrv3aa3_ehj9cEv7+G2aYKXtg3yAXg@mail.gmail.com>
+Subject: i2c-hid/hid-multitouch: FocalTech FTCS0038 (2808:0105) touchpad
+ intermittently stalls, libinput reports "Touch jump" (Lenovo Yoga Slim 7i,
+ Meteor Lake)
+To: linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> MFD looks okay now.  How many more Acks do you need?
-Still need the regulator Ack. Mark Brown provided an Ack for the first
-version (almost a year ago) of the regulator patch [1], but it was
-substantially modified in later revisions so I dropped that Ack.
-I'll move Mark Brown from Cc to To tag in this email for a gentle
-ping, I hope that's not against the ML etiquette.
+Hello,
 
-> NB: This patch-set looks split in two in my inbox?
-Now that you mention it, I see the split too. Weird, I sent it using
-git send-email as always. I can resend it if it's an issue.
+I am seeing an intermittent touchpad problem on a Lenovo Yoga Slim 7i
+and would like to know if it is a known issue, or what I should debug
+next. I am not a kernel developer, so please tell me if I am missing
+something.
 
-Thank you
+Hardware / software:
+- Lenovo 14IMH9, Intel Core Ultra 5 125H (Meteor Lake)
+- BIOS NPCN35WW (latest available)
+- Fedora 45, kernel 7.3.3-300.fc45.x86_64, GNOME on Wayland,
+  libinput 1.32.0
+- Touchpad: FTCS0038:00 2808:0105, i2c-hid over i2c_designware (i2c-0),
+  drivers i2c_hid_acpi + hid_multitouch
 
-[1] https://lore.kernel.org/linux-mediatek/20261105195206.3440-5-l.scorcia@gmail.com/
+Symptom:
+Intermittently the pointer stops following my finger, clicks are
+delayed or lost, and a late press is then combined with a later drag,
+so text gets selected by accident. While this happens libinput prints:
 
---
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
+  FTCS0038:00 2808:0105 Touchpad: kernel bug: Touch jump detected and
+  discarded.
+
+followed by "log rate limit exceeded (5 msgs per 24h)", so there are
+probably more such events than I can see. Events still reach libinput
+(it is not completely dead), but they arrive after gaps with large
+jumps. It happens during normal use, on battery, without suspend and
+without screenshot tools. I first noticed it after resume from suspend,
+but it also happens without any suspend.
+
+Recovery:
+Unbinding and rebinding only the device restores normal operation:
+
+  echo i2c-FTCS0038:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind
+  echo i2c-FTCS0038:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bind
+
+Reloading i2c_hid_acpi and hid_multitouch also works. So the I2C
+controller seems fine and the device (or its state) is what gets stuck.
+
+Kernel log:
+No I2C timeout or HID error is logged when the failure happens.
+
+What I tried:
+- Runtime PM is "unsupported" for the i2c device. Setting power/control
+  to "on" for the controller (0000:00:15.0) did not prevent the problem.
+- Earlier tests on Ubuntu (GNOME and KDE) showed the same behavior.
+  Pop!_OS with COSMIC looked stable in a short test (not long-term).
+
+Unrelated(?):
+The firmware also logs a periodic ACPI error (missing symbol AWAC.HOR
+in EC method _Q18, roughly once an hour). At first I suspected a link,
+but it happens without any touchpad problem, so I now think it is
+separate. It is reported at
+https://bugzilla.kernel.org/show_bug.cgi?id=3D222291
+
+Questions:
+1. Is this a known problem with this touchpad or this platform?
+2. Is there a quirk or workaround I should try?
+3. What would be the most useful debugging (i2c-hid dynamic debug,
+   tracing of the I2C transfers, something else)? I can run a debug
+   kernel or test patches.
+
+Thanks,
+Rog=C3=A9rio Valois

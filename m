@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795004820;
-	b=uXflSXg7z01GOGIS0lTvf6HHVBmbTo7YIaZh5rZR+xEayJIFRwllG3jNB6SnMPpv/FJO
-	 gdHMiCgRyYPubi8Wphek9OF/jGr1kVm0LAb6+mPxUTdv9McAPe1XVVM9tEHLI6albrLFk
-	 ZYvwHiSd86RBBr6SYCHVVQuijT6QbxzWvhsIc2HYJStgENz4P0AYFn7yKJC2YxG4ktUFH
-	 trJR6tPzFil1Yo6NAbFrYVDLS3UhUWGcoibyw1BYDI9RNBKI9arbv2Fju/W9m/K3P1LL0
-	 /pYXyNWZ/GfNtEG49VqFuE6uMnI3wKQ1GKD2pLBwOEu+SNXbEzblGvBUvWxBZPUG4VA==
+	t=1795004831;
+	b=w9qVrOc70EHXgNgtYd+zb/BQno6TcDg2pd5iWzaN9w3cUnS265YwV3sgSae0bnGOsiHo
+	 w2rrsJHPSDIceVa9Lxz9HN1WjLpDw1PFNH9H4FoV/Ef/yZugTrC+j0LUWjuPwQEENBO1D
+	 8PCO1DAZzqDfZBhRwFc6gWJr5pG2s0i3Cm82P9xfqGxINVxdtR2LDq5wbC0jmJgYLYVvu
+	 12u4aZj0Cfdf/PNO6WbPWkOlvS+zaNU+3+yyaz6SIpIkAU5V9ApToOpyUGp7JOehlXmPT
+	 HR389AskqoMEoiOIcBzxiQl16W7CqjQkOwTA78Qil3Uu7sgZ1s1fLNhj3EW/uz19rlA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795004820;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795004831;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Nq6nHtcQPov6ng/GWbkcWdOEm4htQT9mHmFTo86WOlM=;
-	b=HkCXZ0dmMLsKhrpByvhAYsp2AiYmHGN12pDMYndUP/iSONWCj0HNK4LQfhR45Oqo6uJL
-	 3QlcOI6VlndRIbmzWsNRosAi19vtWOhNj+wp3+HM1IkijNDcj6kjaSTetnVuCc0isAFeV
-	 RgWPVHbdRJj8iuOjZgZNCGdYgUWGIi8lM5xUZj5BmpV3FcC6Vys/BSpP8afo5ImWQiYO4
-	 g4ENR61kem0pQy0HpWXUJjKL4ZAWpWzhf/kfs86fwJGrfj9IMi5hwvpbSny07Ux8hjXWg
-	 /sI8SM3vWTA2eitWqo+P7+vj/aX0cikvLFCpYJrBy+0XRgI/zTH9SwcVeJBDmjnuIOw==
+	bh=IF0/oHGV7P/rpt91jQULrBeSJxduK1eVC6UzBiUzwiQ=;
+	b=N2nvtRtZUt8npC5PbOoo2T3ZkHEQPBIUgil63UvN2glkDkeP/Qaym7YsUzp91cwQHPA4
+	 77kbHcELGrOpHmvAgphycc1lHEvLTXChvmyMHwdXyDqSdmdxQb7J2mTVZ9q3GX94PabM+
+	 IPYhf7Ic0jUpoyEcYj7AmW+sgMoF/n5l3IUt1VGaeTWAkpDWaGlzEtPT+t8EURcyK5C5V
+	 GzYSkrIGuOHpNUYieNKz/LYdQC669i5YagSm4FafbzVJ0vbhFxODXwB0rxDTa8aU3LjZ+
+	 ph7rgpyjAWFwaGUtrH4xru5nc2ZzgxxQ8xUwAep0mgBELPXesnOes7yPEq5C1hhBP4A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VrSQrjOq;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqWmQMF8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56965606A31C;
-	Wed, 18 Nov 2026 12:26:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B6E8606A31C;
+	Wed, 18 Nov 2026 12:27:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VrSQrjOq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C97D1F000C4;
-	Wed, 18 Nov 2026 12:26:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqWmQMF8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F1F1F000C4;
+	Wed, 18 Nov 2026 12:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795004819;
-	bh=Nq6nHtcQPov6ng/GWbkcWdOEm4htQT9mHmFTo86WOlM=;
+	s=k20260515; t=1795004830;
+	bh=IF0/oHGV7P/rpt91jQULrBeSJxduK1eVC6UzBiUzwiQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VrSQrjOq0nmUymOLLSCiUHOsQN/TLXPfgsyaCQFA8P5f9O6PZV2HvPy7tPM4A6QN7
-	 RD1YWdG79mV0HJwAJPdd28In/P+cRD+rxlruKAjjJCHsOd8frG1IU179eKm8xAO9fW
-	 udRisRAaGIMA0h0BP1IuuShD8B+hOnvPLJECTf7vHnBOo2o1snVjQ0uru+ZC7y964D
-	 kTaMG8O2Hhpgn9xCuvJT2iN0f37hdYbQe+wRn8QHId5LQ4xK6/6KxbcU1bhpxyMGAe
-	 o/fHTEo7e93rehvurXz0mNyDbfmThjBsbnuTMBDIL/Qp2oRSpQarKGce2YTxznva9U
-	 EaJ7O/+jW2ojw==
-Message-ID: <sashiko-outbox-220911@kernel.org>
+	b=EqWmQMF8YFOQY7gS9rKWBwLicWImQ/V1dCKkxdNtL6VYNIKu7NB38yVfVY5nLLeFI
+	 m/Y3CFr2Z5ru2xvnrWAB8GXVlcMGlP9hNw8AHlQto3SF+aBBVZyk+fTIGqGYtUGg1q
+	 oYc6Iczqilk/pmqFqu54fW7aRxE3GTOGF7CZXTWpKeh8TO6/bokTd7cEAkeOzABM+A
+	 1VXxXOIOdMYiMPc18YtXOUH7PCIKlBZJv4JbSXRyVX+8xHaqLj3+bHr0DDbNkwbkUL
+	 xLMzreQd+NyT8A7V7cGqpstVhblxEWmXg4u4I+Hi+hMukUlJd8eXgKw48rfqUDC/BA
+	 BQS0q995wt9Ig==
+Message-ID: <sashiko-outbox-220912@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 07/10] arm64: dts: qcom: sm8250-lg-timelm: enable
- SW43103 panel
+Subject: Re: [PATCH v2 08/10] arm64: dts: qcom: sm8250-lg-timelm: add
+ SW42902 touchscreen
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Abdur Rofik" <rofikcoga@gmail.com>
 Cc: devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261118120714.31505-8-rofikcoga@gmail.com>
+In-Reply-To: <20261118120714.31505-9-rofikcoga@gmail.com>
 References: <20261118120714.31505-1-rofikcoga@gmail.com>
- <20261118120714.31505-8-rofikcoga@gmail.com>
+ <20261118120714.31505-9-rofikcoga@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 12:26:59 +0000
+Date: Wed, 18 Nov 2026 12:27:09 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,36 +63,87 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] arm64: dts: qcom: unused dt-bindings/phy/phy.h include in
-  sm8250-lg-timelm.dts
+- [Medium] Input: sw42902: unbalanced regulator_bulk_disable() in
+  sw42902_power_off()
 --
 
-commit 374b6a1bedb56450ce91de89b10571b27d001468
+commit 675fc0153d8629f5c836725c06a791bb2e0ad680
 Author: Abdur Rofik <rofikcoga@gmail.com>
 
-arm64: dts: qcom: sm8250-lg-timelm: enable SW43103 panel
+arm64: dts: qcom: sm8250-lg-timelm: add SW42902 touchscreen
 
-This commit enables MDSS, DSI0, and its PHY, and attaches the LG SW43103
-panel in the sm8250-lg-timelm device tree.
+This commit adds the SW42902 touchscreen node on I2C13 along with its fixed
+regulator supplies and interrupt pinctrl state for the LG V60 ThinQ 5G
+(timelm).
 
 > diff --git a/arch/arm64/boot/dts/qcom/sm8250-lg-timelm.dts b/arch/arm64/b=
 oot/dts/qcom/sm8250-lg-timelm.dts
-> index 1b2b67486fee7..d307a52cd0e62 100644
+> index d307a52cd0e62..be5b894b677bb 100644
 > --- a/arch/arm64/boot/dts/qcom/sm8250-lg-timelm.dts
 > +++ b/arch/arm64/boot/dts/qcom/sm8250-lg-timelm.dts
-> @@ -8,6 +8,7 @@
-> =20
->  #include <dt-bindings/gpio/gpio.h>
->  #include <dt-bindings/input/input.h>
-> +#include <dt-bindings/phy/phy.h>
->  #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
->  #include "sm8250.dtsi"
->  #include "pm8150.dtsi"
 
-[Severity: Low]
-Is <dt-bindings/phy/phy.h> needed here?  None of its macros are used in
-sm8250-lg-timelm.dts.
+[ ... ]
+
+> @@ -461,6 +479,29 @@ zap-shader {
+>  	};
+>  };
+> =20
+> +&i2c13 {
+> +	status =3D "okay";
+> +	clock-frequency =3D <400000>;
+> +
+> +	touchscreen@48 {
+> +		compatible =3D "lg,sw42902";
+> +		reg =3D <0x48>;
+> +
+> +		interrupt-parent =3D <&tlmm>;
+> +		interrupts =3D <39 IRQ_TYPE_LEVEL_LOW>;
+> +
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&ts_int_default>;
+> +
+> +		reset-gpios =3D <&tlmm 38 GPIO_ACTIVE_LOW>;
+> +		vcl-supply =3D <&reg_ts_vcl>;
+> +		vdd-supply =3D <&reg_ts_vdd>;
+
+[Severity: Medium]
+Can binding this node trigger an unbalanced regulator_bulk_disable() on
+ts->supplies in the driver added by commit "Input: touchscreen: add Silicon
+Works SW42902 support"?
+
+sw42902_probe() registers the sw42902_power_off() devres action right after
+devm_regulator_bulk_get(), before sw42902_power_on() enables the vcl and vdd
+regulators:
+
+drivers/input/touchscreen/sw42902.c:sw42902_probe() {
+	...
+	error =3D devm_regulator_bulk_get(dev, ARRAY_SIZE(ts->supplies), ts->suppl=
+ies);
+	if (error)
+		return dev_err_probe(dev, error, "failed to get regulators\n");
+
+	error =3D devm_add_action_or_reset(dev, sw42902_power_off, ts);
+	if (error)
+		return error;
+	...
+	error =3D sw42902_power_on(ts);
+	if (error)
+		return error;
+	...
+}
+
+If an intermediate call such as devm_request_threaded_irq() or
+regulator_bulk_enable() inside sw42902_power_on() fails, devres runs
+sw42902_power_off() and calls regulator_bulk_disable() on supplies that were
+never enabled, underflowing the regulator enable count and triggering a
+WARN_ON() in _regulator_disable().  Unbinding the device while suspended has
+the same effect because sw42902_suspend() already called sw42902_power_off()
+without tracking power state in sw42902_power_off().
+
+Registering the devres action after sw42902_power_on() succeeds and skipping
+sw42902_power_off() when ts->suspended is set would avoid disabling
+already-disabled regulators.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118120714.3150=
-5-1-rofikcoga@gmail.com?part=3D7
+5-1-rofikcoga@gmail.com?part=3D8

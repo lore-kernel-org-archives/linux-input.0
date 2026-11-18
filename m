@@ -1,47 +1,118 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794986484;
-	b=b8B0sI/KLHncHSjgAncNqepq0Y3heEyx6uIc0wOE2KDfagxGcWYStcABDLYYX+AKiOad
-	 3/hi8Eru9c6bmePf78QBdYdIE5bm5afCTe8pg3jDXRbpVk4sGSt1EyIMKEwXVVaL2t0f9
-	 O5tRGmulga71IZ/RESeQa66UuBTL0QseXyjn5lQyg4qVvxEG1BkVWTKiE/RHWob8Px9yU
-	 MmBZwPGHZTCXSUyCSqCeKTMDDXH8JMHeug+zcZlH7t0ACTvZQKG+j4mPpALzZaXYKpD1K
-	 5ZbITZDTtn3BNyLWf0FxNv2Kiy9tk7USBCxdGFt8qjbikCiZoc8Qv9WM6wNCbeZPvjw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794986484;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=cn+lshhcY8tFLWoGfyjNIe0PCy8NHIzlSqm5mPo9WBg=;
-	b=NFSr3zKVU8mBp+B287J0MoCiNUWtEblnC4tm24gHEG1pD7B2Jfd5l/jVucsjoIfmZeju
-	 lCHDUaG2LtDxsOwSKlEzSaxL1L+/cLh4vhrzjppkBYc6XOfEYHrLiwC2xFsOhnSayJAgv
-	 gNdXrMIoguZUnfywgRALogiYmm+uuUHi9iZv/mFoRKKSfxjbfKhp9HZ1mCmtaDrK1xrYx
-	 +wSU8xJHaJ6k9fZFjmiHWUDkKU5D+i3NAvvGMAVeUiRojzC4fkB5Ta6twKI4TaM6xuHRt
-	 LCBhDMNjIPuIHpMz7mA07I2oOmtSKkzQ+FssKy5vtN7EIaX+DK+ltLxmgtedMKOO0LA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L9CKdsc5;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.201.70
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794987246;
+	b=OLKTijIE+awogd6egd1TZWsnwIEh9wqKn0zbKQUTGTq84MuMaNxYbKISBKtZeAiPKxwh
+	 feHo3hTJxkk5b5ecm1mLf0H3hKktt4DxmBPetWLI+lhbjy9evq5x47COVySOTf6/1b7rT
+	 +NYsZxUfaTBlhBbD+R7gWJ7xGbx4Rz6PAVU5vur0x5SsuvGHpMt4duaxtbyBmXZ7tzgbH
+	 foTrFb1bGzknqeaYJyvQELR2H+lCE/If/nZTjv8bwlsXQIT0d78u8AB9VodgNg4sxKzN0
+	 +n/UZtUXozMEdjGCIRQs50/EqQdGryOH1TwpqQnMv5FzdOeFZN17KzuLmm+cz701tGA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794987246;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
+	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=71OmnO+FWbA4EhJ7EN+OTkAqWLzkAt6SqNvR5q45ls0=;
+	b=eWFzZylNDUN9G/EPJL1xJTIJ9NectpbAuXk2oFVzMpwEqdVPKO01h6RMNDog5v7/dd3K
+	 VxbojwFCH8+k68MU2r46Y41xgYmaBtxav9S0WK5B0Be3CjAxSITohoHOtkYfgBdq46kr1
+	 7Ima2+J7ytlOjn8wNKZNbTJVKbQtColiBh5eRNH3bECTxd4BcnX3oci0io1tOUp9DDdX0
+	 mko2FY4ikOmB+P3n1oApbCifrGd9tUGrieVvhO6WSaXpaODz5o5Jc+BjgjI/pAVegz736
+	 IeofS5CTHrjuqiTPwuTTnogqz7HSX8dmR5+kCpNcIcHalFf1N9G+ge/D2qYfI2zYxYw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=amd.com;
+	spf=fail smtp.mailfrom=amd.com;
+	dkim=pass header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=oKSIu2Qc;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.201.70
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013070.outbound.protection.outlook.com [40.93.201.70])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4E3606A32C;
-	Wed, 18 Nov 2026 07:21:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EBA606A31C;
+	Wed, 18 Nov 2026 07:34:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85EBA606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L9CKdsc5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30801F000C4;
-	Wed, 18 Nov 2026 07:21:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794986484;
-	bh=cn+lshhcY8tFLWoGfyjNIe0PCy8NHIzlSqm5mPo9WBg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=L9CKdsc5moFmrAKxMJsnGTfFAzJVQgQe9FyvDy3KRVNJ1gKdB2yEClDWc/cD0T3zx
-	 Wafih6/9S1EOHkeEpfR8Bo/RkAu5WoZuZPs30UACuf5RTMjO7cEEnDMDTj0jdYygsr
-	 lHtARkMqv0Ealb1Hl/Dfep5PQftDdgX3kcAtn9L1GYvucufnmmyZvAkfDt3Qf1ECee
-	 JI/nUIaj8ZzmC/Ii6PfseKKurjClAt1+BtbNAO55IE9mRKB+KtKrLoLEuWfZoJxvgV
-	 MAnc2kgszQ4lbRWKv4UzQvbEjxVEggNQYwxZxFncLzx9v36ku7uxfNeNRHNxOnl2GK
-	 JJWczGVzSoWFA==
-Message-ID: <0c96e0ee-55e7-4999-922e-bc52aa516d2e@kernel.org>
-Date: Wed, 18 Nov 2026 08:21:18 +0100
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=oKSIu2Qc
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wdKAIEGnqdhU/EHEpEmLwUWftF30FTizR18CjiJZl5OBIk0Mt9CG67kYJR7Gk6R4buzoOL87F3MjSjywAeZS093GSZZSUk+vaIR1zn0ny0+uCoW5e+cr8PfgmP6mOvgkc1DJIXmN0cXEme6LPs6hBcSED8TWSjSVE1zwYRxXP4CqSA94cthB3bYSfbtHFvR75mVyAWA34Yc5M9WEb5AadMEcyr5j+ThXOjxGw6X1pqWl0YDncXC65EE4l4ZBhgQbFwZHzwgWdT8iBJYJcDalRyI6SX0nN3oNNT5J9Yq8ty83n1RxQiyDhuYolL9TtFgC3J1YLxuyDfDtlXUs5Zjbew==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=71OmnO+FWbA4EhJ7EN+OTkAqWLzkAt6SqNvR5q45ls0=;
+ b=PFJQTaorj+btu/GQHbdEdVWzRzrAdxnBaERWNdmr7kgPjY5VAd0aYP52PJObcll1c52ye2vQmfVuiusrB/R1yKMWTd2j1N93dL/3pSSEnt7z5J1C564dcgDEARaK9gCRy448OInC9kpTqvIA+E65nsl0+Xt6dGNdpYVYr/XnUCTNigBIX0GPzp8HP/C5aO4bOfbIyViVc5T0jEKRZ69h7DHso00WLVuJQZVN6JH+ikur98bH3Jk7dcjVFves2a3PRZA8l+W7G5dN95mMKuBELdVrlRGyaHbDYCDmIJhouZeFJx4gnuJt3JNNfWqn6zd69w2XW7z6rgAJoWBDnFCKyg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=71OmnO+FWbA4EhJ7EN+OTkAqWLzkAt6SqNvR5q45ls0=;
+ b=oKSIu2QcuIBY3gBoAslJAehQIUbvqoFOn3cbCza/8IKjn4ieDrICYeaK9yZQKCjJwJRoBNEdSeDR1UrRMfis5tYqVwhvBj913hy0sRevca8+7okw961lmfbzmJllF/Um0IqrFliEZEpdmLrRpNKGpW+VQxiitsfyZHTk1N+OLm0=
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from SA1PR12MB999228.namprd12.prod.outlook.com
+ (2603:10b6:806:4db::10) by SJ2PR12MB7866.namprd12.prod.outlook.com
+ (2603:10b6:a03:4cc::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.10; Wed, 18 Nov
+ 2026 07:34:01 +0000
+Received: from SA1PR12MB999228.namprd12.prod.outlook.com
+ ([fe80::4dba:119e:8e7c:37b3]) by SA1PR12MB999228.namprd12.prod.outlook.com
+ ([fe80::4dba:119e:8e7c:37b3%6]) with mapi id 15.21.0615.013; Wed, 18 Nov 2026
+ 07:34:01 +0000
+Message-ID: <fd25ed52-e3ea-41a2-9f62-2397d5d9e8c8@amd.com>
+Date: Wed, 18 Nov 2026 18:33:45 +1100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 18/19] PCI: Replace untrusted state with device trust
+To: Leon Romanovsky <leon@kernel.org>, Robin Murphy <robin.murphy@arm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+ Heiner Kallweit <hkallweit1@gmail.com>, Russell King
+ <linux@armlinux.org.uk>, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+ David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>,
+ Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+ Marcel Holtmann <marcel@holtmann.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+ linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+ linux-input@vger.kernel.org, netdev@vger.kernel.org,
+ linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-pci@vger.kernel.org, iommu@lists.linux.dev,
+ Jason Gunthorpe <jgg@ziepe.ca>
+References: <20261109-device-trust-core-v2-0-3b12d9a9f861@nvidia.com>
+ <20261109-device-trust-core-v2-18-3b12d9a9f861@nvidia.com>
+ <d0999161-3b27-4c3b-9d66-1d117c4836fd@arm.com> <20261110122237.GG8635@unreal>
+ <b4c2538f-8021-4abc-be2e-fcd1596f84ca@arm.com>
+ <20261117124801.GD124972@unreal>
+From: Alexey Kardashevskiy <aik@amd.com>
+Content-Language: en-US
+In-Reply-To: <20261117124801.GD124972@unreal>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SY6PR01CA0131.ausprd01.prod.outlook.com
+ (2603:10c6:10:1b9::7) To SA1PR12MB999228.namprd12.prod.outlook.com
+ (2603:10b6:806:4db::10)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -51,655 +122,259 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 01/16] HID: ft260: add serial driver
-To: Michael Zaidman <michael.zaidman@gmail.com>,
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
- Germain Hebert <germain.hebert@ca.abb.com>,
- Christina Quast <contact@christina-quast.de>, Rio Liu <rio@r26.me>,
- Bruno Giacomazzi <brunoceg1@gmail.com>, linux-input@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- Daniel Beer <daniel.beer@igorinstitute.com>
-References: <20261117200423.19561-1-michael.zaidman@gmail.com>
- <20261117200423.19561-2-michael.zaidman@gmail.com>
-Content-Language: en-US
-From: Jiri Slaby <jirislaby@kernel.org>
-Autocrypt: addr=jirislaby@kernel.org; keydata=
- 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
-In-Reply-To: <20261117200423.19561-2-michael.zaidman@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA1PR12MB999228:EE_|SJ2PR12MB7866:EE_
+X-MS-Office365-Filtering-Correlation-Id: bd85bdef-bc7f-4f4b-6fb7-08df454650ad
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|1800799024|376014|23010399003|366016|261026140227099003|56012099006|10067099003|11063799006|261009223027099003|261026121527099003|5023799004|4143699003|261028144727099003|261022075727099003|261022105027099003|261021121427099003|261102123227099003|261021123027099003|22082099003|18002099003|3023799007;
+X-Microsoft-Antispam-Message-Info:
+	kZxqGkqBkyBWGddz7J43Pl2uxsBLycER/2T8xvGeAlMFBYBrqILCeo2xLkvd7irsvHU3dkvMSuLYf8YFAGzYLW5ITQqs7VrwHfg6ge9RLBWA2rmzvXDJfIi+MQarPcP8BLXI5lLOEReRYrxmkgxEKTO5X4dRXJvXy9iYHC+W3Q3eIKuc7qPScMtYS4mt4k5ydQcu8Gmn0ZrZ1gnFrMQGDEvMhHZGJh/GzQyYtkuxknydptTCtMEIcOgbvKz9911rwFxWWvBgWpCgHkn6yQYLvXdEXuE4EG2OZWZ6fx7xSL+UyyUFQVtUgjP9539uPO/lf6g+GMFPTFgT6VoNqio9L1ZqJmf9ABYL4V8mkKK5SLCrJSWdWD9+wzlmgOnk0mY5zbVQMj7ICC5KgJBsg0h5eTNtOvza4IjsxYwVqWTNzsm9c7XbeppZdFHC9gP1RAKywD/PeHoJjmWA9d3jLvRViv6LihiaFYlzln9Cv+HOgLXkUcenh6cZcL48JPafpaRfO4RVUE5qUEuXvt54ePYY5SslDAT/VJ8+zA+uS/FoZE+zXfqT2RV7Ad9CclhY7Zkb5Ofs587wGOoiFn4CdF1cEkDeJXpN+6Mormj5WThJej3v0ZlWEKW1kyMxVysEzZuGCt8Z9uWhM0Xji146/E8TgFiYQfla2tgcOJxcOPKtbZk=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB999228.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(23010399003)(366016)(261026140227099003)(56012099006)(10067099003)(11063799006)(261009223027099003)(261026121527099003)(5023799004)(4143699003)(261028144727099003)(261022075727099003)(261022105027099003)(261021121427099003)(261102123227099003)(261021123027099003)(22082099003)(18002099003)(3023799007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?djU3N2JoaG5SRnpKelptR3lmL2dSdG4zTEE5enJuUVhWQ3ZIa0dpYmQzekdC?=
+ =?utf-8?B?NGhLM1AxN2tWV0hFNnJJZW51cnNGS1dLeFY2d1lxQVlsNG1YeDhjT044RTFa?=
+ =?utf-8?B?aWxhSjRCUHNERXJPczJFZDZaU056UkJEZUFFYlFMbEdqWDVIbElsZG1PUTls?=
+ =?utf-8?B?MVRZWEJGbjlQSzE4M25qeENiNXhpaHBmYVVOT3QzQi9QZm0rYmxCbnMvM2FW?=
+ =?utf-8?B?UmpBSWRZSUwxTjJMM2RsNzJtYzBrZmJJZCt5UkhFRVo1OEZjTXF4TmJ2anI1?=
+ =?utf-8?B?V1hrQWRTUjkzMHZYenh5UVlrYkdPNHVUNTVGWFZSUnNUYyt0ekh5d0loUzRu?=
+ =?utf-8?B?K0NUcm10TENvekVtWTNjZlUwMjlaL0cwQmp3VlNsSzJBbHFpUW5CNFlnOWNH?=
+ =?utf-8?B?eHNuQWhCMWdJVGpWTzBmek9qeStINTFWR1k1OUxia1RzUkxrRFQwSzRpRnZS?=
+ =?utf-8?B?NW5RNHhsd254Qm1UcFM2OUhiUWphdVZxU1Jzbi9vK2xTa1pMU01iRXR0c210?=
+ =?utf-8?B?NGpzNmlaS1RCdHUwYmVLWDdsSHNCc2tWbWF1NWhrZkFJbWV5UFRMMDhKMFN4?=
+ =?utf-8?B?MUxOWW5mTjhwYitQMXpCdDRYSFc4Rm9CaWtqTjBVUEd2SzlROU83NGhQdjlG?=
+ =?utf-8?B?bVZ5c2hBNmI5NCtLTHY1QkFRTldKVlJzeHYwNFAzS0M0Mkk5OGNScTg0M1Bo?=
+ =?utf-8?B?Zlp6anduTUFjUVFUeGVtYVc1RzRXMlZQSHFoSTlVQlZGTVA0a2xxWldJRkI3?=
+ =?utf-8?B?NG5zL1IrREZLWU1PZ3RIQ1F3T3Zmd3Z5Mjl0cHh1S05xSno2NlNHTTBWVWJ0?=
+ =?utf-8?B?OUl1V2srdkJzai8xbS9BcUlGWUFRalJKTVZtM2NCMUYvM08yc2FIUVFjSzFJ?=
+ =?utf-8?B?Q2JKcVlQMnVHMXd5ZG5xRzdFb2x0ZVVWNHRxcE1kU2hsMEQySHpwQ1JFemcy?=
+ =?utf-8?B?Mkg3V3I0MkZScVVJSEhjb2YySDI1L0NiTmlNSnU2NlUvTHR3TFJxbFFsSXAr?=
+ =?utf-8?B?d1RIaTB2NzBrNjlCR1hDZ0k0NVd3MFRDRjRWWXdLTVVyWGdkNGpIRDRNODF5?=
+ =?utf-8?B?bXk1VmJ5NVFKR1BGbm1NRkRpM0VnNjlBakRYQ2twZG1GRTV2Z1dJQ1Z1WXJj?=
+ =?utf-8?B?bGRMeGsrWnpnYzFQTnVkUnZSMEl5YWs2bmpiZjZ2TUNyMjV0aTAxb0tqWXV3?=
+ =?utf-8?B?Z3lPcEZpdzZIR3FUMmg4eXpyaHdBdmEzTGZSMFZ0ZzM1dWloMnlMR0FGa21z?=
+ =?utf-8?B?N3laVWhZZU9vcGpTQitqS2xydzJhQ3VLeW5GRzR2VXZUa1NmZmhISWNldDZB?=
+ =?utf-8?B?cUpDT0d1cXpIckpjT3AyNE1UNW81dVdEZ0dhaHlldmh5NFVKcmNhOEZ2VFRX?=
+ =?utf-8?B?L0REb3QxSnR6aTVucXJ5elZvcXZGTHBxUHFnWTJEQkowbjFDdG5FQkp4dE5q?=
+ =?utf-8?B?NWhlb1AxSGNwVVk4ZGJKcU1hd3NlRWNNTHRmMFZ5cVBROEhvdUxocjk0bmNu?=
+ =?utf-8?B?NVBUOUpkMTNQd3YwZFJ2MkxXK3YvWnh6UGhETDAwNmZtNGxOei9Oak5pY3Mx?=
+ =?utf-8?B?L3lOVWZSdVZiekZhUnFlak9tZFovbVRJLzJGcDB5c0ppOTNmbDhFbzB3WnJx?=
+ =?utf-8?B?bmRXYllkYjJoUEZTa0tjOU0zbVVpL0MrdXRtUHJVSWFJT0VRc0N5TGhoNElT?=
+ =?utf-8?B?VFBQQk5ZZXJlbjAzcnVuem1qT3JFMGhoMjZmS3pFR1AvTHBibVQ1Q3FEbmsv?=
+ =?utf-8?B?M05tZERoZWxyVjUvbUhNRHRuOFMxaFc4VVI3R0V2dHpiK1FvYjhvU0E3ZDJz?=
+ =?utf-8?B?MTRSUmVUTDlsbFp4WkFOM211UUtyMU9mckllRFM5M054a1I4YXlWQmJMUGM4?=
+ =?utf-8?B?SnNhVTdlbUxrYVFyNVVUNVZuN0VNVGlqc3lhdk5GYWp1Y2ZvWEJjN2hSSHhI?=
+ =?utf-8?B?aDd6WG1NajdIVWtiSGRrejBSL3U2K2pITmsxNWJYcHRobjFxMGI3ek5FWk9O?=
+ =?utf-8?B?aXUzYjdGZU5FV21veUxidXpVN3IyNkpxeExGOS83eEZXaWcrd2V1Q3pxYUVI?=
+ =?utf-8?B?RUE2SjJ2M1paWTRPbndkS3JmVTlNOWhXMEpRTzltVlh0TS9qYlNzclh4amhO?=
+ =?utf-8?B?eGFteFZDZlhHN3BmT2xoaG14d00ycTF0enB1ampSL3VYNUlIa2ZJNVF3OVF3?=
+ =?utf-8?B?aFlRV0Zxa2UrZEM4SjBkT3FZd1JMTkhuQmtTaEtCb1VkdnN6UkdnVjVyVDFG?=
+ =?utf-8?B?ZXNnYXQxS243MkwxTjhvVTU4akRremwyemlkbjE5OUdLVkhsQlFvQVZibjdj?=
+ =?utf-8?Q?2pFLH8CnXLePCKoejg?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bd85bdef-bc7f-4f4b-6fb7-08df454650ad
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR12MB999228.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2026 07:34:01.4690
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1CclyQk6YPOQ+Exb7LflDSdMYo57jIk9mtHPrVn1FJzl+16k1BeAm8LItqcpegYfmjW3EVUh2jaWqFXUiteQxg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB7866
 
-Hi,
+On 17/11/26 23:48, Leon Romanovsky wrote:
+> On Mon, Nov 16, 2026 at 05:13:59PM +0000, Robin Murphy wrote:
+>> On 10/11/2026 12:22 pm, Leon Romanovsky wrote:
+>>> On Mon, Nov 09, 2026 at 01:53:02PM +0000, Robin Murphy wrote:
+>>>> On 09/11/2026 7:33 am, Leon Romanovsky wrote:
+>>>> [...]
+>>>>> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+>>>>> index b486b8bbd1fcd..8be2a246d4903 100644
+>>>>> --- a/drivers/iommu/iommu.c
+>>>>> +++ b/drivers/iommu/iommu.c
+>>>>> @@ -1879,7 +1879,7 @@ static int iommu_get_def_domain_type(struct iommu_group *group,
+>>>>>     static int iommu_get_default_domain_type(struct iommu_group *group,
+>>>>>     					 int target_type)
+>>>>>     {
+>>>>> -	struct device *untrusted = NULL;
+>>>>> +	struct device *restricted = NULL;
+>>>>>     	struct group_device *gdev;
+>>>>>     	int driver_type = 0;
+>>>>> @@ -1901,14 +1901,15 @@ static int iommu_get_default_domain_type(struct iommu_group *group,
+>>>>>     		driver_type = iommu_get_def_domain_type(group, gdev->dev,
+>>>>>     							driver_type);
+>>>>> -		if (dev_is_pci(gdev->dev) && to_pci_dev(gdev->dev)->untrusted) {
+>>>>> +		if (dev_is_pci(gdev->dev) &&
+>>>>> +		    pci_dev_default_is_restricted(to_pci_dev(gdev->dev))) {
+>>>>
+>>>> I think this should be the generic device_is_adversarial(gdev->dev) now - in
+>>>> fact probably all the dev_is_pci()/to_pci_dev() stanzas aren't conceptually
+>>>> PCI-specific, just an artefact of the current "untrusted" flag being so.
+>>>
+>>> I wanted to do the same, but iommu_get_default_domain_type() may be called
+>>> before the PCI device's trust level has been set. At that point, we are
+>>> still in "disabled" mode, whereas device_is_adversarial() checks for
+>>> "adversarial" mode.
+>>>
+>>> The below is from AI, I asked to present me the path for that:
+>>> --------------------------------------------------------------------------------
+>>> For a newly discovered PCI device with an available IOMMU and a new IOMMU group:
+>>> pci_scan_single_device()
+>>>     pci_device_add()
+>>>       device_add()
+>>>         bus_notify(dev, BUS_NOTIFY_ADD_DEVICE)
+>>>           blocking_notifier_call_chain()
+>>>             notifier_call_chain()
+>>>               iommu_bus_notifier()
+>>>                 iommu_probe_device(dev)
+>>>                   __iommu_probe_device(dev, NULL)
+>>>                     iommu_setup_default_domain(group, 0)
+>>>                       iommu_get_default_domain_type(group, 0)
+>>>
+>>> For a device whose initial policy is adversary, its state during that call is:
+>>> dev->trust_policy          = DEVICE_TRUST_POLICY_ADVERSARY
+>>> dev->trust_level           = DEVICE_TRUST_DISABLED
+>>> dev->trust_committed_level = DEVICE_TRUST_DISABLED
+>>> dev->driver               = NULL
+>>>
+>>> device_is_adversarial(dev) = false
+>>>
+>>> The active level changes later, during binding:
+>>> really_probe()
+>>>     device_trust_prepare()
+>>>       __device_trust_prepare()
+>>>         WRITE_ONCE(dev->trust_level, DEVICE_TRUST_ADVERSARY)
+>>>     dev->bus->dma_configure()
+>>>     call_driver_probe()
+>>
+>> OK, that seems less than ideal. Feels like it would be better if bus code
+>> set the initial device state prior to device_add, so then it only ever
+>> changes later as a result of an explicit attestation/acceptance process. If
+>> the initial IOMMU probe still has to poke into bus-specific code to avoid
+>> always making a worst-case assumption, doesn't that rather defeat the point
+>> of having a generic abstraction?
+> 
+> As Jason said, this is part of a very large series. Each series is an
+> adventure in itself. Even Greg's seemingly simple request to convert the
+> USB authorization knob to this new scheme has been extremely painful
+> because of AI reviews. They keep pointing out bugs and gaps that are
+> automatically attributed to me simply because I'm touching that part of
+> the code.
+> 
+>>
+>> Even with the slightly dubious argument that this series only intends to
+>> shuffle the existing PCI code around rather than fully introduce the generic
+>> abstraction that it claims to, if the PCI behaviour is still just based on
+>> propagating the internal "untrusted" flag plus the new global override, both
+>> of which *are* known at add_device time into the common trust state, then
+>> there seems little excuse for not doing that up-front so that the new API
+>> *can* just work as expected.
+> 
+> I would prefer to keep both PCI and USB out of this series on device trust
+> levels. Let's see what people say if I drop them in v3.
 
-On 17. 11. 26, 21:04, Michael Zaidman wrote:
-> --- a/drivers/hid/hid-ft260.c
-> +++ b/drivers/hid/hid-ft260.c
-> @@ -13,6 +13,16 @@
->   #include <linux/i2c.h>
->   #include <linux/module.h>
->   #include <linux/usb.h>
-> +#include <linux/serial.h>
-> +#include <linux/serial_core.h>
-> +#include <linux/kfifo.h>
-> +#include <linux/tty_flip.h>
-> +#include <linux/minmax.h>
-> +#include <linux/unaligned.h>
 
-Sort these.
+I'd rather you did not as it is going to make experiments with CoCo VMs harder.
 
-> @@ -236,6 +314,22 @@ MODULE_DEVICE_TABLE(hid, ft260_devices);
->   struct ft260_device {
->   	struct i2c_adapter adap;
->   	struct hid_device *hdev;
-> +
-> +	bool ft260_is_serial;
-> +	struct list_head device_list;
-> +
-> +	/* tty_port lifetime is equal to device lifetime */
-> +	struct tty_port port;
-> +	unsigned int index;
-> +	struct kfifo xmit_fifo;
 
-Why not to use port.xmit_fifo?
+> 
+>>
+>>>>
+>>>>>     			/*
+>>>>> -			 * No ARM32 using systems will set untrusted, it cannot
+>>>>> -			 * work.
+>>>>> +			 * No ARM32 using systems select a restricted trust
+>>>>> +			 * policy; it cannot work.
+>>>>>     			 */
+>>>>>     			if (WARN_ON(IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)))
+>>>>>     				return -1;
+>>>>> -			untrusted = gdev->dev;
+>>>>> +			restricted = gdev->dev;
+>>>>>     		}
+>>>>>     	}
+>>>> [...]
+>>>>> @@ -616,6 +608,28 @@ static inline struct pci_dev *to_pci_dev(const struct device *dev)
+>>>>>     {
+>>>>>     	return container_of(dev, struct pci_dev, dev);
+>>>>>     }
+>>>>> +
+>>>>> +static inline bool
+>>>>> +pci_dev_default_is_restricted(const struct pci_dev *pdev)
+>>>>> +{
+>>>>> +	enum device_trust_policy policy = READ_ONCE(pdev->dev.trust_policy);
+>>>>> +
+>>>>> +	return policy == DEVICE_TRUST_POLICY_DISABLED ||
+>>>>> +	       policy == DEVICE_TRUST_POLICY_ADVERSARY;
+>>>>> +}
+>>>>
+>>>> Unless I've wildly misunderstood, I'm not sure this is right - if the user
+>>>> has set DEVICE_TRUST_POLICY_DISABLED to explicitly override the bus-default
+>>>> behaviour, but that leads to the IOMMU layer special-casing all PCI devices
+>>>> as adversarial and thus force-*enabling* all their trust-model restrictions,
+>>>> isn't that pretty much the complete opposite of what was asked for?
+>>>
+>>> We have two levels: policy - that describes the default of all devices
+>>> for that bus. level - actual decision on how that device is going to be
+>>> operated.
+>>>
+>>> "Disabled" prevents driver probing until the device is authorized,
+>>> "Adversary" permits probing and requests the available protections
+>>> for operating an untrusted device.
+>>>
+>>> Both need conservative initial IOMMU setup: a disabled device may later
+>>> be authorized as adversary, and authorization does not rebuild its IOMMU
+>>> domain.
+>>
+>> Urgh, I can be absolutely certain I'm not the only one who is going to be
+>> confused this way... I see "disabled" and instinctively take it to mean
+>> disabling the device_trust *mechanism*, as the logical thing that people
+>> will reach for in terms of "I don't care what this new thing is, just get it
+>> out of my way and let my drivers work like they always used to; I want to
+>> disable the new thing."
+> 
+> I completely agree. I was under the impression that these names had already
+> been decided, since I picked up where Dan left off.>>
+>>  From there it then also makes perfect self-consistent sense that
+>> "device_trust=full" would be the opposite end of the scale as in "Apply the
+>> explicit trust model 'fully', to all devices regardless of their bus-level
+>> default."
+>>
+>> Now I guess you could name it something like "device.default_trust_level" to
+>> attempt to make it clearer that it represents a value the value represents
+>> the "trust" *of* each individual device itself, but TBH it's still liable to
+>> look backwards to many users - similarly it's hard to guess that
+>> FOO_POLICY_DISABLED might mean something entirely different from "don't
+>> enforce the policy for FOO.", thus rather than try to contort the naming of
+>> everything, I'd still be much more inclined to just flip the meanings to be
+>> more intuitive from the outsider perspective.
+>>
+>> Say you upgrade your kernel and find your boot is broken because it now
+>> flibbles, but at least there is a "flibble" parameter whose values are
+>> "disabled", "wibble" and "frobble". Are you really going to spend time
+>> straight off reading up on what flibbling is to understand what wibbles and
+>> frobbles mean? Or is your instinct just going to be to try the seemingly
+>> obvious way of disabling flibbling, and then getting positively annoyed if
+>> that only makes it flibble harder?
+> 
+> What about: blocked, adversarial and unrestricted
 
-> +	/* write_lock: lock to serialize access to xmit fifo */
-> +	spinlock_t write_lock;
-> +	struct uart_icount icount;
-> +
-> +	struct timer_list wakeup_timer;
-> +	struct work_struct wakeup_work;
-> +	bool reschedule_work;
-> +
->   	struct completion wait;
->   	struct mutex lock;
->   	u8 write_buf[FT260_REPORT_MAX_LENGTH];
-> @@ -379,7 +473,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
->   
->   	ret = ft260_hid_output_report(hdev, data, len);
->   	if (ret < 0) {
-> -		hid_err(hdev, "%s: failed to start transfer, ret %d\n",
-> +		hid_dbg(hdev, "%s: failed to start transfer, ret %d\n",
->   			__func__, ret);
->   		ft260_i2c_reset(hdev);
->   		return ret;
-> @@ -609,7 +703,7 @@ static int ft260_i2c_write_read(struct ft260_device *dev, struct i2c_msg *msgs)
->   		else
->   			read_off = *msgs[0].buf;
->   
-> -		pr_info("%s: off %#x rlen %d wlen %d\n", __func__,
-> +		ft260_dbg("%s: off %#x rlen %d wlen %d\n", __func__,
+yes, that's better.
 
-There should be likely a separate patch with the above two hunks.
+> instead of: disabled, adversarial and full
 
->   			read_off, rd_len, wr_len);
->   	}
->   
-> @@ -826,7 +920,7 @@ static int ft260_get_system_config(struct hid_device *hdev,
->   	return 0;
->   }
->   
-> -static int ft260_is_interface_enabled(struct hid_device *hdev)
-> +static int ft260_get_interface_type(struct hid_device *hdev, struct ft260_device *dev)
+may be simplify: blocked, restricted, unrestricted? Thanks,
 
-Switch int to the enum then?
 
->   {
->   	struct ft260_get_system_status_report cfg;
->   	struct usb_interface *usbif = to_usb_interface(hdev->dev.parent);
-> @@ -843,21 +937,27 @@ static int ft260_is_interface_enabled(struct hid_device *hdev)
->   	ft260_dbg("i2c_enable: 0x%02x\n", cfg.i2c_enable);
->   	ft260_dbg("uart_mode:  0x%02x\n", cfg.uart_mode);
->   
-> +	dev->ft260_is_serial = false;
-> +
->   	switch (cfg.chip_mode) {
->   	case FT260_MODE_ALL:
->   	case FT260_MODE_BOTH:
-> -		if (interface == 1)
-> -			hid_info(hdev, "uart interface is not supported\n");
-> -		else
-> -			ret = 1;
-> +		if (interface == 1) {
-> +			ret = FT260_IFACE_UART;
-> +			dev->ft260_is_serial = true;
-> +		} else {
-> +			ret = FT260_IFACE_I2C;
-> +		}
->   		break;
->   	case FT260_MODE_UART:
-> -		hid_info(hdev, "uart interface is not supported\n");
-> +		ret = FT260_IFACE_UART;
-> +		dev->ft260_is_serial = true;
->   		break;
->   	case FT260_MODE_I2C:
-> -		ret = 1;
-> +		ret = FT260_IFACE_I2C;
->   		break;
->   	}
-> +
->   	return ret;
->   }
->   
-> @@ -1001,51 +1101,478 @@ static const struct attribute_group ft260_attr_group = {
->   	}
->   };
->   
-> -static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +/***
-> + * START Serial dev part
-> + */
-> +static DEFINE_MUTEX(ft260_uart_list_lock);
-> +static LIST_HEAD(ft260_uart_device_list);
+> 
+> Thanks
+> 
+>>
+>> Robin.
 
-Is IDR or IDA not a better fit?
-
-> +
-> +static struct ft260_device *ft260_dev_by_index(int index)
-> +{
-> +	struct ft260_device *port;
-> +
-> +	list_for_each_entry(port, &ft260_uart_device_list, device_list) {
-> +		if (index == port->index)
-> +			return port;
-> +	}
-> +	return NULL;
-> +}
-> +
-> +static int ft260_uart_add_port(struct ft260_device *port)
->   {
-> +	int index = 0, ret = 0;
->   	struct ft260_device *dev;
-> -	struct ft260_get_chip_version_report version;
-> +
-> +	spin_lock_init(&port->write_lock);
-
-Should this be initialized when the port is allocated. This is confusing.
-
-> +	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
-> +		return -ENOMEM;
-
-tty_port_alloc_xmit_buf() then? Is PAGE_SIZE too much? Then refactor 
-tty_port_alloc_xmit_buf() to allow size to be passed ;).
-
-> +
-> +	mutex_lock(&ft260_uart_list_lock);
-
-guard()
-
-> +	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
-> +		if (dev->index != index)
-> +			break;
-> +		index++;
-> +	}
-> +
-> +	port->index = index;
-> +	list_add_tail(&port->device_list, &ft260_uart_device_list);
-> +	mutex_unlock(&ft260_uart_list_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static void ft260_uart_port_put(struct ft260_device *port)
-> +{
-> +	tty_port_put(&port->port);
-> +}
-> +
-> +static void ft260_uart_port_remove(struct ft260_device *port)
-> +{
-> +	timer_delete_sync(&port->wakeup_timer);
-> +
-> +	mutex_lock(&ft260_uart_list_lock);
-> +	list_del(&port->device_list);
-> +	mutex_unlock(&ft260_uart_list_lock);
-> +
-> +	tty_port_tty_vhangup(&port->port);
-> +
-> +	spin_lock(&port->write_lock);
-> +	kfifo_free(&port->xmit_fifo);
-> +	spin_unlock(&port->write_lock);
-
-scoped_guard() × 2.
-
-> +}
-...
-> +static int ft260_uart_transmit_chars(struct ft260_device *port)
-> +{
-> +	struct hid_device *hdev = port->hdev;
-> +	struct kfifo *xmit = &port->xmit_fifo;
-> +	struct tty_struct *tty;
-> +	struct ft260_uart_write_request_report *rep;
-> +	int len, data_len, ret = 0;
-> +
-> +	tty = tty_port_tty_get(&port->port);
-
-scoped_guard(tty_port_tty)
-
-> +
-> +	data_len = kfifo_len(xmit);
-> +	if (!tty || !data_len) {
-> +		ret = -EINVAL;
-> +		goto tty_out;
->   	}
->   
-> -	ret = hid_hw_start(hdev, 0);
-> +	rep = (struct ft260_uart_write_request_report *)port->write_buf;
-> +
-> +	do {
-> +		len = min(data_len, FT260_WR_DATA_MAX);
-> +
-> +		rep->report = FT260_UART_DATA_REPORT_ID(len);
-> +		rep->length = len;
-> +
-> +		len = kfifo_out_locked(xmit, rep->data, len, &port->write_lock);
-> +
-> +		ret = ft260_hid_output_report(hdev, (u8 *)rep, len + sizeof(*rep));
-> +		if (ret < 0) {
-> +			hid_err(hdev, "Failed to start transfer, ret %d\n", ret);
-> +			goto tty_out;
-> +		}
-> +
-> +		data_len -= len;
-> +		port->icount.tx += len;
-> +	} while (data_len > 0);
-> +
-> +	len = kfifo_len(xmit);
-> +	if ((FIFO_SIZE - len) > TTY_WAKEUP_WATERMARK)
-> +		tty_wakeup(tty);
-> +
-> +	ret = 0;
-> +
-> +tty_out:
-> +	tty_kref_put(tty);
-> +	return ret;
-> +}
-
-> +static ssize_t ft260_uart_write(struct tty_struct *tty, const u8 *buf,
-> +				 size_t count)
-> +{
-> +	struct ft260_device *port = tty->driver_data;
-> +	struct hid_device *hdev = port->hdev;
-> +	int len, ret;
-> +
-> +	len = kfifo_in_locked(&port->xmit_fifo, buf, count, &port->write_lock);
-
-So you put it into kfifo, and:
-
-> +	ft260_dbg("count: %zu, len: %d", count, len);
-> +
-> +	ret = ft260_uart_transmit_chars(port);
-
-remove it from the fifo immediately? What's the reason to do this double 
-copy?
-
-Oh, the fifo can have more than fits into the HW fifo? Did I miss where 
-ft260_uart_transmit_chars() is called to send the remaining bits?
-
-> +	if (ret < 0)
-> +		hid_dbg(hdev, "Failed to transmit chars: %d\n", ret);
-> +
-> +	return len;
-> +}
-...
-> +static int ft260_uart_change_speed(struct ft260_device *port,
-> +				   struct ktermios *termios,
-> +				    struct ktermios *old)
-> +{
-> +	struct hid_device *hdev = port->hdev;
-> +	unsigned int baud;
-> +	struct ft260_configure_uart_request req;
-> +	int ret;
-> +
-...
-> +	baud = tty_termios_baud_rate(termios);
-> +	if (baud == 0 || baud < FT260_UART_CFG_BAUD_MIN || baud > FT260_UART_CFG_BAUD_MAX) {
-> +		struct tty_struct *tty = tty_port_tty_get(&port->port);
-
-scoped_guard()
-
-> +
-> +		hid_err(hdev, "Invalid baud rate %d\n", baud);
-> +		baud = 9600;
-> +		if (tty) {
-> +			tty_encode_baud_rate(tty, baud, baud);
-> +			tty_kref_put(tty);
-> +		}
-> +	}
-> +	put_unaligned_le32(baud, &req.baudrate);
-> +
-> +	if (termios->c_cflag & CRTSCTS)
-> +		req.flow_ctrl = FT260_UART_CFG_FLOW_CTRL_RTS_CTS;
-> +	else
-> +		req.flow_ctrl = FT260_UART_CFG_FLOW_CTRL_OFF;
-> +
-> +	ft260_dbg("Configured termios: flow control: %d, baudrate: %d, ",
-> +		  req.flow_ctrl, baud);
-> +	ft260_dbg("data_bit: %d, parity: %d, stop_bit: %d, breaking: %d\n",
-> +		  req.data_bit, req.parity,
-> +		  req.stop_bit, req.breaking);
-> +
-> +	req.flow_ctrl = FT260_UART_CFG_FLOW_CTRL_NONE;
-> +	req.breaking = FT260_UART_CFG_BREAKING_NO;
-> +
-> +	ret = ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
-> +	if (ret < 0)
-> +		hid_err(hdev, "ft260_hid_feature_report_set failed: %d\n", ret);
-> +
-> +	return ret;
-> +}
-
-> +static int ft260_uart_proc_show(struct seq_file *m, void *v)
-> +{
-> +	int i;
-> +
-> +	seq_printf(m, "ft260 info:1.0 driver%s%s revision:%s\n",
-> +			"", "", "");
-
-Does HID require wrap at 80 cols? This should be on one line these days.
-
-> +	for (i = 0; i < UART_COUNT_MAX; i++) {
-> +		struct ft260_device *port = ft260_uart_port_get(i);
-> +
-> +		if (port) {
-
-Perhaps invert the condition, add a "continue" and save one indent level?
-
-> +			seq_printf(m, "%d: uart:FT260", i);
-> +			if (capable(CAP_SYS_ADMIN)) {
-> +				seq_printf(m, " tx:%d rx:%d",
-> +						port->icount.tx, port->icount.rx);
-> +				if (port->icount.frame)
-> +					seq_printf(m, " fe:%d",
-> +							port->icount.frame);
-> +				if (port->icount.parity)
-> +					seq_printf(m, " pe:%d",
-> +							port->icount.parity);
-> +				if (port->icount.brk)
-> +					seq_printf(m, " brk:%d",
-> +							port->icount.brk);
-> +				if (port->icount.overrun)
-> +					seq_printf(m, " oe:%d",
-> +							port->icount.overrun);
-> +				if (port->icount.cts)
-> +					seq_printf(m, " cts:%d",
-> +							port->icount.cts);
-> +				if (port->icount.dsr)
-> +					seq_printf(m, " dsr:%d",
-> +							port->icount.dsr);
-> +				if (port->icount.rng)
-> +					seq_printf(m, " rng:%d",
-> +							port->icount.rng);
-> +				if (port->icount.dcd)
-> +					seq_printf(m, " dcd:%d",
-> +							port->icount.dcd);
-> +			}
-> +			ft260_uart_port_put(port);
-> +			seq_putc(m, '\n');
-> +		}
->   	}
-> +	return 0;
-> +}
-...
-> +static int ft260_uart_probe(struct hid_device *hdev, struct ft260_device *dev)
-> +{
-> +	struct ft260_configure_uart_request req;
-> +	int ret;
-> +	struct device *devt;
-> +
-> +	INIT_WORK(&dev->wakeup_work, ft260_uart_do_wakeup);
-> +	// FIXME: Do I need that if I have cancel_work_sync?
-> +	// FIXME: are all kfifo access secured by lock? with irq or not?
-
-YOU FIX then :).
-
-> +	dev->reschedule_work = false;
-> +	/* Work not started at this point */
-> +	timer_setup(&dev->wakeup_timer, ft260_uart_start_wakeup, 0);
-> +
-> +	tty_port_init(&dev->port);
-> +	dev->port.ops = &ft260_uart_port_ops;
-> +
-> +	ret = ft260_uart_add_port(dev);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to add port\n");
-> +		goto err_port;
-> +	}
-> +	devt = tty_port_register_device_attr(&dev->port,
-> +					     ft260_tty_driver,
-> +					     dev->index, &hdev->dev,
-> +					     dev, NULL);
-> +	if (IS_ERR(devt)) {
-> +		hid_err(hdev, "failed to register tty port\n");
-> +		ret = PTR_ERR(devt);
-> +		goto err_register_tty;
-> +	}
-> +	hid_info(hdev, "Registering device /dev/%s%d\n",
-> +		ft260_tty_driver->name, dev->index);
-> +
-> +	/* Send Feature Report to Configure FT260 as UART 9600-8-N-1 */
-> +	req.report	= FT260_SYSTEM_SETTINGS;
-> +	req.request	= FT260_SET_UART_CONFIG;
-> +	req.flow_ctrl	= FT260_UART_CFG_FLOW_CTRL_NONE;
-> +	put_unaligned_le32(9600, &req.baudrate);
-> +	req.data_bit	= FT260_UART_CFG_DATA_BITS_8;
-> +	req.parity	= FT260_UART_CFG_PAR_NO;
-> +	req.stop_bit	= FT260_UART_CFG_STOP_ONE_BIT;
-> +	req.breaking	= FT260_UART_CFG_BREAKING_NO;
-> +
-> +	ret = ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
-> +	if (ret < 0) {
-> +		hid_err(hdev, "ft260_hid_feature_report_set failed: %d\n",
-> +			ret);
-> +		goto err_hid_report;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_hid_report:
-> +	tty_port_unregister_device(&dev->port, ft260_tty_driver, dev->index);
-> +err_register_tty:
-> +	ft260_uart_port_remove(dev);
-> +err_port:
-> +	timer_delete_sync(&dev->wakeup_timer);
-> +	return ret;
-> +}
-> +
-> +static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +{
-> +	struct ft260_device *dev;
-> +	struct ft260_get_chip_version_report version;
-> +	int ret;
-> +
-> +	if (!hid_is_usb(hdev))
-> +		return -EINVAL;
-> +
-> +	/* We cannot used devm_kzalloc here, because port has to survive until
-> +	 * destroy function call
-
-multiline comments are introduced by /* on its own line.
-"used" -> "use".
-
-> +	 */
-> +	dev = kzalloc_obj(*dev, GFP_KERNEL);
-> +	if (!dev) {
-> +		ret = -ENOMEM;
-> +		goto alloc_fail;
-> +	}
-> +	hid_set_drvdata(hdev, dev);
-> +	mutex_init(&dev->lock);
-> +	spin_lock_init(&dev->read_lock);
-> +	init_completion(&dev->wait);
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to parse HID\n");
-> +		goto hid_fail;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, 0);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to start HID HW\n");
-> +		goto hid_fail;
-> +	}
-> +
-> +	ret = hid_hw_open(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to open HID HW\n");
-> +		goto err_hid_stop;
-> +	}
-> +
-> +	ret = ft260_hid_feature_report_get(hdev, FT260_CHIP_VERSION,
-> +					   (u8 *)&version, sizeof(version));
-> +	if (ret < 0) {
-> +		hid_err(hdev, "failed to retrieve chip version\n");
-> +		goto err_hid_close;
-> +	}
-> +
-> +	hid_info(hdev, "chip code: %02x%02x %02x%02x\n",
-> +		 version.chip_code[0], version.chip_code[1],
-> +		 version.chip_code[2], version.chip_code[3]);
-
-Is this dump useful?
-
-> +
-> +	ret = ft260_get_interface_type(hdev, dev);
-> +	if (ret <= FT260_IFACE_NONE)
-> +		goto err_hid_close;
-> +
-> +	hid_set_drvdata(hdev, dev);
-> +	dev->hdev = hdev;
-> +
-> +	if (!dev->ft260_is_serial) {
-
-Inverting the condition would make more sense for me.
-
-> +		ret = ft260_i2c_probe(hdev, dev);
-> +		if (ret)
-> +			goto err_hid_close;
-> +	} else {
-> +		ret = ft260_uart_probe(hdev, dev);
-> +		if (ret)
-> +			goto err_uart;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_uart:
-> +	hid_hw_close(hdev);
-> +	hid_hw_stop(hdev);
-> +	tty_port_put(&dev->port);
-> +	return ret;
-> +
->   err_hid_close:
->   	hid_hw_close(hdev);
->   err_hid_stop:
->   	hid_hw_stop(hdev);
-> +hid_fail:
-> +	kfree(dev);
-> +alloc_fail:
->   	return ret;
->   }
->   
-
-> @@ -1171,7 +1857,62 @@ static struct hid_driver ft260_driver = {
->   	.raw_event	= ft260_raw_event,
->   };
->   
-> -module_hid_driver(ft260_driver);
-> -MODULE_DESCRIPTION("FTDI FT260 USB HID to I2C host bridge");
-> +static int __init ft260_driver_init(void)
-> +{
-> +	int ret;
-> +
-> +	ft260_tty_driver = tty_alloc_driver(UART_COUNT_MAX,
-> +		TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV);
-> +	if (IS_ERR(ft260_tty_driver)) {
-> +		pr_err("tty_alloc_driver failed: %d\n",
-> +			(int)PTR_ERR(ft260_tty_driver));
-
-Why the cast? Use %ld.
-
-> +		return PTR_ERR(ft260_tty_driver);
-> +	}
-> +
-> +	ft260_tty_driver->driver_name = "ft260_ser";
-> +	ft260_tty_driver->name = "ttyFT";
-> +	ft260_tty_driver->major = 0;
-> +	ft260_tty_driver->minor_start = 0;
-> +	ft260_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
-> +	ft260_tty_driver->subtype = SERIAL_TYPE_NORMAL;
-> +	ft260_tty_driver->init_termios = tty_std_termios;
-> +	ft260_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
-> +	ft260_tty_driver->init_termios.c_ispeed = 9600;
-> +	ft260_tty_driver->init_termios.c_ospeed = 9600;
-> +	tty_set_operations(ft260_tty_driver, &ft260_uart_ops);
-> +
-> +	ret = tty_register_driver(ft260_tty_driver);
-> +	if (ret) {
-> +		pr_err("tty_register_driver failed: %d\n", ret);
-> +		goto err_reg_driver;
-> +	}
-> +
-> +	ret = hid_register_driver(&(ft260_driver));
-> +	if (ret) {
-> +		pr_err("hid_register_driver failed: %d\n", ret);
-> +		goto err_reg_hid;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_reg_hid:
-> +	tty_unregister_driver(ft260_tty_driver);
-> +err_reg_driver:
-> +	tty_driver_kref_put(ft260_tty_driver);
-> +
-> +	return ret;
-> +}
-thanks,
 -- 
-js
-suse labs
+Alexey
+

@@ -1,86 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=34.2.64.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795014028;
-	b=uBaLkl3dkmmc8A4G5cChpbMeR3KAoR/LJ5r1XFDw0cYvgDs6rbTXcU1raZ3WsoMhPVx8
-	 i+d8C8hUCkUBPO1EHHzbVj55TIGwzBttCesiGyJ9iUmwcvvH48NKHOwuYEecTX+3pzTN0
-	 MCjOSjTnpFTDHjivhlbXA18OFTYCFkTVq+vNgSbq4YyJ6NoAcZJvujGcNFOBKZ4H9EBzN
-	 7Mh/SYXD9Rg1n94H91NJOt7gbEqt6H6bZhDwb+0f/Xxl6nK8LGWVDy+i++R5EGbtgdeof
-	 m/6E9qg7fIYFuGZ7oDSxNo6QPGNvhxDM4Df4fFh9mj2JpSuBPSbEWy9N4uVun+6hKtA==
+	t=1795014255;
+	b=u3mlnpEJzit8n3BDiaCJDjwrKsTlERUIy7MlpGZPMdaniV6N+s++h95H04iJ71FVa8Ux
+	 Zu8d1LpzVpltX1uSMw88iOtVFXFRM6WBLwUysUfQeCyJwuialgwBNQ3zst8SHtrOv5qCT
+	 CqTfalM3o08b/ZSPYOvOCkKONo2bgADeMiOnTH+WExEU6NB4S37JR57UsWjeGQMEB4iS/
+	 uODg3ExyGE1buz0fNOTHIw/JwcKUvl/vgRDsLhUmqTNtvgsz6G3KEzQ93hsVtxH2qPGQG
+	 mSZLJoL25cR8AFnaRKvTi6SEkLxdX7E3dgeWBupHdzrwLYQJQC7WB7FF0galruAP/Dw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795014028;
-	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
-	 X-Sonic-ID:Received:Received:From:To:Cc:Subject:In-Reply-To:
-	 References:Content-Type:Content-Transfer-Encoding:MIME-Version:Date:
-	 Message-ID:X-Mailer;
-	bh=xIqP9DW0MNb8cbUSMB4qwOLD6IctYX6wVFr0Jt4lshg=;
-	b=gga4T7aARx+nwzeFy1ogqIN5qULERtWCJWho/7Vkkpkk45GK+2lhdFxmY4RGBZOmiaAb
-	 XKf76Ln+IR+ND1x4opWIg/vpuZPyz8f9q26CikJVjhyKQCKUAMWTBU7lR7ucDm5NjteEH
-	 GTBNNonWuDlu4rzy0gM/rndRGaCX6bkmpJQ+Tfy2AKE7vqtb+bJt0oGQhbqB2xPV2kQHm
-	 MI2xFt8WAcUazFyDqT/2GZtwWIOH3zhqyS6WCuefwxLi79hrwcl4XXppFzJIM2vTjr415
-	 b7pG10GShVBOzEUvvPmQHdO+9Tiv+IZB4rU4RemDHN3UXSvJwESsWJC9H9cS5/CAucg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795014255;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Disposition-Notification-To:
+	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=Z/tQwtb+guAS1R6/OD9tZmRzv2qN3TXj6uh+KCQvyAk=;
+	b=NBh13g+YNsB1MGFT8akfLrfWZQNge83qfdFs3Rs8KZVWdyvB4GhdyDlLWzM6wnqcK//I
+	 hZvJfwNpcjDrHiIdwZnO5LJDeTNVt7lRNnQj7XpQQxEkj5IiTir1MPVe7nrWpXseQmvzu
+	 NgP1tJlUc+L9abSDA8kiFb0a8ksy1jy6iZlI6wKMdOPVjoDbisH59OCQXQX2V1Uli0BdN
+	 Z70/9hAuCNGih4w5jzjtr1NKiMepnnsUtsjfmt0pIoY8vF7yStoUU/BQJtF1OLBo7lECX
+	 LFQMWp/KTuxeFho/QUe8W3GnxADYTza3+TclNmmLDW+OZ8F95ldt1junbwkvirFCL9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=yahoo.com;
-	spf=pass smtp.mailfrom=yahoo.com;
-	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=EwfrE1wC;
-	arc=none smtp.remote-ip=34.2.64.18
-Received: from sonic.asd.mail.yahoo.com (sonic-usea1-0019.asd.mail.yahoo.com [34.2.64.18])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BZgNY5oh;
+	arc=none smtp.remote-ip=209.85.218.44
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB0AE606A325
-	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 15:00:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB0AE606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65A20606A33A
+	for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 15:04:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65A20606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=EwfrE1wC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1795014026; bh=xIqP9DW0MNb8cbUSMB4qwOLD6IctYX6wVFr0Jt4lshg=; h=From:To:Cc:Subject:In-Reply-To:References:Content-Type:Date:From:Subject:Reply-To:Content-Type; b=EwfrE1wCkMIAcRR52/xuNkW0E0Ov6fHUpOiyxLAC/lctf1qGNJAW2luqgTHKGLlftnB2fhdAze4QhaOAQn5tfjkruKWER9trRMmf/BqGUnD+u4dz2tcJP04CbCD3YaOzojlNeCj9DumqtkeGQytfQ4Py/LLTNoZS0C5m/o5hsiQkim4DAJ5t7HoZQ8q93BloJ/yTobH6e+GZQWs4tCsHCYAzs3QuwU8nmdzxySYTLqe0GXtuy1WrYZsVrZEE9FKDYpIpPpciNRvd4CmiycFWUh71gdGe/Q7sXO4ts5G7T3RN6yIhd8PSNo/HtTl+1tnd4Osljb5HKE9jVmeHL8o4eg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1795014026; bh=RCiGym3CU8r0C6LVzkksbr0t+PRx3iPkDnpOh/F0JH/=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=IlTqul6xKUFAiLZIi4rLoN6m92Gkkwke1N3kthHmAfbx2DPRmmVgc2Aq0FhgqRf8WmzbwqCvglXsHsYQXznpE3Y8RBsOdyFm0vFSoEYrLIFf5i3gpkYusUulcJRe1KnHLNz9Jg4jE8B6uay1otHYXze3caLZDk3vtd/XUTnVPGO+yALIDW3pKlwXfghzDAB9YPlwz8k2Bpq/N+RCCUjZK+e6WGZ+KY9bBE121UeYj3f45ecarKFD14H+e8iAzZkNmoJxAdrovjOwT8f0b8VND45uIvigmS4qHAsz1ABsMJb3tRyegYGb2+jsLFn4zYbxVulyeC7OsmrZol+NBTw+Xw==
-X-YMail-OSG: zaODDQ8VM1m9mxg_ufJDXxMzGJbO2SaJab0zLytJvodbZTOCEywBLhb9WAbpj3d
- b2LrtS9VpZAWpHGf89y78SzazHRDGJWLya45YxJWLM34WoJR03KBoKiGG3fKxUpLfda3E5YimCs6
- AYal_2A4fUh8OXB5zgZM_YEsJMHAKhJY4DEKEuqHbdPBIbwH.dW_mo42dumYV6SK21JqHiCRntIj
- GJtFf1qFLXF6BuHpksgB9MJheAi2MYSu2S8lRID5yKz8SUd4vcMDm6zzEhOX41yCOyZu8iJOvvgQ
- .SqV60DDDFT7MqkGHHGenfRGGWV33uZDptIN8BfhbAZiD6NNMbKEn.SXZI4LXvz4HcETexf_F6EF
- yLp589K9KziCyi7CZ_bEJhXnjroAt7Ix4xBbE.Da1WiwtPUD9s0GwHScdry4kXIT88NmMhZ6nsEt
- eoGCdC1nkNa6UeJnqtW9T2jnsAyDsclJNX0WAPwjWHn5ovNYBXqk0fvtelKXaV2R0s64grL2L6qe
- 73Vja.OlgInt6OexGTGN7sjG9TRiJw5FnbQIVgnAjOyiPbMEsWKSAMqZf2Bk._SV8XKkCgaw883D
- 7t65GCWnBp0D03j2aYaJr7a.dfGgK0SeV0ifUaqW8KdFG79dEKfm9S0bC3grxpN2y5JWDC0nWYfm
- VQC7T_3Gw9HBfgLnjVTSkTgN.PlO7Zcfix4242ouynu4tw2KJ_79S9ju.F2AjpbSP5FAPzwqDgcE
- 8Kdd59VRj_P3HCf9B2TxGCn10nqViKbSTBZbYNtUW1zu4df7L9Roz6feZ5iQpr5xirc87vdmBQ94
- 5o_zeLV.4rBLTDJk1d_zMQ2PdkUrfBCGg5F1E.qoRRbZ5CCoRy0fNrqhjF9Tebt0lPtUaNc._dNn
- 2WBF3_0dbBuz18dCCvNzf0K0Imj.AHPhkHKZeZl2HslEk_7cf_EckNgJKlnqKTahxedpAt8kuBPX
- INTIJXjIUOGUUmpyDD8d86GnfTHeGI87jNM3gIyxc46XXfx7S5Yw78djbUD_cyGWmZAd0mIssH4d
- LLlPJUzDByc3OkTzIk4jAc0bfIZ2lRzeGxKEwiVIXnUdbxuUp3v9smxKBwX5qrja0WgB4EaIlYkH
- qN0TwEfCuJjxlzAaJ8yG8xB70bZHMlyj.erX6xMy3wd.oV8UcJMx7pja3D.h740PnpvaBlmj7beT
- Po8QmZSkEefjRjxq8ttHsviw_5zJbMBL7eV2O70QJ6TxXydrUmihQ5T8S0Hru97rbEuuRS_EfN4j
- 1hgHEe5VJ8O6YuYeMBg.W67BvWySaJr08FKkG2LyC2V_8Z4WKCBFbEIITeoDh08uY8mLGyofOmu8
- dEtCHVxCMA6tI.V9Sfi13p7OoPMsQZUOT5XgnvPNUQAhbVWwbT8TPCJZZv8yYE8kgkWRERaPol8F
- gZ3763n4Baydyp7AyCO2N_qWmdQ2LuaWS5_71SdJf3LI7DJZdcHDByMkLL9gkd9p_pI_SIATcyL.
- QSEI9agH.hnndAd0RGKins9y0zIryqxqBEstsQUSlN2buss5V2..R.j5tKaArc_MZb7C3WGOBD0_
- QBjUUVZgOxBNi2EOwtZu9CQcq58nipN7RlcRi6HxCWoP33wbDHvJiulcRlo9noXj51YvphrpS9xn
- p.eoCbOhz87rsxBzggTzO31YCCToT3ZhBvxwEyGcwJQ09tjSAYCcIvo02dNpzqMrJRZmobkQOHc5
- a1Kgok3COxRF6EeaMqzdXEK9MHNYfFwXY0r3iRxl0NXZk2aioJiECEBYXCLXx2TdVJBr1TccKZJp
- MzSSy3pJwGvG4GEghvQ3OSPntal3QPppTEMgJXzBTLiQ.lWHsc1yEIr8yqDlLAl9AT5Rmjhqe83n
- 56IBv9Z7rxd.ku1E9j5Qi63Pye2kWlmUEWTrYYPYyEo7I_JCpxRwQdy9lGUcQDDutYpfIqNtehsA
- OQJQGVt93dQdhk5PiCdSAvYs5Cq656SZle73ZztDQYk1bd1iKsUUHVLNG1qrrw0Gc5d1quTBrJq7
- yf6ZLgcVN_wGB
-X-Sonic-MF: <capitain_jack@yahoo.com>
-X-Sonic-ID: b63a302d-7415-4630-ad1f-8e1de52c2318
-Received: from sonic.gate.mail.ne1.yahoo.com by mail-asdoutdeli-p-cin-usea1-prod-sonicconsumer-svc-102 with HTTP; Wed, 18 Nov 2026 15:00:26 +0000
-Received: from dip20.lsn.bf1.yahoo.com ([67.195.177.29])
-          by hello (SMTP) with SMTP ID 18b76bb473d01ac89d7404256b7eb674;
-          Wed, 18 Nov 2026 15:00:20 +0000 (UTC)
-From: Daniel Campos Ramos <capitain_jack@yahoo.com>
-To: Tomasz =?utf-8?q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
-Cc: dmitry.torokhov@gmail.com, corbet@lwn.net, jikos@kernel.org,
- bentiss@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, vi@endrift.com, linux-kernel@altimeter.info,
- peter.hutterer@who-t.net, Ricardo Esteves <ricardo.lopes.esteves@oracle.com>
-Subject: Re: [RFC PATCH 0/6] Input: New EV_BTN event for generic buttons
-In-Reply-To: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
-References: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BZgNY5oh
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c505994e5f5so17603766b.1
+        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2026 07:04:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795014254; x=1795619054; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Z/tQwtb+guAS1R6/OD9tZmRzv2qN3TXj6uh+KCQvyAk=;
+        b=BZgNY5ohqoEFQkAOL/iufDJibOewT3UgU2WVfwz5xpbqpBVbkYqnhc5ABRsYqWLPj7
+         8GTikK+xnUaXefdEgttPL5Dir2FKlQPUJi8SXvikn6YoJ8UbiIxeNQg7jnDHaaDw3Osc
+         7HMiGLt7nV5j86eNOAMOXcwjFXjU5ruEQXU4NglemLKDqQEaYmweQOhUf6y5XignaU7O
+         piEJezvPTns6OaohWw2T+dnTPhfD44fRRmw2aW3DQLnvkEuv9wCRY/p7kGA0jZIVhCLa
+         ud9DSv7W/UVw0VCagPDTiXYbdGPHJa2o2Mgq0t6CGcMtFx8rf8QAjg9T8icFuXsQLdxF
+         VUFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795014254; x=1795619054;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Z/tQwtb+guAS1R6/OD9tZmRzv2qN3TXj6uh+KCQvyAk=;
+        b=evEOhKqE3Y4dB53qVLVHxF5KCUNHkoGaIa/tDaDcTrsC8Q0jVNToiHSFdkm4fFjtg7
+         Zu1W5Xwt3jr9QegtERkJusNWQWWl0y1Q43ChUei/XFGpnGX/BwqKWhpTLUXRBCuTXUzR
+         wI+91NAtP9/ox0Y39j7XptbFAp2XS85ZGA5iNjGl8EuZi7mTqAwNzWGOnSncwsU2FnAp
+         RENBcQ+/ZCpvM59zgRWE+8PWQhqralSb+EeKlDsQSzRnbBfQySKlDvtn4eO4uQRgxyAi
+         6Ch95suiiw6z6ii4wIpT8ePiXVof/3MlIjZJQlXJV4dgJk/scUX/utdMYRCnjUEC4GgU
+         MqEw==
+X-Gm-Message-State: APuU4Z9XOo+jJPUKYSqDa8t7dKhx/iGGZwpBWEwRtLCEdkem459NpcDN
+	7suRW8ab9zd0YhErusT2zpcRCfCZoNaIntcPJgDo0/8Y4/8K2NY8oFOT
+X-Gm-Gg: AYBFou1/jfoSbe4iJEJLrnYdnLHovG7qkIyxPexA4x+GLiMQBulF8UlW/BEZ88D1eM2
+	z7S7I357liRSMAjp/XSricErLmJ4sSKuu0DmyNL+Yrn+IcIq4H+Td2fpxn7TsFveky00kdEg9U7
+	lnp47JOLPIlPr7/vyzv582cfTnkU0XumZ9vNNj8FbjSWd2XJKU2exgFm08XioRAlsPwu2+rdp+p
+	uR7M0oA7pLv5nmd4J3PfhdxSrCuAayMvXk6YbYny+ab7Sj/MTkxTYYJELy5fu0MREAA1RVsayPj
+	IX3QqO1rSAyuTTdkJZjijHSBGQJfraCbjSqYEyGauzXy208fHoUKi4gYbfFlHZU6OPkfwGt/1cg
+	HBM4ZWEFl5/1nyXyJZ5kzrgMNO6lp0vvb3/3qVDHrbwAWWO1mh4+YuwavKsttTTN0JEFoLR0jEZ
+	KZezGtUOI5Ss67WXeoYmzeASgCPo+f/XtVNyfr1mBMJEabKuaZANWbYjP80U2JstnoWeTsGRMnv
+	75MiTAClRq197F/rP5hMvrGAz/nzkG3NeSc3B9H3C40zqsFD0NhAZQproQfoZf/XDOBt8Hl7geo
+	ztdmh+wlyjZ+md1Wqbh1CVGpB43nsXugiqNK6vpNDAIGAV9vUZ2T3LO6hxeScwtqR78QeVMaWEO
+	rN6GHYDK7mJfo8g==
+X-Received: by 2002:a17:906:7085:b0:c2e:8801:9139 with SMTP id a640c23a62f3a-c510deb9e53mr253754166b.1.1795014253543;
+        Wed, 18 Nov 2026 07:04:13 -0800 (PST)
+Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c51233c4d52sm7516566b.14.2026.11.18.07.04.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 07:04:12 -0800 (PST)
+Message-ID: <b6b45a76699f8b5dcfb2fdb1ee682bac0ed501df.camel@gmail.com>
+Subject: Re: [PATCH v3] HID: pidff: bound the unit exponent rescaling loop
+From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: Shengzhuo Wei <me@cherr.cc>, Oleg Makarenko <oleg@makarenk.ooo>, Jiri
+ Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ =?UTF-8?Q?Micha=C5=82_Kope=C4=87?=
+	 <michal@nozomi.space>, Paul Dino Jones <paul@spacefreak18.xyz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date: Wed, 18 Nov 2026 16:04:07 +0100
+In-Reply-To: <c80644469f01ae6d2ba0339a7a2fcd7c6080c310.camel@gmail.com>
+References: <20261104-b4-pidff-rescale-exponent-v3-1-f45e64cf488c@cherr.cc>
+	 <c80644469f01ae6d2ba0339a7a2fcd7c6080c310.camel@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.62.1 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,74 +105,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Wed, 18 Nov 2026 12:00:15 -0300
-Message-ID: <179501401503.113617.9596561330028866042@yahoo.com>
-X-Mailer: WebService/1.1.27017 mail.core.serving.mcws.prd.acl:role.token.mcws.jsmtp.yahoo
 
-Hi Tomasz,
+On Wed, 2026-11-04 at 08:41 +0100, Tomasz Paku=C5=82a wrote:
+> On Wed, 2026-11-04 at 03:44 +0800, Shengzhuo Wei wrote:
+>=20
+> Works as expected. Thanks!
 
-Your EV_BTN series has a home. I carry the six patches as posted in
-the kernel of Sparky Stereo OS, my edition of SparkyLinux, in all
-three flavours we build (normal, x86-64-v3 and PREEMPT_RT), on 7.3.4.
-Your SDL pull request 14758 and your Wine merge request 9853 are in
-our SDL and Wine packages beside it.
-
-Thank you for this work. Thanks also to Ivan Gorinov and Ricardo
-Esteves, whose patches of December and February went at the same
-limit from the other side.
-
-Why I wanted it: more than 80 buttons is ordinary hardware now. Sim
-racing and flight cockpits, button boxes, control surfaces and
-accessibility devices built from many switches all pass that number.
-Linux can be the platform for these, and today it stops at button 80.
-
-What I measured, with a virtual HID joystick (uhid) of 128 buttons,
-eight hats and twelve axes:
-
-  With the series:
-    EVIOCGBTNCNT gives 128.
-    All 128 buttons arrive as EV_BTN, the first 80 also as EV_KEY.
-    SDL3 with pull request 14758 reads 128 buttons, and so do SDL2
-    programs through sdl2-compat.
-    Wine with merge request 9853 gives DirectInput 128 buttons, by
-    the udev backend and by the SDL bus.
-  Without the series:
-    80 buttons as EV_KEY, and SDL reads 79.
-
-Two notes on those results. The SDL number is with one small fix on
-top of the pull request: built against kernel headers that have no
-EV_BTN, its fallback define never asks the kernel, and SDL stays at
-79 buttons. The Wine number needed two small fixes in Wine itself,
-outside your merge request. Both belong to those projects and not to
-this thread.
-
-One thing for a next version. A report that changes many buttons at
-once overflows the evdev client buffer. With all 128 buttons changing
-in one report the client received 44 of the 128 EV_BTN events and a
-SYN_DROPPED. input_estimate_events_per_packet() makes room for "KEY
-and MSC events" with a constant 7 and does not count EV_BTN. Counting
-one event per button when the device has EV_BTN gives 128 of 128 and
-no SYN_DROPPED here:
-
- 	/* Make room for KEY and MSC events */
- 	events += 7;
- 
-+	/* Every generic button can change in one report */
-+	if (test_bit(EV_BTN, dev->evbit))
-+		events += dev->button_count;
-+
- 	return events;
-
-It only makes sense on top of your patch 2, so take it into the
-series if it is useful.
-
-Benjamin's review of patches 3 and 4 reads to me as the way to a
-next version. The test device's descriptor and the result tables are
-available to anyone who wants them.
-
-I work with AI partners on this distribution. I read and ran what is
-reported here and I answer for it.
-
-Daniel Campos Ramos
-Sparky Stereo OS
-https://github.com/Sparky-OS/sparky-stereo-os
+BTW Jiri, I'll re-send this as part of a series shortly as I ended up
+doing another big overhaul of most of the driver code. It's currently
+waiting for Oleg's review.

@@ -1,31 +1,31 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795096344;
-	b=fMu3d/pnzSNpgVtvB2kETHQU5Ek/yNTdSCidOJeMX/H8eidaCnHrFL96PiGV5lHjwis9
-	 jjvR0dnaYatrLhgv9elqq8IrlETRURpnkrj5jQNVUAGewMYVigyjPhx4FCp4bb884sOnf
-	 dN/ULpXtCGAWgXfnz+dtLBmwCg6IIekFzzFLWCXpn9iD0ThdmJRJfh1rPa81K6bG6GnoU
-	 6IHveOHY+CeTznLZWSpUWwoe3VyhBCRM2FPAQfepp2Q1rqlQ+qmU3X0g9p/hZWAzHxzIt
-	 NA+i/MKs82w+cKghBZRTV6lGcNt0qe2iECdinRyHtuWt/utacAkLJgnF7jGKImxNCYg==
+	t=1795096346;
+	b=OEYDjgkJ0/qyr5ZRH35lT/9ooHFHgNwp+Oxx5oQS59HM8Txbs0Q0W+pegfhNoq48aULW
+	 kuk8QCdPvir5618yw70tqiMsoRn2hE/onP/pNaz4OZX9I6Lvnt5MhjjF4Rc62nHoF48u+
+	 0R9orO08aEvBZDTs5i+j6af02N4HRVsrhKMFxRz1kLTWncRFJT7hspohd6yRyw2XGGVs4
+	 90meMpM5z672S3JnprK5p8vXji8E2jkvwXYdupbf6mm+c5aXGcKHFD7U/0ndjp+aTEnLA
+	 Kse2v4v4bXwrXpnlhhFMLbVB1jr7Ya5PTwBeAoXBclLGbLyrblWdaRDxVw9kOsOLyiw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795096344;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795096346;
 	h=Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding;
-	bh=SY150LehtwY+8E3DsboI1K8P1YxqiMEO52EgHejX3Ak=;
-	b=c8P8yzQWiIv0dYD0vcAWo4Xmd9SuVx9WyaXxZv80tFzh0THpiQZL0Pi0gGZzAW/rykn5
-	 sFbZfWCA8f2ZRIuXFIk5HZD1uWH9WGEzRQYlRRN6ONixVXJS0HXV1ZzMvuDJFVxKpKBM/
-	 n0WXuzN8UDYXTBAn1jNZoSKzK10J7hb+qNALE1LAEaO44yecb3/MA7sBv5Jx2BwPiFtAN
-	 Yu2o+sGmoGnhFyySloSc9pcZMSHRZjm2j5girJVSgdvfUZZCigFhlPa8Yx0BPkBoC3bJg
-	 KHXGE14EuY2vmr5nUZbat4qugdiQmJkPAmX/rZ8PmwZc7pjx4UfPM4cNee4L2PLjxQg==
+	bh=GFriNn5y+XA4FmnW88/9zuIopVokvZmBM5RGTr6p20Q=;
+	b=QnByLBAluu0Jji/X1Rm4c9K0R7H83iAw/OrOrgql76LhvenkYcydGAlEoSkgo7u9xNjC
+	 Huq1OlsOor8m3huVCeFzFlC8LKgJCuMmOA4pdyg9MezsyTrAQLkFIJ4XUGH9hlO/dWUQW
+	 r/5aOjcuDaCjwTgKtBSCppUru/Gi3ReYoeBf9Er4o6OU7W+amZOcOo6pIg93tM3kvsl5y
+	 bl9dQX8Zxndek8S7a5uS8OxkZ4B3STiNHo1Y2AjXpbQnMBHxaPbiY9vh+QDXgwf/4ujcM
+	 flnULFbVu6Jp4mbhYepfCVmzgfvgUk8AQqe7FspVl61fuaxDuevuONCivfa4QYk7nlg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C811606A325;
-	Thu, 19 Nov 2026 13:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C0C1F000C5;
-	Thu, 19 Nov 2026 13:52:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A41F660A260A;
+	Thu, 19 Nov 2026 13:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D3E1F000C4;
+	Thu, 19 Nov 2026 13:52:24 +0000 (UTC)
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 To: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
 	Svyatoslav Ryhel <clamor95@gmail.com>,
@@ -38,9 +38,9 @@ Cc: mfd@lists.linux.dev,
 	linux-pm@vger.kernel.org,
 	linux-tegra@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 2/4] input: keyboard: Enable compile-testing for KEYBOARD_ASUS_TRANSFORMER_EC
-Date: Thu, 19 Nov 2026 14:52:10 +0100
-Message-ID: <27990d37c1b7854d9d5f0d0a0f45193af4b9ec51.1795095742.git.geert+renesas@glider.be>
+Subject: [PATCH 3/4] input: serio: Enable compile-testing for SERIO_ASUS_TRANSFORMER_EC
+Date: Thu, 19 Nov 2026 14:52:11 +0100
+Message-ID: <3beff0ff365277097d5678a9ee35fe8990f7e7da.1795095742.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1795095742.git.geert+renesas@glider.be>
 References: <cover.1795095742.git.geert+renesas@glider.be>
@@ -55,27 +55,27 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Asus Transformer's Mobile Dock multimedia keys driver builds fine
-when MFD_ASUS_TRANSFORMER_EC is not enabled.
+The Asus Transformer's Dock keyboard and touchpad controller driver
+builds fine when MFD_ASUS_TRANSFORMER_EC is not enabled.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/input/keyboard/Kconfig | 2 +-
+ drivers/input/serio/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 728bc068667e7ee9..2709cff6d00bc93e 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -91,7 +91,7 @@ config KEYBOARD_APPLESPI
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index eb6e20cd40ac703d..39c3c072803df90c 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -86,7 +86,7 @@ config SERIO_RPCKBD
  
- config KEYBOARD_ASUS_TRANSFORMER_EC
- 	tristate "Asus Transformer's Mobile Dock multimedia keys"
+ config SERIO_ASUS_TRANSFORMER_EC
+ 	tristate "Asus Transformer's Dock keyboard and touchpad controller"
 -	depends on MFD_ASUS_TRANSFORMER_EC
 +	depends on MFD_ASUS_TRANSFORMER_EC || COMPILE_TEST
  	help
- 	  Say Y here if you want to use multimedia keys present on Asus
- 	  Transformer's Mobile Dock.
+ 	  Say Y here if you want to use the keyboard and/or touchpad on
+ 	  Asus Transformed's Mobile Dock.
 -- 
 2.43.0
 

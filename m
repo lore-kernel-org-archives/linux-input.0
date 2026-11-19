@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795120259;
-	b=mIc+bipymyWAV2RvnzQ4i1WL4JjGA/9VUBgmjdhNrhVFZENOvr2idA9bdf3FURaFCaul
-	 7LNMQIeevaewecTw93VGF8O5v1YFdbreUD8iqpEyT8A/XmPzOEncikEhJP8NWgDfa7xnf
-	 4Lr7ngQgTREUgaEkpr+W92pDwZqT2gkzHTSK5E2UdsYP3lnkMax9J09Zj2yQdRKqc8hTo
-	 uvnv1WdcOoRq5hYdSDeaSacCTBi4KQC6FT31DoyK27DTmZ4oOqGcrkrV6VAo3+R91QdcC
-	 4TXNsipYjKAnddbu/nK1Fo+pjywSkQoPuizrodZPl4CShSpYTbtc5tiR7f+/fCDVcOw==
+	t=1795120445;
+	b=4jyx6w6tfCtWuw6B7UDx1gV+Vl7etaXJpUsGaCe7ZHW+1JyHytfwUJBsx8PCyHc4oh+t
+	 mxA/8Oe8IOEOTOJtyeE/B/VJRH5hzk3BxMRoTxXJzLOqLICyeUrS14xuX6eg8YETxt//D
+	 mUddMWvIfvmbedav5usnV6tzJ2UavjSIo4RoD8IXr8NOae5jYI6QuAaDspLfNEpbGo2RT
+	 SAB3/FFXOhO5CxdnwCjWgeM9aeTjNB+Q15NaF7dgefu3lgwigQQooKEqa4PM6R3jG8OyE
+	 B2R3Glv8H/2ACWCw26P/rfuUBur4LcfyWWBc/BmpRpPFFLpaP4jdPut1DVSgaMMA7kQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795120259;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795120445;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=q3eQTb4176tQ/XYFb8kn65EXV9uC6ppEQ1yWUG1qw9A=;
-	b=moIe0uLb/nes8IrsASHNPfM+gLXr152Mjne770z8B6/rAk/xrhCMJKdziDGO0KemKJ8b
-	 8SPModQedYR+9puGH112wEiZmygereXlXVJ6WCAxboV/hDGmCIfca3DntJxIqL4VBrz4r
-	 +YsslLGSoWvi6sl7KvoUvAIQtL7rT4P37dfk2b7TBT17sTGURzrXug4Nj3NVccY9xPcpZ
-	 uL5IJtT1np59P9ogHv0saSmLpmiSPHLNQU0jjgE93ms8zaumALS7wtk+yjLqm3Oa7WOte
-	 4rSTz8rhTq6dib11iNGYlC/aav0yKlWuUbaceOWChdAt8mSmEfsxIZ6d57wjS7L0wqw==
+	bh=Mzoq4npiXk3rD3rCKkfgNVYBODAsF8ohlXRBacGpMdo=;
+	b=EDY6/yhbHTIBRMeLSK4d4tdVdCq3w1dAh+QwhaeO2PZupxfamcdBvF8aWWydP7yNTWEu
+	 g4NfZtq/WZnlA3Q1Q98pnl8vqgiNsQlLleZrxaFMn8OHxAIS3gNtmjoFA6ZflB7DHtV6w
+	 +OfshiBngG/SWdbz+SYBdF7YkdeTGZGuqypJ4XQzDGfA9N6MWhzr4XKRtOW239gbJa+d0
+	 6Kxf+beuzqmqTdW3XO+v3jw5Kvr4CtdjaElv6ABHGv+avMWSLu0eEyg8EpARHVkKXpxQR
+	 /Ij7YjRLVfMZeRYFl5hq09wDUwpWKX4VN3fN6H/ogkBvx0mOsQXoEmkXgzHOBltQ8bQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MpYPyHlt;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jSypZVPJ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C386C606A335;
-	Thu, 19 Nov 2026 20:30:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89B8960A5BEA;
+	Thu, 19 Nov 2026 20:34:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MpYPyHlt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA671F000D8;
-	Thu, 19 Nov 2026 20:30:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jSypZVPJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3961F000C0;
+	Thu, 19 Nov 2026 20:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795120259;
-	bh=q3eQTb4176tQ/XYFb8kn65EXV9uC6ppEQ1yWUG1qw9A=;
+	s=k20260515; t=1795120445;
+	bh=Mzoq4npiXk3rD3rCKkfgNVYBODAsF8ohlXRBacGpMdo=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=MpYPyHltmvmB+yUf6dgiauc9S9WVw7Y3iM2aWljpnU8HU+byjsFlTX9C57xjrUOXk
-	 IKJLff6YOjcbXtKQk0xjdBQkp+gjAHgHbTPB2nCaCRDNlvrlK4ud/XvpfQWAE9yMib
-	 1DD6tftm//dDGVwoloQSBLHtqPbDInu3NHBPY4K3cDGPyLLEv7Njp++C0WTrIHurWD
-	 NSdpOKCk7Q78Z9NqPbX5Q2v6bfvgK9dbU2WaEyJMub22krEehTdbPaXP3OVYU1sKQG
-	 2CAnEfXaktNQOezjYieX5KNnnKFj+jdICA1gnCbpKAi5wcSOOTJ+VRrPmX/eShvJOs
-	 cuFvNmOdiAplg==
-Date: Thu, 19 Nov 2026 21:30:56 +0100 (CET)
+	b=jSypZVPJu+EbK3cjfM6+9/Z3SlL2mIsVOoxH4Jpjd/088Jt9LPtBT3O2TEGFv3gEC
+	 aQf3QQPILtRoXOFH9HLxxki23UWf44HJIX8gm4iQDpOM2Kqe9Hr7YORW2mBAyHNHou
+	 vo/jwJ+/22yN+2pQSmDpHxPOSCOS9Abh0gsInoJN8I8YvTT632OaIQJ5UGjM88Ix9I
+	 G8C6syo/niFas52Jd9XjXwda9j8pHUBPcdPJyJcoPULsYlO0AjSdTsnUi6QAqalIfs
+	 R6d+ka/gr9oEXFJQ8C6XKjtdJ0Pc0Iyw0RjLjfCyeV55b+NqA2XqSa0oyd0j8gQFN7
+	 ZPi2y5eC01WMg==
+Date: Thu, 19 Nov 2026 21:34:02 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: andreas@aclaesson.com
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Chen Changcheng <chenchangcheng@kylinos.cn>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: corsair: cancel LED work again after unregistering
- the LED
-In-Reply-To: <20261109-hid-corsair-k90-uaf-v1-1-0621c2c5c451@aclaesson.com>
-Message-ID: <30po4s0s-7n8n-1q84-40r3-623n6n45p005@xreary.bet>
-References: <20261109-hid-corsair-k90-uaf-v1-1-0621c2c5c451@aclaesson.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+cc: jic23@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
+    linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    simeon@maryasin.name, lixu.zhang@intel.com, crofts@kernel.org
+Subject: Re: [PATCH v3 0/7] HID: sensor: custom: use-after-free after
+ remove
+In-Reply-To: <20261109195949.384888-1-srinivas.pandruvada@linux.intel.com>
+Message-ID: <84031467-654s-q1nn-0sq7-rns4sq48962o@xreary.bet>
+References: <20261109195949.384888-1-srinivas.pandruvada@linux.intel.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,68 +61,32 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 9 Nov 2026, Andreas Claesson via B4 Relay wrote:
+On Mon, 9 Nov 2026, Srinivas Pandruvada wrote:
 
-> From: Andreas Claesson <andreas@aclaesson.com>
+> This is v3 version with changes suggested by shashiko-bot and Jonathan.
+> Also rebased on top of 7.4-rc2 kernel release.
 > 
-> Commit eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering
-> LED to fix use-after-free") moved cancel_work_sync() in front of
-> led_classdev_unregister() in k90_cleanup_backlight() and
-> k90_cleanup_macro_functions().
+> This patch series is essentially the same version that was sent to
+> Semyon for testing.
 > 
-> led_classdev_unregister() turns the LED off unless
-> LED_RETAIN_AT_SHUTDOWN is set. That calls k90_brightness_set(), which
-> unconditionally does schedule_work() on the same work item. The work is
-> therefore queued again after it was cancelled, and the structure that
-> embeds it is freed right afterwards:
+> Following a feedback review conducted with various AI models, it was
+> suggested to break each change into individual, separate patches. This
+> makes perfect sense, which is why this series now contains more patches.
 > 
->   k90_cleanup_macro_functions()
->     cancel_work_sync(&k90->record_led.work)
->     led_classdev_unregister(&k90->record_led.cdev)
->       led_set_brightness(LED_OFF)
->         k90_brightness_set()
->           schedule_work(&led->work)        <-- re-queued
->     kfree(k90)                             <-- frees the queued work_struct
+> Additionally, these reviews identified issues in the adjacent probe and
+> removal code when active sensor instances are present. I have addressed
+> those issues in this version as well.
 > 
-> When the work later runs, the workqueue dereferences the freed
-> work_struct and k90_record_led_work() reads led->removed from freed
-> memory. A USB device that enumerates as a K90 and is then unplugged
-> triggers this reliably. With CONFIG_DEBUG_OBJECTS_WORK it shows up as:
+> v3:
+> - Address comment on patch 6/7 by Shashiko on useless goto
+> and suggestion to remove sensor_hub_remove_callback() for
+> err_remove_dev_if.
+> - On patch 4/7 : HID: sensor: custom: Fix state lifetime during removal
+> Rename goto as suggested by Jonathan
 > 
->   ODEBUG: free active (active state 0) object: ffff88803b8772c8 object type: work_struct hint: k90_record_led_work+0x0/0x1e0
->   WARNING: lib/debugobjects.c:632 at debug_print_object+0xec/0x230
->   Workqueue: usb_hub_wq hub_event
->   Call Trace:
->    debug_check_no_obj_freed+0x2e3/0x450 lib/debugobjects.c:1201
->    kfree+0x13e/0x650 mm/slub.c:6923
->    k90_cleanup_macro_functions drivers/hid/hid-corsair.c:547 [inline]
->    corsair_remove+0xfd/0x260 drivers/hid/hid-corsair.c:602
->    hid_device_remove+0xc5/0x1c0 drivers/hid/hid-core.c:2897
->    ...
->    usbhid_disconnect+0x9f/0xc0 drivers/hid/usbhid/hid-core.c:1486
-> 
-> (with ODEBUG enabled, work_fixup_free() cancels the work and hides the
-> use-after-free. Without it, the freed work item is executed.)
-> 
-> Keep the existing cancel_work_sync() before unregistering, which waits
-> for a worker that may already be past the 'removed' check, and cancel
-> the work once more after led_classdev_unregister() so the work queued
-> by the LED-off request is gone before the memory is freed. A re-queued
-> work that manages to run before the second cancel still sees
-> 'removed == true' while the structure is alive and returns early.
-> 
-> Fixes: eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering LED to fix use-after-free")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Andreas Claesson <andreas@aclaesson.com>
-> ---
-> Found with syzkaller (USB emulation, KASAN + ODEBUG) on mainline
-> f66469d9905b. Both the record LED and the backlight paths reproduce
-> (hint: k90_record_led_work / k90_backlight_work); a minimised
-> 3-call syzkaller reproducer is available on request. With this patch,
-> 200 probe/removal cycles per path gave no ODEBUG or KASAN reports,
-> against ODEBUG on roughly half of removals without it.
+> For using guard(), need a follow up patch as that will be a cleanup.
 
-Applied to hid.git#for-7.4/upstream-fixes, thanks.
+Now in hid.git#for-7.4/upstream-fixes. Thanks,
 
 -- 
 Jiri Kosina

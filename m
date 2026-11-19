@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116568;
-	b=HaJH4pbuQJpYQU3NrHnQz5waR/0CaZmpYngD1J193fruYe2ZO8ZlRP3O2CWqzNVyhKEo
-	 gjKkfjwu9hNOdY4E7lA/wIggpqiE6INvP28EJZ3vZY3KVYfu1YrWuar6h+PzTTSjdpKtM
-	 2v7c+rYduZQyNpQF1LPaetQTIt7s7PbC4P0gojQriFkE51qCRF5X0Bv9COWpx9H6kfDcD
-	 U7MmdTfAv/94X9kqzpFz0l+lcp6SmAFtx+X/souyFYeUI5Qu7hlhky7/tSKby1AQJARmr
-	 sJ8fIQeBSUukJrVhX4SNS0MZnY7wMdWvMx0CNgXZqM3ziTyyJHgxX/qNCImFQupRtvg==
+	t=1795116569;
+	b=hpPDGL1+fZFJHZRH0UfyG/Ke4BIR4s23xuTra78S9gl+lfqcVZcGmA0mz1na3XS+EXMQ
+	 DcdwGC08WJ82wF9ClvdghzXjL3vkdhtobDZtcx2NeIhDlnMTbbMLKo5v27hODkRYWwlhH
+	 pQooh9GNtgLJjWS//MDCTBV5dpxStKztJTIVlmBNMsJ/y5YefJpaEtB/UgFc0GF5CXU30
+	 sXS3lKEfJmugr/fe2GrdvJnrJnh+Zj99u5QBOuwSqowz1seA9vfaQQra2v1n9ih6mv0NJ
+	 XEE8veBC2xh/Bxkz6zhW8RPX/aHslAyuyHKrDqw8QTZFDjvDl1JtPJODHFdFCbxPwfQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116568;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795116569;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=OgM+PEnCbO5Zw1W+/mO1GK38eonTVOG3vgB7OD9t3GE=;
-	b=S3rXpX2lhkkZQMTz84DxoAQA/msRPb4SrDB4O8YL7aG0imhw0KpCZmnH24xWwd52t5KN
-	 ikBExc1cEyAJ6LhssMkYW2L6lkpNVsLME7I8CA/P8cpcM9IuiKo1HdoLh8eS1kX6M/wUY
-	 7SqIneAstZ7wX3UHf1s1bVi/Gg4C7GS+7mdKpcD3zaPfJDsG2136OAWdq8FRTxA7i4Bgk
-	 PCwSMEFK4qixSgXc9HESE8aFqeh48vVYEGFVY2iR2ozVbE06InfYqectBRMen4FbwTC4K
-	 elptqVZYONa/QU0T6PaG2TVHUE+Cf/7v1nxBdcWhXLmzhGkrzCTWqqoU36csyTi0IFA==
+	bh=l7AVhcwuGl1PXj6hXzEWXwBm2rxgoAoDA2jTKI3Qvqk=;
+	b=nr3Ib3XSJS5HqbDlSupXT9UKdrnLFfLizRWeTtnMFRwPOeuLk6XMiRqgEYhNUZerEY0R
+	 Zsg/zk3FNMhBmwVZXvADtVEskqYC1YfpX9zbSu9906cI22ZpBQY81RDuINGSHRm6tjiTC
+	 un+JB83Y9xPcvXBP65n9IpZ4zSYAxXZY4K8NtkcEQzz9TUmkJVP5gK5IMYoLHHyPppsJi
+	 ujoPOIe+6Ssdx/WLxWFb1rn68dANpXE+u8NW9GLDKCQDYt6/RPI+YtjOc1Ej20xSLtxE8
+	 mP14mynQZIB+7Yp+3Dcdp5XDF4MYvgYZ4vWAcu4Fhenai96BbdFJrYXzja66Lslfbpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IrV0eXRa;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iHA9zobk;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49E0E60A2628;
-	Thu, 19 Nov 2026 19:29:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63A460A2606;
+	Thu, 19 Nov 2026 19:29:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IrV0eXRa
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D501E1F000C8;
-	Thu, 19 Nov 2026 19:29:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iHA9zobk
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD711F000C4;
+	Thu, 19 Nov 2026 19:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795116568;
-	bh=OgM+PEnCbO5Zw1W+/mO1GK38eonTVOG3vgB7OD9t3GE=;
+	s=k20260515; t=1795116569;
+	bh=l7AVhcwuGl1PXj6hXzEWXwBm2rxgoAoDA2jTKI3Qvqk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IrV0eXRaNjLHycAUzmvxmGp77JksAQrOXj+3XiwLfJyR7XRnoK8LwMAzI2OASugsr
-	 IVz1xD4VKgREgMvpbHoIz79Qne8grLE20+7rckju4ez1j1HErNaOOy050YH1ug5/Zi
-	 9fghxGK16+i1wId07253A1CGpGp9SRLevol6VJBkSKM93mWPkdyhJp1yI8/F/SX7dU
-	 u2uA6hJYBuVXNqFbuvk28TMcdM+AQ24xmvg5sWbWxKxcnNPTeuWB1UJtqBgZyPluLc
-	 VDU+MJTo+0w7dnMEScCNni+0YtHR/PmgdhryRmDpUkzW4x1nzG9ANWOIcvrV1iVhc4
-	 nOPRIB4lafecA==
-Message-ID: <sashiko-outbox-223895@kernel.org>
+	b=iHA9zobkukderofckPlIzb4A9U/kBB2V9y0pyMje15LATMvrxSg/XqPibm1RwKsZz
+	 e/WbJjL6PCbGKFFRurRzQeJ7HNwIOE7WWmlEpuMNuzE5QSHVk6IaDqe5cLGTMUVBuB
+	 nxRn3Kv3zqiYuWqbva79DGtO8kpOQH1hgTcAHlz2txd6cdg0chbHK/pW9ba8gIrFIR
+	 5PKy7jBpgn49fYlXA40/gqhWhNbjxhll7pvt7jERlNpEuR1akuSJXmdlqSLzTWGriQ
+	 nf9ymKAptBt0LQ1sMZ6sYwzZ+TTaulrAV4LHsQB8N56GsIEj4SzwAfGu2txUTKXct2
+	 ZqO9UCY2jkrsA==
+Message-ID: <sashiko-outbox-223897@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 09/31] USB: Pin modules for unregistered interface
- claims
+Subject: Re: [PATCH v3 11/31] USB: Unwind interface claims after
+ registration or binding failure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261118-device-trust-core-v3-9-d655875c4bfb@nvidia.com>
+In-Reply-To: <20261118-device-trust-core-v3-11-d655875c4bfb@nvidia.com>
 References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-9-d655875c4bfb@nvidia.com>
+ <20261118-device-trust-core-v3-11-d655875c4bfb@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 19:29:27 +0000
+Date: Thu, 19 Nov 2026 19:29:29 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,107 +61,123 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] usb: core: premature claim_owner release in
-  usb_set_configuration()
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] USB: unbound claim missed in usb_set_configuration() when
+  autoprobe is off
+- [Medium] usb: core: failed interface claim unwind skips altsetting 0
+  reset
 --
 
-commit afd725f56c3717b2e1f97538c7c8fdee117c4deb
+commit 5e9d278c3fe83635c408aabb0f7fdb4a22c1316b
 Author: Leon Romanovsky <leon@kernel.org>
 
-USB: Pin modules for unregistered interface claims
+USB: Unwind interface claims after registration or binding failure
 
-This commit pins the owning driver module in struct usb_interface.claim_own=
-er
-when an interface is claimed before registration, and releases that referen=
-ce
-upon interface registration or claim teardown.
+This commit unwinds pre-claimed USB interfaces when device_add() fails or
+driver binding does not complete during usb_set_configuration(), and releas=
+es
+remaining unregistered interface claims in usb_disable_device().
 
-> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> index 0a6fdf2e88f4e..b7bd9226d2627 100644
-> --- a/drivers/usb/core/driver.c
-> +++ b/drivers/usb/core/driver.c
-[ ... ]
-> @@ -619,6 +634,7 @@ static void usb_unbind_claim(struct usb_interface *if=
-ace)
->  	usb_unbind_interface(dev);
->  	dev_set_drvdata(dev, NULL);
->  	dev->driver =3D NULL;
-> +	usb_put_claim_owner(iface);
->  }
-> =20
->  /**
-> @@ -653,6 +669,7 @@ void usb_driver_release_interface(struct usb_driver *=
-driver,
->  	if (device_is_bound(dev)) {
->  		device_unlock(dev);
->  		device_release_driver(dev);
-> +		usb_put_claim_owner(iface);
->  		return;
->  	}
-> =20
 > diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-> index e56079398d26e..306978caaf1ef 100644
+> index 306978caaf1ef..b2e5ed35a4a59 100644
 > --- a/drivers/usb/core/message.c
 > +++ b/drivers/usb/core/message.c
+
 [ ... ]
-> @@ -2269,6 +2270,7 @@ int usb_set_configuration(struct usb_device *dev, i=
+
+> @@ -2270,6 +2292,7 @@ int usb_set_configuration(struct usb_device *dev, i=
 nt configuration)
 >  	 */
 >  	for (i =3D 0; i < nintf; ++i) {
 >  		struct usb_interface *intf =3D cp->interface[i];
-> +		struct module *claim_owner;
+> +		struct device_driver *claimant;
+>  		struct module *claim_owner;
 > =20
 >  		if (intf->dev.of_node &&
->  		    !of_device_is_available(intf->dev.of_node)) {
-> @@ -2282,12 +2284,16 @@ int usb_set_configuration(struct usb_device *dev,=
- int configuration)
->  			dev_name(&intf->dev), configuration,
+> @@ -2285,6 +2308,7 @@ int usb_set_configuration(struct usb_device *dev, i=
+nt configuration)
 >  			intf->cur_altsetting->desc.bInterfaceNumber);
 >  		device_enable_async_suspend(&intf->dev);
-> +		device_lock(&intf->dev);
-> +		claim_owner =3D xchg(&intf->claim_owner, NULL);
-> +		device_unlock(&intf->dev);
+>  		device_lock(&intf->dev);
+> +		claimant =3D intf->dev.driver;
+>  		claim_owner =3D xchg(&intf->claim_owner, NULL);
+>  		device_unlock(&intf->dev);
 >  		ret =3D device_add(&intf->dev);
->  		if (ret) {
->  			device_lock(&intf->dev);
+> @@ -2293,7 +2317,22 @@ int usb_set_configuration(struct usb_device *dev, =
+int configuration)
 >  			intf->unregistering =3D 1;
 >  			device_unlock(&intf->dev);
 >  		}
-> +		module_put(claim_owner);
->  		if (ret !=3D 0) {
->  			dev_err(&dev->dev, "device_add(%s) --> %d\n",
->  				dev_name(&intf->dev), ret);
 
 [Severity: Medium]
-Does clearing intf->claim_owner before device_add() and calling
-module_put(claim_owner) unconditionally drop the module reference too early
-when device_add() leaves a pre-claimed interface unbound in the driver core
-(!device_is_bound(&intf->dev))?
+Does setting intf->unregistering =3D 1 before calling
+usb_driver_release_refused_claim() prevent usb_unbind_interface() from
+resetting the interface back to altsetting 0?
 
-Commit "USB: Unwind interface claims after registration or binding failure"
-later in the series handles the cases where device_add() fails or
-__device_attach_locked() clears intf->dev.driver on binding failure, but if
-USB bus autoprobing (/sys/bus/usb/drivers_autoprobe) is disabled between
-usb_driver_claim_interface() and device_initial_probe() inside device_add(),
-device_add() returns 0 while intf->dev.driver remains set and
-device_is_bound(&intf->dev) remains false.
-
-Because usb_set_configuration() has already dropped claim_owner (making
-usb_put_claim_owner() in usb_unbind_claim() and the device_is_bound() branch
-of usb_driver_release_interface() a no-op after device_add()), releasing the
-registered-but-unbound claimed interface via usb_driver_release_interface()
--> usb_unbind_claim() runs without a claim_owner reference. Once the driver=
-'s
-disconnect() callback detaches the control interface from klist_devices, a
-concurrent delete_module() can see an empty klist_devices and free the modu=
-le
-while disconnect() is still executing (or leave a dangling intf->dev.driver
-pointer for drivers such as snd-usb-audio that do not release claimed sibli=
+When a driver such as cdc_ncm claims a sibling data interface and switches =
+it
+to a non-zero alternate setting during probe(), a later device_add() failure
+on that sibling sets intf->unregistering =3D 1 before
+usb_driver_release_refused_claim() runs usb_unbind_interface().  Inside
+usb_unbind_interface(), driver->disconnect() releases the control interface
+and usb_set_interface() is called to restore altsetting 0, but
+usb_set_interface() rejects the request with -ENODEV because
+iface->unregistering is already set.  Since disconnect() released the sibli=
 ng
-interfaces from disconnect()).
+claim, usb_has_claimant() returns false and the device stays configured with
+the failed interface and its HCD bandwidth stuck on the non-zero altsetting.
+
+> -		module_put(claim_owner);
+> +		if (claimant && (ret || !intf->dev.driver) &&
+> +		    usb_driver_release_refused_claim(intf, claimant)) {
+> +			bool unconfigure =3D usb_has_claimant(dev, claimant);
+> +
+> +			get_device(&intf->dev);
+> +			if (unconfigure)
+> +				usb_set_configuration(dev, -1);
+> +			module_put(claim_owner);
+> +			put_device(&intf->dev);
+> +			if (unconfigure) {
+> +				usb_autosuspend_device(dev);
+> +				return ret ? ret : -ENODEV;
+> +			}
+> +		} else {
+> +			module_put(claim_owner);
+> +		}
+
+[Severity: Medium]
+Can checking (ret || !intf->dev.driver) without device_lock(&intf->dev) miss
+an unbound claim when drivers_autoprobe is disabled?
+
+If an unregistered sibling interface was claimed during an earlier probe() =
+and
+bus autoprobing is disabled before device_add() runs device_initial_probe(),
+__device_attach() is skipped:
+
+drivers/base/dd.c:device_initial_probe() {
+	if (sp->drivers_autoprobe) {
+		ret =3D __device_attach(dev, true);
+		if (ret =3D=3D 2)
+			__device_attach(dev, false);
+	}
+}
+
+device_add() then returns 0 with intf->dev.driver still pointing to claimant
+while device_is_bound(&intf->dev) is false.  Because (ret ||
+!intf->dev.driver) is false, usb_set_configuration() skips
+usb_driver_release_refused_claim() and drops claim_owner in the else branch.
+When usb_disable_device() later runs, device_is_registered(&interface->dev)=
+ is
+true, so device_del() is called before usb_release_unregistered_interface()
+and __device_release_driver() calls klist_remove(&dev->p->knode_driver) on =
+an
+unattached klist_node, causing a NULL pointer dereference in klist_put().
+
+Checking !device_is_bound(&intf->dev) under device_lock(&intf->dev) inside
+usb_driver_release_refused_claim() instead of the unlocked !intf->dev.driver
+check would catch this case.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118-device-tru=
-st-core-v3-0-d655875c4bfb@nvidia.com?part=3D9
+st-core-v3-0-d655875c4bfb@nvidia.com?part=3D11

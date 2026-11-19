@@ -1,54 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.20
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795121548;
-	b=eyCxswCsqYw7Ff/9JwNz43rgOoscvgm/oAm8TVCyd4YrhYtOHbRoG///1qmMqCmgU9gG
-	 CZVzze+rx5NGzc8JVUBeFIyn0ByR37E2VKfr5nvtq00Lil5zTzjdExQsQpBaRe/8eG0FL
-	 vETSAK7/F+hl5tV+a49WUkgQ9ThnI7vjGSP/FC6t6k2qsQm5xgYX+ygEgW/6bP6gq/H2T
-	 1r49MKIyYICNusPDL6VzYP1wSDdwSQhRwFlfivTwv4BPAO7JZzNiBJVQztFXbhmn0RaKZ
-	 p2q9hrKPP4jaJ7BwnQqKsluMRjCS1rTPALPxO84I5r5mX+5NOVA6ORiBoapLRKaWnvQ==
+	t=1795121633;
+	b=B+jO9Me7TZ1IprArvrpfMP+AoZ6kNdNE5mMSMqJQSp5hCz0A1AVkau4UqK0hvyw2IJ5M
+	 tS8BisxyB/Fdz380JeV8+dDnUOX2jHERGu3uGRtglqk0uAR1+447rvouG8/8+NEUxy75Q
+	 2M9KAgHMJ6axAZEdVOSy0I0qHCEJRr3LSD/IkAMwzWidN+ayGsNnc1L5fUgcyegFnrTZM
+	 N8xnP0YQ38Gr6K+gsm1pGqNXcXzosiWocHEqWISgIBVQgJuVIFZTatprWcer90ousxRVS
+	 BGz2vylrZTmqqJhYvmJOsHSVm6/JNqIEtBObYlgl6jbLB1N1mu7lbsVp7EkCnNFfh2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795121548;
-	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
-	 Message-ID:References:MIME-Version:Content-Type;
-	bh=FJmvMFDcyGQCXOCIHAhT7RJ/i5rH1OLf0MHq1diJsgU=;
-	b=w06h10Erdy7VE7a0v1TTs4NxN7GmyPn4xtbfWxTRrAFbIj2j3PnKGc4ROf/iRTBHbQZ6
-	 H/XthzJwdvX5TjFpSaK1GJj89GCqwFeDeFBQH7gvXI7D6uDH41dbbZ2NeBB9no3Wrf5WJ
-	 CcM6J2rJ62maKVSFtGnRYwhe+06rpkfKeP1fSFFO/d3e4+WZr7+ipqFUg0xFdsQy3ZSuf
-	 O2a5eStWQ3zeS6A+L0yThEs2hb8mrB8da9Q1MS5ZyCnthYL25oA5Vo9PwLBUkKSCvjzmx
-	 lV8TuV+/1Wgp08s7EzIWyciD/9OI1QccokM9nhZvw7TaTpp5vn9qSBYrC77chdmlLGA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795121633;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=/zyFtue2Pu27Krmvp0xJdBDSYvJgKl9E6IP3y2DGTns=;
+	b=x2/qHlY00K/gOuGbDzX0bBhypLcf9JB7Vc8JJrtJBS1oajosD3IhxT8rfjXuhYHldEBd
+	 B4JzltiLI4zMbruRu3p0cgJRAuiH/vLjSbvT7oY+imzFc3E9wln1tUcdjA9R/XF5/xbWG
+	 hWGV2hlJ9tM5SbGAg/d84EBXk88+NSkEKcY4xfQ1CJPvAlc5Z4Rw0UXeoAkbEudu+l6iq
+	 4SGxfxKqfsTweRhcs5uab31Zwf03etTOW+q/kXoJ+BvGb8lt981WJSf3hysqccSef9gih
+	 3zBQmhwKZCVUPppIA6aayNSx72Tx+qvfUNwqJuYVtVBTcu6gEKM9U4zBztnGZtJo1hQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lNpc6c42;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ICYjvFQN;
+	arc=none smtp.remote-ip=198.175.65.20
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A5A606A337;
-	Thu, 19 Nov 2026 20:52:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 336FF606A337;
+	Thu, 19 Nov 2026 20:53:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 336FF606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lNpc6c42
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1EB1F000C6;
-	Thu, 19 Nov 2026 20:52:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795121548;
-	bh=FJmvMFDcyGQCXOCIHAhT7RJ/i5rH1OLf0MHq1diJsgU=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=lNpc6c42XCW/cM1OX30eNLVmgMH1UZ7VkmPm81oxj8NcxqjAn/jke+896rdftb6nl
-	 0oi087XRQ5D1LubnK9nZDh9AYzbgzl0LIk3F3s2xPIvaM2icZi73Ho5Rb5r9jpOnju
-	 jA07WSjfR21YY5vmX5wVdUoivpuR8+d9lQMNcEbvVthXyrzyvEPgkUc27ZKJpVCULs
-	 YOyB8VwRRSttXWcM18MkCoZiv179gkkxyz1xVW4lmssZCgdF3/z4wgvQQACZrbj0M9
-	 3flPzcbZ8eXlfaWYGtBAeddyNhBaYGe4sLx1JEEFoSzGQ/ezP9tWHpDtMS54Np/FjP
-	 HlRmjmT8dyLTg==
-Date: Thu, 19 Nov 2026 21:52:25 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: Hans van Essen <hans@kilurion.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: asus: Resume the device before sending feature
- reports
-In-Reply-To: <20261006-hid-asus-autosuspend-v1-1-0c3df3121063@kilurion.com>
-Message-ID: <34rqnq66-8885-op7o-649q-43p893474qs6@xreary.bet>
-References: <20261006-hid-asus-autosuspend-v1-1-0c3df3121063@kilurion.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ICYjvFQN
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795121633; x=1826657633;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=hxtu6n6hjdoIS8OVHUKESNiwIThZujrt8bph7b+Fd9s=;
+  b=ICYjvFQNmGXLKT8lJzORh2ddjFYCo9FP4DQi6xU3/yJUAA/EVDMMwtnW
+   Z3/qGtN6wfv3hNHInCrrHBmZeBxwAtlvuf+8f6gz+X4HCtTiOKzpuVEfh
+   MmNVbUecTZS2dUj41oFJTL9H7XC2ItuUq1b5EAit17eO29kmAi4LQ/qz/
+   LyS82lTZ+XLfHSzYb6N387rBG8eHTySMRX3ZVI+l2mCOyDE8wvhpeLgJn
+   5+sKf+hr7thOFFFEYADMmchY7Vdqx2MX2K9KIabNiAhCp9lEJsB+zrwco
+   rkffzx4V4xW4Oy91L5VF2oDyJwuVsjH8LrZcxCp1q2ftOUFYujfRSSBbL
+   A==;
+X-CSE-ConnectionGUID: yH58P537RAK8fHpjDLf0tA==
+X-CSE-MsgGUID: oJqd7PZoRcezUIcnUG1/ag==
+X-IronPort-AV: E=McAfee;i="6800,10657,11971"; a="4030860"
+X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
+   d="scan'208";a="4030860"
+Received: from fmviesa013.fm.intel.com ([10.60.135.153])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 12:53:53 -0800
+X-CSE-ConnectionGUID: hWs8F2miRDaxOkKoxt/sNQ==
+X-CSE-MsgGUID: XLcUR0atQcuadVeix+2yww==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
+   d="scan'208";a="12511975"
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.61])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 12:53:49 -0800
+Date: Thu, 19 Nov 2026 22:53:46 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Frank Li <Frank.li@oss.nxp.com>
+Cc: Fabio Estevam <festevam@gmail.com>, lee@kernel.org, maz@kernel.org,
+	andy@kernel.org, jic23@kernel.org, dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org, mfd@lists.linux.dev,
+	linux-iio@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, crofts@kernel.org, devicetree@vger.kernel.org,
+	imx@lists.linux.dev,
+	Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Subject: Re: [PATCH v5 4/4] mfd: mxs-lradc: Convert to devm_clk_get_enabled()
+Message-ID: <av9h2jvAwBPXdNmX@ashevche-desk.local>
+References: <20261119134041.16611-1-festevam@gmail.com>
+ <20261119134041.16611-4-festevam@gmail.com>
+ <av8gvfhOJ_2PdEMr@SMW015318>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,30 +85,39 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <av8gvfhOJ_2PdEMr@SMW015318>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Tue, 6 Oct 2026, Hans van Essen via B4 Relay wrote:
+On Thu, Nov 19, 2026 at 10:15:57AM -0600, Frank Li wrote:
+> On Thu, Nov 19, 2026 at 10:40:41AM -0300, Fabio Estevam wrote:
 
-> From: Hans van Essen <hans@kilurion.com>
-> 
-> asus_kbd_set_report() sends a SET_REPORT control request through
-> hid_hw_raw_request(). usbhid does not take a runtime PM reference for
-> raw requests, so the request fails while the keyboard is runtime
-> suspended. On a ROG Zephyrus G16 (GU605CW, N-KEY 0b05:19b6) with
-> power/control set to auto, every deferred backlight change from
-> asus_work() is lost:
-> 
->   asus 0003:0B05:19B6.0002: Asus failed to set keyboard backlight: -108
-> 
-> Wrap the request in hid_hw_power(), as hidraw does, so the device is
-> resumed for the write and can autosuspend again afterwards.
-> 
-> Assisted-by: LLM
-> Signed-off-by: Hans van Essen <hans@kilurion.com>
+...
 
-Applied to hid.git#for-7.4/upstream-fixes, thanks.
+> >  			dev_err(&pdev->dev,
+> >  				"Unsupported number of touchscreen wires (%d)\n"
+> >  				, ts_wires);
+> > -			ret = -EINVAL;
+> > -			goto err_clk;
+> > +			return -EINVAL;
+
+^^^
+
+> >  	if (ret) {
+> >  		dev_err(dev, "Failed to add subdevices\n");
+> > -		goto err_clk;
+> > +		return ret;
+> 
+> If need respin, return dev_err_probe()
+
+And above and who knows how many more. That's why I haven't commented on this,
+if ever we do this, it most likely should be a separate change for the whole
+driver.
 
 -- 
-Jiri Kosina
-SUSE Labs
+With Best Regards,
+Andy Shevchenko
+
 

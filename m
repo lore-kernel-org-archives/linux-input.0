@@ -1,60 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795124538;
-	b=RN+mJJVqHhB12nwK8gngjGOneFMByB0AUAJCEoZU916vquZe3xjqVNmcl5eKk/Ai/D5w
-	 bVG0Uyk9rOku17ywiaarWw6xNnx8Yp7z4LzE1SUdR3UcrJbOaHUYO1qEhNn43oh18V/4V
-	 VHfUvZp13ddc9OuUGRPfZczxAZI0dO3DbcJfuzGhR8rwwWz5wQ/OOzDlAZN1DVVW4CIac
-	 FW1fXe/bcHeRU8FCyUDEjWfFxvcPS+cvemSX0numbsVjjVpHibbBjmr6JNoImd6SwuE2F
-	 K8SQpttTFvNMyc2F+k/7X8vceNJYTyRrC7Vh2g/EcnbwY7g1uFb4zAy6MI3MUC+vAnQ==
+	t=1795124630;
+	b=I1M3Sew004dGYeDVl93dqxNjObTTJwWE8oeV4uNQMoedEPARmrFa/gojHKXYhB0LLWzC
+	 03Iwd487U5InfsJLG62xAa6NRiFqbueJ5cLoSoHk6SwEQ8Jiqtg0/VDGLId50/gINp8cA
+	 7xTZzuYNFwyRPcBjUN/3FAzOukmpgsNCkEUMHmMvcc3nKVP9w11LYbUrPSoKaYDpDd2Q0
+	 iA5ebwm0s9lORoREBdLZKBJXR7jhmBTirZ8vz4gtpebn2Idx4YddqRnUrFQ40EZWKrUy3
+	 lrzrAK3nPZR7Bja8o+k8t22+2QqAuJn8yeU+bnKXgFO1A2PCCpTA7ROHyn4ZlqJrMaw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795124538;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795124630;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=RweZj/1TUoc4rtIBYfUS/HLl+WylhOgLLsA47vbDTKE=;
-	b=TJWPrKpnOH2A9gh3aAo31mmxOmKRuG203o5Qk7FDhrWJDhWDAgP6ghDxYRLxOKHvfcyj
-	 /VV85m0Nul0or1EXPB9cn3W6gMT8B2fa+JiEwPtWnl8au1HPwTfayHW/FR5cEqaSegVzz
-	 pWxie158j8mgbvvyf077TrtexQx39JXVcWDPdnIJR9xHC/j+TxvoKK09T0d5BcvDgMWv5
-	 C7Y+0E9I/WrG2KLBSc4Au1hqSZHjuQBDC82z2bHEhC5FhaIfPdD+ZA67OsMzxwZ++qyl6
-	 dteBNS4OTX6E2UHAuVy1nUfpq0pWdxyqvGNz+ywMXZJtdrU25YQlE0VweDqGgvQkw1g==
+	bh=5Tw89trH96Xpm50XPeAndztRNUxh8o55+6VxfKE9qb4=;
+	b=Zv34f89RSKAgM8Bmp+qOve9+mleiwFGxuy8Owir6Zh4i9HZpf4iV2P3SM+SBPO8IN4HR
+	 xhn9k4KfDYOPOz6h3+QdqD6TAxkFFhPYtB3ZtQql1YW31KslHw7oICFXO+YJGsySEoQlo
+	 AMNtjIQ/mpHh8t9vcR3ch4jM4mrSMgztrZvM/E4op4+kf+cZ0RVwJCzr+MCj2OM0ElKq5
+	 81k1pbCcnpEle1w61IrkAUsiFY6BXAP5dFOwAgpWIY3hmd7lqPK7uo/zShlD1dc8A5Pgi
+	 s79IwmIQ5va2UBWQtNHNXTx3+xd03Zt5C/448IqUWtRxQ+PWp9i6CUg4Eu633Idwsdg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BPDtNyt2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RBjhMj8C;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFD5606A325;
-	Thu, 19 Nov 2026 21:42:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05139606A320;
+	Thu, 19 Nov 2026 21:43:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BPDtNyt2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC4C1F000C0;
-	Thu, 19 Nov 2026 21:42:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RBjhMj8C
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E141F000C0;
+	Thu, 19 Nov 2026 21:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795124538;
-	bh=RweZj/1TUoc4rtIBYfUS/HLl+WylhOgLLsA47vbDTKE=;
+	s=k20260515; t=1795124629;
+	bh=5Tw89trH96Xpm50XPeAndztRNUxh8o55+6VxfKE9qb4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=BPDtNyt2N8IH0c9dksntcJoOQmJyIJ+iNPs5wjWF8UnWCK/QvKCfUlcy4WmNJfsKQ
-	 wLYkV5w2UqjFyk1Y0r0JmDr/iz8SVpR3WOejweKFHYgENVkdkBovcX7G2qilT9meF/
-	 OyLm1FbAQrCk3510O7fnEY9KS5sVypHcpARqr8RKbdAZe/iF8na7YoNfg5I/3sUL3m
-	 hNFSSjepDX6xz0Q5ck6er0Gx9Pi1QyT4WhJtkhHmBNo0TYgqyIXKnH7tvBjAAQFKfb
-	 S5+kfeHTVIGuktwdNwWuNTPr4NW/JXst9Z+rc6RXCE3XtYBR6wPFeWrHvF1kMyFbYf
-	 3CmmoZohqzfVQ==
-Date: Thu, 19 Nov 2026 22:42:15 +0100 (CET)
+	b=RBjhMj8CRY9tZBa0eZluTmf2UolaKLmOQd/bjdik299obZe+kRsVrQ7xvPbCjnagF
+	 4djnnuR5RrYr2fFDzatmYLejnMraodfSl4jiB4fjDR5nAVBChEAeaTuCsQ2QP7HVwh
+	 RpQuZpuPVQYGJsKuXl5mWvDWUAyfWMJGnoCoiaP1/1ca1WpV8Ut2P1dLtQ5NOPGBxM
+	 DOynrcguitnZZ3MXxPQW3VUdEOu8fzHGqpenFP/apRSkzu5YsSWKqb6NpzIJtXhKXQ
+	 qq3pRLLo4djx0C5Tm8XDDPTROtAKlpRwdAl9ycxsvPYj1FQHUjh/OOlN5ksbOJhae2
+	 Ph3fg8m+1jp8Q==
+Date: Thu, 19 Nov 2026 22:43:47 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Marcel Holtmann <marcel@holtmann.org>, 
-    Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
-    Michael Zaidman <michael.zaidman@gmail.com>, 
-    Rishi Gupta <gupt21@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>, 
-    Andrej Shadura <andrew@shadura.me>, 
-    Johannes Roith <johannes@gnu-linux.rocks>, linux-input@vger.kernel.org, 
-    linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] HID: hidraw: Encapsulate struct hidraw and make
- hidraw.h private
-In-Reply-To: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
-Message-ID: <99s2r0r2-pprp-o100-p5o2-op9n64r9qr90@xreary.bet>
-References: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
+To: Jinmo Yang <jinmo44.yang@gmail.com>
+cc: ping.cheng@wacom.com, jason.gerecke@wacom.com, bentiss@kernel.org, 
+    dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4 0/6] HID: wacom: guard against NULL input devices on
+ successful probe
+In-Reply-To: <20261024033040.316652-1-jinmo44.yang@gmail.com>
+Message-ID: <o25qn5o2-2257-6rop-oo57-9o4o54sn688o@xreary.bet>
+References: <20260927041138.4112920-1-jinmo44.yang@gmail.com> <20261024033040.316652-1-jinmo44.yang@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -66,30 +61,26 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 16 Oct 2026, Dmitry Torokhov wrote:
+On Sat, 24 Oct 2026, Jinmo Yang wrote:
 
-> This series cleans up internal HID core and hidraw header boundaries.
+> When wacom_setup_{pen,touch,pad}_input_capabilities() returns -ENODEV,
+> the corresponding input pointer is set to NULL but probe still succeeds.
+> Subsequent irq handlers dereference those pointers unconditionally,
+> causing NULL-pointer dereferences reachable from a spoofed HID device.
 > 
-> First, internal HID core declarations and unused symbol exports are
-> moved out of include/linux/hid.h into a private drivers/hid/hid-core.h
-> header. Next, a hidraw_instance() accessor is introduced in
-> include/linux/hidraw.h so HID drivers that only need the hidraw minor
-> number for naming or debug logging no longer dereference struct hidraw
-> directly. After converting the drivers and dropping unused
-> linux/hidraw.h includes, hidraw.h is moved to drivers/hid/hidraw.h and
-> struct hidraw along with its internal buffer and list structures are
-> made private to drivers/hid/hidraw.c.
+> This series adds per-function NULL guards across all affected handlers.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> Changes in v2:
-> - Rebased onto latest linux-next (next-20261016) / hid.git for-next
-> - Updated hidinput_connect() declaration in drivers/hid/hid-core.h in
->   patch 1/5 to use unsigned int connect_mask instead of unsigned int
->   force to match upstream changes
-> - Link to v1: https://patch.msgid.link/20261014051326.3784498-1-dmitry.torokhov@gmail.com
+> Changes in v4:
+>   - wacom_intuos_pad() now returns 2 for the normal path, 1 for the
+>     NULL-guard path; wacom_intuos_irq() applies "result - 1" uniformly,
+>     suppressing the spurious input_sync() the old "return 1" would
+>     trigger (Jason).
+>   - Added pen_input NULL guard at the top of wacom_intuos_irq() to
+>     protect its helpers wacom_intuos_inout() and
+>     wacom_intuos_general() (Jason).
+>   - Added pen_input NULL guard to wacom_bpt_pen() (Jason).
 
-Now in hid.git#for-7.5/hidraw. Thanks, and sorry for the delay.
+v4 now in hid.git#for-7.4/upstream-fixes, sorry for the delay.
 
 -- 
 Jiri Kosina

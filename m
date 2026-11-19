@@ -1,53 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.238.236.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795110670;
-	b=Js07HppaHz2kR4kiMepvq09ImmR4Kxxy+Mopyc8hXPMX4FvaKaZEN0Vdx/6wq6IpVGKN
-	 oPCSAxoR1mngcjpKZtYvx6g/6NogPQDWkVOrSXGZN0evVKclTBtIm9SOxQkJ2V0WGrqR4
-	 clRFVbSh3qhaOJUdFeX0Gbm+jMzScCo1a05xXmaCliKJHJ4+JtbZwf5ZY+n7A4v+9bAw2
-	 O0AmUuDidsuzrUzAhgFlVZZkd6YTaWogn9TwLq+kUCQaY5oaUoYHUDxVm0ZSeDg59xRoE
-	 LuUsgFOtZvLugT/Fl8zFaH/DAVvY8tVhYWIX7JBHpYOJFLJEa4K+5BDDgDalhBAj8sg==
+	t=1795113320;
+	b=0GBLg9MwiiHAeM3NjjESiPllmC2u3XLkyC4oJdv/qVAwJiYnqp3QvPY1JtaXG9ECyyhM
+	 vpPHTVTHW6TU11Pu5DrQ3xzNXBFdtga9FQEVYpAw/ia4oaaIvX2k03CYw7wrXst1OnzCS
+	 prP9iNhfXf47gRzub4xptVp523Q64Z7nHk46uF2XmmCIOr/ACB8BImqwtqZOKqbD2lkf3
+	 sfPWxU7/TwsCg4RXhU72+OCFf1pxBQmMJt8dQREFA7bbQ4uNd9Sx/+dWdoO0UuM23v9Fj
+	 SUQE97QEyOOsaYEgl/v8ex5WOs+fmAkOgAE5qW1nLKsfizaClDsck5FEUqhIw9q/D2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795110670;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=91cixVM9xkYFwo/rM+qZds/LEL2+Y7pV6WbTYF8SOsc=;
-	b=1LeI+3zM60xiNf00P7dfdRSKKrfVMVpaCZ8Ula9uvrmwzj6trBXlJAjFNJ3aDVavPc9o
-	 rilFXCV0N02ve1Yu1zzhdSQOFcJKGwVIr/RzPp+KF/gkbNcGmSoMVKq8SSImIjsbhbiHH
-	 9rrp3h4dYkHXN7NyDViUsIr2yjA3O0HCUmFGPi2c7vuctmnj/OnuFFaBmjYo2gHuVSvUB
-	 BUMUyOt60+hFdcDB/J91DY4XRvaqoAbUOHB8W5Z72i0fKmrfy6dDy+Q8Kx3JjssPU1L19
-	 twpeOYe2//a6L0deme/JUGZ+ebIuYU3NkhrIwEekitr9pN2PkANFmZ8lsTqpY3mC8Cg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795113320;
+	h=DMARC-Filter:DKIM-Signature:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=5rr4KVYUwS00eV6h4Ur0WZubiToiZFWmqJNWDXUyNEk=;
+	b=n1vVPttANLYfQGy4p/F0/2rd4u5jCp0+JGV41ZAsUeX2C/1x0TkXo09pISPWnQ0c8Nvz
+	 TABY8KgGa/WeQMMqTjmRECC+5XJNyfIAD02WQSLpwkmdkyeYYWbU8HiqitbtrUmaA3J3Y
+	 nR4KoBo30xE+9oLeo91w0wDnppzpAEYeUFTPONPXIsxlQVbB1JLptDcHeBPwnXSzKMX26
+	 QrwI3FFlbhWCJGKcO/RoDACcoOycxD1o+/ZsBHkC6nPp+QStBauQOq7DBxFPgc7lNhqh8
+	 PcFDwI4Bwffe5Bn+wZe7Z4sNUUQcKKV9FCWEjfBmzRpJbCa4YIwhMdzul4mBvrAQhmQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gOXr4FIX;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=kemnade.info;
+	spf=pass smtp.mailfrom=kemnade.info;
+	dkim=pass header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=BlX8HBSb;
+	arc=none smtp.remote-ip=178.238.236.174
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C0F606A320;
-	Thu, 19 Nov 2026 17:51:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702F4606A324;
+	Thu, 19 Nov 2026 18:35:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 702F4606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gOXr4FIX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A5B1F000CA;
-	Thu, 19 Nov 2026 17:51:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795110670;
-	bh=91cixVM9xkYFwo/rM+qZds/LEL2+Y7pV6WbTYF8SOsc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gOXr4FIX+yvyM0UlExwGlCV50m2VGD8kM4tJPrAugMHZwWfyy1u6l0UvOoW/TvN37
-	 dS2BowK0I22uP/crYXPhVI0AAARfSc4vbmYGagFJgF8nRTR5jTOaBXenOey2WY5v9H
-	 TL2UZ7JQqnyOePlZnAFljZDTihnnS1YKznFxsz5Mufb+uN6CTPJYUF0NnvNKZ0IGs1
-	 BqBPt3dar7IPC4vwLU8MUU8PRrsTpIU3MSeTVFiFibrWmXZQs/Cya7i3oo+matFEfh
-	 oLO4FgLUh6VYOai/dyOslD3cYAdAg4Y0v0/hpznBkgikf8PdilzwWhobL6SkkOTmXC
-	 9En+XwPh4vqVg==
-Date: Thu, 19 Nov 2026 17:51:07 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Hefei <3066883572@qq.com>
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/6] dt-bindings: backlight: add VIEWE I2C backlight
- binding
-Message-ID: <20261119-gravity-unlighted-54fc29aa3dd8@spud>
-References: <tencent_093E92ACAABFAB09F39EC07F4350A5C7BD09@qq.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=BlX8HBSb
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Cc:To:Subject:From:Reply-To:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=5rr4KVYUwS00eV6h4Ur0WZubiToiZFWmqJNWDXUyNEk=; t=1795113320; x=1796322920; 
+	b=BlX8HBSbR6gsXS4oLnAjmeCAI+gOkeoOm2KSehdDHw1FO7szzSYP1Vaq50sndFNGnrb5dEnfSxl
+	3dqi4immXaiyF0+q+ZVfQ9fvK54v3p5Ti46JTq4lTFW2RxA2d7VycTKkTR0cIkfmHGa1WEVQLNNCt
+	XfAr72vaICTNfnHM/L5+I7t6PdJbZAxNJGI4Amoga2CDydqBSDEJBczf2Vuxhn50Gik36HGWCGukj
+	rf+JaPOBTGQvNF7V/fC+EZGBEtXwLAmRESqX7hlva8QHLN17hs0MbiSe1XM9YVXMli+Kq39CbffCB
+	JvMCrdsLroXmOFTl6fMuw97wMUhO03e3l4ZQ==;
+From: Andreas Kemnade <andreas@kemnade.info>
+Date: Thu, 19 Nov 2026 19:34:56 +0100
+Subject: [PATCH] Input: cyttsp5 - Use dev_err_probe() to hide EPROBE_DEFER
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -57,100 +54,117 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="B+xvd9frcwCJyrJG"
-Content-Disposition: inline
-In-Reply-To: <tencent_093E92ACAABFAB09F39EC07F4350A5C7BD09@qq.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261119-cyt-errporbe-v1-1-7faa44e821b4@kemnade.info>
+X-B4-Tracking: v=1; b=H4sIAE9B/2oC/yXMTQ5AMBBA4avIrDXRSurnKmJhajAWyBQh4u6K5
+ bd47wJPwuShjC4Q2tnzPAXoOAI3NFNPittgMImxWutCuXNVJLLMgqQsWpPlTVJgihCSRajj49t
+ V9W+/4UhufR9w3w+i46FFcAAAAA==
+X-Change-ID: 20261119-cyt-errporbe-6b6278a09b3b
+To: Linus Walleij <linusw@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Andreas Kemnade <andreas@kemnade.info>
+X-Mailer: b4 0.17-dev-e5168
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2924; i=andreas@kemnade.info;
+ h=from:subject:message-id; bh=ePghd3pJr/R938Z3aAj3mvyY+bWToG6Do4p3q8V8Vfk=;
+ b=owEBbQKS/ZANAwAKAYRhRfpAKNzxAcsmYgBq/0FSDuqs0ZTdqGplBHDE099T6NXoP5SnWpxcH
+ 24RHwT1tkyJAjMEAAEKAB0WIQTY6xCZL0TEE1XHfFiEYUX6QCjc8QUCav9BUgAKCRCEYUX6QCjc
+ 8QyGD/9GHCxcymO471y4NIzueJe0NhsFv0Ae3ZQgGvrhh72Jnr9uBFUeSwNKgyKQsYlrh3FnOMV
+ rK9peo+XGsDDdpbFzyOlMSQlKIgMt1EdV6c//gumPzHBMVr+N3ooAACFF1wmLiDx+tVTIJ1ooGf
+ DfYAG+yonSQ9BAceJFf2Oe4Xk3OBySVvjcTtiFx8/2ejTgiCTgEH3CXvVAtjjLCgeLS0SzknWsI
+ fOQ22sxUco5VkVElC8cwcpNNDqEGjhvFMfvUbVKlykeEInJdLJ14jAmo94sF3/KijnCIHk79Y3h
+ J8X42ZkXzlP6ytUBTEe0NDf9YU4P4QvWs+4BzgHL7cGHk2iVVEGQxD8l5tPbKQ7hpBl9JKJzu82
+ x/8bIiI9/favE+eJm2ZqRvY5vDFuD1RlcTmXNhhZW+SrwDnnLGA1hcSz22aQz2iqscFs9pVt2e7
+ 35YylnBoiU4zefiTqIABfRWLhqdlgt8TPoCOMO3AS+yfrUQTQiW9WZ7HsEoVSw2XdYyMuvyg3S5
+ p6RLyTFYCLRLIJo8ER6mJc7tgsv27o35LfDeptZ40Q75rYjA5HruuYFqulyEOcuSl1bj9e1PY+c
+ LP7F6MJuh7djhA0KSqG7a1p0rPNzdkesp8VJ973YSS5KVZn+MnkJyg+jyMhYqExnxy7wpAYyzWK
+ znl6hU6kWSS6hpQ==
+X-Developer-Key: i=andreas@kemnade.info; a=openpgp;
+ fpr=EEC0DB858E66C0DA70620AC07DBD6AC74DE29324
 
---B+xvd9frcwCJyrJG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Use dev_error_probe() to avoid unnecessary noise if prerequisites
+are not ready like the regulators.
 
-On Thu, Nov 19, 2026 at 10:48:05AM +0800, Hefei wrote:
-> Add the binding for the VIEWE panel backlight MCU on I2C.
->=20
-> Signed-off-by: Hefei <3066883572@qq.com>
-> ---
->  .../leds/backlight/viewe,i2c-backlight.yaml   | 44 +++++++++++++++++++
->  1 file changed, 44 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/leds/backlight/view=
-e,i2c-backlight.yaml
->=20
-> diff --git a/Documentation/devicetree/bindings/leds/backlight/viewe,i2c-b=
-acklight.yaml b/Documentation/devicetree/bindings/leds/backlight/viewe,i2c-=
-backlight.yaml
-> new file mode 100644
-> index 0000000..ab60c2c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/leds/backlight/viewe,i2c-backligh=
-t.yaml
-> @@ -0,0 +1,44 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/leds/backlight/viewe,i2c-backlight.ya=
-ml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: VIEWE I2C panel backlight
-> +
-> +maintainers:
-> +  - Hefei <3066883572@qq.com>
-> +
-> +description: |
-> +  Simple I2C backlight used on VIEWE DSI modules. Default protocol is de=
-vice
-> +  address 0x45, register 0x86, brightness 0..255.
-> +
-> +allOf:
-> +  - $ref: common.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: viewe,i2c-backlight
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+ drivers/input/touchscreen/cyttsp5.c | 33 +++++++++++----------------------
+ 1 file changed, 11 insertions(+), 22 deletions(-)
 
-This seems far too generic.
-Do we not have access to a part number or something to better identify
-this device?
+diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
+index d4a78facfa815..82209bfdf828d 100644
+--- a/drivers/input/touchscreen/cyttsp5.c
++++ b/drivers/input/touchscreen/cyttsp5.c
+@@ -844,20 +844,16 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	ts->supplies[1].supply = "vddio";
+ 	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(ts->supplies),
+ 					ts->supplies);
+-	if (error) {
+-		dev_err(ts->dev, "Failed to get regulators, error %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(ts->dev, error, "Failed to get regulators\n");
+ 
+ 	error = devm_add_action_or_reset(dev, cyttsp5_cleanup, ts);
+ 	if (error)
+ 		return error;
+ 
+ 	error = regulator_bulk_enable(ARRAY_SIZE(ts->supplies), ts->supplies);
+-	if (error) {
+-		dev_err(ts->dev, "Failed to enable regulators, error %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(ts->dev, error, "Failed to enable regulators\n");
+ 
+ 	ts->input = devm_input_allocate_device(dev);
+ 	if (!ts->input) {
+@@ -874,8 +870,7 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(ts->reset_gpio)) {
+ 		error = PTR_ERR(ts->reset_gpio);
+-		dev_err(dev, "Failed to request reset gpio, error %d\n", error);
+-		return error;
++		return dev_err_probe(dev, error, "Failed to request reset gpio\n");
+ 	}
+ 
+ 	fsleep(10); /* Ensure long-enough reset pulse (minimum 10us). */
+@@ -887,22 +882,16 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
+ 
+ 	error = devm_request_threaded_irq(dev, irq, NULL, cyttsp5_handle_irq,
+ 					  IRQF_ONESHOT, name, ts);
+-	if (error) {
+-		dev_err(dev, "unable to request IRQ\n");
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "unable to request IRQ\n");
+ 
+ 	error = cyttsp5_startup(ts);
+-	if (error) {
+-		dev_err(ts->dev, "Fail initial startup r=%d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(ts->dev, error, "Fail initial startup\n");
+ 
+ 	error = cyttsp5_parse_dt_key_code(dev);
+-	if (error < 0) {
+-		dev_err(ts->dev, "Error while parsing dts %d\n", error);
+-		return error;
+-	}
++	if (error < 0)
++		return dev_err_probe(ts->dev, error, "Error while parsing dts\n");
+ 
+ 	touchscreen_parse_properties(ts->input, true, &ts->prop);
+ 
 
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +        #address-cells =3D <1>;
-> +        #size-cells =3D <0>;
-> +
-> +        backlight@45 {
-> +            compatible =3D "viewe,i2c-backlight";
-> +            reg =3D <0x45>;
-> +            default-brightness =3D <200>;
-> +        };
-> +    };
-> +...
-> --=20
-> 2.55.0.windows.5
->=20
->=20
+---
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
+change-id: 20261119-cyt-errporbe-6b6278a09b3b
 
---B+xvd9frcwCJyrJG
-Content-Type: application/pgp-signature; name=signature.asc
+Best regards,
+--  
+Andreas Kemnade <andreas@kemnade.info>
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCav83CwAKCRB4tDGHoIJi
-0psXAP99GO4RrsJ86JAlIZszQIbzJlsts5XXMquezkiU8jY4PQEAjGfcqVeXvoN9
-kz5bj2BWP15kOH9+6UryflGXNgsQFwI=
-=QNSA
------END PGP SIGNATURE-----
-
---B+xvd9frcwCJyrJG--

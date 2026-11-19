@@ -1,55 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795124662;
-	b=w97QacO12ozyk8KeubDJrFR7TRtx38Q5NkuKHJKS8EMA7wSufrPp6L0IU8s5k7gJIC9F
-	 3w2qJKyIJbVY/gdU1ndmSkEHtfPDF3k+HrDtc82fLDThlQJBanfJoexRJUuMkoxZfRRmE
-	 YotYtPTuQspDx1+5qsgL77u6U01WNFZYuORIPx6KRFBI+MsczN0rvNMSM4xvwRJZaOfpx
-	 mZ3Cvuc+tIm+L9WKW3L/XJ2BW8ehKxWfJUV7Wt8g5pdcO6WtqAHd8LXZuzh1EfhzVmr+u
-	 NqX8G271YANL8HuKSh+aTUgfE0esLUq+kdAccK8LnA0rcUcsT5sOR8Q6fmNZBcUtCcg==
+	t=1795124736;
+	b=yXGBdDO6YGIGDbCHc1jwduK4aSbigf22TKYH45wx8OBEAlHgBlGBYIVLgWT7ucWvcb96
+	 o9XxmqHEeGMWyiRmdgrzPxveeVD28EvQ9hg3g7wvwDuER4CQH3tyDjmEeU9dqqS7LzAke
+	 P5RWkrYmJPvMLeScFHkpuacJ5Gdiuyk+zcSyKN4Ec4WOMVekhbG9ZNBaLZOyST2f0L5Tw
+	 IFS8YIn9V4/rsXBVmO35cgvGWzhnGNRWIk5Jv7b84XAjhOY24sXF6cY9nSLza0PKqErMJ
+	 RW9sz8E0V8ktxxuoOHamxURj+f9eYOwl/brO0rBqJJkoJbuiTTF61NaiOvKmurVOZZA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795124662;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795124736;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
-	 Message-ID:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=Wz5absPglCkOQW2fWzKJ2+BAXEt62ON5tr4K4+gXeTA=;
-	b=3NIhSPwxeMenJKeHPyhXhQ7Z/81mEeMNlv7R0JwOyPOnhnYjmmQjVNdQhGK6ouVbsmfw
-	 asFI6HpOYL50HCvntP9NjahzVuQCxjA4xBtDBlw+xNs39koyXdI8V1r3a8QabAc2sDtyv
-	 GJHolYMx+WNpmGuTrMV5UPorM5DQC+IdAM9mezTbrDw+Le1Nr2494Xo+gAzDcXTG1mu+6
-	 eU476l8rk9eQozkTpO3HBrHSlULg9OXPfKTqoZdEGuLSBNyZjILonprDDPQ3ycWeCrTRi
-	 sYB65n0GbKeLjmRcxMcDwRTDwIZXV2D6fFd8OlWwnevW4GA3o+7MwW764ykpebYwvPQ==
+	 Message-ID:References:MIME-Version:Content-Type;
+	bh=kbeXVApitcBkF8I6bKixq+m46Px2A/GzS7KtCTTzmrQ=;
+	b=LvXPnKAKnWecL3XjoEb3bISXlGvOG9ZKFiCI6fE02yb9NUZMvk0Gp25/3UcBwKX5Veuk
+	 4jBa87dfsVRgidhLEnPt4uCdl4MJubQrDPmOeWZBik/54RaXY+4PFF8oNv5LKG0Ceihoz
+	 2Dh0Z5HMzcMGR8xzVvf49I4dV+lPXFKyaD0Eyxh2tKg2FcC3KdvSZiSLnpZvm2pMhEUCA
+	 vixdBMDvil4YdAfUnibJ7s/Ro5UW6bwU4UVNAuJuiZD3PDkJW2vLOVq0+OK+PxACBvtg+
+	 67v6tXbw3MVCBBBduNhlbb184FepOe/BxbziBIazNVTgOwl4xtw3meVIfHLrN3uIo5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MOQV9aLf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cTqnEUhd;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDC5606A324;
-	Thu, 19 Nov 2026 21:44:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF452606A32A;
+	Thu, 19 Nov 2026 21:45:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MOQV9aLf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9511F000C0;
-	Thu, 19 Nov 2026 21:44:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cTqnEUhd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53F51F000D1;
+	Thu, 19 Nov 2026 21:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795124661;
-	bh=Wz5absPglCkOQW2fWzKJ2+BAXEt62ON5tr4K4+gXeTA=;
+	s=k20260515; t=1795124736;
+	bh=kbeXVApitcBkF8I6bKixq+m46Px2A/GzS7KtCTTzmrQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=MOQV9aLfZeZpnYUcxrsx9GntX1CM85Lx7xzWVUvzB0TsTddtQK1uhVtK0IztJiVtp
-	 GBkeC29rmUlIXj8wW16nQljUZ9WNpqXQ5ZvmvjwwBoWDtjZRg7tFuqEx0ggsxTRvTI
-	 /eP2mhiIcZXfNEhBtbA31pm/3r09r2sgjNiow4BV59P3I8iNaHg/bJGslb6c8nw9SC
-	 ji761/UUj4Uyxi+7yqNIAin9cOe2UXkTz5bVYHOYr7p1FHMzG0wjCx8XZIgEiPd0af
-	 9+zUB5NZQS6750W+VfBC99S1IsRCFDPCi+IGWW5x1RjILxRiimHoJW9QKY9UwLqquM
-	 D3j48RfwuSGgw==
-Date: Thu, 19 Nov 2026 22:44:19 +0100 (CET)
+	b=cTqnEUhdSy8RGtP4FGmsgG+DoKm+Jrt/mN9wIeO1f9UcpgGF7REucqMOK5PyZY3es
+	 JrsntaoxddRUzixKlWLz9XdoXkFxeF7Vj8mVieRCZyTWwZgMQM+glOX8GYzu3ubxIN
+	 A8ZGF/3xiWAzFsoqupdzkTwIe/2SqsivLW8zsJCLmxif5a6QSkjUJWmclLShXnhWco
+	 UgzvGyjEYzPZGDfeUKihHQrbL3Le2Jq37k7O+wvJj5zxLbfoAuKXR9kDWRkYehOmL8
+	 WcJp7PgiIUgAVeWVNBroAVfEu5LZ7cKpYoqZBa3sdOLzxd9GrpAQceQ9FQEvYCpCyg
+	 fgVfMhijnCFvw==
+Date: Thu, 19 Nov 2026 22:45:33 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: =?ISO-8859-15?Q?Ignacio_Mart=EDn_Arano?= <arano.ignacio@gmail.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: apple: Add "F108Pro Dongle" to the list of non-apple
- keyboards
-In-Reply-To: <20261023004419.53935-1-arano.ignacio@gmail.com>
-Message-ID: <oo5oq66r-7r2q-qp3n-r834-q53388q09o13@xreary.bet>
-References: <20261023004419.53935-1-arano.ignacio@gmail.com>
+To: Even Xu <even.xu@intel.com>
+cc: bentiss@kernel.org, sammiee5311@gmail.com, 
+    srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+    Rui Zhang <rui1.zhang@intel.com>
+Subject: Re: [PATCH v3] HID: intel-thc-hid: intel-quickspi: validate GET
+ REPORT response size
+In-Reply-To: <20261028075512.597589-1-even.xu@intel.com>
+Message-ID: <rrpsr3so-9193-352s-7q57-013pnq5opp9s@xreary.bet>
+References: <20261028075512.597589-1-even.xu@intel.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,26 +60,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 22 Oct 2026, Ignacio Mart=EDn Arano wrote:
+On Wed, 28 Oct 2026, Even Xu wrote:
 
-> The 2.4 GHz dongle of the AULA F108 Pro keyboard reports itself as
-> "Apple, Inc. Aluminium Keyboard (ANSI)" (05ac:024f), so hid-apple binds
-> to it and, with the default fnmode, maps F1-F12 to their media
-> functions. The keyboard has no Fn key visible to the host (Fn is
-> handled in firmware), so the function keys become unreachable.
->=20
-> Add its product string to the list of non-Apple keyboards so that
-> fnmode=3D3 resolves to fkeysfirst, like it already does for the SONiX
-> keyboards sharing the same VID/PID.
->=20
-> Signed-off-by: Ignacio Mart=EDn Arano <arano.ignacio@gmail.com>
+> From: HyeongJun An <sammiee5311@gmail.com>
+> 
+> quickspi_handle_input_data() copies GET_FEATURE and
+> GET_INPUT_REPORT responses into qsdev->report_buf. The response length
+> is derived from data supplied by the controller, but was not checked
+> against the destination buffer size.
+> 
+> Adjust qsdev->report_buf_size to store the data length of report buffer,
+> reject responses that exceed it before copying. This prevents an
+> oversized response from overflowing report_buf. The rejected response
+> does not complete the GET REPORT request, so quickspi_get_report()
+> follows its existing timeout path.
+> 
+> Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5
+> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+> Signed-off-by: Even Xu <even.xu@intel.com>
+> Tested-by: Rui Zhang <rui1.zhang@intel.com>
+> ---
+> Change log:
+> V3:
+>  - Correct the data size used in the get report check
 
 Applied, thanks.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
 

@@ -1,54 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795119876;
-	b=ppY7OOKGIekDut8yB54uz4o12x+z4XzSa3muCsu40n7tbpx5HANORh1k82lQZ5xvNJy5
-	 A+uS15sqhplEJRz6UjBskSFX/LxMeVbvdj/cJ9LnYTRrxWmeomcUFV7+gY+ki/kHqdlQ1
-	 Nnx+P8K9sZIuvrvVP+33gEU3KVcaczBKx2JL3+MO3vift6//D/0z4AJ+tuUCnfDrIMcUK
-	 RNDcC9jtNjAGVBImbM0sXVen2OtavuEIxiCGgEtTEjmCSzxegpesN7ZNtryP6QKQVmnYn
-	 32+58JbvHJ5D+4fKIuPcrW38nQTnzbyggN7mQSMy9RgYoaZD1Gm2F0pjdkdEMBLmiQw==
+	t=1795119897;
+	b=gLkQVjEHW0axArG2u6LTHii6U9DsD30/2/iKgQ2mgYKmMMmzfLkl71YOVI0WeQbELvRj
+	 Ho47DeStQ8UYrMk8V8XbYw+JbUhlQuXq03sWVsQlIU1Sv+MyqA/WkyZrOirK3gI4zMAzQ
+	 bD+ZYj45crYVxjg+gimwBfL1c6j7jZZ1+bAnL70uUhjPCy9Tttl1fsZykgP9hS2WIatJ2
+	 TpTxvoDDSzjs+ZBTEBOqFKpmVuXa562fiz0Rl/1kN5UVJ61ncYdPatyM4MhEz/KWSZhog
+	 G6MoMky59DHU4Zcz6wJTy46tkAE5jywGZn7Zl6jML7HEsrM25g/5tJiv1hTBJ/o9Xlg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795119876;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795119897;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=S/ldV6nbvWQENE0yLe7aSvZRydDWmDvN1uIHVxA3r3s=;
-	b=42P6c+9WmhOtwF4ef7kekR4Q6cleOwzUQwPBrMxIMnfce9CA2ydur3qCIWNZlqc0ZB0o
-	 ejawrtHuDc1V7SlnJq4a4YlyvaJJahaZqigLazTziM74xsyb2n/xHBjeMg81VCOD18y+E
-	 Uh3c/0bO9ALYHXVnwoNVsbBRNX8B9Z08xorEbaC0h13YkoMITf23PfPLDDNEv6vCfUqSN
-	 NnJ94kd68IlydaZ7xFuA43iEttBD+smGIWTwf+tA/Pe9fpeC1GsIZds4rIOLnplDfPMZr
-	 Zu3kXwnDkgdhp7LHeZE3B04Wu8PH2PwO94EgIkrhLU4qVGztikt6wu4rgH4xXGSE1CA==
+	bh=iH9eWAh6qoDp+Ns4AVrRbkCgSY9ayYyfQqAcKbxxxDk=;
+	b=SBzwfkh8I1saFM9GPw38kvqkgydoklI5lxrAZXXZAn/XXfEXqYQJnlSJam8jKdBsRk0J
+	 dSWbh1QL1b1/vWT9UTVAr7tAhspFqr565GV/XIBB3bIvTjyWUkvXzbm2CAmd7dPCEbOVg
+	 7fgHCgXYYyHuPvCVjNq9BN7K41NnG7e2bvT4q2+zvkoPraI7SjLvQOP3oFykthRIYa12/
+	 47qcT0VP/4LWWGjy8zd3Z8G90zoRKp2lmAk0j2hPSdSOIpD6g8YS7C+t8qGKO1soc73L3
+	 NQyW9rQwAAuDDKjSgBkHds5S9t1ijY+eCsT2qBZVUZoSjWNxYk+B/2X7rrv+T/h7qyQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="OSKv/CUq";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SB+WR4j9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1584D606A33D;
-	Thu, 19 Nov 2026 20:24:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D30606A325;
+	Thu, 19 Nov 2026 20:24:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OSKv/CUq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C26C1F000D0;
-	Thu, 19 Nov 2026 20:24:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SB+WR4j9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F9EB1F000D0;
+	Thu, 19 Nov 2026 20:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795119875;
-	bh=S/ldV6nbvWQENE0yLe7aSvZRydDWmDvN1uIHVxA3r3s=;
+	s=k20260515; t=1795119896;
+	bh=iH9eWAh6qoDp+Ns4AVrRbkCgSY9ayYyfQqAcKbxxxDk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=OSKv/CUqWhD8PeEPx4uUmXrjJ9iidvQLZS5lWhiSbIwoYPHR1IkkL4h+eFcb3LQD3
-	 //89t7cLdE03bVdRL68ip+RiIilRfNxNyehPSgJUw5q8LPCY4abG1PrxtomcpMz7C0
-	 ogX8wOr3cvSetWqImUaJUa9r52W4X5++7w9ZXDNazEcb38mNTbJ03HUK/TZmIRC2VZ
-	 tHEnCw0tQy/DULU3/CpRXdkmBLxDWtch5OKu6KzZqmNDPWc0oCjDhgNpzRnw760q/5
-	 N7N9klEGeJzzIZtyxKdiTot+woTQQYNF88rIzpV+pJbwk+zopnqzfQnAKFAKHUtBpS
-	 ATFfdeHakq55Q==
-Date: Thu, 19 Nov 2026 21:24:33 +0100 (CET)
+	b=SB+WR4j9BDtL0MxJYWRi/hgBj/LMLk8X6h3zIQD/b4RZDVIBIhga5WrRExmTyCIeI
+	 vVNn9RMLe0riI6bWZh0KxxChHpjUd0PzRNZ0uETLOTEtzBhpTlXQaVgj0NWbQmbq0Z
+	 Nani0wZTBzbUkbSaNbwmQQ1t7QUYmcMgqaZw12jIrrWpVQGIqY1gLE0VDcz7fZAL1t
+	 f7pC0vKtHCrbTSDRwGWVMV78Y8sStbY7cduXWhHEreM4O//Vv8RiZVqRh1XBsWI41M
+	 EzVQaKNnWZGdCuja7vyLpGyC6xiheGs0C7M/kXfp5cYJkt7ebP5CMM4oYsDSNKjW0l
+	 QN+AX9hIOeRHw==
+Date: Thu, 19 Nov 2026 21:24:54 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
 To: Aamir Ahmed <elb12345@hotmail.co.uk>
 cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
     Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: validate GRAPHIRE_BT report length
-In-Reply-To: <AS8P251MB00012F559DCFF177B19F767BC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-Message-ID: <7oq0p682-ps92-9986-2rq9-q8n7n7154752@xreary.bet>
-References: <AS8P251MB00012F559DCFF177B19F767BC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
+    linux-kernel@vger.kernel.org, Myeonghun Pak <mhun512@gmail.com>, 
+    Sashiko AI <sashiko-bot@kernel.org>
+Subject: Re: [PATCH] HID: wacom: Cancel init_work when probe fails after
+ scheduling it
+In-Reply-To: <PAXP251MB001050EFD88752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM>
+Message-ID: <0291r4so-4p5q-61n5-59qq-761s5s45o2s9@xreary.bet>
+References: <PAXP251MB001050EFD88752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,87 +64,37 @@ Content-Type: text/plain; charset=US-ASCII
 
 On Sat, 5 Sep 2026, Aamir Ahmed wrote:
 
-> wacom_graphire_irq() parses GRAPHIRE_BT reports by dereferencing
-> wacom->data at fixed offsets up to data[7], guarded only by the
-> data[0] == WACOM_REPORT_PENABLED_BT report-id check. It never consults
-> the report length, and wacom_wac_irq() does not pass len down for this
-> device type.
+> wacom_parse_and_register() schedules wacom->init_work with a one second
+> delay from wacom_query_tablet_data(), and only then opens the hardware
+> for devices with WACOM_DEVICETYPE_WL_MONITOR, that is the wireless
+> receiver's monitor interface and the ExpressKey Remote. If that
+> hid_hw_open() fails, the error path stops the hardware and releases the
+> driver's resources but leaves init_work pending.
 > 
-> A malformed, malfunctioning or spoofed Bluetooth Graphire (VID 0x056a,
-> PID 0x81) can send a report shorter than 8 bytes that still passes the
-> report-id check. The handler then reads past the received report and
-> forwards the bytes to userspace as ABS_X/ABS_Y/ABS_PRESSURE/ABS_MISC/
-> ABS_DISTANCE and battery state.
+> wacom_probe() then returns the error and the HID core releases the
+> devres group it opened around probe(), which frees the wacom structure
+> allocated with devm_kzalloc(). When init_work runs a second later,
+> wacom_init_work() derives the wacom pointer from the work item, so
+> _wacom_query_tablet_data() and wacom_led_control() read and write freed
+> memory.
 > 
-> On the Bluetooth transports the backing buffer is large and fixed (hidp
-> copies into input_buf[HID_MAX_BUFFER_SIZE]; uhid uses UHID_DATA_MAX), so
-> this reads stale in-buffer bytes rather than overrunning the allocation.
-> It is the same missing-length-check class already fixed in the sibling
-> handlers wacom_intuos_bt_irq() (commit 2f1763f62909 ("HID: wacom: fix
-> out-of-bounds read in wacom_intuos_bt_irq")) and
-> wacom_intuos_pro2_bt_irq() (commit a8e04f3f894c ("HID: wacom: validate
-> report length in wacom_intuos_pro2_bt_irq")); the GRAPHIRE_BT handler was
-> not covered by those changes. The issue was found by LLM-assisted variant
-> analysis of those two fixes.
+> This is the only work item that can be pending at that point. The
+> others are scheduled from incoming reports, and the HID core drops
+> reports for the whole of probe() by holding driver_input_lock, which
+> this driver never releases early. The neighbouring BAMBOO_TOUCH error
+> path already cancels init_work before failing for the same reason.
 > 
-> Pass the wire length to wacom_graphire_irq() and reject GRAPHIRE_BT
-> reports shorter than the furthest offset the parser dereferences.
+> Cancel init_work on the shared error path, after hid_hw_stop() as
+> wacom_remove() does. The cancel is harmless where the work was never
+> scheduled or was already cancelled.
 > 
-> Fixes: 387142bb8fcb ("Input: wacom - handle Graphire BT tablets in wacom.ko")
-> Assisted-by: LLM:opus-4.8
+> Fixes: a544c619a54b ("HID: wacom: do not attempt to switch mode while in probe")
+> Reported-by: Sashiko AI <sashiko-bot@kernel.org>
+> Closes: https://lore.kernel.org/linux-input/20260905102908.ADE1F1F00A3D@smtp.kernel.org/
+> Assisted-by: LLM
 > Signed-off-by: Aamir Ahmed <elb12345@hotmail.co.uk>
 
-Ping, Jason, could you please Ack this one? Thanks.
-
-> ---
-> 
-> Notes (not part of the changelog):
-> - Compile-tested on x86_64 with CONFIG_HID_WACOM=m; builds with no new
->   warnings. No runtime reproducer: per the changelog, on the hidp/uhid
->   transports this is a stale-buffer read, so KASAN is not expected to fire.
-> - Found by LLM-assisted variant analysis of the two sibling fixes cited
->   above (see the Assisted-by tag).
->  drivers/hid/wacom_wac.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 8feb8027be95..31da8b956607 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -338,7 +338,7 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
->  	}
->  }
->  
-> -static int wacom_graphire_irq(struct wacom_wac *wacom)
-> +static int wacom_graphire_irq(struct wacom_wac *wacom, size_t len)
->  {
->  	struct wacom_features *features = &wacom->features;
->  	unsigned char *data = wacom->data;
-> @@ -350,6 +350,12 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
->  	int retval = 0;
->  
->  	if (features->type == GRAPHIRE_BT) {
-> +		if (len < WACOM_PKGLEN_PENABLED) {
-> +			dev_warn(input->dev.parent,
-> +				 "Graphire BT report too short: %zu bytes\n",
-> +				 len);
-> +			goto exit;
-> +		}
->  		if (data[0] != WACOM_REPORT_PENABLED_BT) {
->  			dev_dbg(input->dev.parent,
->  				"%s: received unknown report #%d\n", __func__,
-> @@ -3475,7 +3481,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
->  	case GRAPHIRE:
->  	case GRAPHIRE_BT:
->  	case WACOM_MO:
-> -		sync = wacom_graphire_irq(wacom_wac);
-> +		sync = wacom_graphire_irq(wacom_wac, len);
->  		break;
->  
->  	case PTU:
-> -- 
-> 2.53.0.windows.1
-> 
+Ping, Jason, your review of this one would be appreciated as well. Thanks,
 
 -- 
 Jiri Kosina

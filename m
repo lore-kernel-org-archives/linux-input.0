@@ -1,55 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795120517;
-	b=1cJbmdXQhzL1PJ4CHldLntj3+dRr619L0tuCFG9RNerwW3EEBQx6crC77FXVISnCok5W
-	 rA3/tUXgL57PMYi/yo1ClzATmlVBCQsq3YSUx6cOzR3CV6tRUjWBkSruU/uBJbLYiz/3K
-	 2tFM/KbKYb8aehE12c+bBeP9i8QRGOSRtBhL5h1IC8sS5/VsyoByitxFzqoN5pAQMnaZ6
-	 hKrfVzRqm3OOFTRUbvmx/X1fQeS6KbjQchUPo5NI3PDNOprjItDGPjq/3ad+F4MJW8p5P
-	 2BRPlZLgoqPZN4AdGVDMq1b0MPxYPNL3FzryMBl0UQ0ssvDm5SIX7jSad/5DtxbNFiQ==
+	t=1795120570;
+	b=I75yckw3hoJ2p89Dh1XUR+stIWj+STJCuMV4ig2OGm73fkK4cfL5/pON1qyq/XANSGhv
+	 if/eSebXSAsJjCeJj5moHebRr624efs4iQO8oxyJElwbGmkvSmZwsKp9V+EkaI3/uc3PG
+	 6Bo1sEw+Vk01Fnz/cxHeQVvJZCYkYXB0iDas+wL8G5VqifH/3OdzkNIyzIh5lnVCWOXK0
+	 2iF7L/o/5A0D02MTKZb+CDWUrPMQ0B9vpPv57DjdaAyJqFVSLQr0siQqRi6b/bgVaSFJe
+	 OvGBxfh0VTUDjFxrZCYSHVgIcD6yUXhKVrRDbnApDQr0wsthfibKuZcv1c4g7TyVdCw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795120517;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795120570;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=Q69JLJglWaBuJBzyhpD6hbunhVtkLrmr4avhydj3XoM=;
-	b=cCaLdTnny37xVMlwtsgeXXz4owB+/LtjEMPk/OTuAd+faj/uUmau4GPx0DAIR2l1Hi8H
-	 Ys9PqqV+lW8JsGib6Ttb2Dm28nj5/gYyy3rDZgFxvemyHFzmi2L7V4Fi/xRtXHmPVf2zD
-	 foSfi+LT5uKvbaMa3oWtZtq9XpQBsN1htPOb9obQZBPV5Xn3rh9bP8HZ6XoDf7I5gIB5c
-	 pgBNq7Dp5fJDkBY06WA4DUWgIEj4AktbkltXCoDKagmeC1qXMkvS4n/FmIFfuKR+clkWN
-	 V6Rwo+a1jqT/N0GfFpjDOMU30fH2rDbphFgnQnPKoackw1NoRBNoF7fvYROK7KH67jw==
+	bh=mbLu0l4ce4k/l9SHeyflrpsIii9N0bc0DUvSyRh0YOs=;
+	b=q6TEs0mXR+tzXrEzm37tF6ybsG1f2NEFbIdEZb5Nj644QXJeYENhq0PJbHfEG++eTihS
+	 +MR3ph6PFoYqDo73mtT39D+Z6UFiE15epSkO3XYaJ26w1hYrbvRXcSIdE3LQAduwDk+/q
+	 /n3KPNSb+jv/zuudf2WGvLyCzN9sEWLT/OJ6UxSzPH7eeue6BRjAuBeSA8ShKE05lg9cq
+	 vcLPQlCUNOhzJVBi8a3B4Jl8Nz6/GfvwJE35ZaCXC87qHbx9+KlnI4MSZ17mFlK+zxPB4
+	 iLXaTtFZN+AFuGEAFEBGcoUbdnYYpl7zINcDL3iqaC9kDBaoBd9xyc6sqMZci7h5vkQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dQoIfO3b;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QK79q1fV;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D87F760A3822
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 20:35:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4693A60A5BE7;
+	Thu, 19 Nov 2026 20:36:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dQoIfO3b
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61F21F000C0;
-	Thu, 19 Nov 2026 20:35:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QK79q1fV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D021F000C0;
+	Thu, 19 Nov 2026 20:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795120517;
-	bh=Q69JLJglWaBuJBzyhpD6hbunhVtkLrmr4avhydj3XoM=;
+	s=k20260515; t=1795120569;
+	bh=mbLu0l4ce4k/l9SHeyflrpsIii9N0bc0DUvSyRh0YOs=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=dQoIfO3b3rcZVEqdhQe2f3KcxJSG0J/gatTcrSU78B+oE3Szqpeu2q3mStSqmpfX4
-	 ZELP912sv1D/DgpRlLMJv8mFc3nwGNr6RtACeLtFaTQh8GWIN2KjA3uiXm9+px2U8M
-	 KgrkQlkAsKlWUDVylTiL1+WcfiQ4dnzlG3rDT4q58RY4e6oxpMahUAXiaS6BOC2TBI
-	 ibkZCJCmO7mC5I8W4hJOq03pgLTMMlbzdn7xXEBq/sqJKMQQ3q1Ae12v4oPOJ33Td6
-	 HpYETbdpwAOya0hmqLYqp32z7XugA1yX5t51di/XlYs94RYzhtQe0RED64IWlqnSDV
-	 s9sut++C/pw8w==
-Date: Thu, 19 Nov 2026 21:35:14 +0100 (CET)
+	b=QK79q1fVvF4BG5iRv4ps0cgF9/AWmDeLmiCTPfTCMLGFYFmdCwET1u2Jm+bG+ahdD
+	 9VxW7Oo1l0zG4W35ykAFdemNP7RE0DEe2MjfSdk1OS7SgIeuE4G/95LTBw3Q5Telnv
+	 uu9UKAZH0bEJay44a0yRm3YQLLE8TzLqzt/Shjp0Uk1OdIeV2ZNewjsr+/sCbI8csc
+	 NzFkx9PAjlkY0lXkstd69NfOhW1aRs2cqWidRuLvI4vQlEimOhfe9sNeDDZPjElH4i
+	 X3KqGWgu2ZNBr0tzAuKSEy5NQFgoAax3TOnM5g5Mft0P05oLyDPQHakFhpYLg2O9K9
+	 4bXwiE2hpdRuA==
+Date: Thu, 19 Nov 2026 21:36:07 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Hans de Goede <johannes.goede@oss.qualcomm.com>
-cc: "Derek J . Clark" <derekjohn.clark@gmail.com>, 
-    Mark Pearson <mpearson-lenovo@squebb.ca>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org
-Subject: Re: [PATCH] HID: lenovo: suppress spurious F23 key events on ThinkPad
- T14s gen6/7 snapdragon
-In-Reply-To: <20261109214349.391853-1-johannes.goede@oss.qualcomm.com>
-Message-ID: <6n81o700-np53-5p19-5n0s-048nspr912rr@xreary.bet>
-References: <20261109214349.391853-1-johannes.goede@oss.qualcomm.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Gideon Heinz <gideonheinz02@gmail.com>, 
+    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
+    Bastien Nocera <hadess@hadess.net>, Hans de Goede <hansg@kernel.org>, 
+    Edwin Velds <e.velds@gmail.com>, 
+    Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, 
+    Andrey Smirnov <andrew.smirnov@gmail.com>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 00/33] HID: logitech-hidpp: G920 force-feedback fixes,
+ rework, and cleanups
+In-Reply-To: <49nqon1r-32pr-19r1-0r65-50494sq350n5@xreary.bet>
+Message-ID: <sr340r82-n378-035n-78ns-nrq4p808r3pp@xreary.bet>
+References: <20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com> <p6p98p0s-5p97-q584-14sn-ns404p6s3orn@xreary.bet> <49nqon1r-32pr-19r1-0r65-50494sq350n5@xreary.bet>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,25 +66,22 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 9 Nov 2026, Hans de Goede wrote:
+On Thu, 19 Nov 2026, Jiri Kosina wrote:
 
-> The Lenovo ThinkPad T14s gen6/7 snapdragon version I2C-HID keyboard sends
-> spurirous F23 key-events when the Fn key is pressed/released. Leading to
-> e.g. garbage ESC-sequences in the terminal when doing FN key combos.
+> > Wow, what an endeavor. Thanks for looking into all this.
+> > 
+> > I've finally got to processing it. I've applied 1-14 to 
+> > for-7.4/upstream-fixes and the rest on top of it to for-7.5/logitech.
 > 
-> A hwdb entry was added to map these to KEY_UNKNOWN [1], but this also maps
-> the F23 part of the left-meta + left-shift + F23 combo send by the co-pilot
-> key to KEY_UNKNOWN making that key unusable.
-> 
-> Add a raw_event filter which removes any 0x72 codes from the 6 scancodes
-> reported in the standard HID keyboard boot protocol report, but only when
-> the report's modifier byte is not 0x0a to preserve the F23 press event
-> when the co-pilot key is pressed.
-> 
-> Link: https://github.com/systemd/systemd/pull/44733 [1]
-> Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
+> Ok, now I see that you will be respinning. So I am dropping it for now and 
+> will wait for respin.
 
-Applied to hid.git#for-7.4/upstream-fixes, thanks.
+Are you planning the respin to contain differences only around the 22/23 
+patches?
+If so, I'd prefer to still take the first 14 through upstream-fixes, so 
+split the series.
+
+Thanks,
 
 -- 
 Jiri Kosina

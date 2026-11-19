@@ -1,56 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116828;
-	b=cLSAa7NOyNTAepq9em/pQ3CKAY/H6XjwCl8d4NIS/WzWqnKzQ1RxAjvmakwaaAhlNOGS
-	 W+fNW/7Y/f1S5V52uwv1lqFbFPyv+onmn0sKlHqspUb8c5ZEvo8WhcjTgNxVRHBKlE7W6
-	 ZfFprlpHFp1uY0phVa7rU+0GXgmlee9R/iHfF/biV86Cq8Sf1O6hXJOVr5n4pjoE4qm+T
-	 m2e0V6xhCg4PsMF6o9H98F6DN55HEfkzly3K53rM6EizWnSQYJ0mVY1JPMs2mfkiS5B/7
-	 RJeHtMM6zZFnvTy0vEEnL9hpiRy7hZ5MCiP/miAlLJzV8jC6HzZRKPZ1ZOHi3HVaUAg==
+	t=1795119305;
+	b=L21+8MyU1i0cTDEggOwUr4J6yTTZEA0eJsBvzTwg0jHl9uxe3qZSNpHZFrcftFVNFAJm
+	 6h1NkTMiMlj6QR33XmNLHW3UbWlZSrf8GN3LmeLWfbkRV1L6bqgSld7t2glJvlaW04haM
+	 n+/qsMJ0JZMt48RVU5fbNy9waxi9zL/Rn4ueyvDo2XrCSs+yfTVwy+l+pX3YZdWT86I5Z
+	 7lKQ3CW6DYtuLPKlEQEyN8WnaBRJR2ait41gKUNRytxMCk7hN+Z+TfDw9jXVToQWx/Jgt
+	 6/QoE0hEFdWLepjntGt2lWIpOsQmmrZvduWGkOpI3YqYNhiMdaap8z8c2IKC0ZSL0Kg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116828;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=SMuo016MqWDtxdIP7ecIuybjrcAfl8rNzwBJXUnH9g8=;
-	b=2kHu5gDgN4CME/3yj2uMzlL5R7KYHtoGiTliKPNbnczKwZBhvU28Zf6TsWMibZFfOT6W
-	 QDxcFpFQ5QZydRGeJKSATbjbEtVSBqlIG+us+vQG6+vnpFAhLZTb42QJHw6zjVCGnuOWj
-	 cdJ6DbANETz0oj0ceQgRTtaD1ybwq99iH0IK1qDtdPnm2cc1MTW2Ko3wU6SuSuCj0gsWt
-	 egt6ZdjfEOcUbTDetX+4wp+xgWW/VIn1s7pD8w2Sx/sQz3xbjfA0rHjTmsEMTIQpG2W76
-	 q4bIkT/5LT1zPyWvc+REbyZl2dsaLCoYlvdp+dyLmuwEhZy++B/dXjprmd3iIorI6XA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795119305;
+	h=Received:DKIM-Signature:Date:Content-Type:Content-Transfer-Encoding:
+	 MIME-Version:From:Cc:To:In-Reply-To:References:Message-Id:Subject;
+	bh=ZFP1KdKJOpORb419ON5uvKPl/QdtChge5ZGA23yIqR4=;
+	b=D4iT5qXDBAK+kzOky4UVG2NLNyJSodoxCnCAR6Y9Uld44DiluKflYH8DUc75yegmamyV
+	 zXRWtR4HgLfJJSDpfdT/GciU2pDK9gj3cBTX0caZsPr+MWYtLj8x2tmiAgo/Js4UBhSwu
+	 GsNpLAvCPZVPYJuQVkxS4KdWxIf+r9AfmJuzIhnO42SMVxou0ZTy3QS8sz1r0jI44FI2c
+	 ZdaK19J64O0SgoGtFB/7cgNRLMa9tS7AaF8s83Wwbk2ofeDzWFH4SHPMIGrIe+KT96e+a
+	 RSfHEj/tSez9tARhDH+5hvffT2uMIt9DOuteU0RlDdm16dFKSsVD/9uIi4np+kam+Cw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aby5i6Sd;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N1y55w+u;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CC3606A320
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 19:33:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501C4606A324;
+	Thu, 19 Nov 2026 20:15:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aby5i6Sd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6711A1F000C4;
-	Thu, 19 Nov 2026 19:33:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N1y55w+u
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3961F000C0;
+	Thu, 19 Nov 2026 20:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795116827;
-	bh=SMuo016MqWDtxdIP7ecIuybjrcAfl8rNzwBJXUnH9g8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aby5i6SdiDZcen+HeArd93jLEJHwJP+oZpijdeLnmx0pr5EJ1eiWM0smHqaIRj4ja
-	 H7Xhr7ndMEf67Zt+sjDpYJSN2qjEFUJFH3E86PZhiAK/joAuq46kNoryM4TvZ+w+Dv
-	 Sl9Kr4ciXy0SLZf3e/voi/L/OnfEUfB8YFHaidiZEbPT02PebR1gqufmy0Y/opdyx7
-	 wK7TEePWkchKxgS+Fwehkzf2J5+Q/87t6CAR7kbEmZ6woYlQbz1z46B4DKwsJTNW6P
-	 pnZauVlsKHRJT+k5p6CRumD02wc/J3OzyrF8KLzUGdNJVJuYt9VxqpjlA/EN0waxuM
-	 iDFfKKOoMytYg==
-Message-ID: <sashiko-outbox-223935@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: hid-sensor-hub: avoid lock inversion in
- sensor_hub_remove()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ayaan Mirza Baig" <ayaanmirzabaig85@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261119192046.1015750-1-ayaanmirzabaig85@gmail.com>
-References: <20261119192046.1015750-1-ayaanmirzabaig85@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 19:33:46 +0000
+	s=k20260515; t=1795119304;
+	bh=ZFP1KdKJOpORb419ON5uvKPl/QdtChge5ZGA23yIqR4=;
+	h=Date:From:Cc:To:In-Reply-To:References:Subject;
+	b=N1y55w+ukoBuAaoIpV9697PFKD+LkkgqSjniDb3jEnYmGlW1Nhh1myVpSZ54jiBzh
+	 Iqwn65mKganneME9L2Sbw3782RiZqNxud+QbippqCanl4TS6j/FYmmmGdyEbiZlZvX
+	 HUJuBBOOoKcpZGVa/5TL5PjoWwprsOONZ86FWUjYNNadAmhaQBU8FRD+dZq4JfIe3w
+	 ySOKFgCnUhU+5ioEIdHpDno1FVBcbYfn7nYUiVHmrEAXZ7VQd+iCytSEAmyMuY7eye
+	 emgkueK5KBrBi/lVNPDMPHfuhS5YHeN1+hFKClfLbO2RaJ0OCNTFwYpErjgDSJCIjy
+	 azvX+rkEu6BhA==
+Date: Thu, 19 Nov 2026 14:14:58 -0600
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,62 +50,51 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+From: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Hefei <3066883572@qq.com>
+In-Reply-To: <tencent_C97CF8588D7C3312CE3D51FCDEA1E68DA70A@qq.com>
+References: <tencent_C97CF8588D7C3312CE3D51FCDEA1E68DA70A@qq.com>
+Message-Id: <179509880891.714790.13159454991217439265.robh@kernel.org>
+Subject: Re: [PATCH 1/6] dt-bindings: display: add VIEWE JD9365TX panel
+ binding
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] HID: hid-sensor-hub: NULL dereference in
-  sensor_hub_finalize_pending_fn()
---
 
-commit 1ba2998091dc7a9d09c7bc99c333bc23a67a24d5
-Author: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
+On Thu, 19 Nov 2026 10:48:01 +0800, Hefei wrote:
+> Add the device tree binding for the VIEWE 7KF82 720x1280 Jadard
+> JD9365TX MIPI-DSI panel.
+> 
+> Signed-off-by: Hefei <3066883572@qq.com>
+> ---
+>  .../display/panel/viewe,jd9365tx.yaml         | 76 +++++++++++++++++++
+>  1 file changed, 76 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/display/panel/viewe,jd9365tx.yaml
+> 
 
-HID: hid-sensor-hub: avoid lock inversion in sensor_hub_remove()
+My bot found errors running 'make dt_binding_check' on your patch:
 
-This commit moves the acquisition of &data->lock from sensor_hub_remove()
-into sensor_hub_finalize_pending_fn() to avoid holding the spinlock across
-device_for_each_child().
+yamllint warnings/errors:
 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 028e70ec7bace..4ade5b5ece565 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -836,9 +836,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
->  static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
->  {
->  	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
-> +	struct sensor_hub_data *sd =3D data;
-> +	unsigned long flags;
-> =20
-> +	spin_lock_irqsave(&sd->lock, flags);
->  	if (hsdev->pending.status)
->  		complete(&hsdev->pending.ready);
-> +	spin_unlock_irqrestore(&sd->lock, flags);
-> =20
->  	return 0;
->  }
-> @@ -846,16 +850,13 @@ static int sensor_hub_finalize_pending_fn(struct de=
-vice *dev, void *data)
->  static void sensor_hub_remove(struct hid_device *hdev)
->  {
->  	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
-> -	unsigned long flags;
-> =20
->  	hid_dbg(hdev, " hardware removed\n");
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
-> =20
-> -	spin_lock_irqsave(&data->lock, flags);
->  	device_for_each_child(&hdev->dev, NULL,
->  			      sensor_hub_finalize_pending_fn);
-> -	spin_unlock_irqrestore(&data->lock, flags);
+dtschema/dtc warnings/errors:
+Documentation/devicetree/bindings/display/panel/viewe,jd9365tx.example.dtb: panel@0 (viewe,7kf82): port:endpoint: Unevaluated properties are not allowed ('data-lanes' was unexpected)
+	from schema $id: http://devicetree.org/schemas/display/panel/viewe,jd9365tx.yaml
 
-[Severity: High]
-Does sensor_hub_remove() need to pass data instead of NULL to
-device_for_each_child()?  Passing NULL causes a NULL pointer dereference
-on &sd->lock in sensor_hub_finalize_pending_fn() when removing a sensor
-hub with any child device.
+doc reference errors (make refcheckdocs):
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119192046.1015=
-750-1-ayaanmirzabaig85@gmail.com?part=3D1
+See https://patchwork.kernel.org/project/devicetree/patch/tencent_C97CF8588D7C3312CE3D51FCDEA1E68DA70A@qq.com
+
+The base for the series is generally the latest rc1. A different dependency
+should be noted in *this* patch.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit after running the above command yourself. Note
+that DT_SCHEMA_FILES can be set to your schema file to speed up checking
+your schema. However, it must be unset to test all examples with your schema.
+

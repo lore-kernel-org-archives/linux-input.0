@@ -1,54 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795120826;
-	b=snWVBkyJJoRu+DWok1ae67wQWFn95Ze2+g8uHTcy/7PdHweEleHqv2HDdcmOHnRY4RI7
-	 L413+GgeBbZOu5gQnHcQVG/KeZyOMnyifywmkWCLjdI+1XvGCSMn+zrGzokKLGW5wwgjy
-	 bk2E0ywFKH6RYEKW2h3vzCb5ULdtUHcOxYxI66vXp4PZnRcTU7MDNlVP2hFlNfz4dbkMm
-	 DsxdASN1S7ohuPN/QlkRVGxGdgehYIHwk1/h7Oj3NmVFmaoEP2AJyYChkr0YJeIVtNBgg
-	 OZ3Rr/3xaPxmauEyJOtx3m2yILIE94MctaFmnkMfmB3UZ3xLuJq/WKvIM5EarxKWlIA==
+	t=1795121034;
+	b=Osnei4bWjFLcfsf7XDxCf+AkROA+NC2o5bUiMs0ktMIuQrlk4Kpk9pV5XI91wuso+uVi
+	 rpU7BV0M/frc09opo0wFC+Va5ybKngZR2t9j+7jqkXFRpgOuz0g44moGm0A10v3orkFK8
+	 Tvjp2dTk4X5ObghtcpML3/d/e7yhxfBv9Lub/lVKQ2XO2JshLFXfpPQWGqaTbpDEVx6IN
+	 lkL+VhdTQjKqyBULCuOrmeSPuXg8gAgr5Y+54KDQpAp/b+2JzQzCSXKJyXtEbh/5/5BaZ
+	 YJ9Ee/5kKd7KPnuegU0KDro55YJcnlr1eyT7H1SPtBia4gypC5sCLm4RGyxywLM1EtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795120826;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795121034;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=cddWqTP0g+CbpVm+N1Fy6WhhjNR76yRDMyPgxWeMdh8=;
-	b=DeNKgJ0QRBpAexiNrHKBUkeUzXtOtWN1vl4+K1VniPgiOb07Wr+Ki2BXQX1G/0N2A4fE
-	 /LzITnOTd3IzsXpCH2OQwF5GWzid6MnZOEtt7VzMGKUsG+yGlf4b9azJ0N1bIBq2zUnd2
-	 qNHu6UJ/vsAyJzPZlXorR1fNPPVFM1jrHRs/mcw4EGod5WD5T4d3Gq8zSVW7hFQ1A+bwr
-	 MlQkITMbiEtXpH0bx39QIPRaWvbK6vJWZLKP9wz9Y0WJVS598vYvsOrreoEL0K5D7Bb5i
-	 b3f011SgjtpaXmOpUzXeTrtWm6TKokVNscy/e6yXuF05X0q5pNxXSxDyTWET9sRC55w==
+	bh=5FuGWnpoRnGfJUPP95+vbL5XVs0jYD6RpmDm3Ay3n3I=;
+	b=NrrlyCU1aYGKnSo7oHtaj6yUHHkSezoVZ/ZAeUPK0ZRFrqo7u2LkdLNgBce6v56I1qpm
+	 TudA1f6QU68q4pOu1goBb3cDUyzxm5rt+To+L4K4D+GH5XotA391scZHBx3VaJsLEjwsp
+	 pr/Kloco/kua1az/QdmVxvZzvV2ZwEXJrK4Sp12+d03cSiRVg+nzrRFkB/dEGPg0W2DNn
+	 4toCh11uTeNu1gMawcWEA65cNJZ9XObE0ZO2Xn0n+27eD4y0DxbjVYmHS/PUDXHytid/W
+	 qtAjUM36GVfR45tABcujeUivx2YxhR0ywhet8x1xE4FQxtW1gCxq0NKKngxQSi1L4PA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oN1sg1BL;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jFBRAhnY;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37837606A93E;
-	Thu, 19 Nov 2026 20:40:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6BE606BB80;
+	Thu, 19 Nov 2026 20:43:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oN1sg1BL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3857D1F000C4;
-	Thu, 19 Nov 2026 20:40:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jFBRAhnY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9AF71F000C0;
+	Thu, 19 Nov 2026 20:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795120825;
-	bh=cddWqTP0g+CbpVm+N1Fy6WhhjNR76yRDMyPgxWeMdh8=;
+	s=k20260515; t=1795121034;
+	bh=5FuGWnpoRnGfJUPP95+vbL5XVs0jYD6RpmDm3Ay3n3I=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=oN1sg1BLOKksViJ7ThQi/icfIWDueSsQ6X/ogaMC2mPuwWSZ9fxY9QCIei/Cy3SZN
-	 ygT7o8HNrHKWouqG6MczDTVPWmLyqyPah72J1jtpx9xjxWHJ9cEN+fdp4Bel/EHcsF
-	 m2PKr3B0oslLDEpDA3jDJTOI9HpU7OTTCmsEU7tpNlLnJs4YHlXg2NZl+rdsZ5iwm3
-	 PVTQVxbiLawyfgR+aKAM09QpdMc2Rwl+8kuDPjcSwtVrQkbylCQjZb5Byb7beOSYeU
-	 9w2L8y3rmP5c+m8F8iPcFDmxII8Ni6OpXERzGpM7oV2KyxR4LS346kql3a9TgnngY+
-	 s3/l0ZFY457EA==
-Date: Thu, 19 Nov 2026 21:40:23 +0100 (CET)
+	b=jFBRAhnYENrURvD8F7EwBKzD5YEBanB30Si908P1ro7xGIL7NvfGXP7lkwgaJtry5
+	 gfAkClH/QQ/ID5F9oBvYRpnzEzkeq7iZqdm8MAAbA9NOjkIIbwjK6/j2UbnEHok4CY
+	 i4OrGED4Yz7K3Io6bx9rmu1Carz53pIeqdRvbI+WkGGjEuGFYg/Jh7Xzs7EfzDEZbO
+	 nvzhDuufOQQLvPX4q+0/gGaHXcz+ggIxDnreo1IfSprP3Aen0DSEMiYuN7EHkjoog8
+	 N0glqOkvhUZQp+AKyd3NdxVE0iRtsxQT0Su8HiAoz5kIPyfKpJa2GnFFtstu2jOIvD
+	 mes136M1B7TKg==
+Date: Thu, 19 Nov 2026 21:43:51 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Hui Peng <benquike@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, Rosalie Wanders <rosalie@mailbox.org>
-Subject: Re: [PATCH] HID: fix sony Rock Band 3 IRQ sleep and hid_debug_events_read()
- UAF
-In-Reply-To: <20260919222630.3798292-1-benquike@gmail.com>
-Message-ID: <30n6p5s6-pn96-7s47-7p64-79qs0pq6qn57@xreary.bet>
-References: <20260919222630.3798292-1-benquike@gmail.com>
+To: Helge Deller <deller@gmx.de>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Aveline Noir <jm5905938@gmail.com>, linux-input@vger.kernel.org, 
+    linux-fbdev@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] HID: picolcd: Avoid framebuffer last-close
+ deadlock
+In-Reply-To: <f52cd9ed-4e23-4160-b305-650d853bc18b@gmx.de>
+Message-ID: <5pr05248-751q-224s-2876-pp5599q5o985@xreary.bet>
+References: <CANOyQmGfmBdTRaEamVdGuMBToVLeXGi6qLrnX=xkA9acsL9TSQ@mail.gmail.com> <CANOyQmHF-gjvnLqTGEVBcU6+AWj5ha+7tJhE2E_Cv9aj-gRXdA@mail.gmail.com> <76cddcc5-2cf8-40da-9139-e78353975e41@gmx.de> <179308935900.645289.17780178981863221787@gmail.com>
+ <f52cd9ed-4e23-4160-b305-650d853bc18b@gmx.de>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,119 +62,15 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
+On Wed, 18 Nov 2026, Helge Deller wrote:
 
-CCing Rosalie to Ack/Review this one.
+> Jiri & Benjamin, can you check and decide on patch #1 of this series ?
 
-On Sat, 19 Sep 2026, Hui Peng wrote:
+The patch is line-wrapped / whitespace damaged and can't be applied.
 
-> Fix two issues in drivers/hid/:
-> 
-> 1. In sony_raw_event() (drivers/hid/hid-sony.c), defer the Rock Band 3
->    Pro controller full-report feature request to sony_state_worker()
->    instead of calling hid_hw_raw_request() synchronously from interrupt
->    context.
-> 2. In hid_debug_events_read() and hid_debug_events_release()
->    (drivers/hid/hid-debug.c), remove list->node from hdev->debug_list
->    under hdev->debug_list_lock before freeing or when hdev is unbound so
->    hid_dump_input() cannot access a freed debug list entry.
-> 
-> Fixes: bd28ce008bdc ("HID: move sony quirks")
-> Assisted-by: LLM
-> Signed-off-by: Hui Peng <benquike@gmail.com>
-> ---
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index f44e6e708404..edc45ca9e024 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -3728,15 +3728,14 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
->  				break;
->  			}
->  
-> -			/* if list->hdev is NULL we cannot remove_wait_queue().
-> -			 * if list->hdev->debug is 0 then hid_debug_unregister()
-> -			 * was already called and list->hdev is being destroyed.
-> -			 * if we add remove_wait_queue() here we can hit a race.
-> +			/* if list->hdev->debug is 0 then hid_debug_unregister()
-> +			 * was already called; break out of the wait loop so
-> +			 * remove_wait_queue() is unconditionally called before
-> +			 * returning.
->  			 */
->  			if (!list->hdev || !list->hdev->debug) {
->  				ret = -EIO;
-> -				__set_current_state(TASK_RUNNING);
-> -				goto out;
-> +				break;
->  			}
->  
->  			if (file->f_flags & O_NONBLOCK) {
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 50f5ad6bbeb4..d3862ddf68c9 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -561,6 +561,7 @@ struct sony_sc {
->  
->  	/* Rock Band 3 Pro Instruments */
->  	unsigned long rb3_pro_poke_jiffies;
-> +	struct work_struct rb3_pro_poke_work;
->  };
->  
->  static void sony_set_leds(struct sony_sc *sc);
-> @@ -657,6 +658,14 @@ static int rb3_pro_instrument_enable_full_report(struct sony_sc *sc)
->  	return ret;
->  }
->  
-> +static void rb3_pro_poke_worker(struct work_struct *work)
-> +{
-> +	struct sony_sc *sc = container_of(work, struct sony_sc,
-> +					  rb3_pro_poke_work);
-> +
-> +	rb3_pro_instrument_enable_full_report(sc);
-> +}
-> +
->  static int djh_turntable_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			  struct hid_field *field, struct hid_usage *usage,
->  			  unsigned long **bit, int *max)
-> @@ -1101,7 +1110,7 @@ static int rb3_pro_instrument_raw_event(struct sony_sc *sc, u8 *rd, int size)
->  	/* Only attempt to enable full report every 8 seconds */
->  	if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
->  		sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
-> -		rb3_pro_instrument_enable_full_report(sc);
-> +		schedule_work(&sc->rb3_pro_poke_work);
->  	}
->  
->  	return 0;
-> @@ -2124,6 +2133,8 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
->  		}
->  		cancel_work_sync(&sc->state_worker);
->  	}
-> +	if (sc->quirks & RB3_PRO_INSTRUMENT)
-> +		cancel_work_sync(&sc->rb3_pro_poke_work);
->  }
->  
->  static void sony_cleanup(struct sony_sc *sc)
-> @@ -2350,6 +2361,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	hid_set_drvdata(hdev, sc);
->  	sc->hdev = hdev;
->  
-> +	if (sc->quirks & RB3_PRO_INSTRUMENT) {
-> +		sc->rb3_pro_poke_jiffies = 0;
-> +		INIT_WORK(&sc->rb3_pro_poke_work, rb3_pro_poke_worker);
-> +	}
-> +
->  	ret = hid_parse(hdev);
->  	if (ret) {
->  		hid_err(hdev, "parse failed\n");
-> @@ -2391,9 +2407,6 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		goto err;
->  	}
->  
-> -	if (sc->quirks & RB3_PRO_INSTRUMENT)
-> -		sc->rb3_pro_poke_jiffies = 0;
-> -
->  	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
->  		if (!hid_is_usb(hdev)) {
->  			ret = -EINVAL;
-> 
+Aveline, could you please fix that on your side and resend?
+
+Thanks,
 
 -- 
 Jiri Kosina

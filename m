@@ -1,94 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=207.46.229.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795072696;
-	b=MFcRk3HbZttDSb9YFb9/l1rxWJbe/sd8zESubT5W82Orsf3FxyZdlBDc7oW7obo6B5az
-	 BD15cu7VrgioLTq77HNvyPF77gjypGLYEgDvoDwK3rGR4x5zFsRrT6ToQ/fK2MwunrReO
-	 Myl0XvdnmlqjggXkai0cuiSedUy4ywP1oREWgrp2UDePs3ivbnVP1ieuXTkf3bBTYnAt5
-	 S4QvJQIlM+oM4vzfy0QFre5O1didaO+rGImRRSqcAJRAFkf8I+YMab5cqM5idzWGPkwAl
-	 OOIEcR4Q0GzqIMPDesiLHdeVIyOLC+Y2hmlT1Q4e4KdlZbOYHpa9NW1Scc+RJgA2zQw==
+	t=1795076102;
+	b=HSqON8+hSeFIUzpHek4PmZXhfOwoQT4LA3NLmdlF5pYO1qT4wxhY3CuCx7fn7U/rCD/d
+	 8KMBV/uKEo0kCPucU3HCxYv4bRH2+tbAw9P904p3eo7bkt3EiF0YDPMwwgMsjbmrb+e5p
+	 buxFwVSgOfiWUM65O/X279ExJWD360kZIBoeHW4b9NRjrJOc6fNMQQInjOx2xH5LJuTGZ
+	 WVNGHjxOKTqoEntF8Uq4Ddd6X3BgGuhy2fr7SCg4K80PiPqLQKxSPRyzfjS6DxuYiqCXK
+	 iS43JNmLtfuDsLEaLKh3htyAtcnJTqQLb9g69UtLU5K4hGRyknZdc6yKMLH9GvDbThA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795072696;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=APuvn7f/7sMW86yp8ozwMRqfBj0JO9PvrdgmAwgAkXc=;
-	b=VyR3HPweDGlkcRHEhgyHO0XM0aQuXf21yjbO1ZZxC5fUz+36oN3nGALUqxwNz2SQ39Q+
-	 4/Nt55b7ek55S6ew3gdfbIt4YLp2h7dFr9PDCpKdkggPaByl+qc3porw++3jmoIaBU8e0
-	 Jy3Oqm1s6ZT8O1mP6TA34cupTPhwvRfi6bDHNYZHqc6e72WTufRi9/kK3QL6O7LHDi9dH
-	 j2Ci7KwkHaUQZ+/tidgdgrcFOK7nggGmapmxbSFHKxQO0xuRtpFaoYzFcbKDYAVxcje3x
-	 1F7cqEtzyVqiYy1Trf6fYInmUdzEoV7amAdWygLEqA1p0ihUodEtYEyqt/ZTYL1K8Dw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795076102;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
+	bh=KQjFXmZ+pAWZ6X30x7o23/sjlS9JkbSCf4z7NXCe5P8=;
+	b=JpQJjmx9rcveHBOZ4M8OHqNE3y9Hgk2e42vBAQB5n7EXfCohJxRC6CNaGgr+JxG0jiwl
+	 nc2CGQjsmrVU/h3yC5DHAfY6wKQwlkpq8Qn6WFIgc45JTrpqvnesNGdH6dUSh2cqk9hWr
+	 3cOsJTL8aeWFhUIRL31wQ4WSDUzFSrbE64RXx//QwbOpa63z3SEyST7IdijT/KTgknIsO
+	 IQvBLk0nXlceEpOhzv501s0+wXqeaoflXl51zOMDyEolH4mdYtiCAj26D6Oz58XgtK+8J
+	 A/kr22p9QNmo5tZFrxiYt2g9K7iGg6BtbhdEeo1ep/4Ztmg6OgPPB19Y9MVtacRKENA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuLJV8fV;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6D5606A324;
-	Thu, 19 Nov 2026 07:18:16 +0000 (UTC)
+	dmarc=pass header.from=mail.zgclab.edu.cn;
+	spf=pass smtp.mailfrom=mail.zgclab.edu.cn;
+	dkim=pass header.d=mail.zgclab.edu.cn header.i=@mail.zgclab.edu.cn header.a=rsa-sha256 header.s=dkim header.b=ddMIIq4A;
+	arc=none smtp.remote-ip=207.46.229.174
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [207.46.229.174])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 56466606A320;
+	Thu, 19 Nov 2026 08:14:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56466606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.zgclab.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.zgclab.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuLJV8fV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADF91F000C4;
-	Thu, 19 Nov 2026 07:18:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795072696;
-	bh=APuvn7f/7sMW86yp8ozwMRqfBj0JO9PvrdgmAwgAkXc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nuLJV8fVc2D0MrbPEKZ35IXVmf8L6ICWqA805Tk7LAAIPJx7UCKjmZxc59fyigx2g
-	 lXSSphsOzAQfsebmstu0+O4eMgGF3exHrvIfhuxGoLmOWey18JBKmVK1Xw/VyHaPsZ
-	 hfSjl8WYYm65pvvel75Be0ysgbB4Ky87xuvAoyV/SvuqTIEdmRvPaiJ7T4S3a+bVQR
-	 nIn2nQUotBnrGo9Xzn8ESPCAU8Vj6UhKaMIFf33OD9RSf1ChY6r0xVN3/BxnU55Hlh
-	 R9hY6EZN2X9huqMJHvsXgm3b3LVgn9x4FSZvgXfvSUj2AY4v6IcCAS4emNvE/VqD+b
-	 R2bmr+esy2LCA==
-Date: Thu, 19 Nov 2026 09:18:11 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	Chris Lu <chris.lu@mediatek.com>, Mans Rullgard <mans@mansr.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Cornelia Huck <cornelia.huck@de.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, linux-coco@lists.linux.dev,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>, linux-sound@vger.kernel.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v3 18/31] net: phy: Use the compatibility driver
- attachment API
-Message-ID: <20261119071811.GG162713@unreal>
-References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-18-d655875c4bfb@nvidia.com>
- <71c1b931-c553-46e3-b49a-51167f168ac4@lunn.ch>
+	dkim=pass (1024-bit key) header.d=mail.zgclab.edu.cn header.i=@mail.zgclab.edu.cn header.a=rsa-sha256 header.s=dkim header.b=ddMIIq4A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=mail.zgclab.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=KQjFXmZ+pAWZ6X30x7o23/sjlS9JkbSCf4z7NXCe5P8=; b=ddMIIq4A5x2cF
+	uyO8nQT62JPcvm8eBl8R6LQ9kbgrbk17+9tp3EVgiWl5XeK+dqInV6PbL+8mS7jd
+	g7B+fbwr0Qk8TjZWTI9T90XizybeDr7MZHEuLGUOZizc4scLJEbPOfVWL8ypcpOm
+	ydG2sI7k3qJFOxfQemNXJkBqX+Tm8w=
+Received: from 04.eml (unknown [58.206.202.11])
+	by web4 (Coremail) with SMTP id ywQGZQCXVgT9r_5qpbwhAg--.21704S2;
+	Thu, 19 Nov 2026 16:14:53 +0800 (CST)
+From: Wang Haoran <wanghr2026@mail.zgclab.edu.cn>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, wanghr2026@mail.zgclab.edu.cn
+Subject: [PATCH] input: hideep: Roll back regulators on power on failure
+Date: Thu, 19 Nov 2026 16:14:54 +0800
+Message-ID: <1795076094831-4-142a2b55@mail.zgclab.edu.cn>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,40 +55,128 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <71c1b931-c553-46e3-b49a-51167f168ac4@lunn.ch>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:ywQGZQCXVgT9r_5qpbwhAg--.21704S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGFW3KF1DCFy7tr1ruFWrAFb_yoW5tFyrpr
+	s5W392krs7XFySya1DXryIv3W5Kr1DJr95Ar1kG3yrX3Z8Z3ZxJrs2yrWY9F1Fqr1kGw15
+	KrWkZr40yF12vrJanT9S1TB71UUUUjUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPC14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr
+	1j6F4UJwAaw2AFwI0_Jrv_JF1lnxkEFVAIw20F6cxK64vIFxWle2I262IYc4CY6c8Ij28I
+	cVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx
+	0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lF7I2
+	1c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v26r126r1DMxkIecxEwVAFwVW8ZwCF04
+	k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AKxVWUXVWUAwC2
+	0s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI
+	0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv2
+	0xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2js
+	IE14v26F4j6r4UJwCI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI
+	43ZEXa7VUjw0ePUUUUU==
+X-CM-SenderInfo: pzdqwxbusqjlo62juzldeovvfxof0/1tbiAgIQD2r+rloDXwAAsj
 
-On Wed, Nov 18, 2026 at 09:21:45PM +0100, Andrew Lunn wrote:
-> > @@ -3813,6 +3809,8 @@ static int phy_probe(struct device *dev)
-> >  	int err = 0;
-> >  
-> >  	phydev->drv = phydrv;
-> > +	phydev->is_genphy_driven = phydrv == &genphy_driver ||
-> > +				 phydrv == &genphy_c45_driver;
-> >  
-> 
-> Why do this here?
+hideep_power_on() enables the vdd and vid regulators but does not roll
+them back when a later step fails. When the reset command write fails, the
+probe returns before the devm action is registered, so both rails stay
+enabled; a subsequent probe retry then enables them again, and the leaked
+enables make _regulator_put() warn. The enable failures themselves are also
+only logged and neither propagated nor rolled back.
 
-This flag marks that driver is already probed, which is reliably
-happening in phy_probe() under right locks. It was the easiest
-way to battle AI reviews which don't agree with how PHY subsystem
-performs driver bound.
+Disable the already enabled rail(s) on failure, return the enable errors
+right away, and disable both rails when the reset write fails.
 
-> 
-> It also makes the code asymmetric. If you set it in phy_probe, you
-> should unset it in phy_remove. At the moment, it is symmetric,
-> phy_attach_direct sets it, phy_detach clears it.
+Signed-off-by: Wang Haoran <wanghr2026@mail.zgclab.edu.cn>
+Fixes: 842ff286166e ("Input: add support for HiDeep touchscreen")
+---
 
-is_genphy_driven management was moved from attach/detach to
-probe/remove, so it is not set in attach anymore. It aligns now
-with how phydev->drv is handled, which was set to NULL phy_remove(),
-see commit 00db8189d984 ("This patch adds a PHY Abstraction ...").
+diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+index 9384657ece7e..ecd730763821 100644
+--- a/drivers/input/touchscreen/hideep.c
++++ b/drivers/input/touchscreen/hideep.c
+@@ -661,17 +661,22 @@ static int hideep_power_on(struct hideep_ts *ts)
+ 	int error = 0;
+ 
+ 	error = regulator_enable(ts->vcc_vdd);
+-	if (error)
++	if (error) {
+ 		dev_err(&ts->client->dev,
+ 			"failed to enable 'vdd' regulator: %d", error);
++		return error;
++	}
+ 
+ 	usleep_range(999, 1000);
+ 
+ 	error = regulator_enable(ts->vcc_vid);
+-	if (error)
++	if (error) {
+ 		dev_err(&ts->client->dev,
+ 			"failed to enable 'vcc_vid' regulator: %d",
+ 			error);
++		regulator_disable(ts->vcc_vdd);
++		return error;
++	}
+ 
+ 	msleep(30);
+ 
+@@ -679,9 +684,12 @@ static int hideep_power_on(struct hideep_ts *ts)
+ 		gpiod_set_value_cansleep(ts->reset_gpio, 0);
+ 	} else {
+ 		error = regmap_write(ts->reg, HIDEEP_RESET_CMD, 0x01);
+-		if (error)
++		if (error) {
+ 			dev_err(&ts->client->dev,
+ 				"failed to send 'reset' command: %d\n", error);
++			regulator_disable(ts->vcc_vid);
++			regulator_disable(ts->vcc_vdd);
++		}
+ 	}
+ 
+ 	msleep(50);
 
-So I would say that now it is more aligned with what PHY does and more
-symmetric than before.
+---
 
-Thanks
+PoC reproduction (7.4.0-rc2, arm64 QEMU virt, unmodified kernel):
 
-> 
-> 	Andrew
+Device tree injection, spliced into the QEMU virt machine DT:
+
+    reg_vdd: regulator-0 { compatible = "regulator-fixed";
+        regulator-name = "hideep-vdd"; regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>; };
+
+    reg_vid: regulator-1 { compatible = "regulator-fixed";
+        regulator-name = "hideep-vid"; regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>; };
+
+    i2c@0 { compatible = "i2c-gpio";
+        sda-gpios = <&gpio0 0 0>; scl-gpios = <&gpio0 1 0>;
+        i2c-gpio,delay-us = <2>; #address-cells = <1>; #size-cells = <0>;
+        hideep@41 { compatible = "hideep,hideep-ts"; reg = <0x41>;
+            interrupt-parent = <&gpio0>; interrupts = <2 8>;
+            vdd-supply = <&reg_vdd>; vid-supply = <&reg_vid>; }; };
+
+The device has no reset gpio, so the reset command write fails on the
+unanswered bus after both rails have been enabled.
+
+Trigger:
+
+    modprobe i2c-gpio
+    modprobe hideep
+
+Result:
+
+    hideep_ts 0-0041: failed to send 'reset' command: -6
+    hideep_ts 0-0041: power on failed: -6
+    WARNING: drivers/regulator/core.c:2678 at _regulator_put
+    WARNING: drivers/regulator/core.c:2678 at _regulator_put
+
+Two warnings, one per leaked rail, and the regulator use counts go from
+1 to 2 after the failed probe.
+
+Note: the PoC was generated with AI assistance and the vulnerability was
+found by static analysis. The device tree is trusted input (a bad DT
+requires root or physical access), so this is not a security fix, but it
+prevents a potential resource leak or system failure on a failed probe or
+an old or malformed DT.
+

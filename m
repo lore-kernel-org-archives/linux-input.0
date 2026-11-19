@@ -1,56 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795124206;
-	b=nWdDhsjI3kBwGAZ6q/BpSKR9AlahGLqXpVPaBA/Efl7vXCr3FqBs5mzYhxAvsS6r+5Kg
-	 xTrnKK4gtw4UFnq/GolATMj7EWIzGa6YnpUe314MKMmyOQxR/75bGgbkvjk7KsxkRNuW8
-	 DWX5jymKMt5pVN6XyaIlM02yVxPkjj7/2R1hnB3DuDrAbSi9nom3CAcTGOUi+Xs1xFfoR
-	 3bruxt55oB34YdnAthEAfCTYCW/OOfKOeDGByDKoc+2B54Rypd49heN+J15gGsnRrMq/l
-	 LmwOh2S22uNdgID6dBOiyWJJCndn0QJc1oem5CvD3ZueTSbHWEBJJilajJKvUV82cNw==
+	t=1795124293;
+	b=HK6Byom9A6ze1gkEZ7xFX/zQMP1AbnfWl1roNti+cpkQ1uHbubkbHWRkTugkNriLqGiC
+	 EWMcWqpXahgCHwiMKDmZFw5f+pNuqCnkmnttaBH5yN4qib+8+9CHBC3GqVmOQDGTD4lSW
+	 KwDTrnHol3jfg18vH4iIjzBPgqiye8SUel2Xlv2pJdUKXSzdMgcPf0cqcATKMvpaMzhdA
+	 0A1NIO18ExH8BS/ffwZrDKqS/uJTi1Tc3koZ2soYucctXt+zMDFh2kNEjKKUgqamJfbxT
+	 YvkV878t0QmPIHmsongooh1f6BPBlEh4TguIsynU5GmHjUiwopidOxyjg+NlWCw3ltA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795124206;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795124293;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=LML88oLR/JHS1tEWSCvh0L02QsPi7WMgIFrwWVKms/M=;
-	b=KY3ArKph8LLOGacZUSc/QDnJeOWGKGYahVE7zfFgjmjeizeo/su9CFatkuOzPY88qi4W
-	 Z23Z+2W+z2oOdKMFIVlI504bm0A8eDPImCuh4KiQH+7KhXoonC/sHKnQwrECP35q2X4gL
-	 rJwDmItuLe63NCJtAbp7oY8kvQ/Ks1mGdf9HxC946jtJrKo9uoFQJlhbmRQbqIPR9rflF
-	 knkPbjtevX0PeMrbbW2JXjFjDrEvcbxGT9HDVwHWtlKtk1VCE+kjUPw1lRxSUciNAAoDW
-	 JwfaHLZEp+DZRWgt4HM1qsE0z/Hui3E78w50/tGcWo3h8k4vWa3p7SWpR2ZYnt9ZmSQ==
+	bh=PnTwqTAd6zPrVDdCBBgYNiAIBZrwMCrGj4srPVWYgRc=;
+	b=SncmAP3iFi7IY8yF5hd/tO6ZMRwFqihZN8yw15Do5Mtlj9gH/LqUhnjm4q4r5IVH8cF2
+	 nsfujC6wAZt6yrGlZs7nUK1qpZKkvt0RA/YuImM1bHHg2lfyDlcUSseYvgsB4ixdkDeyH
+	 tJtE5iWx9iyRjwysX50bINPoIaKxx/tDVu0yyIgZR8y7GQjP8gNRJJAAp+ynGjRy6sW7c
+	 ZIfdCT5WY/N3Yge5Joiv6JddaBBupij/gDaOl28haouueFkzcmPR8yV+DF2qU8Y4e0A9X
+	 5+CPRwzhe4aHpJ8iyZSDd4zAymtMGj1DEoaPLLSXIyPd3BMEPrESIgW7CHbe7jaUiBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="O/TgTy+s";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kDll02Pn;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62CD9606A324;
-	Thu, 19 Nov 2026 21:36:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5167606A320;
+	Thu, 19 Nov 2026 21:38:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O/TgTy+s
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADDFC1F000CA;
-	Thu, 19 Nov 2026 21:36:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kDll02Pn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB641F000C4;
+	Thu, 19 Nov 2026 21:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795124206;
-	bh=LML88oLR/JHS1tEWSCvh0L02QsPi7WMgIFrwWVKms/M=;
+	s=k20260515; t=1795124292;
+	bh=PnTwqTAd6zPrVDdCBBgYNiAIBZrwMCrGj4srPVWYgRc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=O/TgTy+sLb1MSXnkpbF0WehAIrZR/vY7UOJEHvHD5p0QO8fdODWxouMv2mzEQSyiW
-	 lNUVvMwCYR4R13NMdQR/0BXYNtJzyges6Vg+8rthsGRY9630gqarqIdywRLMhqQQag
-	 cujl1vNX9cLs8Qh9cSL+zER2pvFOMBKOqlUp6gGb71/R2CFZDu4i7wlueGTJ0o3WiY
-	 kQ+5wtmGBFjrYI8Lyo6KON+RPWUT/UszrF28D2QBPZUorbX4frCaTQK47msynr7QnK
-	 py6IgYLUl30n77eQ24+joDBTNbcjUXeV1Umm/XzLZCUtTaafKX48JecML6gQP2U5jq
-	 Ew/G02yAO5low==
-Date: Thu, 19 Nov 2026 22:36:43 +0100 (CET)
+	b=kDll02Pn+Thrq+vwsbZGhKT0LgGJJFSprxmF4aHPRnHvVc6wo2fcQLjIrK+bqeyKT
+	 hR6yNlJ3Ix7WK73ArODdRpoZ4vhLvKmA7j5O80kOYDdI0eQqL43yqKW36u+WwYJimC
+	 zGUAedoEnCvIkEp9gWtM/IEegad6FN05a59a6SaGqrmKxUoyyAXQSfRdCORN5mfbx1
+	 jadChw3FQd0P8jc936i5e6/GBkjSRPcFfgYZ1vzcp9pmClqsDftouvbOZWM1nX7iEm
+	 Kc11XMkb+oQ1OvRchkdlb4tjyEzXnRzzTgJT+AiS3Oj0gTo3+p4JH/GmLUFtEaoTD4
+	 G58luDBUhh38Q==
+Date: Thu, 19 Nov 2026 22:38:09 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: David Cemin <dcemin@nvidia.com>
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
 cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    linux-tegra@vger.kernel.org
-Subject: Re: [PATCH] HID: asus: map Consumer brightness usages on I2C
- keyboards
-In-Reply-To: <20261020220919.611287-1-dcemin@nvidia.com>
-Message-ID: <99s8sr4o-0498-824o-n90p-2rs7o0r40s87@xreary.bet>
-References: <20261020220919.611287-1-dcemin@nvidia.com>
+    Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, 
+    Harald Brinkmann <hbrinkmann@braincalibration.de>, 
+    syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH v2] HID: saitek: don't dereference a NULL hidinput in
+ saitek_event()
+In-Reply-To: <20261015151318.208115-1-ngocthang2710.1999@gmail.com>
+Message-ID: <n2s8q6oo-4348-8q5n-1rp8-668373s3s402@xreary.bet>
+References: <20261015151318.208115-1-ngocthang2710.1999@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,30 +64,38 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 20 Oct 2026, David Cemin wrote:
+On Thu, 15 Oct 2026, Nguyen Ngoc Thang wrote:
 
-> Several ASUS laptops carry their keyboard on an I2C-HID device with ID
-> 0B05:4B42, the same ID as the Zenbook A16 (UX3607OA), so they bind to
-> hid-asus with I2C_KEYBOARD_QUIRKS since
-> commit 206107536018 ("HID: asus: support the Zenbook A16 (UX3607OA) keyboard").
+> hid_process_event() calls the driver's ->event() for every usage of a
+> report, including fields that hidinput did not map to any input device,
+> e.g. a constant input item. For those fields field->hidinput is NULL,
+> and saitek_event() loads field->hidinput->input unconditionally:
 > 
-> Unlike the A16, which reports its brightness hotkeys on the ASUS vendor
-> page, these keyboards report them as the standard Consumer usages
-> Display Brightness Decrement (0x70) and Display Brightness Increment
-> (0x6f) on report 3. I2C_KEYBOARD_QUIRKS includes QUIRK_NO_CONSUMER_USAGES,
-> whose input mapping ignores every Consumer usage except mute and volume,
-> so the brightness keys never produce input events. The keys work when
-> the keyboard happens to be bound to hid-generic, which maps those usages
-> by default, and stop working as soon as hid-asus claims the device.
+>   KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
+>   RIP: 0010:saitek_event+0x51/0x2b0 drivers/hid/hid-saitek.c:154
+>    hid_process_event drivers/hid/hid-core.c:1572
+>    hid_report_raw_event drivers/hid/hid-core.c:2109
+>    hid_input_report drivers/hid/hid-core.c:2180
+>    hid_irq_in drivers/hid/usbhid/hid-core.c
 > 
-> Let the two display brightness usages through the filter so hid-input
-> maps them to KEY_BRIGHTNESSUP and KEY_BRIGHTNESSDOWN. Keyboards that do
-> not report them are unaffected.
+> A device that claims to be a Saitek MMO7 and uses such a descriptor
+> triggers it with a single input report.
 > 
-> Tested on two ASUS laptop models with this keyboard: with the keyboard
-> bound to hid-asus, the brightness keys now adjust the panel brightness.
+> Bail out early when the input side is not claimed or the field has no
+> input device, as the other HID drivers implementing ->event() do. The
+> claimed check also covers a failed hidinput_connect(), which frees the
+> hid_input structures without clearing field->hidinput.
 > 
-> Signed-off-by: David Cemin <dcemin@nvidia.com>
+> Fixes: 37c492c8f6a9 ("HID: quirk for Saitek RAT7 and MMO7 mices' mode button")
+> Reported-by: syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=eba2b3201bd25a97cddf
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+> ---
+> v2: also check HID_CLAIMED_INPUT. hidinput_disconnect() frees the hid_input
+>     structures without clearing field->hidinput, so after a failed
+>     hidinput_connect() the pointer dangles while the probe still succeeds
+>     (->raw_event is set). Reported by Sashiko.
 
 Applied, thanks.
 

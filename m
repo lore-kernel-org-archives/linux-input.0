@@ -1,31 +1,31 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795096339;
-	b=og8pGNlU/nZamEFdgBe4t2vTBdaDwQIH5qstofwpJlGQnRWkNE3fMeKXWw9JGDgPAdqt
-	 6BOX5zLzSBGTfAtbpKtxq80GlhGYrMK1H6z7rQ9sqvwhuHJ+cD0FBmb24blNvijEhd9Oy
-	 TDqr4MTRuTnnLqMOJreRDOHlsOtwn/5wOaW23XlUbxC3u4xNBteVox9JTU7AP5NBVI/q9
-	 XEisCXnMxT4S6yqrSOuB/qAXDqwZ4K+Ohw5pd+E0KM6wMRAf4AWyRtG2GvqxzJ6a79zec
-	 mSMrrQTRVAlQAqUIC4l8TwDN1RPUI+IltMVli2n8wpXfwBhkQL8fyDsk7jb134sMC7A==
+	t=1795096341;
+	b=BldJw6gST0G/TRtTE1EhSTxBIgzs9Vjld4i1oqPGz9hhtDHAGB0/iBKHTENU27xMQLOz
+	 e1+iSsqZOqtKZSMHyD5JV3Ci9sw4sJpp27iwsY5GW6zv8ByCg4dZyJc4uBogURrL7sZh8
+	 Aw07ACTWVALWZx7nYEM0E2J0fJ0nofBC/ey7MM498bJJWeL1djMhUfdoYoav+14ERGlta
+	 1GPYeZmAibfRytnhNE203WhFgk4nPi2A4qlHIa2VFFq+Q34cBIhEhUf8NplSLOZnF2Whn
+	 7gsnBNVJx5Nw71qKtAd7jgfAj+zC43ZGfC62Q5J4PVX8i88zQFejLrfVcYCljCIHTGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795096339;
-	h=Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=AMAYEv8YrNXF1Htx6L31nCeOdPyJr9slwQNX9p/dNI0=;
-	b=1B8Jo+NeH2nXWWqW5Qx7Y11cS1FT59Y+J4PaZ+C2pcQ8u/5OXQD3orGwrwrJ6JbLmclx
-	 3jAHgQLXAcjwcPi8M6B9CydBMQ2cJpDTSsIDnLBEfF8CjQxcqE4yGwIu6XQf+6HIZgeG2
-	 2Le4EM4KJkgQaJZ+72dWCXvI58VivIhIQQxEZsu61rPXMhsF/OJ80xnpH/LvTgrrfc3Zc
-	 DnvJZ8ZoEBkJy2/tQDg3cpzJqbSB6pOUSJ0aWVudyIO04RjPEaPQAtnyM+6YaNbb3d2lV
-	 gENmQRbLgeEwa/qLVhhwyl/5/rBZNW/Rz92eH8rF10ff3leuk1M1ZiAtss3LAfJ4WKw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795096341;
+	h=Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
+	 References:MIME-Version:Content-Transfer-Encoding;
+	bh=uvsLCLgD+2GlK/ZO9dP5Vd1GUDLn62fnjVZevtDNlHQ=;
+	b=hyu47rHLSkEzMNTqqIVXWvftS6XQzu6IVOYL0EzAt3L2H8wYLmT6KRLdBk2np1cOBT0Q
+	 lmPRHiIp3HpbmuHjUFLGqpUXUcP/WiFx3FjPqw9r/mO0p44qNYDBeZ7FwSqr3cCwRHTYO
+	 rWd+JhosUwInYFLupHAnruEQ7+lOnprwgxsOQcmLDzxTRP61bM6EyDqd6+cBshSOr3RzN
+	 ZzGW8CwLHRB479UuTrzp1ryhVzHLTEWOZG2FTlXZgSiTymIr7Pe8Cl/1mltrdTbTE9sL1
+	 BbCVsgVyAg7MoeEeW8XYsyxLpQjQZoxf8IVBahbAHUL7DyHUAeBHxe7VXKVIaPdBtpA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AA11606A320;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C95A606A331;
+	Thu, 19 Nov 2026 13:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183491F000C6;
 	Thu, 19 Nov 2026 13:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB311F000C4;
-	Thu, 19 Nov 2026 13:52:16 +0000 (UTC)
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 To: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
 	Svyatoslav Ryhel <clamor95@gmail.com>,
@@ -38,10 +38,12 @@ Cc: mfd@lists.linux.dev,
 	linux-pm@vger.kernel.org,
 	linux-tegra@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 0/4] Improve MFD_ASUS_TRANSFORMER_EC dependencies
-Date: Thu, 19 Nov 2026 14:52:08 +0100
-Message-ID: <cover.1795095742.git.geert+renesas@glider.be>
+Subject: [PATCH 1/4] mfd: MFD_ASUS_TRANSFORMER_EC should depend on ARCH_TEGRA
+Date: Thu, 19 Nov 2026 14:52:09 +0100
+Message-ID: <a26023673d5ff120812f67aee3728154694cb69c.1795095742.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1795095742.git.geert+renesas@glider.be>
+References: <cover.1795095742.git.geert+renesas@glider.be>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -53,42 +55,30 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-	Hi all,
+The ASUS Transformer's Embedded Controller is only found in Tegra-based
+ASUS Transformer series tablets and mobile docks.  Hence add a
+dependency on ARCH_TEGRA, to prevent asking the user about this
+functionality when configuring a kernel without NVIDIA Tegra SoC
+support.
 
-This patch series improves dependencies for the MFD_ASUS_TRANSFORMER_EC
-MFD driver and its various subdrivers:
-  - The first patch adds a missing dependency for the MFD driver,
-  - The other patches enable compile-testing for the input, serio, and
-    battery subdrivers.
+Fixes: ccb21236e307ff60 ("mfd: Add driver for ASUS Transformer embedded controller")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ drivers/mfd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Note that compile-testing cannot be enabled for the LED and charger
-subdrivers, as they have a hard dependency on the MFD driver.
-
-Thanks for your comments!
-
-Geert Uytterhoeven (4):
-  mfd: MFD_ASUS_TRANSFORMER_EC should depend on ARCH_TEGRA
-  input: keyboard: Enable compile-testing for
-    KEYBOARD_ASUS_TRANSFORMER_EC
-  input: serio: Enable compile-testing for SERIO_ASUS_TRANSFORMER_EC
-  power: supply: Enable compile-testing for BATTERY_ASUS_TRANSFORMER_EC
-
- drivers/input/keyboard/Kconfig | 2 +-
- drivers/input/serio/Kconfig    | 2 +-
- drivers/mfd/Kconfig            | 1 +
- drivers/power/supply/Kconfig   | 2 +-
- 4 files changed, 4 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 2b2b7bced40017b0..d64be4bb0ed19a4c 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -141,6 +141,7 @@ config MFD_ASUS_TRANSFORMER_EC
+ 	tristate "ASUS Transformer's embedded controller"
+ 	select MFD_CORE
+ 	depends on I2C && OF
++	depends on ARCH_TEGRA || COMPILE_TEST
+ 	help
+ 	  Select this to enable support for the Embedded Controller (EC)
+ 	  found in Tegra based ASUS Transformer series tablets and mobile
 -- 
 2.43.0
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

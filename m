@@ -1,31 +1,31 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795096341;
-	b=BldJw6gST0G/TRtTE1EhSTxBIgzs9Vjld4i1oqPGz9hhtDHAGB0/iBKHTENU27xMQLOz
-	 e1+iSsqZOqtKZSMHyD5JV3Ci9sw4sJpp27iwsY5GW6zv8ByCg4dZyJc4uBogURrL7sZh8
-	 Aw07ACTWVALWZx7nYEM0E2J0fJ0nofBC/ey7MM498bJJWeL1djMhUfdoYoav+14ERGlta
-	 1GPYeZmAibfRytnhNE203WhFgk4nPi2A4qlHIa2VFFq+Q34cBIhEhUf8NplSLOZnF2Whn
-	 7gsnBNVJx5Nw71qKtAd7jgfAj+zC43ZGfC62Q5J4PVX8i88zQFejLrfVcYCljCIHTGg==
+	t=1795096344;
+	b=fMu3d/pnzSNpgVtvB2kETHQU5Ek/yNTdSCidOJeMX/H8eidaCnHrFL96PiGV5lHjwis9
+	 jjvR0dnaYatrLhgv9elqq8IrlETRURpnkrj5jQNVUAGewMYVigyjPhx4FCp4bb884sOnf
+	 dN/ULpXtCGAWgXfnz+dtLBmwCg6IIekFzzFLWCXpn9iD0ThdmJRJfh1rPa81K6bG6GnoU
+	 6IHveOHY+CeTznLZWSpUWwoe3VyhBCRM2FPAQfepp2Q1rqlQ+qmU3X0g9p/hZWAzHxzIt
+	 NA+i/MKs82w+cKghBZRTV6lGcNt0qe2iECdinRyHtuWt/utacAkLJgnF7jGKImxNCYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795096341;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795096344;
 	h=Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding;
-	bh=uvsLCLgD+2GlK/ZO9dP5Vd1GUDLn62fnjVZevtDNlHQ=;
-	b=hyu47rHLSkEzMNTqqIVXWvftS6XQzu6IVOYL0EzAt3L2H8wYLmT6KRLdBk2np1cOBT0Q
-	 lmPRHiIp3HpbmuHjUFLGqpUXUcP/WiFx3FjPqw9r/mO0p44qNYDBeZ7FwSqr3cCwRHTYO
-	 rWd+JhosUwInYFLupHAnruEQ7+lOnprwgxsOQcmLDzxTRP61bM6EyDqd6+cBshSOr3RzN
-	 ZzGW8CwLHRB479UuTrzp1ryhVzHLTEWOZG2FTlXZgSiTymIr7Pe8Cl/1mltrdTbTE9sL1
-	 BbCVsgVyAg7MoeEeW8XYsyxLpQjQZoxf8IVBahbAHUL7DyHUAeBHxe7VXKVIaPdBtpA==
+	bh=SY150LehtwY+8E3DsboI1K8P1YxqiMEO52EgHejX3Ak=;
+	b=c8P8yzQWiIv0dYD0vcAWo4Xmd9SuVx9WyaXxZv80tFzh0THpiQZL0Pi0gGZzAW/rykn5
+	 sFbZfWCA8f2ZRIuXFIk5HZD1uWH9WGEzRQYlRRN6ONixVXJS0HXV1ZzMvuDJFVxKpKBM/
+	 n0WXuzN8UDYXTBAn1jNZoSKzK10J7hb+qNALE1LAEaO44yecb3/MA7sBv5Jx2BwPiFtAN
+	 Yu2o+sGmoGnhFyySloSc9pcZMSHRZjm2j5girJVSgdvfUZZCigFhlPa8Yx0BPkBoC3bJg
+	 KHXGE14EuY2vmr5nUZbat4qugdiQmJkPAmX/rZ8PmwZc7pjx4UfPM4cNee4L2PLjxQg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C95A606A331;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C811606A325;
+	Thu, 19 Nov 2026 13:52:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C0C1F000C5;
 	Thu, 19 Nov 2026 13:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183491F000C6;
-	Thu, 19 Nov 2026 13:52:18 +0000 (UTC)
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 To: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
 	Svyatoslav Ryhel <clamor95@gmail.com>,
@@ -38,9 +38,9 @@ Cc: mfd@lists.linux.dev,
 	linux-pm@vger.kernel.org,
 	linux-tegra@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 1/4] mfd: MFD_ASUS_TRANSFORMER_EC should depend on ARCH_TEGRA
-Date: Thu, 19 Nov 2026 14:52:09 +0100
-Message-ID: <a26023673d5ff120812f67aee3728154694cb69c.1795095742.git.geert+renesas@glider.be>
+Subject: [PATCH 2/4] input: keyboard: Enable compile-testing for KEYBOARD_ASUS_TRANSFORMER_EC
+Date: Thu, 19 Nov 2026 14:52:10 +0100
+Message-ID: <27990d37c1b7854d9d5f0d0a0f45193af4b9ec51.1795095742.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1795095742.git.geert+renesas@glider.be>
 References: <cover.1795095742.git.geert+renesas@glider.be>
@@ -55,30 +55,27 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The ASUS Transformer's Embedded Controller is only found in Tegra-based
-ASUS Transformer series tablets and mobile docks.  Hence add a
-dependency on ARCH_TEGRA, to prevent asking the user about this
-functionality when configuring a kernel without NVIDIA Tegra SoC
-support.
+The Asus Transformer's Mobile Dock multimedia keys driver builds fine
+when MFD_ASUS_TRANSFORMER_EC is not enabled.
 
-Fixes: ccb21236e307ff60 ("mfd: Add driver for ASUS Transformer embedded controller")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/mfd/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 2b2b7bced40017b0..d64be4bb0ed19a4c 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -141,6 +141,7 @@ config MFD_ASUS_TRANSFORMER_EC
- 	tristate "ASUS Transformer's embedded controller"
- 	select MFD_CORE
- 	depends on I2C && OF
-+	depends on ARCH_TEGRA || COMPILE_TEST
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 728bc068667e7ee9..2709cff6d00bc93e 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -91,7 +91,7 @@ config KEYBOARD_APPLESPI
+ 
+ config KEYBOARD_ASUS_TRANSFORMER_EC
+ 	tristate "Asus Transformer's Mobile Dock multimedia keys"
+-	depends on MFD_ASUS_TRANSFORMER_EC
++	depends on MFD_ASUS_TRANSFORMER_EC || COMPILE_TEST
  	help
- 	  Select this to enable support for the Embedded Controller (EC)
- 	  found in Tegra based ASUS Transformer series tablets and mobile
+ 	  Say Y here if you want to use multimedia keys present on Asus
+ 	  Transformer's Mobile Dock.
 -- 
 2.43.0
 

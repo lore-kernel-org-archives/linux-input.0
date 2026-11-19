@@ -1,54 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795123418;
-	b=lkPP2tOjFot14rMUtThGpTNemvE7CA8p2IWvQHhqNRun5wOOpm7ogYKAtV/s6aBxtowA
-	 ru1rK8E3YUKW+t2rRmpzkXP6Ebxp5y0c8F+lo7goweAbVZHxReMWF5DSNJ26HxtcShlHt
-	 co8DQUNCTLpYSRpqtftmR10pteW/C5FdtmN1t/xk9CoKyUBRmH3kpelcQcWwtUgNrReGT
-	 //S4dZOk+N4IZBIdlb210eu56mWPmtoFtkF8jvtwAY+RypUoDQKYEZ1/okQUnY0Rv4Pqv
-	 5a1d/KgOF1viBK5k0kiUkZ+37EgUkiu3mlw26xEsJ1XC60t2NU3Ivo1VGN8mxH59Q6A==
+	t=1795123455;
+	b=gRX51OQIcuigsamBOxVF0FG+T6tzgFBf9l4TBIYKpfun/eD4D1jAPciimKL7y1Ws8kn3
+	 wpgcHl3LvC7XJBLYC11N60LVOCPP+GnqkjBHjw54/C6rNr4nGEx6f+5lN8REauND6qE9A
+	 DLh7Ei4zmiozjx4PTsQV2o7INV4MPCgc1UdgpQGpxzffWkDZz2VdD1gezJUE55H+dyI+V
+	 yTEfPYtNLtILzoioa8PuZgm91yCaD7L0kv8Ao+joKIOYNOY/piz1emOPRyYdJWWTHPUWj
+	 qw0STzF+pdCjs7+Ho63UAWNL4XWDZdGPQMOSGmUG7nyPJsHvo07jFSVkoLGaGlvZRcw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795123418;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795123455;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=9hC298kvaNwIoqRFGSmPMN0PmbB2jrTkYIuTQfk1QsQ=;
-	b=1Ni0HQAhHX3HwM4oLTAuhKe0Ffg8xZUnOCKk+W3hP2Kiex+buumPgmyq3UZHqfEt2flx
-	 2Wf47v4TPYO2CwR50p2KjHULaJNWbr4z8RThAMnII3zLDmGXOe2TFLLoYvM3egZge/9nG
-	 2oUopry1wAMlbhc9xRtWiPGDYZhqsmzNCtn/LBJM1P8QHZgVbuj6Qsdz/4ig/wZ8unoa9
-	 SfaYLiIn2Ev1yjNPwP2l7VycX0AjINKfmWA3eIFDR/SuAJiJtoMTOk9HRKMzNrkcH5716
-	 w+eqDxMw9867Sg+6go8KQ7Tl9gol/pYCsope2+qq3yOptbWvxElfouw8JOAcgQEKH0w==
+	bh=4o1WwxWxpRB8UhJWCwwLn8HVjWB/mnjVMwmhpHPC3p4=;
+	b=SmTU4UTBfYfvGHxZ87gGyDHnXRoSJvXILAlZ9s4YgupvHzJl3n9H2wfcz+GDrXyWxurj
+	 /AYmMYGBL0mT7rqm7nf5C/dQN6BWGumANf6b6s72avXjG/Z7fXJAHVsibNdOTHgD15AjV
+	 x5NB5WNMQaEO20IZ+XqTIyhEYmeAucADxeKK2B0GL0t1O29o7wlexxEpxysAz9LLlAZtp
+	 muRv4oMu5rRxByvnW/voqHEnW7j0LDs5SKf/rU+JgEUeg26riuFWx1HmqSVUfklqXEfl0
+	 rvciZQgZ208KwCSNwamENj3/YRIUkYBE+XthWna3nsg0uEoXiXAPrRqG0YkuZaZuwIw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kavndllo;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RmDmkKj6;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5178E606A324;
-	Thu, 19 Nov 2026 21:23:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAE86606A325;
+	Thu, 19 Nov 2026 21:24:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kavndllo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5740E1F000C0;
-	Thu, 19 Nov 2026 21:23:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RmDmkKj6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C131F000C0;
+	Thu, 19 Nov 2026 21:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795123418;
-	bh=9hC298kvaNwIoqRFGSmPMN0PmbB2jrTkYIuTQfk1QsQ=;
+	s=k20260515; t=1795123455;
+	bh=4o1WwxWxpRB8UhJWCwwLn8HVjWB/mnjVMwmhpHPC3p4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=kavndllokLSJnNhobZsxY4Sj6r/i7fAOnUuI5wEoyw6al+Xn0tn0o5k4AG69AGyMR
-	 3RnAejUSeVn2aTnkR4ZLY81/NQbabiwy1jJys/rcLMM/t0uXdoL8FIX6jlnMvnH0r2
-	 uPFr3fiqRGsQ+keMxpfNij9FmCv0+YTHv/hNtx53WhK2Zighd16HvZjJPr2JadKyPZ
-	 Db0De2h4Qxo00aEmCJhASntRqEqRdB4MqwC9EMBUKQesFvLpYZl58tHoW5/dnxsvZA
-	 nMbWx1ziiBqOemVyEMA8jsq/0cbvkhHxy5YW5bItjYrnD889KVjl4zoE5rQ01tWVhz
-	 /g+2+7y2efIlg==
-Date: Thu, 19 Nov 2026 22:23:35 +0100 (CET)
+	b=RmDmkKj6giHitYkoiD0LE4hnFptcOfuP01uz5iBkAalmHplNmlAQNYQEWeXjyBCaT
+	 +i85mhugFSi/8m7npe5EgDUX8Ht9O5FKH0Gk1Rwtfyx+1tI5DkDnY1r36ZojONdoip
+	 imyICKbMHb8k4yVaMRfLNMt8p6MG4R2c86cGZC9/MzN/v8ofLkAh9qiGGP1M4O65nl
+	 Gi5g/OVT2AMo44wgNDuR+QmAFHLJakCQ2a/DVtb619rGpX7ICRkz3AZ/T0d2z2UDhE
+	 A1F88yVEoiBkzFDGwM8WDgj4L0orlED1X6BDAnuSUNrz8oMslOIWa4VOOMaLkdXqSe
+	 aKOjRzhG7qAmg==
+Date: Thu, 19 Nov 2026 22:24:12 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Jianjun Lang <jianjun.lang@ntu.edu.sg>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, David Glushkov <david.glushkov@sntiq.com>
-Subject: Re: [PATCH] HID: steelseries: Add MSI Raider A18 HX A7VHG to RGB
- DMI table
-In-Reply-To: <20261103-b4-a7vhg-dmi-v1-1-f57c90da16a9@ntu.edu.sg>
-Message-ID: <81n25q38-45oq-3q6q-prq3-244qo78n15o9@xreary.bet>
-References: <20261103-b4-a7vhg-dmi-v1-1-f57c90da16a9@ntu.edu.sg>
+To: Ping Cheng <pinglinux@gmail.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, 
+    stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
+    kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH] HID: wacom: Access shared touch input by
+ rcu_dereference()
+In-Reply-To: <20261104010108.21895-1-ping.cheng@wacom.com>
+Message-ID: <n28pnr60-p91o-2r9p-3s7p-54pn910qr7r1@xreary.bet>
+References: <20261104010108.21895-1-ping.cheng@wacom.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,28 +61,17 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 3 Nov 2026, Jianjun Lang via B4 Relay wrote:
+On Tue, 3 Nov 2026, Ping Cheng wrote:
 
-> From: Jianjun Lang <jianjun.lang@ntu.edu.sg>
+> Allow the __rcu-annotated wacom_wac->shared->touch_input to be accessed
+> inside an RCU read-side critical section by using rcu_dereference().
 > 
-> The MSI Raider A18 HX A7VHG (board MS-182K) uses the same internal
-> SteelSeries KLC (1038:1122) and ALC (1038:1161) RGB controllers as the
-> A9WJG, with the same 524-byte feature report layout and the same ALC
-> LED IDs (0x00-0x02 lightbar segments, 0x03 lid logo).
-> 
-> Add it to the DMI allow-list so the keyboard backlight and lightbar
-> LED class devices are registered on this model as well.
-> 
-> Tested on MSI Raider A18 HX A7VHG (BIOS E182KAMS.10D). Both devices
-> bind on interface 0 and create steelseries::kbd_backlight and
-> steelseries::lightbar. Writing multi_intensity and brightness changes
-> the keyboard, lightbar and logo colors and brightness as expected.
-> 
-> Signed-off-by: Jianjun Lang <jianjun.lang@ntu.edu.sg>
-> ---
-> This extends the MSI KLC/ALC RGB support added for the Raider A18 HX
-> A9WJG to the A7VHG variant, which uses the same controllers and
-> protocol.
+> Cc: stable@vger.kernel.org
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202610180015.KsRqmoTE-lkp@intel.com/
+> Fixes: 9183319a5ba4 ("Input: wacom - Setup SW_MUTE_DEVICE according to the order of input registration")
+> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 
 Applied, thanks.
 

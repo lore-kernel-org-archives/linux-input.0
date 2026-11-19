@@ -1,54 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795124136;
-	b=nQB1zZoDZZmNkJvxRuHoZN4bmBsnCBvf1aFzCxR72T++XRKUtg7mMJFmhyogsrWTHrEb
-	 a2H0LogmuziIcZ8yUInvt1WQSzoRFb+YX4NHq/L8I6Df8xEesMqiv4nmH5A7dcwVYHkZf
-	 GdtwbMVCONm3gf2CsDiPOzb9MTcZuULRhLPa7Ahva/HvD9N8Cy3JWwyLjn2O3XfMb2Jdq
-	 Dri9QdoXb+qIarA5VrNvedmNW0pqvSxbzTOZMaeLxl8xvBEs52x44r4lhJClEqpyxLPG4
-	 CZkCpxTy182iS1DGY3KdZ4qshFdqMAGL0GWo57Z+/ivfUwqnoVsGyAaNwUy7nMIZMDA==
+	t=1795124206;
+	b=nWdDhsjI3kBwGAZ6q/BpSKR9AlahGLqXpVPaBA/Efl7vXCr3FqBs5mzYhxAvsS6r+5Kg
+	 xTrnKK4gtw4UFnq/GolATMj7EWIzGa6YnpUe314MKMmyOQxR/75bGgbkvjk7KsxkRNuW8
+	 DWX5jymKMt5pVN6XyaIlM02yVxPkjj7/2R1hnB3DuDrAbSi9nom3CAcTGOUi+Xs1xFfoR
+	 3bruxt55oB34YdnAthEAfCTYCW/OOfKOeDGByDKoc+2B54Rypd49heN+J15gGsnRrMq/l
+	 LmwOh2S22uNdgID6dBOiyWJJCndn0QJc1oem5CvD3ZueTSbHWEBJJilajJKvUV82cNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795124136;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795124206;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=36E1OyuSAPV7X4+4WcIua+s8Q58mSHGZB0W0hhOOVr8=;
-	b=QSnHSyFCFcRsNsb7tkR2Tdd5NmZJMfYob2dbOevdl7nfAOVjuZ9+lpDmcmwydlu8fFGG
-	 L6HouPpjDHnywJ1HsC2bEqNOzNZ+9A3Z9DhkyMq6PCxdDnYGqw2fM3I9m/mlVwJ9EE1ls
-	 33dy0JmTIm5EbXiXb+dZKF6uaj6ynkz123pOUJARn144GbBKe442Cpu7Op8/iciP8SIoi
-	 Xq8o48wEvBIuZJtJa2NyvC3/zIsuu3B0ljmKRhpnxZLN2ztf01HpUBaAKfLo4bKI+NUQb
-	 X86fud+Cu2/4DGk/iNbspgyUU4uHrbUw7V29n0GZ21rKrGONRDVIGUG/tfphOX18zgQ==
+	bh=LML88oLR/JHS1tEWSCvh0L02QsPi7WMgIFrwWVKms/M=;
+	b=KY3ArKph8LLOGacZUSc/QDnJeOWGKGYahVE7zfFgjmjeizeo/su9CFatkuOzPY88qi4W
+	 Z23Z+2W+z2oOdKMFIVlI504bm0A8eDPImCuh4KiQH+7KhXoonC/sHKnQwrECP35q2X4gL
+	 rJwDmItuLe63NCJtAbp7oY8kvQ/Ks1mGdf9HxC946jtJrKo9uoFQJlhbmRQbqIPR9rflF
+	 knkPbjtevX0PeMrbbW2JXjFjDrEvcbxGT9HDVwHWtlKtk1VCE+kjUPw1lRxSUciNAAoDW
+	 JwfaHLZEp+DZRWgt4HM1qsE0z/Hui3E78w50/tGcWo3h8k4vWa3p7SWpR2ZYnt9ZmSQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="GwWGA/ul";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="O/TgTy+s";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E987606A324;
-	Thu, 19 Nov 2026 21:35:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62CD9606A324;
+	Thu, 19 Nov 2026 21:36:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GwWGA/ul
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BC81F000C0;
-	Thu, 19 Nov 2026 21:35:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O/TgTy+s
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADDFC1F000CA;
+	Thu, 19 Nov 2026 21:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795124135;
-	bh=36E1OyuSAPV7X4+4WcIua+s8Q58mSHGZB0W0hhOOVr8=;
+	s=k20260515; t=1795124206;
+	bh=LML88oLR/JHS1tEWSCvh0L02QsPi7WMgIFrwWVKms/M=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=GwWGA/ulz08qobge5x962HV1PohVZEPZTlv0JCI7I9HlAcPyxho1658WyJ32Ot5OA
-	 kY5nOqWvYxi86J97ki72HLMyFbzqqQMQQ8alQj96dov0RkgMoYkErMbTgxQcsiNbdP
-	 xh56cbmqngZJsCyI1EZsJ3X22L9oMrfxrNL+7n0e0vAzCPXg+SoT3JoqCpwqSR9Nhm
-	 fX3SRAG2HAekcowsvQiJ7IPJSdSbvDZU8GK+QqqlQX0OXAYeNON4aEnFiT/VTmC0ls
-	 PQULJcEmN/QLMM5bPrkwC5VC8WnJ8T26JGsWQzGyZbvvujHNMQrmLkj0djp3PeXtsN
-	 7eYiCCxn3ZNjQ==
-Date: Thu, 19 Nov 2026 22:35:33 +0100 (CET)
+	b=O/TgTy+sLb1MSXnkpbF0WehAIrZR/vY7UOJEHvHD5p0QO8fdODWxouMv2mzEQSyiW
+	 lNUVvMwCYR4R13NMdQR/0BXYNtJzyges6Vg+8rthsGRY9630gqarqIdywRLMhqQQag
+	 cujl1vNX9cLs8Qh9cSL+zER2pvFOMBKOqlUp6gGb71/R2CFZDu4i7wlueGTJ0o3WiY
+	 kQ+5wtmGBFjrYI8Lyo6KON+RPWUT/UszrF28D2QBPZUorbX4frCaTQK47msynr7QnK
+	 py6IgYLUl30n77eQ24+joDBTNbcjUXeV1Umm/XzLZCUtTaafKX48JecML6gQP2U5jq
+	 Ew/G02yAO5low==
+Date: Thu, 19 Nov 2026 22:36:43 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Ho Jie Feng <hjf3108@gmail.com>
-cc: basavaraj.natikar@amd.com, stable@vger.kernel.org, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: amd_sfh: Use shared interrupts
-In-Reply-To: <20261023081803.21761-1-hjf3108@gmail.com>
-Message-ID: <77539o3q-1nq4-pn33-96qn-5n4s6s808qp7@xreary.bet>
-References: <20261023081803.21761-1-hjf3108@gmail.com>
+To: David Cemin <dcemin@nvidia.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    linux-tegra@vger.kernel.org
+Subject: Re: [PATCH] HID: asus: map Consumer brightness usages on I2C
+ keyboards
+In-Reply-To: <20261020220919.611287-1-dcemin@nvidia.com>
+Message-ID: <99s8sr4o-0498-824o-n90p-2rs7o0r40s87@xreary.bet>
+References: <20261020220919.611287-1-dcemin@nvidia.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,35 +62,30 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 23 Oct 2026, Ho Jie Feng wrote:
+On Tue, 20 Oct 2026, David Cemin wrote:
 
-> The AMD SFH driver requests interrupts without IRQF_SHARED.
-> This can cause VFIO PCI passthrough initialization to fail
-> when a passed-through device shares the interrupt with AMD MP2.
+> Several ASUS laptops carry their keyboard on an I2C-HID device with ID
+> 0B05:4B42, the same ID as the Zenbook A16 (UX3607OA), so they bind to
+> hid-asus with I2C_KEYBOARD_QUIRKS since
+> commit 206107536018 ("HID: asus: support the Zenbook A16 (UX3607OA) keyboard").
 > 
-> Request the interrupt with IRQF_SHARED. Check for a pending MP2
-> interrupt before clearing and acknowledging it, and return IRQ_NONE
-> when no MP2 interrupt is pending so the interrupt can be shared with
-> other devices.
+> Unlike the A16, which reports its brightness hotkeys on the ASUS vendor
+> page, these keyboards report them as the standard Consumer usages
+> Display Brightness Decrement (0x70) and Display Brightness Increment
+> (0x6f) on report 3. I2C_KEYBOARD_QUIRKS includes QUIRK_NO_CONSUMER_USAGES,
+> whose input mapping ignores every Consumer usage except mute and volume,
+> so the brightness keys never produce input events. The keys work when
+> the keyboard happens to be bound to hid-generic, which maps those usages
+> by default, and stop working as soon as hid-asus claims the device.
 > 
-> On an AMD Ryzen 7 7735HS host running 7.0.0-38-generic kernel
-> from Ubuntu, trying to pass through an xHCI controller
-> (1022:161d, 0000:e6:00.3) fails with this message:
+> Let the two display brightness usages through the filter so hid-input
+> maps them to KEY_BRIGHTNESSUP and KEY_BRIGHTNESSDOWN. Keyboards that do
+> not report them are unaffected.
 > 
->   genirq: Flags mismatch irq 45.
->   00200080 (vfio-intx(0000:e6:00.3)) vs. 00200000 (pcie_mp2_amd)
+> Tested on two ASUS laptop models with this keyboard: with the keyboard
+> bound to hid-asus, the brightness keys now adjust the panel brightness.
 > 
-> QEMU reports:
-> 
->   vfio 0000:e6:00.3: Failed to set up TRIGGER eventfd signaling for
->   interrupt INTX-0: VFIO_DEVICE_SET_IRQS failure: Device or resource busy
-> 
-> With this change, the passthrough is successful through VFIO
-> on the same host.
-> 
-> Fixes: 7f016b35ca76 ("HID: amd_sfh: Add interrupt handler to process interrupts")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ho Jie Feng <hjf3108@gmail.com>
+> Signed-off-by: David Cemin <dcemin@nvidia.com>
 
 Applied, thanks.
 

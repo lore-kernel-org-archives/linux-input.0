@@ -1,62 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.124.99
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795091168;
-	b=gB70s9AMCVc4BNoDgab5emnWAWyl7MSW7UCaMHYk6he8yjJAIU7AQ6RkU8auVK+huNaP
-	 RWyxik0rXQ9S5wSxMzPC1J4hk8iQzhhaBYo8HrX0TFEvrwJNpVihIlIOir+VdrL5hpSXf
-	 RkvgabCSQAyoFEpMHGXXt/Bue54gqO2CLfccP2pGVs7JV1efJKuZH6aOotuTZOgIuw8f8
-	 Kh2PRg0YrlRS61bEeP0ruDSys2NHzV99Oq9rryOkODwUJM4Lap7iQwPSw/mhrq/+jPw+Z
-	 uee8GCkrPCE3WHuDhexYuhHjgb02njSKhmf+B9s/dsPun1VO+qkYjGKcv0vCmRDZxSw==
+	t=1795095092;
+	b=oiFU8PF0uZ9f346quLFQDEfXUPpT98gW9AWGuaDWyRTVu5b3K4qq6qKdY3vk9TtfWtu7
+	 T9OB2wcOTVYqfW5WZTOQi8RrzSMMaMK6ibGFKUt3Jd2CymDRiBXNDp4dRSMZuLsegDN8g
+	 LsOKOcOxgxXSrZh3yeJ5IBbwfGlG1LoALg/0yt9E6+zKFyGiJ4qxEISrZHFVijsx4KbSn
+	 i+88lq5uTkKPbyeQjjsXOx+dDyEPEYeUhLsYSR1MjOMydYoYleUi2cjZUldcBUYgsu2uP
+	 prSZVWtO5dISyk72NExduSGdzSUtoUahiU+dubDsTuX35QAcqYdDK51h5dXftpp03Aw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795091168;
-	h=DMARC-Filter:Received:Received:X-Yandex-Fwd:DKIM-Signature:From:To:
-	 Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=DAVtBClVe4SVhPYmaSsYLwMt+WU9YEmo+VdDPhId7kM=;
-	b=XSuAS5JebAHVlejfy8es8VVA4/PpUu+Fik0mSJdXLZFHQALRloNKxYussaPp2nssVeIG
-	 qWo7Cn1c1gMDD6xcJrVnj0Eup6e+hPIgdcRKUAR0LiI9bezO2ZsMXas9GcJOx/4Q7QNVi
-	 nv1g7eCmdTSfbbmuIQQmU8qOb77EMngmszFbmjcToqs+Q3BdOTn7rmiIHcfW1OVpNCcl4
-	 fAj++16lPcc+lMVk1m7Jew8zIpXxIl9xq/2vxtoDifCZje5DhQ5qqFTAhdpcNTXYp2XU8
-	 KLxiyqmmn6XOjY47yNcaHBw+lAhXygJS+ySKk71aMltOt6s0Ko1PatGK0MqwHeeOlbw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795095092;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=j+Za7bMQTz/jGW5KKJ1wZv8OZM3LMy2RfyXXPrr5ddk=;
+	b=ZdRUG3+cmj/6Oc6tD2jZ7NaPDFMu7XSpV1cnBeAyPmzZJC8OhoHyW7EJbAT3yHHqNVMO
+	 8WJiVZTI2FNbzt4feN93k9TPaU2biv2oRotTRdIQv8+2V2NS5Rt4Qef5UesPVhEXoh8kf
+	 sKkDtwP1D3efcTKvIW5vbyv3KxUv+BSDN4aIU1KONoWLrkOmbz0IjLKkeRCzvOHJv5iBZ
+	 JjAvwSNITlHcUr9PxlBFSu279Z1J+ud2U4W2OfEblxOFRXHOwCd35mqBb0K566OEJrLb5
+	 FQmAkSd32+DY1iK0m+iMr8Qd+WWQbc4wHejy0uzQP5RDwAcNby8ZXYYDA/n4APpB9Wg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=yandex.ru;
-	spf=pass smtp.mailfrom=yandex.ru;
-	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b="Tlt/w9Zf";
-	arc=none smtp.remote-ip=51.250.124.99
-Received: from forward103a.mail.yandex.net (forward103a.mail.yandex.net [51.250.124.99])
+	dmarc=pass header.from=lunn.ch;
+	spf=pass smtp.mailfrom=lunn.ch;
+	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=mOPIqIOm;
+	arc=none smtp.remote-ip=156.67.10.101
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 291D7606A320
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 12:26:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 291D7606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0CE8606A320;
+	Thu, 19 Nov 2026 13:31:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A0CE8606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=Tlt/w9Zf
-Received: from mail-nwsmtp-smtp-production-main-77 (mail-nwsmtp-smtp-production-main-77.yp-c.yandex.net)
-	by forward103a.mail.yandex.net (postfix) with ESMTPS id 83C03806AF;
-	Thu, 19 Nov 2026 15:25:57 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-77 with ESMTPSA id uPaOb69go4Y0-quTnpOHf;
-	Thu, 19 Nov 2026 15:25:56 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1795091156; bh=DAVtBClVe4SVhPYmaSsYLwMt+WU9YEmo+VdDPhId7kM=;
-	h=Message-ID:Date:Cc:Subject:To:From;
-	b=Tlt/w9ZfnClt+/OgweSAIQAzieyNcYQqb3yr6V1lDrh0KcJgDptmCYbpURrBYMIyT
-	 B7PFIVObu6WhAmXg58wbtDAvON78xRMe5Zm5Ilh8TVIkq5z70ELe0Hlt+ncv53yywE
-	 lI36C3z/s5tWHuTqHnpppykuATVk1NBYmu4HiI7I=
-Authentication-Results: mail-nwsmtp-smtp-production-main-77; dkim=pass header.i=@yandex.ru
-From: Dmitry Antipov <dmantipov@yandex.ru>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Sandeep Singh <sandeep.singh@amd.com>,
-	Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-	linux-input@vger.kernel.org,
-	Dmitry Antipov <dmantipov@yandex.ru>
-Subject: [PATCH] HID: amd_sfh: drop redundant calls to memset()
-Date: Thu, 19 Nov 2026 15:24:30 +0300
-Message-ID: <20261119122430.494125-1-dmantipov@yandex.ru>
-X-Mailer: git-send-email 2.56.1
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=mOPIqIOm
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=j+Za7bMQTz/jGW5KKJ1wZv8OZM3LMy2RfyXXPrr5ddk=; b=mOPIqIOmu6kDdwVuemWcNK9Dnn
+	3scHm6yoxWlXhjKDg88oGkRMzRyRggfFiPC7IQHuffZ0g5VsQiVACcLcbYFf/YJimxzK2sEH4Ma7z
+	s46ArUotTLBJyzxjIYKthUVRWJnOH1H0QxoK1FCOjd282vF3lK0QU0S6Yx/wpK07j6KI=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xU2Dn-0002Ui-FK; Thu, 19 Nov 2026 14:30:39 +0100
+Date: Thu, 19 Nov 2026 14:30:39 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+	Chris Lu <chris.lu@mediatek.com>, Mans Rullgard <mans@mansr.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Cornelia Huck <cornelia.huck@de.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linux-input@vger.kernel.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
+	iommu@lists.linux.dev, linux-coco@lists.linux.dev,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>, linux-sound@vger.kernel.org,
+	Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH v3 18/31] net: phy: Use the compatibility driver
+ attachment API
+Message-ID: <7c87310f-e1c6-4a84-8161-11a6e5d91785@lunn.ch>
+References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
+ <20261118-device-trust-core-v3-18-d655875c4bfb@nvidia.com>
+ <71c1b931-c553-46e3-b49a-51167f168ac4@lunn.ch>
+ <20261119071811.GG162713@unreal>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -66,86 +104,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261119071811.GG162713@unreal>
 
-Both AMD SFH and MP2 descriptor report functions zeroes out
-the descriptor buffer before completely overwrite the latter
-with an actual descriptor data. So drop all related calls to
-memset() as redundant.
+On Thu, Nov 19, 2026 at 09:18:11AM +0200, Leon Romanovsky wrote:
+> On Wed, Nov 18, 2026 at 09:21:45PM +0100, Andrew Lunn wrote:
+> > > @@ -3813,6 +3809,8 @@ static int phy_probe(struct device *dev)
+> > >  	int err = 0;
+> > >  
+> > >  	phydev->drv = phydrv;
+> > > +	phydev->is_genphy_driven = phydrv == &genphy_driver ||
+> > > +				 phydrv == &genphy_c45_driver;
+> > >  
+> > 
+> > Why do this here?
+> 
+> This flag marks that driver is already probed, which is reliably
+> happening in phy_probe() under right locks. It was the easiest
+> way to battle AI reviews which don't agree with how PHY subsystem
+> performs driver bound.
 
-Fixes: 1434f9fc0e47 ("SFH: Create HID report to Enable support of AMD sensor fusion Hub (SFH)")
-Fixes: 93ce5e0231d7 ("HID: amd_sfh: Implement SFH1.1 functionality")
-Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
----
- drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c | 5 -----
- drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c             | 5 -----
- 2 files changed, 10 deletions(-)
+I've not seen the netdev LLM do a review yet. It will be interesting
+to see what it says.
 
-diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-index ef1f9be8b893..ac7bbd6e05f3 100644
---- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-+++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-@@ -33,28 +33,23 @@ static int get_report_descriptor(int sensor_idx, u8 *rep_desc)
- {
- 	switch (sensor_idx) {
- 	case accel_idx: /* accel */
--		memset(rep_desc, 0, sizeof(accel3_report_descriptor));
- 		memcpy(rep_desc, accel3_report_descriptor,
- 		       sizeof(accel3_report_descriptor));
- 		break;
- 	case gyro_idx: /* gyro */
--		memset(rep_desc, 0, sizeof(gyro3_report_descriptor));
- 		memcpy(rep_desc, gyro3_report_descriptor,
- 		       sizeof(gyro3_report_descriptor));
- 		break;
- 	case mag_idx: /* Magnetometer */
--		memset(rep_desc, 0, sizeof(comp3_report_descriptor));
- 		memcpy(rep_desc, comp3_report_descriptor,
- 		       sizeof(comp3_report_descriptor));
- 		break;
- 	case als_idx: /* ambient light sensor */
- 	case ACS_IDX: /* ambient color sensor */
--		memset(rep_desc, 0, sizeof(als_report_descriptor));
- 		memcpy(rep_desc, als_report_descriptor,
- 		       sizeof(als_report_descriptor));
- 		break;
- 	case HPD_IDX: /* HPD sensor */
--		memset(rep_desc, 0, sizeof(hpd_report_descriptor));
- 		memcpy(rep_desc, hpd_report_descriptor,
- 		       sizeof(hpd_report_descriptor));
- 		break;
-diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-index b81a97dbb1b0..b92e80035652 100644
---- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-+++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-@@ -30,27 +30,22 @@ static int get_report_desc(int sensor_idx, u8 *rep_desc)
- {
- 	switch (sensor_idx) {
- 	case ACCEL_IDX: /* accelerometer */
--		memset(rep_desc, 0, sizeof(accel3_report_descriptor));
- 		memcpy(rep_desc, accel3_report_descriptor,
- 		       sizeof(accel3_report_descriptor));
- 		break;
- 	case GYRO_IDX: /* gyroscope */
--		memset(rep_desc, 0, sizeof(gyro3_report_descriptor));
- 		memcpy(rep_desc, gyro3_report_descriptor,
- 		       sizeof(gyro3_report_descriptor));
- 		break;
- 	case MAG_IDX: /* magnetometer */
--		memset(rep_desc, 0, sizeof(comp3_report_descriptor));
- 		memcpy(rep_desc, comp3_report_descriptor,
- 		       sizeof(comp3_report_descriptor));
- 		break;
- 	case ALS_IDX: /* ambient light sensor */
--		memset(rep_desc, 0, sizeof(als_report_descriptor));
- 		memcpy(rep_desc, als_report_descriptor,
- 		       sizeof(als_report_descriptor));
- 		break;
- 	case HPD_IDX: /* HPD sensor */
--		memset(rep_desc, 0, sizeof(hpd_report_descriptor));
- 		memcpy(rep_desc, hpd_report_descriptor,
- 		       sizeof(hpd_report_descriptor));
- 		break;
--- 
-2.56.1
-
+   Andrew

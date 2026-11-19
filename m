@@ -1,54 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=49.12.188.111
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.72
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795107313;
-	b=qRE7B72oty1DOxtok/703vtGLQ2OQTM13whTofR+ue0y1FdOYJOiLMQI1yrSDU3ys7rL
-	 l0x8LhwtEoLGpywdIgf2dk+6yqKCWOmBB3jC7Cci4qg1i1GjNQg2H434Di7G3U7gkEbWa
-	 uaiQNsqn+AiSW3UMVXcGUxAomgz/7N2mc2gWcZpIxixgQb92j6q0VCSnTU+OmEiao72pb
-	 kbf1RnE2TnqwyNh+O/gkAIVacIecqFGe4taf0BC1XZ//1RW0UqD6xrxzp0TRQFfOKbOoT
-	 RF+EexxraYPyhJ1kXmRh2K/QQpkSjGPbe51xuDw7KlO2OtD7ooFCjhc8NXh3rN9IwAA==
+	t=1795107863;
+	b=LSmYvmGIb3pOYP4hssOFXE6uKW9f/aoGa+t5kKQFE/XwUbLBzHa8xhCFxpwYDiZP7M3P
+	 VpX+/lHPHi/DJ8IcHrzivtttsLWzk8E/DdNT96puPUa8Qj7xWrn81mfqyNJKge7LkRuEy
+	 rws8+RSMc71pZdxOdGcQa01S7yOvc1LUJQaJA5xUSyIQ34ipgMrrJZN1701WjVkIVuM9j
+	 7/uNxC8w3ZQtoe5LB8IKB5Dfi/dVlwbWH2GUUOFeLijtnFoht3EfzV3zExb5Nk9CO/DrL
+	 DQu7ta0E5ptCh5+pPfUtMvzGfA9DLFb/Z1bqvy4TU7nxs6XuksDGmAdifrmFQmM5R0A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795107313;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Content-Language:To:Cc:From:Subject:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=qt8PiS/NnV3lcYzkm5HoL68CIdwd+S9jcTTldEeZtNk=;
-	b=h0pp75tEisVdhe/Jse2B7I5vLMBXaTkNbyhucyIGzhqwuatlN+fRGBxlq9O+7/kR0xp2
-	 x8xAUCmX/lQh3FH6241BdxPRR403X6M/rY8sc0ebF/LwCNE+5MIxDdfbau4Qs1qi+4Q+J
-	 uheU11zGfEyB6jrYWe40KwKSDHPpqGJCtzN+80ZTXTVb3l1jyRxPELPBryH9tM+qLwZNL
-	 uovBHxmP7Bx9VkXBhB4mtoHLC1BDiwxwiQ3rF+kgvTnsO6gFtvHT8Yj6UuVBZEQkaCtjL
-	 1HBQU2SJvmkwIdaYNGkO5bMW+KjEqWzUJu5oPzf4PuFLfoXJeeKHFwtZQgFSrV5k5Ww==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795107863;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Received:Date:Mime-Version:X-Mailer:Message-ID:
+	 Subject:From:To:Cc:Content-Type;
+	bh=tbGvL9tZ+BYgVAO5FMDS+XSwp11ngMpDyW2424LSejU=;
+	b=bAXldSJoTGWVSVGB8iVetn9wMUViX53Q7zD9zFEh1tUJdOekJnCIas5J8JoDCPdgjgky
+	 r5ne3lv9BWu+xwGJXzjwuSPdgwnvI8S12cYJHhDJK96C7YeI9o/IgAWSL5eb1dBA8sz45
+	 w3x3cwhriNBWaokXH9IqeqGs489Y4imWTJCLp4NR1xx2HUOpgwQmlqf0JDh4vo1yNm0QC
+	 mMQmVfKQEnDZlLdasHq31my8bBKRpbGBs9BYv5CQD+uJMcz6tMacIbWukioIbQMjYcTHF
+	 dDgXJux65hiOczyFuNEcxEKYyvykEUFTV81ajKS78BcmxpwJNh+BD43CFkiOM9T91PA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mumbletreff.com;
-	spf=pass smtp.mailfrom=mumbletreff.com;
-	dkim=pass header.d=mumbletreff.com header.i=@mumbletreff.com header.a=rsa-sha256 header.s=dkim header.b=aCqpZ2nG;
-	arc=none smtp.remote-ip=49.12.188.111
-Received: from mx.mumbletreff.com (mx.mumbletreff.com [49.12.188.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--irogers.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=dgJ0q2jo;
+	arc=none smtp.remote-ip=74.125.82.72
+Received: from mail-dl1-f72.google.com (mail-dl1-f72.google.com [74.125.82.72])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87102606A32F
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 16:55:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 87102606A32F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mumbletreff.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mumbletreff.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A63360A2624
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 17:04:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0A63360A2624
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mumbletreff.com header.i=@mumbletreff.com header.a=rsa-sha256 header.s=dkim header.b=aCqpZ2nG
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mumbletreff.com;
-	s=dkim; t=1795107305;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=qt8PiS/NnV3lcYzkm5HoL68CIdwd+S9jcTTldEeZtNk=;
-	b=aCqpZ2nGlg5n5D5htgBS2cPRLj5LQzv/L6/QeiBxFPbWi25QV0zOPnK2gsyQruivfQuau7
-	kdMwYCF43e/7T9RuTAAycrsb14yL1oRRsMsgOpXimUlB68lb88N4YoDRly/pn3WAdf9PBe
-	/4YAM/lUzICNduQdvenXgSCWrKDuRsREcUVnLjMhbYxzVzjAHxd2p90ETKRkJyTbN0A0eM
-	E1q92U5qflYujs3FHTN32pAYGwDsiw8bUoHz5knSo2iYlnamS2Vsg2GaD0WDsRUsf5csBm
-	ua9nyygGWcEMB7ArWCmWwxRksOakF3pxF9osrRUSoq3x6NNE6QZYD+N/V3DzEw==
-Received: from [IPV6:2a02:560:4e49:ad00:1e1e:bb85:ed54:1778] (<unknown> [2a02:560:4e49:ad00:1e1e:bb85:ed54:1778])
-	by mx.mumbletreff.com (OpenSMTPD) with ESMTPSA id 823d3fb5 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Thu, 19 Nov 2026 16:55:04 +0000 (UTC)
-Message-ID: <d426ab73-e1aa-43da-a6ca-8fbb05362aaa@mumbletreff.com>
-Date: Thu, 19 Nov 2026 17:55:04 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=dgJ0q2jo
+Received: by mail-dl1-f72.google.com with SMTP id a92af1059eb24-1a5005fd0f8so4485904c88.0
+        for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 09:04:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1795107862; x=1795712662; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=tbGvL9tZ+BYgVAO5FMDS+XSwp11ngMpDyW2424LSejU=;
+        b=dgJ0q2jo/7wmzCjkkBaQyktbr2kyJVnbgxUwAktZwmw3Ka2wu9lGhG6P1FqTtQ0ROs
+         pMzla42cpi1FNEKPJ9MzBc9xSTm1ay5J8+ZJrlQyQmgclzfthu5ClafSzRZEQ2IaD8J0
+         hxDXgJdNmrzxORHr2U4KYB0QzakSmhaIu8Jv+PbEOpMVKjTepSM0y6NLnqrSPFvQWoSc
+         su6WGlcmG28la08WzqkbwHXea3htNo7xqKMbluhMVWLk1Vu2v2lP2MFEXaQ2bC+mk/Yj
+         X0ejA/gcH461W5Q2Xd7+BessAZX+frl3/D3DYZEq+HDhJEAcAzovXC1S0rhJjRbpi+YA
+         yXKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795107862; x=1795712662;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=tbGvL9tZ+BYgVAO5FMDS+XSwp11ngMpDyW2424LSejU=;
+        b=pRdGs4+E+CYTGICPa36zfuq3fCeUiMHl66trTAUsfM7YMBBzeS0/v7PklBvL2rRtiS
+         IVQNrM+yzqTj5tvL7UH29P3wfOgYSQsnKQWXwEX3+qxTcIgToF+YlK+n+2KOP/sL5WqS
+         xVrVehWvLf7SRU4YvwvkcaJh8EeW07OWr9Ar7e3TiBhHSVm2ytocd1iONDmHOsr9IkuX
+         b6CmaOya784V9EHcqah8/wqGfOir0SaB2NteRwcaHtBPETTrZ0PDFqAsGZAc0sDe+4VJ
+         9juWPB1yZ5PYFYWLvcBWgAZ191OPRRnYQoilzlUIXCse9E8J+YujPR2FhvncEVMui2Fc
+         0+yw==
+X-Gm-Message-State: APuU4Z9cRoqXRk2UyQsAVNIPTV4MEpVImTxuzWvv93Llc5sZ5RcXCcpK
+	PRlu8JdiY1uBEiGqANivI+G+PdJIQ8g+CsKyuGlg7/esrcvax7CrHA/uhXJWHPmWMMmTDEkah26
+	uysgs/bx8LQ==
+X-Received: from dlev7.prod.google.com ([2002:a05:701b:4647:b0:1b5:330f:621d])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:701b:4584:b0:1ac:9da7:e86e
+ with SMTP id a92af1059eb24-1b556908c17mr230062c88.30.1795107861814; Thu, 19
+ Nov 2026 09:04:21 -0800 (PST)
+Date: Thu, 19 Nov 2026 09:04:18 -0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -57,82 +74,51 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: de-DE
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, bentiss@kernel.org
-From: Phobos <phobos@mumbletreff.com>
-Subject: HID: lenovo: cptkbd probe blocks ~20 s per device when feature
- reports time out (behind KVM switch)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.1.708.g77570a6a1d-goog
+Message-ID: <20261119170418.1511770-1-irogers@google.com>
+Subject: [PATCH] HID: lenovo-go: Fix reset_tx_dongle sysfs attribute to be write-only
+From: Ian Rogers <irogers@google.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>, Mark Pearson <mpearson-lenovo@squebb.ca>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	llvm@lists.linux.dev, Elkin Cruz <elkin@google.com>, Ian Rogers <irogers@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi,
+reset_tx_dongle is defined with LEGO_DEVICE_ATTR_RO(), whereas all other
+FEATURE_RESET_GAMEPAD attributes in hid-lenovo-go.c (reset_mcu,
+reset_left, and reset_right) use LEGO_DEVICE_ATTR_WO().
 
-with the ThinkPad Compact USB Keyboard with TrackPoint (17ef:6047)
-connected through a USB KVM switch (ASIX AX68002, 0b95:6802), probing
-the mouse interface in hid-lenovo blocks for about 20 seconds per
-keyboard. With two KVM ports this delays usable keyboard/mouse input
-until ~46 s after boot; GDM/gnome-shell is already up at ~9 s.
+Because feature_status_show() has no case for FEATURE_RESET_GAMEPAD
+(which is only handled in feature_status_store()), exposing tx_dongle's
+reset attribute as read-only makes reading it always fail with -EINVAL
+while preventing userspace from writing to it to reset the TX dongle.
 
-Kernel: 6.18.63 (Gentoo distribution kernel, Fedora-based config,
-CONFIG_HID_LENOVO=m). I checked current mainline hid-lenovo.c and the
-relevant code is unchanged.
+Change reset_tx_dongle to LEGO_DEVICE_ATTR_WO().
 
-The KVM switch emulates the keyboard and does not pass the vendor
-feature reports (report 0x13, SET_REPORT) through, so every
-lenovo_send_cmd_cptkbd() call ends in a 5 s USB control timeout:
+Found by enabling Clang's -Wswitch-enum on an x86_64 allyesconfig build,
+with AI coding assistant help to audit the warning and prepare the fix.
+Build-tested with Clang; not runtime-tested on Lenovo Legion Go hardware.
 
-   [   10.026746] lenovo 0003:17EF:6047.0003: Failed to switch F7/9/11 mode: -110
-   [   15.146706] lenovo 0003:17EF:6047.0003: Failed to switch middle button: -110
-   [   20.266709] lenovo 0003:17EF:6047.0003: Fn-lock setting failed: -110
-   [   25.386681] lenovo 0003:17EF:6047.0003: Sensitivity setting failed: -110
-   [   25.387037] input: Lenovo ThinkPad Compact USB Keyboard with TrackPoint as .../2-14.4.1:1.0/...
-   [   30.720038] lenovo 0003:17EF:6047.0008: Failed to switch F7/9/11 mode: -110
-   [   35.840036] lenovo 0003:17EF:6047.0008: Failed to switch middle button: -110
-   [   40.960040] lenovo 0003:17EF:6047.0008: Fn-lock setting failed: -110
-   [   46.080009] lenovo 0003:17EF:6047.0008: Sensitivity setting failed: -110
-   [   46.258842] systemd-logind: Watching system buttons on /dev/input/event22 (Lenovo ThinkPad Compact USB Keyboard with TrackPoint)
+Fixes: 82cd9bc866e1 ("HID: hid-lenovo-go: Add Feature Status Attributes")
+Signed-off-by: Ian Rogers <irogers@google.com>
+---
+ drivers/hid/hid-lenovo-go.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-USB topology (lsusb -t, abbreviated):
-
-   Port 014: Hub 1a40:0101
-     Port 003: Hub 0b95:6802 (ASIX AX68002 KVM Switch SoC)
-       Port 001: 17ef:6047 ThinkPad Compact Keyboard with TrackPoint
-       Port 002: 1532:0098 Razer DeathAdder Essential
-     Port 004: Hub 0b95:6802 (second KVM port, same devices)
-
-lenovo_features_set_cptkbd() sends four commands synchronously from
-probe and continues after each failure, so a device that never answers
-costs 4 x 5 s. While the probe runs, the udev events for the other
-devices behind the same hub are not processed either, so the keyboard
-is unusable for the whole time.
-
-Possible improvements (I'm not familiar enough with the driver to say
-which is preferred):
-
-   1. Stop sending the remaining feature reports after the first one
-      fails with -ETIMEDOUT (and maybe skip creating the sysfs
-      attributes that cannot work).
-   2. Send the initial settings from a workqueue instead of blocking
-      probe.
-
-A second, related issue: simply blacklisting hid_lenovo does not fall
-back to hid-generic. 17ef:6047 is listed in hid_have_special_driver,
-so HID_QUIRK_HAVE_SPECIAL_DRIVER is set whenever CONFIG_HID_LENOVO is
-enabled, and hid-generic refuses the device even if hid-lenovo is not
-loaded. The keyboard then has no driver at all. With the kernel built
-without CONFIG_HID_LENOVO everything worked through hid-generic.
-
-Workaround (tested): booting with usbhid.quirks=0x17ef:0x6047:0x0
-(the dynamic quirk replaces the static ones, including
-HAVE_SPECIAL_DRIVER) plus "blacklist hid_lenovo" makes hid-generic
-bind all four interfaces at ~4.3 s; keyboard and TrackPoint are usable
-as soon as GDM is up and no timeouts are logged.
-
-Happy to test patches.
-
-Thanks,
-Phobos
+diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+index 318b1152ff8b..8a2aa2b4825d 100644
+--- a/drivers/hid/hid-lenovo-go.c
++++ b/drivers/hid/hid-lenovo-go.c
+@@ -1848,7 +1848,7 @@ static struct go_cfg_attr version_gen_tx_dongle = { HARDWARE_GENERATION };
+ LEGO_DEVICE_ATTR_RO(version_gen_tx_dongle, "hardware_generation", TX_DONGLE, version);
+ 
+ static struct go_cfg_attr reset_tx_dongle = { FEATURE_RESET_GAMEPAD };
+-LEGO_DEVICE_ATTR_RO(reset_tx_dongle, "reset", TX_DONGLE, feature_status);
++LEGO_DEVICE_ATTR_WO(reset_tx_dongle, "reset", TX_DONGLE, feature_status);
+ 
+ static struct attribute *tx_dongle_attrs[] = {
+ 	&dev_attr_reset_tx_dongle.attr,
+-- 
+2.56.1.708.g77570a6a1d-goog
 

@@ -1,100 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795095092;
-	b=oiFU8PF0uZ9f346quLFQDEfXUPpT98gW9AWGuaDWyRTVu5b3K4qq6qKdY3vk9TtfWtu7
-	 T9OB2wcOTVYqfW5WZTOQi8RrzSMMaMK6ibGFKUt3Jd2CymDRiBXNDp4dRSMZuLsegDN8g
-	 LsOKOcOxgxXSrZh3yeJ5IBbwfGlG1LoALg/0yt9E6+zKFyGiJ4qxEISrZHFVijsx4KbSn
-	 i+88lq5uTkKPbyeQjjsXOx+dDyEPEYeUhLsYSR1MjOMydYoYleUi2cjZUldcBUYgsu2uP
-	 prSZVWtO5dISyk72NExduSGdzSUtoUahiU+dubDsTuX35QAcqYdDK51h5dXftpp03Aw==
+	t=1795095659;
+	b=yl1gGXpNda4mk5/N4OMjNoVJMbt8u94goibBiJGJrfXkYX6Z47CvrCx5YULrXPM3409G
+	 QyEQEC3lkr3FwntW9CdTp9Y8MIDo22n7uI24cl6VYuItgB8SLnDDWb2yrgVX4721rWBLA
+	 J38gwf30aIfgzIgM0V42xT+6EXpdGl+xS7/Ur2hDD19e+n9LJ+1/uyHykT7tWbgZpD5h0
+	 fRz8CwcT+lP95mg1+4moKlWs2MV3J2aL0ActPV8+QArzgdyFaQoWKvyFpkJOIGHCgxZsG
+	 lR3OD1MHqpAxzNTm7atk0dsLkweBCfjBdXVtszYwYy9RDTmAorH+iFA5BU7O4OGTDdg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795095092;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To;
-	bh=j+Za7bMQTz/jGW5KKJ1wZv8OZM3LMy2RfyXXPrr5ddk=;
-	b=ZdRUG3+cmj/6Oc6tD2jZ7NaPDFMu7XSpV1cnBeAyPmzZJC8OhoHyW7EJbAT3yHHqNVMO
-	 8WJiVZTI2FNbzt4feN93k9TPaU2biv2oRotTRdIQv8+2V2NS5Rt4Qef5UesPVhEXoh8kf
-	 sKkDtwP1D3efcTKvIW5vbyv3KxUv+BSDN4aIU1KONoWLrkOmbz0IjLKkeRCzvOHJv5iBZ
-	 JjAvwSNITlHcUr9PxlBFSu279Z1J+ud2U4W2OfEblxOFRXHOwCd35mqBb0K566OEJrLb5
-	 FQmAkSd32+DY1iK0m+iMr8Qd+WWQbc4wHejy0uzQP5RDwAcNby8ZXYYDA/n4APpB9Wg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795095659;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=PzR8EHqO13mERGH6qlAcIvdtNywH2LjT8NBNjWxU6Bo=;
+	b=3JZTx8aNkf+379XNBhwC/grOYXoVvKhp4wx8IpmRyp8qq8Qo7EQ0mZl6Tni1nWcg/1JL
+	 W+mTBSD/NY7Ue82rbOKHoWNDsyUMZrEHGio6chI+JHpoqv/XefgzsiAtMwVZvK2TTZpCi
+	 BEdIwXuOahsiP0KUtgZ6Yl/WKUsv9aMnxdIBsgazvDvH+ChPaNERp9Hjr5hj3IKxsJqq+
+	 2YIxyIk05n+C1VURxCLxiIBwnZTMzmFHxKcJM1JKneaIGQauAvYxRsOZ966wzXeEdVLp4
+	 WcIwK/38qzuWq2VP4gEKaWi/YmyFj8xFmsYzLGTn4/9poSiMtslT9j46H8mXdDGd4RQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=lunn.ch;
-	spf=pass smtp.mailfrom=lunn.ch;
-	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=mOPIqIOm;
-	arc=none smtp.remote-ip=156.67.10.101
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rdXZDhHO;
+	arc=none smtp.remote-ip=209.85.217.46
+Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com [209.85.217.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0CE8606A320;
-	Thu, 19 Nov 2026 13:31:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A0CE8606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8017A606A32F
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 13:40:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8017A606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=mOPIqIOm
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=j+Za7bMQTz/jGW5KKJ1wZv8OZM3LMy2RfyXXPrr5ddk=; b=mOPIqIOmu6kDdwVuemWcNK9Dnn
-	3scHm6yoxWlXhjKDg88oGkRMzRyRggfFiPC7IQHuffZ0g5VsQiVACcLcbYFf/YJimxzK2sEH4Ma7z
-	s46ArUotTLBJyzxjIYKthUVRWJnOH1H0QxoK1FCOjd282vF3lK0QU0S6Yx/wpK07j6KI=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1xU2Dn-0002Ui-FK; Thu, 19 Nov 2026 14:30:39 +0100
-Date: Thu, 19 Nov 2026 14:30:39 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	Chris Lu <chris.lu@mediatek.com>, Mans Rullgard <mans@mansr.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Cornelia Huck <cornelia.huck@de.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-input@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-pci@vger.kernel.org,
-	iommu@lists.linux.dev, linux-coco@lists.linux.dev,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>, linux-sound@vger.kernel.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v3 18/31] net: phy: Use the compatibility driver
- attachment API
-Message-ID: <7c87310f-e1c6-4a84-8161-11a6e5d91785@lunn.ch>
-References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-18-d655875c4bfb@nvidia.com>
- <71c1b931-c553-46e3-b49a-51167f168ac4@lunn.ch>
- <20261119071811.GG162713@unreal>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rdXZDhHO
+Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-7d2e1abf3eeso770637137.1
+        for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 05:40:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795095657; x=1795700457; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PzR8EHqO13mERGH6qlAcIvdtNywH2LjT8NBNjWxU6Bo=;
+        b=rdXZDhHOsEz9CaLUyjruA+CqbJbKEPqMupYrT++jViMeQJVer+/hLdp+EMubbRt/R/
+         2hPLO6jmI/DJfw96d0srhIN2GAVfmg6kDVpxKl+wpiGdm5wsYGvpgvo25NI8PjOYHNlF
+         9G4v6Lwgnd2w4KxhZWclxwqq3WX7NdSXc518D5PN6EIbwGnbRxpqaFoDD59qentEUiP1
+         IoSWZXYYYVJsqxaGYgd+TUEPswKqkT4H6Fv7bLASgh1hXoVhbTTRQKVLVdiVPFhlQekU
+         9XLYGZf1mFJmHdRN82BQ/wJHuwP0s+Hr0OE1IgHt9urSwoOdaCxu+nw9jT+exb1x3svG
+         OuRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795095657; x=1795700457;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PzR8EHqO13mERGH6qlAcIvdtNywH2LjT8NBNjWxU6Bo=;
+        b=hA0abcOZfkVkDwDGRWvq8M3QanJFxLr2iAnWr78GiZnpeKGqrUnNoJyfHEEtXTIzsm
+         gzxDLCZAA0S+KlDIWvWjc+Br5NmnUgWINbkaPYnBfI6iCuhIRxFNmslPaQEt+hBf8X9m
+         DXoPT6mFhfZyN4WLFzUuzrg7zlSzWQ5s+jWg6jfc7FmGOeEDwTAqDxMcilqcZZ4jH6Gx
+         UOQmn7tTbJRr0ApYHoGQOtRicNbHTqccoWeYqEcD5Jv3dejLpb1Ulz82BydPYLTavi7Q
+         bvtsF2DHES9le8nV/Ekvfs+tIt8rA5KV27b17PlE9EA5ZmfZphwGT7w81+/4G3HGUJ+N
+         MQLw==
+X-Forwarded-Encrypted: i=1; AL+hErEJcXm/Rt1BJiCsDhEFAxjLg2gJWZUG/iSk+3XeCC2yvl49Brca87+HhGUwuQiGuAaL1qawFp/Q9NUmeA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+zTlb/3kNhbSc4yIMtxJfLdrshfYkxUU2We/vXB7eyx4HnqvBL
+	T+WS5B26/k8X6XpDb3PmERhpGMX/uJy5ofbP3RKTJrQvGqswaKG+hMcN
+X-Gm-Gg: AYBFou1ilFEpmqkZI+DHw5PiXu0EnyjlT9amvAHYA9NGJy97JwdNk1mMuskXWmtA1d+
+	NcE1HHyyiKyzhrxwVD6Sw1MWgIK2lu/nKzsAmO9my6PwApYWalCUuu58i/cmGNq9oQLuz024X9R
+	yRCGVGfFO2h8HYh01VoTxVvpvkhHTtHPvs2eEIKRHmRM8kuZU2nSDi10P+Eny9xaTmJqPOOYth8
+	zD6Am9xRWI+qjdl6UvJSMWieYJ4vvc7XXiIY/Ou1lNQ9o30HQ0UhCClePA+onKsJh0Br6Kb8pp8
+	A9Q789TMijBKZhypZ31jNTCQanzccFqq4A8w3/SygGydYkT0o95IJLIvHun6yu445tKaxsJCot0
+	8Vxziv/MLnZK36XxfR76F8yWH2I4Ev5vmHYFiikYa8rFDDrhOxWgnuQy2VHMesARuzHygtW3HxN
+	KroltOnFIs6+GgbuVCIVcFLFVS5/7TzSEQXDsc7j1LfQS8x8pRvwxvGUPAWTh+sYFC8jILAJHuR
+	BdGw7bdR0/GDwIaNfzpGzKL7j4EEQ/BQmH5xWiD+kirX7ApnPrsuo5yfsBRDN5Oob6t0LirimF5
+	Aor56beQmokF2vhYjji48T8nZe7HDK3ZDZlH/2vBsNxXiZxZz+DCUqhywp4AedLJUHco+SsSnjC
+	OCodQ2IZ0u4MUG2+QWvM=
+X-Received: by 2002:a05:6102:578e:b0:7c8:78bd:fd7a with SMTP id ada2fe7eead31-7d6db9e66a3mr319517137.25.1795095657332;
+        Thu, 19 Nov 2026 05:40:57 -0800 (PST)
+Received: from fabio-X870-EAGLE-WIFI7.tail2bb604.ts.net ([2804:1b3:a803:a13e:f40:91:660f:4d51])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-99e4a240ac5sm4134862241.7.2026.11.19.05.40.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Nov 2026 05:40:56 -0800 (PST)
+From: Fabio Estevam <festevam@gmail.com>
+To: lee@kernel.org
+Cc: maz@kernel.org,
+	andy@kernel.org,
+	jic23@kernel.org,
+	dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	mfd@lists.linux.dev,
+	linux-iio@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	crofts@kernel.org,
+	devicetree@vger.kernel.org,
+	imx@lists.linux.dev,
+	Fabio Estevam <festevam@gmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Subject: [PATCH v5 1/4] dt-bindings: mfd: mxs-lradc: Fix interrupt order
+Date: Thu, 19 Nov 2026 10:40:38 -0300
+Message-ID: <20261119134041.16611-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,28 +108,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261119071811.GG162713@unreal>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 19, 2026 at 09:18:11AM +0200, Leon Romanovsky wrote:
-> On Wed, Nov 18, 2026 at 09:21:45PM +0100, Andrew Lunn wrote:
-> > > @@ -3813,6 +3809,8 @@ static int phy_probe(struct device *dev)
-> > >  	int err = 0;
-> > >  
-> > >  	phydev->drv = phydrv;
-> > > +	phydev->is_genphy_driven = phydrv == &genphy_driver ||
-> > > +				 phydrv == &genphy_c45_driver;
-> > >  
-> > 
-> > Why do this here?
-> 
-> This flag marks that driver is already probed, which is reliably
-> happening in phy_probe() under right locks. It was the easiest
-> way to battle AI reviews which don't agree with how PHY subsystem
-> performs driver bound.
+The interrupt descriptions added during the conversion to YAML do not
+match the ICOLL source numbers used by the existing DTS files.
 
-I've not seen the netdev LLM do a review yet. It will be interesting
-to see what it says.
+For i.MX23, Table 5-1 of the reference manual maps source 36 to touch
+detection and sources 37 through 44 to channels 0 through 7. The DTS
+lists these sources in that order.
 
-   Andrew
+For i.MX28, Table 5-1 maps source 10 to touch detection, sources 14 and
+15 to the threshold interrupts, sources 16 through 23 to channels 0
+through 7, and sources 24 and 25 to buttons 0 and 1. The DTS also lists
+these sources in that order.
+
+Reorder the schema descriptions to match the hardware documentation and
+the existing DT ABI.
+
+This change was prepared with assistance from OpenAI Codex, which was
+used to compare the binding with the reference manuals, existing DTS,
+and driver ordering.
+
+Fixes: 009528b5aa13 ("dt-bindings: mfd: convert mxs-lradc bindings to json-schema")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+---
+Changes since v4:
+- None.
+
+ Documentation/devicetree/bindings/mfd/mxs-lradc.yaml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
+index 782b2f4005a0..755029880677 100644
+--- a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
++++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
+@@ -87,13 +87,13 @@ then:
+   properties:
+     interrupts:
+       items:
++        - description: touchscreen
+         - description: channel 0
+         - description: channel 1
+         - description: channel 2
+         - description: channel 3
+         - description: channel 4
+         - description: channel 5
+-        - description: touchscreen
+         - description: channel 6
+         - description: channel 7
+     fsl,lradc-touchscreen-wires:
+@@ -102,6 +102,7 @@ else:
+   properties:
+     interrupts:
+       items:
++        - description: touchscreen
+         - description: threshold 0
+         - description: threshold 1
+         - description: channel 0
+@@ -110,11 +111,10 @@ else:
+         - description: channel 3
+         - description: channel 4
+         - description: channel 5
+-        - description: button 0
+-        - description: button 1
+-        - description: touchscreen
+         - description: channel 6
+         - description: channel 7
++        - description: button 0
++        - description: button 1
+ 
+ additionalProperties: false
+ 
+-- 
+2.43.0
+

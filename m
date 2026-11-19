@@ -1,71 +1,53 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795107888;
-	b=ld8oWRn4KDJ4D0Fqn4ApXzti3Ku4B8503YAu3TpXzuBWC3auAJjHjrX6O7H8jmNu5f/h
-	 iArUDPtM8IfhijqzrQ0kbPZ2Ra/ftzgg61xORKCQwhJi/cLvTm4RFC3GFjuLx4NvvvsdN
-	 PlNxM2hyb4cV0oiapyrv7y80CuZOVr1isV9fF2ECImj/kZSNlbAnNzE3Fw6TOSItWQVKx
-	 W+2SjwI6oo9b3Ah/soNxOmTbfsVs6J+QMUk2gE9decOycorkR32CJpykKXqLEw9pnldKT
-	 UfWc2TvEq6eTzQebGxxmBQoZr/YmEVfqoQPhyl+DcP3OBOmEgl+yeWsMB9ro6VpnplA==
+	t=1795110598;
+	b=K9CXuQfI1o0yHF3WboZNux/maloOq44Y6Z3UPd0K5EWo6/NLTv0AsKq+lTNt1eKpX5Zn
+	 cZ4F3Y4U6J0M8C5M98Wab4uRLWQTEdZfuxsspPD9Y7vrBWv1e1O93V/ntMeD4a4mrAoPJ
+	 UB09dCSUIbq9pB3w7XtZ1VgYXcUKNPpve0gu5BN8stAN+aDXwHn0NaqJnQLNQauID9lW9
+	 MXpTxx0GI9m4oxeRx1vtUuhGoYHnjoujmKe8Vc3zGQRnIhpX8WnlSW092O2/oIDkR281R
+	 8iMA0A85glO1BjES89uGYyHad3mweWWIoYV/oM7vQbnwLEyhkVhbYjM1MIbWmFUzojA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795107888;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Received:Date:Mime-Version:X-Mailer:Message-ID:
-	 Subject:From:To:Cc:Content-Type;
-	bh=voN556T4bQ5hmnwkn1P9G0D/giCnPNELWJFN9TQLbHE=;
-	b=CCs5N0HXdElorTlbl0ay2raMQvk4T5JQwCRZ0lCpws0tkQHF93w/MZ//m95cnZ60Xruz
-	 ZNmCiYb4cmXlnxm4yDIvFXMJpAUBTMwCaXatMwF7whfUx+FhShA/ici6ESHLYAvs03WwF
-	 O3TlwaE0OVfbf9vjpkVcAsdT8RnM9pSalN6uJ/Dum50D3j+WufF3ISy49N+U5m5s+BFoJ
-	 D9EmVKHR2tVfEPKUsm3sQSfSfMsXquvRQCiwqBnZoze021Kh92UudF1weh63eKqYDbHa8
-	 W4eaKXwcLAd3Bgrg1XNiVqs0Hiagtgol5v1aWpxLsYl5LZRnde5/vRPYucGiM5Gntlw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795110598;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=cwnvE5ZeFGIwub6ucKfZkEWrWwezozotlhK7iduubCE=;
+	b=Gg/CYXleRM/QiOHiE01iVrApwN3kceuvCaMKq/7+dnmuFWRUvTWRIkn4WkOQAsRwVF3H
+	 bQgrW0axwqM42gwRdZAcStWnrzVlz3aEtmgn/yIZWzt9RTL9CU6edt0n0hE/J9AA49RzZ
+	 RhUN/sbY5sorqOomLCcCyq1EMBHSBF1kvvYjtCy22t8k0LNZMXBr5/QFIuf18Uk0Iv+M5
+	 R5NI9nP3Jsmbjwgb39UgJvDME4gLHTApgTJkIDMP40AldYDoLiHRhkyJ0stceE1gshkDI
+	 OW7GHYY+XO9TQtUow5E5s5XdCxqdJ8pUE8XNrQeDrosAgj2SnNJIgOiIK4/BM5PeQEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--irogers.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pTA141Zk;
-	arc=none smtp.remote-ip=209.85.167.199
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com [209.85.167.199])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KAc2NLRm;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84AA0606A32C
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 17:04:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84AA0606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3535606A325;
+	Thu, 19 Nov 2026 17:49:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pTA141Zk
-Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-4b37620eb73so78333b6e.1
-        for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 09:04:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1795107887; x=1795712687; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=voN556T4bQ5hmnwkn1P9G0D/giCnPNELWJFN9TQLbHE=;
-        b=pTA141Zk7eTfRXZvaKXuumpIoEts4pw11FS4p4HvqPD3+hOe0AG8RSXnvA/FpOpavv
-         weyEb4VVj4GhdBU25qvC+VMhMOXKlSvwM3giXDh2RXWs5SftZenaAMljg0YdArtrjNFx
-         JkBr5yxFCgHBegPzlDHMO8+ftZKkkz5f3RdS+3b22HVEbd6zuEIo1nQnXxtB+6nGuTBh
-         fyA1u3JAGdVa4kQ3BtW8O6pLTxc9f/ULx8qs2bQkHF49Bw0fjdx4C3kqXHHtpwJBWIqj
-         aAkH+Baweu1EhGwHz9kpwaa4D5NeuUhXHTHmTJ2NH2gYZsTIVYrTFahbDzvVHTVdrEAA
-         TWTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795107887; x=1795712687;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=voN556T4bQ5hmnwkn1P9G0D/giCnPNELWJFN9TQLbHE=;
-        b=NLsUdJU6lpQOqP56CeTYzmy1ce8UTLgYB6kBDjyyg97WJVh6lvvom9Ws13fnel9Y8I
-         8G6LyxY/dDz/rV0U7jbNkZIkK/dx3cZaxWBxXYyoLjxPuJ/KzK7wQ71pqGEW9yYDNIz+
-         lr8ncn4ekeShX3V+zb7cTmoMx5397jN5oMRO2d9ZJvvHUL1vAebeMyrN/4uc1WBgv0l1
-         hEOiaC/8TnZE9OFr5Oib9ivPG899Q6RGv30QKv6Vb1KYTylsnAsg7+qCgxd5wnHUROjP
-         /Ts3OMJSoBZo7FBemAoZ2GREb/o8vpN6nRxWhG0Mg/n7mCEhUqEAlhWMtGZsvtLoiQob
-         VkUA==
-X-Gm-Message-State: APuU4Z+UYvmInuSlEvz9Be4PIH7y3C1UaMTBkXBKS0BZT5I3u2j/WJHr
-	+pQyfRj1ys3WZNPCmf7wfTMPHzA+rfSYW+oFpw8hP9RDrJVyfz1If9RN6pvd3KqUWZj6A7yi6Q8
-	SgzmK6mgVag==
-X-Received: from jafo1-n2.prod.google.com ([2002:a05:6639:301:20b0:620:c289:80b])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6808:4f0f:b0:567:c773:39ab
- with SMTP id 5614622812f47-57a0aa2ee51mr623733b6e.39.1795107887287; Thu, 19
- Nov 2026 09:04:47 -0800 (PST)
-Date: Thu, 19 Nov 2026 09:04:43 -0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KAc2NLRm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258EE1F000C4;
+	Thu, 19 Nov 2026 17:49:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795110598;
+	bh=cwnvE5ZeFGIwub6ucKfZkEWrWwezozotlhK7iduubCE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KAc2NLRm9bBMbaYzslkI2E7t9znLMFgTCz25Ken+tEwfdtfHw+myyGC000vz0xCiv
+	 oL7f5XLuHnWxyYk4zM8e2wu1ZMA+2raBxfNrMwaMZnDgWR8VFngA3LpLGkyy6rynMI
+	 Swvaf+1clJ1+U3beasLHqkMmaMyrWjCev7U5XprvFxynrBiIiH6S1zCtitrk+hrqAY
+	 TXc/44uzqnym5iidQfbfsNP4xX/bUzeK2p6EitfVvdRywsZfbcjeZrynkw1PCbUHTo
+	 BstFTzQjn2AQ1U6gL/YVdqAHM4ggmW9/5oI+w/ugiV/02A3I6Zcc92wIRHA1LlH/lH
+	 +S4OiIV7zIlIg==
+Date: Thu, 19 Nov 2026 17:49:55 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Hefei <3066883572@qq.com>
+Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] dt-bindings: input: add Jadard JD9365TX touchscreen
+ binding
+Message-ID: <20261119-unmindful-bagel-6405d83c4fbc@spud>
+References: <tencent_BF0B9E6C7E95501FC63D3F98AD08BEF70909@qq.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,61 +56,112 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.56.1.708.g77570a6a1d-goog
-Message-ID: <20261119170443.1513294-1-irogers@google.com>
-Subject: [PATCH] Input: ff-memless - fix 180-degree force inversion from s16
- negation overflow
-From: Ian Rogers <irogers@google.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	llvm@lists.linux.dev, Elkin Cruz <elkin@google.com>, Ian Rogers <irogers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="X7+UfeTsliGi7hlS"
+Content-Disposition: inline
+In-Reply-To: <tencent_BF0B9E6C7E95501FC63D3F98AD08BEF70909@qq.com>
 
-In ml_combine_effects(), constant-force Y component calculation negates
-fixp_cos16(i) and passes it to fixp_mult(s16 a, s16 b):
+--X7+UfeTsliGi7hlS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  y = fixp_mult(-fixp_cos16(i), level) * gain / 0xffff;
+On Thu, Nov 19, 2026 at 10:48:03AM +0800, Hefei wrote:
+> Add the binding for the Jadard JD9365TX in-cell touchscreen used on
+> the VIEWE 7KF82 module.
+>=20
+> Signed-off-by: Hefei <3066883572@qq.com>
+> ---
+>  .../input/touchscreen/jadard,jd9365tx.yaml    | 53 +++++++++++++++++++
+>  1 file changed, 53 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/j=
+adard,jd9365tx.yaml
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/jadard,j=
+d9365tx.yaml b/Documentation/devicetree/bindings/input/touchscreen/jadard,j=
+d9365tx.yaml
+> new file mode 100644
+> index 0000000..23696a4
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx=
+=2Eyaml
+> @@ -0,0 +1,53 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/jadard,jd9365tx.yam=
+l#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Jadard JD9365TX in-cell touchscreen
+> +
+> +maintainers:
+> +  - Hefei <3066883572@qq.com>
+> +
+> +description: |
+> +  In-cell touch integrated with Jadard JD9365TX DSI panels. The module F=
+PC
+> +  often exposes only I2C (no interrupt GPIO); the driver polls coordinate
+> +  reports.
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: jadard,jd9365tx
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  poll-interval: true
+> +
+> +  jadard,coord-addr:
+> +    description: Optional fixed coordinate SRAM address override
+> +    $ref: /schemas/types.yaml#/definitions/uint32
 
-At i = 180 degrees (direction ~ 0x8000), fixp_cos32(180) is -0x7fffffff,
-and arithmetic right shift by 16 in fixp_cos16(180) produces -0x8000
-(-32768). Negating -32768 in 32-bit int yields +32768, which overflows
-fixp_mult()'s s16 parameter a back to -32768, inverting the Y force from
-full positive (+127) to full negative (-127) right at 180 degrees.
+Input folks, this does not really parse to me - does it make sense?
 
-Widen fixp_mult()'s parameters and return type from s16 to int so
-+32768 scales cleanly to +0x100 without truncation overflow.
+> +
+> +required:
+> +  - compatible
+> +  - reg
 
-Found by enabling Clang's -Wimplicit-int-conversion-on-negation on an
-x86_64 allyesconfig build, with AI coding assistant help to audit the
-warning and prepare the fix. Verified with a standalone C test sweeping
-0..360 degrees and Clang build; not runtime-tested on force-feedback
-hardware.
+The device has no power supplies?
 
-Fixes: 559addc25b00 ("[media] fixp-arith: replace sin/cos table by a better precision one")
-Signed-off-by: Ian Rogers <irogers@google.com>
----
- drivers/input/ff-memless.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    i2c {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +
+> +        touchscreen@68 {
+> +            compatible =3D "jadard,jd9365tx";
+> +            reg =3D <0x68>;
+> +            touchscreen-size-x =3D <720>;
+> +            touchscreen-size-y =3D <1280>;
+> +            poll-interval =3D <16>;
+> +        };
+> +    };
+> +...
+> --=20
+> 2.55.0.windows.5
+>=20
+>=20
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index d1fefd1dfc0d..ae8ff19905b6 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -229,10 +229,10 @@ static inline s16 fixp_new16(s16 a)
- 	return ((s32)a) >> (16 - FRAC_N);
- }
- 
--static inline s16 fixp_mult(s16 a, s16 b)
-+static inline int fixp_mult(int a, int b)
- {
--	a = ((s32)a * 0x100) / 0x7fff;
--	return ((s32)(a * b)) >> FRAC_N;
-+	a = (a * 0x100) / 0x7fff;
-+	return (a * b) >> FRAC_N;
- }
- 
- /*
--- 
-2.56.1.708.g77570a6a1d-goog
+--X7+UfeTsliGi7hlS
+Content-Type: application/pgp-signature; name=signature.asc
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCav82wgAKCRB4tDGHoIJi
+0tHZAQC77AEClONCxlm2UftDzEnXPGEa0ZEewI6ktZlLmnBKLgD/a5xaq6VMlvcb
+CTWDw3M2i/CHGG8q88NZWCjVCHIiBwU=
+=0lw2
+-----END PGP SIGNATURE-----
+
+--X7+UfeTsliGi7hlS--

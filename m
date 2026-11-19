@@ -1,50 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795113320;
-	b=0GBLg9MwiiHAeM3NjjESiPllmC2u3XLkyC4oJdv/qVAwJiYnqp3QvPY1JtaXG9ECyyhM
-	 vpPHTVTHW6TU11Pu5DrQ3xzNXBFdtga9FQEVYpAw/ia4oaaIvX2k03CYw7wrXst1OnzCS
-	 prP9iNhfXf47gRzub4xptVp523Q64Z7nHk46uF2XmmCIOr/ACB8BImqwtqZOKqbD2lkf3
-	 sfPWxU7/TwsCg4RXhU72+OCFf1pxBQmMJt8dQREFA7bbQ4uNd9Sx/+dWdoO0UuM23v9Fj
-	 SUQE97QEyOOsaYEgl/v8ex5WOs+fmAkOgAE5qW1nLKsfizaClDsck5FEUqhIw9q/D2Q==
+	t=1795113635;
+	b=bb4D4WtRzSvkp+IybBZx3V97cGfkIdE+cruM9yASxjBnuv8TWG2GdFgJ7Ghb2Mk14Hrb
+	 Fsdvf0zR/b/B2KUSaX/lNdXb42l4RVhsIZEiVOL+O8fEs91m//Udw7k5Em31oR4DO/e0S
+	 rsDu2uy30caOYqUPiU3SDsTqFNXL0f9C6TDSoNG4ZSeuq4eIn17jWfsM1lq7sU2+T9z7B
+	 gEbJhOEW/YKMlu/BprXxTR3KpxVbMSfFVAzybeL6Z5/yfCxfZgO9wid3x+09JTfn3Wt9/
+	 lCfFzjmPG0liGvq2mmLEzfSxPPZda2qwuOKTvmFV/M7J9ZIckpVNdsePi7KupTa5Z6Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795113320;
-	h=DMARC-Filter:DKIM-Signature:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=5rr4KVYUwS00eV6h4Ur0WZubiToiZFWmqJNWDXUyNEk=;
-	b=n1vVPttANLYfQGy4p/F0/2rd4u5jCp0+JGV41ZAsUeX2C/1x0TkXo09pISPWnQ0c8Nvz
-	 TABY8KgGa/WeQMMqTjmRECC+5XJNyfIAD02WQSLpwkmdkyeYYWbU8HiqitbtrUmaA3J3Y
-	 nR4KoBo30xE+9oLeo91w0wDnppzpAEYeUFTPONPXIsxlQVbB1JLptDcHeBPwnXSzKMX26
-	 QrwI3FFlbhWCJGKcO/RoDACcoOycxD1o+/ZsBHkC6nPp+QStBauQOq7DBxFPgc7lNhqh8
-	 PcFDwI4Bwffe5Bn+wZe7Z4sNUUQcKKV9FCWEjfBmzRpJbCa4YIwhMdzul4mBvrAQhmQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795113635;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=+DnpbJsxDH0LaSiokoZCSjMq0v6CvkhiJPWkFMRnQHE=;
+	b=x+JhYr2CJOn+1EazJHAFC3XYCsEnTPhr8+WNZ/mabM1+rhOdfX914Pypk9j0fg0yPGwj
+	 3856CYHyywxSGrIhX8qIjdqtq8iWGg7/0qEk5cuDtpq1RKHZ+rDrhEWVA9v2QG5zQ8nSY
+	 +1IgrnAR/W7z41OIXEX/jjYpdmw09vTwTQ6g8hlxjEkwkhOgPVK+z0zUzSm/JvwRC2jzf
+	 myCV4DX9YbYThzLKvjHosJOujS2Mn+kgS3uPqzOUL1j8A7xL2v7l9VTwKsRZfo9Gg7kA/
+	 +TzJ+ghjA9BlDuesQhq8RyA0bZqSKC7zs6BbM80ClRq5OmLyux7QgpMAMe3WfGEWyEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=kemnade.info;
-	spf=pass smtp.mailfrom=kemnade.info;
-	dkim=pass header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=BlX8HBSb;
-	arc=none smtp.remote-ip=178.238.236.174
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bxfezcG7;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702F4606A324;
-	Thu, 19 Nov 2026 18:35:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 702F4606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D512606A320
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 18:40:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kemnade.info header.i=@kemnade.info header.a=rsa-sha256 header.s=20220719 header.b=BlX8HBSb
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=Cc:To:Subject:From:Reply-To:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=5rr4KVYUwS00eV6h4Ur0WZubiToiZFWmqJNWDXUyNEk=; t=1795113320; x=1796322920; 
-	b=BlX8HBSbR6gsXS4oLnAjmeCAI+gOkeoOm2KSehdDHw1FO7szzSYP1Vaq50sndFNGnrb5dEnfSxl
-	3dqi4immXaiyF0+q+ZVfQ9fvK54v3p5Ti46JTq4lTFW2RxA2d7VycTKkTR0cIkfmHGa1WEVQLNNCt
-	XfAr72vaICTNfnHM/L5+I7t6PdJbZAxNJGI4Amoga2CDydqBSDEJBczf2Vuxhn50Gik36HGWCGukj
-	rf+JaPOBTGQvNF7V/fC+EZGBEtXwLAmRESqX7hlva8QHLN17hs0MbiSe1XM9YVXMli+Kq39CbffCB
-	JvMCrdsLroXmOFTl6fMuw97wMUhO03e3l4ZQ==;
-From: Andreas Kemnade <andreas@kemnade.info>
-Date: Thu, 19 Nov 2026 19:34:56 +0100
-Subject: [PATCH] Input: cyttsp5 - Use dev_err_probe() to hide EPROBE_DEFER
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bxfezcG7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6991E1F000C5;
+	Thu, 19 Nov 2026 18:40:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795113634;
+	bh=+DnpbJsxDH0LaSiokoZCSjMq0v6CvkhiJPWkFMRnQHE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bxfezcG7jEGbRRPr8pcaFSKju0HrYWcVbFEAXQKxuJTn1ktgnz4ukr2LzOdDCCDU9
+	 2Bl85KE/cRO9oRtF0E+nj0APZ3P2gwdu4OAaW63G+pl5zBXtQ7dmHMIg58NnLU/znf
+	 0hhWnYq9gS9WzcAk7l5xbdjxMfWZ+C2k6GP3ubmW7kxGanhyfyAvbd34F5lY+16Gal
+	 lfGsIisYoNbs9uHCdfP+sOcKbEBAajRUt/2RXBnO1kkHn4VL8DpzInfdjK0yDAqq/E
+	 Jfdw2PagRgzBw5auj0x2e0JvacZb81Tuv9S6um+wthxN9V4eT+wqQ5XWv9T02ucsQB
+	 kRJLviii1OZ8w==
+Message-ID: <sashiko-outbox-223799@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: cyttsp5 - Use dev_err_probe() to hide
+ EPROBE_DEFER
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Andreas Kemnade" <andreas@kemnade.info>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261119-cyt-errporbe-v1-1-7faa44e821b4@kemnade.info>
+References: <20261119-cyt-errporbe-v1-1-7faa44e821b4@kemnade.info>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 19 Nov 2026 18:40:33 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -53,118 +59,87 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261119-cyt-errporbe-v1-1-7faa44e821b4@kemnade.info>
-X-B4-Tracking: v=1; b=H4sIAE9B/2oC/yXMTQ5AMBBA4avIrDXRSurnKmJhajAWyBQh4u6K5
- bd47wJPwuShjC4Q2tnzPAXoOAI3NFNPittgMImxWutCuXNVJLLMgqQsWpPlTVJgihCSRajj49t
- V9W+/4UhufR9w3w+i46FFcAAAAA==
-X-Change-ID: 20261119-cyt-errporbe-6b6278a09b3b
-To: Linus Walleij <linusw@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Andreas Kemnade <andreas@kemnade.info>
-X-Mailer: b4 0.17-dev-e5168
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2924; i=andreas@kemnade.info;
- h=from:subject:message-id; bh=ePghd3pJr/R938Z3aAj3mvyY+bWToG6Do4p3q8V8Vfk=;
- b=owEBbQKS/ZANAwAKAYRhRfpAKNzxAcsmYgBq/0FSDuqs0ZTdqGplBHDE099T6NXoP5SnWpxcH
- 24RHwT1tkyJAjMEAAEKAB0WIQTY6xCZL0TEE1XHfFiEYUX6QCjc8QUCav9BUgAKCRCEYUX6QCjc
- 8QyGD/9GHCxcymO471y4NIzueJe0NhsFv0Ae3ZQgGvrhh72Jnr9uBFUeSwNKgyKQsYlrh3FnOMV
- rK9peo+XGsDDdpbFzyOlMSQlKIgMt1EdV6c//gumPzHBMVr+N3ooAACFF1wmLiDx+tVTIJ1ooGf
- DfYAG+yonSQ9BAceJFf2Oe4Xk3OBySVvjcTtiFx8/2ejTgiCTgEH3CXvVAtjjLCgeLS0SzknWsI
- fOQ22sxUco5VkVElC8cwcpNNDqEGjhvFMfvUbVKlykeEInJdLJ14jAmo94sF3/KijnCIHk79Y3h
- J8X42ZkXzlP6ytUBTEe0NDf9YU4P4QvWs+4BzgHL7cGHk2iVVEGQxD8l5tPbKQ7hpBl9JKJzu82
- x/8bIiI9/favE+eJm2ZqRvY5vDFuD1RlcTmXNhhZW+SrwDnnLGA1hcSz22aQz2iqscFs9pVt2e7
- 35YylnBoiU4zefiTqIABfRWLhqdlgt8TPoCOMO3AS+yfrUQTQiW9WZ7HsEoVSw2XdYyMuvyg3S5
- p6RLyTFYCLRLIJo8ER6mJc7tgsv27o35LfDeptZ40Q75rYjA5HruuYFqulyEOcuSl1bj9e1PY+c
- LP7F6MJuh7djhA0KSqG7a1p0rPNzdkesp8VJ973YSS5KVZn+MnkJyg+jyMhYqExnxy7wpAYyzWK
- znl6hU6kWSS6hpQ==
-X-Developer-Key: i=andreas@kemnade.info; a=openpgp;
- fpr=EEC0DB858E66C0DA70620AC07DBD6AC74DE29324
 
-Use dev_error_probe() to avoid unnecessary noise if prerequisites
-are not ready like the regulators.
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [High] Input: cyttsp5 - concurrent regmap reads in cyttsp5_probe() [1]
+--
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
- drivers/input/touchscreen/cyttsp5.c | 33 +++++++++++----------------------
- 1 file changed, 11 insertions(+), 22 deletions(-)
+commit c1590d49f726ba5943ef8a369ba24293879c0745
+Author: Andreas Kemnade <andreas@kemnade.info>
 
-diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
-index d4a78facfa815..82209bfdf828d 100644
---- a/drivers/input/touchscreen/cyttsp5.c
-+++ b/drivers/input/touchscreen/cyttsp5.c
-@@ -844,20 +844,16 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
- 	ts->supplies[1].supply = "vddio";
- 	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(ts->supplies),
- 					ts->supplies);
--	if (error) {
--		dev_err(ts->dev, "Failed to get regulators, error %d\n", error);
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(ts->dev, error, "Failed to get regulators\n");
- 
- 	error = devm_add_action_or_reset(dev, cyttsp5_cleanup, ts);
- 	if (error)
- 		return error;
- 
- 	error = regulator_bulk_enable(ARRAY_SIZE(ts->supplies), ts->supplies);
--	if (error) {
--		dev_err(ts->dev, "Failed to enable regulators, error %d\n", error);
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(ts->dev, error, "Failed to enable regulators\n");
- 
- 	ts->input = devm_input_allocate_device(dev);
- 	if (!ts->input) {
-@@ -874,8 +870,7 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
- 	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(ts->reset_gpio)) {
- 		error = PTR_ERR(ts->reset_gpio);
--		dev_err(dev, "Failed to request reset gpio, error %d\n", error);
--		return error;
-+		return dev_err_probe(dev, error, "Failed to request reset gpio\n");
- 	}
- 
- 	fsleep(10); /* Ensure long-enough reset pulse (minimum 10us). */
-@@ -887,22 +882,16 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
- 
- 	error = devm_request_threaded_irq(dev, irq, NULL, cyttsp5_handle_irq,
- 					  IRQF_ONESHOT, name, ts);
--	if (error) {
--		dev_err(dev, "unable to request IRQ\n");
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(dev, error, "unable to request IRQ\n");
- 
- 	error = cyttsp5_startup(ts);
--	if (error) {
--		dev_err(ts->dev, "Fail initial startup r=%d\n", error);
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(ts->dev, error, "Fail initial startup\n");
- 
- 	error = cyttsp5_parse_dt_key_code(dev);
--	if (error < 0) {
--		dev_err(ts->dev, "Error while parsing dts %d\n", error);
--		return error;
--	}
-+	if (error < 0)
-+		return dev_err_probe(ts->dev, error, "Error while parsing dts\n");
- 
- 	touchscreen_parse_properties(ts->input, true, &ts->prop);
- 
+Input: cyttsp5 - Use dev_err_probe() to hide EPROBE_DEFER
 
----
-base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
-change-id: 20261119-cyt-errporbe-6b6278a09b3b
+This commit replaces dev_err() calls in cyttsp5_probe() with
+dev_err_probe() to suppress error messages on deferred probe.
 
-Best regards,
---  
-Andreas Kemnade <andreas@kemnade.info>
+> diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscr=
+een/cyttsp5.c
+> index d4a78facfa815..82209bfdf828d 100644
+> --- a/drivers/input/touchscreen/cyttsp5.c
+> +++ b/drivers/input/touchscreen/cyttsp5.c
 
+[ ... ]
+
+> @@ -887,22 +882,16 @@ static int cyttsp5_probe(struct device *dev, struct=
+ regmap *regmap, int irq,
+> =20
+>  	error =3D devm_request_threaded_irq(dev, irq, NULL, cyttsp5_handle_irq,
+>  					  IRQF_ONESHOT, name, ts);
+> -	if (error) {
+> -		dev_err(dev, "unable to request IRQ\n");
+> -		return error;
+> -	}
+> +	if (error)
+> +		return dev_err_probe(dev, error, "unable to request IRQ\n");
+> =20
+>  	error =3D cyttsp5_startup(ts);
+> -	if (error) {
+> -		dev_err(ts->dev, "Fail initial startup r=3D%d\n", error);
+> -		return error;
+> -	}
+> +	if (error)
+> +		return dev_err_probe(ts->dev, error, "Fail initial startup\n");
+
+[Severity: High]
+This problem wasn't introduced by this patch, but can cyttsp5_handle_irq()
+race with cyttsp5_startup() on HID_INPUT_REG reads [1]?
+
+devm_request_threaded_irq() unmasks the interrupt before cyttsp5_startup()
+runs.  If a pending event or touch triggers the IRQ immediately, both paths
+perform unserialized regmap_bulk_read() transfers against HID_INPUT_REG:
+
+CPU0                              CPU1
+cyttsp5_probe()
+  devm_request_threaded_irq()
+                                  cyttsp5_handle_irq()
+                                    cyttsp5_read()
+                                      regmap_bulk_read() /* read size */
+  cyttsp5_startup()
+    cyttsp5_deassert_int()
+      regmap_bulk_read()          <-- interleaves with two-step read
+                                      regmap_bulk_read() /* read data */
+
+This corrupts the sequential HID report read protocol.  In addition, if
+cyttsp5_deassert_int() reads a non-empty touch report (size > 2), it returns
+-EINVAL and aborts probe:
+
+drivers/input/touchscreen/cyttsp5.c:cyttsp5_deassert_int() {
+	...
+	error =3D regmap_bulk_read(ts->regmap, HID_INPUT_REG, buf, sizeof(buf));
+	if (error < 0)
+		return error;
+
+	size =3D get_unaligned_le16(&buf[0]);
+	if (size =3D=3D 2 || size =3D=3D 0)
+		return 0;
+
+	return -EINVAL;
+}
+
+[1] https://sashiko.dev/#/bug/linux-bab102b6-93cb-4ea5-b362-6d8c8b8866ea
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119-cyt-errpor=
+be-v1-1-7faa44e821b4@kemnade.info?part=3D1

@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795096660;
-	b=GcKJJYdll1IUyRjIKmtb1+3suUVEccpO55L3ELat2olDGDA4j/y/kYgUVGqc2CUAZd16
-	 HgWKb6H3EFLeTgzaQ3tVFouHIcJZyJk8GYPZmPsPJQefT401vA9qsUAX8h9M30J+tPbDv
-	 zgHiHpWEbbaqg2colWFsPOnStPKF88AOF+uvsxPBP0qG3qOhnqIe0UlVHhc7LZTsgM0cs
-	 kSPuMaf5JazRA/ydZ9A2MvgXATZBV0IEkpPkVrmLBXl+gOhKQdoeu95r0v45bHjt7xO/A
-	 EMVPW23s4MQXcW8hoZWO1ibBGevMxWbeaQN0MlNW3p64UpkleipkcNpcmwIcaRIT/+w==
+	t=1795096798;
+	b=r1yoUzWFBoIk7yCI10dGJKAiIXvarV0i6doM4zFuG0pTAWuNk471FK/1MFPRzbOBsQC+
+	 /srUu8LTPBRQX7FA9Erk1QyNrxkHOlvR3WUesG6bbinKS9xZANrhi1ADLO+GwMa/uUPtU
+	 DzZfUGDYPFv/acMf+RJ4j8vPjqQzkgc2ijJK/TuBzNXiRNuKFRecuh6gKfihRTwGBScXH
+	 fnpMfw5YBQ/A7RBGeIWMwtx2QwhdMHouAYe5L8WQ6llLfVrd30ELmCvUDlhRzAeluWJb/
+	 DcDkoLHVPLyTHt7mP5QQvA/OthIXFIIBM5xCP2CJpk1oivHZFZLHmOAlWkGG6san03Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795096660;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795096798;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hEnclyY278SpcAybPZjNTkYHn8U/UquTJthQ6Pv8saY=;
-	b=BsfdzOgN+wGixaNayneeGMdXCWnHqt6mY0INHh5SA+7xoeOlW763JvSH9imbinXSdMhI
-	 aQumFZRVGCmLLcFsO3K09hVp3LdVhyTkcA8jATBb4vRG6dsyBYAW7fq030ZaHfs2+yquR
-	 5wvknCalnml6O6vzKeX1y+5+JQI9G/K4oyMTLh/BfxKvi8pq5LTSkwsOhwaTILyX0j0oW
-	 uVuiTbwQHAgi13qddhKRRYlW7OUHR1ky/e+F12+42b5l0b4cuquXHGlL4fXnTbuhsFUMz
-	 1oh4XxEqHmtaddO1cNZ3+n1jPz6a8cSnOd7yieS0QbvGzmuISRZ5pubiEFLtiCx1pHA==
+	bh=ZLv2vRWbQhoR3AXJJmHap84PJ0JKECPeqJXwjX7GeMw=;
+	b=F3ksAP2ZTJFZ2dmUDWGY4gHkRGhkdiDNpyEQH5ItJGKlS5sf2+7aO9Od9/+LTFcvKxx2
+	 Q5+IQo8tLdquSDLch/4A+qO6sAxw8fulGYXERXQDdvyhe7ame96pMtC/zXdn0kGFpAx5j
+	 0sAiE0/gJczjP87vKC1RZyhZS8rdSbshGbtyBe4PDBYt4J6PUxMbmGooXlhSdZjqBDePc
+	 srqVjKc6VuEuC9NZ4DUCKeJN9318vEG7zPHQwN1FW/Kin7IQIYDsUcdWo9+P86Rjv6/SR
+	 ZW8JrSQG+AqukvdW+mTSjzReOgfCVEF7pSP9alFaRiP5A24mWnYtId8tQYP0d2DeuUg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UWOgcA2I;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CWWZGgLE;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B002606A320;
-	Thu, 19 Nov 2026 13:57:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BC9A606A320;
+	Thu, 19 Nov 2026 13:59:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UWOgcA2I
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99741F000C4;
-	Thu, 19 Nov 2026 13:57:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CWWZGgLE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D94381F000C4;
+	Thu, 19 Nov 2026 13:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795096660;
-	bh=hEnclyY278SpcAybPZjNTkYHn8U/UquTJthQ6Pv8saY=;
+	s=k20260515; t=1795096798;
+	bh=ZLv2vRWbQhoR3AXJJmHap84PJ0JKECPeqJXwjX7GeMw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UWOgcA2I1xIycUKqyRf9o+V1bGdwQzpGrOONi23nxhq1HtzYOnZTcUZs+H19Nb1qR
-	 8IIrafFgfn1gGJ6wC31OsU2TYKlJzcWDonvuQqXyg5r8SKxorst9j5/mKG/R4YgaY1
-	 ZJzaefZqrLYIXXHcy/tLWThb9v5zFJX5v0QhP6fTsjtFqOZoqFZrm6EXHDCbkbv7K0
-	 +sF7lipXyiFf6xJKQMDDPRz7fXUoCewjzccSdtTf6b6woYS+M0QR4PxJSbgye957Pc
-	 oD4gOBoPmIBzt75l1Z7v4RGRp8SuMOi27aDG3Xw9JawoK8pyln0yyI7TkUb/eo9MOk
-	 1J8YweIln/2kQ==
-Message-ID: <sashiko-outbox-223227@kernel.org>
+	b=CWWZGgLENGrdb4wF5fgBbflYKi/Qka5hX8vQSXf1hLrcCjXFtPeM+Vmf/cUfIi8gB
+	 J8TR0RNP4Ptj/bOZMVjSXJYw0kTPT6t9UfRw+AhIWubVuUdyaVVRsrgdArV3MGadQc
+	 3nJiDL13WaMG1cQRwdFDR7x45Fe3j2af2e5X1yuRl/Rg/O2jdZvH0j8W6/ZdskmJxO
+	 iOmNd/Kc0LAeJ9Fx6FpcBfzXMwye4XWGoqM0lf5N1nYSPS3egjyCxf5R5JLy7iDPTK
+	 qOeWSJ326l8quh28D0PsJqNS+vZUkf5lula3qt8blzZg2v55FS9lzkVZ+ztQ08RyFV
+	 F6/CyB6vZtW3g==
+Message-ID: <sashiko-outbox-223232@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/4] input: keyboard: Enable compile-testing for
- KEYBOARD_ASUS_TRANSFORMER_EC
+Subject: Re: [PATCH 4/4] power: supply: Enable compile-testing for
+ BATTERY_ASUS_TRANSFORMER_EC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Geert Uytterhoeven" <geert+renesas@glider.be>
 Cc: mfd@lists.linux.dev, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <27990d37c1b7854d9d5f0d0a0f45193af4b9ec51.1795095742.git.geert+renesas@glider.be>
+In-Reply-To: <8258f896cccf3c27d3034a6eb9bb6f7becfbc1dc.1795095742.git.geert+renesas@glider.be>
 References: <cover.1795095742.git.geert+renesas@glider.be>
- <27990d37c1b7854d9d5f0d0a0f45193af4b9ec51.1795095742.git.geert+renesas@glider.be>
+ <8258f896cccf3c27d3034a6eb9bb6f7becfbc1dc.1795095742.git.geert+renesas@glider.be>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 13:57:39 +0000
+Date: Thu, 19 Nov 2026 13:59:57 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,39 +63,39 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Medium] Input: missing I2C dependency causes build failure in
-  asus_ec_keys_probe()
+- [Medium] power: supply: missing I2C dependency on
+  BATTERY_ASUS_TRANSFORMER_EC
 --
 
-commit fd9324a9324e26f4ff25ae83d8027b69e04951cd
+commit 08aa893cb21ca94a6803c481fce373ce94bd11f3
 Author: Geert Uytterhoeven <geert+renesas@glider.be>
 
-input: keyboard: Enable compile-testing for KEYBOARD_ASUS_TRANSFORMER_EC
+power: supply: Enable compile-testing for BATTERY_ASUS_TRANSFORMER_EC
 
-This commit relaxes the Kconfig dependency for
-KEYBOARD_ASUS_TRANSFORMER_EC to allow compile-testing when
-MFD_ASUS_TRANSFORMER_EC is disabled.
+This commit relaxes the MFD_ASUS_TRANSFORMER_EC dependency on
+BATTERY_ASUS_TRANSFORMER_EC when COMPILE_TEST is enabled.
 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kcon=
-fig
-> index 728bc068667e7..2709cff6d00bc 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -91,7 +91,7 @@ config KEYBOARD_APPLESPI
+> diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+> index 16d0a38b41b7e..ace0c4ae721ae 100644
+> --- a/drivers/power/supply/Kconfig
+> +++ b/drivers/power/supply/Kconfig
+> @@ -124,7 +124,7 @@ config BATTERY_CHAGALL
 > =20
->  config KEYBOARD_ASUS_TRANSFORMER_EC
->  	tristate "Asus Transformer's Mobile Dock multimedia keys"
+>  config BATTERY_ASUS_TRANSFORMER_EC
+>  	tristate "Asus Transformer's battery driver"
 > -	depends on MFD_ASUS_TRANSFORMER_EC
 > +	depends on MFD_ASUS_TRANSFORMER_EC || COMPILE_TEST
 
 [Severity: Medium]
-Does KEYBOARD_ASUS_TRANSFORMER_EC also need to depend on I2C?
+Does BATTERY_ASUS_TRANSFORMER_EC also need to depend on I2C?
 
-asus_ec_keys_probe() calls i2c_adapter_id(), which is only declared in
-include/linux/i2c.h when CONFIG_I2C is enabled and has no fallback stub.
-With COMPILE_TEST=3Dy and I2C=3Dn, building this driver fails with an
-implicit function declaration error.
+MFD_ASUS_TRANSFORMER_EC depends on I2C, so relaxing the dependency with
+"|| COMPILE_TEST" allows BATTERY_ASUS_TRANSFORMER_EC to be built with
+CONFIG_I2C=3Dn or built-in with CONFIG_I2C=3Dm.  Because
+asus_ec_battery_refresh() calls i2c_smbus_read_i2c_block_data(), which is
+only declared and built when CONFIG_I2C is enabled, those configurations
+fail to compile or link.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1795095742.gi=
-t.geert+renesas@glider.be?part=3D2
+t.geert+renesas@glider.be?part=3D4

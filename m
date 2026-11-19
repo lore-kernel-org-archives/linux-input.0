@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116566;
-	b=TwW2iLJlLry6ohwhJkl3EDu5sGoPfOhprKSaqA7b+0OI4hd5Qnd/I7mKZtrvmAn7/ALd
-	 FSjpgiG6mDq4J22WUgMVuN0f28JF6WyXuSOXFDc6VXT512F8roqEhpASmmo73onpYyqjT
-	 pHBfCzbokO0mM3/QHW+39fzm7e+0uk4QY1qrhUhzIQci48ihmwV/gCwDwcqh8SLTjYZ3R
-	 drDUM9RzcFLS6kDND7+r/CqEd1DJkVaL2NiZXL0EsRDcMGgRN+UC/1OighSiC5QBcYm+f
-	 cx2s1w7j8bGnn7OWv/3+mRxrbFvhhuWSzUDxIFpSmWED514gMPfnUW8GQyI11oQq2YQ==
+	t=1795116575;
+	b=Z39XSEbXEpyoQXEbZxOLCA0kg0lpdoobbmUitB/LTzrdWhTAHHzU+sMcRe9fGF8tfA9R
+	 pWPufA3dfqa/3F3UTmRzsMklRAblsMrZ7+XBkC7OmVPWsqB6D6fxcHMR1DgR/NHzQHOED
+	 umZuG9AWSpLgORy1vaN4rgXHXHX7QyCFwQ3q5drwCFoXnNECrE4qphBCAdhOaclzqOegg
+	 x5dPE122qszSTTn/AHgarLCI6fR67uxLSi12BbjUbWjpcsIuDyECBM3D8u1L8dBEhlBTk
+	 qsiPD309YlrSI4hCdFA8dG4z2pjuqNpBGJJT5MQV6tyWzGDfiF4inOK6/4xS02oTrrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116566;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795116575;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bSFIjcou7q/5pluyfRNFytgr8faDH7vbFq3ncru7Ndk=;
-	b=W86hTjEXBBRyGSY2rk/mNVLo5GDncogO9M2umGzafNxQ/lj6dPTOXqLIvMDR6kqRidDn
-	 LrySQIBxE2NddqCaqNVdVuO39DHolZO180zFnXC9nPpAFMS8oNfAxnjxVwqw++Pik9q7I
-	 7bPWQajdwteRXjIyW93SW+zrd4qRHnQObVeD9NaJNzO5HgqCkJLOyV7IHGck59a/JLO/x
-	 V9erdXU2SHjCtoEoOykmAXxZSAdHxhF989gIfMPDl0l8oaasljUJSiS6/d1XdXHi9K8EJ
-	 +lP4EBkXySn5m/JHb1Rk7G9XEmpjeIJ4N3vyX3TXZLkKybDPJTcyS0FsOkGqlxiDx1A==
+	bh=OqvWvWSEWOMAPcWD1E1yQ4+agcuuth8y8Vk9KOcS+2A=;
+	b=0SeswfS7JCrUkGORoNJXTFz+HzYqN47axbGzMwrlY8e+foiSGu4/f+KS/iuNdXA3fEd2
+	 Ev7ms8+Yl4ysCNC1U+rVEyu+NnkHGpgmfDBo46A2ih8kN8b50HxJTlIe8MocFjZiU+zy5
+	 uVXOGSd1pWvsar5xgSZW8bUnROtFd+n5921V57kvNj1ZxjXp9ArFLp6OE+kPYfdtuWvSv
+	 N2hyaWh0horuoeJyFlkBOTwerQciHRKAnxDGwa3WOL+bxi5w3PrMLGtXNPHvteM8xeIe8
+	 52oAX+C9znBjJLFwGs0i+UuHoq9MxrDRdtImVCXn0a/v/vFbyTCsKccE1wM21M3ywZA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YXkq2E+Y;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Ja/9MZey";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B31606A334;
-	Thu, 19 Nov 2026 19:29:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE42606A337;
+	Thu, 19 Nov 2026 19:29:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YXkq2E+Y
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682C71F000C5;
-	Thu, 19 Nov 2026 19:29:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ja/9MZey
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCCA1F000C8;
+	Thu, 19 Nov 2026 19:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795116565;
-	bh=bSFIjcou7q/5pluyfRNFytgr8faDH7vbFq3ncru7Ndk=;
+	s=k20260515; t=1795116575;
+	bh=OqvWvWSEWOMAPcWD1E1yQ4+agcuuth8y8Vk9KOcS+2A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YXkq2E+YcJWSSARzeI9915RltHnRALKDiCObhu+j7gXZqroLXQVfIBr8nS7+jUmsR
-	 XvTMXqGO1XyajFleZiBRt7jrukHm4fOqG2wqpc7d9m7diF/cmSSbGrOlEyPSGsc4Dg
-	 R8q+IoiHbKcKCLrT15DyPA0LRbJ1+F0HIDgAhn+xrVo+E7Xw+yn8qzmcCRbeHcRoTr
-	 zJFHkzcQNi2/K5SwDbY5OpsDjG2LHickIUN1nc4g6dHZus0TnVDHVNIsPDSYyRo7MF
-	 0kFGzzFzSRj0k6wxRf3mdmsnibNV0K2+GBLGsaBPrFYZmmGw2OhU4l0is0Z8/TIm1Z
-	 25BMT4hPUMW2A==
-Message-ID: <sashiko-outbox-223892@kernel.org>
+	b=Ja/9MZeycAsVNq703u3OfdACFlM7zE5N4LmYsA4qEp8JXoEoZNpvZfnqPE9nVFc0f
+	 h92yL3q+Z6hdu1HjgD6LTTCz9kDaTbhAWIseYlch7Kh6wG6XQZ86SDNhTbUW2mXIyZ
+	 OIUDZyy3buDT+uB1U/LkBu31xkJVEdX3xHHchu9lRKvyIdo7B5z7Z2Msbi+jCewnKR
+	 mrExvh3r2KuaHTnImlv9JOyzuG/Vp6cmWjjKI7VdK5bqcCAjVRUFA00GIHJ6PEwg2c
+	 o80UCH+o00i7p+NYVvTNis7+zqn0reLlQc3bt/0IiHw3GM2BjWMsPlA0w6m0bxeBKj
+	 CoqU6CGETRmOQ==
+Message-ID: <sashiko-outbox-223901@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 06/31] USB: Release interface claims according to
- binding state
+Subject: Re: [PATCH v3 15/31] driver core: Add a compatibility API for
+ manual driver attachment
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261118-device-trust-core-v3-6-d655875c4bfb@nvidia.com>
+In-Reply-To: <20261118-device-trust-core-v3-15-d655875c4bfb@nvidia.com>
 References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-6-d655875c4bfb@nvidia.com>
+ <20261118-device-trust-core-v3-15-d655875c4bfb@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 19:29:25 +0000
+Date: Thu, 19 Nov 2026 19:29:34 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,130 +61,92 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] usb: core: pre-claimed interface with autoprobe off crashes
-  on core unbind
-- [Medium] usb: core: NULL dereference in usb_driver_release_interface()
-  when driver is NULL
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] driver core: dev->p dereferenced before dev_ready_to_probe()
+  check
 --
 
-commit 03347cb54cf6030265378e68aba157a23982255b
+commit 25b9e856ab045cdfdef1969512d8e94dbd1559f4
 Author: Leon Romanovsky <leon@kernel.org>
 
-USB: Release interface claims according to binding state
+driver core: Add a compatibility API for manual driver attachment
 
-This commit updates usb_driver_release_interface() to check
-device_is_bound() instead of device_is_registered() before releasing an
-interface through the driver core, and holds the device lock while
-checking and unbinding unclaimed interfaces.
+This commit adds device_driver_attach_unrestricted() and a per-device
+driver_lock mutex to serialize manual driver attachment, probing, removal,
+and deletion without requiring callers to hold the device mutex.
 
-> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> index 735ae3310b45d..926f63cd2c834 100644
-> --- a/drivers/usb/core/driver.c
-> +++ b/drivers/usb/core/driver.c
-> @@ -612,6 +612,15 @@ int usb_driver_claim_interface(struct usb_driver *dr=
-iver,
->  }
->  EXPORT_SYMBOL_GPL(usb_driver_claim_interface);
-> =20
-> +static void usb_unbind_claim(struct usb_interface *iface)
-> +{
-> +	struct device *dev =3D &iface->dev;
-> +
-> +	usb_unbind_interface(dev);
-> +	dev_set_drvdata(dev, NULL);
-> +	dev->driver =3D NULL;
-> +}
-> +
->  /**
->   * usb_driver_release_interface - unbind a driver from an interface
->   * @driver: the driver to be unbound
-> @@ -631,27 +640,25 @@ void usb_driver_release_interface(struct usb_driver=
- *driver,
+> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+> index 52123251965de..6ac1486b9fbb5 100644
+> --- a/drivers/base/dd.c
+> +++ b/drivers/base/dd.c
+[ ... ]
+> @@ -545,16 +560,85 @@ int device_bind_driver(struct device *dev)
 >  {
->  	struct device *dev =3D &iface->dev;
+>  	int ret;
 > =20
-> -	/* this should never happen, don't release something that's not ours */
-> -	if (!dev->driver || dev->driver !=3D &driver->driver)
-> -		return;
-> -
-> -	/* don't release from within disconnect() */
-> +	/* Avoid recursive locking from disconnect(). */
->  	if (iface->condition !=3D USB_INTERFACE_BOUND)
->  		return;
+> -	ret =3D driver_sysfs_add(dev);
+> -	if (!ret) {
+> -		device_links_force_bind(dev);
+> -		driver_bound(dev);
+> +	mutex_lock(&dev->p->driver_lock);
+> +	ret =3D __device_bind_driver(dev);
+> +	mutex_unlock(&dev->p->driver_lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(device_bind_driver);
 > +
-> +	device_lock(dev);
-> +	if (dev->driver !=3D &driver->driver ||
-> +	    iface->condition !=3D USB_INTERFACE_BOUND)
+[ ... ]
+> +int device_driver_attach_unrestricted(const struct device_driver *drv,
+> +				      struct device *dev)
+> +{
+> +	int ret;
+> +
+> +	if (!device_is_registered(dev))
+> +		return -ENODEV;
+> +	if (!mutex_trylock(&dev->p->driver_lock))
+> +		return -EBUSY;
+> +	if (dev->p->dead) {
+> +		ret =3D -ENODEV;
 > +		goto unlock;
+> +	}
+> +	if (!dev_ready_to_probe(dev)) {
+> +		ret =3D -EAGAIN;
+> +		goto unlock;
+> +	}
 
 [Severity: Medium]
-Can dropping the !dev->driver check cause a NULL pointer dereference in
-usb_unbind_interface()?
+Can device_driver_attach_unrestricted() and device_bind_driver() hit a
+use-after-free or NULL pointer dereference on dev->p when device_add()
+fails?
 
-When intf->dev.driver is NULL, usb_forced_unbind_intf() passes driver =3D
-to_usb_driver(NULL), whose &driver->driver member address evaluates back
-to NULL, making dev->driver !=3D &driver->driver false.  If an interface is
-claimed before registration and registered while drivers_autoprobe is
-disabled, device_add() succeeds with iface->condition =3D=3D
-USB_INTERFACE_BOUND and device_is_bound(dev) =3D=3D false (so the unwind in=
- a
-later commit "USB: Unwind interface claims after registration or binding
-failure" does not run); if a subsequent __device_attach() fails in
-device_bind_driver(), it clears dev->driver to NULL while leaving
-iface->condition as USB_INTERFACE_BOUND.  Calling
-usb_deauthorize_interface() -> usb_forced_unbind_intf() on that interface
-then passes the guard and dereferences to_usb_driver(NULL) in
-usb_unbind_claim() -> usb_unbind_interface().
+In device_add(), kobject_add() sets dev->kobj.state_in_sysfs before the
+remaining fallible registration steps run, while dev_set_ready_to_probe()
+is only called after all of those steps succeed.  If any step in between
+fails, device_add() unwinds through name_error and frees dev->p without
+taking dev->p->driver_lock:
 
->  	iface->condition =3D USB_INTERFACE_UNBINDING;
-> =20
-> -	/* Release via the driver core only if the interface
-> -	 * has already been registered
-> -	 */
-> -	if (device_is_registered(dev)) {
-> -		device_release_driver(dev);
-> -	} else {
-> -		device_lock(dev);
-> -		usb_unbind_interface(dev);
-> -		dev_set_drvdata(dev, NULL);
-> -		dev->driver =3D NULL;
-> +	if (device_is_bound(dev)) {
->  		device_unlock(dev);
-> +		device_release_driver(dev);
-> +		return;
->  	}
-> +
-> +	usb_unbind_claim(iface);
-> +unlock:
-> +	device_unlock(dev);
->  }
->  EXPORT_SYMBOL_GPL(usb_driver_release_interface);
+CPU0                                  CPU1
+device_add(dev)
+  kobject_add(&dev->kobj, ...)
+  ...
+                                      device_driver_attach_unrestricted()
+                                        device_is_registered(dev) -> true
+  dpm_sysfs_add(dev) -> fails
+  ...
+  kobject_del(&dev->kobj)
+  kfree(dev->p)
+  dev->p =3D NULL
+                                        mutex_trylock(&dev->p->driver_lock)
+                                          <-- use-after-free / NULL deref
 
-[Severity: Medium]
-What happens if a pre-claimed sibling interface registered with
-drivers_autoprobe disabled is detached through the driver core rather
-than usb_driver_release_interface()?
-
-When device_add() registers a pre-claimed interface while
-sp->drivers_autoprobe is 0, device_initial_probe() skips
-__device_attach(), leaving the interface registered on the bus with
-dev->driver set and dev->p->knode_driver unattached (which the later
-commit "USB: Unwind interface claims after registration or binding
-failure" does not unwind because device_add() returns 0 and dev->driver
-is non-NULL).  If that sibling interface is then unbound directly via
-sysfs unbind_store() -> device_driver_detach() ->
-__device_release_driver(), or removed by usb_disable_device() ->
-device_del() for drivers such as snd-usb-audio that do not call
-usb_driver_release_interface() in disconnect(), __device_release_driver()
-sees dev->driver !=3D NULL and calls klist_remove(&dev->p->knode_driver) on
-the unattached node, causing a NULL pointer dereference.  For drivers
-that do not call usb_driver_release_interface() on disconnect,
-driver_unregister() -> driver_detach() also misses the interface because
-it is not on drv->p->klist_devices, leaving dev->driver as a dangling
-pointer after module unload.
+Unlike waiting_for_supplier_show() in this commit, which checks
+dev_ready_to_probe(dev) (stored in dev->flags) before reading
+dev->p->dead, device_driver_attach_unrestricted() touches
+dev->p->driver_lock and dev->p->dead before checking
+dev_ready_to_probe(dev).  device_bind_driver() similarly locks
+dev->p->driver_lock without checking dev->p or dev_ready_to_probe(dev).
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118-device-tru=
-st-core-v3-0-d655875c4bfb@nvidia.com?part=3D6
+st-core-v3-0-d655875c4bfb@nvidia.com?part=3D15

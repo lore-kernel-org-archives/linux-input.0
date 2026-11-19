@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795121034;
-	b=Osnei4bWjFLcfsf7XDxCf+AkROA+NC2o5bUiMs0ktMIuQrlk4Kpk9pV5XI91wuso+uVi
-	 rpU7BV0M/frc09opo0wFC+Va5ybKngZR2t9j+7jqkXFRpgOuz0g44moGm0A10v3orkFK8
-	 Tvjp2dTk4X5ObghtcpML3/d/e7yhxfBv9Lub/lVKQ2XO2JshLFXfpPQWGqaTbpDEVx6IN
-	 lkL+VhdTQjKqyBULCuOrmeSPuXg8gAgr5Y+54KDQpAp/b+2JzQzCSXKJyXtEbh/5/5BaZ
-	 YJ9Ee/5kKd7KPnuegU0KDro55YJcnlr1eyT7H1SPtBia4gypC5sCLm4RGyxywLM1EtQ==
+	t=1795121123;
+	b=jE0u2DHqQvub1S26Q59rpBUgi2HLp1A2bqjjlrb079HcQ/PxQO+hhvcNhw8upuUYB4ga
+	 VomTinyssWNlQkHfVKUVvQnZpsUfS9OwL1iL69pMNJynhDX5K45nA+QRLqOCExQSUBu6r
+	 cUJfuQF5y8xrUyG2YN/5wE5zCeZ/yv84rMfsxst0pWx+zN3xZuYPekyEh2ojk++mcJ7SB
+	 iFIyEnvIlYLde2MzYbtux/EZ9ImT+P8SF6ntdCxhTXRWYjUJ8RwSmJpl6ypz7FaEU9CGY
+	 8aLwhhOU/Awy15pUDCnqQujzzs1GV+k6stKFfh3JMJ/sK5eaJF1XTk9fmt2erGp4SQg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795121034;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795121123;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=5FuGWnpoRnGfJUPP95+vbL5XVs0jYD6RpmDm3Ay3n3I=;
-	b=NrrlyCU1aYGKnSo7oHtaj6yUHHkSezoVZ/ZAeUPK0ZRFrqo7u2LkdLNgBce6v56I1qpm
-	 TudA1f6QU68q4pOu1goBb3cDUyzxm5rt+To+L4K4D+GH5XotA391scZHBx3VaJsLEjwsp
-	 pr/Kloco/kua1az/QdmVxvZzvV2ZwEXJrK4Sp12+d03cSiRVg+nzrRFkB/dEGPg0W2DNn
-	 4toCh11uTeNu1gMawcWEA65cNJZ9XObE0ZO2Xn0n+27eD4y0DxbjVYmHS/PUDXHytid/W
-	 qtAjUM36GVfR45tABcujeUivx2YxhR0ywhet8x1xE4FQxtW1gCxq0NKKngxQSi1L4PA==
+	bh=l7oadj4+9cMi0OE++QXqn4KnYvdl249G4HJYosXQ9E8=;
+	b=HvH5HYV5dKX3E0B6TVtMobnZN/yYyxpZTFM+ORXXz3CR1F8dVHC6ulT8NSGCbMAiZIOS
+	 kjojii1CssCpbPZKksRjrsIBczAl6wNXowAp1OvMR5I68QQlcIZgHM0MJDnym3w/Zn3bu
+	 o+5NRRQ7L2OGePox6gf/Yo8G7K3Bouy6GmYyMyxcOWiogcLR0S7mrLqe+AhSIG9LVYWfe
+	 qfxj5ZKdYObxkCO3yuQf8MtSRey7o9YObT7XARghYJIIubeqnk1kasQdrweH0SuaS5OqI
+	 OZ2V+2WNaTI4ronGvo832BOr80SEwbLE8zsjdLAT8N4gYezWVOm22DDeRWXcGtrMJfQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jFBRAhnY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aaCbcSi7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6BE606BB80;
-	Thu, 19 Nov 2026 20:43:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BBC8606BBAD;
+	Thu, 19 Nov 2026 20:45:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jFBRAhnY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9AF71F000C0;
-	Thu, 19 Nov 2026 20:43:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aaCbcSi7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B401F000C0;
+	Thu, 19 Nov 2026 20:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795121034;
-	bh=5FuGWnpoRnGfJUPP95+vbL5XVs0jYD6RpmDm3Ay3n3I=;
+	s=k20260515; t=1795121123;
+	bh=l7oadj4+9cMi0OE++QXqn4KnYvdl249G4HJYosXQ9E8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=jFBRAhnYENrURvD8F7EwBKzD5YEBanB30Si908P1ro7xGIL7NvfGXP7lkwgaJtry5
-	 gfAkClH/QQ/ID5F9oBvYRpnzEzkeq7iZqdm8MAAbA9NOjkIIbwjK6/j2UbnEHok4CY
-	 i4OrGED4Yz7K3Io6bx9rmu1Carz53pIeqdRvbI+WkGGjEuGFYg/Jh7Xzs7EfzDEZbO
-	 nvzhDuufOQQLvPX4q+0/gGaHXcz+ggIxDnreo1IfSprP3Aen0DSEMiYuN7EHkjoog8
-	 N0glqOkvhUZQp+AKyd3NdxVE0iRtsxQT0Su8HiAoz5kIPyfKpJa2GnFFtstu2jOIvD
-	 mes136M1B7TKg==
-Date: Thu, 19 Nov 2026 21:43:51 +0100 (CET)
+	b=aaCbcSi7O6X6LRq1BFe/wsSCIG/6ne+00afVygLXzowJlubrGnYWD7QGUXMRZZ7RX
+	 4WPvkzKREtIcVzBMcZEnedeBwUxaxdXSbML5Iw/d4j2MqdUVcNU4C+4AUgPo2vYwhl
+	 muATMK6UisCII7wfv0YZy3Xa4ixrHNF6fvQA1TcX/c2/Phn1/74OyDdHTv8/Z+6gzT
+	 cIjFPGLjoQTYv3jkRrxDVClgOi58lxfrDG35JwX9UHVkQVaNFcgk7dpRZH98ocudTf
+	 K93CvAGBk/YA0Wc6/TywfQJZokMfS4G8ZQqKjBS3MiIqQUk6TuJ2RssTNCzd5pwQvU
+	 PWUNYqwDGkp0A==
+Date: Thu, 19 Nov 2026 21:45:20 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Helge Deller <deller@gmx.de>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Aveline Noir <jm5905938@gmail.com>, linux-input@vger.kernel.org, 
-    linux-fbdev@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] HID: picolcd: Avoid framebuffer last-close
- deadlock
-In-Reply-To: <f52cd9ed-4e23-4160-b305-650d853bc18b@gmx.de>
-Message-ID: <5pr05248-751q-224s-2876-pp5599q5o985@xreary.bet>
-References: <CANOyQmGfmBdTRaEamVdGuMBToVLeXGi6qLrnX=xkA9acsL9TSQ@mail.gmail.com> <CANOyQmHF-gjvnLqTGEVBcU6+AWj5ha+7tJhE2E_Cv9aj-gRXdA@mail.gmail.com> <76cddcc5-2cf8-40da-9139-e78353975e41@gmx.de> <179308935900.645289.17780178981863221787@gmail.com>
- <f52cd9ed-4e23-4160-b305-650d853bc18b@gmx.de>
+To: Waqar Gulzar <iamwaqargulzar@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid-acpi: restore touchscreen IRQ routing on
+ HP OmniBook X Flip 16
+In-Reply-To: <20260930-b4-elan2514-irq-route-v1-1-44671bf01d05@gmail.com>
+Message-ID: <75148n0r-r943-9304-n194-r66rnnq660s5@xreary.bet>
+References: <20260930-b4-elan2514-irq-route-v1-1-44671bf01d05@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,15 +61,56 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 18 Nov 2026, Helge Deller wrote:
+On Wed, 30 Sep 2026, Waqar Gulzar via B4 Relay wrote:
 
-> Jiri & Benjamin, can you check and decide on patch #1 of this series ?
+> From: Waqar Gulzar <iamwaqargulzar@gmail.com>
+> 
+> On the HP OmniBook X Flip 16 the ELAN2514 touchscreen interrupt is a
+> GPIO pad (GPP_E_18) routed directly to the IO-APIC. The firmware's
+> touchscreen power resource does
+> 
+>     PTPL._ON:  \_SB.SGRA (TPI2, TPIP)        // TPIP = T0IP = 0
+>     PTPL._OFF: \_SB.SGRA (TPI2, TPIP ^ 1)
+> 
+> while the device's _INI enables routing with SGRA (GPLI, T0IP ^ 1).
+> So _ON clears PADCFG0.GPIROUTIOXAPIC and disconnects the pad from the
+> IO-APIC. Linux evaluates _ON at probe and on every D3->D0 transition
+> (Windows apparently does not while _STA already reports the resource
+> on), after which the level-triggered IRQ never deasserts:
+> 
+>   - ~630 interrupts/s while idle, nearly every read returns 0xffff
+>   - frames shifted by a leading 0xff, "incomplete report (67/7167)"
+>   - stylus reports arrive at ~25 Hz instead of the native ~268 Hz
+>   - touch stalls and false stylus proximity
+> 
+> Re-enable the routing through the firmware's own \_SB.SGRA helper from
+> the power_up hook, which runs at probe and on resume before the HID
+> reset.
+> 
+> Tested on board 8DA1 (BIOS F.20): idle interrupts drop from ~630/s to
+> 0 after boot and after s2idle resume, and pen and touch behave as on
+> Windows. Board 8DA0 is the other board ID of this model and is reported
+> to have the same firmware code, so it is included, but it has not been
+> tested because I do not have access to one.
+> 
+> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2142384
+> Link: https://github.com/testyfishy/hp-omnibook-flip16-touchscreen-fix
+> Link: https://github.com/iamwaqargulzar/hp-omnibook-x-flip-16-linux-touchscreen-pen-fix
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Waqar Gulzar <iamwaqargulzar@gmail.com>
+> ---
+> The HP OmniBook X Flip 16 firmware disconnects the ELAN2514 touchscreen
+> interrupt from the IO-APIC in its power resource _ON method, which Linux
+> runs at probe and resume. This patch re-enables the routing through the
+> firmware's own helper from i2c-hid-acpi's power_up hook.
+> 
+> Tested on board 8DA1 with BIOS F.20 on Linux 7.2.8, including s2idle
+> resume. The 8DA0 entry is untested (I do not have that board).
+> 
+> Full analysis, ACPI excerpts, and Windows/Linux traces:
+> https://github.com/iamwaqargulzar/hp-omnibook-x-flip-16-linux-touchscreen-pen-fix
 
-The patch is line-wrapped / whitespace damaged and can't be applied.
-
-Aveline, could you please fix that on your side and resend?
-
-Thanks,
+Applied to hid.git#for-7.4/upstream-fixes, sorry for the delay.
 
 -- 
 Jiri Kosina

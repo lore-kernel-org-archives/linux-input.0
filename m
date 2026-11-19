@@ -1,55 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795123123;
-	b=PW7AsrDeBAJ5dY0NWJ9cHKcwuwmxUrErm/nVgMTjTQob2xhNdPusJUWGlTwJ89T1BOZJ
-	 z54LxnNpk0b4mdUPwuxbQ6mMlWOljLe9m6AJg2n6nC6s9qv01YUmI00wTcvg7EYrjW0p6
-	 xZqD3p5h+peWZvXYgfivTn8tw8cxGH6ElJ0PMOCQpB5rkAlPw3R8zNuR8JiIj4Btt+N2I
-	 oIPSlOQIhVu/tYqAjg/TIMT3oM3JBxJBFS6FM6t/hx9McIA/vR110+UZ1sE+cb62J4uBc
-	 Bk9cf3Wz3pFaoGU8dZWub3g+HslF4B7t+vJa57aZMS/HUjG/uHsVy/IG6678mJYktbQ==
+	t=1795123212;
+	b=Q9WCdblQlRp9HT9V5IUp/Lh1wiZ3xvMKO4Wx+7JBwBKhC3hioY1W2iWmg87+zfl50NAM
+	 X+zHJzKBinZIJeaDyEGgvzsZOV1CWSCZQba5o/HY6Qj3Yl8Sm+0A4/LkfLvjRyG63Ukfp
+	 wo9toceyIGeUj2yoL4vkd9kWsdfmEh5N5wzJg6UV2ajV1OWSeoll/NUWf59xvSBqktYs1
+	 ANTW7LjoAnTbyaxheOONthjj+0eZCiaxFLAD5OoZmXVR/CTMDViilTWki8Sahs/i2voyV
+	 huRiZ4jY46eGhUoORJtV8IQ1wIUIy7axy0B2Es4YcD+XhUOz7/CgHxq629lFOg3evQg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795123123;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795123212;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=iXjT8T9D7Psk8Z0Vh6qia3U6KALhVtnGfEy3t/WSrh4=;
-	b=ecGZ8R9dG41Cq7uU5hzNcv72yVRbJLdKqACvAWG8vLhIrmxtGuYnounWyx/P/s9O3L/u
-	 Tq0WNDwcd3XBlezGi0b+HLRjaxH65jA7Y0K3M+MuK0ChqFeYN1f7phFkUzsxLN1efzpil
-	 51IU8K2Bt88oDQI01Vneu/YMBtC9Wl/HxxR7ShU9jV66KR96HjFfqCizV0pFr1IZXZxpN
-	 p/NslKGBDMULdHQNvDaLwxmILkSKFHPqbfICcaDq/pSRyQkSBoso3/LC0+okLCl+79MJp
-	 XSlCnN6LPzVXz3SXmawDj74PBTgTweWhqa8o+ozI5TdNRXaLA+L07Hse2aHx14/d5TA==
+	bh=Gw66a+sDjwft2wN1oLoRvyKrQ7uIrA0DLzOo7L2rtYM=;
+	b=JDHojYW9fwf/bqZWAZGGXj/pUrs5L9cPpqVHtGCD0jcmNagA+yQ09mfLDcy4Mil4pG2m
+	 /ECukQajifFpQapoEUSohY2DneGRm/vjZEFi0t0kfo2OsqHU5Om9QpnmOvxUU6Dq2glHP
+	 4DP2uzBXlzP+A9jYhopM6rvD0dTb1YH21Luq7KM/ai0Im33ARfv7fWfvQFAA4UQhl66Wy
+	 d5gENqU3t0F/S0m0FUWcXksJrwHHCBsM31gyUuiijA5uFtHt/PgVjYjJlj+UMcOXOrfNq
+	 KtD6sAYWUPTwwipwCmJyCHQjqp2/hLSMHmucqLzg08NRY3lNQhBGwgYCrTGIQ8DJd4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JyKIbkvH;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EhUlT94y;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA10E606A320;
-	Thu, 19 Nov 2026 21:18:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9D60606A331;
+	Thu, 19 Nov 2026 21:20:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JyKIbkvH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AEE71F000C4;
-	Thu, 19 Nov 2026 21:18:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EhUlT94y
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C19C1F000CF;
+	Thu, 19 Nov 2026 21:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795123123;
-	bh=iXjT8T9D7Psk8Z0Vh6qia3U6KALhVtnGfEy3t/WSrh4=;
+	s=k20260515; t=1795123211;
+	bh=Gw66a+sDjwft2wN1oLoRvyKrQ7uIrA0DLzOo7L2rtYM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=JyKIbkvHO6+P54ZYRrmOboxzSBv94S/8qMohdaOfzdJf1nAsEL0ngDCUmamzh5lPt
-	 rq2xC0YjMAezh6VAJSVuzkXgU6JgVHVJbR8pgin+dmBaf5p3AP809J5RYCv1jpV/l/
-	 P513e8JcJxJ5TfE87wzAXRSgRt4K0GLJEKi0M85unVdftXy+9vdn8Fb1kBYarpRzuo
-	 HLkTEghBlwMeKH83aDitrm3mvqhprVgS/Qjh0uNLIjHRRkUQ7JlN7ECirvRnntr5bA
-	 mRFmcTpIspRtYhJgrjkJVXR/XOXUW/6S3cAJyja3f94NsQdDbdUdqQwIg+qRYnONXn
-	 nJuJPSua+QJAw==
-Date: Thu, 19 Nov 2026 22:18:38 +0100 (CET)
+	b=EhUlT94yadxrApewXhCXRtGvEnmxipK+gltSFknFfkRDDwfefdhBPbu99KY309zvQ
+	 M4PJ7VEY7X5qqE/9dRIgllHT6V1/xnPebaDil0X14sE6mzW37X+fgZhRlkuxML2Bc5
+	 RZgyfcMrSJza0OugANCalrXHWTslDd/6/jhwTom/ZjhKDB6LxtCM4SB3XXEYe3Oiic
+	 8u8AT4cS5A87xoJbOuo/OJmYSuQKkfCMA6bvlCghadldxiG5nvApDSb4y7P77jGLnh
+	 MFR8DmbEPscTHRzeP3hPeb1FeAT/nuJdCj0zC5Zv1BwrDGy+6OedMkpnBESaOQ9BM+
+	 YDdkOVcaBAZmA==
+Date: Thu, 19 Nov 2026 22:20:07 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Even Xu <even.xu@intel.com>
-cc: bentiss@kernel.org, srinivas.pandruvada@linux.intel.com, 
+To: Myeonghun Pak <mhun512@gmail.com>
+cc: even.xu@intel.com, xinpeng.sun@intel.com, bentiss@kernel.org, 
+    srinivas.pandruvada@linux.intel.com, mpearson-lenovo@squebb.ca, 
     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    Rui Zhang <rui1.zhang@intel.com>
-Subject: Re: [PATCH 1/4] HID: Intel-thc-hid: Intel-thc: Add safe DMA read
- interfaces
-In-Reply-To: <20261116082805.3986615-2-even.xu@intel.com>
-Message-ID: <snqq816n-8167-q00n-65q1-69p49ro39648@xreary.bet>
-References: <20261116082805.3986615-1-even.xu@intel.com> <20261116082805.3986615-2-even.xu@intel.com>
+    ae878000@gmail.com
+Subject: Re: [PATCH v3 0/2] HID: intel-thc-hid: quiesce IRQs during
+ teardown
+In-Reply-To: <20261112T063704Z-thc-v3-0-mhun512@gmail.com>
+Message-ID: <76s03s4o-r7o0-r450-1n59-3nrs508o9452@xreary.bet>
+References: <20261112T063704Z-thc-v3-0-mhun512@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,24 +62,23 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 16 Nov 2026, Even Xu wrote:
+On Thu, 12 Nov 2026, Myeonghun Pak wrote:
 
-> THC DMA buffers are rounded up to a 4 KB boundary, but callers may
-> allocate smaller receive buffers. Checking a frame against the DMA
-> capacity alone does not protect the destination when do DMA buffer
-> copying.
+> This resends v2 with the probe cleanup formatting requested by Even.
+> There are no functional changes from v2.
 > 
-> Add thc_rxdma_read_safe() and thc_swdma_read_safe() with an explicit
-> destination capacity to check both the DMA capacity and the supplied
-> size before copying.
+> Changes in v3:
+> - Add blank lines in the probe error paths of both drivers (Even).
 > 
-> Keep the original interfaces as compatibility wrappers.
+> v2: https://lore.kernel.org/all/20261109-thc-rebase-v2-0-mhun512@gmail.com/
 > 
-> Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
-> Signed-off-by: Even Xu <even.xu@intel.com>
-> Tested-by: Rui Zhang <rui1.zhang@intel.com>
+> No hardware testing.
+> 
+> Myeonghun Pak (2):
+>   HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
+>   HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
 
-I have applied the series, thanks.
+Applied, thanks.
 
 -- 
 Jiri Kosina

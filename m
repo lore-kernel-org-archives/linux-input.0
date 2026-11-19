@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795120112;
-	b=r+Sx6ow7hkDkQqQMKo9a+x1aQtvGQx7aEI5eyZbZr52NBAlykRior3GUAGr694bCpWCl
-	 axU/evaj6PbHsub1mfFfFTx594IgaAjps3o1eedjXM5LzZiiTN97bdf5pslCKxzYLqAfM
-	 tOLk246ALVgpn1DGEPly8Kw40RbrrSwuiFXyNu1ZFGSPVddJEpO5H9n8/iDZMtV6PWAAW
-	 hTYwy6XqleeHSVVmvFcViMVOthTGULrZPaOAvb30/3wqbln8uHDWQg9wFYYDpNxA84YZ/
-	 ZkBvYDPEgleZPXZh13Dv16T/VbaMjcOqJo7Y9OEs4kTMO1KEdog8hNJ7WaZrWN+tTVA==
+	t=1795120180;
+	b=hK74djq9qTm5xpSu17qh3QFxjQsOP//Uj3HIyeRxUm41bIo1jhZR/sAwFRalJLvya/F5
+	 vLbDtHaMCc81lHGBkmLGi7LuceL3JlKNb6h2hd8eJLmQVtmSY3mmHTHeCLt90WENI7VEl
+	 QvW0KAxIUlpNYZq1bK2tSU7MKWA8GgO3IQ3xe7anB7Gv/P3RmT5sVHE4SwKd4si/4NvDR
+	 14XXL0knmpdT77dmPpQfIudB3g1DFDrRI9EWr6rW88DAF0QsIIeaW5KMIC5b/gKn9QvYj
+	 SSBRTnqyFwBcs+BtmGOnK8iOjVUiY8pc69OS0OU9UQFZ5riVO0i/SEYWSk2yXiV/o3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795120112;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795120180;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=LOXZwmai/ssHeC9/gnNk0xobJMHfMZCT7eqtQHAHiDQ=;
-	b=zQc48w3yDdZEc+1Lr94WLkWxRpQGdXIS40dmVijj+DdkCmZazdDW1U+RZPDDQHisBUn7
-	 WFVrN1UfVjLmFHWAYCeE8Hhmjz0SCijEgr9ATzp+DQ75oWYQLUGkCtFSqUunDueyxxdNm
-	 yXbXyGWMNc1evhB61DOYCwYATIbrpihsoMhMs/f4LxA/JCJM6ZDv0MNL+mDOxYPLRQuhS
-	 bDca13LBZKWXMflMOy/IMg9yi7wLrq4jHzUytZNi9XYLbZvFcBPcX8tyAwPioF0jJiEHq
-	 PoYDrzv+TELzO2IlogWHbdfvfjmjeAKUqbUJv9U/Rj4ji6OoSY+/0VDCOxzgIRu28dg==
+	bh=b0aB0kDkAjljsdIK2fVRymh9YLiC8tp59+fkLfxIXnQ=;
+	b=4UqpFcKyBhxSn8kkmJs6gDPtU+OGdGObFi7CbM6E8MEvAmrXJrm84SmWSaB08RTDKEzu
+	 LD6fTifqqhwOUqt2A+awyNxqjS1y8PM+UmQV4ZFoF1mBxGsVUugqOKNwqitiz5Z5quPln
+	 G/LYR/n+NoFCSxDyH3l52eBteKwP1bBIfykPrcmlqGKHG/6DU8rkLhjFzjO7281ziRz7g
+	 Ytf6/u0Nm9AEDUJ0qHeeFuvEYWWOeycX4EaEeqX73dSWeu0ssuEu/0U1Q+YG7LQg+AJEV
+	 /T+Z4IYE2MdcOYzRiMxBMeacqSZF4uNVeCOU/40dX1D28gZz5xuiq1bbteEBKytCkPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=czdSkdMu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hijN1RQW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F30E606A325;
-	Thu, 19 Nov 2026 20:28:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38FF7606A33D
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 20:29:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=czdSkdMu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE6A1F000C4;
-	Thu, 19 Nov 2026 20:28:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hijN1RQW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427C81F000C0;
+	Thu, 19 Nov 2026 20:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795120112;
-	bh=LOXZwmai/ssHeC9/gnNk0xobJMHfMZCT7eqtQHAHiDQ=;
+	s=k20260515; t=1795120179;
+	bh=b0aB0kDkAjljsdIK2fVRymh9YLiC8tp59+fkLfxIXnQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=czdSkdMumOAdJiBcJ7Y//KyBXaon88F+FcUreMAOR+nxjBkY3cl43+mWBcOTdMaK+
-	 AAPXhfjPcZXTenau7cAjl7Z5qNFg5Yjyu1MPacihWKFbPPPdQputz6FKSpHa9ZdQNT
-	 TkBVOF04rqgWT7AIeXHHRTVLc7KnylxRJ1aJxQr6mhe5doZRxcQmqG1UyKqRk3xiSY
-	 qjUH3RKyXZo1LYkvD3eq2sOvT/+HgQhiTWHh32spCf1kspzZNBLg+P4Rl5hcighoFw
-	 fEX3Mx+ChbXfULnfJS/PtUI7jY/DkWiuZCj14stdE8dn1gJ0P3XenMaksbLB/Lk76i
-	 fjYCYGEEriAxA==
-Date: Thu, 19 Nov 2026 21:28:29 +0100 (CET)
+	b=hijN1RQWTmyqSnYQ+F0SSMJxChrfdzcqkWTDxDkAYmFCyeYw9+31xIGmB+JudU5sV
+	 QvjBbT10Y6+P4J3LDO5F8JgG3sW/hPSmvGFIEU70hBCanVOMrpqAV/MKmyb98w0osN
+	 wFE35/rF+pfENis6U6TeHhh2TUnnGWUyGWgOQLtqf8tgq5SFRPxoXL1W5g0YDV+fpP
+	 fZzeA00fKQvOCRMzPjuivIvDCk8yzAahHfx4SvXR53KMM5ZBDlSl4kNtq5bZGWttPZ
+	 JWswff0Z9ezwjkig4QzwxHCzKocdbbz+IwxP9AmmTW/wCDM4oawe9EN7ylhESu8s3N
+	 u4qgrgemwzOPQ==
+Date: Thu, 19 Nov 2026 21:29:37 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Myeonghun Pak <mhun512@gmail.com>
+To: Vicki Pfau <vi@endrift.com>
 cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, Ijae Kim <ae878000@gmail.com>
-Subject: Re: [PATCH] HID: magicmouse: disable the multitouch work on
- removal
-In-Reply-To: <20261110043001.56615-1-mhun512@gmail.com>
-Message-ID: <83r51qpp-968s-6pp7-682s-5n7po8q443p1@xreary.bet>
-References: <20261110043001.56615-1-mhun512@gmail.com>
+    Sashiko <sashiko-bot@kernel.org>
+Subject: Re: [PATCH v2 1/3] HID: nintendo-switch2-usb: Fix potential deadlock
+ on teardown
+In-Reply-To: <20261111065001.3626071-1-vi@endrift.com>
+Message-ID: <524372r8-q2qs-ns3n-0r09-o6p6qrsn87r3@xreary.bet>
+References: <20261111065001.3626071-1-vi@endrift.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,25 +60,19 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 9 Nov 2026, Myeonghun Pak wrote:
+On Tue, 10 Nov 2026, Vicki Pfau wrote:
 
-> During USB runtime reset-resume, usbhid can call magicmouse_reset_resume()
-> without serialization against HID driver unbind. The USB interface
-> remains bound to usbhid, so this callback can queue msc->work after
-> magicmouse_remove() cancels it. The delayed work can then run after
-> devres frees msc.
+> As reported by Sashiko, there is a narrow window in which cancel_work_sync
+> on the message in work can block due to the work waiting on the mutex that
+> the canceling thread holds. By moving the pointer clearing and unlocking
+> the mutex before calling cfg->shutdown we can avoid this deadlock.
 > 
-> Use disable_delayed_work_sync() to drain the work and reject later
-> queueing. Probe initializes fresh work on rebind.
-> 
-> Found by a static analysis tool under development.
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Link: https://sashiko.dev/#/patchset/20261006061619.2005967-1-vi%40endrift.com?part=1
+> Fixes: 9417132df63e ("HID: nintendo: Add preliminary Switch 2 controller driver")
+> Signed-off-by: Vicki Pfau <vi@endrift.com>
 
-Applied to hid.git#for-7.4/upstream-fixes, thanks.
-
-[ ... snip ... ]
-> base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
-
-This is bogus.
+The series applied to hid.git#for-7.4/upstream-fixes, thanks.
 
 -- 
 Jiri Kosina

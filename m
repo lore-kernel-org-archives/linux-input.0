@@ -1,98 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116060;
-	b=mrNW3QzoQ50bdHerOokLPkKGhb8a/Sbc6SEvOhvrascfE9IUARJ6KvTLzmD2afxm1Dor
-	 xEWuV0Owo5UeTCNG+rghqsZJlKM7Xeb9haz8iBWausRN5W1ImCeriICIdiSrrTYvYUgXH
-	 /+NfihmQM8C42CdqMP7OzlvVVP+SEsQnewXpkpdf54eeq3KEGbCGUku7cK/3F6f9yILa2
-	 7KdTHPF96oL5m2I4wsJPaUH1ls6eeAV28+Pdn9TP2ZzQUPIIRYymNxmtM4avigoBXcOnf
-	 T+6gtSTzO88ptZuSBDb0Y5duWtYqmncMKrr5l27tQgFB/NDgIUkoNpFTutBQ3DLW84A==
+	t=1795116426;
+	b=zAIGB38fTMmeKn5mQTmCjstH7bSz+msJfb9Fz7Ku2rWajn9Ht2Ml5c295TC5ypnH4Jhb
+	 Fi9fwY39pwwQPVF0jr0Pgpv1221AMX7g09DQW4BaiGzlj3Y+ngd9K4sFVD2JoRJK6ITCQ
+	 DFlJ4wLmLMTOiNCf3PHOMlXlYJyFJpBYStV/yp/iRR5cnBQAi+f+Zz5kZUydFmdVC5H3j
+	 tttuNjF+IkycVleyye5bSGmuKKrJgtVZNYenpigOSUARsymN35Lpf3xv66mWEvkd5XSsC
+	 u0s6kMOYT2HWTeQBDBxmkmAP5YX7YUfHHqbW7jbTtKkvyglQWmFcrieufEGmbKBMOtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116060;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=b0c6CGAGUF6g8vtfSwTL1Y354j7cyJnIuNNGjuPfWNo=;
-	b=hdrECLvS4Vk8QD8Nbg18fHf6yW5MlcoXRPZLJzlNJmd6gwfU3R+yckHcvwfPBeh23J6A
-	 MlpeMIkhFDOG/aWm+hX61DoVHmXqiQlliMm5gKEIBF5FDFkkxVySla6YwDAoeQOBDLZvI
-	 lQtXVRtVromS+8d0q8ByUeWMxgtCO8YA3VIYhSqtKTTPTiCbndfZT6Z9oidTvJiHFwmoO
-	 yZQIAKyxSaL/8Ry/VxoglVy2BScBVmDiMbLgrNfqXYMsuXtWsSVsDRqHv6lJXMZBJVXV1
-	 VoVyi9IPvNP19bVgwuagLuDNTS38IeYSY3EIUArsNjyIZ0vpRq0HWf1J6nPZVh583hw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795116426;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-AI-Review-Draft;
+	bh=qHLkF6tVlZ+i0QFCbA67HWU+g83dxZTEV5zaNmKwHJw=;
+	b=LgY7pxH7Kx09FTyuntsqirgKOWOFx3IGNr3bSkPSyGFbPJb5QHPF3VBy+tlvDmFu6wN4
+	 8hHPms5WC0i7c8uVJkGtx90VZgI7VZqv/uLdBwtsotBOtbbA6KDBzdDcfOIBKU+kl4Yz0
+	 58ekjM+EGPHIODScrlLvL0KL+slPhs5P6j01lJrwsHGRLKQsS5u3qcDA+9K65z1i5IoA7
+	 bzz+RSMU79ubUhYkkgr7a3oiVGhAyTI5Wout2MRbKRnhUOvLD4YuPvUlkfrqtAJwVJOby
+	 FpCbe5rIsfgXYpOaEoWRPsrHNIVxFDSeyDtb+aFT3Od/7O2vu/sB9YlMLdPBStzuvdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qNv+F2up;
-	arc=none smtp.remote-ip=209.85.214.169
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="AwmWQL/v";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 547EC606A320
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 19:20:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 547EC606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FCD6606A32C;
+	Thu, 19 Nov 2026 19:27:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qNv+F2up
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2e9995ce866so667385ad.0
-        for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 11:20:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795116059; x=1795720859; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=b0c6CGAGUF6g8vtfSwTL1Y354j7cyJnIuNNGjuPfWNo=;
-        b=qNv+F2upay5nHaiW1qXWUZPBc0wtvYrsbaPLKxcBjuBMxIfvcKIMBkAVP7tef86ztS
-         8GydGE8h32QinKjD+nR0s+whfjhhclwBKtHCTyVmwHWbRkFe6QlTTFCCyeYg4/7UejnS
-         jZc7fskxiat+VCWRrP/uU0oRaYek6TTznytdpZmd1/2ewt6YJCuXb+BYX4ipwMn1QUDo
-         DL5zFGqRH15Sm+c7lKYXtjYzcqYdtMMgB02Neiiwd71EVE3VEWqeDTRaKKsZ9UlOfvfs
-         3FIslBoUlo/U9bttxtetyDa5a8bJO5nRV2HVPahgSDVDyW72hFSeuPpxTNrTSh1Fxnmc
-         TaYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795116059; x=1795720859;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=b0c6CGAGUF6g8vtfSwTL1Y354j7cyJnIuNNGjuPfWNo=;
-        b=LtaHWA3dSgeVk5uxjgjBCYjhK6LnGrxKWGPCilX60cYg1b4Q1Jkph2K4WHn8w67d0e
-         eEZ8geqKRbQNXehG2NsrWcHyLPOrnDvNOuVYCwAzm53is0v3GszWK58DZ8WbniPKnfqz
-         N4fvMAes6xqYa+jRyjzt2k7S8zUKhvUohEZ44lQj3BezFxuzzBSRyq+bIgSkZsPQH8Fl
-         SBwQ1UU+MYsfRDgYU/A2FYXDwnqiSgicvwICVbpubJBFZIJuIpZU+EHzgbYWkkC5O3zx
-         n27L4hwVotQ7xWPrbU8edgqsfcdRW3ltNeiWl3dOAtBluznczC/OUhx0XQDoR3M1ubQN
-         Rz9A==
-X-Forwarded-Encrypted: i=1; AL+hErF6T+YA8924dd5uISRkZbnx4rdy6y173QR0D3aH8yc5lM+THed7NQ3Ufqb+Filxhf9mmM6a6CFcD+waqA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8YAWR+Kv0s/tZJ0LwSyv7Jg9tGsbiR2PqWQmsvQ3qgBgd0ZXf+
-	VxpHlo5xwrd+zawUelBQjqrpsne+lXEwxtg82BAJlFeOi0JbJCbFc2IF
-X-Gm-Gg: AZFdTZfzUiLjgGR/1vBrZkoUgLILQvGi29+Fzz/tHztZUfTPvfSeQWCNXhp5nR224B2
-	QzYgdRSmnJdEMhEO68evHcIM9OXe8+5DWedHZsms7RzcSd4Qw+xwRxJJ+BGouMsHAtw8aGz9cyY
-	t8CMbkICDjTmAQgU3ywHcWhrQ1/0QdariFwq+lL/IV69wBrRe6XemLl9L3Z4laUT4GZckvbZ+uk
-	NRvBx8I8NQ46OVUG1p/Htfyx+9yEGzZ8DR2wwpf+vh+ATK9SqO3eAuuD9aquiHDub52q86MhxqO
-	tgRWaz4tpoFnJnCxPUrg89uDmMKulYy6IrjH7mXupTiHBHEWYO1zGCPwEMnzfSFpPO/1zvjEYHv
-	m2kZ4P/FtVQRLvkNzPbVR0G2LPdOIJf/KUoNzdxMWCAfQBv2FBx2v4Qu2OWvNaN89aG7pL8SNJQ
-	nuML9FGCpd8iELmMU6jmkWtiyOmm27kTdxeXI9s4CD9AqU3HK/PROKkZbLMADFKiQFtyiwLlM+C
-	7FSXafV3nqj6RP0xdGTrBDI57LfUYXiYdG/TGrh4OGvjdZcylCoESzH6uKckaT3CjyyXA9E4Uoc
-	zE19EynHY0xO8d9TSiPdpYlwMbep7Pjeh70cjLQkAPdspcQbx83q1aemr/7eltLQcHeaY/hU
-X-Received: by 2002:a17:902:ec8b:b0:2e9:66f6:7894 with SMTP id d9443c01a7336-2f03f15c27amr7776685ad.40.1795116058661;
-        Thu, 19 Nov 2026 11:20:58 -0800 (PST)
-Received: from gb05.tail50fddd.ts.net ([139.5.199.74])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f0c1935sm3948805ad.26.2026.11.19.11.20.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 11:20:58 -0800 (PST)
-From: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jonathan Cameron <jic23@kernel.org>
-Cc: Lee Jones <lee@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AwmWQL/v
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC1071F000C8;
+	Thu, 19 Nov 2026 19:27:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795116425;
+	bh=qHLkF6tVlZ+i0QFCbA67HWU+g83dxZTEV5zaNmKwHJw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AwmWQL/v/ILoQCm/U7h+szaU1lXZ97cfrHmUU/UJY4ndFIy3jRXc1LnA6fqPFTvCm
+	 ke2KBzPrsmNVGkAgIWvoGYMmU7USgqhecOiyiV72n/3XZG9dKGAKT3/GUUa9R1DYUZ
+	 4ATP93XyuGRLJGK80xRLfrKBNZzyYswx15FmcgsaQLKUJOU7m5ObEOa9egP9mrcwQ5
+	 f7f3xN5weFYaRmraMcSM5QS06LtBY9BreGaz+MLrVZhi8OfAIFhDI5Jg2d7yUY0frl
+	 ma2GHg5sBYzHkllBEiNfhAjpX3nzOEcuXbmo6lyX6bG42UVAAdgjtqBWX+MeyJXhEV
+	 0icLKCkVOT3aA==
+Date: Thu, 19 Nov 2026 19:27:00 +0000
+From: Lee Jones <lee@kernel.org>
+To: Jakob Unterwurzacher <jakobunt@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Joseph Chen <chenjh@rock-chips.com>,
+	Sebastian Reichel <sebastian.reichel@collabora.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
 	Heiko Stuebner <heiko@sntech.de>,
-	linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>,
-	syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
-Subject: [PATCH] HID: hid-sensor-hub: avoid lock inversion in sensor_hub_remove()
-Date: Fri, 20 Nov 2026 00:50:46 +0530
-Message-ID: <20261119192046.1015750-1-ayaanmirzabaig85@gmail.com>
-X-Mailer: git-send-email 2.56.1
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, mfd@lists.linux.dev,
+	devicetree@vger.kernel.org,
+	Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+Subject: Re: [PATCH 2/4] mfd: rk8xx-core: keep the PMIC interrupt disabled
+  during system suspend
+Message-ID: <179510313469.63755.466425546513135743@kernel.org>
+References: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
+ <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-2-cb12621c1fb4@cherry.de>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,68 +69,100 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-2-cb12621c1fb4@cherry.de>
+X-AI-Review-Draft: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-2-cb12621c1fb4@cherry.de>
 
-In sensor_hub_remove(), spin_lock_irqsave(&data->lock, flags) is held
-while calling device_for_each_child(), which iterates child devices via
-klist_next() and acquires the driver core's &k->k_lock.
+> From: Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+>
+> When the system is woken up by the PMIC (e.g. by the power key), the
+> PMIC interrupt is handled as soon as interrupts are re-enabled on
+> resume. At that point, the bus to the PMIC may not have resumed yet, so
+> reading and acking the interrupt status fails. On RK3588 with an RK806
+> on SPI:
+>
+>   spi_master spi2: noqueue transfer failed
+>   rk8xx-spi spi2.0: Failed to ack 0x79: -13
+>
+> Disable the interrupt at the end of rk8xx_suspend() and re-enable it at
+> the start of rk8xx_resume(). Both run in the regular suspend/resume
+> phase, while the parent bus controller is active. If the interrupt is a
+> wakeup source, it stays armed while disabled, and the pending event is
+> replayed by enable_irq() on resume.
+>
+> Store the interrupt number in struct rk808 for this.
 
-Because &data->lock is acquired in softirq context by
-sensor_hub_raw_event() while &k->k_lock is acquired elsewhere with
-softirqs enabled, nesting &k->k_lock under &data->lock triggers a
-SOFTIRQ-safe -> SOFTIRQ-unsafe lockdep warning and risks an ABBA
-deadlock between process context and softirq context.
+SoB?
 
-Move spin_lock_irqsave()/spin_unlock_irqrestore() into
-sensor_hub_finalize_pending_fn() and pass data through
-device_for_each_child(), so &data->lock is only held while inspecting
-and completing each child's pending state after klist_next() releases
-&k->k_lock.
+> ---
+>  drivers/mfd/rk8xx-core.c  | 19 ++++++++++++++++++-
+>  include/linux/mfd/rk808.h |  1 +
+>  2 files changed, 19 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/mfd/rk8xx-core.c b/drivers/mfd/rk8xx-core.c
+> index 21182df45d1b6..2ae9107fc5161 100644
+> --- a/drivers/mfd/rk8xx-core.c
+> +++ b/drivers/mfd/rk8xx-core.c
+> @@ -851,6 +851,8 @@ int rk8xx_probe(struct device *dev, int variant, unsigned int irq, struct regmap
+>  	if (!irq)
+>  		return dev_err_probe(dev, -EINVAL, "No interrupt support, no core IRQ\n");
+>
+> +	rk808->irq = irq;
+> +
+>  	ret = devm_regmap_add_irq_chip(dev, rk808->regmap, irq,
+>  				       IRQF_ONESHOT | dual_support, -1,
+>  				       rk808->regmap_irq_chip, &rk808->irq_data);
+> @@ -929,7 +931,20 @@ int rk8xx_suspend(struct device *dev)
+>  		break;
+>  	}
+>
+> -	return ret;
+> +	if (ret)
+> +		return ret;
+> +
+> +	/*
+> +	 * Keep the interrupt disabled while the bus to the PMIC may be
+> +	 * suspended: otherwise a wakeup event (e.g. the power key) is handled
+> +	 * as soon as interrupts are re-enabled on resume, before the bus has
+> +	 * resumed, and reading/acking the interrupt status fails. If the
+> +	 * interrupt is a wakeup source, it stays armed, and the pending event
+> +	 * is replayed by enable_irq() on resume.
+> +	 */
+> +	disable_irq(rk808->irq);
+> +
+> +	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(rk8xx_suspend);
+>
+> @@ -938,6 +953,8 @@ int rk8xx_resume(struct device *dev)
+>  	struct rk808 *rk808 = dev_get_drvdata(dev);
+>  	int ret = 0;
+>
+> +	enable_irq(rk808->irq);
 
-Reported-by: syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/6afddf21.a11fe2ad.1b4426.0003.GAE@google.com/T/
-Fixes: 8a5b38c3fd70 ("HID: hid-sensor-hub: don't use stale platform-data on remove")
+This is early - are you sure you want to do this right away?
 
-Signed-off-by: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
----
- drivers/hid/hid-sensor-hub.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+> +
+>  	switch (rk808->variant) {
+>  	case RK809_ID:
+>  	case RK817_ID:
+> diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
+> index 7ffc904c864c9..1255de484ab51 100644
+> --- a/include/linux/mfd/rk808.h
+> +++ b/include/linux/mfd/rk808.h
+> @@ -1461,6 +1461,7 @@ enum {
+>
+>  struct rk808 {
+>  	struct device			*dev;
+> +	unsigned int			irq;
+>  	struct regmap_irq_chip_data	*irq_data;
+>  	struct regmap			*regmap;
+>  	long				variant;
+>
+> -- 
+> 2.47.3
+>
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 028e70ec7bac..4ade5b5ece56 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -836,9 +836,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
- static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
- {
- 	struct hid_sensor_hub_device *hsdev = dev->platform_data;
-+	struct sensor_hub_data *sd = data;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&sd->lock, flags);
- 	if (hsdev->pending.status)
- 		complete(&hsdev->pending.ready);
-+	spin_unlock_irqrestore(&sd->lock, flags);
- 
- 	return 0;
- }
-@@ -846,16 +850,13 @@ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
- static void sensor_hub_remove(struct hid_device *hdev)
- {
- 	struct sensor_hub_data *data = hid_get_drvdata(hdev);
--	unsigned long flags;
- 
- 	hid_dbg(hdev, " hardware removed\n");
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
- 
--	spin_lock_irqsave(&data->lock, flags);
- 	device_for_each_child(&hdev->dev, NULL,
- 			      sensor_hub_finalize_pending_fn);
--	spin_unlock_irqrestore(&data->lock, flags);
- 
- 	mfd_remove_devices(&hdev->dev);
- 	mutex_destroy(&data->mutex);
 -- 
-2.56.1
-
+Lee Jones

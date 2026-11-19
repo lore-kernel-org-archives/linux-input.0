@@ -1,81 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795121633;
-	b=B+jO9Me7TZ1IprArvrpfMP+AoZ6kNdNE5mMSMqJQSp5hCz0A1AVkau4UqK0hvyw2IJ5M
-	 tS8BisxyB/Fdz380JeV8+dDnUOX2jHERGu3uGRtglqk0uAR1+447rvouG8/8+NEUxy75Q
-	 2M9KAgHMJ6axAZEdVOSy0I0qHCEJRr3LSD/IkAMwzWidN+ayGsNnc1L5fUgcyegFnrTZM
-	 N8xnP0YQ38Gr6K+gsm1pGqNXcXzosiWocHEqWISgIBVQgJuVIFZTatprWcer90ousxRVS
-	 BGz2vylrZTmqqJhYvmJOsHSVm6/JNqIEtBObYlgl6jbLB1N1mu7lbsVp7EkCnNFfh2Q==
+	t=1795121749;
+	b=pKcDjcVPweoz4guXDyRMGYaaPgYvVv4DWZ23OyojiJITibVXWC11aTnT5WoicLZsmjOS
+	 UHPqAqQYFNf1XFlm+JuGDYljR1bjjc8zm7+iN+YR84V7khDKQwHM+N8nR+vA5L9qcOggV
+	 KFyFExHqPNza3S7oWlf8FC8y4/WeOW+nz51gV3WIDnFbz6Jv/x8j4BvOm/Ni+Fo5NTceb
+	 PzpLIr57tGb0D/6Byrqw55CPunopscu+iP6+Y9hM/J+uZIzbxwuxK2hIci0rNYFTU/bDf
+	 zI75C/EhGfm4rIJDq18OqGaFatVtg+kEsbaHQEM7U+eDuf/zjtwQO5EpJx+beG7Qibg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795121633;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=/zyFtue2Pu27Krmvp0xJdBDSYvJgKl9E6IP3y2DGTns=;
-	b=x2/qHlY00K/gOuGbDzX0bBhypLcf9JB7Vc8JJrtJBS1oajosD3IhxT8rfjXuhYHldEBd
-	 B4JzltiLI4zMbruRu3p0cgJRAuiH/vLjSbvT7oY+imzFc3E9wln1tUcdjA9R/XF5/xbWG
-	 hWGV2hlJ9tM5SbGAg/d84EBXk88+NSkEKcY4xfQ1CJPvAlc5Z4Rw0UXeoAkbEudu+l6iq
-	 4SGxfxKqfsTweRhcs5uab31Zwf03etTOW+q/kXoJ+BvGb8lt981WJSf3hysqccSef9gih
-	 3zBQmhwKZCVUPppIA6aayNSx72Tx+qvfUNwqJuYVtVBTcu6gEKM9U4zBztnGZtJo1hQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795121749;
+	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
+	 Message-ID:References:MIME-Version:Content-Type;
+	bh=VmFIuhYfP2v45XhFsesPKtjzFx6PdLailA1+NFQsFxc=;
+	b=SDS0aDZzXPjX4L8ZPzn9zVqT58g7CJjFlGp9OvsJVSs9Bf9DVwHKa4ccQE2x6Gfk/ZZr
+	 7650S3vPMk55w2BOZYkcvvhijfDpNSUxldd7jaOD1h1imTdbFwyLMoqwIi3u0Tet+Lcet
+	 WDSXlOjyy8NHqwnXDqRnOlMz96QU64Tt7UTeJbNOUQq3UfLyHjP7bDzZ9ZGXKe1DqhTN8
+	 Yp/Q3u699c+IjoazWh+ZkYlzMKQNQGGsLq0YYibWlPFEnyfcNUbMuSCsu2S3DnOL37uR8
+	 2F8QJ5yve4iaC/3EOwrgzgQg6AutlVw0HO1pl8B1D/hr4EONrETETmxrvn+eTSzQaNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ICYjvFQN;
-	arc=none smtp.remote-ip=198.175.65.20
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfYJbHsg;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 336FF606A337;
-	Thu, 19 Nov 2026 20:53:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 336FF606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 491A7606A320;
+	Thu, 19 Nov 2026 20:55:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ICYjvFQN
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795121633; x=1826657633;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hxtu6n6hjdoIS8OVHUKESNiwIThZujrt8bph7b+Fd9s=;
-  b=ICYjvFQNmGXLKT8lJzORh2ddjFYCo9FP4DQi6xU3/yJUAA/EVDMMwtnW
-   Z3/qGtN6wfv3hNHInCrrHBmZeBxwAtlvuf+8f6gz+X4HCtTiOKzpuVEfh
-   MmNVbUecTZS2dUj41oFJTL9H7XC2ItuUq1b5EAit17eO29kmAi4LQ/qz/
-   LyS82lTZ+XLfHSzYb6N387rBG8eHTySMRX3ZVI+l2mCOyDE8wvhpeLgJn
-   5+sKf+hr7thOFFFEYADMmchY7Vdqx2MX2K9KIabNiAhCp9lEJsB+zrwco
-   rkffzx4V4xW4Oy91L5VF2oDyJwuVsjH8LrZcxCp1q2ftOUFYujfRSSBbL
-   A==;
-X-CSE-ConnectionGUID: yH58P537RAK8fHpjDLf0tA==
-X-CSE-MsgGUID: oJqd7PZoRcezUIcnUG1/ag==
-X-IronPort-AV: E=McAfee;i="6800,10657,11971"; a="4030860"
-X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
-   d="scan'208";a="4030860"
-Received: from fmviesa013.fm.intel.com ([10.60.135.153])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 12:53:53 -0800
-X-CSE-ConnectionGUID: hWs8F2miRDaxOkKoxt/sNQ==
-X-CSE-MsgGUID: XLcUR0atQcuadVeix+2yww==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
-   d="scan'208";a="12511975"
-Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.61])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 12:53:49 -0800
-Date: Thu, 19 Nov 2026 22:53:46 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Frank Li <Frank.li@oss.nxp.com>
-Cc: Fabio Estevam <festevam@gmail.com>, lee@kernel.org, maz@kernel.org,
-	andy@kernel.org, jic23@kernel.org, dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org, mfd@lists.linux.dev,
-	linux-iio@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, crofts@kernel.org, devicetree@vger.kernel.org,
-	imx@lists.linux.dev,
-	Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-Subject: Re: [PATCH v5 4/4] mfd: mxs-lradc: Convert to devm_clk_get_enabled()
-Message-ID: <av9h2jvAwBPXdNmX@ashevche-desk.local>
-References: <20261119134041.16611-1-festevam@gmail.com>
- <20261119134041.16611-4-festevam@gmail.com>
- <av8gvfhOJ_2PdEMr@SMW015318>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfYJbHsg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEB31F000C0;
+	Thu, 19 Nov 2026 20:55:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795121748;
+	bh=VmFIuhYfP2v45XhFsesPKtjzFx6PdLailA1+NFQsFxc=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=bfYJbHsg7ayESzygWUmQpu8CReYiL28GmUFbYPdLGqbcshAsXGweYjDSb2F5rLY45
+	 kU+Q4NbL81lZ5NStlB8eMEsCXBcWSIEAXTf477Q0sfFYgWSJducvXDEePKEvTmN924
+	 B3w9eRkrDv7SteU4nKu6H2R8XK0nXQuHYxlCoI96gUJJjeX2FudV07ansgmkxZEEPR
+	 /yD/apNSH+hIxuztRsqO+RUrCTvcWfNoEVXV/UhFaLWq1cSbcO5Ci6Gj3DmyVOBPp7
+	 I6nbr+qvKVb5tYhBfRU1OazG/II4Qa4kEvGqG7iSFHf7ojE5v6A7wgZAKOC3TpPDDT
+	 BoIcd7pKsSqZA==
+Date: Thu, 19 Nov 2026 21:55:46 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Krish Gulati <krishgulati7@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: core: serialize report_descriptor_read() against
+ probe and remove
+In-Reply-To: <20261010095211.12831-1-krishgulati7@gmail.com>
+Message-ID: <578s4770-23p5-78qs-9po9-49oq2sprsos8@xreary.bet>
+References: <20261010095211.12831-1-krishgulati7@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -85,39 +60,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <av8gvfhOJ_2PdEMr@SMW015318>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, Nov 19, 2026 at 10:15:57AM -0600, Frank Li wrote:
-> On Thu, Nov 19, 2026 at 10:40:41AM -0300, Fabio Estevam wrote:
+On Sat, 10 Oct 2026, Krish Gulati wrote:
 
-...
-
-> >  			dev_err(&pdev->dev,
-> >  				"Unsupported number of touchscreen wires (%d)\n"
-> >  				, ts_wires);
-> > -			ret = -EINVAL;
-> > -			goto err_clk;
-> > +			return -EINVAL;
-
-^^^
-
-> >  	if (ret) {
-> >  		dev_err(dev, "Failed to add subdevices\n");
-> > -		goto err_clk;
-> > +		return ret;
+> Since commit 54f32fd5dff9 ("HID: Make report_descriptor available for
+> all devices"), the "report_descriptor" sysfs attribute is part of the
+> device's attribute group, so it exists from device_add() until
+> device_del(). It reads hdev->rdesc, but that buffer only lives from
+> hid_open_report() until hid_close_report(), that is, for the duration
+> of a driver binding. For a driver with a report_fixup() callback,
+> rdesc is a private copy that hid_close_report() frees, so a read that
+> races with the driver being unbound accesses freed memory. syzbot
+> reports this as:
 > 
-> If need respin, return dev_err_probe()
+>   BUG: KASAN: slab-use-after-free in report_descriptor_read+0xb5/0x100
+>   Read of size 24 at addr ffff888078d61f00 by task fido_id/7281
+>   ...
+>   Allocated by task 10:
+>    kmemdup_noprof+0x2b/0x70
+>    hid_open_report+0x1fa/0xf00
+>    lg_probe+0x29c/0x890
+>    hid_device_probe+0x46a/0x870
+>    ...
+> 
+> Because hid_close_report() also clears rdesc and rsize, the same missing
+> serialization can make the reader see a NULL rdesc with a non-zero
+> rsize.
+> 
+> Hold the device lock in report_descriptor_read(). The driver core
+> already holds it across probe and remove, so a read can no longer
+> overlap with them.
+> 
+> Reported-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
+> Tested-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
+> Fixes: 54f32fd5dff9 ("HID: Make report_descriptor available for all devices")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Krish Gulati <krishgulati7@gmail.com>
 
-And above and who knows how many more. That's why I haven't commented on this,
-if ever we do this, it most likely should be a separate change for the whole
-driver.
+Applied, thanks.
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+Jiri Kosina
+SUSE Labs
 

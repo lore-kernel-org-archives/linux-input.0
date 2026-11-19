@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795080248;
-	b=hUoknR1S7eDIlPenreVlFzcS1Y00PlwSMevmtz3Z4XNSHX/oybvq4ZONa0bUwQup9ztP
-	 8snZbDd1+WbijALTcVsHRcbs7PULX9UI/6z5JueqJtnxZnKDHswLIeIW3oYsdPb7lOTGm
-	 q1IjdfFjlPd8zn96SKIj8S1wd5AnskC2u9Mq2Q0E10DhZcwgaUemoB/D2l8Ng8wmh+h/O
-	 hl5n+LCeFFmXkRulVxfp6dmAxN/f/WnTt+C4/gdg2H5UCxip/lJ9hCguK/TPXoundMm09
-	 JrqKO8K/VmloEqjJynsTBbivCXa0urlwO8hn6Cq54+kGqo+q4JQjAAtQw5YJrSZobeA==
+	t=1795080692;
+	b=p0A4Ne6zjF7xKUm7vafZkdyCTDe/PrRbpWk98eF3DrgthOC8qkCbLf5NzyUq8zkjQr0x
+	 6IpnimWPpUpk0O7R4LwhW6uNl83iCE5ESg88xmNtDtXzPv1ExyR6zNIQJ5kCRsJ4G0XUk
+	 /Er3eV5pzRQlLU3b+NdxfIjt6us7uTY4y2TsxjhHG5hmpZi9FGdZ8XgVFaMkXSF0lkcJa
+	 dYkwXO6XjLHP78a8M/vsCFu4yA05Ykz4o3iXGAhHY3XW4VTqXHiQBMPKdcKUUs1lrS5G1
+	 RJ7BDMQqmAoUHvArMurYg57mLACfgjpnkWv8weiUAoxByFR0hPxJZZFx2WbU7p/uMtg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795080248;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795080692;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=p5S4ff3U7Iih3zTb8MFxt7AU60ZPX6K5IBrl1VeulkU=;
-	b=ioMEXkAutjtLxS3YdYyBrFwV3Kftu7pB6M4MzGqQTRosG8cRQv/wujOlA1wNdMr5no5n
-	 KK7a8SCqtyCzfmQBPyQih4i5T4V1PY4P4k3VGwza+M/ud3/eO7EDG0Y7WDuCNuXXFCO8H
-	 RWBJ1daZ5nEFsJUDOihsJQSaYBFBtmqMyL+dnCGlRu4CkXHJhMGQPtdMj3OQTtHMrlFDh
-	 r3S3AeTefVpIA5ZnnoiKNUQYBhL9mNCEdKmoXQLKPdL7G757l3dQVtlYAp/v3q2C8wLSJ
-	 o2ZeqRCYptuvI7STn5uMegyGeEBRZCHhu2mptTqCi2OALNwhcYvFzU2AtI6u7WkYhKA==
+	bh=r9OtFocrUfDFQynFAvSAVBIm7GDXswguxy2vvPe3dns=;
+	b=nq7EGBosj2hUYqtNAs7vVNDifm0cVkasILM53JAE+T0acxr7sZpJGQnxkBa0m8rr803q
+	 GbQqTV48zbTEsINHrORNGhupqLh4+AAQMWycPGO0SR8yod1Q7Zk5BND06pkcJwU4LBrIl
+	 At6cciYp8oWnHFEZDtlNhW+WGG/V59rt/odkuDd0+CJmPl+kNXgikgwOEbQg4iH0dmRXq
+	 CQu4rTk9CUEuyh2J8yyKCyPRGfIih7d0hVW7VdoHsndjRMc8ibUQzZ0EZ8+65tsQEOwfE
+	 OtiYRqs/1okBEvIPyCfs35pAFD1P2MEQzqMpXVEgr0oQNqv3n6V2vj93w2GtcexgzlA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kCbc1cVZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HdDPK3fu;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918C6606A324
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 09:24:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04170606A320
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 09:31:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kCbc1cVZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91511F000C5;
-	Thu, 19 Nov 2026 09:24:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HdDPK3fu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626B71F000C5;
+	Thu, 19 Nov 2026 09:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795080248;
-	bh=p5S4ff3U7Iih3zTb8MFxt7AU60ZPX6K5IBrl1VeulkU=;
+	s=k20260515; t=1795080691;
+	bh=r9OtFocrUfDFQynFAvSAVBIm7GDXswguxy2vvPe3dns=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kCbc1cVZ1QjSHtSX6cQWDYaKZp9o5n5yEKrJChyCm/c9/VwNI703vED9x2U0iDYkq
-	 P2blUlYP3FbkjGBd3DLW24vqAQFfRsp26iQCnQzzxmtD/YadEl/nkiDI7TFYUzi/q4
-	 quVfuTSSRrZ+OowpU3Hq1+evyi/GDEaQmGSonpWrYi0JZg5m/V+kOL4Du+TJLxZPru
-	 YZEw8z1xyORH8Rq5iuULYIA4hlmaTiJApwiS/Qi4oGmIpIMRS7jXI3JP4as7BNC7sp
-	 CmKThgElKb99kg4PwY4uXJmIWK63Aj8/E5bk2V64mboLjg3Islwjj8/qkJ1LQrUG0/
-	 B4Tgy3zGbMzcw==
-Message-ID: <sashiko-outbox-222824@kernel.org>
+	b=HdDPK3fu56/rZS+pG/ZI4WKWFF1j6IP5IIMDBguXEEDFWCOaoj0Wnw0U7eiSUhkxC
+	 0yTbmJt+VHnIpNuDBpCLr1opfq8UA7pl0ReRqCY0GRiU5FFTiSFrtPal0zFY7ZDFOM
+	 horq72vo+Zqr4NZizX/EEssRT1jLlES+hFubopsTNwxR9nbiZOsuNbiqinHnRsYemB
+	 cY39DuB57ietpQ7YVgJFsJ/tCJxSdf5fHlExFI+W21+d8VMcfljyKU9R2FfNgdIg9Q
+	 tnsD7KXMtcmP2scP3KtZTCKTiKxlAaPgsYmULAhcb8ssK+krcrmNeNjq2B9EPbaKer
+	 X0owcRLdcmR6A==
+Message-ID: <sashiko-outbox-222839@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 4/5] HID: intel-thc-hid: intel-ipts: handle system
- sleep
+Subject: Re: [PATCH v9 2/5] HID: intel-thc-hid: intel-ipts: receive reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Emfox Zhou" <emfox@debian.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261119091152.470384-5-emfox@debian.org>
+In-Reply-To: <20261119091152.470384-3-emfox@debian.org>
 References: <20261119091152.470384-1-emfox@debian.org>
- <20261119091152.470384-5-emfox@debian.org>
+ <20261119091152.470384-3-emfox@debian.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 09:24:07 +0000
+Date: Thu, 19 Nov 2026 09:31:30 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,92 +60,206 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: intel-thc-hid: intel-ipts: late IRQ mask in
-  thc_ipts_resume()
+Thank you for your contribution! Sashiko AI review found 3 potential
+issues to consider:
+- [Medium] HID: intel-thc-hid: intel-ipts: invalid wait context in
+  thc_ipts_hardirq()
+- [Medium] HID: intel-ipts: thc_ipts_thread() claims foreign shared IRQs
+  when recovering
+- [Medium] HID: intel-thc-hid: intel-ipts: premature IRQ mask in
+  thc_ipts_thread()
 --
 
-commit cb9fd08378f4c4d0b714f43fe49b9631edab5ac4
+commit e3ecea8c718b8bb20502f799773e9526e0beb0ef
 Author: Emfox Zhou <emfox@debian.org>
 
-HID: intel-thc-hid: intel-ipts: handle system sleep
+HID: intel-thc-hid: intel-ipts: receive reports
 
-This commit adds system sleep and hibernation power management callbacks for
-the Intel THC IPTS PCI driver, stopping the port on suspend and restarting =
-it
-on resume.
+This commit configures the receive and transmit DMA engines, requests the
+port interrupt with error recovery, and decodes incoming report frames.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c b/drivers/hi=
-d/intel-thc-hid/intel-ipts/pci-ipts.c
-> index 5aa0ad6fb19cb..4bf64e5359755 100644
-> --- a/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-> +++ b/drivers/hid/intel-thc-hid/intel-ipts/pci-ipts.c
-> @@ -143,6 +143,38 @@ static void thc_ipts_remove(struct pci_dev *pci)
->  	pci_clear_master(pci);
->  }
-> =20
-> +static int thc_ipts_suspend(struct device *dev)
+> diff --git a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c b/drivers/hid/in=
+tel-thc-hid/intel-ipts/ipts.c
+> index 2d14e5278f986..e7896b16f1ada 100644
+> --- a/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+> +++ b/drivers/hid/intel-thc-hid/intel-ipts/ipts.c
+[ ... ]
+> @@ -129,6 +144,283 @@ static int thc_ipts_touch_set(struct thc_ipts *idev=
+, bool enable)
+[ ... ]
+> +irqreturn_t thc_ipts_hardirq(int irq, void *data)
 > +{
-> +	struct thc_ipts *idev =3D dev_get_drvdata(dev);
+> +	struct thc_ipts *idev =3D data;
 > +
-> +	thc_ipts_port_stop(idev);
+> +	/* Nothing of ours is pending: the cause belongs to a sharer. */
+> +	if (!READ_ONCE(idev->dma_ready))
+> +		return IRQ_NONE;
 > +
-> +	return 0;
-> +}
-> +
-> +static int thc_ipts_resume(struct device *dev)
-> +{
-> +	struct thc_ipts *idev =3D dev_get_drvdata(dev);
-> +	int ret;
+> +	/* Level triggered and shared: mask first, or it stays asserted. */
+> +	thc_interrupt_enable(idev->thc, false);
+
+[Severity: Medium]
+Can calling thc_interrupt_enable() from thc_ipts_hardirq() trigger an
+invalid wait context warning under lockdep (and sleep in hardirq context on
+PREEMPT_RT)?
+
+thc_ipts_probe() requests a shared PCI_IRQ_INTX vector with
+IRQF_SHARED | IRQF_COND_ONESHOT.  When the line is shared with an
+IRQF_ONESHOT handler, __setup_irq() promotes this action to IRQF_ONESHOT,
+so __handle_irq_event_percpu() runs thc_ipts_hardirq() in LD_WAIT_SPIN
+context without calling lockdep_hardirq_threaded().  thc_interrupt_enable()
+then calls regmap_write_bits() on dev->thc_regmap, which is initialized
+with .fast_io =3D true but without .use_raw_spinlock =3D true:
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c:
+static const struct regmap_config thc_regmap_cfg =3D {
+	...
+	.cache_type =3D REGCACHE_NONE,
+	.fast_io =3D true,
+	.use_single_read =3D true,
+	.use_single_write =3D true,
+};
+
+Because .use_raw_spinlock is not set, __regmap_init() protects the regmap
+with a regular spinlock_t (LD_WAIT_CONFIG) rather than a raw_spinlock_t.
+
 > +
 > +	/*
-> +	 * A restore can bring the global enable back with it, as firmware
-> +	 * leaves it at probe. The line is shared and level triggered, and the
-> +	 * handler has nothing to mask it with until the engines are up, so
-> +	 * mask it here as probe does.
+> +	 * A reset or a teardown in flight still gets the thread: the status it
+> +	 * drains is where a pending transmit completion is delivered, and a
+> +	 * write waiting for that one holds the bus lock the reset needs.
+> +	 */
+> +	return IRQ_WAKE_THREAD;
+> +}
+
+[ ... ]
+
+> +void thc_ipts_recover(struct work_struct *work)
+> +{
+> +	struct thc_ipts *idev =3D container_of(work, struct thc_ipts,
+> +					     recover_work);
+> +
+> +	/*
+> +	 * From here the status registers belong to the reset: the threaded
+> +	 * handler must not acknowledge a frame it is not going to read, or the
+> +	 * interrupt that would announce it again never comes. The flag alone
+> +	 * is only a snapshot to a run that is already inside, so the mask and
+> +	 * the wait below are what keeps that run out.
+> +	 */
+> +	WRITE_ONCE(idev->recovering, true);
+> +	thc_interrupt_enable(idev->thc, false);
+> +	synchronize_irq(idev->irq);
+> +	/* A run that unmasked just before synchronize_irq() returned leaves
+> +	 * the line open: mask it again, the write is idempotent.
 > +	 */
 > +	thc_interrupt_enable(idev->thc, false);
 > +
-> +	ret =3D thc_ipts_port_start(idev);
-> +	if (ret)
-> +		thc_ipts_port_stop(idev);
+> +	if (thc_rxdma_reset(idev->thc)) {
+> +		/* Nothing left: keep the port masked until it restarts. */
+> +		dev_err(idev->dev, "cannot reset the receive engine\n");
+> +		return;
+> +	}
+
+[ ... ]
+
+> +irqreturn_t thc_ipts_thread(int irq, void *data)
+> +{
+> +	struct thc_ipts *idev =3D data;
+> +	irqreturn_t ret =3D IRQ_NONE;
+> +	bool need_recover =3D false;
+> +	bool reported =3D false;
+> +	int pass;
+> +
+> +	/* Reports are handed to the HID core from here, and a driver callback
+> +	 * that sends a request would wait for a completion this very thread
+> +	 * delivers: it is recorded so the send path can tell.
+> +	 */
+> +	WRITE_ONCE(idev->irq_thread, current);
+> +
+> +	/* A sharer can queue a second run of this thread with no hardirq of
+> +	 * ours in between: mask again, the write is idempotent.
+> +	 */
+> +	thc_interrupt_enable(idev->thc, false);
+> +
+> +	/* The port stays masked, so a cause that arrives meanwhile leaves only
+> +	 * its status bit: read until the core reports none.
+> +	 */
+> +	for (pass =3D 0; pass < THC_IPTS_IRQ_PASSES; pass++) {
+> +		int mask;
+> +
+> +		/*
+> +		 * The reset owns the status registers while it runs: a frame
+> +		 * acknowledged here but not read is never announced again.
+> +		 */
+> +		if (READ_ONCE(idev->recovering)) {
+> +			/* Nothing acknowledged, but the line is still ours. */
+> +			ret =3D IRQ_HANDLED;
+> +			break;
+> +		}
+
+[Severity: Medium]
+Does returning IRQ_HANDLED here when idev->recovering is true on the first
+pass claim every foreign interrupt on the shared INTx line?
+
+While idev->recovering is set (which stays true permanently if
+thc_rxdma_reset() fails in thc_ipts_recover() because idev->dma_ready is
+left set), every interrupt from another device sharing the line causes
+thc_ipts_hardirq() to mask the already-masked port and return
+IRQ_WAKE_THREAD.  thc_ipts_thread() then sees idev->recovering on pass 0
+and returns IRQ_HANDLED without checking any status registers, adding a
+thread wakeup and two MMIO writes to every shared interrupt and preventing
+note_interrupt() from detecting a stuck screaming interrupt on a peer
+device.
+
+[ ... ]
+
+> +	/* A reset unmasks when it is done and a teardown masks on its own, so
+> +	 * the line only stays open here while neither runs: a write already
+> +	 * on the wire needs the completion this handler delivers.
+> +	 */
+> +	if (!READ_ONCE(idev->recovering) && !READ_ONCE(idev->stopping))
+> +		thc_interrupt_enable(idev->thc, true);
 > +
 > +	return ret;
 > +}
-> +
-> +static DEFINE_SIMPLE_DEV_PM_OPS(thc_ipts_pm_ops, thc_ipts_suspend,
-> +				thc_ipts_resume);
 
 [Severity: Medium]
-Does masking THC_M_PRT_INT_EN_GBL_INT_EN in thc_ipts_resume() happen too
-late to prevent an unhandled interrupt storm on the shared line?
+Can checking !READ_ONCE(idev->stopping) before re-enabling the port
+interrupt leave the line masked while an in-flight TXDMA transfer is still
+waiting for its completion interrupt?
 
-DEFINE_SIMPLE_DEV_PM_OPS() wires thc_ipts_resume() to .resume and .restore,
-leaving .resume_noirq and .restore_noirq unset.  During resume or restore,
-dpm_resume_noirq() puts the PCI device back into D0, restores PCI_COMMAND,
-and calls resume_device_irqs() before .resume or .restore runs.
+In the next patch in the series ("HID: intel-thc-hid: intel-ipts: exchange
+commands with the controller"), thc_ipts_port_stop() sets idev->stopping to
+true and then waits on idev->tx_lock for any active thc_ipts_send() ->
+thc_dma_write() call to finish before masking the interrupt:
 
-At that point idev->dma_ready is still false from thc_ipts_suspend() ->
-thc_ipts_port_stop() -> thc_ipts_dma_stop(), so thc_ipts_hardirq() returns
-without masking the controller:
+Thread A                     Thread B                   IRQ / thread
+thc_ipts_send()
+  mutex_lock(&idev->tx_lock)
+  thc_dma_write()
+    write_dma_buffer()
+                             thc_ipts_port_stop()
+                               idev->stopping =3D true
+                               mutex_lock(&idev->tx_lock)
+                                                        <shared/RX IRQ>
+                                                        thc_ipts_hardirq()
+                                                          thc_interrupt_ena=
+ble(false)
+                                                        thc_ipts_thread()
+                                                          sees idev->stoppi=
+ng
+                                                          (leaves IRQ maske=
+d)
+    wait_event_interruptible_timeout(
+      dev->write_complete_wait, ...)
+      <-- stalls for 1s timeout
 
-drivers/hid/intel-thc-hid/intel-ipts/ipts.c:thc_ipts_hardirq() {
-	if (!READ_ONCE(idev->dma_ready))
-		return IRQ_NONE;
-
-	/* Level triggered and shared: mask first, or it stays asserted. */
-	thc_interrupt_enable(idev->thc, false);
-    ...
-}
-
-If firmware leaves the global interrupt enable set with a pending level
-interrupt across restore, the IRQ fires as soon as resume_device_irqs()
-unmasks the line and repeatedly returns IRQ_NONE until the IRQ core
-disables the shared line before thc_ipts_resume() is reached.  Should
-thc_interrupt_enable(idev->thc, false) run in a noirq resume/restore
-callback before resume_device_irqs()?
+Unlike recovery, which splits idev->recover_pending and idev->recovering so
+the interrupt stays enabled until thc_ipts_recover() acquires
+idev->tx_lock, setting idev->stopping before waiting on idev->tx_lock
+causes any intervening run of thc_ipts_thread() to leave the port masked
+before the TXDMA completion interrupt arrives.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119091152.4703=
-84-1-emfox@debian.org?part=3D4
+84-1-emfox@debian.org?part=3D2

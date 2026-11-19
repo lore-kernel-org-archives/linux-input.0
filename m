@@ -1,66 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.161
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795127516;
-	b=PLGR2RZoCGdYOPpxVSYxOJpCYKZB3DJvLyf7odkz9b9TY86XDjyrNVUyFx+X9zfrIUo7
-	 yNshTRlh1oh8z1Nx64U2J5Iv5oaRlw/+E78o+SOo9dqGDtDO1aZ2qDpJBo1LP8P1TjiUi
-	 frz8XaQO0a2sAvd9hsyGTHPWALTT+vec19wEwqZiS4ylYTifRVTNkCX/TMYJyH9/zMYrB
-	 fsFHmaaHRr55NGUWorYaHuehDXeZqq7tktCnNsM/7iWapVUDUShweTikyVRmGOMJpMfjJ
-	 5oaDAWH2qc3PvWH4CoKBa+2b9VPKMXKbL13bZ0HgoPSO87dtIjHzxnUrsfH1Y65dk1g==
+	t=1795129395;
+	b=WLbEiO/gSDC/qa6Hz2mGDYNvNbVawoo0ecYsUXuQFuVRmTpNs3SuBTNiMF/vyStOrR9Y
+	 EcE6UoBXGmg9OGnCTIkD9OPujbV9xQn290LTbY1S6fhOyerwoqfKYKWXHp5tsAB7xVA1A
+	 xlprKVf/ZnZt7enGNukcPlTwa0DiMyCePHQP5t2ywE8v8+qHXn2NYJiuGGw+1L0I5MI0c
+	 SiSATWLJHjEY8tk3p7sMM05NSCo0mv8dTp9bgZRqZ1yQuwSTp4ZzvdNeV7ln4AlcMUNPl
+	 bgNl1btCns0pX1J9FC0cLHkPEVSZLjMaAThNHYlSuy/ZLJsw03P21fCQMSuHqgDdX7w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795127516;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Date:From:To:Cc:Message-ID:In-Reply-To:
-	 References:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Correlation-ID;
-	bh=g47y6kBtYWl7nY19pO+71OmkiWZGVFw08qnF6J2lAxQ=;
-	b=ul7EYttJ9n5XhNrZ+RcNb+NiTQp6YKZ1ct7Tg0GOYRDSp+L2YDR6FiepFz9uDHTdDcsN
-	 yZKqhTlX5SAqxhHiDj+4NBR+/p6dKWO/y4twdtJ/7nCK4FbrZYP3kuAzE2XbHsTCOb4Ix
-	 BB4YBUNkFPWX8NDiR0OMbTuTdqb0MU0KJwEe1i7zJ5rpS9haXG53ei2pilCUzPVOjpC0b
-	 jq8zEHz1hg7apYkgrP6i8r6rdnx8nEUGyZ1nbRw9clIYWv4tJZHIRMBonqcj0dTSPd3CU
-	 1WIKeBegZm93gAPMpuVJMKw54qqeaRK0MTTwGahnplWmZnKVECC81V+mTk8ltvm0UoQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795129395;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-Cookie;
+	bh=Zd5y4/iKVR8cIRL5xSomMHsnhEvzs0tFOB3YXKd6Dto=;
+	b=KQvC+Cd71arkts1Flh3XVJh8R/NEu31tHPSDeAufiSJ7SeYwS4HO+EoTfllQB9GV1S9G
+	 /CAa3+UqydLKoDkJi69tk/SbmPexWsB9LinMnnD5C5zBAmwyI+vzWLompXhMhi8kd4Y1Q
+	 QSYckmW/UvWJjXCmFbykJc4rj24cyeqyM1vg1ESCdVuwxT1U9mmsWM1fAFCXvLKsIJZxs
+	 pON06nmylaVICbBxwrEpxvfIKufJuSIc6DJwQWJErVIEqeRLd58+b3pAw2B0XmCZhaeUN
+	 SGXDHzUlmbFBdyYuY3HIe/AbEWiTUQqqHC6C1SPGApvhFSzstKvTgvENf/gZFTmFvgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=hmt6M7WI;
-	arc=none smtp.remote-ip=91.218.175.161
-Received: from mta0.migadu.com (out-161.mta0.migadu.com [91.218.175.161])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AIZt2S04;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33F2F606A32A
-	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 22:31:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33F2F606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01379606A320;
+	Thu, 19 Nov 2026 23:03:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=hmt6M7WI
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=g47y6kBtYWl7nY19pO+71OmkiWZGVFw08qnF6J2lAxQ=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795127514; v=1; x=1795732314;
- b=hmt6M7WIG2umWH/vAuaPT+JIDyB2X/6djP+N4iKm0Ydvgz1wGPtwLtZaLe9abhtvYfR6AOhv
- k9t/pnZS3ezxi2x72TOYsaVfGQw+cnkIDSyap6UBVGB7kHBF5DKv+aS+aGJWAnnCxld3DTTRw6g
- eppj7jlMIQH1wvGZWrgflYc4=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 5af38cce51c07ae7;
-	Thu, 19 Nov 2026 22:31:54 +0000
-X-Mizu-Trace-ID: 5af38cce51c07ae7
-X-Migadu-Flow: FLOW_OUT
-Date: Thu, 19 Nov 2026 23:31:48 +0100
-From: Denis Benato <denis.benato@linux.dev>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Paolo Pisati <p.pisati@gmail.com>,
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>,
-	Luke Jones <luke@ljones.dev>,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>
-Message-ID: <767edb7d-8c04-4cf4-88fd-de26fe9b7f44@linux.dev>
-In-Reply-To: <op1o5n3o-s3s4-1q2o-65pn-onss079rn780@xreary.bet>
-References: <20261020092423.36380-1-p.pisati@gmail.com> <op1o5n3o-s3s4-1q2o-65pn-onss079rn780@xreary.bet>
-Subject: Re: [PATCH v4 0/7] HID: asus: ASUS Zenbook Duo keyboard support
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AIZt2S04
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B73B1F000C4;
+	Thu, 19 Nov 2026 23:03:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795129394;
+	bh=Zd5y4/iKVR8cIRL5xSomMHsnhEvzs0tFOB3YXKd6Dto=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AIZt2S04HsqBdjUj8LQzR5dJNwK1YywkqDmC/aeovDrNCPKjqLA0/uhaIfmPHAaWF
+	 eIl20UPXqPNBAE5VSm5VOCae3HAXxDyk0+7WL73MgFETZ6ZjA87bIzgJ9LOGDeetuJ
+	 FuAEGRUfBrSxqi83tULgQmNbgPrcBg4rO3m7k6GYSPre9r7j3/oD9Bu+ItyB3vArjP
+	 RyxBjsnhY1XoVt72SETxdsXHzsp9YNwLI7L96XtjTLBeFw1AMFuJiKz9z+XIbcWtTw
+	 q7IZuA2Ftp8RXrcrxIU8I9lVDN5yDuJ+nnvEZaNDxNOXoXuENnYVwD4phhe/6KAQLc
+	 P655iNDbFJOPw==
+Date: Thu, 19 Nov 2026 23:03:05 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 1/8] regulator: core: Add "enable and wait" functions
+Message-ID: <7d52cef3-03ca-481a-a554-3a1002e2b8d7@sirena.org.uk>
+References: <20261103043734.2179858-1-wenst@chromium.org>
+ <20261103043734.2179858-2-wenst@chromium.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -70,78 +66,65 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Correlation-ID: <767edb7d-8c04-4cf4-88fd-de26fe9b7f44@linux.dev>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="guRl6a/jxrclhYOU"
+Content-Disposition: inline
+In-Reply-To: <20261103043734.2179858-2-wenst@chromium.org>
+X-Cookie: HAIR TONICS, please!!
 
-19 nov 2026 22:31:57 Jiri Kosina <jikos@kernel.org>:
 
-> On Tue, 20 Oct 2026, Paolo Pisati wrote:
->
->> Add support for the detachable USB/Bluetooth keyboard of the ASUS
->> Zenbook Duo line (UX8406MA, UX8406CA, UX8407AA): hotkeys, keyboard
->> backlight and the platform profile key, over both transports.
->>
->> This patchset is a collective effort, gathered here:
->>
->> =C2=A0 https://github.com/NeroReflex/asusctl/issues/25
->>
->> Tested on a UX8407AA against 7.3, docked and over Bluetooth: hotkeys,
->> keyboard backlight, Fn+F profile cycling, and the touchpad staying with
->> hid-multitouch.
->>
->> Since v1 the series has been reworked with the help of an LLM coding ass=
-istant.
->> It was used to analyse the review comments and the code they point at, t=
-o
->> draft the changes and commit messages that address them. I reviewed ever=
-y change
->> and tested each version on my UX8407AA, docked and over Bluetooth.
->>
->> Changes in v4:
->> - Rebase onto hid.git#for-7.4/asus, now with Denis's "improve the
->> =C2=A0 driver support for laptops" series.
->> - Drop the delayed handshake re-send: Rebecca measured that the
->> =C2=A0 keyboard stays in hotkey mode without it.
->> - 1/7: check one quirk per branch and the transport in a nested if,
->> =C2=A0 initializing rsize_orig and offs so that clang still sees them se=
-t;
->> =C2=A0 use u16 and declare new_rsize at the top of the block (Denis).
->> - 2/7: shorten the comment and put it next to the mapping (Denis).
->> - 3/7: shorten the comment (Denis).
->> - 4/7: only handle usage 0x9d on Zenbook Duo keyboards, and take the
->> =C2=A0 worker lock with guard() instead of a goto and a label (Denis). T=
-he
->> =C2=A0 IS_REACHABLE() checks stay in C conditionals rather than #if, as
->> =C2=A0 coding-style.rst asks, so both branches keep being compile-checke=
-d.
->> - 5/7: list the report sizes of other devices in the comment (Denis).
->> - 6/7: move the entries above the existing HID_GROUP_GENERIC ones, so
->> =C2=A0 that they do not conflict with the T302CHI dock entry in for-next=
-.
->> - New 7/7: keep the input device names the keyboard reports instead of
->> =C2=A0 renaming them to "Asus Keyboard" (Denis).
->> - Add Denis's Reviewed-by to 3/7, 5/7 and 6/7.
->> - Drop the Assisted-by tags, following "docs: remove Assisted-by
->> =C2=A0 references" in linux-next.
->>
->> Changes in v3 and v2: see the v3 cover letter.
->>
->> v3: https://lore.kernel.org/r/20261013104033.36079-1-p.pisati@gmail.com
->> v2: https://lore.kernel.org/r/20261009153459.124752-1-p.pisati@gmail.com
->> v1: https://lore.kernel.org/r/20260513163248.16483-1-p.pisati@gmail.com
->
-> Now in hid.git#for-7.5/asus, thanks.
->
+--guRl6a/jxrclhYOU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Jiri,
+On Tue, Nov 03, 2026 at 12:37:25PM +0800, Chen-Yu Tsai wrote:
+> In device power sequencing and initialization use cases, it is common
+> for the driver to enable the regulator and then wait for a certain
+> period of time to pass before continuing.
 
-Thank you! Tomorrow I will rebase the ROG ally one to sit on top.
+The following changes since commit 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4:
 
-Best regards,
-Denis
+  Linux 7.4-rc1 (2026-11-01 13:26:31 -0800)
 
-> --
-> Jiri Kosina
-> SUSE Labs
+are available in the Git repository at:
 
+  https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git tags/regulator-enable-wait
+
+for you to fetch changes up to 9f9bcca6adc314d35818fc903a2d73898c169062:
+
+  regulator: core: Add "enable and wait" functions (2026-11-07 16:42:09 +0000)
+
+----------------------------------------------------------------
+regulator: Add enable and wait functions
+
+Add helpers which smooth and optimise the process of powering on a
+regulator then giving the device time to stabalize after it has come up,
+taking into account if it was already powered.
+
+----------------------------------------------------------------
+Chen-Yu Tsai (1):
+      regulator: core: Add "enable and wait" functions
+
+ drivers/regulator/core.c           | 129 ++++++++++++++++++++++++++++++++-----
+ include/linux/regulator/consumer.h |  21 ++++--
+ include/linux/regulator/driver.h   |   2 +
+ rust/helpers/regulator.c           |   5 +-
+ rust/kernel/regulator.rs           |   2 +-
+ 5 files changed, 135 insertions(+), 24 deletions(-)
+
+--guRl6a/jxrclhYOU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmr/gCgACgkQJNaLcl1U
+h9A1rggAhuZF29Wh+qc2EFGYh5zC2YrRDm05Yr9iUHO8DE2x+DAQLvxONEKLyWKd
+hKGejRYBe12LmUet8wpvLHTPZXCrHXmgpK8Q8WzjpsQ4KVbwtechoDUL9uYdOgpq
+Cqf4QUpaTYrBN+VIQLC3qBwTkk4PViEkdd+3IP3srRUurwAdLczvWQW1rn+6goXE
+/MeZP5Nr0E5gELLlZ72PxJ8GeVKXMCAlh3I61PelsRYl3yZMnBekDyugOf69UO2u
+jof5/kkk4xGdHCK342b8idblZ6E6+Fwq8fYX/IxuNzNoGuDgG5rD88EoVJ+cIoeV
+dM0dbJKQqVV98NAV6CkLRJTQw7+AWw==
+=NHAI
+-----END PGP SIGNATURE-----
+
+--guRl6a/jxrclhYOU--

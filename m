@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795121749;
-	b=pKcDjcVPweoz4guXDyRMGYaaPgYvVv4DWZ23OyojiJITibVXWC11aTnT5WoicLZsmjOS
-	 UHPqAqQYFNf1XFlm+JuGDYljR1bjjc8zm7+iN+YR84V7khDKQwHM+N8nR+vA5L9qcOggV
-	 KFyFExHqPNza3S7oWlf8FC8y4/WeOW+nz51gV3WIDnFbz6Jv/x8j4BvOm/Ni+Fo5NTceb
-	 PzpLIr57tGb0D/6Byrqw55CPunopscu+iP6+Y9hM/J+uZIzbxwuxK2hIci0rNYFTU/bDf
-	 zI75C/EhGfm4rIJDq18OqGaFatVtg+kEsbaHQEM7U+eDuf/zjtwQO5EpJx+beG7Qibg==
+	t=1795121840;
+	b=5hjSn7K+RZoT5BsUrMdDYAO/tqmW3A6VbgfB023HZZjaTzpv27S2k5yxqxbW1oUFJD86
+	 0OfiYnuKOsXv1COPujOJDb+pb8949e7YP+fmWeE7z9tvEOZkSY0WqbSNIG7OqHoIHkNWb
+	 p8uxZLX5rGQoPTKMDIIzfhakc1j2iinL5NwAl7frVZOIEgNJTeIjcnBkcn5x54pgZVWNU
+	 fcWEGs0jNYbFBCOYZSrFK4np9KhGo3zkKjdqaPuM92jJE5zgwAZcoKo6drW5xRrhZMZCb
+	 7CMaHfoDt2km7IAJbrfMxMNvHqO453iHMAv+PpuouQzn1W3V7VA5T5rcwKYV+YSDSRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795121749;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795121840;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=VmFIuhYfP2v45XhFsesPKtjzFx6PdLailA1+NFQsFxc=;
-	b=SDS0aDZzXPjX4L8ZPzn9zVqT58g7CJjFlGp9OvsJVSs9Bf9DVwHKa4ccQE2x6Gfk/ZZr
-	 7650S3vPMk55w2BOZYkcvvhijfDpNSUxldd7jaOD1h1imTdbFwyLMoqwIi3u0Tet+Lcet
-	 WDSXlOjyy8NHqwnXDqRnOlMz96QU64Tt7UTeJbNOUQq3UfLyHjP7bDzZ9ZGXKe1DqhTN8
-	 Yp/Q3u699c+IjoazWh+ZkYlzMKQNQGGsLq0YYibWlPFEnyfcNUbMuSCsu2S3DnOL37uR8
-	 2F8QJ5yve4iaC/3EOwrgzgQg6AutlVw0HO1pl8B1D/hr4EONrETETmxrvn+eTSzQaNQ==
+	bh=tPzrUra+LnErAbnpIWE8RC+XmxeXyMzgxTDdozvjQ7k=;
+	b=ZMbWuyvxY9/Yt1XyUPDuEuCArbSvTIWMrw0pRI480JOsiBMtWbGLyvQOF/WVe9FoWzAO
+	 dLKh43J9vqPiftA+eXwlcAf9yJg2B2uApZQoH1HY3Tsjq1T/uhnP5ay5TE5yk3SO9Er4n
+	 DVeLFvPAZ/AnbWGH6T8D7T3NyUdBSnDC1XMNQVGnvsHP8kr+ME3gtSpVzWCJz/Xs5v8kd
+	 m+PdJR8II21UKLnvBLZpoi2xG24dWBOGjMtvoKMzOMYtH23XfZaWCDn/P1e1jxcxe6y4K
+	 YCxJeklVB6MLFpj115vcdN0ALtcyg+nkkWMewTmaHqyunzB/YZn9LJGe8BiUJVYGx/A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfYJbHsg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxsuqYZs;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 491A7606A320;
-	Thu, 19 Nov 2026 20:55:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A53D606A326;
+	Thu, 19 Nov 2026 20:57:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfYJbHsg
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEB31F000C0;
-	Thu, 19 Nov 2026 20:55:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxsuqYZs
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 755591F000C0;
+	Thu, 19 Nov 2026 20:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795121748;
-	bh=VmFIuhYfP2v45XhFsesPKtjzFx6PdLailA1+NFQsFxc=;
+	s=k20260515; t=1795121840;
+	bh=tPzrUra+LnErAbnpIWE8RC+XmxeXyMzgxTDdozvjQ7k=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=bfYJbHsg7ayESzygWUmQpu8CReYiL28GmUFbYPdLGqbcshAsXGweYjDSb2F5rLY45
-	 kU+Q4NbL81lZ5NStlB8eMEsCXBcWSIEAXTf477Q0sfFYgWSJducvXDEePKEvTmN924
-	 B3w9eRkrDv7SteU4nKu6H2R8XK0nXQuHYxlCoI96gUJJjeX2FudV07ansgmkxZEEPR
-	 /yD/apNSH+hIxuztRsqO+RUrCTvcWfNoEVXV/UhFaLWq1cSbcO5Ci6Gj3DmyVOBPp7
-	 I6nbr+qvKVb5tYhBfRU1OazG/II4Qa4kEvGqG7iSFHf7ojE5v6A7wgZAKOC3TpPDDT
-	 BoIcd7pKsSqZA==
-Date: Thu, 19 Nov 2026 21:55:46 +0100 (CET)
+	b=GxsuqYZsUGRRqjLgGBaAIj01nOJ2IJ1VpEkuB1HX+6fEomjQJ868YHdlIvkADz6Pw
+	 yB9sXonfGxBQ7oFxr7BMpEeNLSnrhYouq18vXaJlxGL+54CwyqgN0Z7ZpCgz2+J3Kg
+	 JzngTgRvUjVtzCHUcbbL3JZ95wuLRlg/m7ignavXUJiomK9x56mx3Boe+VYhqBl4PP
+	 b9o+IEOiGOv0YsnqhL7QyCKaQZ6yO/9TsCCpxl1SEHyQqzS+TGR9Qqb2z+PxrP5tcJ
+	 NXmw8YvRZ2wVqXpbtA9fmDXhZLsEulNmzrLDFpTOsW7uB6PSg9IUouxL/lrtmLl5Qo
+	 CuaQd40ld2SvQ==
+Date: Thu, 19 Nov 2026 21:57:17 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Krish Gulati <krishgulati7@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com, 
-    stable@vger.kernel.org
-Subject: Re: [PATCH] HID: core: serialize report_descriptor_read() against
- probe and remove
-In-Reply-To: <20261010095211.12831-1-krishgulati7@gmail.com>
-Message-ID: <578s4770-23p5-78qs-9po9-49oq2sprsos8@xreary.bet>
-References: <20261010095211.12831-1-krishgulati7@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/12] HID: rmi: Fix report handling, device lifecycle,
+ and clean up code
+In-Reply-To: <20261113-hid-rmi-v1-0-afc43d97d766@gmail.com>
+Message-ID: <s9prps69-s294-r1q1-319o-1orrpnr9r9p2@xreary.bet>
+References: <20261113-hid-rmi-v1-0-afc43d97d766@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,44 +61,19 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 10 Oct 2026, Krish Gulati wrote:
+On Fri, 13 Nov 2026, Dmitry Torokhov wrote:
 
-> Since commit 54f32fd5dff9 ("HID: Make report_descriptor available for
-> all devices"), the "report_descriptor" sysfs attribute is part of the
-> device's attribute group, so it exists from device_add() until
-> device_del(). It reads hdev->rdesc, but that buffer only lives from
-> hid_open_report() until hid_close_report(), that is, for the duration
-> of a driver binding. For a driver with a report_fixup() callback,
-> rdesc is a private copy that hid_close_report() frees, so a read that
-> races with the driver being unbound accesses freed memory. syzbot
-> reports this as:
-> 
->   BUG: KASAN: slab-use-after-free in report_descriptor_read+0xb5/0x100
->   Read of size 24 at addr ffff888078d61f00 by task fido_id/7281
->   ...
->   Allocated by task 10:
->    kmemdup_noprof+0x2b/0x70
->    hid_open_report+0x1fa/0xf00
->    lg_probe+0x29c/0x890
->    hid_device_probe+0x46a/0x870
->    ...
-> 
-> Because hid_close_report() also clears rdesc and rsize, the same missing
-> serialization can make the reader see a NULL rdesc with a non-zero
-> rsize.
-> 
-> Hold the device lock in report_descriptor_read(). The driver core
-> already holds it across probe and remove, so a read can no longer
-> overlap with them.
-> 
-> Reported-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
-> Tested-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
-> Fixes: 54f32fd5dff9 ("HID: Make report_descriptor available for all devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Krish Gulati <krishgulati7@gmail.com>
+> Jiri, Benjamin, could this series go through the input tree once
+> reviewed, as I have follow-up RMI4 core changes that depend on it? Also,
+> would it make sense to move hid-rmi to drivers/input/rmi4/ alongside the
+> rest of the RMI4 transport drivers?
 
-Applied, thanks.
+Please, take it. The HID queue is currently so tremendously huge, that 
+anything that you remove from it would be greatly appreciated :)
+
+	Acked-by: Jiri Kosina <jkosina@suse.com>
+
+Thanks,
 
 -- 
 Jiri Kosina

@@ -1,54 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795124913;
-	b=k9aHIl+y6raxMrsvEjO0a2KzU9ySgn5VcSvUQ8DvOqkj+3v6aszEcUiltpWIFr5zqwq/
-	 obtx0lPB0F8Pi15YXT2AzPzj0te3AXes7MW36oMYF/ZQpBrWttAbNVR2ysGtHWy6hVczm
-	 IsyV67MSkYI/+w39nAtboBDng997REualRu/sqILDuvz2e+/ROI/b6f4/fPRLfohxj5cx
-	 JTG3kgxO7OVIJo7PenMJm3zHQvyw64iwvH1U+NrIuazhn5VPbyMmWAHlmAzjsEfXgrrTL
-	 0QSc/uI7HxYc44ypDzNruJXaihWzVHwFMBRU0YQ27VsoHYQkE1QAb8EMMxY/TEHpkhw==
+	t=1795125046;
+	b=4evwxNDck2f84fGBOMGkSDCEQ7RVesXFg82hYI66y4LWzZPUA2SweIYhQ/SqUxHJ1MYm
+	 0TDviFw/ZAyAFi7pw6b/eTSdUU2eo7jnj6A6ScJm3Ni3Uy9HgNVZkzLI6tJIYpLqFYWSB
+	 z9EMN6hhQleDUsuYvLQW/4MU/d222CNFI7gd9d1N4N/+uXeiZuLrlKpL4DmjvRDGJjGIk
+	 GWHrCH5eJKjFb2N3QFcpnCv8VT5X2DvGkrQMpwVnRCCeQobBKVTpYVvWNmgU6E4tkvlh5
+	 OyDMRaKFcciNZIUS+fL7ShL2ryrV7Tllu5z4aLRdelisFaPj9N98mTl1fXLx7lybvOQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795124913;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795125046;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=3RLrWa8cWiK47JmZg+2x4DjG0a31/hKehv9jC5FxM4I=;
-	b=yEkHRcu338hTVCNdY3OcfXJjwb7L9gVljQbZe6Li1ox9zmKMdeFchytHJgL8erG0TaMD
-	 iV678UkW3Lzz+TQGtnkLmTggl4ml2V/AJuJENrux6SsGlp5FkCiawLoehhRVsRbMJgs+N
-	 umiNSsbJqYyWJ3k1wzvZJG+bPPm48zFWZe5x4T2JeTMh5Be85RS2nAwudf9oeMqLc81uU
-	 S/vo/chHHDycmUIey79gbNDXzyCxp5cQWIYMOosO93LpOwjD/EyASxZFdMr1h+n94Hj3B
-	 IkAAKP4p4P+EJTTG1TCTrv4y5eSFQbWVCeXs2p2gHa5o3x/2qudDXC9ZciNLKE9vdow==
+	bh=NKLt1NClIBj1ugn8xKsmxJCnbyETMn/KSJJZjZIID3I=;
+	b=2Zy91Qqg4VWCAgdwbaZ4Lu3FrzBSGsaHvV3KEfmtObiDqIdiIFl2IYfHot+50pnAGkC/
+	 V704Oe67i/0DXJDPcpgsCJOT+EVRn21gX87CwX+UVNRD8kG8OKEzzkeSSZuhqhUfI9a9Q
+	 YkRKVUXhpByILDKcRFga0JNRJ4siasxFbXQ+uD7xFOHaUca6C2GdtXIs8+yL3cOg8GqEH
+	 iwWAX6jCfT/P3cZ5knZAXET/ea5T+VQbW+QdKSPMjxyVUk3b5HIBwYC/o33TPW+kVct19
+	 O5fAW4QlIPLnjodGomA07EpbGaz7UsXKxO/Af3oUfkcGh2b+C2L5L284GpMgdxeuy4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZS7jDjd6;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2kmPfdW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A3D2606A320;
-	Thu, 19 Nov 2026 21:48:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDAC9606A324
+	for <linux-input@vger.kernel.org>; Thu, 19 Nov 2026 21:50:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZS7jDjd6
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62C041F000C0;
-	Thu, 19 Nov 2026 21:48:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2kmPfdW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F721F000C0;
+	Thu, 19 Nov 2026 21:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795124912;
-	bh=3RLrWa8cWiK47JmZg+2x4DjG0a31/hKehv9jC5FxM4I=;
+	s=k20260515; t=1795125045;
+	bh=NKLt1NClIBj1ugn8xKsmxJCnbyETMn/KSJJZjZIID3I=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=ZS7jDjd6DAFIDX5vfgIXbi0MV89HFrrSH9odppR2NQ9Rfy2Ap4Qc4RxxAVYIzXKxQ
-	 QnvjCNPnedex0tWR/7BW7LPTz5Yb5Uu8sm09vVM9y9BZ6hSM7vMCGjq69p6u+2N94Q
-	 Kc8S1ZCnN3v07kaROMFJxnsBmhIl1QUntLayIKs2ntTuL/8FYwDxqdNgqomtAUr1vB
-	 n8ZeSOsP2qdYyyFSdR95X9VlYubq1eE4iHPqJTlgVbF/2eBoKh7sEAgMSAXAjlXhne
-	 i0B/GYHBtrlxAjbgKpohRfIShA/ZN9/2W81i00r78Je3Vjkazrq//zkt0e907pYVBE
-	 KFTcLtivtTUjQ==
-Date: Thu, 19 Nov 2026 22:48:30 +0100 (CET)
+	b=T2kmPfdWwv2MaPMF3L+1eaU6X9EDsgNDHgZOi0302ZbXBO7+5QYXKXSXTkUyWAlgq
+	 N4s8/BZoNL2gguaRSABrZ4VD1GMASpq3/N8TtBdTBhkkyyDDUJwbVwrKbeFlCUE0XB
+	 g/9fnoLMNfQSvkeGlTfvLE3YJF94UL0HycZEHc2cO0Sacu/3cQL4SW6Te6mmHc4iC3
+	 wDhMLuMiy8wPyZkVafwCCatFq43GAc6iJOoynByUEJ7XsHg8GLZhOuTleepe875+HV
+	 vSVYZxGiNCtE2Q/4Uf5/R6QsrHy8sv+adukHRMbLLTHyWfIPfgBvgLvxjhyHcLZE2O
+	 ROxsSRf95CsAQ==
+Date: Thu, 19 Nov 2026 22:50:43 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Viktor Sharha <vsharha07@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: quirks: add ALWAYS_POLL quirk for Keychron Link
- receiver
-In-Reply-To: <20261028232945.20169-1-vsharha07@gmail.com>
-Message-ID: <4357r996-sr60-6s7n-n8q4-or999078n712@xreary.bet>
-References: <20261028232945.20169-1-vsharha07@gmail.com>
+To: Sang-Hoon Choi <csh0052@gmail.com>
+cc: "Daniel J. Ogorchock" <djogorchock@gmail.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    Changyul Lee <lcy8047@gmail.com>
+Subject: Re: [PATCH] HID: nintendo: release the player ID when LED setup
+ fails
+In-Reply-To: <179001656825.91284.1468613120745540918.idr-bug-07@gmail.com>
+Message-ID: <5qs0ps50-5pq2-5497-2p76-2198438so996@xreary.bet>
+References: <179001656825.91284.1468613120745540918.idr-bug-07@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,27 +61,41 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 28 Oct 2026, Viktor Sharha wrote:
+On Tue, 22 Sep 2026, Sang-Hoon Choi wrote:
 
-> The Keychron Link 2.4 GHz receiver (3434:d030) exposes a joystick on an
-> interface of its own. Keychron's Hall-effect keyboards, such as the
-> K4 HE, send a burst of joystick reports on that interface every time
-> the user switches actuation profile, even when no profile uses the
-> joystick.
+> joycon_leds_create() allocates a player ID before allocating the LED
+> names and registering the LEDs. If one of those later steps fails,
+> nintendo_hid_probe() jumps to err_io_stop and skips the ID cleanup.
+> The failed probe leaves the allocated ID in nintendo_player_id_allocator.
 > 
-> Desktop environments do not open joystick devices, so usbhid does not
-> poll that interface and the reports are never read. The receiver then
-> stops delivering keyboard input on its other interfaces until the host
-> re-enumerates it or the keyboard is switched to wired mode and back. A
-> key held during the switch also keeps auto-repeating, because its
-> release never arrives.
+> Use err_ida for this failure, as the power supply and input setup error
+> paths already do. If the ID allocation itself failed, player_id is
+> U32_MAX and ida_free() leaves the allocator untouched.
 > 
-> Holding the joystick device open, or booting with
-> usbhid.quirks=0x3434:0xd030:0x00000400, avoids the problem. Windows is
-> not affected, as it polls every HID interface.
+> Fixes: 5307de63d71d ("HID: nintendo: use ida for LED player id")
+> Reported-by: Changyul Lee <lcy8047@gmail.com>
+> Assisted-by: LLM
+> Signed-off-by: Sang-Hoon Choi <csh0052@gmail.com>
+> ---
+> Found during source review at mainline
+> 5dd1818b15d98d4a20806cd00b1b40320b06004f. The affected source is unchanged
+> at f0100363d8c374bd8e9ea7c9ba02744f0b802ca4.
 > 
-> Link: https://github.com/Keychron/qmk_firmware/issues/532
-> Signed-off-by: Viktor Sharha <vsharha07@gmail.com>
+> The modified hid-nintendo.o compiled with x86 allmodconfig and W=1.
+> I have not tested this on a controller or injected LED setup failures.
+> 
+> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+> index 43e0f2aae..bec0e7652 100644
+> --- a/drivers/hid/hid-nintendo.c
+> +++ b/drivers/hid/hid-nintendo.c
+> @@ -2784,7 +2784,7 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+>  	ret = joycon_leds_create(ctlr);
+>  	if (ret) {
+>  		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
+> -		goto err_io_stop;
+> +		goto err_ida;
+>  	}
+>  
 
 Applied, thanks.
 

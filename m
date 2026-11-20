@@ -1,60 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795198346;
-	b=U8B2140evbPdeOCKDucY3M6tQIs2oRimrXnFe3RDR3GsszEqY6tyE9lT+6HlPKWXQjqv
-	 XRNKWpYXybJ+bCiuIK9KZgn3Yuxc07jqt8U5eXiYa83HbULVj2h+Ic5jDgh+HgKayVcEW
-	 CPijnubvCXb2Hl3xG19ZYvua8W8VX5JjkKbn6q5AyM3bykPik6p5ORt/RcCTWXpHZN+JH
-	 5PvPncj/D+vhuSXLuHwO1fbneSSFLk7zJV8954wbp4UZ9ANzXYCCBaGlsFAwf+yotKbOP
-	 qaddzNlqlcPFU1XBgDXuH5vrc5KDZAwXw/5Fk1KXjeE/ltfZ6cRMTmVmfHoXkQ1pfow==
+	t=1795203910;
+	b=kJ2CDPmFzyxDpC+cEkTqApJDkmxvTUdrNMoORXj+L6GB1U41I5voiboScp+nFbdJE+3b
+	 yOcrb+maLOt3Jb2xkxM5qnpJhDsMh33fGfbrXaqYEZtjxaX5ceCJfJa3vEv6C7zgJ02Mb
+	 qEq8KkFWTVP/bVWTIlRi9od5VYP1ltAblS69tlgSODKfjIHmW4zdnC9ifKkQTliZVhcIC
+	 In2kMgqvlVnQklb+6OzKaS8pxvkJ/6ooxZspv5/Ai9E4oPJcWfbx6bjUU6+d8WjZ3I/s/
+	 4FBpTsIVw4SYI4Fd88CbZ//IAdfgF7QODt71gd/F9VsJ+63rUF1K6NZk47JkS3V8biQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795198346;
-	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
-	 Message-ID:References:MIME-Version:Content-Type;
-	bh=KcwRryR3neRBeXsDs5tPByJSDLgkVU6x8pfTYeBco80=;
-	b=1wXwuO5w4YblRc9/J1SJw2E6+o66T/badt6fTbeHYY6OPloWd5IHIHSncQNYVYvufnfE
-	 sRKjyqOyq7RW9SeWf2IQPqqwwTUSW+55TMHIA0SCTQM6FzddhWDYVswuGUC3GQoHp8/Qb
-	 RuNDJaA/GPDQAGZnuuHZJfGArJqGimZey9n4nT5KoRXQWmXGlDdAwckHTmlmP6oMIUdZi
-	 T4sDJBAwJGWY65b5ZrWkQA8bLiFqW/ksvQCneXycBIu6N9yV/sfWp4MggSr063JGXL9Js
-	 ycHSZoJItsMyAIMgbDdg9s98v7FPoga7wzv4dRbcpKG9pb3hblUR4sHH38UF1/BkL6A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795203910;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=Wr9zFEBn2Yml3t1O23TLCfk4wIZeWQhiBnnGr65cndY=;
+	b=SHVfntwwqDH6l0BIbWAD3dNiMzuTEzrJiRAx0gfu+/5Z1NFQevzOxBvx4WvNuMSxIOgR
+	 6lO2n7RgLhRrimjK/jWqB6RfyTnNlj3Ftyr0kGnwqKcK0EWLox5q0M+fOpodtxFTbBrUB
+	 7SUpXVC0n/dD+VA1UyDznScw3t1Z1j8k+W2SZ0nsjbxfMQrn1k+66+21lsrqntdiV0euZ
+	 oIplr5ZFGxGkMk4Rv+u/hoJDIbELJZLV/nDr40hmZaCNmmXmZDj32ujr2HmOi8DGRkOqI
+	 6keAFD3klC/1H0E6GLZeGII2VaTgu6YL1V2UE4QGP+lZun5AjVCKf8q0ON1mpdUonZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FtKAbNqU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YExeQHFJ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD89606C6E8;
-	Fri, 20 Nov 2026 18:12:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F84A606A6C9;
+	Fri, 20 Nov 2026 19:45:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FtKAbNqU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF381F000E0;
-	Fri, 20 Nov 2026 18:12:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YExeQHFJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 748A41F000C6;
+	Fri, 20 Nov 2026 19:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795198346;
-	bh=KcwRryR3neRBeXsDs5tPByJSDLgkVU6x8pfTYeBco80=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=FtKAbNqUGHwj0s1LLutnHR5QtqThcZtCW9uc/lzJXEl+cEIl9vX7qS9EBFydcX94V
-	 H61X2xksTE9pcOjdBx4KfezuokBEXX2kjj2Gn2o3bsc+MuVGj8UJR6MlRl8ocs5CBR
-	 qcCsv3zxo8wUPx4rQPlk8kAH1vIigIXGmpXVyPrZG6VjDafFnskm+fB+gu96Gju8ab
-	 LbnGsSHGgjNaUgUUfOM2s2BSq5FucRyATM56Ux/K8c86TjYWtuMvzlztJ6WD2LBmzV
-	 G+29orJHXGwa1Oh0/NRO+y7igdECELhFQy+zEoosGka1WI2doqvEQT64X+a35DqpQo
-	 gfUoURvi5T5ig==
-Date: Fri, 20 Nov 2026 19:12:23 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Gideon Heinz <gideonheinz02@gmail.com>, 
-    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Bastien Nocera <hadess@hadess.net>, Hans de Goede <hansg@kernel.org>, 
-    Edwin Velds <e.velds@gmail.com>, 
-    Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, 
-    Andrey Smirnov <andrew.smirnov@gmail.com>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 04/14] HID: logitech-hidpp: disable works before
- stopping transport
-In-Reply-To: <awCMOvYf64DZfuWF@google.com>
-Message-ID: <73r1s387-pn80-s74n-o50s-056r1pn8512n@xreary.bet>
-References: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com> <20261120-hid-logitech-hidpp-v3-4-cfe2caa1d0eb@gmail.com> <r078ror3-9q6q-s581-35r4-63pnp1p93s85@xreary.bet> <awCMOvYf64DZfuWF@google.com>
+	s=k20260515; t=1795203909;
+	bh=Wr9zFEBn2Yml3t1O23TLCfk4wIZeWQhiBnnGr65cndY=;
+	h=From:To:Cc:Subject:Date;
+	b=YExeQHFJiSHA6UcrdNEFs2p8aZMoTwLwB7O3B4zEkhJ9f0yvm8F3PrX5C8MFFMZLv
+	 8jG5CtXIFWqnXOmwat8yCTasuQ4fieaEl0jDhqmwtq/r0t10wFTuNtkby3hysgLQAf
+	 GP6LxYXpfvo2TotPdGj8/5jpjKE3JYqc1dGuBg2Vq8fkuvGAd3hiR3JP1NFmN6k3fc
+	 HjUB6bSMooHyRgBW2B8xGejc7/LmEdR/z9X5HHHg+aDAln4J4QZYp9Xqg1tbefWgwZ
+	 CX0DAkALuAZL5TeAeJirSP65GLoAjiTukA18aPinbqBWEY9GoQH6nWxXkUDh3OPWi0
+	 2u21yjn047yyA==
+From: Sasha Levin <sashal@kernel.org>
+To: Mark Brown <broonie@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	Linux Next Mailing List <linux-next@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linux-next: semantic conflict between the hid and pm trees
+Date: Fri, 20 Nov 2026 14:45:07 -0500
+Message-ID: <20261120194507.593601-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,24 +62,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 
-On Fri, 20 Nov 2026, Dmitry Torokhov wrote:
+Hi Mark,
 
-> Ah, yes, I un-exported it in my hidraw cleanup patch series that you
-> just applied.
+Once you take the current hid tree again, it has a conflict with the pm
+tree that doesn't break the build.
 
-Hmm, but that cleanup is sitting in hid.git#for-7.5/hidraw, while this 
-build breakage occured in for-7.4/upstream-fixes, which is based on Linus' 
-tree and doesn't include that hidraw cleanup ...
+d220bf485598 ("HID: asus: Cycle the platform profile from the Zenbook
+Duo profile key") in the hid tree checks
+IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE), and 699041135f75 ("platform
+profile: Extract the core from ACPI") in the pm tree renames that symbol
+to PLATFORM_PROFILE. With both, the check is always false and the
+profile key does nothing.
 
-> Hoisted by my own petard ;)
+It's the same rename you already fix up in drivers/platform/asus/Kconfig
+in the pdx86 merge. The fix for the merge:
 
-:))
-
-Thanks,
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -438,7 +438,7 @@ static int asus_platform_profile_cycle(struct asus_drvdata *drvdata)
+ 	struct asus_worker *worker = drvdata->worker;
+ 	struct asus_work_action *action, *pending;
+ 
+-	if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
++	if (!IS_REACHABLE(CONFIG_PLATFORM_PROFILE))
+ 		return 0;
+ 
+ 	guard(spinlock_irqsave)(&worker->lock);
+@@ -870,7 +870,7 @@ static void asus_work(struct work_struct *work)
+ 		asus_kbd_wmi_fan(worker->hdev, &action->data.fan_hid_data);
+ 		break;
+ 	case PLATFORM_PROFILE_CYCLE:
+-		if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
++		if (!IS_REACHABLE(CONFIG_PLATFORM_PROFILE))
+ 			break;
+ 		ret = platform_profile_cycle();
+ 		if (ret)
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Thanks,
+Sasha

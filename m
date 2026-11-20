@@ -1,89 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795164251;
-	b=QWYw52Iqgp/MsPGFArOtSTn/Y0+tLR6z4fHKGL2VwLxrWJgCll4XqleXGhjWIdhpir+5
-	 Ai8FskhY/I9qXfbt6YsM7UTPvHWPBqyyquTnmAacEnx/QVveHtL8I2tG7d+PAkkPUNwnJ
-	 +c0iNEdejlbW0ZA08HHCSzao2nwE4bVog8TtNle4DiHdOZTa7IrCUreV8HViyqfrgiFrN
-	 R3RbaFHIhKqdgCF0w0OCwaLjtjwk/WFlprm7p1wL9B9N1w/FLow2cbagKKzjdzNOXw5jS
-	 kFvjwgqrw1Hdw7+xJhBD9AfbtlWK3U3B1vby9AT184TE0Ddgqa9f4o4+0D2axQiW3tA==
+	t=1795164253;
+	b=18UXC5Icpi2MP9kseDv8hz1nBhD7b4BD3IycO32blWfE0NETKic/jjvPApHWlYi9JxPr
+	 BafJpHxarv8Nefh8FCO0cj3Wj3UsqwkoP4Qu+zQ8eWEsgSXafFJo0jSew2ChHCRPZrHDS
+	 YHWOe52kPNwMbh4iuq959DsQQngkpnOjGaaocFzc1RflH1RKIhxlN13HM6gmi8ZHtlJSO
+	 Hi1vOLp2VWdEJzHFQoOcUaybDE8wmzqnDPuJSdZmQqBsqGGu/v7lYiKLC5q3lV6yKYLx0
+	 pYAKZ4/wox3780sm73Trx6g1syYvluzJ2ykX5mbriQjob2NbEchA/NgpegGoOilJGqA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795164251;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795164253;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer;
-	bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
-	b=yHn3CJWVMQ6fHSXc8/MDAUkPNRmqfuVKG76UGeJpz2qf6KCrWvpZ2Y7E7YBzGFHEVOcE
-	 vJvoRFZD4DShfCQC3+gOcOX2gtLrBpuVqLFsgcBdUCehabQuAHEoQb20TRVg1kzpfvqPB
-	 U2DSoyX+L+XAvCpjmLk/K7ql4M2olmTxZq4HT/uEB9xr0gTGtVoRc7jhGOYrKeBFRmIKJ
-	 3J7GGpNxAkTWvFiFytxF+lUlw2WM1tAi0AECRZAWc/mKgsIRyuSGniGP87LXAdPjL2S5d
-	 +QuLQ7Ix0cuin9GJniuWhoZee7aV0eitrC211Rv5IlnsrQrUl4isj06PxlHwuVVA4Kw==
+	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
+	bh=vV2d7SamsF9BbiK6MJIIboxgwzjtmzdUXZZLAxIMzUI=;
+	b=sWSBAPPc3qIPpV7YpVXM7U95ahB2GXydPIg+9ClAa1iDSebNsyWdppKx7lPnWHxWd/JI
+	 bNqTkXhfQXEr1DlzMbsqaDCVOG+DYW/g9bNfsc9cw3wLJ/ymPJ9vUG0QKy/WME8YBqElZ
+	 FV0DO0As0uLmm2O+TGdCwXameaN9fKgfJeNYYY0ydArLeRWZtY0c5rmjRSUi3Mos6PV+/
+	 0brR59Ip+ikA1bfWUwnPCcytOQI/BOi9LbGBJXnLMd5PU8X6awz5BTO0ruskhgDysR3yC
+	 Sr146Yt5iz181bSw6b4IgvVVhyptMmyf/hqCeIKJLMZkx/yxCTO2+U7OaISukVc8Waw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YwWKhL+G;
-	arc=none smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nNm9FCL7;
+	arc=none smtp.remote-ip=74.125.82.51
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02FC3606A335
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 02FC3606A335
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E699606A8A7
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2E699606A8A7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YwWKhL+G
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-15ea896ddc8so1139171c88.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nNm9FCL7
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1b24f4b15c4so684378c88.1
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795164250; x=1795769050; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
-        b=YwWKhL+GHrChb5ufz1RyC8GdU7EtVlqown2RYTC6d90gbFuotV5O3fQYGl1Zz/qv5b
-         puZ0iEwWjQLq/U4FwXn+Nnu+GzOPLy/DZ+Q6IFxSfFQnEyDYkzsdcdnAzMDqDBXDQ1a1
-         G+nytKnNV6H8lYb3oy9Jjc5JpvQLsOt3wPMDZTrNQDMevotrYCWMLE/g7Dnjg8y66zg5
-         F/JsugisGZbwIdSQeMFQX1pXy3GrZk4YUN/ZoyY41V+C2XCbR9Det+KYxaVPwL+tQJdy
-         wwDNj0EtSSoJNCq7HPEp60MXawu9WJ8c5tUlfyg2g5hyNt0tXHgPNUKS7ulDxPzKqk9i
-         wMBw==
+        d=gmail.com; s=20260707; t=1795164251; x=1795769051; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vV2d7SamsF9BbiK6MJIIboxgwzjtmzdUXZZLAxIMzUI=;
+        b=nNm9FCL7p5JyHEBpadR+ese9GRsU0ADRQBVc/A9DoLDIObbzlosZy3Y7j4Kht8hJwW
+         Tr2FkS5u9dvfBN5iHcFaG5j/i3uqfm7oXFzjzpnAsCt2dtD+XbrSVXgPfSZVlm+Lsnwe
+         wD8xzo3vIuXUVbYngblAZx3IUzvxwgrnkEj/nBwLU/8J2ZwZNTKSNOLV5kpRsURiFGoz
+         SYjT7Up/hdyIoJT0LIht8xp0ze/RJ4aOyGmYyKf2IJ9l+nKYbDXeJSaj4n2Qok6Xuh4S
+         YqCD3ALqfAYvCEhkD9gZoXIM15rqu5g8/u0c2wH7eBj/YTkAMqx8q+dkixxGIPPH7ulX
+         xZGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795164250; x=1795769050;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
-        b=hjYiGbR88e13krAw3qBAtY+JQadOZkVOCtVZluQ12MUP2IiJGQXrNezt1KhvDUxCXl
-         LQcWhgwW5iVoYGOQpX/ePmRWtPG3T0WJsnBRTu5nL9kZot4kKrXYImLd9DGNDyipQiFm
-         xxunMAfxEXpN6m+4ja7yblqli0H64Ye5co4nuOZ0wjBnZgK5r6dkf3HAtiGbnQrYO/sH
-         6hs8dJxpV5RSFUjgMXw06TvFFp71aQQwaVU/bX4N9sSF4mojlh8f8p9UGNq2rOZTTUiY
-         si8P58se2jxjDb8LwddUN4si+YTJuw20ObD6DoGFOsC9m372k9Cv76fpO+LQ1w5QWpCN
-         YKtQ==
-X-Forwarded-Encrypted: i=1; AL+hErHEwUzCJHpICwDEGCGhYjsabnqA6ZmkIHHgXzgnG2ny3eq4PdRBaW1mqMCjbSTVXXPm5EDkX/EPesHVzw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z89jCL6wuPX17U+qP3kmuKPmSvwd1YcecYv8YUCMTt2+a+p6npC
-	OgSB1OAiFkkkmCzk8JIKuC8zZHqOltth+ltl30laarnoSYn+arQyHoGW
-X-Gm-Gg: AYBFou0cyJU4rkUG7A8dgrXsN8tODA++zUfqXwsf/jRKkt9hIN7wL5FVuqZN67mhAy6
-	WoQl1Ge4nm1BbGRN9N8Ar1MGZpCLdGfszWac0fTG+59o+Yzi/uHv9a7SbphbJqgEAwbHmKao0s1
-	wrnQOqDCv31rtEQ4s7psD2ZxVpQs+5TvY/S/gGud9PKbWLy647e9MIzBcOGHoNRZfRWJ7X1ZCQs
-	uaVyf1bVMyPfSSxk9qfF5XgZxQsJZqur8qy2fVLRdRoFvSPOC1W0nvwlciMeqhBrgkAUoJie/dx
-	2Is1bx6/bRr5FaKSRwPVRd+TWRvpTVfoXj7yCd84+iRVDOPFcsI/q5Ap6IJdWlk/Ph+sXlG6lYY
-	ryyYeG233kLcxkcrnAwBwz7OEeNh9J7LCVPBWzyiTkF/eNwzLX6FFeO5JNDK5Ws0/ph71cClh1V
-	NdQ9HDdTDuFz5vBCFYH7dUPcWPcvUJBQz4IugF+Zxq8lBN96P9M0gHrm7QwQj/G3jPaXN5kAPk9
-	XB9tm1pfAdQILZPo4+UGcQ559+Y7ilX4VS2cS/zcCWG01gkwqyTKMdmXuj2gtoKDSvxcFE5lbpg
-	4Uy5KdjrdykAiRi8xh/6Ajre9tTNXZdCfkrBZo9IBoi3ArIzSEYRXGXzFQenx2HkRJ/lBHamKNk
-	n2GUSHj2/PMxKZHLs0SgYutUAAANjvTgXdpRbpYY=
-X-Received: by 2002:a05:7022:7f03:b0:1b3:a881:4d9f with SMTP id a92af1059eb24-1b5568a69abmr2133740c88.20.1795164249965;
-        Fri, 20 Nov 2026 00:44:09 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795164251; x=1795769051;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vV2d7SamsF9BbiK6MJIIboxgwzjtmzdUXZZLAxIMzUI=;
+        b=ez4dVHUKEBzuq02oLZi8I6IM5AuJ3D11PE/nExJUaWAIiInpWDldBZrb/SPjbXta+u
+         MtF/JY8Ja32cbR9+PAdw0ua9JJhtmggkQys/uV4Tsx4a/zHPTWWzSvnAPrFB78ZFWo39
+         1/9nWuFN6fuIo96bAFUBZIhQnn9w002d1I96y1OPez8J2ejjJcZcLKNrU3TOhRY5YkCT
+         0D2KDTjxllMWjcP0Vt+B8aXZQ1V3pQYAWOdB1pAwipfBPotzWyJp73TFzcEc5BWcxVMy
+         FVNOmQfA+94Igcm920toQIaNTkdMbK/WjL8P1ImJDa1cQeDVV6P1yAoyxUatkySqlsdq
+         wuXA==
+X-Forwarded-Encrypted: i=1; AL+hErH+LM95r0hTRZQQtoqo1EjvOygLQ8DJilERqZJbd+HDp2eh/duiYI55EI1Qg90SFyhPsM1PAkbA1eUM7A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/La/L0tf2qQ1U/0Ji+lrMgilRJkos+xZcZ4jCrbs8pbymaWUJD
+	WU9DylUfzCi9zcbl3K8ONC0D3E3CBu2AXGBaQROwSjyhoG3QQO5jiQKZ
+X-Gm-Gg: AYBFou3WwnWxx4svHxkdmjsD7GeJA84gfQK6gANq5HA3r8EauTY9xsRsysFmgf655+C
+	z5M0a7vY+PdIlJTkJ3a+WW2wALTviRAiuHkp8c1aa+fOqpmt2jEc0GECCaMDLTAhGoazjVEgIDh
+	I/TsvrMyrxmXHuesqiELHcadDzkRARWD3Vo6BB+5erZDUVNWmtpXm26bA/aTSyLcRlmUrTNTa2M
+	hREOg93LQIK24niYEuM7Y1wVBdf1NiTssOHHPKpGVV+ExpQN3poYSlMGA0F9ILHaDNcouzXJynz
+	kKSPtNZcXAYLWOSdrVeMw01hUjp0WwKSh41WNJSZBNTASOqSkZlfUmcQ+2pF+44RaF8kQ9Vf7P1
+	ToM9RV0vsKaoLXaDt20srBnLQoEQqLtFiehskAtNrOyzLtpNRDdOdhUNevZ7Vffo+deBQsUDUln
+	ZZpei9PwXGQN6NaQv71J5C7b1qW/M8fIw5Mp5ZymxMTUTt4r/6tsb0PimgJZmQWcLMpD/DFb9g3
+	z+lnvLpM/nfu9LzSjJ5DrOmDl9q/kF5tX8tuPmbfwE/JUY95aQt6oN43k5+dZLKtk+BbQbApeNv
+	mgFvKP8ZSHwGrUPLFGFcEdMD12zzqzm4N7TbmYvWGOSkSFZ7NebUOvMeRkzzwILQo4opQD/evpO
+	1IU4108JY4kh8QRlP9p16/kB57oak0GmvJgZcbaNQ
+X-Received: by 2002:a05:701b:428a:20b0:1ad:1574:aa9d with SMTP id a92af1059eb24-1b5566e0ecemr2281882c88.0.1795164251283;
+        Fri, 20 Nov 2026 00:44:11 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:ea97:e47d:2ebc:210c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.08
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 00:44:09 -0800 (PST)
+        Fri, 20 Nov 2026 00:44:10 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v3 00/18] HID: logitech-hidpp: G920 force-feedback rework
- and driver cleanups
-Date: Fri, 20 Nov 2026 00:43:51 -0800
-Message-Id: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
+Date: Fri, 20 Nov 2026 00:43:52 -0800
+Subject: [PATCH v3 01/18] HID: logitech-hidpp: keep connect work disabled
+ until hid_connect() completes
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,13 +95,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAEgIAGsC/22Qy26DMBBFfwV5XSM/wA9W+Y+qCz8GcBswNQQli
- vj3GhJVWWQz0pXunDmaO5ohBZhRU9xRgjXMIY458I8Cud6MHeDgc0aMMEEp1bgPHp9jFxZw/R6
- mCY9wXbDxzte8MtYZhfL2lKAN14P8+fXI88V+g1t23LOR4PeSTy6PGrJmBuziMISlKVRmWV3Xl
- hJaV1IaQ6nRAljLjaNWc2WlbKvj2L9qUzxFyTtRoVRlWysMr1SzcrR79WFeYrodD1jpofFAEE3
- 2yUumlBRcYIp9Fku3MvfjTx/XUzeYcC6z8EFa2cv2e4GVYYI5kRUHTb3i9hWxbdsfhnvgg48BA
- AA=
-X-Change-ID: 20261119-hid-logitech-hidpp-next-adcd534abca8
+Message-Id: <20261120-hid-logitech-hidpp-next-v3-1-ba39242d4336@gmail.com>
+References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
+In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
  Gideon Heinz <gideonheinz02@gmail.com>
 Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
@@ -112,105 +108,44 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-6b8b8
 
-Per Jiri Kosina's request, this 18-patch series for v7.5 is split out
-from v2 and applies on top of:
-[PATCH v3 00/14] HID: logitech-hidpp: G920 force-feedback and battery fixes
+During probe, initial feature discovery and device queries run with
+device I/O active before hid_connect() exports input and hidraw
+interfaces. An unsolicited wireless connect notification (0x41)
+received during this window queues connect work (hidpp_connect_event),
+which can run while hid_device_io_stop() has paused transport or race
+with hid_connect().
 
-Note that v2 patch 22/33 ("HID: logitech-hidpp: shut down G920 force
-feedback on input unregister") has been dropped in favor of "Input:
-destroy force-feedback device on input unregistration" in input core.
+Keep connect work disabled from initialization until after hid_connect()
+has finished and device I/O is restarted, ensuring that connect work
+only executes after interfaces are fully established.
 
-The first group of patches improves transport handling and error
-propagation: keeping connect work disabled during probe until
-hid_connect() completes, preserving transport error codes in
-__hidpp_send_report(), and translating HID++ protocol errors into
-standard negative Linux error codes in hidpp_send_message_sync().
-
-The G920 force-feedback rework moves capability discovery back into
-hidpp_probe() while device I/O is active (excluding generic USB PID
-force feedback for validated HID++ devices), separates device-level
-wheel settings from the input FF queue lifetime, moves the G920 range
-sysfs attribute to driver dev_groups using sysfs_emit(), executes range
-stores, effect uploads, and effect erases synchronously, indexes FF
-slot arrays directly by effect ID, and cleans up FF helpers.
-
-The final patches modernize the driver by switching multi-byte protocol
-fields to unaligned accessors, storing device serials as byte arrays,
-using guard(mutex), __free(kfree), alloc_ordered_workqueue(),
-devm_mutex_init(), and devm_device_add_group(), and removing unused
-kfifo and wtp_data fields and redundant helpers.
-
-Thanks.
-
+Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-Changes in v3:
-- Split out from v2 as a separate 18-patch series for v7.5 per Jiri
-  Kosina, applying on top of the v7.4 fixes series.
-- Dropped "HID: logitech-hidpp: shut down G920 force feedback on input
-  unregister" (v2 patch 22/33) in favor of "Input: destroy
-  force-feedback device on input unregistration" in input core.
-- Collected Tested-by tags from Gideon Heinz across all patches in this
-  series.
-- Link to v2: https://patch.msgid.link/20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com
+ drivers/hid/hid-logitech-hidpp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Changes in v2:
-- Rebased the series on top of linux-next.
-- Kept connect work disabled during probe until hid_connect() succeeds.
-- Switched hidpp_send_message_sync() to translate RAP and FAP protocol
-  error codes into negative Linux error codes (-EBUSY, -EIO, -EPROTO)
-  instead of returning positive protocol values, and preserved transport
-  error codes in __hidpp_send_report().
-- Converted G920 range store, effect upload, and effect erase to
-  synchronous execution with slot indexing by effect ID.
-- Added G920 force-feedback helper cleanups, removed unused kfifo and
-  struct wtp_data fields, and cleaned up minor helpers.
-- Link to v1: https://patch.msgid.link/20261109061103.2887636-1-dmitry.torokhov@gmail.com
-
----
-Dmitry Torokhov (18):
-      HID: logitech-hidpp: keep connect work disabled until hid_connect() completes
-      HID: logitech-hidpp: preserve transport error codes in __hidpp_send_report()
-      HID: logitech-hidpp: return negative error codes from hidpp_send_message_sync()
-      HID: logitech-hidpp: rework G920 force-feedback initialization
-      HID: logitech-hidpp: use sysfs_emit() in hidpp_ff_range_show()
-      HID: logitech-hidpp: manage G920 range sysfs attribute via dev_groups
-      HID: logitech-hidpp: execute G920 range sysfs store synchronously
-      HID: logitech-hidpp: index G920 force-feedback slots by effect ID
-      HID: logitech-hidpp: execute G920 effect upload and erase synchronously
-      HID: logitech-hidpp: clean up G920 force-feedback helpers
-      HID: logitech-hidpp: use unaligned accessors for multi-byte values
-      HID: logitech-hidpp: store device serial as a byte array
-      HID: logitech-hidpp: use guard() for send_mutex
-      HID: logitech-hidpp: use __free(kfree) for temporary allocations
-      HID: logitech-hidpp: use alloc_ordered_workqueue() for FF queue
-      HID: logitech-hidpp: manage send_mutex with devm_mutex_init()
-      HID: logitech-hidpp: manage ps_attribute_group with devm_device_add_group()
-      HID: logitech-hidpp: remove unused kfifo and clean up minor helpers
-
- drivers/hid/hid-logitech-hidpp.c | 798 ++++++++++++++++-----------------------
- 1 file changed, 323 insertions(+), 475 deletions(-)
----
-base-commit: 84abb955b1015477aa11a96e2f3ac1b938b77f48
-change-id: 20261119-hid-logitech-hidpp-next-adcd534abca8
-prerequisite-change-id: 20261110-hid-logitech-hidpp-6884bfb6a348:v3
-prerequisite-patch-id: e1416a97b0f876b3ad2c58d961bc858fc894d90d
-prerequisite-patch-id: a7c7a0921c6903c5cb52598f422b76593030eefc
-prerequisite-patch-id: e250d48e371cf39225c26a2830059e1ef0f84100
-prerequisite-patch-id: 19ed5cf936a31bcfb2e6743c64bdbfaf4cd4c497
-prerequisite-patch-id: 7d9f088caf73b37fffaa521ab2fa01154bc725d5
-prerequisite-patch-id: fd2e52e0c7fb38fbb457f1a133b21cc2e82bad7d
-prerequisite-patch-id: 26d251375b09680f430f05d1cfe6f1a7049d7699
-prerequisite-patch-id: 452b96def4814eb20770c50cda5ba2cdf934e1e6
-prerequisite-patch-id: 99be7ec097ed9b8c9fcae3a1e769c65bd40d0e5e
-prerequisite-patch-id: f42ce025d79d5bce980e061ee7bfd79fac6db59f
-prerequisite-patch-id: 1f1d98c497c6f72f2468a7b136b38d3b1673a843
-prerequisite-patch-id: 1ae006ac01f09e4fab516f0925b69f6683011ca4
-prerequisite-patch-id: 1d063d2ee308c2ac3a57dfa9029b2d826b7f2a42
-prerequisite-patch-id: 417cd6cae264a8b5dd5714ddeef4e75bbd959b17
-
-Thanks.
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 966c5932528d..cd42783f85b6 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4774,6 +4774,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	INIT_WORK(&hidpp->work, hidpp_connect_event);
++	disable_work(&hidpp->work);
+ 	INIT_WORK(&hidpp->reset_hi_res_work, hidpp_reset_hi_res_handler);
+ 	mutex_init(&hidpp->send_mutex);
+ 	init_waitqueue_head(&hidpp->wait);
+@@ -4825,6 +4826,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	/* Check for connected devices now that incoming packets will not be disabled again */
+ 	hid_device_io_start(hdev);
++	enable_work(&hidpp->work);
+ 	schedule_work(&hidpp->work);
+ 	flush_work(&hidpp->work);
+ 
 
 -- 
-Dmitry
+2.56.1.750.gf70dc682cf-goog
 

@@ -1,60 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795176879;
-	b=U+InQlfWuljJCFuS1uMmrIiNH1y0qagAINVkOrf/GjoPEacbZN5xWsHzXVl5yaw7LWx2
-	 A2NyR7tEYdhf0W04brHQVSZpn24nU0GbYwSP2wogs8LTU+Ha/QljUGypzjdwDN2nvCGiI
-	 MwX9sPU+jSS+GnfKgUtYPAUQOlvaeE5ARj5TSu0ZK2lgQ9CYtYsqQuRNtSrlSyFnUrvcK
-	 k0C/5C/zG+oNiU5UXDLwyJ3N9tuilG7w+W0DgTmmuCVpI7kuvfqBDs6/Dp8w/i/qF6sUR
-	 QperBQUtQ+PBO0vYlcEUyP2sYe3NzDEzE73a9xfioAVwWnwGblkli5ZBOc430474L6g==
+	t=1795177309;
+	b=dbOeRe3BUwKOzggITLlRQsC9NTBF9bPtAiA34AsWsZ+6v+Es/MXOA9hi/qmfiyvRWGGQ
+	 u4FmwxTSST1Q5LWJBB5DZvwSMpvDKWILGqIXH8WMNGdemyQmZaKZKBSXGufwhbsxnIDVR
+	 rnhzWtHzmYdjP8IpGvN+012qPSR7dyKnGIS4oI07wJyFXf5e8hDPVtdyr3n1p7K+oiDDM
+	 4/OE/v8ucz83uNnfDhRTByDrUBrBgYCkHYFvIJRZDNjPnOgWxmlodygav7VjhuXRRReEj
+	 uamAYy4RkvvlPgwTPpSgSfyq0kd0o7kVWI4WjFvv7e1VKVjShPB2+wkdg/IIxFtdwuA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795176879;
-	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
-	 Message-ID:References:MIME-Version:Content-Type;
-	bh=Ha8zkTWC2HAZsZH1ysWg6RQBM+8k4G0SyVqAcNU/Xl4=;
-	b=rEsodgBqvuhelOE96NcxCSZr8fEkV6wgvNX93JbhxhtR7z6o7pqCOpzO+Qt1JJxbiFMo
-	 RzuWfr+l6PcWGu1U5HJLdUk6wK7LFc7KrdVjwmbt6hyWoPQnNIWjzp1FazBaMfjsqrSo7
-	 7F3E8Sc+dB4jFVy46NUJdiEa8Yds0hYFr7X0hosK7r+YnE/Wwb0QPUk3frMoiGv14Cy6f
-	 231HWsziKGccVWwuO0L4C22Ot6o2C9EOKI3hvztQuR4yEuPuVuCZciWxWNBxBiMd5I0jR
-	 ZPLZa6+sirMiIM0bCb/bKs8xKL7IbMiWIV+yxjbKJfBqbcsmyyvOjGeseuwNvOy+kag==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795177309;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=DgsEZjUslj1Yrfr/vHzcv5cNZ+mqUn4KMypBjJcjvK8=;
+	b=f9WXYajjCrwMK2NJmhDSWWP3DyePzMKJ/PaytDQ2xmdQsc+VJiNR5fd06grgXq1Z1iPr
+	 CrE/asJWXhUtxQ35Jqv1CTmcYSKu8MaBtYG0cVEf05zdfmc39APinzOFfruElj/QcSi0n
+	 UXMwGnRSiKPmAk1E6pty0sq+ApvoBi5WaAIUM1RDJ6NRb0Gt3TKoCfTTy1n16r9f9Lol4
+	 KmA+nHqbmTRXVqjmBKg0Eug7FpuVmFABH1eizqu3D8nvMMiABT6NtmmHO5FD4zoN7KpyT
+	 HDCYCfPRIGxfPSV8Idq218cO+QntfE/vJsICgCPvHfPOsd+c8YHxHaA9eE8MLChKzWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JD+Ukgig;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GGN9WcmM;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA3D3606A320;
-	Fri, 20 Nov 2026 12:14:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9F85606A325
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 12:21:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JD+Ukgig
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEBEE1F000CA;
-	Fri, 20 Nov 2026 12:14:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GGN9WcmM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 695841F000C4;
+	Fri, 20 Nov 2026 12:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795176879;
-	bh=Ha8zkTWC2HAZsZH1ysWg6RQBM+8k4G0SyVqAcNU/Xl4=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=JD+Ukgig+peffsDwZRufMTiOxT8Pyuw1j/eYoX44Niwwwd1dptOqK6EHeozzaCNop
-	 Y+qIcDp7iG0WqMtWdDaOxzyFLlYl4aaaf1H9TZERh29UjNRxiUO/PBVSzwxOfSuIy6
-	 T+8lDuJ00W/VdYQKXaQV4PigLrD4CDrYUfW6TqSwnLLk2GW1lsj9K2szzu4SJMyRNn
-	 BerF342oi2WRzwAx1KWASQ67Ukw6ee8Q45ynfxMJe1T/u83RpyZy8n0BpDFsz9+ST7
-	 ISLBROzwDmhXumTFCboz29gfO2lhacX9cqAzV0t2LcM+x4QyEekEle0mtCFF5InA2O
-	 K3Lza26VVdCEg==
-Date: Fri, 20 Nov 2026 13:14:36 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Gideon Heinz <gideonheinz02@gmail.com>, 
-    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Bastien Nocera <hadess@hadess.net>, Hans de Goede <hansg@kernel.org>, 
-    Edwin Velds <e.velds@gmail.com>, 
-    Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, 
-    Andrey Smirnov <andrew.smirnov@gmail.com>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 00/18] HID: logitech-hidpp: G920 force-feedback rework
- and driver cleanups
-In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
-Message-ID: <n0029p80-479p-ssrr-rp33-ooo5r674n92o@xreary.bet>
-References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
+	s=k20260515; t=1795177308;
+	bh=DgsEZjUslj1Yrfr/vHzcv5cNZ+mqUn4KMypBjJcjvK8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GGN9WcmM6DR/NxzjuErTAVn7kUfw+11FU5xkNX4vPqoC/WtrIXi93HUQEHp0q9SpX
+	 CRdfFrBQo2Xdr+EiG7lmnCzReGBqYJZeDsA4WJK4ZdMUupYQQoVJ87J7Wkz9jsgZu5
+	 k4a0Jm4pkc+ITYQmnttK7wEjsb449T1AYAXpTyMqWuciWSeCYUKnY1Z4Y2kZ693eQC
+	 1KT/H/53CsDOwLfcYA1BzYI1QPd6AjoN1BzlqSZ4wB3G5KQTogScYaw1kev1Zk4Awx
+	 8LhN7EVKyK7of5QXboavfmWnwUUYnoUNnyMFxHhfeC5FGVkPz+wuMdOudXoYMKyDd/
+	 fmNwiOUONRTrA==
+Message-ID: <sashiko-outbox-225135@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: hid-sensor-hub: avoid lock inversion in
+ sensor_hub_remove()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ayaan Mirza Baig" <ayaanmirzabaig85@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261120121256.35339-1-ayaanmirzabaig85@gmail.com>
+References: <20261120121256.35339-1-ayaanmirzabaig85@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 12:21:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,58 +59,66 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 20 Nov 2026, Dmitry Torokhov wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] HID: hid-sensor-hub: NULL dereference in
+  sensor_hub_finalize_pending_fn()
+--
 
-> Per Jiri Kosina's request, this 18-patch series for v7.5 is split out
-> from v2 and applies on top of:
-> [PATCH v3 00/14] HID: logitech-hidpp: G920 force-feedback and battery fixes
-> 
-> Note that v2 patch 22/33 ("HID: logitech-hidpp: shut down G920 force
-> feedback on input unregister") has been dropped in favor of "Input:
-> destroy force-feedback device on input unregistration" in input core.
-> 
-> The first group of patches improves transport handling and error
-> propagation: keeping connect work disabled during probe until
-> hid_connect() completes, preserving transport error codes in
-> __hidpp_send_report(), and translating HID++ protocol errors into
-> standard negative Linux error codes in hidpp_send_message_sync().
-> 
-> The G920 force-feedback rework moves capability discovery back into
-> hidpp_probe() while device I/O is active (excluding generic USB PID
-> force feedback for validated HID++ devices), separates device-level
-> wheel settings from the input FF queue lifetime, moves the G920 range
-> sysfs attribute to driver dev_groups using sysfs_emit(), executes range
-> stores, effect uploads, and effect erases synchronously, indexes FF
-> slot arrays directly by effect ID, and cleans up FF helpers.
-> 
-> The final patches modernize the driver by switching multi-byte protocol
-> fields to unaligned accessors, storing device serials as byte arrays,
-> using guard(mutex), __free(kfree), alloc_ordered_workqueue(),
-> devm_mutex_init(), and devm_device_add_group(), and removing unused
-> kfifo and wtp_data fields and redundant helpers.
-> 
-> Thanks.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> Changes in v3:
-> - Split out from v2 as a separate 18-patch series for v7.5 per Jiri
->   Kosina, applying on top of the v7.4 fixes series.
-> - Dropped "HID: logitech-hidpp: shut down G920 force feedback on input
->   unregister" (v2 patch 22/33) in favor of "Input: destroy
->   force-feedback device on input unregistration" in input core.
-> - Collected Tested-by tags from Gideon Heinz across all patches in this
->   series.
-> - Link to v2: https://patch.msgid.link/20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com
+commit 5391cb83740840042fa3d18d4f3751bd37f573af
+Author: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
 
-Applied to hid.git#for-7.5/logitech.
+HID: hid-sensor-hub: avoid lock inversion in sensor_hub_remove()
 
-Thanks,
+This commit moves spin_lock_irqsave(&data->lock, flags) from
+sensor_hub_remove() into sensor_hub_finalize_pending_fn() to avoid holding
+data->lock across device_for_each_child().
 
--- 
-Jiri Kosina
-SUSE Labs
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 028e70ec7bace..4ade5b5ece565 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -836,9 +836,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+>  {
+>  	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
+> +	struct sensor_hub_data *sd =3D data;
+> +	unsigned long flags;
+> =20
+> +	spin_lock_irqsave(&sd->lock, flags);
+>  	if (hsdev->pending.status)
+>  		complete(&hsdev->pending.ready);
+> +	spin_unlock_irqrestore(&sd->lock, flags);
+> =20
+>  	return 0;
+>  }
+> @@ -846,16 +850,13 @@ static int sensor_hub_finalize_pending_fn(struct de=
+vice *dev, void *data)
+>  static void sensor_hub_remove(struct hid_device *hdev)
+>  {
+>  	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
+> -	unsigned long flags;
+> =20
+>  	hid_dbg(hdev, " hardware removed\n");
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+> =20
+> -	spin_lock_irqsave(&data->lock, flags);
+>  	device_for_each_child(&hdev->dev, NULL,
+>  			      sensor_hub_finalize_pending_fn);
+> -	spin_unlock_irqrestore(&data->lock, flags);
 
+[Severity: High]
+As reported by Arnav Kapoor on v1 [1], doesn't device_for_each_child() still
+pass NULL instead of data to sensor_hub_finalize_pending_fn(), causing a NU=
+LL
+pointer dereference at spin_lock_irqsave(&sd->lock, flags) whenever a sensor
+hub with child devices is removed?
+
+[1] https://lore.kernel.org/r/20261119201555.185270-1-kapoorarnav43@gmail.c=
+om
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120121256.3533=
+9-1-ayaanmirzabaig85@gmail.com?part=3D1

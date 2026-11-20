@@ -1,89 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795164080;
-	b=pP54hq4BfY9Uk9wklLue49mFb+p1gT7q2qovQoJ9YL0TtzKxlBoX0/9zcWStHM1PQdME
-	 HibC59fxsbTO5s/TLkmXuHwh1Ks/3XT1Ys4sp4AqOehEZZPZr3hJT2F9LiW5frphq4xtr
-	 EE/KIrkkfFIO/8giki+NAzEK/+aD1ucThc+53k8kSw1RdR+GFAOh/TDsS0Wc8ID40ouuF
-	 OFZiXGDtBzl0OWY/ndi8a4maadiIFEdsBZF1PN+x04v+JOPx5vcvNotv1OrhhmuANcJON
-	 reCuSRYFNTNU0BSnO1oiEArJ26Vk49/2dn4PQXxmMqd2+D37hAcoptocDDoy/gFvv7Q==
+	t=1795164251;
+	b=QWYw52Iqgp/MsPGFArOtSTn/Y0+tLR6z4fHKGL2VwLxrWJgCll4XqleXGhjWIdhpir+5
+	 Ai8FskhY/I9qXfbt6YsM7UTPvHWPBqyyquTnmAacEnx/QVveHtL8I2tG7d+PAkkPUNwnJ
+	 +c0iNEdejlbW0ZA08HHCSzao2nwE4bVog8TtNle4DiHdOZTa7IrCUreV8HViyqfrgiFrN
+	 R3RbaFHIhKqdgCF0w0OCwaLjtjwk/WFlprm7p1wL9B9N1w/FLow2cbagKKzjdzNOXw5jS
+	 kFvjwgqrw1Hdw7+xJhBD9AfbtlWK3U3B1vby9AT184TE0Ddgqa9f4o4+0D2axQiW3tA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795164080;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795164251;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=B3S7G7b9bye8TH3pDQ6FGxRtNzK8TEwIHow/DDgOdOU=;
-	b=mliiWcc8MbiKPsc1aYnG3nWGqF5asZYH6ArbhwR0NC8LHHoFJxVT3/Ho6ibNdvV5bizL
-	 CQs/Ts+UCuPDo+qttUC9QO3uxmY8EmNrGQ+BCxgAMGrhd8ZE8EbrAr1aj0zEkcoKbS7Zb
-	 udcVL0QLz41joAbED+usSBf6pzaO0ok2Da82nV4j6NAYIVTTfBl1bNVF86QnHj4f3SzoC
-	 GsKBTUIZu+h5E5lLfBU+o2jRG9aekTvKx8RYsTYdqcOlVm0aTRUY0upiyAxrJSW+D374y
-	 XYpmp7+DrPl4QyIqjDcs5LXqFdIoj4gehfW4oq9GE1or4CRlI5/4+fG+aN9C+tFrj3Q==
+	 From:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer;
+	bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
+	b=yHn3CJWVMQ6fHSXc8/MDAUkPNRmqfuVKG76UGeJpz2qf6KCrWvpZ2Y7E7YBzGFHEVOcE
+	 vJvoRFZD4DShfCQC3+gOcOX2gtLrBpuVqLFsgcBdUCehabQuAHEoQb20TRVg1kzpfvqPB
+	 U2DSoyX+L+XAvCpjmLk/K7ql4M2olmTxZq4HT/uEB9xr0gTGtVoRc7jhGOYrKeBFRmIKJ
+	 3J7GGpNxAkTWvFiFytxF+lUlw2WM1tAi0AECRZAWc/mKgsIRyuSGniGP87LXAdPjL2S5d
+	 +QuLQ7Ix0cuin9GJniuWhoZee7aV0eitrC211Rv5IlnsrQrUl4isj06PxlHwuVVA4Kw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=okn6srFl;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YwWKhL+G;
+	arc=none smtp.remote-ip=74.125.82.46
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B949A60A2629
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:41:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B949A60A2629
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02FC3606A335
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 02FC3606A335
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=okn6srFl
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-38587f3de36so709807eec.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:41:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YwWKhL+G
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-15ea896ddc8so1139171c88.0
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795164079; x=1795768879; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=B3S7G7b9bye8TH3pDQ6FGxRtNzK8TEwIHow/DDgOdOU=;
-        b=okn6srFlkBXzTrb8uFg8Vx6Xl4YtwxPNpldaWNYmjndNTscTMmdlFfzchYc7kU5ms4
-         DgGqbDtgYS+D3Wvp8sYZ088ENqY1DRJ8ummDicwi5+SQQlVUQYwqZA3dcRnHNAfi21iF
-         X0Dtd3kwKZHPltw2BZlD+sOoHR5Mpo8EfhK45EWoYxRzxR9/YCdpR4ZrEaeQKQhOKuxC
-         4j4gH/37z6fo5eConjfUkbMa4W37bjUwmjc3wLlSmmtq8/7hpZ/+Vfe9ICBg8o0XOwbp
-         TqHfiS1X/oIM5hZpV4eYW7g+6D9NMIfYqIYNdr6iQ+LZbCGqWST18TGjIslO48oKTzpl
-         d9/w==
+        d=gmail.com; s=20260707; t=1795164250; x=1795769050; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
+        b=YwWKhL+GHrChb5ufz1RyC8GdU7EtVlqown2RYTC6d90gbFuotV5O3fQYGl1Zz/qv5b
+         puZ0iEwWjQLq/U4FwXn+Nnu+GzOPLy/DZ+Q6IFxSfFQnEyDYkzsdcdnAzMDqDBXDQ1a1
+         G+nytKnNV6H8lYb3oy9Jjc5JpvQLsOt3wPMDZTrNQDMevotrYCWMLE/g7Dnjg8y66zg5
+         F/JsugisGZbwIdSQeMFQX1pXy3GrZk4YUN/ZoyY41V+C2XCbR9Det+KYxaVPwL+tQJdy
+         wwDNj0EtSSoJNCq7HPEp60MXawu9WJ8c5tUlfyg2g5hyNt0tXHgPNUKS7ulDxPzKqk9i
+         wMBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795164079; x=1795768879;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=B3S7G7b9bye8TH3pDQ6FGxRtNzK8TEwIHow/DDgOdOU=;
-        b=wHzvlGl1hl4YdhAZw38aISLTGsw/jPvwnAYesWtPoSs8eZ7rCa38oSUBzxtf/Q9iT/
-         yfB4oM/+P7AWFSkfyOecohlCMV6M0bBP1D6N0nDB0qy+Xfo5m9zP6X40JM9FnCw43XjN
-         JF6xUfhVav+juYdsikPob9l/FO+O/hRATsFyyERoLe0Ha9KrhKDwQwYb60AJmm092qne
-         OuZ0hphQY1K75ElxFj3occfai9s2Cah4DBE1zRo/HCS7cpjo2374eGSomicVaTmoilL0
-         PuBgPh/4xYskKqUhu4MxOvOk6hZiThLbrn4t5cdhYi1OWlYGLM0+e+7of7hzfvfuGUVU
-         2Fsw==
-X-Forwarded-Encrypted: i=1; AL+hErHDEbwD3aKP8h0G3XMgPuR78u5b9Dx1Hz7Xd6lVaJyLr9kKmXUonSfyHrHVlN89lnNMyeM+/AFp7vQ8Fg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9aNoih0J47hS1KAkVaueiKo96OuQf4AfE9IBJCEVnQiDownwTh
-	LSLnjJQ2dcvJpL1h43WD2IyGm4i5j51Vf5m77SjfQHyJcipzD9jmA0uB
-X-Gm-Gg: AZFdTZddTYXMztB304CN3AAvu0d/+PI/mFV4v7qxHl26VKlpokGbvmndCz6wpl7ZelB
-	bUuxsjvCt3ckFW7Us+WH7osJ86Uy6d8gcDP3m5fww2OctIVtsB7MaspSV3sI5Sno6lgKwa7Kw3F
-	Ot10NA999895B+RyT140jwb/Bqy0TkNmAIXLTS2Jw+M2EhJNaE5gxxCYzH75Y5ipn4RY2+5HvaQ
-	pD/nlyAKEsr2kRCLhiOISRXvfe+avPFjOCQ0UKQpot0cgWrdWApaTzcH9RE8i3WAcQRJzTYWJRF
-	rWPeGfzGFJMn78bvFgnPCzPbHpL7SvyZdq07HT3dFEw7Ew3HnHW9EFPE5Pwg51j6IYd9f5y+ORc
-	Hp+mjs3Q+8A/zoqyxTgTXyZclJsSNjbNhakZknn6a+j/HrB1QSie0Q6mLoBhJybkSyWNW6gIRf4
-	D3ww3CWf45LkkECYPmt8wqYVf+eNgQ0Kw/cCO0Jo1X5jCA1HcXuXTfjssXyxO5z7M+zaj2i/0ob
-	4c27nGNNdAiThkP9AXJYIwhViCTevsQEYugxnt+rTdov3l6gj/irMqOJu+czw/E42jyHZHneFBJ
-	zW2aljhEY3EEUMvYjkfr3nt2Ii0qmoTrl+jrnMlEZy5b8+AjWIB0iW6w5ywNEJVRXIh+RL/qmxv
-	oTo0dXMBvhEVo/JdI3A==
-X-Received: by 2002:a05:7301:6285:b0:369:f182:8e99 with SMTP id 5a478bee46e88-38570554684mr2335097eec.35.1795164078916;
-        Fri, 20 Nov 2026 00:41:18 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795164250; x=1795769050;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=FZ4gSALVJZEpS42+e2FU1wHNldZm7CixO/Ili3jjYjQ=;
+        b=hjYiGbR88e13krAw3qBAtY+JQadOZkVOCtVZluQ12MUP2IiJGQXrNezt1KhvDUxCXl
+         LQcWhgwW5iVoYGOQpX/ePmRWtPG3T0WJsnBRTu5nL9kZot4kKrXYImLd9DGNDyipQiFm
+         xxunMAfxEXpN6m+4ja7yblqli0H64Ye5co4nuOZ0wjBnZgK5r6dkf3HAtiGbnQrYO/sH
+         6hs8dJxpV5RSFUjgMXw06TvFFp71aQQwaVU/bX4N9sSF4mojlh8f8p9UGNq2rOZTTUiY
+         si8P58se2jxjDb8LwddUN4si+YTJuw20ObD6DoGFOsC9m372k9Cv76fpO+LQ1w5QWpCN
+         YKtQ==
+X-Forwarded-Encrypted: i=1; AL+hErHEwUzCJHpICwDEGCGhYjsabnqA6ZmkIHHgXzgnG2ny3eq4PdRBaW1mqMCjbSTVXXPm5EDkX/EPesHVzw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z89jCL6wuPX17U+qP3kmuKPmSvwd1YcecYv8YUCMTt2+a+p6npC
+	OgSB1OAiFkkkmCzk8JIKuC8zZHqOltth+ltl30laarnoSYn+arQyHoGW
+X-Gm-Gg: AYBFou0cyJU4rkUG7A8dgrXsN8tODA++zUfqXwsf/jRKkt9hIN7wL5FVuqZN67mhAy6
+	WoQl1Ge4nm1BbGRN9N8Ar1MGZpCLdGfszWac0fTG+59o+Yzi/uHv9a7SbphbJqgEAwbHmKao0s1
+	wrnQOqDCv31rtEQ4s7psD2ZxVpQs+5TvY/S/gGud9PKbWLy647e9MIzBcOGHoNRZfRWJ7X1ZCQs
+	uaVyf1bVMyPfSSxk9qfF5XgZxQsJZqur8qy2fVLRdRoFvSPOC1W0nvwlciMeqhBrgkAUoJie/dx
+	2Is1bx6/bRr5FaKSRwPVRd+TWRvpTVfoXj7yCd84+iRVDOPFcsI/q5Ap6IJdWlk/Ph+sXlG6lYY
+	ryyYeG233kLcxkcrnAwBwz7OEeNh9J7LCVPBWzyiTkF/eNwzLX6FFeO5JNDK5Ws0/ph71cClh1V
+	NdQ9HDdTDuFz5vBCFYH7dUPcWPcvUJBQz4IugF+Zxq8lBN96P9M0gHrm7QwQj/G3jPaXN5kAPk9
+	XB9tm1pfAdQILZPo4+UGcQ559+Y7ilX4VS2cS/zcCWG01gkwqyTKMdmXuj2gtoKDSvxcFE5lbpg
+	4Uy5KdjrdykAiRi8xh/6Ajre9tTNXZdCfkrBZo9IBoi3ArIzSEYRXGXzFQenx2HkRJ/lBHamKNk
+	n2GUSHj2/PMxKZHLs0SgYutUAAANjvTgXdpRbpYY=
+X-Received: by 2002:a05:7022:7f03:b0:1b3:a881:4d9f with SMTP id a92af1059eb24-1b5568a69abmr2133740c88.20.1795164249965;
+        Fri, 20 Nov 2026 00:44:09 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:ea97:e47d:2ebc:210c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385677c371esm5793181eec.23.2026.11.20.00.41.17
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 00:41:18 -0800 (PST)
+        Fri, 20 Nov 2026 00:44:09 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 20 Nov 2026 00:41:02 -0800
-Subject: [PATCH v3 14/14] HID: logitech-hidpp: expose charge_type property
- for battery voltage feature
+Subject: [PATCH v3 00/18] HID: logitech-hidpp: G920 force-feedback rework
+ and driver cleanups
+Date: Fri, 20 Nov 2026 00:43:51 -0800
+Message-Id: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,9 +95,13 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261120-hid-logitech-hidpp-v3-14-cfe2caa1d0eb@gmail.com>
-References: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com>
-In-Reply-To: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAEgIAGsC/22Qy26DMBBFfwV5XSM/wA9W+Y+qCz8GcBswNQQli
+ vj3GhJVWWQz0pXunDmaO5ohBZhRU9xRgjXMIY458I8Cud6MHeDgc0aMMEEp1bgPHp9jFxZw/R6
+ mCY9wXbDxzte8MtYZhfL2lKAN14P8+fXI88V+g1t23LOR4PeSTy6PGrJmBuziMISlKVRmWV3Xl
+ hJaV1IaQ6nRAljLjaNWc2WlbKvj2L9qUzxFyTtRoVRlWysMr1SzcrR79WFeYrodD1jpofFAEE3
+ 2yUumlBRcYIp9Fku3MvfjTx/XUzeYcC6z8EFa2cv2e4GVYYI5kRUHTb3i9hWxbdsfhnvgg48BA
+ AA=
+X-Change-ID: 20261119-hid-logitech-hidpp-next-adcd534abca8
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
  Gideon Heinz <gideonheinz02@gmail.com>
 Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
@@ -105,119 +109,108 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  Edwin Velds <e.velds@gmail.com>, 
  Stuart Hayhurst <stuart.a.hayhurst@gmail.com>, 
  Andrey Smirnov <andrew.smirnov@gmail.com>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
+ linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-6b8b8
 
-Commit be281368f297 ("hid-logitech-hidpp: read battery voltage from
-newer devices") added support for the 0x1001 battery voltage feature,
-populated battery->charge_type, and handled POWER_SUPPLY_PROP_CHARGE_TYPE
-in hidpp_battery_get_property(). However, it did not add a placeholder
-slot in hidpp_battery_props[] or register POWER_SUPPLY_PROP_CHARGE_TYPE
-in hidpp_initialize_battery() when HIDPP_CAPABILITY_BATTERY_VOLTAGE is
-set. Consequently, the charge_type attribute was never exposed via
-sysfs. Furthermore, hidpp20_battery_voltage_event() only checked
-whether voltage or status changed before updating cached battery values
-and notifying user space, ignoring changes in level and charge_type.
+Per Jiri Kosina's request, this 18-patch series for v7.5 is split out
+from v2 and applies on top of:
+[PATCH v3 00/14] HID: logitech-hidpp: G920 force-feedback and battery fixes
 
-Additionally, hidpp20_battery_map_status_voltage() unconditionally set
-charge_type to standard (or fast/trickle) charging even when the device
-was discharging, full, not charging, or in an unknown status, and
-hidpp_connect_event() left charge_type stale on wireless disconnect.
+Note that v2 patch 22/33 ("HID: logitech-hidpp: shut down G920 force
+feedback on input unregister") has been dropped in favor of "Input:
+destroy force-feedback device on input unregistration" in input core.
 
-Add a placeholder slot to hidpp_battery_props[], update the fixed
-property count in hidpp_initialize_battery(), append
-POWER_SUPPLY_PROP_CHARGE_TYPE when HIDPP_CAPABILITY_BATTERY_VOLTAGE is
-set, and include level and charge_type in the change detection condition
-in hidpp20_battery_voltage_event(). In
-hidpp20_battery_map_status_voltage(), map charge_type to unknown when
-status is unknown, to none when discharging, full, or not charging, and
-to standard, fast, or trickle only when charging. Reset charge_type to
-unknown on wireless disconnect in hidpp_connect_event().
+The first group of patches improves transport handling and error
+propagation: keeping connect work disabled during probe until
+hid_connect() completes, preserving transport error codes in
+__hidpp_send_report(), and translating HID++ protocol errors into
+standard negative Linux error codes in hidpp_send_message_sync().
 
-Fixes: be281368f297 ("hid-logitech-hidpp: read battery voltage from newer devices")
-Cc: stable@vger.kernel.org
+The G920 force-feedback rework moves capability discovery back into
+hidpp_probe() while device I/O is active (excluding generic USB PID
+force feedback for validated HID++ devices), separates device-level
+wheel settings from the input FF queue lifetime, moves the G920 range
+sysfs attribute to driver dev_groups using sysfs_emit(), executes range
+stores, effect uploads, and effect erases synchronously, indexes FF
+slot arrays directly by effect ID, and cleans up FF helpers.
+
+The final patches modernize the driver by switching multi-byte protocol
+fields to unaligned accessors, storing device serials as byte arrays,
+using guard(mutex), __free(kfree), alloc_ordered_workqueue(),
+devm_mutex_init(), and devm_device_add_group(), and removing unused
+kfifo and wtp_data fields and redundant helpers.
+
+Thanks.
+
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+Changes in v3:
+- Split out from v2 as a separate 18-patch series for v7.5 per Jiri
+  Kosina, applying on top of the v7.4 fixes series.
+- Dropped "HID: logitech-hidpp: shut down G920 force feedback on input
+  unregister" (v2 patch 22/33) in favor of "Input: destroy
+  force-feedback device on input unregistration" in input core.
+- Collected Tested-by tags from Gideon Heinz across all patches in this
+  series.
+- Link to v2: https://patch.msgid.link/20261110-hid-logitech-hidpp-v2-0-30743e91d83b@gmail.com
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index dbf8f15f5a5b..966c5932528d 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1428,12 +1428,17 @@ static int hidpp20_battery_map_status_voltage(u8 data[3], int *voltage,
- 	else
- 		status = POWER_SUPPLY_STATUS_DISCHARGING;
- 
--	*charge_type = POWER_SUPPLY_CHARGE_TYPE_STANDARD;
--	if (test_bit(3, &flags)) {
--		*charge_type = POWER_SUPPLY_CHARGE_TYPE_FAST;
--	}
--	if (test_bit(4, &flags)) {
--		*charge_type = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
-+	if (status == POWER_SUPPLY_STATUS_CHARGING) {
-+		if (test_bit(4, &flags))
-+			*charge_type = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
-+		else if (test_bit(3, &flags))
-+			*charge_type = POWER_SUPPLY_CHARGE_TYPE_FAST;
-+		else
-+			*charge_type = POWER_SUPPLY_CHARGE_TYPE_STANDARD;
-+	} else if (status == POWER_SUPPLY_STATUS_UNKNOWN) {
-+		*charge_type = POWER_SUPPLY_CHARGE_TYPE_UNKNOWN;
-+	} else {
-+		*charge_type = POWER_SUPPLY_CHARGE_TYPE_NONE;
- 	}
- 	if (test_bit(5, &flags)) {
- 		*level = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
-@@ -1553,7 +1558,10 @@ static int hidpp20_battery_voltage_event(struct hidpp_device *hidpp,
- 
- 	hidpp->battery.online = status != POWER_SUPPLY_STATUS_NOT_CHARGING;
- 
--	if (voltage != hidpp->battery.voltage || status != hidpp->battery.status) {
-+	if (voltage != hidpp->battery.voltage ||
-+	    status != hidpp->battery.status ||
-+	    level != hidpp->battery.level ||
-+	    charge_type != hidpp->battery.charge_type) {
- 		hidpp->battery.voltage = voltage;
- 		hidpp->battery.capacity = hidpp20_map_battery_capacity(hidpp->hid_dev,
- 								       voltage);
-@@ -1795,6 +1803,7 @@ static enum power_supply_property hidpp_battery_props[] = {
- 	0, /* placeholder for POWER_SUPPLY_PROP_CAPACITY, */
- 	0, /* placeholder for POWER_SUPPLY_PROP_CAPACITY_LEVEL, */
- 	0, /* placeholder for POWER_SUPPLY_PROP_VOLTAGE_NOW, */
-+	0, /* placeholder for POWER_SUPPLY_PROP_CHARGE_TYPE, */
- };
- 
- static int hidpp_battery_get_property(struct power_supply *psy,
-@@ -4398,7 +4407,7 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	if (!battery_props)
- 		return -ENOMEM;
- 
--	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 3;
-+	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 4;
- 
- 	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE ||
- 	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE ||
-@@ -4416,6 +4425,10 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 		battery_props[num_battery_props++] =
- 			POWER_SUPPLY_PROP_VOLTAGE_NOW;
- 
-+	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
-+		battery_props[num_battery_props++] =
-+				POWER_SUPPLY_PROP_CHARGE_TYPE;
-+
- 	battery = &hidpp->battery;
- 
- 	n = atomic_inc_return(&battery_no) - 1;
-@@ -4511,6 +4524,7 @@ static void hidpp_connect_event(struct work_struct *work)
- 			hidpp->battery.online = false;
- 			hidpp->battery.status = POWER_SUPPLY_STATUS_UNKNOWN;
- 			hidpp->battery.level = POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
-+			hidpp->battery.charge_type = POWER_SUPPLY_CHARGE_TYPE_UNKNOWN;
- 			power_supply_changed(hidpp->battery.ps);
- 		}
- 		return;
+Changes in v2:
+- Rebased the series on top of linux-next.
+- Kept connect work disabled during probe until hid_connect() succeeds.
+- Switched hidpp_send_message_sync() to translate RAP and FAP protocol
+  error codes into negative Linux error codes (-EBUSY, -EIO, -EPROTO)
+  instead of returning positive protocol values, and preserved transport
+  error codes in __hidpp_send_report().
+- Converted G920 range store, effect upload, and effect erase to
+  synchronous execution with slot indexing by effect ID.
+- Added G920 force-feedback helper cleanups, removed unused kfifo and
+  struct wtp_data fields, and cleaned up minor helpers.
+- Link to v1: https://patch.msgid.link/20261109061103.2887636-1-dmitry.torokhov@gmail.com
+
+---
+Dmitry Torokhov (18):
+      HID: logitech-hidpp: keep connect work disabled until hid_connect() completes
+      HID: logitech-hidpp: preserve transport error codes in __hidpp_send_report()
+      HID: logitech-hidpp: return negative error codes from hidpp_send_message_sync()
+      HID: logitech-hidpp: rework G920 force-feedback initialization
+      HID: logitech-hidpp: use sysfs_emit() in hidpp_ff_range_show()
+      HID: logitech-hidpp: manage G920 range sysfs attribute via dev_groups
+      HID: logitech-hidpp: execute G920 range sysfs store synchronously
+      HID: logitech-hidpp: index G920 force-feedback slots by effect ID
+      HID: logitech-hidpp: execute G920 effect upload and erase synchronously
+      HID: logitech-hidpp: clean up G920 force-feedback helpers
+      HID: logitech-hidpp: use unaligned accessors for multi-byte values
+      HID: logitech-hidpp: store device serial as a byte array
+      HID: logitech-hidpp: use guard() for send_mutex
+      HID: logitech-hidpp: use __free(kfree) for temporary allocations
+      HID: logitech-hidpp: use alloc_ordered_workqueue() for FF queue
+      HID: logitech-hidpp: manage send_mutex with devm_mutex_init()
+      HID: logitech-hidpp: manage ps_attribute_group with devm_device_add_group()
+      HID: logitech-hidpp: remove unused kfifo and clean up minor helpers
+
+ drivers/hid/hid-logitech-hidpp.c | 798 ++++++++++++++++-----------------------
+ 1 file changed, 323 insertions(+), 475 deletions(-)
+---
+base-commit: 84abb955b1015477aa11a96e2f3ac1b938b77f48
+change-id: 20261119-hid-logitech-hidpp-next-adcd534abca8
+prerequisite-change-id: 20261110-hid-logitech-hidpp-6884bfb6a348:v3
+prerequisite-patch-id: e1416a97b0f876b3ad2c58d961bc858fc894d90d
+prerequisite-patch-id: a7c7a0921c6903c5cb52598f422b76593030eefc
+prerequisite-patch-id: e250d48e371cf39225c26a2830059e1ef0f84100
+prerequisite-patch-id: 19ed5cf936a31bcfb2e6743c64bdbfaf4cd4c497
+prerequisite-patch-id: 7d9f088caf73b37fffaa521ab2fa01154bc725d5
+prerequisite-patch-id: fd2e52e0c7fb38fbb457f1a133b21cc2e82bad7d
+prerequisite-patch-id: 26d251375b09680f430f05d1cfe6f1a7049d7699
+prerequisite-patch-id: 452b96def4814eb20770c50cda5ba2cdf934e1e6
+prerequisite-patch-id: 99be7ec097ed9b8c9fcae3a1e769c65bd40d0e5e
+prerequisite-patch-id: f42ce025d79d5bce980e061ee7bfd79fac6db59f
+prerequisite-patch-id: 1f1d98c497c6f72f2468a7b136b38d3b1673a843
+prerequisite-patch-id: 1ae006ac01f09e4fab516f0925b69f6683011ca4
+prerequisite-patch-id: 1d063d2ee308c2ac3a57dfa9029b2d826b7f2a42
+prerequisite-patch-id: 417cd6cae264a8b5dd5714ddeef4e75bbd959b17
+
+Thanks.
 
 -- 
-2.56.1.750.gf70dc682cf-goog
+Dmitry
 

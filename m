@@ -1,89 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795164262;
-	b=o5xrmmFiSDfZPrXERa7HI3jv+YunVtQbkYE2R2QMPTsey2fBIVgaUdvJNpK/SHOrl5pt
-	 GqR+absqDIaa39znhS48Bh/km3F9fu3+Gf9ePRjK08dHJrh3nx3//kKVD0KbLIo6vHeKk
-	 BxWcyuWzU9yf/yOFmDOCxsI+YFWjQmrW8zgZydC8fJW2grCExk8MLdqSeVVISICBHQcYH
-	 snUZ9K+fEwzIOXwMhusDAmqL+Sy900Jx0NrkAEBRIhqZBkDBlucQaNma7m1nW1Y32KvAd
-	 m8kl94DmZ+TMLsgm95fbmPiLnFnMfcq5+GHPC/rAYAaC9EZpXC+lMAbsUCK8Rf6O0hw==
+	t=1795164263;
+	b=fviPsw1KLbtLSNYsN9xHTSxpB/q9jlL2LsaKTLYYAE3rcH5zfNX6rgGzOxkJTglC+DIC
+	 O76FBdfMNjRVbyqt7eoQsYNv/74IBHbrvM7/HNo80sPzxYdG+w3U2t+TYjvixgzOGjFZM
+	 VeJcCpHM7H6BoqVcM5eGs1Cwu/F93vVPdZE1mLGj2rbie//ja8WuKz8Mqm4waOodAPNGp
+	 30FOsRNiwNf8WoVsr84+aWqr76J7b3pzybWuNSNEKGMiNTk8+EBgbB4WHgd8+qsnuk6Z/
+	 Bkk5v6J4LFCkC+vthkkc6iPiPZHugPgGdKikopxAI5j/TOuJgMzUa94lMsr8lUWHOBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795164262;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795164263;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=POXQs8/bvcwJtb5f0JOhZ5aKSc9OHdJOKoz1MYA1t1s=;
-	b=xYuONU1Xs82ySsq+gVKYjkERazgAYfVRfi4Ex+yU/znelWfzi+IPvKyXWGVf47IlYdyh
-	 XCKHwxtZ5zbyuhxiTuPNAtIbh10j16UTzTtxECtzctDWRRJ6VeC5+/nMr2Ndl5PgiwANa
-	 5yaX6Kodr9OycFzie+j7q/9FOPDoyvtDEg7F91akaijYJIkvBz17+FOSm6Z4iFdKPZm8Z
-	 1mqfxl0mOSr+bCcqeZUpT/ezeaVr4gly7o7AMbfsSe/mv0xIOi/o7SCiah8kdZl7NsXNl
-	 Ja5BtYAnquhhCbN4IGofhHe63lDDU0LMM8jg/LIGmhl5GmD3NLXZVhqA3zb40ruUJYA==
+	bh=jvvpk791u/vpTcrn3n7Xlt/zzPlu7k3JrUe4UjhCYk8=;
+	b=W4gStoQ1ltKI93hRNcas8crcw7WlAJJgz97m9kM7x1mGdjwzCctUWwY6wKNLm7Z7wWTA
+	 nvf6jzr/A1CZyr9O9aQjCkE1aVFKGIfgNiLJ9v1LrTnJ7Kp6XSbB+zCrp6usEQx5HCUGe
+	 NYPIXtxoPGdlRFR711Ms+9eQ+Q6tcoT0hBJCnk/QBn05lX/RMOMigZQiXRGEKfz/gmwx2
+	 gtkU5GKDUO6+KO/YbdABQ8Yit0XhmkFxhXXuh7spEtmg84bi4dKH+HzeHs8B3hq37dRGN
+	 ULdnpaAXjKIKQO0e3/MQMpOen9ecg+y4X7f8W9nlL0XuvwpIcpMq0DgQ9i65gma3rfA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sXrcX1os;
-	arc=none smtp.remote-ip=74.125.82.45
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="uPU8/ioT";
+	arc=none smtp.remote-ip=74.125.82.49
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18E2B60A381A
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18E2B60A381A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BC7660A382F
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BC7660A382F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sXrcX1os
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-1a3c08d6928so933281c88.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uPU8/ioT
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1b3b4944a0eso565533c88.0
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795164261; x=1795769061; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795164263; x=1795769063; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=POXQs8/bvcwJtb5f0JOhZ5aKSc9OHdJOKoz1MYA1t1s=;
-        b=sXrcX1osiudBBD563TfYgC7veJdPV5WIHKVarPuI6YaUsA+djpOQZNEG+IgyL20vgz
-         FdwPWO6tQLLTo5n7AftI1z+0a8+DUHjHjggiLfbRfj/1m34tb0weBU1wWZ1afgQf/5Rw
-         GGjZ9Uxt5Rv4p3tSHz2jHSOLHPb6kVwBj5CyloJi7Z09jw3uxnPyBBo0R4KjI6lnMxdc
-         fjv9l7DOBE2tO4T6TfTLCEc68j2FleSg1s3qVvmdj1MIJnw565y+VZdi7JzrfOeERFuD
-         c+9Le2OTOHm141tSqP/bAFqwCwro+OYu/sJfJwPSMsKy+JW6p5x+Srthz8Tc3PfQpbod
-         ZQMQ==
+        bh=jvvpk791u/vpTcrn3n7Xlt/zzPlu7k3JrUe4UjhCYk8=;
+        b=uPU8/ioTyqpgFt2e1/OXnN4Tl98TsaFshYg0+ljxk51NcYhqtCV3w+EJ9uJEJH1qpQ
+         4oAt6yc2Ynr27ZHEiyb7518CkNeT5D8zbYGeMqGys/9Jujaoo5Cmu1hydz7SETDYLPa5
+         F+VOGJVXDk+UFcrm8O5/j3h5bq7zMCe46lIgexujF4556EyJ3FdOkNGe+mVSKGEqfjyq
+         wRMx1hawj1jJNzTaGAfZwXHV/yj6LuUT2czcI9xQexNACAArRiOyEdX+dfBe8uzzVwca
+         gdehaZKHKyZZOUNgcdUHoD/pV4XbUzsugMVoSUEzlqcqbUuGraZ8BZrGvOicoIZn3nKR
+         ICCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795164261; x=1795769061;
+        d=1e100.net; s=20260707; t=1795164263; x=1795769063;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=POXQs8/bvcwJtb5f0JOhZ5aKSc9OHdJOKoz1MYA1t1s=;
-        b=R4YqIA9BFeHvivqye9NxZcSuLehcm0v8184ZRXaF4nVyacDKn1uW26on/951zF5+vh
-         k5BB6Cro4PMYS/IpylWL3e6NW2sTpT/5kkrYg3zCUDJltSAsIn5/ZYwJDHtLZx7Ed1RS
-         +BTWhPDrzpFJAa+ud+ZBs4XCbqmfi8PdpZWnrHpC2hfE0RSxtLNcQA7XIdicnbJj/irW
-         f2ks8t1zLZDtjlKcANWQunqbDnlEeSqjrSNe0jw+0KLj+idcvMTv4kE3PdTagPIA4oeK
-         DllV/seekqashAtk/8vJm90LAUvmR8ZihBJoso8kwyMsd9XRfJbYsf4Lj1WHGYjs8AZ7
-         lzTA==
-X-Forwarded-Encrypted: i=1; AL+hErG7dA5KBl3xMaiGQjVEiwoaHg0s8dEAeHH8Brjsbm4+zV604kNCyS1RIAWPCZuRSXUBQZvZncFZzmsITA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z97LtqrQO9OuU9kuig5H/KJ8Ajv/OP17ezASS0j6zmvNmOs3W+K
-	AhJNKExluigHwBHOJIjbftF56mG6DIVKMdqRN+QY7e6qFQTRraP28JFM
-X-Gm-Gg: AYBFou3cEXtax+jDX6ndSAL1LvL1K1LApQF/2u6YhIf9/Y2uoNUQddaJsYWGFwJlXDh
-	yjD2eeMsI6bdsi0t5rHcHyxFlxV2e/1OBLpcZOxLt1NTz87vPtHbfZI7XjAHTPWOWKy4VLMp+0p
-	n+6NzANs/ZDSoBnihjzWxdfDSCmU0REAmtmdzACNrito/3dVR+q4kXrtTDmQUNWGp4Y6nHc4lWo
-	xjFA//G2QkJkXpzDH879/LVBY3NTMv5C3iUF2f4FRNMvG1DkKO3lADKnG5+usLN1ykn6eA0RWFV
-	ag7LzvZNajzr1Qe34PxDvhqxE/vFrunD2K1lWl9zx30jUsZuvKXe24JvW6zYpZaJ2BSCDiMtG88
-	ebP2ra5x6gPsDIPClFr4uFzak/YTE+16XdyqYPH6Fd44I78uvf/MWs/DZMigJhKBl+RqqXQ4UYW
-	Fw3FERf/haEWpn0anpbL63NAbao5otDB2NuiMV8XPkPWHkuak3+UdluidB4CY6Ka8eUqANMt1sG
-	9KbCPYVeKx9VZh2LoG3i0qjNfyov8PHlxzpN6DTpv7VFn6mIZAxtEPiA7afMuwN+Bjjmy4aQ3Bx
-	CHbmKZ/TyBjBgCuv3uJR4ca1hQLG0zOuILDK24SgQZWOzCVpS4xQiOdkJnMzjELmubJ67JaGEIg
-	b4mb6s73bSli2HNy5IQ==
-X-Received: by 2002:a05:7022:7f0f:b0:1b5:22fb:848d with SMTP id a92af1059eb24-1b55688b93fmr2255492c88.16.1795164261132;
-        Fri, 20 Nov 2026 00:44:21 -0800 (PST)
+        bh=jvvpk791u/vpTcrn3n7Xlt/zzPlu7k3JrUe4UjhCYk8=;
+        b=IRXROLR1Q2IJYt9sEPRg4gCcZXmLGGxZOI937QukQk+YauqfIKVCkLYDOTPQeYzHRw
+         GrDpx/McGk31M7lqtjBWZpiZvitiXydo70oOiqy4uNRlJENklOygGx244SX/6DbqA7fV
+         Lm8y9CFw3U7NbjwlKZH7Y29jfToVCw/jaDPT/c3ZEw/WqV+IS62qRu64DPf5E7zWc80o
+         NxQlatjF1bDNDeYkV9eDEC6xb5a0CDPVH0xmbUiLYzyB8Y9pwC4JVXyzO5oL1AtP+aKM
+         G5Ejc9HmVxU20WB2TJAjJjDn+ZrF8djPgppuLUOLLQDUl1q46TiChklUaqxUKC69+PjC
+         5d/A==
+X-Forwarded-Encrypted: i=1; AL+hErGMVAUMItmGWctV3Cj5snZSChw5lJ0McKYRk/SMU9tjCIe+ihHrmBrY6gnVWIj/e2KDYo0dSVas79dl4A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8hYSXj31DWd4kqtEx7ZU7iI3gNoVx07C12CI5xJ/YIbpnoP0VN
+	v62SMFOfI/wOKUJFses82J2qHtieLocJ0S5a9yIbZrhSczgHRkV9LiG2
+X-Gm-Gg: AYBFou3OrFgZ92bGff7+/LiF192w3NiFPV22zopXBFtHPN9VbroZpzNN0m8ql79ACDT
+	2HGx47CKb2Ie2fu56k53WtqPrIlasqHOafowiQfLnDQH+eAIvWQWbRNQuPSux0XaCHWKjo1S44/
+	BrqkfN4xgOUM5ZijlrQdPOgzoEtuP7L7Np54gni4dHjdjdN4gLsGyvo6vHggdWVo5UMv8VPKXcd
+	I6t7HiiJ+hvbAd/YkotxtACosjBgVIIcUQI9VNu03FtSob5Iu7UUZzjrxsIyarZbO1XJYFQY6T6
+	yToY9oyAN/aqxb9U9JWEmin6S9WIiZJ/tE6mHI3pzGgvFUVwCKfKk6D7zBgqzKi/Vz+sjRhS94H
+	Z0Gos8Olb5+li0lCjmo9y2tdlKdxlkGWG1BI0mHFzDrb6f6Nlq+YRscTz/uv6nfbu4VCh4Y/n9z
+	i7fQa6bW4iSZide5bI9Es96F54ZnciJurml7c/C08RSyBO2Q4nw3N7zVvb3mv+T8wegsosW2FVT
+	5sbeu8rfAbqRyF6rOR2gchzRhM9PvmePQzAqVSJv1AGrRdoLKZgHlaok94z+wj2k5s9fm86Yx9I
+	HUzy4Vo24IdY2XGT297WyLLugOSnnSDfIRABQxX2SjegP6TwriJ/9hE62nuIJvkHx5YDu9DirxT
+	wpoC6B/GzmaKdqPwPOg==
+X-Received: by 2002:a05:7022:45a7:b0:1a8:4997:65f6 with SMTP id a92af1059eb24-1b5568c7032mr3336508c88.20.1795164262686;
+        Fri, 20 Nov 2026 00:44:22 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:ea97:e47d:2ebc:210c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.19
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 00:44:20 -0800 (PST)
+        Fri, 20 Nov 2026 00:44:22 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 20 Nov 2026 00:43:58 -0800
-Subject: [PATCH v3 07/18] HID: logitech-hidpp: execute G920 range sysfs
- store synchronously
+Date: Fri, 20 Nov 2026 00:43:59 -0800
+Subject: [PATCH v3 08/18] HID: logitech-hidpp: index G920 force-feedback
+ slots by effect ID
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261120-hid-logitech-hidpp-next-v3-7-ba39242d4336@gmail.com>
+Message-Id: <20261120-hid-logitech-hidpp-next-v3-8-ba39242d4336@gmail.com>
 References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -108,130 +108,131 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-6b8b8
 
-Writing to the G920 range sysfs attribute currently queues an
-asynchronous work item to issue the HIDPP_FF_SET_APERTURE command on
-the force-feedback workqueue. Because the sysfs store returns success
-immediately without waiting for the hardware transfer to complete, user
-space cannot know whether the setting succeeded and a subsequent read of
-the range attribute may return stale data before the workqueue drains.
+The G920 driver previously maintained an effect_ids array indexed by
+hardware slot minus 1 to store the associated input effect ID. Locating
+the hardware slot assigned to an effect ID required iterating through
+the array in hidpp_ff_find_effect() on every playback, destroy, or
+update request.
 
-Execute the aperture setting command synchronously within the range
-sysfs store method. Open and close the underlying transport around the
-command, clamp the input range between 180 and 900 degrees, update the
-cached range on success, and return errors directly to user space. Read
-and write the cached range with READ_ONCE and WRITE_ONCE to prevent
-torn reads.
+Reverse the mapping by storing an array of hardware slot numbers indexed
+directly by the 0-based input effect ID. Because input effect IDs are
+allocated in the range 0 to num_effects - 1, looking up a slot becomes
+an O(1) array access and hidpp_ff_find_effect() can be removed. Sizing
+the array as u8 slots[] also allows zero to represent an unassigned slot
+because hardware slot numbers returned by the device are non-zero,
+eliminating the need to initialize entries to -1.
 
-Because the sysfs store now sends the command directly using the HID++
-device handle, the backpointer to the force-feedback private data is no
-longer needed in struct g920_data. Drop the unused pointer and simplify
-the attribute visibility check.
+In g920_get_config(), deduct the reserved autocenter slot count when
+storing num_effects so that data.num_effects reflects the number of
+user-assignable effect slots and can be passed directly to
+input_ff_create().
 
 Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 1376d5bc3fbb..c65a32572292 100644
+index c65a32572292..4444c74053ff 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2353,7 +2353,6 @@ struct hidpp_ff_private_data {
+@@ -2349,7 +2349,7 @@ struct hidpp_ff_private_data {
+ 	struct workqueue_struct *wq;
+ 	atomic_t workqueue_size;
+ 	u8 num_effects;
+-	int effect_ids[] __counted_by(num_effects);
++	u8 slots[] __counted_by(num_effects);
  };
  
  struct g920_data {
--	struct hidpp_ff_private_data *ff;
- 	u8 feature_index;
- 	u8 slot_autocenter;
- 	u8 num_effects;
-@@ -2478,9 +2477,6 @@ static void hidpp_ff_work_handler(struct work_struct *w)
- 	case HIDPP_FF_SET_GLOBAL_GAINS:
- 		g920->gain = (wd->params[0] << 8) + wd->params[1];
- 		break;
--	case HIDPP_FF_SET_APERTURE:
--		g920->range = (wd->params[0] << 8) + wd->params[1];
--		break;
- 	default:
- 		/* no action needed */
- 		break;
-@@ -2729,7 +2725,7 @@ static ssize_t hidpp_ff_range_show(struct device *dev, struct device_attribute *
- 	struct hidpp_device *hidpp = hid_get_drvdata(hid);
- 	struct g920_data *g920 = hidpp->private_data;
+@@ -2406,17 +2406,6 @@ static const char *HIDPP_FF_CONDITION_NAMES[] = {
+ };
  
--	return sysfs_emit(buf, "%u\n", g920->range);
-+	return sysfs_emit(buf, "%u\n", READ_ONCE(g920->range));
- }
  
- static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-@@ -2737,15 +2733,34 @@ static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute
- 	struct hid_device *hid = to_hid_device(dev);
- 	struct hidpp_device *hidpp = hid_get_drvdata(hid);
- 	struct g920_data *g920 = hidpp->private_data;
-+	struct hidpp_report response;
- 	u8 params[2];
--	int range = simple_strtoul(buf, NULL, 10);
-+	u16 range;
-+	int error;
- 
--	range = clamp(range, 180, 900);
-+	error = kstrtou16(buf, 10, &range);
-+	if (error)
-+		return error;
-+
-+	range = clamp_val(range, 180, 900);
- 
- 	params[0] = range >> 8;
- 	params[1] = range & 0x00FF;
- 
--	hidpp_ff_queue_work(g920->ff, -1, HIDPP_FF_SET_APERTURE, params, ARRAY_SIZE(params));
-+	error = hid_hw_open(hid);
-+	if (error)
-+		return error;
-+
-+	error = hidpp_send_fap_command_sync(hidpp, g920->feature_index,
-+					    HIDPP_FF_SET_APERTURE,
-+					    params, ARRAY_SIZE(params),
-+					    &response);
-+	hid_hw_close(hid);
-+
-+	if (error)
-+		return error;
-+
-+	WRITE_ONCE(g920->range, range);
- 
- 	return count;
- }
-@@ -2769,7 +2784,7 @@ static umode_t g920_range_attr_is_visible(struct kobject *kobj,
- 		return 0;
- 
- 	g920 = hidpp->private_data;
--	if (!g920 || !g920->ff)
-+	if (!g920)
- 		return 0;
- 
- 	return attr->mode;
-@@ -2789,12 +2804,10 @@ static void hidpp_ff_destroy(struct ff_device *ff)
+-static u8 hidpp_ff_find_effect(struct hidpp_ff_private_data *data, int effect_id)
+-{
+-	int i;
+-
+-	for (i = 0; i < data->num_effects; i++)
+-		if (data->effect_ids[i] == effect_id)
+-			return i+1;
+-
+-	return 0;
+-}
+-
+ static void hidpp_ff_work_handler(struct work_struct *w)
  {
- 	struct hidpp_ff_private_data *data = ff->private;
- 	struct hidpp_device *hidpp = data->hidpp;
--	struct g920_data *g920 = hidpp->private_data;
- 
- 	hid_info(hidpp->hid_dev, "Unloading HID++ force feedback.\n");
- 
- 	destroy_workqueue(data->wq);
--	g920->ff = NULL;
- }
- 
- static int g920_input_open(struct input_dev *dev)
-@@ -2866,7 +2879,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
+ 	struct hidpp_ff_work_data *wd = container_of(w, struct hidpp_ff_work_data, work);
+@@ -2436,7 +2425,7 @@ static void hidpp_ff_work_handler(struct work_struct *w)
+ 		break;
+ 	default:
+ 		/* find current slot for effect */
+-		wd->params[0] = hidpp_ff_find_effect(data, wd->effect_id);
++		wd->params[0] = data->slots[wd->effect_id];
+ 		break;
  	}
  
- 	ff = dev->ff;
--	g920->ff = data;
- 	ff->private = no_free_ptr(data);
+@@ -2454,10 +2443,10 @@ static void hidpp_ff_work_handler(struct work_struct *w)
+ 	switch (wd->command) {
+ 	case HIDPP_FF_DOWNLOAD_EFFECT:
+ 		slot = response.fap.params[0];
+-		if (slot > 0 && slot <= data->num_effects) {
++		if (slot > 0) {
+ 			if (wd->effect_id >= 0)
+ 				/* regular effect uploaded */
+-				data->effect_ids[slot-1] = wd->effect_id;
++				data->slots[wd->effect_id] = slot;
+ 			else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
+ 				/* autocenter spring uploaded */
+ 				g920->slot_autocenter = slot;
+@@ -2465,10 +2454,10 @@ static void hidpp_ff_work_handler(struct work_struct *w)
+ 		break;
+ 	case HIDPP_FF_DESTROY_EFFECT:
+ 		slot = wd->params[0];
+-		if (slot > 0 && slot <= data->num_effects) {
++		if (slot > 0) {
+ 			if (wd->effect_id >= 0)
+ 				/* regular effect destroyed */
+-				data->effect_ids[slot-1] = -1;
++				data->slots[wd->effect_id] = 0;
+ 			else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
+ 				/* autocenter spring destroyed */
+ 				g920->slot_autocenter = 0;
+@@ -2842,14 +2831,12 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
+ 	}
  
- 	ff->upload = hidpp_ff_upload_effect;
+ 	struct hidpp_ff_private_data *data __free(kfree) =
+-		kzalloc_flex(*data, effect_ids, num_slots);
++		kzalloc_flex(*data, slots, num_slots);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+ 	data->hidpp = hidpp;
+ 	data->num_effects = num_slots;
+-	for (j = 0; j < num_slots; j++)
+-		data->effect_ids[j] = -1;
+ 
+ 	/* init the hardware command queue */
+ 	atomic_set(&data->workqueue_size, 0);
+@@ -2870,7 +2857,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
+ 		for (j = 0; hidpp_ff_effects_v2[j] >= 0; j++)
+ 			set_bit(hidpp_ff_effects_v2[j], dev->ffbit);
+ 
+-	error = input_ff_create(dev, num_slots - HIDPP_FF_RESERVED_SLOTS);
++	error = input_ff_create(dev, num_slots);
+ 	if (error) {
+ 		hid_err(hid, "Failed to create FF device!\n");
+ 		bitmap_zero(dev->ffbit, FF_CNT);
+@@ -3447,7 +3434,7 @@ static int g920_get_config(struct hidpp_device *hidpp)
+ 		return -EINVAL;
+ 	}
+ 
+-	data.num_effects = response.fap.params[0];
++	data.num_effects = response.fap.params[0] - HIDPP_FF_RESERVED_SLOTS;
+ 
+ 	/* reset all forces */
+ 	ret = hidpp_send_fap_command_sync(hidpp, data.feature_index,
 
 -- 
 2.56.1.750.gf70dc682cf-goog

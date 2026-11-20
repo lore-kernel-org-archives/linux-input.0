@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795164563;
-	b=IkBZMe/6hr++SowX/LLaB9K2dn1bUQGNNNYWo5rvVx4hUsrCUv1vPAP5iVASS5uZk+XR
-	 ZdflvpcpBRsSd848Sbk8Lp8Wq6/Z7wv4YSjJAUDp1EMwpHnC8se5w6Nt9aHg/wUWiV7FU
-	 GzseIHEkhYTgseovSr45TxtG0NdlbpQSj4xfUNgF6UeTDygX5QCfU2hjlbU9xHSXhIZ6w
-	 G/dhA/fGkMnVqiGHN24ooC8RyZzbBT0Eq+Cqb1VdelQ2DxEgAN6aC3c63K4d1i6mfhzF8
-	 w+SybNaIplSfCsmwImdpdnrbekTcl6irXhTEgbgfy03OZi9SbEDli4mUAFmKR8esk6w==
+	t=1795164932;
+	b=vs22hAT4LTQUIPP8PHNxJfqGNLKUwg5jtZSnhSbGdgPyjVdx5FQkQ9O9Q9xt+l8m6je4
+	 7jmTQJAlTxiOqaCEb82aHL6n2VSj0siuVxQL4QAbd6bQqWKifFcbfhii3roac28RzEwl+
+	 NnL/zzhfncz7Pzt/TRCSQeEV5EBJfgBgzOzKmhhEDkkl8pwApjHwers4GH+WgqfxYDsZn
+	 HlM19eRWBboWG3BaGtrOuUQ9rCf8WZoL1qpINy6B05mcSFied5UJFOd5D1bBthq7fL72c
+	 dPGSRQFGE9oU2a0UjClF/YB4nOsrr8Jf1lAwvilXRMBceNPy1zIyHSSacmT49Etq9eA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795164563;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795164932;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=oV/Z/RRfCD0KsWkT/2X84v5O5zL4Cd/5aKjhD3f7HRQ=;
-	b=kAySYISVKt0a5yws0q5aKMwYmE9443Co2002vaalRK2f+rLc716g45XG/XEqO9AD4JQu
-	 RbiPOhATuzHE8vb7KtN/b/xi8U5NAKCOZN1rGrXW693dkk8LM/dyAgKbzzn3/z9q+P8be
-	 7zKPw/xQ4XvsZL+PN5hVtos/ve7tbtkVEpv7fOIbVG78tp5c1MMyktSy9vinQ7riy5v74
-	 /Qlc579Mh2ouPM0EGbtIQPAbbPobMvvH90eLl0jxlCON0oKk1kSiCBPQ5EzC91obg9ZmF
-	 jg5/UpurtRpFfjzfFGWjQ+zH+y6Gu4kunlQFpY1EiTVxSOrxXqpJx8emiyeS/UfMthQ==
+	bh=VO03xHwcwH1qHi1wuFTxnmTR3+SyhcyHqnttN55JeEM=;
+	b=dS0SCxd3h5RQ1jcrN/L2Dw3aXzXDXrIk9BkXBGWDCBbodPxtxZ5NoF91Bu5mDm34Nuf/
+	 6tBkolFZg171DTmyojfwcfegpzrAr5dYwzskX+SaXv5JEuByMCn5KO4cX3mkTU7uwEs/B
+	 uV3JCx6/E5EdUl3sKub+QeCdnnQKliPjDRGzDkrnxVqvrqD71QzdXNhUYguz2r08WxF1i
+	 UCbpGA/PCs6XkM3e9yJ1iNF0H3NJPWpZL6Nl0FLwn7wy5tqG8bWafh1k6TH8vL5SrDlj9
+	 TrQ7RGzTQTppp9Nmle8bajj5AdNFWzDf+MOUkSNSH5jyvQRL++M+eeMa9uxY8QmXJ7Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ExFuil9u;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZK0Ubs6R;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E9E4606A320
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:49:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A9FE606A325
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:55:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ExFuil9u
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB77D1F000CA;
-	Fri, 20 Nov 2026 08:49:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZK0Ubs6R
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BC01F000C4;
+	Fri, 20 Nov 2026 08:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795164563;
-	bh=oV/Z/RRfCD0KsWkT/2X84v5O5zL4Cd/5aKjhD3f7HRQ=;
+	s=k20260515; t=1795164931;
+	bh=VO03xHwcwH1qHi1wuFTxnmTR3+SyhcyHqnttN55JeEM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ExFuil9ubsGlYLn5w/akM2raWn87ePiVZt5ysfs5t5tpG6GIW0Uc2lU0T371FA7eT
-	 ZIlHjgEir53C0bqhZg7pg2AWxH59RBjBFOP7ursI2wUOFULkkvUuP1zxSXZH85Cjyy
-	 f7Y2x2EEy2Yx2U8BLRYmIM6BTZW3vX/2wA9tsXLgoEwOy19EuTw9bw8+6tCIasTEkX
-	 S2qidOGALiK/Pxqg68DzYHmn7YosVn+k3MaswjgNcX/WYCUrH8nE7MijbteHqLidFb
-	 guGBOfSPEXzrevDOrXqHugrdpxSU+0W3yT9ZQiP9eE5oCOfF8omvFkssVye5H5D846
-	 UoZyNmS0iguZg==
-Message-ID: <sashiko-outbox-224775@kernel.org>
+	b=ZK0Ubs6Rkr6MWuA11Ls58lxN5vi6d0lZidfxSepSpzIPDwrhh/n+YjAYMw2VdAuuq
+	 mT6pMNJ9Xud7Us1KRAcQz7axd4UyOBwfFs/pxxwt6oB0txLCPQqFlS6oTW94J8EcSK
+	 vxA0R6e0oM0C2CGpk+Og/DeN1Y6wY9hn+DFEtWi9PmGb76iEL2BbvEm39mA0mXCcUb
+	 RehIR6dOT5e5DCtZ+f//mqt1aX+rFRYhe0xSq5rSgfrdO73jnjKhvxBve4VoLdP8+h
+	 4S/w34QNcCsHiDn8c9UYVQcFDNtiWmEo9ovFdWdQoHUQsS3F8yzfJ37+yH0Hk/OQD0
+	 aPeFHFGxYgmGw==
+Message-ID: <sashiko-outbox-224800@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 02/18] HID: logitech-hidpp: preserve transport error
- codes in __hidpp_send_report()
+Subject: Re: [PATCH v3 14/14] HID: logitech-hidpp: expose charge_type
+ property for battery voltage feature
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-2-ba39242d4336@gmail.com>
-References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
- <20261120-hid-logitech-hidpp-next-v3-2-ba39242d4336@gmail.com>
+In-Reply-To: <20261120-hid-logitech-hidpp-v3-14-cfe2caa1d0eb@gmail.com>
+References: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com>
+ <20261120-hid-logitech-hidpp-v3-14-cfe2caa1d0eb@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 08:49:22 +0000
+Date: Fri, 20 Nov 2026 08:55:31 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,35 +63,81 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] HID: logitech-hidpp: missing Fixes trailer for
-  __hidpp_send_report()
+- [Medium] HID: logitech-hidpp: unexposed capacity_level for battery
+  voltage feature
 --
 
-commit 7944005fb20b5526c4f3747a01d20ce6a7124554
+commit b4d76869d226ccd595e36b0b248b61047a51210e
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> HID: logitech-hidpp: preserve transport error codes in __hidpp_send_repor=
-t()
->
-> __hidpp_send_report() returns -1 (-EPERM) whenever the underlying HID
-> transport write does not match the expected report length. This discards
-> genuine negative error codes returned by hid_hw_output_report() and
-> hid_hw_raw_request() (such as -ENODEV, -ESHUTDOWN, or -EPIPE), masking
-> device disconnection and transport failure from callers.
->
-> Preserve negative error codes from the transport call, and return -EIO
-> instead of -1 when a short write occurs.
->
-> Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+HID: logitech-hidpp: expose charge_type property for battery voltage feature
 
-[Severity: Low]
-Since this fixes the hardcoded -1 return in __hidpp_send_report(), should
-the commit message include:
+This commit exposes POWER_SUPPLY_PROP_CHARGE_TYPE for devices supporting
+the 0x1001 battery voltage feature, refines charge_type mapping based on
+battery status, updates change detection in
+hidpp20_battery_voltage_event(), and resets charge_type on disconnect.
 
-  Fixes: 2f31c5252910 ("HID: Introduce hidpp, a module to handle Logitech h=
-id++ devices")
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index dbf8f15f5a5b0..966c5932528de 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+
+[ ... ]
+
+> @@ -1553,7 +1558,10 @@ static int hidpp20_battery_voltage_event(struct hi=
+dpp_device *hidpp,
+> =20
+>  	hidpp->battery.online =3D status !=3D POWER_SUPPLY_STATUS_NOT_CHARGING;
+> =20
+> -	if (voltage !=3D hidpp->battery.voltage || status !=3D hidpp->battery.s=
+tatus) {
+> +	if (voltage !=3D hidpp->battery.voltage ||
+> +	    status !=3D hidpp->battery.status ||
+> +	    level !=3D hidpp->battery.level ||
+> +	    charge_type !=3D hidpp->battery.charge_type) {
+>  		hidpp->battery.voltage =3D voltage;
+>  		hidpp->battery.capacity =3D hidpp20_map_battery_capacity(hidpp->hid_de=
+v,
+>  								       voltage);
+
+[ ... ]
+
+> @@ -4416,6 +4425,10 @@ static int hidpp_initialize_battery(struct hidpp_d=
+evice *hidpp)
+>  		battery_props[num_battery_props++] =3D
+>  			POWER_SUPPLY_PROP_VOLTAGE_NOW;
+> =20
+> +	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
+> +		battery_props[num_battery_props++] =3D
+> +				POWER_SUPPLY_PROP_CHARGE_TYPE;
+
+[Severity: Medium]
+Should hidpp_initialize_battery() also register
+POWER_SUPPLY_PROP_CAPACITY_LEVEL when HIDPP_CAPABILITY_BATTERY_VOLTAGE is
+set?
+
+hidpp20_battery_map_status_voltage() populates battery.level (setting
+POWER_SUPPLY_CAPACITY_LEVEL_FULL when full and
+POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL when bit 5 of flags is set), and
+hidpp20_battery_voltage_event() now checks level !=3D hidpp->battery.level
+before calling power_supply_changed().  However, hidpp_initialize_battery()
+only appends POWER_SUPPLY_PROP_CAPACITY_LEVEL to battery_props[] for
+HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS:
+
+drivers/hid/hid-logitech-hidpp.c:hidpp_initialize_battery() {
+    ...
+	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS)
+		battery_props[num_battery_props++] =3D
+				POWER_SUPPLY_PROP_CAPACITY_LEVEL;
+    ...
+}
+
+As a result, capacity_level is never exposed in sysfs for 0x1001 battery
+voltage devices, and a change in battery.level alone (such as the critical
+flag toggling at the same voltage and status) emits a power_supply_changed()
+uevent with no user-visible property change.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-hid-logite=
-ch-hidpp-next-v3-0-ba39242d4336@gmail.com?part=3D2
+ch-hidpp-v3-0-cfe2caa1d0eb@gmail.com?part=3D14

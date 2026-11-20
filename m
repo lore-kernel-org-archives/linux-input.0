@@ -1,101 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.175
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795187701;
-	b=O3IbXQJuYHPgVBP5dvobd79tgYOb/a2mm6WMmb37rwiyuj7VrJJUrzZpxYW0Z0bj0pTb
-	 05IEMmDwVC6inIXhsLk4HvtzY7rbNV59VZUM3wH0CASPbwn9SGCHbXBQ6DrvWiV6aSqLR
-	 FWRofE0m2CNqddhGzzLNTu8QxNRwoCMAmzldqySSuqrF4qE13mEIriZWV1uU3bRrMNHQ+
-	 oGd+rAGL4W04xcUTW/EGNdgeso8Z81hQxx8J4v/f6cWCax6cj3OKw5paruG9FkWRvBE81
-	 eAcVA9ArU1GpSypcgqIKHvPZaohv4EUFJGHeVKV6PBY5TWoJH/G5HmiTL4JGAaIQg6A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795187701;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=BTVg64Op0q6C9ndfjZSeyDDbPDPodfwIL2/3SvvfmEM=;
-	b=3JDSO3mvhEuLtOoY/8S1Mk1WZi2S/xaaGvm1LWIUx6SbJC8FRwVAarFRjYPLzt2FwUDj
-	 nWUH6q1qkj/I4bzARvKUM81cCqncENe+fQOrZt1OMGlq1qTyFw9E3saODf6HsjcLtG69I
-	 DPUpC+9GETQnAHCr7Eq1BJwoDD2PbI/p6Iu+hffifl+9uY+U8e7K++g1qQ0ssqeeaqHgt
-	 T5Hco9SFxogrZLHqGYcKLOBQmwsoRpZnGcpf58GPLtCp9mWj2i/LYXUR04Gl9vyfvauFk
-	 7cn4OWXZi9i4yadkd7glupfdaNH3mvHT07nZ8Xk9/nvgxR4ngViwL1atGScVackdG8g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WuTp10tM;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795188650;
+	b=Ixj3IV6Eknwr0oD1skD00XUEBguViwjsx1nJ+7R/Oz/ZcicNuQxPY5DiTumXKR2KpZwL
+	 rHvJvDG9ZkN/uZFn1IJIMUrTRCoBilaJrJsM9h0sOXuR27KwT4JbOqEkta/P3qT7RQR76
+	 Sg1K/dqrL7Dnh75kRprjtJdaqrI4zg7jQgu6KWsDC1NFkVD3i5tyLvdAS/s1pjy+NNem6
+	 zu27o3X1pfFcZ2d39vrvRhsPIkQT1XB9GuX1xHaxcO6zJAtv+7UPxIidri5AWAQSmCm8e
+	 HSn0Ys458xOdiK+XX8mKw78C1OFqNF3z9DvTswb0IH5hiYxs7UrxZqXC2LKFMFor8qQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795188650;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=9VHUTJFromlNupJTN9EogGGtF4tFwW8uTiqdpeHhdZg=;
+	b=tvnkizBan2O5q541+fAmY8xpPQZaI11DxTzhVoVsGfDeBIAd4y31IXdrx+0pJZlzuBPd
+	 Cf+Yujc/XWyLgn1JnMoiDbIeaI45TdrFw+R+XGYn8Uie8eHDl4JHH/eIuzLRyNNW2klwz
+	 sqViThYBhPzPvGfxsxgXaqjBGirYIZ1Ue1a0FtneLQW/NYXqszJBoQlCnlfTeOcTwdCfj
+	 tQMmWEJGPGdlLAzX+/dHu9UuhiCT9SY1hFMJzHMPteiLmG7mqTYoVHY5oyQDFLM27umEj
+	 GSPVn2MWa5oqdZLG/aklgHJcjOwj6MAtm3SorTncBuEjOSZQNAlQHekUzoX6TPfCqHA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="J4ZXvZ/M";
+	arc=none smtp.remote-ip=198.175.65.18
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA2C9606A332
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 15:15:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA2C9606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78240606A32A;
+	Fri, 20 Nov 2026 15:30:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 78240606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WuTp10tM
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-38587f3de36so1155492eec.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 07:15:00 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795187700; cv=none;
-        d=google.com; s=arc-20260327;
-        b=HAZXjn5SYv1Y6+lLTXZE5WVR9tGm9DdRuMum0vOdAFwmB/qkPyKMI9u/yvl2F6VmUP
-         rDazg6kehWjkOoBd0xiJOpuCfvRT/ONWVeV2qRVy0MetFU/OqDJ5cFjLJ4Ji3i8ne+wu
-         fPITdHoBnkVEG7IETcsPxRWiKpXkbr3VhJlI0gkDD7qHjY5wnWeYszGeM2OJttyKL6pN
-         uxUPfUKycfPL7W9aGdTrXEIBR0c6L73GwMIR+93x2wnVIp+yPH3HNrvPhuy5WD9B44d8
-         DYoq7C7jcvTV39Mn2FrHZNzlUtPp6QFssQfrM0Hjz7gsFhovdqtxA52bxkMwKG/uxEbn
-         PoJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BTVg64Op0q6C9ndfjZSeyDDbPDPodfwIL2/3SvvfmEM=;
-        fh=O644RWqeUBz6qVypFMni1gvhB+zjlahA9pFRhZ72Rzk=;
-        b=h4oYf6PmYyn0h2GFx/nAnPZrUYv/dBNw46tX5kI+nZAhjo9KtRbFottdGIGGQE6hDk
-         MaNhLlXXvy8ax+kFZ+0smeCt61AmyIjO7yzjBiHXqP4Aw9ax1UmsCiFaLgX0QVa2VmN6
-         m1rfybFs9vEWbgQdn/KN5yw3gBsTj53wKELH22qGSuZK/7oII8jUO1sLKYZj4Kdg8Wps
-         Fu4t/MavhnJbjfBZ36zwiPONiuO0xfdtIW9Et8v5qIfw0ZzHNXo3jbFQrfFSOfS+atc5
-         RxnkmPMjSi3fFT4hcQ+aWZQcwg6Q/hJCjdnwAIgunaBrEri2KLpcMnwR1W14nAQS2JFN
-         QsrA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795187700; x=1795792500; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BTVg64Op0q6C9ndfjZSeyDDbPDPodfwIL2/3SvvfmEM=;
-        b=WuTp10tMLt6quTLDUoIPlzwBypkOMQJNj+vf4TTfECZ/GqWqCsgs3AYI8wpAJ4SZx4
-         MUuOzaDkO5uh5MZbFAOlrs8i8pZPQ6DS5JytlD7LMXxu+MjlhfSaM1gl+n6M3xhybkAz
-         I6DVJtTZlrfQFu4Xj33bsQAhE3hVTCEvGP2suhCDp6l/8JKo8WXlhqEJCBun9SGSSXvC
-         r0DI1bP62/E6NgoLI+h1+Hc3gmBR55Of/S0qPGWtxsE7gMYMn30DJ1Z4qnVOEeN4u9FM
-         h2RpwA3/3BbD66QkA+HQkuuO0twdCZOWGVATOmbIEmdhKik1BikdQ6l8YXriWEXupjBK
-         SKmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795187700; x=1795792500;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BTVg64Op0q6C9ndfjZSeyDDbPDPodfwIL2/3SvvfmEM=;
-        b=axre50qgYaEIVTMi/va8EVZphC6UTqhaTDF9tetRajYnXpUgBEUqViYcXgHeHECjr2
-         rlNGz9qokTBXwj3ZxKcdrehSYtM/iWLy6OmdvFRY70vn70vbt8JjEMlqm3nFEYzqO/G9
-         UtMWhrVomq52ppFL0HF3ItYsZGHXzE/3QfhBRJGCLFl23Gg6K3J7XxLtfbN4v3CvddUA
-         hJuE4mDFCIKDKshYTapWZJGH3ItzO1LI2fBBM30IhXoGde+XYGoP7tkFdaDjZgRteFBi
-         huPTgR325qlBhwawrTmABjc0t1mkIzPjecPE4cHSIwIBnUa0e8EURRACtr4F2Dqkrwyb
-         8Qdw==
-X-Forwarded-Encrypted: i=1; AL+hErGugxMBVDswzuSaYev4Z487wzh8gI9o2Soy3NDuMu2xc/RctscFTEoYYAqkpulpzvojBBinliz1xMlYtQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/z+k5LMRzKk9DFjJkw66k5dWV7kVUFsyqSxU13x4GcvLsJsUOA
-	TDbyZXIQ9Mp2jq9w7e84xdMtmoBsM5nLY3SEsq3YYaw+LLLNHJfM5p77Hh0MBIO5V2M02PwMfQ9
-	D1GyNyxcFApLiJ5GflvTjCSkgLa3vYRs=
-X-Gm-Gg: AZFdTZdjkOWdd3Lup8EitN2N+ZsdZVx8LnB8pztEHfLlZL1G7gqAw1G5K4E7znErnAo
-	Qj5s7Sm2e2cpTgWzuD33suzMX0g6xgAnP4DBh84YPY50U2GA1xw1m5DJXgtAfgEMx/WOTbGIy+c
-	pGZ4Z+6cWavMBS6dPXy3h92wc76Qxzi+1AXTMAr8yKJYauznJyq05TZssZSCeJzTWGIaz4UHpp/
-	7+lBZVRXuJyZZW9YzyTbdIViZWIQuJ4p3qXPflQ+D1kba9U2s7ANkOxoOPsVh8F3W+BJsASPsDm
-	8tMZHg4aLMI8msCNWI9vFX51iX6xEuYVqL2rB5Sv8+/pgL3iVryR56UTxPB4Gl0W5+xIiXKn9IA
-	whsXiuQymFv0XUzrtopko20e0m9JCsXeMLAUcxjL/aoYMT1kp1lpyOytkCp0pSoKGGc4G6ekWf/
-	Hccy0qqfGDIt0YwOHTRODaAkmwTmIF/8Zgj1vrt2JNOC2QvcKmr7Q=
-X-Received: by 2002:a05:693c:4091:b0:384:483f:2ea0 with SMTP id
- 5a478bee46e88-3856f65af07mr3934775eec.17.1795187699638; Fri, 20 Nov 2026
- 07:14:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=J4ZXvZ/M
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795188649; x=1826724649;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=BjNTMayYfvOZeResDLWItELyMpG32CjhnX3n8/TjTsI=;
+  b=J4ZXvZ/M5oYHLByPgd4JZkvSZ3veWfUuoye8kEUVK+5Ew8DLPkdreTTv
+   nrjM/meTlCsBjbkWsGUF61jG27hX1H+fXdK9lABUP01w0DG9ingaNNDg2
+   h5QvOE301nIjeARajZ79xbufsk+2ZDEOf8XCLMIodtpE7P41f5OmslOda
+   ttRsz18lYXm8nXRMYhnz+/MgMC6mHSgPfa59/F0vcwnHU5AYonQDp4Ys0
+   u9P44qUSqSjOCfyf3Mb9NUHUmBgL7am4wVdWWB+OZK5JPVewA/2WVSv43
+   HlCwPwt+0HSC/jSPeTqYBW5w7w4iAEa7x8egw4WLN+sFuQlEOGs/U+Gri
+   Q==;
+X-CSE-ConnectionGUID: WvH6cdGWQtKpQ5EDOB2dgg==
+X-CSE-MsgGUID: 7nWIoLkOQgO8aIOd3qvOzw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11972"; a="4083501"
+X-IronPort-AV: E=Sophos;i="6.27,223,1787036400"; 
+   d="scan'208";a="4083501"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 07:30:48 -0800
+X-CSE-ConnectionGUID: vvluQiiNQq2EnWrIfbLPMg==
+X-CSE-MsgGUID: +wOSsbS4TPCvqeywlujzMg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,223,1787036400"; 
+   d="scan'208";a="11063467"
+Received: from spandruv-mobl5.amr.corp.intel.com (HELO [10.124.220.9]) ([10.124.220.9])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 07:30:46 -0800
+Message-ID: <0165ee623890e4d3778390e46ad955956c512812.camel@linux.intel.com>
+Subject: Re: [PATCH v2] HID: sensor-hub: Avoid holding spinlock across child
+ iteration
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Zheng Shuhao <viennaoffh@gmail.com>, linux-input@vger.kernel.org, Zhang
+ Lixu <lixu.zhang@intel.com>
+Cc: jikos@kernel.org, jic23@kernel.org, bentiss@kernel.org, heiko@sntech.de,
+ 	lee@kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	ayaanmirzabaig85@gmail.com, 
+	syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+Date: Fri, 20 Nov 2026 07:30:44 -0800
+In-Reply-To: <573f3eb75601c17d6e766fc47a7cce1bc2274998.camel@linux.intel.com>
+References: <1795161418.hid-sensor-hub@viennaoffh.gmail.com>
+		 <20261120135005.566-1-viennaoffh@gmail.com>
+	 <573f3eb75601c17d6e766fc47a7cce1bc2274998.camel@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -105,83 +88,136 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <cover.1795095742.git.geert+renesas@glider.be> <CAPVz0n1+qXrO5P+rOBKOSOE86+WcmjNF0taWDZoWqerKrjVgJQ@mail.gmail.com>
- <CAMuHMdWPvKop0KAg_nff29ZeAELKprfmDtp8hDU2KPvJH5VVMQ@mail.gmail.com>
-In-Reply-To: <CAMuHMdWPvKop0KAg_nff29ZeAELKprfmDtp8hDU2KPvJH5VVMQ@mail.gmail.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Fri, 20 Nov 2026 17:14:48 +0200
-X-Gm-Features: Aa3M54q53xAAi2-NE6j4-zP1TXb277cEgD_-5pZDZArGHR0nuFBgm3EHI75NcY8
-Message-ID: <CAPVz0n3zsUixggHgKNzWsxtxDZ20GecHGa7qQf2RmzkoJ792KA@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Improve MFD_ASUS_TRANSFORMER_EC dependencies
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	Ion Agorria <ion@agorria.com>, Lee Jones <lee@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, mfd@lists.linux.dev, 
-	linux-input@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linux-tegra@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-=D0=BF=D1=82, 20 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 10:4=
-5 Geert Uytterhoeven <geert@linux-m68k.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> Hi Svyastoslav,
->
-> On Thu, 19 Nov 2026 at 15:51, Svyatoslav Ryhel <clamor95@gmail.com> wrote=
-:
-> > =D1=87=D1=82, 19 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE =
-15:52 Geert Uytterhoeven <geert+renesas@glider.be> =D0=BF=D0=B8=D1=88=D0=B5=
-:
-> > > This patch series improves dependencies for the MFD_ASUS_TRANSFORMER_=
-EC
-> > > MFD driver and its various subdrivers:
-> > >   - The first patch adds a missing dependency for the MFD driver,
-> > >   - The other patches enable compile-testing for the input, serio, an=
+On Fri, 2026-11-20 at 07:12 -0800, Srinivas Pandruvada wrote:
+> +Lixu
+>=20
+> On Fri, 2026-11-20 at 21:50 +0800, Zheng Shuhao wrote:
+> > sensor_hub_remove() holds sensor_data->lock while walking the HID
+> > device's
+> > children with device_for_each_child(). The child iteration takes
+> > the
+> > device
+> > core's klist lock, while sensor_hub_raw_event() takes
+> > sensor_data->lock with interrupts disabled. This creates a lock-
+> > order
+> > inversion.
+> >=20
+
+In reality this can't happen as the
+hid_hw_close() and hid_hw_stop() is called before, so there can't be
+any raw_event.
+
+> > Pass sensor_data to the callback and take the lock only while
+> > examining
+> > pending.status and completing pending.ready.
+> >=20
+> > The callback also visits non-Sensor Hub children. When HID battery
+> > strength
+> > support is enabled, the HID input layer may register a power-supply
+> > child
+> > without platform_data. Skip children without Sensor Hub data before
+> > dereferencing it.
+> >=20
+
+How come this is possible? The HID sensor hub is only deleting its own
+children. Can you give an example here?
+
+Thanks,
+Srinivas
+
+
+> > Testing:
+> > - With CONFIG_HID_BATTERY_STRENGTH=3Dy, ran a UHID Sensor
+> > Hub/Joystick
+> > device
+> > =C2=A0 exposing Battery Strength through 15 create/destroy cycles acros=
+s
+> > three
+> > =C2=A0 QEMU boots. The power-supply child was found each time; no Oops,
+> > BUG, or
+> > =C2=A0 KASAN report occurred.
+> > - In the same configuration, hid_bpf passed 45 tests with 1 skip,
+> > hidraw
+> > =C2=A0 passed 27 tests, and hid-core, hid-apple, hid-gamepad, hid-ite,
+> > =C2=A0 hid-keyboard, and hid-mouse passed.
+> > - The full HID suite was not completed; it stopped during hid-
+> > multitouch.
+> > - The #syz test request was rejected because syzbot's automated
+> > patch
+> > =C2=A0 testing is temporarily unavailable.
+>=20
+> None of the above tested devices are HID SENSOR HUB related, so need
+> some tests.
+> Hi Lixu,
+>=20
+> Please give a try.
+>=20
+> Thanks,
+> Srinivas
+>=20
+> >=20
+> > Fixes: 8a5b38c3fd70 ("HID: hid-sensor-hub: don't use stale
+> > platform-
+> > data on remove")
+> > Reported-by: syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+> > Closes:
+> > https://syzkaller.appspot.com/bug?extid=3Dfb951970a334aaff00ba
+> > Signed-off-by: Zheng Shuhao <viennaoffh@gmail.com>
+> > ---
+> > Changes in v2:
+> > - Pass sensor_data to the callback instead of NULL.
+> > - Skip children without Sensor Hub platform_data; add a battery-
+> > child
+> > test.
+> > - Add Fixes and correct the syzbot address; remove the self-added
+> > Tested-by.
+> >=20
+> > =C2=A0drivers/hid/hid-sensor-hub.c | 12 ++++++++----
+> > =C2=A01 file changed, 8 insertions(+), 4 deletions(-)
+> >=20
+> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
+> > hub.c
+> > index 6470a290ebfc5..4c447f62480b5 100644
+> > --- a/drivers/hid/hid-sensor-hub.c
+> > +++ b/drivers/hid/hid-sensor-hub.c
+> > @@ -804,9 +804,16 @@ static int sensor_hub_probe(struct hid_device
+> > *hdev,
+> > =C2=A0static int sensor_hub_finalize_pending_fn(struct device *dev, voi=
 d
-> > >     battery subdrivers.
-> > >
-> > > Note that compile-testing cannot be enabled for the LED and charger
-> > > subdrivers, as they have a hard dependency on the MFD driver.
-> > >
-> > > Thanks for your comments!
-> > >
-> > > Geert Uytterhoeven (4):
-> > >   mfd: MFD_ASUS_TRANSFORMER_EC should depend on ARCH_TEGRA
-> >
-> > Though this EC is designed for Tegra based devices, it does not have
-> > any Tegra specific parts. It can be used by any other SoC.
->
-> Sure, the dependency can be extended once the hardware appears in
-> devices with other SoCs.  The question to ask is: does it make sense to
-> ask about this driver when configuring a kernel for e.g PA-RISC or S390?
->
-
-Restricting this device to Tegra, even though it is not part of the
-Tegra SoC or Tegra-specific, seems plain wrong. If you want to
-restrict it by architecture, restrict it to arm/arm64 instead. Your
-logic is strange.
-
-> > >   input: keyboard: Enable compile-testing for
-> > >     KEYBOARD_ASUS_TRANSFORMER_EC
-> > >   input: serio: Enable compile-testing for SERIO_ASUS_TRANSFORMER_EC
-> > >   power: supply: Enable compile-testing for BATTERY_ASUS_TRANSFORMER_=
-EC
->
-> As pointed out by Sashiko, I forgot to take into account the transitive
-> dependency on I2C, so there will be a v2.
->
-> Thanks!
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
+> > *data)
+> > =C2=A0{
+> > =C2=A0	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
+> > +	struct sensor_hub_data *sensor_data =3D data;
+> > +	unsigned long flags;
+> > +
+> > +	if (!hsdev)
+> > +		return 0;
+> > =C2=A0
+> > +	spin_lock_irqsave(&sensor_data->lock, flags);
+> > =C2=A0	if (hsdev->pending.status)
+> > =C2=A0		complete(&hsdev->pending.ready);
+> > +	spin_unlock_irqrestore(&sensor_data->lock, flags);
+> > =C2=A0
+> > =C2=A0	return 0;
+> > =C2=A0}
+> > @@ -814,16 +821,13 @@ static int
+> > sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+> > =C2=A0static void sensor_hub_remove(struct hid_device *hdev)
+> > =C2=A0{
+> > =C2=A0	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
+> > -	unsigned long flags;
+> > =C2=A0
+> > =C2=A0	hid_dbg(hdev, " hardware removed\n");
+> > =C2=A0	hid_hw_close(hdev);
+> > =C2=A0	hid_hw_stop(hdev);
+> > =C2=A0
+> > -	spin_lock_irqsave(&data->lock, flags);
+> > -	device_for_each_child(&hdev->dev, NULL,
+> > +	device_for_each_child(&hdev->dev, data,
+> > =C2=A0			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sensor_hub_finalize_pending_fn)=
+;
+> > -	spin_unlock_irqrestore(&data->lock, flags);
+> > =C2=A0
+> > =C2=A0	mfd_remove_devices(&hdev->dev);
+> > =C2=A0	mutex_destroy(&data->mutex);

@@ -1,54 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.200
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.47
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795172958;
-	b=VCg3xaCmQXfebV429CZVWQTfcqOxsn11knKmyrL+ZZKWILAomR/6s3XtB/CO36x3q5JQ
-	 O9tKNWVQ3p+psPjzG8MNaxOrp1I9Fy+YOrRKB/lF2fxi3R2jY/OcWhPtBvCFJZvp1KPcW
-	 WH/Qa1V9S9X3KPmtkeEu8ph3M13f1rTrFA5SazRIbjiYQCJ5MAmpxqkGUtXcM92O6JIa+
-	 +CBk5zLU0tKYgFHNyuz/1htltZflXN8vDEEM6UEqyn2mvcaBnONdRwkudlzq5RJfP7bQX
-	 2j6Txxdo3tuA8Pxdz6o/V4uaBzy+/KP5A7ftsOZfoYWwLYyxEdXV8j1+C7KiojU42RQ==
+	t=1795176791;
+	b=jiOES+jiYbLBkcsNOyuC9cdtoAiueBTcKwUVhmVzEsbUFc9o3TThjQprbRj1EPO9cT9X
+	 cicff76mHirJaud1qzMuL1CbuNFCl3BFs1e1VFwlbLFrF0vmpW9VMqaPgz/yTDFXDKGon
+	 EjqEDwR58z9liDgFwddh8im7zQPDfct3xzLRRgajDAUeUBLWKJCAwB7HWd2C2udE/EeGs
+	 jncR/PoL0Jk2R/NVw68x3fWP91BfXgla8fEI8cCtgZ0KWhqV+LLY9ZJic6ZbbVKQZYkmr
+	 C5X+zdByHRLAUxCJJXvPjFwJZftywQEdT+J5yHu8PuFg/SMkZN4YCCN92bIQ+emIBWA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795172958;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:MIME-Version:X-Received:Date:In-Reply-To:
-	 X-Google-Appengine-App-Id:X-Google-Appengine-App-Id-Alias:Message-ID:
-	 Subject:From:To:Cc:Content-Type;
-	bh=tMp47NzqReywlgYM5u2EyNEpsZnozcgtiE9STnzc4H4=;
-	b=fQmu+jUqlXqxNLq7GiDJpuKWVR7jtfsxZwId0Oiu507vIcxkdpNNisTM0Tl8sMkQf1VG
-	 QH7Frq3c8Jt9uExfjBYYY76hfi5wriPyeyV3lVYvP4zialvc2dBESlxD2hX/HgBGpVQAq
-	 J4nnWWO/GH+elOLwvhIa1YWrtnc29sgfkuXbp/lDP4Z8pwjzBhb7OPduzCyXLu3lRqVY2
-	 G4Yzz0flvBcDs+1a0XWkw7LmyC/Lnagw9U494vM2HvMGtclJBq93upYTmcmVvOnAuNdsG
-	 8UABplU5kP6gy5tgz7ew5Yrak/7MrSOlSGDYYXS122Uyj3uStZpI1gmxntSet7D3+zg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795176791;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=m6tPHsL9Rz9UVRE/EWNWK0Z61K0edsr5OFdC9JXo0fE=;
+	b=I6hxvFHtA0IFazvHxePijcx1unZv2wPYX8Kt8o8ebPJ/wsEPHxFuYkrJ89ltotzu4Rg0
+	 GGXFzYqKGvjA8Dl9EHuPbIPgj9Zm9B8JhyNJhOrl26iaK9495mPIm3h+dS7itPzjW++ec
+	 8XuYV8Y0foVzo4EfRABCOhNmi3qwvx2TN4AJJ2fAlibUTANZMSBQ342EV6UD8G0WLIxao
+	 yz9XuaLzc7mBU0cQ0W0BYzz5c1wupbSIqghql+nWCZVL1XqpCWnrCb3lfQO1uTn97qbxZ
+	 mzvUNkpmr7nD1/oVybfIo+nwXU5SXjKvMoNkZ3zhN4Vto1ScmU8mGOieaw5pckfJbzA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=syzkaller.appspotmail.com;
-	spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com;
-	arc=none smtp.remote-ip=209.85.167.200
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com [209.85.167.200])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RLP9QAoM;
+	arc=none smtp.remote-ip=209.85.216.47
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EBD860A2603
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 11:09:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1EBD860A2603
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f200.google.com with SMTP id 5614622812f47-4e778acdbc6so1163622b6e.3
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 03:09:17 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2691A606A325
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 12:13:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2691A606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RLP9QAoM
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3ae7626d14aso515247a91.2
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 04:13:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795176790; x=1795781590; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=m6tPHsL9Rz9UVRE/EWNWK0Z61K0edsr5OFdC9JXo0fE=;
+        b=RLP9QAoMuEkQUYfb3jApABtNveJJP3px+NbmiksGLdl7+ObkB3blouXLdlaJ4ZGC2Q
+         bGDPEpn77aJoCskRVMhCc9R92Iq2o1bYVlQvyybKsWVSwqf1dAEWd3eeEgj+voIBBEPX
+         voluYtglHq+oeedHwt6/G7mNy2cBDOxezVn/Z3Kqa3BxSte/hPKbARCslrKr9lLUQ4ka
+         kMQRi6Qgn7umatfPKLzyWV/wL7BiuV8iR7DFA0xcZq/gtQUmukHdaJoh6CJHx7bNrl/n
+         R+R10Gb1ILkf2ACeQVsaBNs9R4JgRvlpsPmpDr6tek/GZVBZHsH3FwxwjRHRagrzKhFQ
+         Dddg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795172957; x=1795777757;
-        h=content-type:cc:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=tMp47NzqReywlgYM5u2EyNEpsZnozcgtiE9STnzc4H4=;
-        b=1AtKi5vCrP4GHrzpjUHeaHTUnPyTHy3h2RZ2QZwz4EJhUM+AsFu5Rh8q4USEeTDIOU
-         H7Qnur0wlgxG7L9jqGcIiBHBd/DeeIacXnlGEB36lb6qCqlb2qfd5pDi4Z0XSJ4oPra/
-         VsRhgRkJdgbbMjOjpkqBClBmVHaXVDvzoF+iu1uF6fDqCNF+NC7BV9ha+C4CRIIeziR1
-         +5+hnbNZDMATp2xghAOuZ9+50TTW1DlMklCfZa3HjGgdgT5TjDzZgp2LrDgINTObCka9
-         WQi7capX0yhu1we7yZO1lvQTNrx/yTiX02zSCM/FfUqU58NM4fOPl5y75YGDGUnYXI/g
-         uHtA==
-X-Forwarded-Encrypted: i=1; AL+hErHMSmN/4SH1dsd8h0GUBA7FneNrRziwxhspblSuA1C6fRgeoaXZHRm4BQMmAFmlI2GsJsENE9OvtijXBQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8ld86wku1zL/8XyUB6j9KVuMUcgj4OlBbY/o44ToybReUmiV8U
-	pWHcudWpkZex4GwXhW9tTnaVhOeHBCmVXI2DiL/nVyPZgj36r1msBha0uTP/p1nGKRdmJgqyQMt
-	ShMETwiEMamdlvGPpKICkXy6HpQwAs3ZmwzzvbNGd804YAoEza1vPxKsRyno=
+        d=1e100.net; s=20260707; t=1795176790; x=1795781590;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=m6tPHsL9Rz9UVRE/EWNWK0Z61K0edsr5OFdC9JXo0fE=;
+        b=aAJS+nsn6Ba//mPmJr/zaT6SkRZ7DTSVBFipC9HZ+xSv4/Fd4v28pOPLpndJAvTbM9
+         hCCUwcVEBIUUwGCKvnAh6a4U9xZPlONoCU8QgL3rVQtX86TLBb0x74dhOGbAjocYb/7F
+         Nno1V44DsScr/q1riHxCoHhe/7dwsoExjyrq3zoa8r4DkVJIDn32ZLhYs87m0S5I1Olj
+         b2J+k+VHnv2Ly32B1THZ31ShZXF755gfmX+qCqURRayp+TsA8SCRbDcEpAc+deGMUCq7
+         7YpcyymaHNg1veWLCN7TNYX5t+kuRzDGUF3WZ96KpbK+yGUHzZLSEoEC3vx6rJJAXCNO
+         6Pig==
+X-Forwarded-Encrypted: i=1; AL+hErHJh0Sr/MJvBxdObqzb2caRpnOs62PuKGMxrzyujkFAoUBkOLMae7g/p3H6q37/nxoDbHaS0PKV6JlBTw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9x+N2Kmg5uPrSvWiUu4ZjtZCTODShR3swkT95temtB44jrBtF4
+	+jGmfgmIyH+GyIlPfS58Qkd8UApmjPs7K8jiEY5JcEBIHm7JBRbcs4F4
+X-Gm-Gg: AZFdTZeZh/ze2fCskYFfbw07raD7zK12qN5X8ZZBypk8X/a4MqnCLPNAWpRxxVdMWSD
+	qPgY7R9nqeCWt1xmgEdKA1A/i72Tx9OBAswjZ8fDwtp9wNtop2rrPB4hWopua4z5xUGW8TYMtAh
+	T/kxEHjjq7l95hx2yDKTgDVzwhBjyCgvJaPhvkFzL2xtCtuYNed8Q15kjJvkkSUSUiVFPLGutEo
+	Hu4BhcOeK2JryvRmlpYwGFXb3mqpet9xUo8Rzr1yVSffe1Jv24GKS6jS/l3iiDXtY7Z7agIZPoa
+	ak3/KLmAnUkYGMgIPJ98o0fhUPo3tsAtd+fMO55GwLt09T6b+qidMMf7ONPkrZ/P/miiLrea1DJ
+	LBJwv7JmySYo4Unkq8Z2/iKfyWIjIfa+N8VPAOlkkGyIEeeRq2qs8yiafWTkcfadP6ivemXPu8Y
+	UgkP/sfi6VL9d99LhPshO1AEXcaDBXhG8bzcHyMtpkuvCWmouCMifNLhcRsw14bHgFYlkImCbVq
+	4yr97c5+uWx+tYZGalkxaNqiYsM0dn8XF7PF5pIYd4J8u8/G89Srsa0i2q59VL6GXVI5+5nf6qT
+	AZKUyV3zGFDye4ExohVSz9BXEIbdNjMS0Gm2NGBzu1reqapHjFBa9AeCPFIel+xqXThRlhDi
+X-Received: by 2002:a17:90a:e7d0:b0:3ac:929e:691 with SMTP id 98e67ed59e1d1-3b41c8d5a52mr2637365a91.17.1795176790444;
+        Fri, 20 Nov 2026 04:13:10 -0800 (PST)
+Received: from gb05.tail50fddd.ts.net ([139.5.199.65])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b41cfb48basm1513592a91.2.2026.11.20.04.13.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 04:13:09 -0800 (PST)
+From: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Jonathan Cameron <jic23@kernel.org>
+Cc: Arnav Kapoor <kapoorarnav43@gmail.com>,
+	Lee Jones <lee@kernel.org>,
+	Heiko Stuebner <heiko@sntech.de>,
+	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>,
+	syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+Subject: [PATCH v2] HID: hid-sensor-hub: avoid lock inversion in sensor_hub_remove()
+Date: Fri, 20 Nov 2026 17:42:56 +0530
+Message-ID: <20261120121256.35339-1-ayaanmirzabaig85@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,85 +103,75 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:1393:b0:573:399d:d487 with SMTP id
- 5614622812f47-57a0d0e2d03mr3179763b6e.65.1795172957190; Fri, 20 Nov 2026
- 03:09:17 -0800 (PST)
-Date: Fri, 20 Nov 2026 03:09:17 -0800
-In-Reply-To: <4f254948-29d5-4011-8865-c60a699d9bac@kernel.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6b002a5d.6ea51c61.12eec.0010.GAE@google.com>
-Subject: Re: [PATCH] HID: sensor-hub: Avoid holding spinlock across child iteration
-From: syzbot <syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com>
-To: crofts@kernel.org
-Cc: bentiss@kernel.org, crofts@kernel.org, jic23@kernel.org, jikos@kernel.org, 
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, srinivas.pandruvada@linux.intel.com, 
-	viennaoffh@gmail.com, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
->
->
-> On 20/11/2026 11:50, Joshua Crofts wrote:
->> On 20/11/2026 08:56, Zheng Shuhao wrote:
->>> syzbot reports a SOFTIRQ-safe -> SOFTIRQ-unsafe lock order warning during
->>> sensor hub removal.
->>> 
->>> sensor_hub_remove() currently holds sensor_data->lock while calling
->>> device_for_each_child(). The child iteration enters the device core and may
->>> acquire the klist lock. Since sensor_data->lock is also acquired with
->>> interrupts disabled by sensor_hub_raw_event(), lockdep reports a possible
->>> lock-order inversion.
->>> 
->>> The callback only needs sensor_data->lock while checking pending.status and
->>> completing pending.ready. Pass sensor_data to the callback and take the lock
->>> only around that short critical section instead of holding it across
->>> device_for_each_child().
->>> 
->>> This preserves synchronization of pending.status while avoiding the lock-order
->>> dependency between sensor_data->lock and the device core's klist lock.
->>> 
->>> The syzbot report is available at:
->>> https://syzkaller.appspot.com/bug?id=c7c429f6851638ece81338f90c5b29ac9c0dea1f
->>> 
->>> Testing:
->>> - Reproduced the target lockdep warning with the unmodified kernel in 3/3
->>>   two-CPU QEMU runs.
->>> - The warning was absent with this patch in 3/3 equivalent runs.
->>> - Ran the HID selftests against both baseline and patched kernels:
->>>   hid_bpf: 45 passed, 1 skipped, 0 failed
->>>   hidraw: 27 passed, 0 failed
->>>   hid-core, hid-apple, hid-gamepad, hid-ite, hid-keyboard, hid-mouse,
->>>   hid-multitouch, hid-sony, and hid-tablet all passed in both runs.
->>> - hid-usb_crash.sh and hid-wacom.sh produced TAP 1..0 / rc=2 in both
->>>   kernels because no executable test cases were collected in this minimal
->>>   QEMU environment.
->>> - No KASAN report, use-after-free, Oops, BUG, panic, or general protection
->>>   fault was observed.
->>> - checkpatch.pl --strict --no-signoff reports 0 errors and 0 warnings.
->>> 
->>> Reported-by: syzbot+c7c429f6851638ece81338f90c5b29ac9c0dea1f@syzkaller.appspotmail.com
->>> Closes: https://syzkaller.appspot.com/bug?id=c7c429f6851638ece81338f90c5b29ac9c0dea1f
->>> Signed-off-by: Zheng Shuhao <viennaoffh@gmail.com>
->>> Tested-by: Zheng Shuhao <viennaoffh@gmail.com>
->> You cannot add a Tested-by tag with your name.  This is reserved for when
->> someone independent of you tests your patch. Looking at the syzbot report
->> there is a reproducer, so syzbot should test it. You can make syzbot test
->> a patch by sending the following (note, this will trigger a test):
->
-> Ah, did some digging and the syzbot email is incorrect, it should be:
->
-> syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
->
-> Cc'd the right syzbot and triggering the test.
->
-> #syz test
+In sensor_hub_remove(), spin_lock_irqsave(&data->lock, flags) is held
+while calling device_for_each_child(), which iterates child devices via
+klist_next() and acquires the driver core's &k->k_lock.
 
-Patch testing via #syz test is temporarily disabled.
-See https://github.com/google/syzkaller/issues/8122 for details.
+Because &data->lock is acquired in softirq context by
+sensor_hub_raw_event() while &k->k_lock is acquired elsewhere with
+softirqs enabled, nesting &k->k_lock under &data->lock triggers a
+SOFTIRQ-safe -> SOFTIRQ-unsafe lockdep warning and risks an ABBA
+deadlock between process context and softirq context.
 
->
-> -- 
-> Kind regards,
-> Joshua Crofts
->
+Move spin_lock_irqsave()/spin_unlock_irqrestore() into
+sensor_hub_finalize_pending_fn() and pass data through
+device_for_each_child(), so &data->lock is only held while inspecting
+and completing each child's pending state after klist_next() releases
+&k->k_lock.
+
+Reported-by: syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/6afddf21.a11fe2ad.1b4426.0003.GAE@google.com/T/
+Fixes: 8a5b38c3fd70 ("HID: hid-sensor-hub: don't use stale platform-data on remove")
+
+Signed-off-by: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
+---
+Changes in v2:
+ - Pass 'data' instead of NUL to device_for_each_child() so
+   sensor_hub_finalize_pending_fn() does not dereference a NULL sd pointer.
+
+ Tested against the syzbot C reproducer on linux-next; it runs cleanly
+ with no lockdep warnings or oopses.
+
+ drivers/hid/hid-sensor-hub.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 028e70ec7bac..4ade5b5ece56 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -836,9 +836,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+ {
+ 	struct hid_sensor_hub_device *hsdev = dev->platform_data;
++	struct sensor_hub_data *sd = data;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&sd->lock, flags);
+ 	if (hsdev->pending.status)
+ 		complete(&hsdev->pending.ready);
++	spin_unlock_irqrestore(&sd->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -846,16 +850,13 @@ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+ static void sensor_hub_remove(struct hid_device *hdev)
+ {
+ 	struct sensor_hub_data *data = hid_get_drvdata(hdev);
+-	unsigned long flags;
+ 
+ 	hid_dbg(hdev, " hardware removed\n");
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+ 
+-	spin_lock_irqsave(&data->lock, flags);
+ 	device_for_each_child(&hdev->dev, NULL,
+ 			      sensor_hub_finalize_pending_fn);
+-	spin_unlock_irqrestore(&data->lock, flags);
+ 
+ 	mfd_remove_devices(&hdev->dev);
+ 	mutex_destroy(&data->mutex);
+-- 
+2.56.1
+

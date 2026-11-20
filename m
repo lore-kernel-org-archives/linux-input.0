@@ -1,38 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=188.245.251.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795169460;
-	b=s24f6TXBbDJ+dV7eaK9PaWU/qSbE/4lb80clh151WuCyOx7MYWol5F7qRH4ThrziK6Yi
-	 yPlV29rvXI+TDYJ096Y4EHC+sEPQanQnSjucd0n++8qNKprmjSPAfQfDPyWtvgtYOLwI5
-	 UM4Ld5TfYcCR2gOoKVMbS63xw6tmN+/abLUyIBP1IrpFPv5vIy6k/abjAQxJcNOeq3qfW
-	 bz1wIfU5zbFiQOMotdMDlBJo/ym/ML51qq5C09gMUSAT2djOwLzfLzbGwaYXYHJ55hLsS
-	 e5J1Fe1Lar7j03GmO22GsBFC4b8aVIklR9vO0i2kq1v1tGOu3xO4YMQpPy/0gmIjgPw==
+	t=1795171851;
+	b=2n31BGaBior2vsVdsT5bQSFNMIwg+ebGj4Bc07pdeueNoyMlGNNRHL2Vhh7olLd7i5cM
+	 Xfy4dKjfNAn6yJ2sXNDUyhGe1Brw51Oyn5PwzAhdPY7L5dXO76cgIXzTwDEVKcD1ZnmFn
+	 26KCZzU/qZ1Q9TjuFxVGF58QWt80DgwtDzumy9V6kJMOTqQvd3KiRBLUM91oPz0ylacHP
+	 80l2rwIRmyFEv/yps8abkOOptGghbRvLaYaI6hwHHIbsdKC841MpX15p7I9t8cpwMb279
+	 LHNsKkiWqcv1xxC9wRX5ApjDN5hHMENRmkKIQRQ4Y9jKpVU3BBM54jquibMLvJDqIkg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795169460;
-	h=DMARC-Filter:Mime-Version:DKIM-Signature:Content-Transfer-Encoding:
-	 Content-Type:Date:Message-Id:From:To:Subject:Cc:References:
-	 In-Reply-To;
-	bh=zmfmGNg7qAeoVakdOVdrpQyQU9vKkeYYx6KvwahRegM=;
-	b=2mLe9To93yBMc1EqzYt/z+bxqRaJR08P5FPg6UtfxSlU0vCKkYgkYzNxUuulNuB9zRxc
-	 JhyDWBxqRtOP6ang8tD3HymU9wVlyE5hHgqLzWjGnKY8g+LhfB1wBQ9Q8Ry3pVe6M1sAu
-	 lqIXU19/moDI0MJUsTXH8TFly09+YI5T/gVOzkndapDa0cA7dmuPCBbhbbrSpjdet3ud/
-	 Kd8nuxN8aGlfdk1NQPvxiysoBX9rM2bN/bPwcAukM6ocFbjOmF2jEBHmsQI2DcFaj+5aK
-	 FJCzmha3FvShM+vH8Sq42XVo+ftN/GNdPXlaIbbZgmtRUuOJfYFMu8f9tWFVE4eDGUg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795171851;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=5dwD7udU1MAtwItjeMysrMS5pcMrk1+oZk8uLzi5y4M=;
+	b=mrii3xIhwBpYJLc1C7lC/T8qmpqMnR9kzK3WGxdoHYf6q+DBeBf0mhhV9q6xwZilEaa0
+	 4bm6ijGj1mBderDjOM96MJHEjubnFt3zhX0FWbx9TUrGWmUjYLgqAV7kS9K3gaucHQ/1C
+	 +XjZiP73COd6vCA+xF+SCzpo7cq+HFpdgUNkE/o7mHZxvIeMZq4C5si2UvSD9dhWn0NED
+	 eYMqCTSvVuMILNoqHijCbiD5mwRYKol+i3QNCFHruSCu4aHi7ZkX46pPgMqVVEMJ3RCUS
+	 168AZDV2UKMP1uA8oqtJQXzJ6YDoO+wsvVWHwXLox+fjsJEk0WeyY4q8PRFWa0eNHwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=fhannenheim.net;
-	spf=pass smtp.mailfrom=fhannenheim.net;
-	dkim=pass header.d=fhannenheim.net header.i=@fhannenheim.net header.a=rsa-sha256 header.s=mail header.b=B7mlpcU6;
-	arc=none smtp.remote-ip=188.245.251.181
-Received: from mail.fhannenheim.net (mail.fhannenheim.net [188.245.251.181])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NF8FczTS;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD055606A326;
-	Fri, 20 Nov 2026 10:10:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD055606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fhannenheim.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fhannenheim.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E9E0606A332;
+	Fri, 20 Nov 2026 10:50:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=fhannenheim.net header.i=@fhannenheim.net header.a=rsa-sha256 header.s=mail header.b=B7mlpcU6
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NF8FczTS
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E31081F000C0;
+	Fri, 20 Nov 2026 10:50:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795171851;
+	bh=5dwD7udU1MAtwItjeMysrMS5pcMrk1+oZk8uLzi5y4M=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=NF8FczTSCiVCq/wXVh9jTRShRosHCSjjNdYqeh43gz7oE67LQUMYcOsp5en3dkee4
+	 B8Ppvx6vNAFZWwun52Azl/h3MX02jGf5d6T0kGs3AWUlczbBZJ2Xfdu13UQ7EywpWc
+	 HvIFrO1U0biX2A0wSH4IXlsuNCXwrYz/RP9VopLyeLbpx09eb0pdwj1A5cKVgvn3/f
+	 djJZD1ErmvXfYu+T+H8mQDwOWMaxfwZc6FW1LlFQ1/48U11u2zMC1C/mwYuUYl/g/j
+	 CnY1PXJ8kemUuXyi/FrrwDsI7ekKvZoaI2JDZW8rS8iKISEKqTkrj0ekFieTAvIKF4
+	 lond/zBJNbnnw==
+Message-ID: <0428126d-684f-4b4c-a805-7dc3e2d56897@kernel.org>
+Date: Fri, 20 Nov 2026 11:50:46 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -41,65 +50,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fhannenheim.net;
-	s=mail; t=1795169456;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zmfmGNg7qAeoVakdOVdrpQyQU9vKkeYYx6KvwahRegM=;
-	b=B7mlpcU6OPTCl27w0tqCSDzNvsgIaDIbbV/GiBOPGI0VkqqI5atpmNkYWrGFDg2h1l4p5U
-	xF8qZ3LQKXzHUN4raMR2zB9gnynJ23JaBlHrGQNf8J6YCZU3MYYIu6GJPuxMrJTE53WZRB
-	wapPop4EJlK+ZUaLH6WPCQ2pjyY9XSM=
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] HID: sensor-hub: Avoid holding spinlock across child
+ iteration
+To: Zheng Shuhao <viennaoffh@gmail.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ syzbot+c7c429f6851638ece81338f90c5b29ac9c0dea1f@syzkaller.appspotmail.com
+References: <1795161418.hid-sensor-hub@viennaoffh.gmail.com>
+Content-Language: en-US
+From: Joshua Crofts <crofts@kernel.org>
+In-Reply-To: <1795161418.hid-sensor-hub@viennaoffh.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 20 Nov 2026 11:10:53 +0100
-Message-Id: <DMZYGLZHLUL9.3TCE7LHEO9AQC@fhannenheim.net>
-From: "Frieder Hannenheim" <mail@fhannenheim.net>
-To: "Vsevolod Nevorotov" <sevanevorotov29@gmail.com>, "Dmitry Torokhov"
- <dmitry.torokhov@gmail.com>, "Rob Herring" <robh@kernel.org>, "Krzysztof
- Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>
-Subject: Re: [PATCH 2/2] Input: synaptics_tcm_i2c - add Synaptics TouchComm
- I2C touchscreen driver
-Cc: "Henrik Rydberg" <rydberg@bitmath.org>, <linux-input@vger.kernel.org>,
- <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20260910070723.347768-1-sevanevorotov29@gmail.com>
- <20260910070723.347768-3-sevanevorotov29@gmail.com>
-In-Reply-To: <20260910070723.347768-3-sevanevorotov29@gmail.com>
+Content-Transfer-Encoding: 7bit
 
-On Thu Sep 10, 2026 at 9:07 AM CEST, Vsevolod Nevorotov wrote:
-> Add input touchscreen driver for Synaptics TouchComm (TCM) generation-1
-> controllers connected over I2C that boot into application mode out of
-> their own flash (such as the Synaptics S3908 fitted to the OnePlus 9RT).
->
-> The driver supports:
-> - Multi-touch reporting via input_mt framework
-> - Configurable touch report layouts
-> - Standard touchscreen properties (axis swapping/inversion)
-> - Low-power wakeup gestures (double-tap to wake)
-> - Deep sleep mode during system suspend
->
-> Signed-off-by: Vsevolod Nevorotov <sevanevorotov29@gmail.com>
-> ---
->  MAINTAINERS                                   |    7 +
->  drivers/input/touchscreen/Kconfig             |   15 +
->  drivers/input/touchscreen/Makefile            |    1 +
->  drivers/input/touchscreen/synaptics_tcm_i2c.c | 1033 +++++++++++++++++
->  4 files changed, 1056 insertions(+)
->  create mode 100644 drivers/input/touchscreen/synaptics_tcm_i2c.c
+On 20/11/2026 08:56, Zheng Shuhao wrote:
+> syzbot reports a SOFTIRQ-safe -> SOFTIRQ-unsafe lock order warning during
+> sensor hub removal.
+> 
+> sensor_hub_remove() currently holds sensor_data->lock while calling
+> device_for_each_child(). The child iteration enters the device core and may
+> acquire the klist lock. Since sensor_data->lock is also acquired with
+> interrupts disabled by sensor_hub_raw_event(), lockdep reports a possible
+> lock-order inversion.
+> 
+> The callback only needs sensor_data->lock while checking pending.status and
+> completing pending.ready. Pass sensor_data to the callback and take the lock
+> only around that short critical section instead of holding it across
+> device_for_each_child().
+> 
+> This preserves synchronization of pending.status while avoiding the lock-order
+> dependency between sensor_data->lock and the device core's klist lock.
+> 
+> The syzbot report is available at:
+> https://syzkaller.appspot.com/bug?id=c7c429f6851638ece81338f90c5b29ac9c0dea1f
+> 
+> Testing:
+> - Reproduced the target lockdep warning with the unmodified kernel in 3/3
+>   two-CPU QEMU runs.
+> - The warning was absent with this patch in 3/3 equivalent runs.
+> - Ran the HID selftests against both baseline and patched kernels:
+>   hid_bpf: 45 passed, 1 skipped, 0 failed
+>   hidraw: 27 passed, 0 failed
+>   hid-core, hid-apple, hid-gamepad, hid-ite, hid-keyboard, hid-mouse,
+>   hid-multitouch, hid-sony, and hid-tablet all passed in both runs.
+> - hid-usb_crash.sh and hid-wacom.sh produced TAP 1..0 / rc=2 in both
+>   kernels because no executable test cases were collected in this minimal
+>   QEMU environment.
+> - No KASAN report, use-after-free, Oops, BUG, panic, or general protection
+>   fault was observed.
+> - checkpatch.pl --strict --no-signoff reports 0 errors and 0 warnings.
+> 
+> Reported-by: syzbot+c7c429f6851638ece81338f90c5b29ac9c0dea1f@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=c7c429f6851638ece81338f90c5b29ac9c0dea1f
+> Signed-off-by: Zheng Shuhao <viennaoffh@gmail.com>
+> Tested-by: Zheng Shuhao <viennaoffh@gmail.com>
+You cannot add a Tested-by tag with your name.  This is reserved for when
+someone independent of you tests your patch. Looking at the syzbot report
+there is a reproducer, so syzbot should test it. You can make syzbot test
+a patch by sending the following (note, this will trigger a test):
 
-Tested-by: Frieder Hannenheim <git@fhannenheim.net>
+#syz test
 
-Thanks for this. Tested on a OnePlus 8T with a S3908. Wake from suspend wor=
-ks
-too. Sadly no wakeup when the screen is off but the device is not suspended=
-.
-Maybe a similar approach to what David Heidelberg proposed here [1] could b=
-e
-used for that.
+-- 
+Kind regards,
+Joshua Crofts
 
-[1]: https://lore.kernel.org/phone-devel/20261104-ft5x06-double-tap-v1-2-5a=
-1bd80449cc@ixit.cz/
-
-Frieder

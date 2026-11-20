@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795165226;
-	b=S+3Dmg+7hZUWWM9H3myE1b/Hb0gEmQAV5UEhYy7GTaZxchRFcTM4dwpUf5hgQnTI6U2s
-	 7Pm1dan/c3v+leSGmNbSKH2itLMkd71iCxFlJvAWxx61duiRJ0rIdbZMfxpVU+qj7hCoU
-	 4+fBIwAtItsSbShtCl2+mCMqbgV+c4luHCI5Yz/w5PPO/JZHTgP8i96f8a6I0idpupOmi
-	 YXZSivQvHPWEg363qLagL1cKM+aRR6qA/UM/Rq0GtImQmDDLSdG5myMCsyNluKherHhHL
-	 /l/ZMHVk5Pyz68wtr99AP2/rXVLk+sobyELxWa21qFPL9we3zV+DwZf6Y1oBsnfA5WA==
+	t=1795165304;
+	b=awKS2O/4Vr+wa0lLpdrXTnhAdNlzeQxIiegEuWHvAVuqh8oiGFY03ViZ7XK5NZF9RbqP
+	 yg6atpHTNfrgTUEVhksm+NfEfsB+H6FKFgfsIEE1DXjZCDCn57ZBcaCM545OmScwZaNda
+	 K5RUkghuMJxXJ//lPOaVVc3W1HIXZdgkSxM2I7cwhwoKe8stlSrLAFGFa+BDjU65CsSqX
+	 9xBbxsL4p3PRVyjTk+ZgitPLNq+MUDn8iGSE63jFEA+okWdKdwUcqsvRqEMr86g9hMtSy
+	 zao656RXUFKxiX0/UZolRvHOiTELho8Z6wJd4nNQ7fi5BRlnjdFjF6O0hXoaDfKiUXw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795165226;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795165304;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=yLehJXWZpyozjeXbdnDS8M8LxBMisGLfa4MqWbtN1RM=;
-	b=c02QGUE163fjiarGvjNjKFzCj5gIh9aipUnpx/EgXk6s0f1rFbjIj95MSaB/2qoMjU2w
-	 P7N5RrKet9MZuCyOR6jrFBH5nOpdBi4hjyhtRJkHMvs2yegMKu/DrhXHa02LABeb6umq1
-	 cSmJvh4uvZ4KmKRCfg0DhLTLJW+nNoWJn+SU3/K9BzPC3+UFgGfp075dxY18tJbIjifsn
-	 31HNnDBfJnzgJkprM+g1SdqNiXJRYIqN8C17YlC3iGVY0obDl5+kZsS6v153K7sURK5uJ
-	 ZHLr6UR9/ads9PZmiwXcT474Pv0HuZLCbo7p+pDVXTLb5R8XPZHUP39u/T8ahwCKCBA==
+	bh=o9goNXiBHQebVL3ww3uRBy5+2xu7mOLJVo7xciBwg0c=;
+	b=SSuroLd6TYWKpTKhjY13ltmzOkbNAcz8F6oZu+u1qtnw1I37Q32cf5weNVR7pU8KWXdh
+	 xP3JD5fY8OON05Xu5+CXCJWntrMZvqYPnKl55yT32I0Et8s5zdV96otIwJ8YqmL5sP9QO
+	 5HKxZ40LmSK+Mvp575EBx/PMuBohLyM69TxHQgwNyZMDYIjjIOvzXseL3bemd04wuifTr
+	 uTfC+e5KdfYK+F/Rg0vG19vA9NKXI819gYVBFGZTit567VYV3oP8Achv5l0vbgDTommg1
+	 fn09SEJvCDRtXsp+lJPtXUo8lG4+dCZtxh3rW5uW7eXUgmZQp7LAt2UbCt2mt0bu8fw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E3ZB78wj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tj6Is2Oa;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7986606A32C
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 09:00:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125DA606A320
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 09:01:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E3ZB78wj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF751F000CF;
-	Fri, 20 Nov 2026 09:00:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tj6Is2Oa
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50381F000C6;
+	Fri, 20 Nov 2026 09:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795165226;
-	bh=yLehJXWZpyozjeXbdnDS8M8LxBMisGLfa4MqWbtN1RM=;
+	s=k20260515; t=1795165303;
+	bh=o9goNXiBHQebVL3ww3uRBy5+2xu7mOLJVo7xciBwg0c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E3ZB78wj/gxzFGngEVM2xFtvuSVWGzVhTMFE4KhHy03VO4BrGzMPvM0dr5XtWAbca
-	 lF0nSjlt7v3jpSHcCCsnDUce3M2PabwNJacHYi3P6ljHEIUPeUJaQcNa0MQvBGSheo
-	 m1DubkioWVcqDDXUM4CNMbisj3ZEPrav9kJLFHV5ozSlqqOcjeJYx7L76Leesq28E1
-	 bvytG9V08cPWu4hHkSQePRvdNO8zuLUo3xfQ23CNQSMmoU+7qxzuLdZHdEQC/Cd2o6
-	 PCPpVWYeCl8R7bPfuT+wI9qAqTKTX5SSxq7jE1lS+q5dZQrLi2DWGWxDlkchSox+zZ
-	 G46xfqRhhM27g==
-Message-ID: <sashiko-outbox-224807@kernel.org>
+	b=Tj6Is2OaOmFM04pVdMvnO8aAlDXECNpoeWrKMjFr2YrbY/2haCDwxswSEcNnKc6px
+	 BIknbIvPxt43obxqT9ZZbd0iKNfOIgFJKgLqOht8alJAPRMQBJ2uKTj7fkgvbV5UcW
+	 zDeK7LEwWrJcDKx39zVhx0dC4Mar6LUMiiRgmF0ew6j2wX54f8dyfkMZomOBZuGcKI
+	 gV6OHxpuYDNqH4989cS/eu94fXxXw8NQZo/Axhcgf4s3eovP5ZclcaEeIEoKnEAOML
+	 JIE8MvNttxXEn+uueaCoMSOmnBG2ZZISiYbJXPw2fjCNAsDiPsFMxwWCR9CF4w1WUI
+	 jX6shpE/9tf1A==
+Message-ID: <sashiko-outbox-224810@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 06/18] HID: logitech-hidpp: manage G920 range sysfs
- attribute via dev_groups
+Subject: Re: [PATCH v3 04/14] HID: logitech-hidpp: disable works before
+ stopping transport
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-6-ba39242d4336@gmail.com>
-References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
- <20261120-hid-logitech-hidpp-next-v3-6-ba39242d4336@gmail.com>
+In-Reply-To: <20261120-hid-logitech-hidpp-v3-4-cfe2caa1d0eb@gmail.com>
+References: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com>
+ <20261120-hid-logitech-hidpp-v3-4-cfe2caa1d0eb@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 09:00:25 +0000
+Date: Fri, 20 Nov 2026 09:01:43 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,97 +63,49 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [High] HID: logitech-hidpp: use-after-free of hidpp and g920 in
-  hidpp_ff_destroy()
+- [Medium] HID: logitech-hidpp: work flush with I/O stopped in
+  hidpp_probe()
 --
 
-commit 747c5a1e9f12f8c0a286b46681fccb7f3876f83a
+commit 43c05e6ba16082cedbdbc71e25086acb4e9b0851
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-HID: logitech-hidpp: manage G920 range sysfs attribute via dev_groups
+HID: logitech-hidpp: disable works before stopping transport
 
-This commit replaces manual creation and removal of the G920 range sysfs
-attribute with a driver dev_groups attribute group using an is_visible
-callback.
+This commit synchronously disables hidpp->work and
+hidpp->reset_hi_res_work before closing and stopping the HID transport
+during probe failure and device removal.
 
 > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
 hidpp.c
-> index 58f7cf84b9951..1376d5bc3fbbb 100644
+> index d5f53b35ac6f5..0e1a9fd98fafc 100644
 > --- a/drivers/hid/hid-logitech-hidpp.c
 > +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -2752,16 +2752,47 @@ static ssize_t hidpp_ff_range_store(struct device=
- *dev, struct device_attribute
+> @@ -4805,13 +4805,13 @@ static int hidpp_probe(struct hid_device *hdev, c=
+onst struct hid_device_id *id)
+>  	return ret;
 > =20
->  static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROT=
-H, hidpp_ff_range_show, hidpp_ff_range_store);
-> =20
-> +static struct attribute *g920_range_attrs[] =3D {
-> +	&dev_attr_range.attr,
-> +	NULL
-> +};
-> +
-> +static umode_t g920_range_attr_is_visible(struct kobject *kobj,
-> +					  struct attribute *attr, int idx)
-> +{
-> +	struct device *dev =3D kobj_to_dev(kobj);
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct hidpp_device *hidpp =3D hid_get_drvdata(hdev);
-> +	struct g920_data *g920;
-> +
-> +	if (!hidpp || !(hidpp->quirks & HIDPP_QUIRK_CLASS_G920))
-> +		return 0;
-> +
-> +	g920 =3D hidpp->private_data;
-> +	if (!g920 || !g920->ff)
-> +		return 0;
-> +
-> +	return attr->mode;
-> +}
-> +
-> +static const struct attribute_group g920_range_group =3D {
-> +	.attrs =3D g920_range_attrs,
-> +	.is_visible =3D g920_range_attr_is_visible,
-> +};
-> +
-> +static const struct attribute_group *hidpp_dev_groups[] =3D {
-> +	&g920_range_group,
-> +	NULL
-> +};
-> +
->  static void hidpp_ff_destroy(struct ff_device *ff)
->  {
->  	struct hidpp_ff_private_data *data =3D ff->private;
->  	struct hidpp_device *hidpp =3D data->hidpp;
-> -	struct hid_device *hid =3D hidpp->hid_dev;
->  	struct g920_data *g920 =3D hidpp->private_data;
-> =20
-> -	hid_info(hid, "Unloading HID++ force feedback.\n");
-> +	hid_info(hidpp->hid_dev, "Unloading HID++ force feedback.\n");
-> =20
-> -	device_remove_file(&hid->dev, &dev_attr_range);
->  	destroy_workqueue(data->wq);
->  	g920->ff =3D NULL;
->  }
+>  hid_hw_init_fail:
+> +	disable_work_sync(&hidpp->work);
+> +	disable_work_sync(&hidpp->reset_hi_res_work);
+>  	hid_hw_close(hdev);
 
-[Severity: High]
-Can hidpp_ff_destroy() cause a use-after-free of hidpp and g920 when an
-open event handle outlives driver unbind or disconnect?
+[Severity: Medium]
+Can disable_work_sync() here stall waiting for in-flight work items while
+device I/O is stopped?
 
-Both hidpp (allocated with devm_kzalloc_obj() in hidpp_probe()) and g920
-(allocated with devm_kmemdup() in g920_get_config()) belong to hdev's
-driver devres group.  If userspace holds an open file descriptor to the
-input device across disconnect, input_unregister_device() deletes the
-device without releasing it, and hid_device_remove() immediately calls
-devres_release_group(), freeing hidpp and g920.
-
-When the last open handle is closed later, input_dev_release() ->
-input_ff_destroy() -> hidpp_ff_destroy() reads hidpp->private_data and
-hidpp->hid_dev from the freed hidpp struct and writes g920->ff =3D NULL into
-the freed g920 struct.  A later patch in this series, commit "HID:
-logitech-hidpp: execute G920 range sysfs store synchronously", removes the
-g920->ff assignment, but hidpp_ff_destroy() still dereferences the freed
-data->hidpp and hidpp->hid_dev in hid_info().
+In hidpp_probe(), hid_device_io_start() enables incoming reports during
+device initialization, which can schedule hidpp->work or
+hidpp->reset_hi_res_work.  Before calling hid_connect(), hidpp_probe()
+calls hid_device_io_stop(), acquiring hdev->driver_input_lock.  If
+hid_connect() fails and jumps to hid_hw_init_fail, disable_work_sync()
+waits for those work handlers with hdev->driver_input_lock held, so any
+synchronous HID++ command inside hidpp_connect_event() or
+hidpp_reset_hi_res_handler() cannot receive its reply report and stalls
+until each 5-second command timeout expires.  Should hid_hw_init_fail
+bracket disable_work_sync() with hid_device_io_start() and
+hid_device_io_stop() like hidpp_remove() does?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-hid-logite=
-ch-hidpp-next-v3-0-ba39242d4336@gmail.com?part=3D6
+ch-hidpp-v3-0-cfe2caa1d0eb@gmail.com?part=3D4

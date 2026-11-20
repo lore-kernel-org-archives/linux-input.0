@@ -1,56 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795177309;
-	b=dbOeRe3BUwKOzggITLlRQsC9NTBF9bPtAiA34AsWsZ+6v+Es/MXOA9hi/qmfiyvRWGGQ
-	 u4FmwxTSST1Q5LWJBB5DZvwSMpvDKWILGqIXH8WMNGdemyQmZaKZKBSXGufwhbsxnIDVR
-	 rnhzWtHzmYdjP8IpGvN+012qPSR7dyKnGIS4oI07wJyFXf5e8hDPVtdyr3n1p7K+oiDDM
-	 4/OE/v8ucz83uNnfDhRTByDrUBrBgYCkHYFvIJRZDNjPnOgWxmlodygav7VjhuXRRReEj
-	 uamAYy4RkvvlPgwTPpSgSfyq0kd0o7kVWI4WjFvv7e1VKVjShPB2+wkdg/IIxFtdwuA==
+	t=1795177952;
+	b=zzJZDOBSC3qYd2idWtD2jYwXcrNRRfyQIqDq8gnTMJ5DBdC+q+5muoR1Xypt9MdJcnOq
+	 6xCDV17JR0ki5qH/kaEgxSxUx13UB4qGh8vTw/hP4phPtlxNVj3b5whGIemo8zh77bdnY
+	 rOO5AMmyz2Svec8QQuJzN87/+UNYEF3v0ci6CmlpxchTwcZdkiGGoc5QHSPZE/Bj/UqoV
+	 dAIcJM+Zhh8w+ooHArxWqeQbRV9PAitTu7B7nbf0W/zO6Po6nkqpVw8OGh6ugiYXNyx0S
+	 ICG8v8HmVJHgKM1OkOkBHbmYjkNDdyfW9RcBPfAxGBsu5OHygxHSyoe+C6doOF1h5UA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795177309;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=DgsEZjUslj1Yrfr/vHzcv5cNZ+mqUn4KMypBjJcjvK8=;
-	b=f9WXYajjCrwMK2NJmhDSWWP3DyePzMKJ/PaytDQ2xmdQsc+VJiNR5fd06grgXq1Z1iPr
-	 CrE/asJWXhUtxQ35Jqv1CTmcYSKu8MaBtYG0cVEf05zdfmc39APinzOFfruElj/QcSi0n
-	 UXMwGnRSiKPmAk1E6pty0sq+ApvoBi5WaAIUM1RDJ6NRb0Gt3TKoCfTTy1n16r9f9Lol4
-	 KmA+nHqbmTRXVqjmBKg0Eug7FpuVmFABH1eizqu3D8nvMMiABT6NtmmHO5FD4zoN7KpyT
-	 HDCYCfPRIGxfPSV8Idq218cO+QntfE/vJsICgCPvHfPOsd+c8YHxHaA9eE8MLChKzWg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795177952;
+	h=DMARC-Filter:DKIM-Signature:X-Pm-Submission-Id:From:Date:Message-ID:
+	 In-Reply-To:References:To:Cc:Subject:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=xJgqJ1GzLT0Cz85cGPOr0HyND/H8SVlikDVF2XvQ3RU=;
+	b=v/dBbP4y6VH83QKUvV+4nMtg0vxlL2qlAY5crtiVUngdjM3g0MZnFe0mAUZljTtHQ47E
+	 L+k7uQXXPEicgSxZMjjBrAs+zPhz4tn0lH+GpdxL6jGVcin9VEdf7R/BW7v3mV6Fg82Au
+	 5LV6KdKaYb7/hYak9xRaD4Ez4DpAIabjlszuzRNP5Z9gNvtEWhPgbFt1FKK0NSb49eH0t
+	 NFoQ5+9bexBVgeTQgwidhk7bez6Owk5ScjLtSSDno6Zthj8z9RgS2DCfrA7XGPjBZTFTl
+	 Ws+oppkOla6Re1j2bqUedHCdhdp0X7ocmaZqLPCl/hbcvo8jZhlhYqvyWesoefnsgfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GGN9WcmM;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=aclaesson.com;
+	spf=pass smtp.mailfrom=aclaesson.com;
+	dkim=pass header.d=aclaesson.com header.i=@aclaesson.com header.a=rsa-sha256 header.s=protonmail header.b=dQdQelpQ;
+	arc=none smtp.remote-ip=109.224.244.108
+Received: from mail-244108.protonmail.ch (mail-244108.protonmail.ch [109.224.244.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9F85606A325
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 12:21:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E681F606A320
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 12:32:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E681F606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aclaesson.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aclaesson.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GGN9WcmM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 695841F000C4;
-	Fri, 20 Nov 2026 12:21:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795177308;
-	bh=DgsEZjUslj1Yrfr/vHzcv5cNZ+mqUn4KMypBjJcjvK8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GGN9WcmM6DR/NxzjuErTAVn7kUfw+11FU5xkNX4vPqoC/WtrIXi93HUQEHp0q9SpX
-	 CRdfFrBQo2Xdr+EiG7lmnCzReGBqYJZeDsA4WJK4ZdMUupYQQoVJ87J7Wkz9jsgZu5
-	 k4a0Jm4pkc+ITYQmnttK7wEjsb449T1AYAXpTyMqWuciWSeCYUKnY1Z4Y2kZ693eQC
-	 1KT/H/53CsDOwLfcYA1BzYI1QPd6AjoN1BzlqSZ4wB3G5KQTogScYaw1kev1Zk4Awx
-	 8LhN7EVKyK7of5QXboavfmWnwUUYnoUNnyMFxHhfeC5FGVkPz+wuMdOudXoYMKyDd/
-	 fmNwiOUONRTrA==
-Message-ID: <sashiko-outbox-225135@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: hid-sensor-hub: avoid lock inversion in
- sensor_hub_remove()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ayaan Mirza Baig" <ayaanmirzabaig85@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261120121256.35339-1-ayaanmirzabaig85@gmail.com>
-References: <20261120121256.35339-1-ayaanmirzabaig85@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 12:21:47 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=aclaesson.com header.i=@aclaesson.com header.a=rsa-sha256 header.s=protonmail header.b=dQdQelpQ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aclaesson.com;
+	s=protonmail; t=1795177948; x=1795437148;
+	bh=xJgqJ1GzLT0Cz85cGPOr0HyND/H8SVlikDVF2XvQ3RU=;
+	h=From:Date:Message-ID:In-Reply-To:References:To:Cc:Subject:From:To:
+	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=dQdQelpQE6ziXihNgnYqxdHRHwR4Ng0knHbXzOlXKtBgb3AClyGog0tku0wLWcOJA
+	 ALeYMY1F0zEP29de/HxmWxgzh/HFOCt738weODI/naeYiIwZCuwDGkzFvkX0F6MuFA
+	 4SZg1l9HBO61dFpDuMCPvncc6jGNbzqvvmbnOw7o91tx6OwjqkTMX+V1S9u54yTtsb
+	 j5dKbwwkFKG0MlxEeC/hAxVweEit577pLna8IbHNWYhMHIhAVWXwvw/yuHn/IK78JE
+	 gDoX350uKaZqFn8KjFJ7tXHbwvLE2jFECOkNyFO2CC1AOHzlMJP/kMC5p9K2tv1w5l
+	 mHfw48bFsto8g==
+X-Pm-Submission-Id: 4jWF8n1n5Zz1DDr2
+From: Andreas Claesson <andreas@aclaesson.com>
+Date: Fri, 20 Nov 2026 12:32:24 +0000
+Message-ID: <179517794443.913379.16756320627305412346@aclaesson.com>
+In-Reply-To: <30po4s0s-7n8n-1q84-40r3-623n6n45p005@xreary.bet>
+References: <20261109-hid-corsair-k90-uaf-v1-1-0621c2c5c451@aclaesson.com>
+ <30po4s0s-7n8n-1q84-40r3-623n6n45p005@xreary.bet>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>,
+ Chen Changcheng <chenchangcheng@kylinos.cn>,
+ Danish Khateeb <danishkhateeb03@gmail.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject:
+ Re: [PATCH] HID: corsair: cancel LED work again after unregistering the LED
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,66 +68,24 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] HID: hid-sensor-hub: NULL dereference in
-  sensor_hub_finalize_pending_fn()
---
+On Thu, 19 Nov 2026, Jiri Kosina wrote:
+> Applied to hid.git#for-7.4/upstream-fixes, thanks.
 
-commit 5391cb83740840042fa3d18d4f3751bd37f573af
-Author: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
+Thanks, but I think this one should be dropped again, sorry for the
+noise.
 
-HID: hid-sensor-hub: avoid lock inversion in sensor_hub_remove()
+for-7.4/upstream-fixes also has cc8d022e8679 ("HID: corsair: use
+disable_work_sync() to tear down the LED workers") from Danish, which
+fixes the same bug and which I had missed when I sent mine. With the
+work disabled before led_classdev_unregister(), the LED-off request can
+no longer queue it, so the cancel_work_sync() calls my patch adds on
+top (e624a56578e5) do nothing, and the comment it adds is no longer
+true.
 
-This commit moves spin_lock_irqsave(&data->lock, flags) from
-sensor_hub_remove() into sensor_hub_finalize_pending_fn() to avoid holding
-data->lock across device_for_each_child().
+It is harmless, so if dropping it is inconvenient I can send a revert
+instead, whichever you prefer.
 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 028e70ec7bace..4ade5b5ece565 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -836,9 +836,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
->  static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
->  {
->  	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
-> +	struct sensor_hub_data *sd =3D data;
-> +	unsigned long flags;
-> =20
-> +	spin_lock_irqsave(&sd->lock, flags);
->  	if (hsdev->pending.status)
->  		complete(&hsdev->pending.ready);
-> +	spin_unlock_irqrestore(&sd->lock, flags);
-> =20
->  	return 0;
->  }
-> @@ -846,16 +850,13 @@ static int sensor_hub_finalize_pending_fn(struct de=
-vice *dev, void *data)
->  static void sensor_hub_remove(struct hid_device *hdev)
->  {
->  	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
-> -	unsigned long flags;
-> =20
->  	hid_dbg(hdev, " hardware removed\n");
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
-> =20
-> -	spin_lock_irqsave(&data->lock, flags);
->  	device_for_each_child(&hdev->dev, NULL,
->  			      sensor_hub_finalize_pending_fn);
-> -	spin_unlock_irqrestore(&data->lock, flags);
-
-[Severity: High]
-As reported by Arnav Kapoor on v1 [1], doesn't device_for_each_child() still
-pass NULL instead of data to sensor_hub_finalize_pending_fn(), causing a NU=
-LL
-pointer dereference at spin_lock_irqsave(&sd->lock, flags) whenever a sensor
-hub with child devices is removed?
-
-[1] https://lore.kernel.org/r/20261119201555.185270-1-kapoorarnav43@gmail.c=
-om
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120121256.3533=
-9-1-ayaanmirzabaig85@gmail.com?part=3D1
+Thanks,
+Andreas

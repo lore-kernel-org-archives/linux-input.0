@@ -1,57 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795165304;
-	b=awKS2O/4Vr+wa0lLpdrXTnhAdNlzeQxIiegEuWHvAVuqh8oiGFY03ViZ7XK5NZF9RbqP
-	 yg6atpHTNfrgTUEVhksm+NfEfsB+H6FKFgfsIEE1DXjZCDCn57ZBcaCM545OmScwZaNda
-	 K5RUkghuMJxXJ//lPOaVVc3W1HIXZdgkSxM2I7cwhwoKe8stlSrLAFGFa+BDjU65CsSqX
-	 9xBbxsL4p3PRVyjTk+ZgitPLNq+MUDn8iGSE63jFEA+okWdKdwUcqsvRqEMr86g9hMtSy
-	 zao656RXUFKxiX0/UZolRvHOiTELho8Z6wJd4nNQ7fi5BRlnjdFjF6O0hXoaDfKiUXw==
+	t=1795166469;
+	b=WyiAuX5e+dtidrTG3uwFMniR9XhHDOL6qX/QF85ByzJFQokhtMpDc9f035YFBERIJkSb
+	 SLR/Xhib9TxdNmIpMGo6DTk4oJ3vb2N+ZTCpqRhv34kyy/Zk0pDBc2GR0V6kdisBlHvTJ
+	 xIqUz/InRlNSczofDA5DBHx4PfpV2awgxe+B7t3XYkMqrSghqqG21sNyyjoLlsQo/q83d
+	 W9SxkIVo5zgUxyfYb9z0LMd1nF/0zTLrnlDVxUf0pua4nxKf+N/9S2PwkE8rARQeIZeYw
+	 20R4wMnfAk7RiLkzjSK2WLZ7iTTGp8FsN+BqRfs53DT5feEudFfu5hWlAI+RqMTKtYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795165304;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=o9goNXiBHQebVL3ww3uRBy5+2xu7mOLJVo7xciBwg0c=;
-	b=SSuroLd6TYWKpTKhjY13ltmzOkbNAcz8F6oZu+u1qtnw1I37Q32cf5weNVR7pU8KWXdh
-	 xP3JD5fY8OON05Xu5+CXCJWntrMZvqYPnKl55yT32I0Et8s5zdV96otIwJ8YqmL5sP9QO
-	 5HKxZ40LmSK+Mvp575EBx/PMuBohLyM69TxHQgwNyZMDYIjjIOvzXseL3bemd04wuifTr
-	 uTfC+e5KdfYK+F/Rg0vG19vA9NKXI819gYVBFGZTit567VYV3oP8Achv5l0vbgDTommg1
-	 fn09SEJvCDRtXsp+lJPtXUo8lG4+dCZtxh3rW5uW7eXUgmZQp7LAt2UbCt2mt0bu8fw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795166469;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=9MeczI24AeGQ60e/giCR3Aaq5ecAvTmY+gYG4So0AwA=;
+	b=15uFr0omtoN9b7ek5BYxQV/IjaOQTUq+G+DBvPg5YnN9QdHXFeVgTcxC20bWxCl4BG7X
+	 K2HPHNdFS9idZi+5sCYiL6jrKSQiA4HiDSEr/1iHqXfGe78ubmIT8OudsC5lblIiJRl85
+	 Z4cXbDqd5PmDUZj03o4NI/Ac3R6HaJ/QYE3cy0n90Md872y60NvU1QMrZIO6sbl2IkZPb
+	 +ZU88ngCbmlLkGPUy2qsDRVdQ45451hMgoXzp+Quxr/l2Ls7S5A/c5oI2JcDVriJofbs1
+	 5OWxGjbiUJmKWI0VBNwMp2ZrZTcoC56n1Kk0Uno7M59/OpjdXG2Al515zoc2Ocs9V8w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tj6Is2Oa;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rQ3g3y2I;
+	arc=none smtp.remote-ip=209.85.214.179
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125DA606A320
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 09:01:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DAA5606A32C
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 09:21:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9DAA5606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tj6Is2Oa
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50381F000C6;
-	Fri, 20 Nov 2026 09:01:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795165303;
-	bh=o9goNXiBHQebVL3ww3uRBy5+2xu7mOLJVo7xciBwg0c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Tj6Is2OaOmFM04pVdMvnO8aAlDXECNpoeWrKMjFr2YrbY/2haCDwxswSEcNnKc6px
-	 BIknbIvPxt43obxqT9ZZbd0iKNfOIgFJKgLqOht8alJAPRMQBJ2uKTj7fkgvbV5UcW
-	 zDeK7LEwWrJcDKx39zVhx0dC4Mar6LUMiiRgmF0ew6j2wX54f8dyfkMZomOBZuGcKI
-	 gV6OHxpuYDNqH4989cS/eu94fXxXw8NQZo/Axhcgf4s3eovP5ZclcaEeIEoKnEAOML
-	 JIE8MvNttxXEn+uueaCoMSOmnBG2ZZISiYbJXPw2fjCNAsDiPsFMxwWCR9CF4w1WUI
-	 jX6shpE/9tf1A==
-Message-ID: <sashiko-outbox-224810@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 04/14] HID: logitech-hidpp: disable works before
- stopping transport
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261120-hid-logitech-hidpp-v3-4-cfe2caa1d0eb@gmail.com>
-References: <20261120-hid-logitech-hidpp-v3-0-cfe2caa1d0eb@gmail.com>
- <20261120-hid-logitech-hidpp-v3-4-cfe2caa1d0eb@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rQ3g3y2I
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2f04fab527eso506485ad.0
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 01:21:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795166468; x=1795771268; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9MeczI24AeGQ60e/giCR3Aaq5ecAvTmY+gYG4So0AwA=;
+        b=rQ3g3y2IL2zrMre3y5vaxvoU2PJFhCxhGGu3jL5PeGB5tkMt3DNDpPCsZuFu4lpNLv
+         Nrt1lzQGPj0HHKFbailIiiZNezPcmJHnJGnH1YOQV8g9TO9sNv4kjY/AeTzcGqQg4hTj
+         dQdJcmJGK4qfmx09fQ4XRYYFbbdV6wP9MgXBgBmErOPNq/qHfY/t90GhKgOK/Z1fbXF+
+         nlNzDhDbHtjlmPKUhSBmAN9h0I/SpSVxBCL5o+uayybp/M7oieExuh0Md/qznytR2NkU
+         ZAkvFD9DlQ382LkZZ+Bbx1QDOlt1MsUcKglVu5/77F+C1Dn8JTs4LTYHBc3qkZDpmSt6
+         Nq8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795166468; x=1795771268;
+        h=mime-version:content-transfer-encoding:content-type:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=9MeczI24AeGQ60e/giCR3Aaq5ecAvTmY+gYG4So0AwA=;
+        b=ephHcJ+kvBRhctaGAOJyp3XmY02bP2jG11jx2uc7g9gtE3P02UM4afa4K70JEwdvks
+         jYiHUt2otCQiS7vL/2QQWTfCFV+Y6qmG2rNGGhwFINMOWMFtHAoURvFVP3MDaZkAmthe
+         StlDKgv7UjWSRJZbgVE77L4KJYwBdjNEhtuuJdkjqa/8aokAe+29jOHB2vClVMbZtBTI
+         JpVDXMMQ6mD8ia8UxAAMyIjSGypfGWCACjDWM6xedlL5vdC8vew0w7MMmjUgaXgs5wC7
+         PIlYeBQQVSnupdWbQ7hnzvFFxnrFAT2H+kT/IWIfVnGTnDnk1erGAYmHrWS9dmqzVuow
+         B7gA==
+X-Forwarded-Encrypted: i=1; AL+hErGTOqfPnRhqpCmrEH/+wNDSAFJB2nPQFj2segdgAah9IfTZi4bJJw6z7dax/gI5YqSPvsh3PQXC6ifMEQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+GQzduUQTRPk83V5/0m5M0NmnfZyljPYpc7vBGWR5fkcuXV1sC
+	JPtd6bRJ6RKWoa7FE5ozgx1PEm//z6LbcrgdrCoL2EydAvj25WC7S2OT
+X-Gm-Gg: AZFdTZd6Kfa//nJO0W8X0K/AiEU1H3uLC1tb+k8K76Uy/1jIX2yJPCMJlbwZtJiVs+x
+	lPjRC96OjF6Mz59wOzkkmFOCtvSXHTaNEUSuMvNGmoPPS2F6+5+YVXcotlxz7M8oTVk7klgP4Cv
+	N9oEew+lz9lqRtWCsdqDYmTpfMDuRE/wQ2KCTTmBqu3WQTHqgHrdcj9Ttpw+h0RlOyusZ8PSlyj
+	8MhiBwsk1AkuDGPmXW3wUsgE7Qt7baaLilJ8ce3bWUdr+Y9dFjZjS5tYqlAKFyXQLKuiayA6HiY
+	06z6+pknSwL0TCHnP3jgJrLrcH9UL3BIT2IWVKKjinfAWbidbjFkrlppT3aDgbfLnTa17Zi44Hu
+	TpPvadlZLfSM4ErT7+pwhJWRUVCJ4bYghVcXMFNlOanciL/DXUs+oZZnKftojXdxR86Jr5B4zNY
+	LdkXX0Plg1mtJdzFO5DXCZ/YuVKtIP5nj9p8++rLj5tfzeK1lcDImK/FU8LLkOl8bw7RMONOoz4
+	52PoDxD07RIe7JPBrbkPNfwn/JQqDjk0POg/1uPhW/PkUs3BdWi2m03pJrnJyMk1GMFtaCd3g6l
+	5cep+AWPqyV2sIT+Xj3JctID4yqB1XwDDSFyjI/xkOOL90epwofAsrJUjFMqlirHD+3D8A==
+X-Received: by 2002:a17:902:cecb:b0:2f0:45a7:5d10 with SMTP id d9443c01a7336-2f045a76530mr15520125ad.8.1795166467860;
+        Fri, 20 Nov 2026 01:21:07 -0800 (PST)
+Received: from [169.254.42.106] ([113.200.174.114])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f1482c3sm11409575ad.73.2026.11.20.01.21.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 01:21:07 -0800 (PST)
+From: Zheng Shuhao <viennaoffh@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ syzbot+c7c429f6851638ece81338f90c5b29ac9c0dea1f@syzkaller.appspotmail.com
+Subject: 
+ [PATCH] HID: sensor-hub: Avoid holding spinlock across child iteration
+Date: Fri, 20 Nov 2026 15:56:58 +0800
+Message-ID: <1795161418.hid-sensor-hub@viennaoffh.gmail.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 09:01:43 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,52 +99,89 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: logitech-hidpp: work flush with I/O stopped in
-  hidpp_probe()
---
+syzbot reports a SOFTIRQ-safe -> SOFTIRQ-unsafe lock order warning during
+sensor hub removal.
 
-commit 43c05e6ba16082cedbdbc71e25086acb4e9b0851
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+sensor_hub_remove() currently holds sensor_data->lock while calling
+device_for_each_child(). The child iteration enters the device core and may
+acquire the klist lock. Since sensor_data->lock is also acquired with
+interrupts disabled by sensor_hub_raw_event(), lockdep reports a possible
+lock-order inversion.
 
-HID: logitech-hidpp: disable works before stopping transport
+The callback only needs sensor_data->lock while checking pending.status and
+completing pending.ready. Pass sensor_data to the callback and take the lock
+only around that short critical section instead of holding it across
+device_for_each_child().
 
-This commit synchronously disables hidpp->work and
-hidpp->reset_hi_res_work before closing and stopping the HID transport
-during probe failure and device removal.
+This preserves synchronization of pending.status while avoiding the lock-order
+dependency between sensor_data->lock and the device core's klist lock.
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index d5f53b35ac6f5..0e1a9fd98fafc 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -4805,13 +4805,13 @@ static int hidpp_probe(struct hid_device *hdev, c=
-onst struct hid_device_id *id)
->  	return ret;
-> =20
->  hid_hw_init_fail:
-> +	disable_work_sync(&hidpp->work);
-> +	disable_work_sync(&hidpp->reset_hi_res_work);
->  	hid_hw_close(hdev);
+The syzbot report is available at:
+https://syzkaller.appspot.com/bug?id=3Dc7c429f6851638ece81338f90c5b29ac9c0dea=
+1f
 
-[Severity: Medium]
-Can disable_work_sync() here stall waiting for in-flight work items while
-device I/O is stopped?
+Testing:
+- Reproduced the target lockdep warning with the unmodified kernel in 3/3
+  two-CPU QEMU runs.
+- The warning was absent with this patch in 3/3 equivalent runs.
+- Ran the HID selftests against both baseline and patched kernels:
+  hid_bpf: 45 passed, 1 skipped, 0 failed
+  hidraw: 27 passed, 0 failed
+  hid-core, hid-apple, hid-gamepad, hid-ite, hid-keyboard, hid-mouse,
+  hid-multitouch, hid-sony, and hid-tablet all passed in both runs.
+- hid-usb_crash.sh and hid-wacom.sh produced TAP 1..0 / rc=3D2 in both
+  kernels because no executable test cases were collected in this minimal
+  QEMU environment.
+- No KASAN report, use-after-free, Oops, BUG, panic, or general protection
+  fault was observed.
+- checkpatch.pl --strict --no-signoff reports 0 errors and 0 warnings.
 
-In hidpp_probe(), hid_device_io_start() enables incoming reports during
-device initialization, which can schedule hidpp->work or
-hidpp->reset_hi_res_work.  Before calling hid_connect(), hidpp_probe()
-calls hid_device_io_stop(), acquiring hdev->driver_input_lock.  If
-hid_connect() fails and jumps to hid_hw_init_fail, disable_work_sync()
-waits for those work handlers with hdev->driver_input_lock held, so any
-synchronous HID++ command inside hidpp_connect_event() or
-hidpp_reset_hi_res_handler() cannot receive its reply report and stalls
-until each 5-second command timeout expires.  Should hid_hw_init_fail
-bracket disable_work_sync() with hid_device_io_start() and
-hid_device_io_stop() like hidpp_remove() does?
+Reported-by: syzbot+c7c429f6851638ece81338f90c5b29ac9c0dea1f@syzkaller.appspo=
+tmail.com
+Closes: https://syzkaller.appspot.com/bug?id=3Dc7c429f6851638ece81338f90c5b29=
+ac9c0dea1f
+Signed-off-by: Zheng Shuhao <viennaoffh@gmail.com>
+Tested-by: Zheng Shuhao <viennaoffh@gmail.com>
+---
+ drivers/hid/hid-sensor-hub.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 6470a290ebfc5..62799c26e6ec3 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -804,9 +804,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+ {
+ 	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
++	struct sensor_hub_data *sensor_data =3D data;
++	unsigned long flags;
+=20
++	spin_lock_irqsave(&sensor_data->lock, flags);
+ 	if (hsdev->pending.status)
+ 		complete(&hsdev->pending.ready);
++	spin_unlock_irqrestore(&sensor_data->lock, flags);
+=20
+ 	return 0;
+ }
+@@ -814,16 +818,13 @@ static int sensor_hub_finalize_pending_fn(struct device=
+ *dev, void *data)
+ static void sensor_hub_remove(struct hid_device *hdev)
+ {
+ 	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
+-	unsigned long flags;
+=20
+ 	hid_dbg(hdev, " hardware removed\n");
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+=20
+-	spin_lock_irqsave(&data->lock, flags);
+-	device_for_each_child(&hdev->dev, NULL,
++	device_for_each_child(&hdev->dev, data,
+ 			      sensor_hub_finalize_pending_fn);
+-	spin_unlock_irqrestore(&data->lock, flags);
+=20
+ 	mfd_remove_devices(&hdev->dev);
+ 	mutex_destroy(&data->mutex);
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-hid-logite=
-ch-hidpp-v3-0-cfe2caa1d0eb@gmail.com?part=3D4

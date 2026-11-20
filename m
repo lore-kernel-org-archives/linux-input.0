@@ -1,89 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795164268;
-	b=FsMzXAcsRPWRjy9hlgkyQ9rzx5syKr9q2SpfY/waIJKBxVFDEVEN3RML29xP2c3rHgw3
-	 q6Na8+M+MqV7ZJIF6JPXo4Dw9gOXJMkm1vGK6Csd0kXQQ3V4Cj++jFdxM5SzSU4Wgz6DG
-	 U4fyib+S9J5ASksXlS1KJb0J/nAyZgpYaCgdxk0OVOwStsYsaGLhb9Ki1JHekSWSmMOdq
-	 GsNdPftx2I/79XD02OBkSx4jZamSIl9NP8NRBNA5VP4i2i36k/spydDtVYgyLc0Yp41X0
-	 DjLEvFpziMc+qFs5E9uKr9UeSc7Z3ARyMJbkYutRCxP/+qVfIXgIWqbJEknJ0yc+GHg==
+	t=1795164269;
+	b=B2US1BsBTurU8I6qDvaSP/rwZntmy1WjknANgdksv/19om1/7Lj7PlK2eA05p7Yz+zHp
+	 LC0PbVRcSSF7/sfpl7PzVjDNm4u8NhlFv9isREWKAYqVsCxABpPY3O+5ToDFNHdNUjzOz
+	 DzctYx/m0WDencV3Y2tJwkLf6B+s7++eXeD1suSOUQv27Ksl179iM5tJ3GktvczRPvcAH
+	 A/0uESFMBv0O5vA6BZ0TbycD6YcBY7VxonnbWV9swoEzDaIp8vOsb89XemB9/2OJ3VZLE
+	 ib8LK0j77Tx3Uq7irRgHOVqFe+a2mU/gqt1AWTEHXbPw0vk+0AURDJCdqotSai5RPHQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795164268;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795164269;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=+PTqDdgKMzvDBdtiCoq01adncoTw96dv8jl0o4bYl6I=;
-	b=5g9a7eeBDB2Dh/iGvuP3pRx/zqZ1SAflfHvm1OCU1iinoAXmz9O3M9bhn+0S4vHBoDza
-	 8W7EqWE/YsRE6lR+rQGkvRNw0RukaT1LeyoqhQapSeBHXA/0eJy3cdHeEeTkfa3YEUaYs
-	 WElRlc51sk2ncyF1YOd20Pcde5p3sKS4FHluepqhUPkWDJ+u/cSPcVVHzZm+xjtknxI5Z
-	 RuWUSXJlbESVIpgiRc209Wb7jjlNL1G01DYU0OAySFbWmPmYlDZGcchIolOTsWDvxqpuc
-	 5yRk04VCkS2yuwWZuUQ0EC70i8f3Jmi4V0t7mozv9Byg3MDhe6ZYBuR6Q+n6pmgQWfg==
+	bh=KKrF/3OPdL6xEz+lwHbSUSyJUkI7uH9V+JtYaC3j1O4=;
+	b=4M7ibsyWMhf0Ykx+GPo5PELrL9luZ66mUEnvVam6NDRLWRl6LsxhDr7qUiFI3SqaJt1F
+	 ggvkkKO8j8gVMFxLZx6vxpf7mOSRUx1jd/8z6H6oBhZpq6erXXLX5owxVI3EGKVfwPiJg
+	 n0FIZ6AccyfPDCzWX5yGBbRmJstFRi+Q+9NF0tQPNRQVEah2Tm4GHs+gs+2yxnkOrXNbU
+	 Hth1hQWLqJFiuktR3QYD4O3ePThN0bzIUhxASJ396PVgTrTNncocraQ43TzmcgvGc79ZN
+	 uv0IEfk9VV/aPHXUBZdmpoeE1yDh6dBH6d8AMTduZuiBVihfGx2CbgTC8TywzsQaLrA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dy2utYiC;
-	arc=none smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yd9jYDWx;
+	arc=none smtp.remote-ip=74.125.82.48
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1622560A3831
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1622560A3831
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59D160A5BDC
+	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 08:44:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B59D160A5BDC
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dy2utYiC
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1a2761c69fbso1417628c88.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yd9jYDWx
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1a3c08d6928so933391c88.0
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 00:44:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795164266; x=1795769066; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795164268; x=1795769068; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+PTqDdgKMzvDBdtiCoq01adncoTw96dv8jl0o4bYl6I=;
-        b=dy2utYiCN9ro2WFuyd2TkAUpbLpxGhD7LjJolZZhlzADbE7De2WFMWZ4TKyuToM0c+
-         Q7ehnYZmRr065L6fBjv/T8Hfl7nTkiWjnQej7P4yyaPLMnH4YAiLGB605+eDRh2+F0kd
-         GHVYqUVhuj4y2WUA5dqFYCNTTyJCI5F4tUZEIr3wpoH69SJ4YJzsV9TLYKgCtj9FQ8rF
-         7R8sb9hqNhiZDluTbPPjpMSdildAYrmUxzg5QC04gPig0e6LUYIJO6uW/qcSh/CVup8l
-         qJSUu8zEq2EbFTutEbCs1mw0VtFJ6u2yRmnSMgKela81Qk/oNMsXg/u9slIkS/VnjSKp
-         3Z1w==
+        bh=KKrF/3OPdL6xEz+lwHbSUSyJUkI7uH9V+JtYaC3j1O4=;
+        b=yd9jYDWxSnmgfJHfqSyZKGNcKL/4y3T65i/88mjFwS/JVSxqz54bPJPG4GqpAnZcnI
+         k2ffPZi6N+Qkdf2dCKrjADsxfVgg8BDLybdEkLUNSldSHnR+vCIzHW3i2NTvL8olii7B
+         Qqd34k+aOruNNgNBnpcT4OtsUY9vffa4DqX5atq7pb7NHNnbRaRzqMgy+DKoKhmErgZx
+         iUO99Pi/nnXWxbU4qBAngA8LqSmIJnT+HaqSoXxvZmnvpSKD71tQm9jRNVNVA68pK9C2
+         PNQl6q3sfbokF7YW6N+1hlR7NDIf9036MRnwbbO1FLQeZu9aYSY8OPPo2Mdd7f1orZ54
+         GCrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795164266; x=1795769066;
+        d=1e100.net; s=20260707; t=1795164268; x=1795769068;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+PTqDdgKMzvDBdtiCoq01adncoTw96dv8jl0o4bYl6I=;
-        b=Ze23hDUBrnuUAMRntXZbf9JAH4QNbmWAK3NSM+u3F/hGOFM2UppZ6d81m7r0nQ7xpa
-         0DIec411Ia+Uee2uXGdNdBvPN3+FDqCQr+VxVYppq5e+H/z3Wvk6PIJDo1jC2LajP098
-         WPN9+Iqi8xDGhbezQIx0oRDA3pUfCmbZaym+tpabc4aW8WcfcafQFGjjd74w5OA+snu5
-         FEMVIYZI3WQaVwtQ3ntUFhTx2YrqVvDCJJ+DMh0zCGOGOIBmGHOPIh0UHvxZUQ/4fwbM
-         evq+Givum9x2WNNmddR0/k4AGvvePKAu788MKQvX/wo4cpaZTLeVsbi0PvoW1K97rvya
-         UGMw==
-X-Forwarded-Encrypted: i=1; AL+hErGbbLdU4kt50q1iz+oqSPCH9oyrSi1V1GDRvVzMqIQlexr7fmHEBWSjlBFQ19XKb1A2AJwZi8ntKuvgZg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/n04fbyxgtMuV153c9WSQct9H36D7pVXP0yf9jC1qNeA0CbVX9
-	5S2PoDmxFhtMKqN0G4gJFDzONfvecf95PteX/n7fctjEAyzS/rw6RvCd
-X-Gm-Gg: AYBFou1wTfwpJMYKUmOHKzFxTjidQRC/80KMotKaSMYuDJmsijrwv6WkbfWnuBhGU4t
-	XmcFfu6PWOk9PWtsxo8QtIvRhs2pobQgpexF5f4EZfcEv/YWdZJ0O8/hunOwLQoUMoYQ2RdW4W4
-	8IVqBKI3UkCXptwU3AvkSzYyeeyIxJYUQvk6BbrdWW5lgXSyGI8jX9j32i+kAIykwKm51VEu6Ko
-	KVIEYbR2HlG3pPIwXKMRs/f3CN61MpQzs1G3lrGYWLAnO7cyH8oOjgvLd0b91VTUvMOyNP2Raou
-	Cdvrspw3w/FbSUyToDzcyoV9zkcO8yO3BDJX66k1a0EFd7lapBR4O6wXFWpZQ99CJQPVDRfs4Oc
-	LkfL8w0AA1096O0LIb+BOu2ivrGikBAkqHNFeh7Dvni19h6IvMb5Da2o/lutQ36y5Z9a9zi5IC7
-	KBZYpH2/UFxRXb8bw+MUlrrcFZEn3oHD5Er7HT9YVUC99zOZVM1uLJ3VFNrlYXeyRzj/L8s7IkR
-	heAVA2Tm4DYcfOzjsEddRQmKK+kCxiLkaIvSA2b3R2LvWv0Jx9EMEMi5ITbCS8aFDRRkM4SbNdw
-	nfJ7cW9icyOaLCn/cvhaN7U9Iw2bUKz8H27iyjpv+aABNUzYPcrpgdw3fdLYkyFsjJ/tD95kndL
-	Bmn8EjsaydxU6/cQ5cQ==
-X-Received: by 2002:a05:7022:3f0d:b0:1b5:3aca:8116 with SMTP id a92af1059eb24-1b55690bcfemr2149038c88.33.1795164266229;
-        Fri, 20 Nov 2026 00:44:26 -0800 (PST)
+        bh=KKrF/3OPdL6xEz+lwHbSUSyJUkI7uH9V+JtYaC3j1O4=;
+        b=feTzNLWta087/9Ar3Bi41q57euXr3soNZjcDhONbQ56u5dJC4Y6SkUeBXOdqrL7nB7
+         YosGJiMACotKhWuvnms85IJuxSHZHwjr5StcE8xn5wtFSfAKzO0uSwYVcP5C9dUe+lm8
+         u/MW773dzDhjimYCqTb+TipZ1zMZEJcKvnI+c9aciinOa+wx7d8oLruEA2K4HcrrvsUm
+         ed6cXj4aK0PvKq3ZejK12VlAPDzx5yubHMZ1Ca+flIBelxNjAtWM4eK5PGnHS6nf6wtr
+         sbCNrtFxZWk2vAQ4CRQS7sL7YbysWvQ7vWYVUQ9vHy7om6Xfv/tWcgP5tD+t4PFz4m/i
+         xIiw==
+X-Forwarded-Encrypted: i=1; AL+hErFwwNmSk7Yp1lncm13XmW7zDIrsN9l3oVRCNuSu3FnyUrR50I4gf6Klj2AZzYtr3yvMLXSDmw6HJ0jBlQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/cYnhQJSMf6MrFpmax0nOscDBOq6Xz9aVj42UoqdHLrbfJUHBd
+	ubfgQMoYL2BGc6w+Ppeqlv/3b0ea2DqLxIS7/hSGfie4x/iVRiQROyUg
+X-Gm-Gg: AYBFou1iFuN+gXl72FqmafhD81SviV725VVFKX7S+8kz6nVjGJaxQQ9a1jcO/puYKzo
+	l/AtdPAhr6l7y7UlAgl0OlzikgsJz5rilPAzITu7MPPjcdEylpgTNtnRz6NKcZyokgJ/5vgwX/2
+	+KaT5fljZHtF+7JYJKB5Tqlhi8NthPxZbaZHHCHIxtYdHzrbuXE1gil5SePnXifa5dMSfPbz8vg
+	9XeJ0pSjyWWnqGfWF+JrugR4sSCaun0oktaiiR3GOnBSQtzSnRAtmAljEU+jC9Qsv7Iinh7Yvj1
+	3RGKX5Uzp/9rGhx/9bwVbubqz5bNCNbR8lYvKJawvkFdx4KQSYUm8pnSjNKRDUiSvfl6PzzhzZ3
+	8opgUgisvkXTkWdDbc06sbWRu/oL1eztCsnOW8BVxCCOkeyLrEUoh6z/zHLqFsmo8mVncbUKlwv
+	Dp0sRxm0gCo46hlIATvMAPjtxSU4P+GGulDbSckiaAEQzNrN3C4KM7iBT/bdZnToOFI+AgHqq3D
+	s1IXj12wCMfwNX1T+vKcwy5D1UYSX5Q4IebwRtS6QnB8XMXBmoUxS11jZ8OxRJ85c0uk2zmI00M
+	ufPZ4cxeemvJNZWToEwIsj9qyCRB50P2fGcVKeYh7GXxWfSf5oKMsPvV5tLQc+S4AcyrKif71Sd
+	icEEHhypw5jE0U4h/kg==
+X-Received: by 2002:a05:7023:a5b:20b0:191:a5b2:ef4a with SMTP id a92af1059eb24-1b5568b9f5dmr2015605c88.28.1795164267919;
+        Fri, 20 Nov 2026 00:44:27 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:ea97:e47d:2ebc:210c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.24
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5569bffd2sm4808244c88.0.2026.11.20.00.44.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 00:44:25 -0800 (PST)
+        Fri, 20 Nov 2026 00:44:27 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 20 Nov 2026 00:44:01 -0800
-Subject: [PATCH v3 10/18] HID: logitech-hidpp: clean up G920 force-feedback
- helpers
+Date: Fri, 20 Nov 2026 00:44:02 -0800
+Subject: [PATCH v3 11/18] HID: logitech-hidpp: use unaligned accessors for
+ multi-byte values
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261120-hid-logitech-hidpp-next-v3-10-ba39242d4336@gmail.com>
+Message-Id: <20261120-hid-logitech-hidpp-next-v3-11-ba39242d4336@gmail.com>
 References: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 In-Reply-To: <20261120-hid-logitech-hidpp-next-v3-0-ba39242d4336@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -108,171 +108,190 @@ Cc: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
  linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-6b8b8
 
-Perform several minor cleanups across the G920 force-feedback support:
+Several paths in the Logitech HID++ driver manually split and reassemble
+16-bit protocol values using shifts and masks instead of using standard
+kernel helpers, which obscures endianness intent and adds unnecessary
+noise.
 
-- In hidpp_ff_init(), obtain the firmware version directly in a single
-  expression from the USB device descriptor, drop the redundant
-  hid_is_usb() check on the already-matched G920 device, and remove
-  unused local variables.
-- In hidpp_ff_upload_effect(), remove the dead force calculation in the
-  periodic effect upload case where magnitude is written directly.
-- Zero-initialize stack parameter buffers in effect upload, playback,
-  autocenter, and gain helpers so unused parameter bytes sent over USB
-  are always clean zeroes.
-- Drop the write-only gain field from struct g920_data, remove the
-  unused HIDPP_FF_GET_GLOBAL_GAINS query at probe time, and remove the
-  gain cache update from the work handler.
+Replace open-coded 16-bit big-endian packing and unpacking with
+get_unaligned_be16() and put_unaligned_be16().
 
 Tested-by: Gideon Heinz <gideonheinz02@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 43 +++++-----------------------------------
- 1 file changed, 5 insertions(+), 38 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 84 +++++++++++++++-------------------------
+ 1 file changed, 31 insertions(+), 53 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index cfd13ca93b2a..54e7ee824063 100644
+index 54e7ee824063..16fb52634437 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2315,7 +2315,6 @@ static void hidpp_touchpad_raw_xy_event(struct hidpp_device *hidpp_dev,
- #define HIDPP_FF_DESTROY_EFFECT		0x41
- #define HIDPP_FF_GET_APERTURE		0x51
- #define HIDPP_FF_SET_APERTURE		0x61
--#define HIDPP_FF_GET_GLOBAL_GAINS	0x71
- #define HIDPP_FF_SET_GLOBAL_GAINS	0x81
+@@ -960,7 +960,9 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
+ {
+ 	struct hidpp_report response;
+ 	int ret;
+-	u8 params[2] = { feature >> 8, feature & 0x00FF };
++	u8 params[2];
++
++	put_unaligned_be16(feature, params);
  
- #define HIDPP_FF_EFFECT_STATE_GET	0x00
-@@ -2354,7 +2353,6 @@ struct g920_data {
- 	u8 feature_index;
- 	u8 slot_autocenter;
- 	u8 num_effects;
--	u16 gain;
- 	u16 range;
- };
+ 	ret = hidpp_send_fap_command_sync(hidpp,
+ 			HIDPP_PAGE_ROOT_IDX,
+@@ -2113,7 +2115,7 @@ static int hidpp_solar_battery_event(struct hidpp_device *hidpp,
  
-@@ -2417,8 +2415,6 @@ static void hidpp_ff_work_handler(struct work_struct *w)
+ 	switch (function) {
+ 	case EVENT_SOLAR_BATTERY_LIGHT_MEASURE:
+-		lux = (report->fap.params[1] << 8) | report->fap.params[2];
++		lux = get_unaligned_be16(&report->fap.params[1]);
+ 		if (lux > 200)
+ 			status = POWER_SUPPLY_STATUS_CHARGING;
+ 		else
+@@ -2415,7 +2417,6 @@ static void hidpp_ff_work_handler(struct work_struct *w)
  					  &response);
  	if (ret)
  		hid_err(data->hidpp->hid_dev, "Failed to send command to device!\n");
--	else if (wd->command == HIDPP_FF_SET_GLOBAL_GAINS)
--		g920->gain = (wd->params[0] << 8) + wd->params[1];
- 
+-
  	atomic_dec(&data->workqueue_size);
  	kfree(wd);
-@@ -2458,7 +2454,7 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
- 	struct hid_device *hid = hidpp->hid_dev;
- 	struct g920_data *g920 = hidpp->private_data;
- 	struct hidpp_report response;
--	u8 params[20];
-+	u8 params[20] = {};
- 	u8 size;
- 	int force, error;
+ }
+@@ -2460,23 +2461,18 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
  
-@@ -2515,7 +2511,6 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
+ 	/* set common parameters */
+ 	params[0] = old ? data->slots[effect->id] : 0;
+-	params[2] = effect->replay.length >> 8;
+-	params[3] = effect->replay.length & 255;
+-	params[4] = effect->replay.delay >> 8;
+-	params[5] = effect->replay.delay & 255;
++	put_unaligned_be16(effect->replay.length, &params[2]);
++	put_unaligned_be16(effect->replay.delay, &params[4]);
+ 
+ 	switch (effect->type) {
+ 	case FF_CONSTANT:
+ 		force = (effect->u.constant.level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
+ 		params[1] = HIDPP_FF_EFFECT_CONSTANT;
+-		params[6] = force >> 8;
+-		params[7] = force & 255;
++		put_unaligned_be16(force, &params[6]);
+ 		params[8] = effect->u.constant.envelope.attack_level >> 7;
+-		params[9] = effect->u.constant.envelope.attack_length >> 8;
+-		params[10] = effect->u.constant.envelope.attack_length & 255;
++		put_unaligned_be16(effect->u.constant.envelope.attack_length, &params[9]);
+ 		params[11] = effect->u.constant.envelope.fade_level >> 7;
+-		params[12] = effect->u.constant.envelope.fade_length >> 8;
+-		params[13] = effect->u.constant.envelope.fade_length & 255;
++		put_unaligned_be16(effect->u.constant.envelope.fade_length, &params[12]);
+ 		size = 14;
+ 		dbg_hid("Uploading constant force level=%d in dir %d = %d\n",
+ 				effect->u.constant.level,
+@@ -2511,20 +2507,14 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
  				effect->u.periodic.waveform);
  			return -EINVAL;
  		}
--		force = (effect->u.periodic.magnitude * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
- 		params[6] = effect->u.periodic.magnitude >> 8;
- 		params[7] = effect->u.periodic.magnitude & 255;
- 		params[8] = effect->u.periodic.offset >> 8;
-@@ -2622,7 +2617,7 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
- static int hidpp_ff_playback(struct input_dev *dev, int effect_id, int value)
- {
- 	struct hidpp_ff_private_data *data = dev->ff->private;
--	u8 params[2];
-+	u8 params[2] = {};
- 
- 	params[0] = data->slots[effect_id];
- 	if (!dev->ready || !params[0])
-@@ -2667,22 +2662,18 @@ static void hidpp_ff_set_autocenter(struct input_dev *dev, u16 magnitude)
- {
- 	struct hidpp_ff_private_data *data = dev->ff->private;
- 	struct g920_data *g920 = data->hidpp->private_data;
--	u8 params[HIDPP_AUTOCENTER_PARAMS_LENGTH];
-+	u8 params[HIDPP_AUTOCENTER_PARAMS_LENGTH] = {};
- 
- 	dbg_hid("Setting autocenter to %d.\n", magnitude);
- 
- 	/* start a standard spring effect */
+-		params[6] = effect->u.periodic.magnitude >> 8;
+-		params[7] = effect->u.periodic.magnitude & 255;
+-		params[8] = effect->u.periodic.offset >> 8;
+-		params[9] = effect->u.periodic.offset & 255;
+-		params[10] = effect->u.periodic.period >> 8;
+-		params[11] = effect->u.periodic.period & 255;
+-		params[12] = effect->u.periodic.phase >> 8;
+-		params[13] = effect->u.periodic.phase & 255;
++		put_unaligned_be16(effect->u.periodic.magnitude, &params[6]);
++		put_unaligned_be16(effect->u.periodic.offset, &params[8]);
++		put_unaligned_be16(effect->u.periodic.period, &params[10]);
++		put_unaligned_be16(effect->u.periodic.phase, &params[12]);
+ 		params[14] = effect->u.periodic.envelope.attack_level >> 7;
+-		params[15] = effect->u.periodic.envelope.attack_length >> 8;
+-		params[16] = effect->u.periodic.envelope.attack_length & 255;
++		put_unaligned_be16(effect->u.periodic.envelope.attack_length, &params[15]);
+ 		params[17] = effect->u.periodic.envelope.fade_level >> 7;
+-		params[18] = effect->u.periodic.envelope.fade_length >> 8;
+-		params[19] = effect->u.periodic.envelope.fade_length & 255;
++		put_unaligned_be16(effect->u.periodic.envelope.fade_length, &params[18]);
+ 		size = 20;
+ 		dbg_hid("Uploading periodic force mag=%d/dir=%d, offset=%d, period=%d ms, phase=%d\n",
+ 				effect->u.periodic.magnitude, effect->direction,
+@@ -2541,17 +2531,13 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
+ 	case FF_RAMP:
+ 		params[1] = HIDPP_FF_EFFECT_RAMP;
+ 		force = (effect->u.ramp.start_level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
+-		params[6] = force >> 8;
+-		params[7] = force & 255;
++		put_unaligned_be16(force, &params[6]);
+ 		force = (effect->u.ramp.end_level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
+-		params[8] = force >> 8;
+-		params[9] = force & 255;
++		put_unaligned_be16(force, &params[8]);
+ 		params[10] = effect->u.ramp.envelope.attack_level >> 7;
+-		params[11] = effect->u.ramp.envelope.attack_length >> 8;
+-		params[12] = effect->u.ramp.envelope.attack_length & 255;
++		put_unaligned_be16(effect->u.ramp.envelope.attack_length, &params[11]);
+ 		params[13] = effect->u.ramp.envelope.fade_level >> 7;
+-		params[14] = effect->u.ramp.envelope.fade_length >> 8;
+-		params[15] = effect->u.ramp.envelope.fade_length & 255;
++		put_unaligned_be16(effect->u.ramp.envelope.fade_length, &params[14]);
+ 		size = 16;
+ 		dbg_hid("Uploading ramp force level=%d -> %d in dir %d = %d\n",
+ 				effect->u.ramp.start_level,
+@@ -2568,18 +2554,12 @@ static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effec
+ 	case FF_SPRING:
+ 	case FF_DAMPER:
+ 		params[1] = HIDPP_FF_CONDITION_CMDS[effect->type - FF_SPRING];
+-		params[6] = effect->u.condition[0].left_saturation >> 9;
+-		params[7] = (effect->u.condition[0].left_saturation >> 1) & 255;
+-		params[8] = effect->u.condition[0].left_coeff >> 8;
+-		params[9] = effect->u.condition[0].left_coeff & 255;
+-		params[10] = effect->u.condition[0].deadband >> 9;
+-		params[11] = (effect->u.condition[0].deadband >> 1) & 255;
+-		params[12] = effect->u.condition[0].center >> 8;
+-		params[13] = effect->u.condition[0].center & 255;
+-		params[14] = effect->u.condition[0].right_coeff >> 8;
+-		params[15] = effect->u.condition[0].right_coeff & 255;
+-		params[16] = effect->u.condition[0].right_saturation >> 9;
+-		params[17] = (effect->u.condition[0].right_saturation >> 1) & 255;
++		put_unaligned_be16(effect->u.condition[0].left_saturation >> 1, &params[6]);
++		put_unaligned_be16(effect->u.condition[0].left_coeff, &params[8]);
++		put_unaligned_be16(effect->u.condition[0].deadband >> 1, &params[10]);
++		put_unaligned_be16(effect->u.condition[0].center, &params[12]);
++		put_unaligned_be16(effect->u.condition[0].right_coeff, &params[14]);
++		put_unaligned_be16(effect->u.condition[0].right_saturation >> 1, &params[16]);
+ 		size = 18;
+ 		dbg_hid("Uploading %s force left coeff=%d, left sat=%d, right coeff=%d, right sat=%d\n",
+ 				HIDPP_FF_CONDITION_NAMES[effect->type - FF_SPRING],
+@@ -2670,10 +2650,10 @@ static void hidpp_ff_set_autocenter(struct input_dev *dev, u16 magnitude)
  	params[0] = g920->slot_autocenter;
  	params[1] = HIDPP_FF_EFFECT_SPRING | HIDPP_FF_EFFECT_AUTOSTART;
--	/* zero delay and duration */
--	params[2] = params[3] = params[4] = params[5] = 0;
  	/* set coeff to 25% of saturation */
- 	params[8] = params[14] = magnitude >> 11;
- 	params[9] = params[15] = (magnitude >> 3) & 255;
- 	params[6] = params[16] = magnitude >> 9;
- 	params[7] = params[17] = (magnitude >> 1) & 255;
--	/* zero deadband and center */
--	params[10] = params[11] = params[12] = params[13] = 0;
+-	params[8] = params[14] = magnitude >> 11;
+-	params[9] = params[15] = (magnitude >> 3) & 255;
+-	params[6] = params[16] = magnitude >> 9;
+-	params[7] = params[17] = (magnitude >> 1) & 255;
++	put_unaligned_be16(magnitude >> 3, &params[8]);
++	put_unaligned_be16(magnitude >> 3, &params[14]);
++	put_unaligned_be16(magnitude >> 1, &params[6]);
++	put_unaligned_be16(magnitude >> 1, &params[16]);
  
  	hidpp_ff_queue_work(data, HIDPP_FF_DOWNLOAD_EFFECT, params, ARRAY_SIZE(params));
  }
-@@ -2690,14 +2681,12 @@ static void hidpp_ff_set_autocenter(struct input_dev *dev, u16 magnitude)
- static void hidpp_ff_set_gain(struct input_dev *dev, u16 gain)
- {
- 	struct hidpp_ff_private_data *data = dev->ff->private;
--	u8 params[4];
-+	u8 params[4] = {};
+@@ -2685,8 +2665,7 @@ static void hidpp_ff_set_gain(struct input_dev *dev, u16 gain)
  
  	dbg_hid("Setting gain to %d.\n", gain);
  
- 	params[0] = gain >> 8;
- 	params[1] = gain & 255;
--	params[2] = 0; /* no boost */
--	params[3] = 0;
+-	params[0] = gain >> 8;
+-	params[1] = gain & 255;
++	put_unaligned_be16(gain, params);
  
  	hidpp_ff_queue_work(data, HIDPP_FF_SET_GLOBAL_GAINS, params, ARRAY_SIZE(params));
  }
-@@ -2813,17 +2802,10 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
- {
- 	struct hid_device *hid = hidpp->hid_dev;
- 	struct g920_data *g920 = hidpp->private_data;
--	struct usb_device_descriptor *udesc;
--	u16 bcdDevice;
- 	struct ff_device *ff;
- 	int error, j, num_slots = g920->num_effects;
- 	u8 version;
+@@ -2716,8 +2695,7 @@ static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute
  
--	if (!hid_is_usb(hid)) {
--		hid_err(hid, "device is not USB\n");
--		return -ENODEV;
--	}
--
- 	struct hidpp_ff_private_data *data __free(kfree) =
- 		kzalloc_flex(*data, slots, num_slots);
- 	if (!data)
-@@ -2840,9 +2822,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, struct input_dev *dev)
- 		return -ENOMEM;
+ 	range = clamp_val(range, 180, 900);
  
- 	/* Get firmware release */
--	udesc = &(hid_to_usb_dev(hid)->descriptor);
--	bcdDevice = le16_to_cpu(udesc->bcdDevice);
--	version = bcdDevice & 255;
-+	version = le16_to_cpu(hid_to_usb_dev(hid)->descriptor.bcdDevice) & 0xff;
+-	params[0] = range >> 8;
+-	params[1] = range & 0x00FF;
++	put_unaligned_be16(range, params);
  
- 	/* Set supported force feedback capabilities */
- 	for (j = 0; hidpp_ff_effects[j] >= 0; j++)
-@@ -3448,19 +3428,6 @@ static int g920_get_config(struct hidpp_device *hidpp)
- 	data.range = ret ?
- 		900 : get_unaligned_be16(&response.fap.params[0]);
- 
--	/* Read the current gain values */
--	ret = hidpp_send_fap_command_sync(hidpp, data.feature_index,
--					  HIDPP_FF_GET_GLOBAL_GAINS,
--					  NULL, 0,
--					  &response);
--	if (ret)
--		hid_warn(hidpp->hid_dev,
--			 "Failed to read gain values from device!\n");
--	data.gain = ret ?
--		0xffff : get_unaligned_be16(&response.fap.params[0]);
--
--	/* ignore boost value at response.fap.params[2] */
--
- 	ret = g920_ff_set_autocenter(hidpp, &data);
- 	if (ret)
- 		return ret;
+ 	error = hid_hw_open(hid);
+ 	if (error)
 
 -- 
 2.56.1.750.gf70dc682cf-goog

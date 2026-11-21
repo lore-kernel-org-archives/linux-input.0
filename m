@@ -1,58 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.36.144.171
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795293679;
-	b=a1PjYTaOv2a001pw21SihiIHuhMVi4V6W8pKRnhPJ2WG9AbmMrzjuXF5TKWL9xXS3N4W
-	 L70xfnYY6G+YziKkl1dJbV6XDckCOFG7qAD4Mwe4bmARCgoKyU3NBbbkgWxtY7JWg+Z4R
-	 jkSPdn7gbF7eSBPFyRUhiQ+zHoKXQSAL0TPGZmvKLW0F4VqkIuEgUriizoB4en5jmk/kp
-	 0QDnDSd5csRblwH10SCNFP+QrXyhb51OtLSkdgkSB57+wG/whoHjczvJeP8d3NgWk4c+F
-	 zAexiqAG4aHPcpAaBJSiWJUxGiSPsncX4agfZyaVhzXFBTAeegphnjLKzVr2P6qTHyw==
+	t=1795293686;
+	b=M64VKBWjVHNNdpO1ONxJ4OQpijH9YL5j051xB76HryBg8sQIzvf9aZ34WHyU6pGq7X4I
+	 GMWY6S+2quUIL1Y3ilHjwnbgsdXUqbiyZ9WtIvl5DD6ncDMeytRlS1gEfq0KlrD+MjqI2
+	 Jqn/oSWk+6AV2Sq9iSUrzFe9qlSESSQ8h5Lx26C7I/AXh9f/c7+Fg2UYz4z8R8RzNGInE
+	 Pu4Jcy00vPFuBeFC8RC4MUtvqMgJad/I7D6slm/EqsC2lc0lW3lhsBJptnImN1CrnE/2i
+	 2NY+BjqgnsnUPnKzs8duGJFC1YqSULPI1zl+zlsZEJvEpD0mN3bRhDCoX7GrQIBoZcw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795293679;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Last-TLS-Session-Version;
-	bh=fmju87T4Fa2QAGnAL9j5gIorzJmuW3FK3+tNe5lkgEc=;
-	b=HBwiMEO45auRXRc1k0XBbfZnubfGnYJXa6WPp8mjzhnz47868CIF82XkyHsO8uVNndxe
-	 G0k2JHXwEoskCNBS+NZkvBHqzFIEowQP6RtTxNBsqKvBhR1E0tYRpEjosq0W1bA2Eknr5
-	 0yw8NGqubKWcXQH27OuTUYebMWLXIQ97klYxk47o/RcgW9jHpMJkhwrW7mSWuXcC0TOPp
-	 BU21W6Y1PNF7PqsX16dKtxTM5LsMi5DuVQxHGV7fPvOpWKviD97u1Folc/WmhrveByYbC
-	 vzgUh8S2t8HNjtMn8EytPWf2KgGFJaIZQekhs0j+4C15Brs9RnQxdJuDeamvRuk8qxg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795293686;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=b4WlBIeYfXjkCDL5Y8Z597JBZPP1KdP6QejXLz1yHIk=;
+	b=bO7tQzO6LHN3T7+uoYS9B+z4mtW8/y3/pjNRIHBglwoPxegPMI92L0EtDF77w9+/9n3+
+	 5+yr3cbf+tOY7ylGBsTVJHB0GcraipwYZeuKgVARH/EOb6FNFsU3zN3f2aaUE+RlgSf24
+	 R26XfUSrYX8+QDZ75pECJM/XoSqpbffQZ+rjIVHQXMzYxqTRy/Qhq6qejVa3Nfe3hZjvy
+	 +HgKOgBjLl+6WPQ1YrQwTGFQSizNzHHS7/ExOSH5czRUC84hNHsdQBY7xF1OOzD6pXQ+E
+	 lMBV2aihXOry8L9l07wlHWz7JfavES09Kmd2DmYJysfY5Psd7NUj6msFX+IqfJ+cbaA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=yoxcu.de;
-	spf=pass smtp.mailfrom=yoxcu.de;
-	dkim=pass header.d=yoxcu.de header.i=@yoxcu.de header.a=rsa-sha256 header.s=dkim header.b=UK9nEjc5;
-	arc=none smtp.remote-ip=194.36.144.171
-Received: from morty.yoxcu.de (morty.yoxcu.de [194.36.144.171])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nsSWF1bB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65A94606A333;
-	Sat, 21 Nov 2026 20:41:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65A94606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=yoxcu.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yoxcu.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F35606A332
+	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 20:41:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=yoxcu.de header.i=@yoxcu.de header.a=rsa-sha256 header.s=dkim header.b=UK9nEjc5
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A76CA1D86DDA;
-	Sat, 21 Nov 2026 21:41:15 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yoxcu.de; s=dkim;
-	t=1795293676; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding; bh=fmju87T4Fa2QAGnAL9j5gIorzJmuW3FK3+tNe5lkgEc=;
-	b=UK9nEjc5E619jyK0d2+Z6h14iQXnoHetD7k+nMyqh5zv0TiN/n7ij2MQP7/3C3pZmz12f1
-	y908r0JuYpGeiMWCHNHPm6zQ7tMYVJYs6XfShhgWx/AVvToFLWX+8VKTcYrg8G0QqgrTU8
-	WRtYqA/pOIr6QCwnj77pqiyfdjxh0aWmkYnSve2kowB4AVaBOYXxgjWrIKbcHLFY11e5rQ
-	UF5f+qMNE+nemY0jmlty3oFTMzb/JGtlepVVRkrB7TF62CzlQJ81x8d2hAtAL6shIwvQYC
-	o52h11kqn52YypZnaPNalQgCdNrZdpadbh0exyd8BT/yh12UMFcLDDRYbEKADw==
-From: Michael Auer <mick@yoxcu.de>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Michael Auer <mick@yoxcu.de>
-Subject: [PATCH] Input: pm8941-pwrkey - report wakeup events
-Date: Sat, 21 Nov 2026 21:41:12 +0100
-Message-ID: <20261121204112.847960-1-mick@yoxcu.de>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nsSWF1bB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A19D51F000D2
+	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 20:41:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795293685;
+	bh=b4WlBIeYfXjkCDL5Y8Z597JBZPP1KdP6QejXLz1yHIk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=nsSWF1bBxDCZWEEGdtVr4N7h5O6aivS2ENs9b5TFOKkjggjAm0nFTYcNnAiY4q/yX
+	 4HB08kakqiYHrDG8OSSHT63Bp5iWZ8FR7jrmEaWKHtWPBUkEL2ODkcm9alazU0ptPw
+	 DnXeZLLqfh4MnXTiGZzKLerlBI1PoN+Iy5E/1bI26H7H5gxa1XZkCkbltw3xI/eZpm
+	 fBffjBrqqHJUXQfcVP95sXFv1Tmrhp933yEGCZf4GxwXRphygMDXbSny5K+NEXFvLL
+	 4mwd+1jyYif0toej0j2AyUpb+lKCeLrwpx4gxmt66kO3N2ggttGJ5xskzwmg2KVk78
+	 J5K0dAFVvRrgA==
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5bccecba199so1931972e87.1
+        for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 12:41:25 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErGf/uI1PPbKKfPS4STej/2wBnaElpo79h6v+/OZ+VitAvWUQ6Gxp9/9tSNmOotfD2NwM2lNnbgh9vQI6g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9vgkf/zIGSw1+Vt/g8XGJ3TcYQmXeV6Vb072oJLN4cYXzMTQrQ
+	8FZ5DBmLdtXtu1o/zgUdsstomMCZ5LL/zxcNFSnWryGAbm1MbBc7cDj/jV/a++E0ug+Jvl38xEX
+	NcMd56ECT48jt29PlvOjFbUJX5BiHvmE=
+X-Received: by 2002:a05:6512:39d1:b0:5bf:b22f:19af with SMTP id
+ 2adb3069b0e04-5c1bc7c4514mr2703568e87.18.1795293684444; Sat, 21 Nov 2026
+ 12:41:24 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,53 +59,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20261112064957.1796975-1-dmitry.torokhov@gmail.com> <20261112064957.1796975-4-dmitry.torokhov@gmail.com>
+In-Reply-To: <20261112064957.1796975-4-dmitry.torokhov@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Sat, 21 Nov 2026 21:41:10 +0100
+X-Gmail-Original-Message-ID: <CAD++jLn90_bz3=oE+8rV906pOaLykKFqx4Cp1snLufUu0N2X3g@mail.gmail.com>
+X-Gm-Features: Aa3M54pJMyi7VeDQdtQwI-ABSXBp_5jI9c4EBusiNB2hkGon3qtq7U4AzS-lEdw
+Message-ID: <CAD++jLn90_bz3=oE+8rV906pOaLykKFqx4Cp1snLufUu0N2X3g@mail.gmail.com>
+Subject: Re: [PATCH 3/5] Input: ads7846 - remove unneeded memory barriers
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Daniel Mack <daniel@zonque.org>, 
+	Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, 
+	Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, 
+	"H . Nikolaus Schaller" <hns@goldelico.com>, Kris Bahnsen <kris@embeddedts.com>, 
+	Mark Featherston <mark@embeddedts.com>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, linux-input@vger.kernel.org, 
+	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The power key (and resin, with "wakeup-source") is a wakeup source, but
-the driver never reports a wakeup event. Its wakeup_count in
-/sys/class/wakeup stays 0 even after it woke the system, so user space
-cannot tell a key press from other wakeups. PowerDevil, for example,
-uses the wakeup counts to decide whether to turn the display on after
-resume.
+On Thu, Nov 12, 2026 at 7:50=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Report a wakeup event from the interrupt handler, as other power key
-drivers do.
+> The driver invokes mb() after setting the stopped flag in ads7846_stop()
+> and ads7846_restart(). These mandatory barriers lack pairing barriers on
+> the reader side and are unnecessary.
+>
+> The wait queue operations wake_up() and wait_event_timeout(), along
+> with disable_irq() and enable_irq(), already provide the required
+> synchronization and memory ordering when stopping and restarting the
+> device polling. Remove the redundant barriers.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Michael Auer <mick@yoxcu.de>
----
-Tested on a OnePlus 6 (sdm845, PM8998) with an sdm845-mainline 7.1-rc1
-based kernel: a power key wakeup from suspend moves wakeup_count from 0
-to 1. On input/next it was only build tested (W=1, arm64 and x86_64
-allmodconfig).
+Weird, probably cargo-cult code.
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-The event is reported for every interrupt, press and release. After
-resume the press can be read as a release (the handler then simulates
-the press), so reporting only presses could miss the wakeup.
-
-Tool use: the analysis, the code and the commit messages were
-written with an LLM coding assistant (Claude Code). I reviewed all
-of it and tested it on my phone as described above.
-
- drivers/input/misc/pm8941-pwrkey.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index 34b4afbb1984..3827e751297a 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -161,6 +161,9 @@ static irqreturn_t pm8941_pwrkey_irq(int irq, void *_data)
- 		}
- 	}
- 
-+	/* Let user space see that the key woke the system */
-+	pm_wakeup_event(pwrkey->dev, 0);
-+
- 	err = regmap_read(pwrkey->regmap, pwrkey->baseaddr + PON_RT_STS, &sts);
- 	if (err)
- 		return IRQ_HANDLED;
-
-base-commit: ab13b5fc808e043a13f861a7c1c2ba8173c22b84
--- 
-2.43.0
-
+Yours,
+Linus Walleij

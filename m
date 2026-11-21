@@ -1,68 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795251449;
-	b=yLEhyN2xwsXSwCGN6gqkJ/qNin7kudElvGXb++NS/9FJmBxwKeVMBkhgdMVNwaOaQs7r
-	 PtpSi8FlQuk751urtP8vmevpKTpn7KQq8NU9TCCGrCuLNQkuzuZEqQ0Ah7RgxwixHR6TE
-	 hcTjFvv7Ki8dhNoLpe/P3KvkzndENICQJj6QWK68U2KCKGwgl74JwmwVaBN+qrVVXBHzk
-	 uWX5XRhYQzV6PVW6qs1PM/jIvX6B1/gcMbhGZ2zM+WzbaF3hkXkOWsMSa216tJ4L/S07B
-	 AodLlBJb5KTqD9s3ZTbIxZ+pLBoxQgkDQOt+wLr7SaTlZfIthPaNrfJsRVi+nYcS3+g==
+	t=1795251727;
+	b=G6y5nzV2RYOIsYfnT8rexH2EDArdtIwf1i+f5PLfE4HRsx/+FbuWNIDSRVe5ATyvkTsT
+	 dA6rI7Mq2xvAPjpcfzj5yjipXNngf3eWxYS87X9J9t+cHzxqX82pC8bdV1Jn56jfI3sfO
+	 OODfvybDjwtrSaD4Zf+OAIOhZaqtxkB12AvB006lOk7119Ue+D/O8S9zJJhhfBZWJfmX1
+	 VcD4bwR1XsI8FkF+eZNmXO1yRRIm+JjL/cZiAfcHYzKKddIE0WBj/d3T5liIwO3Ug8iti
+	 Y1vNJiB7cjNlLSWWwLAGoVy4WW1ueNjgtmYeg4QU7NDe52NsIsoYAptIbAiCTFx+s1w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795251449;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-MBO-RS-ID:X-MBO-RS-META;
-	bh=cdthxAkaHO+yeVbZfruiT0cSICDqg/vv+2t7JBROBgQ=;
-	b=YCGcbaSgk6K987Q3HV3I2+n/SfmnfQHH52LXGjXaZvX/uuKDQqN7NOos8e++xqe91PJU
-	 SMtBvyx6EaWOQ336LY09F41fI5aQ2aW9njY2kFQjkbwF1R+wy+wLXBdqVhemw8iCbFkqy
-	 TxHNCFC+6nl2ZguWg9ZvhaT/VBcsWDUnwLUEx+ZywCk9+FtJBmVBnWnwdaDpxyGySvqkV
-	 LE7FMIfXU747nO9PsESR/n7DTKq1ff0xAdz3KUvrcYl1j6v/Z/wcm/HkWk1C30QyOeP76
-	 BpUnptZhhtL4l9fRBBpE/MLOmglrbWJXRSzU7ek1v/UtIQKZD4ktFWzgUlTltNhVaJg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795251727;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=CEJizCMnRTwcJpF0K1dvDIk+sJzM6GrJeylAcp1MkrY=;
+	b=OoJ4qbdiECt80Xe37eLj6b4Ly/RqAg7NDMzux3Ht2207I2V5EJydwcqqB6KnGe/zVZ4w
+	 50Bm7pdqNhIvweC2M9b3mGI+eoPKauEgRBbHB5sBgy/ZLD3k1TTsnjsE7SZX4wt+YyfE0
+	 ETfS6A07JYyQeNLdTCNOtvt5/tdtlknOi8ewjuIu9D/t3mVSM33fabCxbtauAgAwk5ZLF
+	 H9Rdf1Fr97jXPRWG1jwx1LY4E4qLO9a/vt/a4aiezbKbhYO8EN3Qc3DtG9izREyfzPJhC
+	 kFD82MV0dPWOlb4QCOu0G28XHPonzXPhqs8M0YXcTcPCIWcBYxFcNyRw9y5h/R69BaA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mailbox.org;
-	spf=pass smtp.mailfrom=mailbox.org;
-	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=snpK6Y4c;
-	arc=none smtp.remote-ip=80.241.56.172
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DR923WaG;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2708606A320;
-	Sat, 21 Nov 2026 08:57:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2708606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EF71606A33E
+	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 09:02:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=snpK6Y4c
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4jWmLF1KwYzMls1;
-	Sat, 21 Nov 2026 09:57:25 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1795251445;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=cdthxAkaHO+yeVbZfruiT0cSICDqg/vv+2t7JBROBgQ=;
-	b=snpK6Y4ce4KSzi2XWNx06liSe2i73b/+WvcAUrjLJrNHXz3LrNwNdIHVLxT86pqIo701xe
-	jOcafIkxQ0/3lmPM/6WeGIUTvILbAovTH/5Eyadt8uqRLM2Sy1qKYD7xcRuwPmdzoK5Wa4
-	X9gghqyz7fVD7172pdBLJxcwxI5ZzQZ/yDF3XD5QpWhclS6n9pQfe6ilLjwpL4YpBoGaic
-	TifHfqRU876dQThS01eDPI1VT4W6E4NLWQ/1wCdj4KnLrX2SOFao8ZnwSHc2XkvKgMwpu9
-	HNRFLWcTQ9fLgt2b09w+5ayu90PsxQqqJXFHbUR9qXjMSfRFTG9niqs6GcYQKA==
-From: Manuel Ebner <manuelebnerli@mailbox.org>
-To: Basavaraj Natikar <basavaraj.natikar@amd.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>
-Cc: Manuel Ebner <manuelebnerli@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/hid: fix brackets in comments
-Date: Sat, 21 Nov 2026 09:56:28 +0100
-Message-ID: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DR923WaG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AE511F000C6;
+	Sat, 21 Nov 2026 09:02:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795251726;
+	bh=CEJizCMnRTwcJpF0K1dvDIk+sJzM6GrJeylAcp1MkrY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DR923WaGO5EsUYP0QTSiz22nAzJ6IBSb/2kyeeyvL5ZV1X5qaBAYXv5PSrAJrBaCZ
+	 HSmPl6JhqeQwHhvF4GTwj2Wy/h+pAIbv9k2cHSKmpqTxnvueMThqP3Bs2vtXRWWUXe
+	 vQ1b1jHo/mU3rsbaYMn2P485FxsSIE0KyvW6TgS/WJPhVefmwEkCeGqrrYYkxe5Xk/
+	 c+jL3TG6QVzlSXOfxpxkUweI5l72idHtjP+tBN6qzxNUfiOCrpHPkoSzAfcGhHCznK
+	 uAAdCnSWiSIAlJNPPENQvPJ47LHDd+m4T4Brg/uOkD5vTF1ko7+xVrn3FuwE1PYT2l
+	 G3lwTG0bkjNUA==
+Message-ID: <sashiko-outbox-226852@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] drivers/hid: fix brackets in comments
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Manuel Ebner" <manuelebnerli@mailbox.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
+References: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 21 Nov 2026 09:02:05 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -71,89 +58,77 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: 7bed8ca2e82a95b5cc5
-X-MBO-RS-META: 17hux4qqacjzbmquj8sjd8fb81d6pznj
 
-Remove multiple ')' without opening '(' and add missing '(' in comments.
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Critical] HID: wacom: null pointer dereference in wacom_intuos_irq()
+  [1]
+--
 
-Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
----
- .../hid_descriptor/amd_sfh_hid_report_desc.h         | 12 ++++++------
- drivers/hid/wacom_wac.c                              |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+commit fe38a9c78cbb9c5469865293835934f3d81cedd9
+Author: Manuel Ebner <manuelebnerli@mailbox.org>
 
-diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-index 67ec2d6a417d..6c331c2c63b8 100644
---- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-+++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-@@ -81,7 +81,7 @@ static const u8 accel3_report_descriptor[] = {
- 0x95, 1,	  /* HID report count(1) */
- 0x55, 0,	  /* HID unit exponent(0) */
- 0xB1, 0x02,	  /* HID feature (Data_Arr_Abs) */
--0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS) */
-+0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS */
- 
- 0x15, 0,		/* HID logical Min_8(0) */
- 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
-@@ -248,7 +248,7 @@ static const u8 gyro3_report_descriptor[] = {
- 0x95, 1,		/* HID report count(1) */
- 0x55, 0,		/* HID unit exponent(0) */
- 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
--0x0A, 0x56, 0x14,	/* Angular velocity and mod change sensitivity ABS)*/
-+0x0A, 0x56, 0x14,	/* Angular velocity and mod change sensitivity ABS*/
- 
- 0x15, 0,		/* HID logical Min_8(0) */
- 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
-@@ -408,7 +408,7 @@ static const u8 comp3_report_descriptor[] = {
- 0x95, 1,		/* HID report count(1) */
- 0x55, 0,		/* HID unit exponent(0) */
- 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
--0x0A, 0x71, 0x14,	/* Orientation  and mod change sensitivity ABS)*/
-+0x0A, 0x71, 0x14,	/* Orientation  and mod change sensitivity ABS*/
- 0x15, 0,		/* HID logical Min_8(0) */
- 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
- 0x75, 16,		/* HID report size(16) */
-@@ -429,14 +429,14 @@ static const u8 comp3_report_descriptor[] = {
- 0x95, 1,		/* HID report count(1) */
- 0x55, 0x0F,		/* HID unit exponent(0x0F) */
- 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
--0x0A, 0x84, 0x14,	/* Maganetic flux and change sensitivity ABS) */
-+0x0A, 0x84, 0x14,	/* Maganetic flux and change sensitivity ABS */
- 0x15, 0,		/* HID logical Min_8(0) */
- 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
- 0x75, 16,		/* HID report size(16) */
- 0x95, 1,		/* HID report count(1) */
- 0x55, 0x0E,		/* HID unit exponent(0x0E) */
- 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
--0x0A, 0x84, 0x24,	/* Maganetic flux and mod change sensitivity Max) */
-+0x0A, 0x84, 0x24,	/* Maganetic flux and mod change sensitivity Max */
- 0x16, 0x01, 0x80,	/* HID logical Min_16(0x01,0x80) */
- 0x26, 0xFF, 0x7F,	/* HID logical Max_16(0xFF,0x7F) */
- 0x75, 16,		/* HID report size(16) */
-@@ -581,7 +581,7 @@ static const u8 als_report_descriptor[] = {
- 0x95, 1,		/* HID report count(1) */
- 0x55, 0,		/* HID unit exponent(0) */
- 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
--0x0A, 0xD1, 0xE4,	/* Light illuminance and sensitivity REL PCT) */
-+0x0A, 0xD1, 0xE4,	/* Light illuminance and sensitivity REL PCT */
- 0x15, 0,		/* HID logical Min_8(0) */
- 0x26, 0x10, 0x27,	/* HID logical Max_16(0x10,0x27) */
- 0x75, 16,		/* HID report size(16) */
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index da1f0ea85625..b7aa6b60fb02 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -546,7 +546,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
- 		 * physically implemented as a touchstrip. Each button
- 		 * is approximately 3 bits wide with a 2 bit spacing.
- 		 * The raw touchstrip bits are stored at:
--		 *    ((data[3] & 0x1f) << 8) | data[4])
-+		 *    (((data[3] & 0x1f) << 8) | data[4])
- 		 */
- 		nkeys = 3;
- 		keys = ((data[3] & 0x1C) ? 1<<2 : 0) |
--- 
-2.54.0
+drivers/hid: fix brackets in comments
 
+This commit removes unmatched closing parentheses and adds a missing
+opening parenthesis in comments in the AMD SFH and Wacom HID drivers.
+
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 361738bb87253..0273299454b74 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -558,7 +558,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+>  		 * physically implemented as a touchstrip. Each button
+>  		 * is approximately 3 bits wide with a 2 bit spacing.
+>  		 * The raw touchstrip bits are stored at:
+> -		 *    ((data[3] & 0x1f) << 8) | data[4])
+> +		 *    (((data[3] & 0x1f) << 8) | data[4])
+>  		 */
+>  		nkeys =3D 3;
+>  		keys =3D ((data[3] & 0x1C) ? 1<<2 : 0) |
+
+[Severity: Critical]
+This problem wasn't introduced by this patch, but can wacom_intuos_pad()
+and wacom_intuos_irq() dereference a NULL wacom->pad_input or
+wacom->pen_input pointer [1]?
+
+When a device interface lacks pen or pad capabilities, the driver does not
+allocate the corresponding input_dev, leaving wacom->pen_input or
+wacom->pad_input NULL.  If a report arrives on that interface,
+wacom_intuos_irq() dereferences wacom->pen_input in dev_dbg() on unknown
+report IDs, or dispatches recognized reports to wacom_intuos_pad() and
+wacom_intuos_general(), which report events through wacom->pad_input and
+wacom->pen_input without checking whether they were allocated:
+
+drivers/hid/wacom_wac.c:wacom_intuos_irq() {
+	unsigned char *data =3D wacom->data;
+	struct input_dev *input =3D wacom->pen_input;
+	int result;
+
+	if (data[0] !=3D WACOM_REPORT_PENABLED &&
+	    ...
+	    data[0] !=3D WACOM_REPORT_INTUOS5PAD) {
+		dev_dbg(input->dev.parent,
+			"%s: received unknown report #%d\n", __func__, data[0]);
+		return 0;
+	}
+
+	/* process pad events */
+	result =3D wacom_intuos_pad(wacom);
+	if (result)
+		return result;
+    ...
+	/* process general packets */
+	result =3D wacom_intuos_general(wacom);
+    ...
+}
+
+Receiving a crafted report on an interface without the corresponding
+input_dev triggers a NULL pointer dereference and crashes the kernel.
+
+[1] https://sashiko.dev/#/bug/linux-4a2bc3f1-bd42-421b-b885-0a54a4969fdf
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261121085628.1430=
+330-2-manuelebnerli@mailbox.org?part=3D1

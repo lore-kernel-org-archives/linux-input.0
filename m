@@ -1,63 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=3.73.157.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795294422;
-	b=uU7FTg5wdKLsxkaiKg7fXU0k1V9AG8oRRCO3Qa/EyG4OvqpkgtOr+jyIWCDGV1hXKReT
-	 oBaeUclDZk9d8RLmpYny0r7s+ea3j3MDoHjxnfvTJ82RXNXNlJCz9Ccvg0aowEkZExYg0
-	 VifraK9I0h1z+e1yfq4nSgEGfNJDQFzeQDhuN0+P51IjqFZ1aF9QYqvUR5t58U5dPq1qX
-	 kiebWULfGNvPF0aiuWLw9jfhk1FCJbofoZG6L9BMd0BbryL2MNMEZPCCPSzNwZwMyod/I
-	 doahTkfbRybBXwCzHfDoWXEHD6g8jN9VXieeiflXNbXfy7wQ01whcv9YSKESKtElQXw==
+	t=1795303052;
+	b=eHMdT+pr9oJu0LQCVgTKBOg4V7Lwud20+GtGpkLrTIQiUIOEOzu63/YikMtF7kutrsUK
+	 rMyGnZjkhseKQ435aYgVf/BcvVJRZJLnnRqpIaqseyOP1LeVLrVSFuvgqx4ghM/qYHEt8
+	 abbc29FbQtmabrKELkkJNAH5NxTaT+gmqYEW1K/bqIeXf+6gqubioOxroDM4nkq1LQcBx
+	 wiaBDAfOQzEB3EBOVixfJtbhmseliuz5uTvc9u13BaXvA5C+2Z7SdK5MBRnvQ7oJwsO95
+	 tp0L4Rf/efyGtiu1fFEGHVLTL06emDylYHsvnHrbNjjynZd1Th0Agwo+Bio+0S5YY9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795294422;
-	h=DMARC-Filter:DKIM-Signature:Received:From:Reply-To:To:Cc:Subject:
-	 Date:Message-ID:Content-Type:Content-Transfer-Encoding:MIME-Version;
-	bh=vCQ0G/m1QSXyc26BORwC76BHSw2hiWoRW1ApouraSqM=;
-	b=FLHm0t2pOD1fGe9pZfWv+I/NEOTnBJobgT3VB4BstKO5sfKm2I+Tfkgs3gQ5halopUTd
-	 jHwicrCaQx5MYX8BJMHPl0yLiVft42YCoZRhY5S6cNHkLIZhK8eTANjUcWwF7YIE8CJJ1
-	 LilhOAgKwFRJvgVHwFLEVS7kL/rExh3ogEZWkn9lqjqqwbvjFYtIoqQiVXq2JxkJ/p3Hb
-	 Q+LoUoO6Iw6NTdMDhtOVRgLWTA6c+l4Cpv5SoJxxcNyxyfUs3FqIjlJ0zH0r/36TFc5WO
-	 ChAtEBmJKLxhC+1Q4AMbaRMklfOut/DrR7KYtGpEOthOm+w7TE9cshS2k+ICDOL8Aig==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795303052;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=+5Tizt96IR/8Tozykg3mHlCaTrQlzMtblaH2XuL71aY=;
+	b=pTj/ze0/mqf5gJknbJ6BoBX3ByOyYdwI1FFRMZTedrWfLXu3EOsYvsq3IVcOv0zgo9JH
+	 hwxZKPLV7BwHswphMaPv5savlwX7F824/Std1yoG2Ego3h2wUHd5PsGt3GyedDBVZFhQB
+	 Ejbh7HWY0kxoHZy9R+2o1K6aagS97q4p8ElqGb1hNgeqgeSFOf+H3DbYLuXestvIEAoOJ
+	 JV0A5pUmjWykTZ5Zy0NuLrnAq1HJMAUO3/6iNNSCTuqO4FNzg6T7mZzVZtPm8ipQJIOgm
+	 XYy/tMu/9D3tdZZNHWvl2HNgXoo1nxTlVh6g4iIMSO5S/oYhxB1dX4tZojGx/HFdMlA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chvaja.cz;
-	spf=pass smtp.mailfrom=chvaja.cz;
-	dkim=pass header.d=chvaja.cz header.i=@chvaja.cz header.a=rsa-sha256 header.s=mail header.b=QgAB9dzd;
-	arc=none smtp.remote-ip=3.73.157.52
-Received: from box.chvaja.cz (box.chvaja.cz [3.73.157.52])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wi1uH7Hr;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F75A606A330
-	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 20:53:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1F75A606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=chvaja.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chvaja.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 150E5606A320;
+	Sat, 21 Nov 2026 23:17:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=chvaja.cz header.i=@chvaja.cz header.a=rsa-sha256 header.s=mail header.b=QgAB9dzd
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=chvaja.cz; s=mail;
-	t=1795294414; bh=d9YHtVMc9VMfKbp9DQrWyR9YVjOF3fbbokyYtk6MEE8=;
-	h=From:Reply-To:To:Cc:Subject:Date:From;
-	b=QgAB9dzdV2+1Mjkw4Vu/hyU/+rOg5Ad3TdF/9HkEg18MSvqi1eD/kEZz/LvEB8gnT
-	 iIRuGJEXN40DeDnnUKoIk2ccd96Wukgdz/ckh2KEu8uXzdZAiqQ/SPO2kfX3EK/BBI
-	 4wYfZ4JHrapWb2a4rItYJzLpnfP3Ju3kkjlD2PKXPA/X2lt3FBKP/MfuxjoonXsHon
-	 mcTeZsTSy2o9EkH1fffeOe39N0p3QL+Wh4PBzBf0PwIqw/wNWN8a7F/4+8HFEkhotC
-	 8wVl7B5FWizV4gqQ0QATACAUfpGNkChqsl83i/379LNeLJwkb0rCxQucxAIX3PC9B1
-	 H1/hNy+8xNnsg==
-Received: from authenticated-user (box.chvaja.cz [3.73.157.52])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by box.chvaja.cz (Postfix) with ESMTPSA id 781F34DA3C;
-	Sat, 21 Nov 2026 21:53:34 +0100 (CET)
-From: Adam Chvaja <agent-claude@chvaja.cz>
-Reply-To: adam@chvaja.cz
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, adam@chvaja.cz
-Subject: atkbd: internal keyboard stops delivering scancodes after hours of
- uptime on Lenovo ThinkBook 14 G9 IRL (21UY); EC keeps ACKing, LEDs work, only
- serio unbind/bind recovers
-Date: Sat, 21 Nov 2026 22:53:29 +0200
-Message-ID: <179529440910.635175.11923305248594163087@chvaja.cz>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wi1uH7Hr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05031F000C0;
+	Sat, 21 Nov 2026 23:17:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795303051;
+	bh=+5Tizt96IR/8Tozykg3mHlCaTrQlzMtblaH2XuL71aY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Wi1uH7HrP45y9lsY5U1zcFnXwQKVfNojNr8DmXjiBNSrZGz6EbMMcM+ECTy5GSvIR
+	 Q4o4NGHhAAPLLKoi+rLTbGa8gBzNmTsL043Kya3D+uYeHIFVDK1gEUXrsVgYbTFnrq
+	 4ZZhLIwjcZwZOrT4vKzk0ke0mJgKzkrSNmd5DEcnuat0x+tDj2Om4Z85yEg8e+FXEn
+	 6tGRGsyqKTQ/Hjc6u8H1BksIy2HXuzwIb+jGaFHH32ZZKueZkZwu9Ozh0yfSgnPn6+
+	 xo63QH3eqGbTtnOk7Vj0FJ757HBfwN7vnAtER2dsnfkldW0Epr42HO+3ZaIMc+5SB9
+	 748sxzJKQyziA==
+Date: Sat, 21 Nov 2026 23:17:26 +0000
+From: Jonathan Cameron <jic23@kernel.org>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: lee@kernel.org, maz@kernel.org, andy@kernel.org,
+ dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+ mfd@lists.linux.dev, linux-iio@vger.kernel.org, robh@kernel.org,
+ krzk+dt@kernel.org, conor+dt@kernel.org, crofts@kernel.org,
+ devicetree@vger.kernel.org, imx@lists.linux.dev, Krzysztof Kozlowski
+ <krzysztof.kozlowski@oss.qualcomm.com>
+Subject: Re: [PATCH v5 1/4] dt-bindings: mfd: mxs-lradc: Fix interrupt order
+Message-ID: <20261121231726.71aa1aba@jic23-hlaptop>
+In-Reply-To: <20261119134041.16611-1-festevam@gmail.com>
+References: <20261119134041.16611-1-festevam@gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -67,90 +63,85 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On Thu, 19 Nov 2026 10:40:38 -0300
+Fabio Estevam <festevam@gmail.com> wrote:
 
-I am seeing a recurring failure of the internal PS/2 (i8042) keyboard on a
-new Lenovo ThinkBook 14 G9 IRL. The symptom pattern matches the class of
-EC issues recently worked around with atkbd_deactivate_fixup DMI quirks
-(IdeaPad Slim 3 83RQ/83RR, Yoga Air 14 83QK, HONOR, Xiaomi), but this
-board is not in that table and the failure is intermittent at runtime,
-not from boot, so I am reporting it rather than guessing at a quirk.
+> The interrupt descriptions added during the conversion to YAML do not
+> match the ICOLL source numbers used by the existing DTS files.
+> 
+> For i.MX23, Table 5-1 of the reference manual maps source 36 to touch
+> detection and sources 37 through 44 to channels 0 through 7. The DTS
+> lists these sources in that order.
+> 
+> For i.MX28, Table 5-1 maps source 10 to touch detection, sources 14 and
+> 15 to the threshold interrupts, sources 16 through 23 to channels 0
+> through 7, and sources 24 and 25 to buttons 0 and 1. The DTS also lists
+> these sources in that order.
+> 
+> Reorder the schema descriptions to match the hardware documentation and
+> the existing DT ABI.
+> 
+> This change was prepared with assistance from OpenAI Codex, which was
+> used to compare the binding with the reference manuals, existing DTS,
+> and driver ordering.
 
-Hardware / software
--------------------
-  sys_vendor        LENOVO
-  product_name      21UY
-  product_version   ThinkBook 14 G9 IRL
-  board_name        LNVNB161216
-  bios_version      SRCN22WW (2025-11-18)
-  ec_firmware       1.16
-  CPU               Intel Core 5 210H
-  kernel            6.18.55-1-MANJARO (Manjaro stable)
-  touchpad          I2C HID FTCS0038:00 2808:0106 (unaffected)
-  cmdline           no i8042.* / atkbd.* parameters
-  mem_sleep         [s2idle] deep
+This bit belongs below the --- with the change log.
+I'll fix up if you don't have to do a v6 for other reasons.
 
-Boot log for the controller is unremarkable:
-  i8042: PNP: PS/2 Controller [PNP0303:KBD0] at 0x60,0x64 irq 1
-  i8042: PNP: PS/2 appears to have AUX port disabled, if this is incorrect pl=
-ease boot with i8042.nopnp
-  serio: i8042 KBD port at 0x60,0x64 irq 1
-  input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input=
-/input2
 
-Symptom
--------
-After ~2 days of uptime (one s2idle cycle in between, resumed ~12 h before
-the failure, keyboard worked normally all day after resume) the internal
-keyboard suddenly stopped producing any input events:
+> 
+> Fixes: 009528b5aa13 ("dt-bindings: mfd: convert mxs-lradc bindings to json-schema")
+> Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> ---
+> Changes since v4:
+> - None.
+> 
+>  Documentation/devicetree/bindings/mfd/mxs-lradc.yaml | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
+> index 782b2f4005a0..755029880677 100644
+> --- a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
+> +++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
+> @@ -87,13 +87,13 @@ then:
+>    properties:
+>      interrupts:
+>        items:
+> +        - description: touchscreen
+>          - description: channel 0
+>          - description: channel 1
+>          - description: channel 2
+>          - description: channel 3
+>          - description: channel 4
+>          - description: channel 5
+> -        - description: touchscreen
+>          - description: channel 6
+>          - description: channel 7
+>      fsl,lradc-touchscreen-wires:
+> @@ -102,6 +102,7 @@ else:
+>    properties:
+>      interrupts:
+>        items:
+> +        - description: touchscreen
+>          - description: threshold 0
+>          - description: threshold 1
+>          - description: channel 0
+> @@ -110,11 +111,10 @@ else:
+>          - description: channel 3
+>          - description: channel 4
+>          - description: channel 5
+> -        - description: button 0
+> -        - description: button 1
+> -        - description: touchscreen
+>          - description: channel 6
+>          - description: channel 7
+> +        - description: button 0
+> +        - description: button 1
+>  
+>  additionalProperties: false
+>  
 
-  - /proc/bus/input/devices still listed "AT Translated Set 2 keyboard",
-    Xorg had NOT removed the device, no kernel messages at all.
-  - Reading /dev/input/event2 for 60 s while pressing keys: 0 bytes.
-  - Keyboard backlight, Fn-lock LED and Caps Lock LED still reacted to
-    key presses (EC-driven), so the EC itself was alive.
-  - An EC-generated hotkey scancode still came through the same port
-    during the outage:
-      atkbd serio0: Unknown key pressed (translated set 2, code 0xf8 on isa00=
-60/serio0).
-    (this e078 code is emitted every few minutes during normal operation
-    too, so the i8042 data path was not completely dead =E2=80=94 only regular
-    matrix scancodes stopped arriving.)
-  - I2C touchpad, mouse, and the rest of the system were fully
-    functional; no OOM/hung-task/stall messages in the journal.
-
-What did NOT recover it
------------------------
-  echo -n reconnect > /sys/bus/serio/devices/serio0/drvctl
-  echo -n rescan    > /sys/bus/serio/devices/serio0/drvctl
-Both returned without error, device stayed registered, still 0 bytes.
-
-What DID recover it
--------------------
-  echo -n serio0 > /sys/bus/serio/drivers/atkbd/unbind
-  echo -n serio0 > /sys/bus/serio/drivers/atkbd/bind
-  =E2=86=92 input: AT Translated Set 2 keyboard as /devices/platform/i8042/se=
-rio0/input/input23
-  =E2=86=92 input: AT Translated Set 2 keyboard as /devices/platform/i8042/se=
-rio0/input/input24
-Keyboard worked immediately afterwards. (The device registered twice,
-3 s apart, which I did not expect =E2=80=94 mentioned in case it is a hint.)
-
-Questions
----------
-1. Is this the same EC behaviour the atkbd_deactivate_fixup quirks
-   address (EC ACKs ATKBD_CMD_RESET_DIS / subsequent commands but never
-   resumes sending scancodes), and if so, would a DMI entry for
-   DMI_PRODUCT_NAME "21UY" be appropriate even though the keyboard
-   works at boot and the failure appears at runtime?
-2. Is there anything I should capture at the next occurrence to make
-   this actionable (i8042.debug=3D1 output, specific sysfs state)? I have
-   a recovery script in place that already records IRQ 1 count delta
-   while keys are pressed during the outage, to tell "no bytes from EC"
-   from "bytes arrive but are dropped".
-
-I am happy to test patches on this machine.
-
-Thanks,
-Adam Chvaja

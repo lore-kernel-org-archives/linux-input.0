@@ -1,89 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795259493;
-	b=g8Zf17K+Oe2+ziwPGQu03FjqJjZFFXdp1hWvsTeQ/trnsZhoEAfKZCy7vg90KHGF5vJ7
-	 nG8/jZ92BQrQwlhv/JcFZJCtRsicnn1pXUeacmS7tPsApXa2sjbW9BIhZpzF9hN6FE/MI
-	 bkSUlJzKAuDO1q/1jazmNBiX6xYtC7Dd8dwQ8ix7AajIMSo/yvBti0ljo+aemgEBP22r8
-	 S0eDfZTiHzc5DqhsUZQ9pFLz4IW2JFu6Wk8bMrxnxM8X156Y7m3SUmlSDhjnCJYjGTyjS
-	 EEZ4GJ3Ni/8oyjMduEKVGofS1xyU8RuipNDZIJtnW/zbvTwlyCyhORV3hYExkqWOzzg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795259493;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:In-Reply-To:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=+M0BZeuDrsVXzAn7sBMCGNL00597p0WjyKrrf1Dm54I=;
-	b=n+UuaVNf9x4BaK/Pf6tj3F0nAhxlHA0L6Q34Yp0buEJQp9dRX8YuiG1pr6MSqmWCd83d
-	 SFWbZ+yN9UkosAKhH9WUd9e5O7Mi14G8X3aYiGP2AwCTjtP6hhBgs3QFG1Vam5fW7e9E+
-	 IJy7Xq8CywXUh69E5mCCyX5PAUTxmVE/Nx7aRDJtNqeFTAWb7Tm3mDYn8o0KcWHXJVDnN
-	 +XRZf89MWAG2tdwbGf3eAPSlGovS77yn/sPvQahVVt+904Sy6b8H+VdVCiG8mFzcrnAzd
-	 O82F/OdMUkSRANzRq/4VODX1vJCnNSodz1P8DCKvg9blV01pjBXTxZ+eTJtt/Ew4oOg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FxGLxh35;
-	arc=none smtp.remote-ip=209.85.221.41
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795264995;
+	b=mafgWXAZ2daCzGHeTwQxS+UcNujfDZc4CRER+l4XKyE/w6qgKFKdTq56t2g80ktvFaVS
+	 ++qHi4aiBKH51RwWGdxPso/ycm+3zaq7KLrdPaxONUT2TirYR1Q22Uq9E83t4ChoZPFWr
+	 4eRLHlYlrtzcpOIr5PeEJv6BOlroHAqZiua2vFkvT2j1eJvjKMALzuPxR2oraIWru4kOP
+	 RT2B4iLWDneahf7qB9LqK8tu4Cn8EQJOSV7GizNs4Rg0UvZ76MBy2eueuUXC5mfNYJAtF
+	 VFLDPnmxuLByyMABlpCBW1gtYV8N0rOta0Cb69Sn9/UtqBJhvYiuKqySk6/7c/Om+RQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795264995;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=NUR5sQPJk7XLxAjWNCv2J34+6AGV8PKFFtI00bIEIzA=;
+	b=waMsOTXzjsiIPF/r03zjQKKLY7WqUztyCsLHeqemuKEtTIwlJzaNled5IYpWCTdlhZBA
+	 xogxPWd8QPdgZ4WA94wZaDKe5fLsztCVdUAP8/O1tvnHpiFHSel6P8vOdKnIKOIWZ4iMQ
+	 iO8QDVyD8deWprXrsY2WOkp1fEFR8eLXWjR0BtXeH0pA8BPJDx0pseZ9bztByiYNGwD8q
+	 Xb4oY3+L9uvIdv4Y1d3/xBnA4qgVbMDypM/f3utUfj0ZNafTl6pPs738TZkwgUW6kTYRA
+	 FUhfYrdhUVbFxR8K8cH9U23jJfEyiZT8K42eJ+SXzvamNPQc/6WwpdRViXE9WGxu2Ng==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RENiY9Y1;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED583606A32C;
+	Sat, 21 Nov 2026 12:43:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RENiY9Y1
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795264994;
+	b=KgWIuUWL3+NZ2YggpVpa5Dsuyrx+6EYkLXFKT8qdwnl4kVkEzA5uwHAkptMU47d7LaEm
+	 nHfjd5U8jhm+YWhzw6CTkhH2xv0teN0iYSaZ88EYEklzERm7M7w0geDD1JJ/ma+U6oh2G
+	 RQtWk+4IY7D+87ejbKEFDQSXd3c9Mv9TniPkU+UubIjf0IYaY+moYyDZW5pPEC7gucwzo
+	 vSsN2ubteTytHt9SuMMWqPWJMDhnlz2CJOAr/37ABhM+lqcMkurknOPPyiK9Tlw6Zsv4f
+	 oRMoV552EpxXcaHV7Z/KL58akz2JHZC5w8TRi32y/4thCbZbEeZMWvAMnvBQ1MRwfow==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795264994;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=NUR5sQPJk7XLxAjWNCv2J34+6AGV8PKFFtI00bIEIzA=;
+	b=lvmXzb1lfy7dIhNPB1FKlmdzBkJhV75pODeRfyUPetX3Qq6356d4dAo7THSJanENcuYW
+	 C8Rj7c2BFSwnFKIj2QOMySH1u1WxLmbc3U4ZrKLFz4lG9IBRbYlj1QEEWLM1hTNgW7Zsq
+	 jVRkVtcO58RT2TPf1s9ryoI8xeLGqy5E0nLFiqnnNU9oVEyYwk+I6IzfIDZqZ+iNAWXlP
+	 I1EpjHpl1PsR73Bg5tZ6mYt7xWoB5a2jaDADQPJFLowCX/BnCcQC48LjKPojTJ+XhMkM3
+	 oZ19918byJLJwqgFeTUg10un1Lfv5pxnLAcri4WMxxcGWw8eKKt2KaS90Zmd9C55iBA==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9319F606A32C
-	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 11:11:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9319F606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FxGLxh35
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-490c3ae81d3so1093556f8f.2
-        for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 03:11:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795259491; x=1795864291; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+M0BZeuDrsVXzAn7sBMCGNL00597p0WjyKrrf1Dm54I=;
-        b=FxGLxh351WyjFkOoMVbkDKCQLWMAD7Lu0G+6KFKnqN3h8YP5fbYQ5bloHntHWlom6z
-         63v7MEH5nctjOJkIz7ROIMvYhDP2w4SqemDG2gy0PmQM439U7WNjZf/SwzSSL2PuroLY
-         VIEe/O4MFzWKsDSKZVYar7L0y04HRevYGQw1Gd213AtYyUkN3/D0gLBlUNualmnZ9q8n
-         Nr8LyRhlRNyeMEhS32PV6uagq5q6cdgJv2htzDz4VmQstY86yF6D/1wxQ1lsOwfyUIM2
-         Pd7GFOJopdCpatj3MWkJJQKNwWvBi+O+6/Rye7YyYrrxqtD5J4U1dHwI4DpmAjSf8bTZ
-         hohQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795259491; x=1795864291;
-        h=content-transfer-encoding:content-type:mime-version:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+M0BZeuDrsVXzAn7sBMCGNL00597p0WjyKrrf1Dm54I=;
-        b=Ie/csFq70wHhghiXuuC/6Fj2XtueMpIl/5CmbeW3JOwmeTfsKpsEtHuGy02Fx66sRc
-         DffBeW0jTGYp3D9g6xJtXL6z/g++kEVitgwuEJgdrFYnyvAKvC/uu/7Qtwd+qqSkiMNX
-         1hK7++Mn1/oQZMOVQjSQiA7GHgRiHUoUcY5MfgOuWuorvjQzDsoTGl7WNP+9jmejaN4S
-         Cf1llm3ACzH6AzYzn7McwOv00CxDDpMoXmTYdRQTKxxBRJpC3ZwwAjeQ9XoRAAe/SYkN
-         KaDPYrMoudWvqXA/tSiAhiOJdEzAkPo6yCJqxvttU+z+hdDfjnQp5ZjkbR2TlgdrL5yy
-         H5iQ==
-X-Gm-Message-State: APuU4Z8masS+MPijrGkApG092lR9sfGZUXgt+HE7zayHsg01PczrUA0W
-	hG4hQfCq9qJLWgBM/WWGzatmfkLxrpfefKb8e84TiahjX/txh5GV1ykH
-X-Gm-Gg: AZFdTZc3COAXWxkVVFOz8yqmBsUTsFHdsVTf6td0J2BdXHaIVP5FiOJyIKdhTwscQFK
-	QMSKfBEWrL9kwuAP6m60BT9KQsJ4cR43cMsGtR7d/1htwz58coWNyY46iz9KuNJuXIo0nat9Ezl
-	ZYsrikaOHRD2rJo+8MwLL1TiQU+L8bY/Bc44EVcPNXHXhJz4RVJwUHLjBvanQcmOsd9CzegpQ5L
-	uuDhGsoiQVcvVQoqF+uEms1v7n+jw3nJeWGa4laIFCr4oUHbV21mGhxfMaz2j3pRE+aBZvpfsgP
-	lKQcOERdx4ABSFKcO3Xrune8dES/ajO5Of6aIa5DghPX9Y16utokviaE7e5GjweI8vkLEVisO/s
-	Ke2V6SgFS0ph1j1AGcoFVJgXkvtHHrjj6PwuQiZhqJl+E3XTc85draTthJeF4D5x6YDE+cdvdsc
-	zGivfuLd2lgVGKmNM+VNYwWTkQiRn+v7xIcygfv14CXf7mDESakp6cKnryBur3wBhl+YeR9W7ON
-	+8LFEoyW749rH2M5n8ImitvaU9AU7Hh86Ur7/bGGKD4gnn53ZmuK0fmgX785NqKsbQNwfUQR3jT
-	Jpe1h0hzhLA72D+jtTSfBc2EJb0YqqX3hLgUNu2l5MNH1aC/av8kBQMIEpNrHGQ=
-X-Received: by 2002:a05:600c:3b0e:b0:4a1:efba:511 with SMTP id 5b1f17b1804b1-4bb8882508emr139998355e9.35.1795259491414;
-        Sat, 21 Nov 2026 03:11:31 -0800 (PST)
-Received: from foxbook (bfh118.neoplus.adsl.tpnet.pl. [83.28.45.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6b110d56sm10697281f8f.40.2026.11.21.03.11.30
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sat, 21 Nov 2026 03:11:31 -0800 (PST)
-Date: Sat, 21 Nov 2026 12:11:29 +0100
-From: Michal Pecio <michal.pecio@gmail.com>
-To: erikhakan@gmail.com, bentiss@kernel.org, jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: steelseries: Add support for Arctis 7 (2018)
-Message-ID: <20261121121129.2a1d3013.michal.pecio@gmail.com>
-In-Reply-To: <20260901203044.459972-1-erikhakan@gmail.com>
+	by smtp.kernel.org (Postfix) with ESMTPS id A037C1F000CF;
+	Sat, 21 Nov 2026 12:43:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795264994;
+	bh=NUR5sQPJk7XLxAjWNCv2J34+6AGV8PKFFtI00bIEIzA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=RENiY9Y1xjHut7sZWF+Z2UsCpKXPU+DXwauVTZxDnbiehfhscRXnFv1RF4jq9lbC8
+	 y4DHz2OIXw+sowR/Bgs89xDpVI2w3Qn0OSO5Awjt7AFjzwB9HVSjnPA2MC4A1Cmrx2
+	 lYToDVVqTl8PS04LOFTgJuIVUr52Db8ZOqnXu8bZY3iU0TwkfJ3NS4TmKTSvxAkb6+
+	 HmI9GI0B67SHQzZ8z5vZDhzd7joQ/0kOCC5cdH5aSbmqUjG35TKF180YUg2NhnLrxA
+	 FUVEss0+ivXgQPVHduvunrIrc2+Yij2DKu5rR6i5cj4fRj+3YDUmlyomfqkU3T0uoZ
+	 Xa0JTa1NoSafw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 324CB4BC3E;
+	Sat, 21 Nov 2026 12:43:13 +0000 (UTC)
+From: Yuugo Yoneda via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
+Date: Sat, 21 Nov 2026 21:43:13 +0900
+Subject: [PATCH RFC v2 03/13] dt-bindings: interrupt-controller: add SiRF
+ AT550 interrupt controller
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -93,32 +83,114 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261121-at550-rfc-v1-v2-3-b0309d0789b2@gmail.com>
+References: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
+In-Reply-To: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
+To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Radu Rendec <radu@rendec.net>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ulf Hansson <ulfh@kernel.org>, 
+ Adrian Hunter <adrian.hunter@intel.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Russell King <linux@armlinux.org.uk>, 
+ Arnd Bergmann <arnd@arndb.de>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Linus Walleij <linusw@kernel.org>, Drew Fustini <fustini@kernel.org>, 
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795264991; l=2262;
+ i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
+ bh=hQXi5o6uDCTP4E56RNB4IhOxolk7346NKiavrfeMedA=;
+ b=WIlFzlInDyH3iaKROCkCJ79qmP2V3e+BWEsZN/YE/doff08yMT0dtpSHH8nNByCNmylgYiG82
+ Nu2OcIauQIDChC+JqCUewwkWIG3SeiWaUcRwUjYXPVXQQGJWWvxhspF
+X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
+ pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
+X-Endpoint-Received: by B4 Relay for
+ yogo.0917.sabu@gmail.com/ypl514-20261117 with auth_id=1550
+X-Original-From: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
+Reply-To: yogo.0917.sabu@gmail.com
+Content-Transfer-Encoding: 7bit
 
-> The headset reports connection and battery status on HID interface
-> 5. When the device is disconnected, ignore incoming battery
-> reports as they will incorrectly report battery level 0.
->=20
-> Clamp overreported battery values to 100% and add USB ID 1038:12ad
-> to the driver's device tables.
->=20
-> Signed-off-by: Erik H=C3=A5kansson <erikhakan@gmail.com>
-> ---
-> Information available online suggests that at least two other Arctis 7
-> revisions (2017 and 2019) exist, with different device IDs.  Without
-> access to those devices, their protocol compatibility cannot be
-> verified, so this patch only adds support for the 2018 model.
+From: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
 
-Hi,
+Document the Devicetree binding for the 64-source level-sensitive
+interrupt controller in the SiRF AT550 SoC.
 
-It seems that adding this ID here (or some other change?) has caused
-regression on some hardware, reported in bugzilla:
+Signed-off-by: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
+---
+ .../interrupt-controller/sirf,at550-intc.yaml      | 46 ++++++++++++++++++++++
+ MAINTAINERS                                        |  1 +
+ 2 files changed, 47 insertions(+)
 
-https://bugzilla.kernel.org/show_bug.cgi?id=3D222298
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+new file mode 100644
+index 000000000..7effe6c9b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+@@ -0,0 +1,46 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/interrupt-controller/sirf,at550-intc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: SiRF AT550 interrupt controller
++
++maintainers:
++  - Yuugo Yoneda <yogo.0917.sabu@gmail.com>
++
++description:
++  The AT550 interrupt controller routes 64 level-sensitive interrupt sources to
++  the ARM1136 IRQ and FIQ inputs. Each source has a fixed active level; the
++  single interrupt cell is the source number.
++
++properties:
++  compatible:
++    const: sirf,at550-intc
++  reg:
++    maxItems: 1
++  interrupt-controller: true
++  '#interrupt-cells':
++    const: 1
++  '#address-cells':
++    const: 0
++
++required:
++  - compatible
++  - reg
++  - interrupt-controller
++  - '#interrupt-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    interrupt-controller@90020000 {
++        compatible = "sirf,at550-intc";
++        reg = <0x90020000 0x1000>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        #address-cells = <0>;
++    };
++
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a825b3bae..e052d9dde 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -25851,6 +25851,7 @@ SIRF AT550 PLATFORM
+ M:	Yuugo Yoneda <yogo.0917.sabu@gmail.com>
+ S:	Odd Fixes
+ F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
++F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
+ 
+ SIS 190 ETHERNET DRIVER
+ M:	Francois Romieu <romieu@fr.zoreil.com>
 
-URB status -75 is -EOVERFLOW: URB buffer too small for data returned
-by the device or the device babbled (exceeded wMaxPacketSize).
+-- 
+2.56.0
 
-Regards,
-Michal
+

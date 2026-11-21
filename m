@@ -1,58 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795303052;
-	b=eHMdT+pr9oJu0LQCVgTKBOg4V7Lwud20+GtGpkLrTIQiUIOEOzu63/YikMtF7kutrsUK
-	 rMyGnZjkhseKQ435aYgVf/BcvVJRZJLnnRqpIaqseyOP1LeVLrVSFuvgqx4ghM/qYHEt8
-	 abbc29FbQtmabrKELkkJNAH5NxTaT+gmqYEW1K/bqIeXf+6gqubioOxroDM4nkq1LQcBx
-	 wiaBDAfOQzEB3EBOVixfJtbhmseliuz5uTvc9u13BaXvA5C+2Z7SdK5MBRnvQ7oJwsO95
-	 tp0L4Rf/efyGtiu1fFEGHVLTL06emDylYHsvnHrbNjjynZd1Th0Agwo+Bio+0S5YY9Q==
+	t=1795303204;
+	b=x9kJLbvLOuZ9+BJ8mnP+3mCJP7znNkJoPBCDwSEH39rJ0VhBFjuy0QlYWKb6Myz+WZBq
+	 7p58w0CO3J1Y//O61DONngL4+Yaw3o0cq8tosZekVMXeg8qAfbRXycb3RqU8iR3Vs8RRQ
+	 bCBqTKZUmPpFWpAJVATYXLDTaeB9p+QOUclpv+fijsFOTznW0yr080CzDUNdEse6BpDZ1
+	 nDlg+KVlaxZVfRHvLdV8E38M8NkQEQMIOP5az8Jx1tSGOG/Ue5wechYBGeXo6SiLEdk9E
+	 gw1lCKqs7EiWiBaHijp7QY+KxQHWEVVaXQ7nW2db4+VgCi8tBvyN9t/GxmCwZnyZjvA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795303052;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795303204;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=+5Tizt96IR/8Tozykg3mHlCaTrQlzMtblaH2XuL71aY=;
-	b=pTj/ze0/mqf5gJknbJ6BoBX3ByOyYdwI1FFRMZTedrWfLXu3EOsYvsq3IVcOv0zgo9JH
-	 hwxZKPLV7BwHswphMaPv5savlwX7F824/Std1yoG2Ego3h2wUHd5PsGt3GyedDBVZFhQB
-	 Ejbh7HWY0kxoHZy9R+2o1K6aagS97q4p8ElqGb1hNgeqgeSFOf+H3DbYLuXestvIEAoOJ
-	 JV0A5pUmjWykTZ5Zy0NuLrnAq1HJMAUO3/6iNNSCTuqO4FNzg6T7mZzVZtPm8ipQJIOgm
-	 XYy/tMu/9D3tdZZNHWvl2HNgXoo1nxTlVh6g4iIMSO5S/oYhxB1dX4tZojGx/HFdMlA==
+	bh=330Sn7QYb5+iw1QeSwXWz7hbHma/2WpF8jFAFVC9GC8=;
+	b=04vkap/2n9sNEA7VCrt3glWj0R6GiJ5kR5bkNFj7sr1PEEUjJ9BtMhrMfE2UDA48P10E
+	 wRn8aFOO5qERhcLO+LoCcmyfPQ3BVPo5IYCsL6hsf85j7bEPEFsex8pXQxK9DFI7R8zL8
+	 MV1E0XnTk+3eQt12OTxidlY7KN2dmrNF3VZqNRM3Y/KAZqp+AopgRu/Y9WhcUPPyF8zEw
+	 9VAOMfKO//sMxr5Gk/CUam/pDAbwbE9kpRUEj+hmIfZ9G15sljM/fPK4CK4IxNq3XOel7
+	 f97AXh6Rsx3hOMOqLTc9UuktheMGHi7dubRauuO/58/AOj/L+3EOXxhtk8q3URZIQrA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wi1uH7Hr;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFwXUMTp;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 150E5606A320;
-	Sat, 21 Nov 2026 23:17:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA0FE606A320;
+	Sat, 21 Nov 2026 23:20:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wi1uH7Hr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05031F000C0;
-	Sat, 21 Nov 2026 23:17:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFwXUMTp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC2E61F000CA;
+	Sat, 21 Nov 2026 23:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795303051;
-	bh=+5Tizt96IR/8Tozykg3mHlCaTrQlzMtblaH2XuL71aY=;
+	s=k20260515; t=1795303204;
+	bh=330Sn7QYb5+iw1QeSwXWz7hbHma/2WpF8jFAFVC9GC8=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Wi1uH7HrP45y9lsY5U1zcFnXwQKVfNojNr8DmXjiBNSrZGz6EbMMcM+ECTy5GSvIR
-	 Q4o4NGHhAAPLLKoi+rLTbGa8gBzNmTsL043Kya3D+uYeHIFVDK1gEUXrsVgYbTFnrq
-	 4ZZhLIwjcZwZOrT4vKzk0ke0mJgKzkrSNmd5DEcnuat0x+tDj2Om4Z85yEg8e+FXEn
-	 6tGRGsyqKTQ/Hjc6u8H1BksIy2HXuzwIb+jGaFHH32ZZKueZkZwu9Ozh0yfSgnPn6+
-	 xo63QH3eqGbTtnOk7Vj0FJ757HBfwN7vnAtER2dsnfkldW0Epr42HO+3ZaIMc+5SB9
-	 748sxzJKQyziA==
-Date: Sat, 21 Nov 2026 23:17:26 +0000
+	b=WFwXUMTpo8BTiq8Qb5pp8fLKHREyIrhkG5oI9CPIZzZjTbgEYEA79HujUipCJQv+E
+	 Cs4lwQWoaU6uCZm3DrihGs3Cpt4cSQmW2+xPGl/jYixcT/yI6y8LzM2nlKtkrB++s7
+	 WJcE7EVpA6pEjqMLSqIxiKFNH97M2MPOaQ7dflvG2e25VFQo/CmL6qMALMCdLvM4IH
+	 n+FUQ72JNZk/xQ/T59Is/+URfVwHCOPa3jkjsJEUnig4Mk37mlSHsFVrFdgz2aEwdr
+	 1B1GD06b3Ho5q68sJyzfdaXqLEylu9mcWZ2d9DUUQKYdY1+fwKtABKY7f5rK7ElISw
+	 0oZBK/kzFcZKQ==
+Date: Sat, 21 Nov 2026 23:20:02 +0000
 From: Jonathan Cameron <jic23@kernel.org>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: lee@kernel.org, maz@kernel.org, andy@kernel.org,
- dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+To: Frank Li <Frank.li@oss.nxp.com>
+Cc: Fabio Estevam <festevam@gmail.com>, lee@kernel.org, maz@kernel.org,
+ andy@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
  mfd@lists.linux.dev, linux-iio@vger.kernel.org, robh@kernel.org,
  krzk+dt@kernel.org, conor+dt@kernel.org, crofts@kernel.org,
- devicetree@vger.kernel.org, imx@lists.linux.dev, Krzysztof Kozlowski
- <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v5 1/4] dt-bindings: mfd: mxs-lradc: Fix interrupt order
-Message-ID: <20261121231726.71aa1aba@jic23-hlaptop>
-In-Reply-To: <20261119134041.16611-1-festevam@gmail.com>
+ devicetree@vger.kernel.org, imx@lists.linux.dev, stable@vger.kernel.org
+Subject: Re: [PATCH v5 2/4] iio: adc: mxs-lradc: Fix trigger use-after-free
+ on removal
+Message-ID: <20261121232002.24cd9970@jic23-hlaptop>
+In-Reply-To: <av8e5Arl0INpsv8T@SMW015318>
 References: <20261119134041.16611-1-festevam@gmail.com>
+	<20261119134041.16611-2-festevam@gmail.com>
+	<av8e5Arl0INpsv8T@SMW015318>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -66,82 +68,67 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 19 Nov 2026 10:40:38 -0300
-Fabio Estevam <festevam@gmail.com> wrote:
+On Thu, 19 Nov 2026 10:08:04 -0600
+Frank Li <Frank.li@oss.nxp.com> wrote:
 
-> The interrupt descriptions added during the conversion to YAML do not
-> match the ICOLL source numbers used by the existing DTS files.
+> On Thu, Nov 19, 2026 at 10:40:39AM -0300, Fabio Estevam wrote:
+> > The LRADC trigger is devm-allocated against the IIO device, but it is
+> > manually unregistered after iio_device_unregister(). The latter deletes
+> > the IIO device and releases its managed resources, freeing the trigger
+> > before mxs_lradc_adc_trigger_remove() accesses it.
+> >
+> > Since commit 699fb50d9903 ("drivers: base: Free devm resources when
+> > unregistering a device"), device_del() releases managed resources.
+> > Consequently, iio_device_unregister() drops the trigger's allocation
+> > reference before the driver unregisters it.
+> >
+> > On an i.MX28 EVK with KASAN enabled, unbinding the LRADC parent with:
+> >
+> >   echo 80050000.lradc > /sys/bus/platform/drivers/mxs-lradc/unbind
+> >
+> > reports a slab-use-after-free in device_release_driver_internal().
+> >
+> > Allocate the managed trigger against the platform device instead. This
+> > matches the trigger device's parent and keeps the allocation alive until
+> > the platform driver's remove callback has unregistered the trigger.
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: 699fb50d9903 ("drivers: base: Free devm resources when unregistering a device")
+> > Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> > Reviewed-by: Joshua Crofts <crofts@kernel.org>  
 > 
-> For i.MX23, Table 5-1 of the reference manual maps source 36 to touch
-> detection and sources 37 through 44 to channels 0 through 7. The DTS
-> lists these sources in that order.
-> 
-> For i.MX28, Table 5-1 maps source 10 to touch detection, sources 14 and
-> 15 to the threshold interrupts, sources 16 through 23 to channels 0
-> through 7, and sources 24 and 25 to buttons 0 and 1. The DTS also lists
-> these sources in that order.
-> 
-> Reorder the schema descriptions to match the hardware documentation and
-> the existing DT ABI.
-> 
-> This change was prepared with assistance from OpenAI Codex, which was
-> used to compare the binding with the reference manuals, existing DTS,
-> and driver ordering.
+> Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Applied 1 and 2 to the fixes-togreg branch of iio.git.
 
-This bit belongs below the --- with the change log.
-I'll fix up if you don't have to do a v6 for other reasons.
+I guess I need to find time to do a sweep for any more of these
+hiding.
 
+Thanks,
 
-> 
-> Fixes: 009528b5aa13 ("dt-bindings: mfd: convert mxs-lradc bindings to json-schema")
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> ---
-> Changes since v4:
-> - None.
-> 
->  Documentation/devicetree/bindings/mfd/mxs-lradc.yaml | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
-> index 782b2f4005a0..755029880677 100644
-> --- a/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
-> +++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.yaml
-> @@ -87,13 +87,13 @@ then:
->    properties:
->      interrupts:
->        items:
-> +        - description: touchscreen
->          - description: channel 0
->          - description: channel 1
->          - description: channel 2
->          - description: channel 3
->          - description: channel 4
->          - description: channel 5
-> -        - description: touchscreen
->          - description: channel 6
->          - description: channel 7
->      fsl,lradc-touchscreen-wires:
-> @@ -102,6 +102,7 @@ else:
->    properties:
->      interrupts:
->        items:
-> +        - description: touchscreen
->          - description: threshold 0
->          - description: threshold 1
->          - description: channel 0
-> @@ -110,11 +111,10 @@ else:
->          - description: channel 3
->          - description: channel 4
->          - description: channel 5
-> -        - description: button 0
-> -        - description: button 1
-> -        - description: touchscreen
->          - description: channel 6
->          - description: channel 7
-> +        - description: button 0
-> +        - description: button 1
->  
->  additionalProperties: false
->  
+Jonathan
+
+> > ---
+> > Changes since v4:
+> > - None. Only collected Joshua's tag.
+> >
+> >  drivers/iio/adc/mxs-lradc-adc.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
+> > index dda5182a5076..64dd3a9995ff 100644
+> > --- a/drivers/iio/adc/mxs-lradc-adc.c
+> > +++ b/drivers/iio/adc/mxs-lradc-adc.c
+> > @@ -454,7 +454,7 @@ static int mxs_lradc_adc_trigger_init(struct iio_dev *iio)
+> >  	struct iio_trigger *trig;
+> >  	struct mxs_lradc_adc *adc = iio_priv(iio);
+> >
+> > -	trig = devm_iio_trigger_alloc(&iio->dev, "%s-dev%i", iio->name,
+> > +	trig = devm_iio_trigger_alloc(adc->dev, "%s-dev%i", iio->name,
+> >  				      iio_device_id(iio));
+> >  	if (!trig)
+> >  		return -ENOMEM;
+> > --
+> > 2.43.0
+> >
+> >  
 

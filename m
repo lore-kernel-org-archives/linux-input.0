@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1795264998;
-	b=OhsRD+ERVuh4EHFaG4BIvr9FqUl3PpdDfIdL4GBkMI73RZa55fSalMpBbnkIwnOoUaEO
-	 01LW7CEcecv4byc+m6g1Fv/msNgzJnGfh9rFl5kVtbcPrLRS/kyvmwCFjeaDBpowB66GF
-	 5brE5adCGBUsQrKQWTsvE0caLHUPRTRJgbNXSDg80AQBFFKOBQgSAxk6wnjz5b1CMZr2v
-	 aH7lSKzJWPUGncmld+oNuX/l3DZ+vFI73R+rop4KDp8XSa0AviZHcJVhjKITQx83LrfZC
-	 m+IEejEZ+PyYGZX8VHWOaRlWBcn3SJ+Fk3+ELj4naq9DbfOaPZMmN23Z7A+CieBSDvg==
+	b=WReU/b5ggVXhynrNl14t1E/stI5jw9GCcd2QTN47p+UjqWG3PAp3PVYsvQYz2I46q26n
+	 fx8gl85KVMHCAvGS2agdScCES0GWO4zD6i4UaJYgftsFHrIzxzL+ZobmUkPH400EoZq0N
+	 f/WautIYJutizDtOjgXE2R/vbaeV/1hvuGKIbnKHqgO8AkJsV1gYVHIxRMBHQyXG5mC0u
+	 LNPIQFjSwMXiKrv+FrjACRMQxQXzUVGCoMXHo59p+UZSi/gbntDqmZ0LdkNqW9HUAkaKq
+	 fgYUBfW7p4ATwqkRqZxXzjj36z1eKrA6Ngky3JKXx7LDIdwBVYqgQkMiNPo4Ll2VXiQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795264998;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=BqFClLC738Fg2bk4EccswvJ+E15Mz63hzmip76k/SUc=;
-	b=g+yj8sVJ15OkisHggLPccBsqVE0FBqnkQagvCEcsQTqCRks7K1fexryRT3ewHhczwteY
-	 R9T/61Au8d9VvqpxZRIo5phKaNlV89WMOieh7uoiYaEs55tTp+ySNIDHoFkx8MfXeX8Y/
-	 HFhyadd6SCVDvwtsW96ZD9lxpE0wsFTDL+UHEwTxcIcuy+Vmgxi7ivqoIQbwmjAsVf66X
-	 XCgtHRnurXRUPTugrz0VKkPOfp6/C/eJKXtrvXRYlRBctKfiHxOqljghWevRvfkfQGzZ1
-	 ukSR6rWqjWdnvBkaSsXLcfgY5SAPjajZVMM82Bgq/4ZywZU1Or08GkXXFFsIj3Y+V0w==
+	bh=Quxwx4D/9ZX9paKFYNgMPeoMu4HkYbSDyCF+yKWZHwU=;
+	b=zjefxq7bC3PUUnVB/SyvPjBK9wRnguiCnAiaRJ2RBVomS04dbT9x8gkSMEXNTl28qOOW
+	 K0keT2TfOIMCFt86ZLKLHOlve33UawmfWebmCyuC4Tjc/t/5GAp8sBb254CPK5uRMDgpD
+	 f/aZpTJMBpE8jnFqchoxn/8C4WSEKcDUGgganuCSrOR5Vlvsd53ygFwdL/UjU4QzIWXaC
+	 5n8w2QXcrfL61rPKo2sjHKXxFF5qWkoXpSxAxGxmFGz3u9/lH4ZBRImJbV4nRNhlSUu1Z
+	 Yj/HNFSPBEKNbwKwIkdQRvBiVJB193dJQsHrq8SKvf8hWhdm+8nGIqPkr6kTQgb0Wsg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mySr75el;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JAQ44gTl;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5570660A2612;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59A0260A2615;
 	Sat, 21 Nov 2026 12:43:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mySr75el
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JAQ44gTl
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
 	t=1795264998;
-	b=lO8frXpXLtCgAqgVWznELsk6oyfb5msJ+OnbFsvtXDj2pbDYM6ZYlW+aW4NEq0HWSbSZ
-	 VS0orFKDA3EAyob+yr+Nb2TIyjeVC3uy+UfSafF9Ohn5IszQA2craKneaOTjsi9qsAXFT
-	 ShElSlo+LhhYrraybW8jlCbywfqB/GsXmgyKt5PI8hawIpvay3cEykzpGfGiscHJ5qkkD
-	 oW8QH2IURLmMkBFKXbC5Nk9KxvAMQtNZmidgBgpOu/Jxf05swrnS4BL7hA32utUikTI9p
-	 CZDpgd1Szy84A3lzwZYgBE+HmJrWq0csz/c6WorSxVtY/qr2Odri73QZ2EmxV9RBCvQ==
+	b=OQzNz2nZuUQKdf2tdvCyfHtj/8UOM/+x8qaR14jF8kXUOXr/E/0n0RZP2rdXB+KBKwYg
+	 ya0Avm8JiEGP1aGQjDLwRiHE6HHhh5AJAGPh0BECbGLo9hQo0YNnNcuUYKqib5+fNMxub
+	 uwEyX7OVilkoWuvLF/HaLslOn1ZJuBHnlyhACJWweo602hNx4vmMmAMtfevGGgLs+jURF
+	 8D9k9scYvKJJiPHImmHJUsYh+rnQNNLvpIFdupO3Tzspp4RbNYbXWBFo6FgjxnXlT8ZX7
+	 +TdQLexzo4u3Y0hDk9LYoFo16wA2fWDYnpwsur6eAJRXgKJb7VEnkkKVZNs6+sUaW4A==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
 	c=relaxed/relaxed; t=1795264998;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=BqFClLC738Fg2bk4EccswvJ+E15Mz63hzmip76k/SUc=;
-	b=1h13FwCKYX2Kb7YKl0Q4YRdc8oGPX69uiNI6lU2jxTE5jCdt+nsrTWWmR4E73Sn1ckJk
-	 5DA3tCrJWw1rGsQKapF1o+xh6BaX6m1lVUZ+1xM7nCObiJ/eMJG0yKTMJueyzbz6VeUDy
-	 c7zPgZGWfjFT2dB/djgLaKjsp1p+Ulgd8i6C5YATezmAcoihx4Hp3+f1aSxWH8GWnqWsp
-	 3jTWky7Dz7UrprzU3MNHMDaLJ0WbJwFThipflKNtwgrUibGiSwd1DUNX0x2Q4A1xWaYFD
-	 +SuSU8OI0pLCHlF/TM7yLErFONIrk2GR+uNd+Eq2KeyK7b7ITqypzKZZB7DJzozcOCg==
+	bh=Quxwx4D/9ZX9paKFYNgMPeoMu4HkYbSDyCF+yKWZHwU=;
+	b=vWQX+ZDOKSjuvMavWQ7Byc3tpijjhwcA/Cb3kgd7dkrmAbvbCEgmJ1Q4YOQMoHtulOQ2
+	 t5Rc4/cNBRGIEKJqx1Tg+OJD2HcdqqteNQ/MaV0sxUY8CK/01cDhxjQ5z5owIKRqF1NzL
+	 ahhm2C0+Xs73MDSj3NSKEh7FmgfL+TYrF16u3g9PRDUcJMx9SbrBHziI0Lx+jGRTCFZ0B
+	 0PdK/NzK9BnCKFmjHr7kpUhDcDhbh9jnXn2kir3wKST7YmjGaGAN4sjkNMrR+Omlc+XKy
+	 enUKeW8w4hQ6FQjHnC1zKh6XGY385T3Wzahjx0eW0STHytX2hLgSVIOMoIUYeE30nuQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 878D41F000EC;
+	by smtp.kernel.org (Postfix) with ESMTPS id 82EAC1F000EB;
 	Sat, 21 Nov 2026 12:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1795264998;
-	bh=BqFClLC738Fg2bk4EccswvJ+E15Mz63hzmip76k/SUc=;
+	bh=Quxwx4D/9ZX9paKFYNgMPeoMu4HkYbSDyCF+yKWZHwU=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=mySr75elpn+epxNeKXh3FP+f1ZkgYjdor4Ze46P4JqiZ08vzPxvLX4fCBf5ej0svm
-	 6EbLR7M9l86TXV4WeBWYtbOsK9nTXEYRy3KikVMjIY4P8UxfzNnvWOJSMP2AxOxIUD
-	 FkwPeYxWlm1r+ttVEPRK2DVMlrrkctn1iBATTEAFu1rxjeYXi6UF/uXhSxM2O7XSfM
-	 H3Z0cZBAlfWb8lXhsqYahx3T0IkWvqlYkoFP+Zmru5oc10gYY4tWabqPfdNM5qFN6Y
-	 MbnSIlsP0HBL4nPMSoePhGfFU+inO2B7NjIcKxpM0yz6ZfhIJwSIsJDgSSLqMjePgO
-	 23QjbLyDV99kg==
+	b=JAQ44gTl9bp8R1zRr90izKdOjR1by8/9dUva0Pfu0xN2jbuZayhyiPg8FJlFmsF1P
+	 G8/9X5SVMO8io3UkNDXaCe79D5S5TTcL9o4JF0jSQLyQLabblYDjCOJyuxHG8HCyY2
+	 t2q7huco+TBgOncXpoOJEvdwS/74ODJtyUABK0dHGCVt1ha4DBBED3clvdRZChtZ7Z
+	 Ace9s6H4oOMtIdqJKiLaVic4X2lK2OvMtOC2WUxEOYDk0AsOaaj6uQpdbPQLI622z/
+	 8KYlHVgq7OIMRXDbcL1V5L92zP4p65+waw6XAGjLxxdPZcDGSklANH6cgCa1Urasu0
+	 S9CyrnOVRACbA==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 29FA84BC62;
+	by lkml.kernel.org (Postfix) with ESMTP id 105734BC5E;
 	Sat, 21 Nov 2026 12:43:14 +0000 (UTC)
 From: Yuugo Yoneda via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
-Date: Sat, 21 Nov 2026 21:43:22 +0900
-Subject: [PATCH RFC v2 12/13] ARM: dts: sirf: add SiRF AT550 SoC and
- Yupiteru YPL514si board
+Date: Sat, 21 Nov 2026 21:43:21 +0900
+Subject: [PATCH RFC v2 11/13] ARM: at550: add SiRF AT550 platform support
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261121-at550-rfc-v1-v2-12-b0309d0789b2@gmail.com>
+Message-Id: <20261121-at550-rfc-v1-v2-11-b0309d0789b2@gmail.com>
 References: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
 In-Reply-To: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
 To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
@@ -101,11 +100,11 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795264991; l=5087;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795264991; l=7327;
  i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
- bh=YYX61pnZdoYnIBPRaBdIkg3vvaVgdoCDdTNEbzGmLXk=;
- b=bKDtzQGtlYOFfzHob6IE5SlxNrps9zcBIoMbJNwdCddsMSw4hw+qBG+NXH4OQE+Xh3rBgxlwL
- 5AD3vB/SGBKAQZy68sNzRleyWHBxLl8ghXGdmlzXRbA0lbfuEdhnM02
+ bh=TMVN798mJJ3rMR1jYweJbb0iwGiP7A9/jXlQP0XI6K4=;
+ b=k9T5AXKOfnRl0xWMoYosBZkHR19mlayrpQGvVtbjZtWrnnK6S/79+MapEQ+WMCK3vIqDrjqGO
+ 85uJGsh21NdDEkRajfMmOrCwnaWVTWtOistwMZwcv8HgsRP1AMZzfLF
 X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
  pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
 X-Endpoint-Received: by B4 Relay for
@@ -116,200 +115,185 @@ Content-Transfer-Encoding: 7bit
 
 From: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
 
-Add the SiRF AT550 SoC device tree include and the Yupiteru YPL514si
-board device tree.
+Add minimal Devicetree machine support for the SiRF AT550 SoC, selecting
+CPU_ARM1136R1 (matching MIDR 0x4117b365) alongside ARM_ERRATA_411920,
+AT550_IRQ, and CLKSRC_AT550.
 
-The bootloader fills in the Linux-owned RAM range and post-divider
-counter clock frequency at boot, enables only handed-over peripherals,
-and enables simple-framebuffer once display geometry is verified. The
-framebuffer range is reserved via a no-map reserved-memory node so
-simplefb ioremap_wc() does not alias the ARM linear mapping.
+Document the RAM-boot firmware handoff contract and initial platform
+limits in Documentation/arch/arm/at550.rst.
 
 Signed-off-by: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
 ---
- MAINTAINERS                               |  1 +
- arch/arm/boot/dts/Makefile                |  1 +
- arch/arm/boot/dts/sirf/Makefile           |  2 +
- arch/arm/boot/dts/sirf/at550-ypl514si.dts | 63 ++++++++++++++++++++++++++++
- arch/arm/boot/dts/sirf/at550.dtsi         | 69 +++++++++++++++++++++++++++++++
- 5 files changed, 136 insertions(+)
+ Documentation/arch/arm/at550.rst | 56 ++++++++++++++++++++++++++++++++++++++++
+ Documentation/arch/arm/index.rst |  1 +
+ MAINTAINERS                      |  2 ++
+ arch/arm/Kconfig                 |  1 +
+ arch/arm/Makefile                |  1 +
+ arch/arm/mach-at550/Kconfig      | 13 ++++++++++
+ arch/arm/mach-at550/Makefile     |  2 ++
+ arch/arm/mach-at550/at550.c      | 11 ++++++++
+ 8 files changed, 87 insertions(+)
 
+diff --git a/Documentation/arch/arm/at550.rst b/Documentation/arch/arm/at550.rst
+new file mode 100644
+index 000000000..3d1d8a77c
+--- /dev/null
++++ b/Documentation/arch/arm/at550.rst
+@@ -0,0 +1,56 @@
++.. SPDX-License-Identifier: GPL-2.0-only
++
++SiRF AT550 and Yupiteru YPL514si
++================================
++
++The initial AT550 port supports the ARM1136 CPU, the 64-source interrupt
++controller, the low 32 bits of the system counter and match channel zero,
++polled resistive touch input, and SDHCI programmed I/O. The YPL514si board
++can use a firmware-configured 480 by 272 RGB565 simple framebuffer.
++
++Firmware handoff
++----------------
++
++Use the standard ARM boot protocol and a flattened device tree. Firmware must
++initialize SDRAM, peripheral clocks, and pin multiplexing before entering the
++kernel. No firmware-specific virtual mappings or page-table inspection are
++used by the Linux drivers.
++
++The bootloader must update the following parts of the board device tree:
++
++* Supply the actual Linux-owned region in the memory node. The zero size in
++  the source DTS is a placeholder, not a description of all installed memory.
++  RAM still owned by another operating system must not be advertised to Linux.
++* Set the fixed counter clock frequency to the rate after the programmed
++  hardware divider. The driver deliberately does not reset the counter or
++  change the divider. A zero rate is rejected.
++* Disable the timer watchdog before handing the timer block to Linux.
++* Enable the simple framebuffer only when its physical address, dimensions,
++  stride, and format have been verified. Reserve its memory with a no-map
++  reserved-memory node so simplefb does not alias the ARM linear mapping.
++* Enable the touch and SD nodes only for peripherals actually handed to Linux.
++  The touchscreen driver rejects an active streaming/AUX configuration.
++
++A Windows CE RAM loader is one possible bootloader. Its allocation checks,
++volatile driver registration, MMU transition, and DT fixups are outside the
++kernel port. The Linux Image and all its runtime memory must fit inside the
++region returned to the kernel; a static firmware RAM mapping is insufficient
++proof that memory is available.
++
++Initial limits
++--------------
++
++The port depends on firmware clock and pin setup; cold reset initialization
++and clock-tree programming are not implemented. Board suspend is disabled in
++the defconfig because firmware state restoration has not been established.
++
++DMA address translation has not been validated, so the SDHCI driver uses PIO.
++The YPL514si DT disables MMC and SDIO discovery and limits SD to 25 MHz and
++3.3 V. Filesystem write support, card removal, and suspend/resume require
++separate hardware validation. No flash or bootloader update is required to
++use the RAM boot path.
++
++The touchscreen exports raw coordinates. Initial five-point affine calibration
++is performed in userspace, rather than placing a board-specific transform in
++the input driver. GPS/baseband, USB, UART, and native LCD modesetting are not
++part of the initial support.
+diff --git a/Documentation/arch/arm/index.rst b/Documentation/arch/arm/index.rst
+index b15621093..9cf1fb834 100644
+--- a/Documentation/arch/arm/index.rst
++++ b/Documentation/arch/arm/index.rst
+@@ -62,6 +62,7 @@ SoC-specific documents
+    stm32/stm32mp157-overview
+    stm32/stm32-dma-mdma-chaining
+ 
++   at550
+    sunxi
+ 
+    samsung/index
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 1f9c8c08b..c6f0f3fb6 100644
+index 9d02a79a2..1f9c8c08b 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -25856,6 +25856,7 @@ F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
+@@ -25850,11 +25850,13 @@ F:	include/trace/events/siox.h
+ SIRF AT550 PLATFORM
+ M:	Yuugo Yoneda <yogo.0917.sabu@gmail.com>
+ S:	Odd Fixes
++F:	Documentation/arch/arm/at550.rst
+ F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
+ F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
  F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
  F:	Documentation/devicetree/bindings/mmc/sirf,at550-sdhci.yaml
  F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
-+F:	arch/arm/boot/dts/sirf/at550*
- F:	arch/arm/mach-at550/
++F:	arch/arm/mach-at550/
  F:	drivers/clocksource/timer-at550.c
  F:	drivers/input/touchscreen/at550-ts.c
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 28fba538d..d28c8eb01 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -30,6 +30,7 @@ subdir-y += renesas
- subdir-y += rockchip
- subdir-y += samsung
- subdir-y += sigmastar
-+subdir-y += sirf
- subdir-y += socionext
- subdir-y += st
- subdir-y += sunplus
-diff --git a/arch/arm/boot/dts/sirf/Makefile b/arch/arm/boot/dts/sirf/Makefile
+ F:	drivers/irqchip/irq-at550.c
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 0cc289a71..7fcf2a28f 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -367,6 +367,7 @@ source "arch/arm/mach-artpec/Kconfig"
+ 
+ source "arch/arm/mach-aspeed/Kconfig"
+ 
++source "arch/arm/mach-at550/Kconfig"
+ source "arch/arm/mach-at91/Kconfig"
+ 
+ source "arch/arm/mach-axxia/Kconfig"
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 573813ef5..508cbad8b 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -176,6 +176,7 @@ machine-$(CONFIG_ARCH_ACTIONS)		+= actions
+ machine-$(CONFIG_ARCH_ALPINE)		+= alpine
+ machine-$(CONFIG_ARCH_ARTPEC)		+= artpec
+ machine-$(CONFIG_ARCH_ASPEED)           += aspeed
++machine-$(CONFIG_ARCH_AT550)		+= at550
+ machine-$(CONFIG_ARCH_AT91)		+= at91
+ machine-$(CONFIG_ARCH_AXXIA)		+= axxia
+ machine-$(CONFIG_ARCH_BCM)		+= bcm
+diff --git a/arch/arm/mach-at550/Kconfig b/arch/arm/mach-at550/Kconfig
 new file mode 100644
-index 000000000..d1d3d5bfe
+index 000000000..b3a0c1874
 --- /dev/null
-+++ b/arch/arm/boot/dts/sirf/Makefile
++++ b/arch/arm/mach-at550/Kconfig
+@@ -0,0 +1,13 @@
++# SPDX-License-Identifier: GPL-2.0-only
++config ARCH_AT550
++	bool "SiRF AT550 platforms"
++	depends on ARCH_MULTI_V6
++	select ARM_ERRATA_411920
++	select AT550_IRQ
++	select CLKSRC_AT550
++	select CPU_ARM1136R1
++	help
++	  Support SiRF AT550 systems, including the Yupiteru YPL514si.
++	  The initial support uses firmware-configured peripheral clocks,
++	  pin multiplexing and SDRAM. A bootloader-supplied device tree must
++	  describe the usable RAM region and the divided counter clock rate.
+diff --git a/arch/arm/mach-at550/Makefile b/arch/arm/mach-at550/Makefile
+new file mode 100644
+index 000000000..98a51d234
+--- /dev/null
++++ b/arch/arm/mach-at550/Makefile
 @@ -0,0 +1,2 @@
 +# SPDX-License-Identifier: GPL-2.0-only
-+dtb-$(CONFIG_ARCH_AT550) += at550-ypl514si.dtb
-diff --git a/arch/arm/boot/dts/sirf/at550-ypl514si.dts b/arch/arm/boot/dts/sirf/at550-ypl514si.dts
++obj-y += at550.o
+diff --git a/arch/arm/mach-at550/at550.c b/arch/arm/mach-at550/at550.c
 new file mode 100644
-index 000000000..d34019858
+index 000000000..affcc9eb3
 --- /dev/null
-+++ b/arch/arm/boot/dts/sirf/at550-ypl514si.dts
-@@ -0,0 +1,63 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+/dts-v1/;
-+#include "at550.dtsi"
++++ b/arch/arm/mach-at550/at550.c
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <asm/mach/arch.h>
 +
-+/ {
-+	model = "Yupiteru YPL514si";
-+	compatible = "yupiteru,ypl514si", "sirf,at550";
-+
-+	chosen {
-+		ranges;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+
-+		framebuffer@c0100000 {
-+			compatible = "simple-framebuffer";
-+			reg = <0xc0100000 0x3fc00>;
-+			width = <480>;
-+			height = <272>;
-+			stride = <960>;
-+			format = "r5g6b5";
-+
-+			status = "disabled";
-+		};
-+	};
-+
-+	memory@c0000000 {
-+		device_type = "memory";
-+		/* The bootloader supplies the region allocated for Linux. */
-+		reg = <0xc0000000 0>;
-+	};
-+
-+	reserved-memory {
-+		ranges;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+
-+		framebuffer@c0100000 {
-+			reg = <0xc0100000 0x40000>;
-+			no-map;
-+		};
-+	};
++static const char *const at550_dt_compat[] __initconst = {
++	"sirf,at550",
++	NULL,
 +};
 +
-+&sd0 {
-+	bus-width = <4>;
-+	max-frequency = <25000000>;
-+	no-1-8-v;
-+	no-mmc;
-+	no-sdio;
-+};
-+
-+&sd2 {
-+	bus-width = <4>;
-+	max-frequency = <25000000>;
-+	no-1-8-v;
-+	no-mmc;
-+	no-sdio;
-+};
-+
-+&touchscreen {
-+	touchscreen-size-x = <4096>;
-+	touchscreen-size-y = <4096>;
-+};
-diff --git a/arch/arm/boot/dts/sirf/at550.dtsi b/arch/arm/boot/dts/sirf/at550.dtsi
-new file mode 100644
-index 000000000..0daf05eca
---- /dev/null
-+++ b/arch/arm/boot/dts/sirf/at550.dtsi
-@@ -0,0 +1,69 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+/ {
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	interrupt-parent = <&intc>;
-+
-+	counter_clk: clock-counter {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		/* Boot firmware supplies the rate after the hardware divider. */
-+		clock-frequency = <0>;
-+	};
-+
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		cpu@0 {
-+			device_type = "cpu";
-+			compatible = "arm,arm1136jf-s";
-+			reg = <0>;
-+		};
-+	};
-+
-+	soc {
-+		compatible = "simple-bus";
-+		ranges;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+
-+		sd0: mmc@56000000 {
-+			compatible = "sirf,at550-sdhci";
-+			reg = <0x56000000 0x1000>;
-+			interrupts = <36>;
-+
-+			status = "disabled";
-+		};
-+
-+		sd2: mmc@56200000 {
-+			compatible = "sirf,at550-sdhci";
-+			reg = <0x56200000 0x1000>;
-+			interrupts = <20>;
-+
-+			status = "disabled";
-+		};
-+
-+		touchscreen: touchscreen@80120000 {
-+			compatible = "sirf,at550-ts";
-+			reg = <0x80120000 0x1000>;
-+
-+			status = "disabled";
-+		};
-+
-+		intc: interrupt-controller@90020000 {
-+			compatible = "sirf,at550-intc";
-+			reg = <0x90020000 0x1000>;
-+			interrupt-controller;
-+			#interrupt-cells = <1>;
-+			#address-cells = <0>;
-+		};
-+
-+		timer@90050000 {
-+			compatible = "sirf,at550-timer";
-+			reg = <0x90050000 0x1000>;
-+			interrupts = <0>;
-+			clocks = <&counter_clk>;
-+		};
-+	};
-+};
++DT_MACHINE_START(AT550_DT, "SiRF AT550")
++	.dt_compat = at550_dt_compat,
++MACHINE_END
 
 -- 
 2.56.0

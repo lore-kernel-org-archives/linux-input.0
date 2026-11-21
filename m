@@ -1,91 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795240984;
-	b=1KQwnO8INUwP8f6oflGwpsTNBN1EfIOsIC+JvBDV/colHUmy2+NCmZx1n6yE0LdYAvWR
-	 fVLj1EqT8/lr4RqhyjCS8xn75rRBOQ3OzbiyzhQVpphSCILtXfGpNyUq36twoEWdHhn3Z
-	 XXBaiyyuGI7nU5ukukKTCBKHkoYnvadgq2MNJR+sSs6JFOUs888hoxBryLVzNB2v/iese
-	 QHZl0wZ6xJf4oQomPMTh+4OfSKmzJzOEZGsnLBsbSEqrKZvPWhFvOqnFUFP/rjPXET1LO
-	 9amm6rohUhqzk4w6fMd8Cx1i/yekKGNWzQQfqWD2mA7bprbzphyST3gRhcakHG3hPjA==
+	t=1795251449;
+	b=yLEhyN2xwsXSwCGN6gqkJ/qNin7kudElvGXb++NS/9FJmBxwKeVMBkhgdMVNwaOaQs7r
+	 PtpSi8FlQuk751urtP8vmevpKTpn7KQq8NU9TCCGrCuLNQkuzuZEqQ0Ah7RgxwixHR6TE
+	 hcTjFvv7Ki8dhNoLpe/P3KvkzndENICQJj6QWK68U2KCKGwgl74JwmwVaBN+qrVVXBHzk
+	 uWX5XRhYQzV6PVW6qs1PM/jIvX6B1/gcMbhGZ2zM+WzbaF3hkXkOWsMSa216tJ4L/S07B
+	 AodLlBJb5KTqD9s3ZTbIxZ+pLBoxQgkDQOt+wLr7SaTlZfIthPaNrfJsRVi+nYcS3+g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795240984;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=iZeJgZydctjHQNPaqc1a3Pj1B2Wsau9GN69Um9z9RXU=;
-	b=V0UNeKwDE0aNTrUmzkGxSwMCoq1s8xFN60z27+EENMFIB/bHlBxYKI41Wc4J6SqEIqSH
-	 EdrhnPcCiaARNApEIkIquhPQUnRAZwekz1ZzRZy6POhj8aTVcXzcf4mqOWafmya+EIqLL
-	 5ejx+UKl4MnEnp0tED5hA1aP6L7C9KbLOfuUTlzsbZ4KW9vCvS5gftrQVkZ3/tRJCaRux
-	 ZjSbdJz0Ru6sn9RlHU6z06FpbgdaDCXE9RGQ6hNEM3lVV0qcAyQtPYUp1xZhEJ3Zz0fvo
-	 PNJvpj9/LuVxBeB0bDxgqo7HOLcOvQDlZ/dMG9rsz49BgwshpsYwswP31G2M7yt8tzg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795251449;
+	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-MBO-RS-ID:X-MBO-RS-META;
+	bh=cdthxAkaHO+yeVbZfruiT0cSICDqg/vv+2t7JBROBgQ=;
+	b=YCGcbaSgk6K987Q3HV3I2+n/SfmnfQHH52LXGjXaZvX/uuKDQqN7NOos8e++xqe91PJU
+	 SMtBvyx6EaWOQ336LY09F41fI5aQ2aW9njY2kFQjkbwF1R+wy+wLXBdqVhemw8iCbFkqy
+	 TxHNCFC+6nl2ZguWg9ZvhaT/VBcsWDUnwLUEx+ZywCk9+FtJBmVBnWnwdaDpxyGySvqkV
+	 LE7FMIfXU747nO9PsESR/n7DTKq1ff0xAdz3KUvrcYl1j6v/Z/wcm/HkWk1C30QyOeP76
+	 BpUnptZhhtL4l9fRBBpE/MLOmglrbWJXRSzU7ek1v/UtIQKZD4ktFWzgUlTltNhVaJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tU3Xrpc2;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=mailbox.org;
+	spf=pass smtp.mailfrom=mailbox.org;
+	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=snpK6Y4c;
+	arc=none smtp.remote-ip=80.241.56.172
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1496F606A68B
-	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 06:03:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1496F606A68B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2708606A320;
+	Sat, 21 Nov 2026 08:57:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2708606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tU3Xrpc2
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-38692f62b22so1767141eec.0
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2026 22:03:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795240983; x=1795845783; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=iZeJgZydctjHQNPaqc1a3Pj1B2Wsau9GN69Um9z9RXU=;
-        b=tU3Xrpc2LADNz5f7aWTNLpRvwQ/S9G5uLAp3npomNvo+t7Y4BfLZ/kEigevsB7WkYC
-         gztEAJj8bvn/ZBg0SFLxAGC822obUtnaxOvWDwI5lfEUdn8+8j+Kzqywq6zQ8Uv1xR1z
-         9vcKgvLUk1pY2fyWmHUY1+h/SOwaKUFFOYOQ4JLf/jKGNwPzmNXE2s9gijNwmN8ytvF0
-         3omIwN9O/sZVP2gS4gQrwSjPXSJcr3oeORyNZP7hJeYGym8GNOVxLHeJM8g8RPw0oiLf
-         eLM3TPSAoyoD8u5BDWZGmBnQp/WW9/hHtJDUAWOh9ntSpE9TUs8lY2c2nDF5EIsGmcGH
-         4p8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795240983; x=1795845783;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=iZeJgZydctjHQNPaqc1a3Pj1B2Wsau9GN69Um9z9RXU=;
-        b=bHGE0g0mVjSK4cIDqFFSp0/n2+N8M7v0NWC6QctpG5K4RwSo3zxVaHIRsyP1MSX84C
-         E/SUG5LDN0RSumBtZ1hrg9FmIrOcLTiOT40DSUcp+IVsPggQJVvuBQqgvnmObiba38mo
-         vITe6UhEvp7wkAmF5ngHbaSnpVKN4NHjMg+SNYzVeA7gxjkt4PEAbEDGcDPug6SP0mhc
-         Uk67VlrPQg4kRtiEBzHg1/7doyAR3eS3GKQIQwPzE8eZfMBzbgW/gXtURCiOPVpEffPQ
-         034vjI+MLuDqgQsyjmiXImWOXeEgWsEAmRYcOJPR+PcGVmgj6R82H/UyWJCuQPTZIVOp
-         wTXg==
-X-Gm-Message-State: APuU4Z9uhF4DBsPU1D2Ncy5leqpqLCCfxfcxsVvh8hKVRVl0HquujhVf
-	UNqO/P1kWdGsgvTyn59fLD2wWbeAdtL/Nk2LZvO/WhyPYLFr5yZd8wmV
-X-Gm-Gg: AZFdTZfluQgTqpGfg7gkOQFyDCnAzuxP1jnDhfWabPA5K9i8QbZTp1OWY4297jDB/WP
-	ovG/aoDuJr6S9DRGC1BpGGagCedieRdsVjSbf7lkkaV2WEItYHI8SaD2glTC5+V40BAfaqX4YjK
-	ikzFl5FYnIRA9xTmUbqwaL6+3qi+KKlHoYYIG+HnMrqeL6A3Lpaxnjh5GwflVzLOo+wX0TXhQW8
-	6NdDYZkuzMeUS2NtqGodduKjMVfq6A1tLUTk47MgFQVGfGIaaoL4zIbx1CjXHrunubO23s3SFIw
-	6c5IJZYSO8ZFSONNWgiYNIAP99RweiFOnCnJ/KKUDyNXxbjg/C06H4LnZRC/szOEyFvyhUdDfug
-	QpXvBYATh7JeiikYRfA61I/+5H04DOEYvjyWleJNWLxiKINNFkG8qGUW+S7sFjTh0qQntpO94Rx
-	GZdjUs14+yYUwm0o7enOOrTma09Vs/tfYlqPXVU9idTDAYWuZfl1FyqvtYQMSi6Uj/ATUSFAPjI
-	Mo7SW/QhQbfUiHiuHVWEtopWe8VvfyOzqs3aJeEtQaueS3a46Ay6ioiGsORzMHM0RHhO7P/56Vw
-	WmWkCOvI5hXalEsLP62chlttPCXfKCwYYB2jJPxCVDNGUWdBtZ9VNfxfWrQM+Pxhz8c=
-X-Received: by 2002:a05:7300:8188:b0:382:61d0:f375 with SMTP id 5a478bee46e88-3856e63b050mr7522783eec.7.1795240982165;
-        Fri, 20 Nov 2026 22:03:02 -0800 (PST)
-Received: from eggarch ([2409:40c4:eb:2a8a:ac89:7bd3:9d62:35df])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385646633d0sm23226928eec.3.2026.11.20.22.02.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 22:03:01 -0800 (PST)
-Date: Sat, 21 Nov 2026 11:32:54 +0530
-From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] Input: synaptics - make InterTouch quirks table driven
-Message-ID: <awEyv-5G0zfISfcJ@eggarch>
-References: <20261105042614.688312-1-lovekeshsolanki00@gmail.com>
- <20261107020751.3959748-1-lovekeshsolanki00@gmail.com>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=snpK6Y4c
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4jWmLF1KwYzMls1;
+	Sat, 21 Nov 2026 09:57:25 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1795251445;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=cdthxAkaHO+yeVbZfruiT0cSICDqg/vv+2t7JBROBgQ=;
+	b=snpK6Y4ce4KSzi2XWNx06liSe2i73b/+WvcAUrjLJrNHXz3LrNwNdIHVLxT86pqIo701xe
+	jOcafIkxQ0/3lmPM/6WeGIUTvILbAovTH/5Eyadt8uqRLM2Sy1qKYD7xcRuwPmdzoK5Wa4
+	X9gghqyz7fVD7172pdBLJxcwxI5ZzQZ/yDF3XD5QpWhclS6n9pQfe6ilLjwpL4YpBoGaic
+	TifHfqRU876dQThS01eDPI1VT4W6E4NLWQ/1wCdj4KnLrX2SOFao8ZnwSHc2XkvKgMwpu9
+	HNRFLWcTQ9fLgt2b09w+5ayu90PsxQqqJXFHbUR9qXjMSfRFTG9niqs6GcYQKA==
+From: Manuel Ebner <manuelebnerli@mailbox.org>
+To: Basavaraj Natikar <basavaraj.natikar@amd.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>
+Cc: Manuel Ebner <manuelebnerli@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/hid: fix brackets in comments
+Date: Sat, 21 Nov 2026 09:56:28 +0100
+Message-ID: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,16 +72,88 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261107020751.3959748-1-lovekeshsolanki00@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-ID: 7bed8ca2e82a95b5cc5
+X-MBO-RS-META: 17hux4qqacjzbmquj8sjd8fb81d6pznj
 
-Hey Dmitry,
+Remove multiple ')' without opening '(' and add missing '(' in comments.
 
-Just following up on this patch, it moves the Intertouch quirk into a
-dedicated table, to make it easier to exempt devices in the future.
+Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
+---
+ .../hid_descriptor/amd_sfh_hid_report_desc.h         | 12 ++++++------
+ drivers/hid/wacom_wac.c                              |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-Please let me know if there are any concerns or changes are needed.
+diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+index 67ec2d6a417d..6c331c2c63b8 100644
+--- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
++++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+@@ -81,7 +81,7 @@ static const u8 accel3_report_descriptor[] = {
+ 0x95, 1,	  /* HID report count(1) */
+ 0x55, 0,	  /* HID unit exponent(0) */
+ 0xB1, 0x02,	  /* HID feature (Data_Arr_Abs) */
+-0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS) */
++0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS */
+ 
+ 0x15, 0,		/* HID logical Min_8(0) */
+ 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
+@@ -248,7 +248,7 @@ static const u8 gyro3_report_descriptor[] = {
+ 0x95, 1,		/* HID report count(1) */
+ 0x55, 0,		/* HID unit exponent(0) */
+ 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
+-0x0A, 0x56, 0x14,	/* Angular velocity and mod change sensitivity ABS)*/
++0x0A, 0x56, 0x14,	/* Angular velocity and mod change sensitivity ABS*/
+ 
+ 0x15, 0,		/* HID logical Min_8(0) */
+ 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
+@@ -408,7 +408,7 @@ static const u8 comp3_report_descriptor[] = {
+ 0x95, 1,		/* HID report count(1) */
+ 0x55, 0,		/* HID unit exponent(0) */
+ 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
+-0x0A, 0x71, 0x14,	/* Orientation  and mod change sensitivity ABS)*/
++0x0A, 0x71, 0x14,	/* Orientation  and mod change sensitivity ABS*/
+ 0x15, 0,		/* HID logical Min_8(0) */
+ 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
+ 0x75, 16,		/* HID report size(16) */
+@@ -429,14 +429,14 @@ static const u8 comp3_report_descriptor[] = {
+ 0x95, 1,		/* HID report count(1) */
+ 0x55, 0x0F,		/* HID unit exponent(0x0F) */
+ 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
+-0x0A, 0x84, 0x14,	/* Maganetic flux and change sensitivity ABS) */
++0x0A, 0x84, 0x14,	/* Maganetic flux and change sensitivity ABS */
+ 0x15, 0,		/* HID logical Min_8(0) */
+ 0x26, 0xFF, 0xFF,	/* HID logical Max_16(0xFF,0xFF) */
+ 0x75, 16,		/* HID report size(16) */
+ 0x95, 1,		/* HID report count(1) */
+ 0x55, 0x0E,		/* HID unit exponent(0x0E) */
+ 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
+-0x0A, 0x84, 0x24,	/* Maganetic flux and mod change sensitivity Max) */
++0x0A, 0x84, 0x24,	/* Maganetic flux and mod change sensitivity Max */
+ 0x16, 0x01, 0x80,	/* HID logical Min_16(0x01,0x80) */
+ 0x26, 0xFF, 0x7F,	/* HID logical Max_16(0xFF,0x7F) */
+ 0x75, 16,		/* HID report size(16) */
+@@ -581,7 +581,7 @@ static const u8 als_report_descriptor[] = {
+ 0x95, 1,		/* HID report count(1) */
+ 0x55, 0,		/* HID unit exponent(0) */
+ 0xB1, 0x02,		/* HID feature (Data_Arr_Abs) */
+-0x0A, 0xD1, 0xE4,	/* Light illuminance and sensitivity REL PCT) */
++0x0A, 0xD1, 0xE4,	/* Light illuminance and sensitivity REL PCT */
+ 0x15, 0,		/* HID logical Min_8(0) */
+ 0x26, 0x10, 0x27,	/* HID logical Max_16(0x10,0x27) */
+ 0x75, 16,		/* HID report size(16) */
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea85625..b7aa6b60fb02 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -546,7 +546,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		 * physically implemented as a touchstrip. Each button
+ 		 * is approximately 3 bits wide with a 2 bit spacing.
+ 		 * The raw touchstrip bits are stored at:
+-		 *    ((data[3] & 0x1f) << 8) | data[4])
++		 *    (((data[3] & 0x1f) << 8) | data[4])
+ 		 */
+ 		nkeys = 3;
+ 		keys = ((data[3] & 0x1C) ? 1<<2 : 0) |
+-- 
+2.54.0
 
-Thanks,
-Lovekesh

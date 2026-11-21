@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1795264997;
-	b=T/HQDCKOzCGKj3X2G2LB8raqqu6UeTOwnZO84IzcRgJaX35IuNM4Q/WTQyy9JTeFL1h5
-	 nRpbFTKJvZhsl33d/e70bLY4BdkGxzr1sEeNTrPz1t3y9KCYfni3p2fcVLVHdZv+b9U7v
-	 9C8aUD6H6S0O6K1mf86GGzAGOc1E0JpW9CojrbOwDubjrKWVOIRGaYl9w0IX0pHg8QE8R
-	 sBBhExjYjLjaIbJiwNWEnv3FpmTcYAteBnUuelf/vpQ2kIPGVTTUjz3nlElwgRg8nAF/e
-	 9vFVx4XIQhiS2B3xh9J5KiqlbF7/YCENZzNKBCqKh5/NAG1mpbKUrWSkTsEkn3fep1A==
+	b=tBFP0rXYf4YyOcjbPbMMyYNkivLs+Ih0ls1Oy4ksUyoljUZffi32t2vTZebL9HHV8G2+
+	 YciDIPvfpnk6lBjFm00sxBTZyyCYGEtzo01oIZomS5JIbtyKWdgMcf+wQdn5wVXnx97N6
+	 4DTeFWtXlpJPLaNrrHiI7pCfBNJt45rvGePnw4yp/UJJ1ZwH18VKLBxJ9hJZ+l/WTd+Dd
+	 LEah0PtBFbw/W1VluZu9GNkzuZMb5RaB3gKBd32MiB7ZRuDb1qpzsVa8zkBot6XnJt32R
+	 IWSq7akjDBjZV6ZGzTPMBRuFlK/gRY7XTTt/wyRmpxuri6e0mCHaBFPuXScZePKwplA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795264997;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Qn72wdNiIoftNNgBdHUX8q0PtQP2R8owWtGGqaL4gzc=;
-	b=UZUcC9mgQojiFSGJ4/7miJbk+0ck72FVITogkKp8k3sBRuOAtdAThRJduxLUa9vqjL/i
-	 OUJtgFCOUmtThP6/QRdugMSr0g86uMz/tf27stuZ+h7Y5NakRa4i6yIGzY3XCQIG5YLyB
-	 nmexbby9CkhOzPhxZQI2lVX+OCCfub8hOXMriMGm4+kkccXdDUpR3P3yG8ynXArIuc9Bi
-	 X2akkKAEqdEskzKZQVd2n/S3qJIDlumkva0r+CKT+ATzy5c8mT1ZTlu/xcmPtXTibBwCN
-	 fO2uASqNK74QlzswWIdVfouNNIHXuWmqJIPNA1KqNkH3ufpTlejT2mMvVJzkCoQhPGg==
+	bh=uCpt8/zVdvHt4AowHCDxvq8Mt65b26PtXEEykxPq0B0=;
+	b=UgLkpMGOoS6kPaabxFXBB9m+jBsAHq6zWaclJR412a4zHAFMUQ5b0AEX4XVXfiM8esGc
+	 LWtDgRaPX44qAxdM4TWLajl/PyAypxfRUKSl0N5EaHBeksw4RBWg2lnRamjMf1qSbzrpK
+	 nYRZOPU+WnWDtjOCfoUj9Iy8r1Gfmi90C/612k0ixGJTVVVKrMNISOxcZpnaqM0j9UPSe
+	 7KwuK/7RsgMz+c1xKjcagOQUckRxm4ISAxvBLITPfazt73KMpWmux+3TmyI6+QK5q55ZL
+	 U9yHZyjv+/xS2PUn6wbQL0Gnz+v78T4sDLZbQ/SMSM6YCZt1/caIOspsbhwUTap2obQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d0HdKJ5c;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n57CG9HX;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051A2606A680;
-	Sat, 21 Nov 2026 12:43:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48D07606A6B2;
+	Sat, 21 Nov 2026 12:43:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d0HdKJ5c
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n57CG9HX
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795264996;
-	b=Fo4MvA/KCO8md3jXyacXacxy8aZHORUC3IgcPRrXgAOoKzhBL8bnjVUPW2datg5L5KXY
-	 wMfQYoMvKX6l3mfxEIK2SjHiqIEL4ee73kQfbdJi9RcW0xPUp5J2i9lCCVhF6k7kKCXKD
-	 tlcMksdLdbvqTfCAakIK0y4gxI4bzuYX12LQ9RQs2YufUlnDbdPN7158gRdNWa4OeDvRC
-	 xtgSy0lSpeM7b8t26qB7KeW4V9V6/Wi9pHPXy/xQG+VAIcdxiqogxExI9jTBHbXAi2kBQ
-	 m+jgYpU4JfsexMKsxbZCas0c/b1JK8LRANsQdyfw/KOvxZIn4m8VU1FnfOQZNNZVL2A==
+	t=1795264997;
+	b=Ucn+oyVwP8jsrc6U+ZVbPm0to1CyXYot7Bupcw+3Bw9HxXZeKatjlHhf5pSdtorEroF5
+	 NADNnDXiscSUk1ho9iwQBMcOy+c9mdQFr08NRA3Xj2zBpaLKjZMiix5dXvMOh/7yghN2G
+	 uOMgnvthIGC54bGlmD5TvBnC79/MwAxkat2rDXUMwrSLNdsunfmQfWGp0VnZ08LulnYub
+	 TpnWGkqEN82aN0HxLXyM/UQOflKm4jGXfpntThqHIBSkO1eJuI0r14JO8GfMZ4iktdK3F
+	 v0PUSMFSUwdsCovfWoy43hrlaTBCCjCPHhbNm2PSGxXKSNd9Qj38KsEME/mfjIkn+Tg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795264996;
+	c=relaxed/relaxed; t=1795264997;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Qn72wdNiIoftNNgBdHUX8q0PtQP2R8owWtGGqaL4gzc=;
-	b=GAkbjO/5DhZ9Yl++7KrtDwDd4ZD+TAtbX1aYuhOziuwy3iVDNy1dZmi0CIyu05okVJYn
-	 KyDR3sNtdbqTKQZXYJ+HZlw/w27z3b6rk4wfe3jZy4xny/XT2xRT/g+SDo/uxm7zMA+hL
-	 g6Tqti+7wr1R1WGYY5i1ULHnDV2xUOD76HtizOW3htSsej8AAtUfRrkGdH43AEXMR85FK
-	 TFacsRfQmZrs0u/YRH9055LyAZAg4wGPomjGBxpa+wtc+lC4TSMSFuUHl4Ctz2JAyzJFq
-	 Lbvrh9v5BaXjJYkLYaL0ScVW2a93bpCYnTivQmXx6nDDTTyY2CvUVPuWvdTXhPsvUYQ==
+	bh=uCpt8/zVdvHt4AowHCDxvq8Mt65b26PtXEEykxPq0B0=;
+	b=Ry6G3J5zaRv63hXukxsu4CSA7mzme4Wt8as2CpEYtdp0QnhuHvAZTXOhpZAJkEWo7Ju5
+	 Q+g1vF9IabB25glXBwMdoWrIoyO9zNIWdplGUguOTG8U5K4WxzgEvL/RP50+0bhUGv0WI
+	 VLZgcj3b9tO5H+RgmVTZlI4p717s8Z1tOpm2uXHa4aiKrVYOpscAZ/Yg7jV6xS/E+Ou/z
+	 tQ/bXXPXxalQLbOc7V0JV9gKGOhyFDDtNxY+FO+RmQ8oArsUgc0Hd2MgYDExM3whyx3jv
+	 kviYu6zM4yuo2VHdEVUmshTBxN6aNXysnip130y9i/9r2nQBf67wUshnahO9kCDlKHQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 39B081F000C0;
-	Sat, 21 Nov 2026 12:43:15 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 9DC941F000D1;
+	Sat, 21 Nov 2026 12:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795264996;
-	bh=Qn72wdNiIoftNNgBdHUX8q0PtQP2R8owWtGGqaL4gzc=;
+	s=k20260515; t=1795264997;
+	bh=uCpt8/zVdvHt4AowHCDxvq8Mt65b26PtXEEykxPq0B0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=d0HdKJ5c7fZxpJgBN7nEWDm/hITe66PXisobYR5Xw2TTF2G7RV+4ZQgdFnXYK6d3/
-	 VbM90foRWEwZ0byGfNS6O7emk9U12Z++KsVpBqly80IdbwhZV6pebIRp8cZAjYqvR3
-	 2V4PwTsoMlT/9kOzMKDDUxTQNXLGU7Dj82OPigRo2jfZ52PSPunOH3q06qocRQWCE6
-	 moe0Wtam/sos5iOgXMB0MJpSYGu3w5eMdlRR3yvPdicdwrHurPKawcPY2g6HES2LnD
-	 1biV8YqRs9xcIl6XYAMwEFQjIhuQpdMhgrjIB77PeQGj1r6TqYvDArfRqBsdJFuO5d
-	 3QclXACOWvoQQ==
+	b=n57CG9HXZIx5cldSRScYvPIMSxhR4DZcO71NWldOcn8wuDFaDaJCs9CSHvbEEBFh4
+	 DQ+dK2ttlm87+AtRnPZ5DklQ6c1HnzZO3HjRJRN6wvL/YP7yUK9l4x8pZpHdSAmIwo
+	 iAagNP/kMk4YCsIjW0sjbpfAHh+tUD0WCNahcQ3u2jA8kO3JS3ijYsKvRvbXE/2enp
+	 OU11JVYYJGMeXmi6+cYblUwBMkuNqEcyGDTfYmoJSMc9Vz3iD6dbnqeRw42Hm3NKLi
+	 zHiycIalJUM01N06CyAbb20DoeH6qht9jwbwEDEXprxPQoq/p7Iuqkz7yxyETjMSuz
+	 ZD5VZnETF1Quw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 9A2034BC4E;
+	by lkml.kernel.org (Postfix) with ESMTP id 7FCC14BC4A;
 	Sat, 21 Nov 2026 12:43:13 +0000 (UTC)
 From: Yuugo Yoneda via B4 Relay <devnull+yogo.0917.sabu.gmail.com@kernel.org>
-Date: Sat, 21 Nov 2026 21:43:17 +0900
-Subject: [PATCH RFC v2 07/13] dt-bindings: input: touchscreen: add SiRF
- AT550 touchscreen
+Date: Sat, 21 Nov 2026 21:43:16 +0900
+Subject: [PATCH RFC v2 06/13] clocksource/drivers/timer-at550: add SiRF
+ AT550 counter and match timer
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +84,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261121-at550-rfc-v1-v2-7-b0309d0789b2@gmail.com>
+Message-Id: <20261121-at550-rfc-v1-v2-6-b0309d0789b2@gmail.com>
 References: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
 In-Reply-To: <20261121-at550-rfc-v1-v2-0-b0309d0789b2@gmail.com>
 To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
@@ -101,11 +101,11 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org, soc@lists.linux.dev
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795264991; l=2016;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795264991; l=5987;
  i=yogo.0917.sabu@gmail.com; s=ypl514-20261117; h=from:subject:message-id;
- bh=X+PTuRS+4QPJL1mA2W4q6MD3ZBh5bQ+P1z9SBc/CDqE=;
- b=oBHP9oxPhn+Aoqezc3zdN/j/eqTsmLc6YnJXISwr6zDUSGmnBCbF16KDTx8WZaBRsYFVYDp/B
- tDQfyx2hhP5DqQlHTx8oXwux26UJTKEcNgY0XP+fDkPwZh5lgaqz9JH
+ bh=P/HKi7bKVtLhG2Ws05hJqUv8hqku5p4NiMa01/UmFzQ=;
+ b=LTAi1VEJT1QKYnAqyYiyXakLoZr7xiIu2c1gB8USXxSb3OJ7jUSFTVWdfLwxdnz+w0OjT8Ibr
+ L2zoF+30yP2AeKdh7Lq+Me0SmoWpV9cm2RDWFkv/+0B+medz1+lgOeS
 X-Developer-Key: i=yogo.0917.sabu@gmail.com; a=ed25519;
  pk=TIQ8Tk4xQrxyn8rmk3GI2f5qg/kO6g2KZm7YOOyBHeg=
 X-Endpoint-Received: by B4 Relay for
@@ -116,73 +116,203 @@ Content-Transfer-Encoding: 7bit
 
 From: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
 
-Document the Devicetree binding for the SiRF AT550 resistive touchscreen
-controller.
+Add a clocksource, sched_clock, and one-shot clockevent driver for the
+SiRF AT550 system timer using the low 32-bit counter and match channel
+0.
+
+Enable the timer clock before reading the watchdog and divider
+registers, preserve the firmware-configured divider, refuse to
+initialize if a watchdog is running, write MATCH0 before clearing
+status, implement set_state_oneshot_stopped, and unwind resources on
+error.
 
 Signed-off-by: Yuugo Yoneda <yogo.0917.sabu@gmail.com>
 ---
- .../bindings/input/touchscreen/sirf,at550-ts.yaml  | 40 ++++++++++++++++++++++
- MAINTAINERS                                        |  1 +
- 2 files changed, 41 insertions(+)
+ MAINTAINERS                       |   1 +
+ drivers/clocksource/Kconfig       |   6 ++
+ drivers/clocksource/Makefile      |   2 +
+ drivers/clocksource/timer-at550.c | 136 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 145 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
-new file mode 100644
-index 000000000..ce081e115
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
-@@ -0,0 +1,40 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/sirf,at550-ts.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: SiRF AT550 resistive touchscreen
-+
-+maintainers:
-+  - Yuugo Yoneda <yogo.0917.sabu@gmail.com>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    const: sirf,at550-ts
-+  reg:
-+    maxItems: 1
-+  interrupts:
-+    maxItems: 1
-+  clocks:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    touchscreen@80120000 {
-+        compatible = "sirf,at550-ts";
-+        reg = <0x80120000 0x1000>;
-+        touchscreen-size-x = <4096>;
-+        touchscreen-size-y = <4096>;
-+    };
-+
-+...
 diff --git a/MAINTAINERS b/MAINTAINERS
-index d6ea4d946..e8e239c7e 100644
+index 3c5a814f2..d6ea4d946 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -25851,6 +25851,7 @@ SIRF AT550 PLATFORM
- M:	Yuugo Yoneda <yogo.0917.sabu@gmail.com>
- S:	Odd Fixes
+@@ -25853,6 +25853,7 @@ S:	Odd Fixes
  F:	Documentation/devicetree/bindings/arm/sirf,at550.yaml
-+F:	Documentation/devicetree/bindings/input/touchscreen/sirf,at550-ts.yaml
  F:	Documentation/devicetree/bindings/interrupt-controller/sirf,at550-intc.yaml
  F:	Documentation/devicetree/bindings/timer/sirf,at550-timer.yaml
- F:	drivers/clocksource/timer-at550.c
++F:	drivers/clocksource/timer-at550.c
+ F:	drivers/irqchip/irq-at550.c
+ 
+ SIS 190 ETHERNET DRIVER
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index da8348329..ed73947bd 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -835,4 +835,10 @@ choice
+ 
+ endchoice
+ 
++config CLKSRC_AT550
++	bool
++	depends on ARM
++	select TIMER_OF
++	select CLKSRC_MMIO
++
+ endmenu
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index 464ec6690..0f3d4fb1c 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -97,3 +97,5 @@ obj-$(CONFIG_RALINK_TIMER)		+= timer-ralink.o
+ obj-$(CONFIG_NXP_STM_TIMER)		+= timer-nxp-stm.o
+ obj-$(CONFIG_RTK_SYSTIMER)		+= timer-realtek.o
+ obj-$(CONFIG_RZN1_TIMER)		+= timer-rzn1.o
++
++obj-$(CONFIG_CLKSRC_AT550) += timer-at550.o
+diff --git a/drivers/clocksource/timer-at550.c b/drivers/clocksource/timer-at550.c
+new file mode 100644
+index 000000000..a56446478
+--- /dev/null
++++ b/drivers/clocksource/timer-at550.c
+@@ -0,0 +1,136 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* SiRF AT550 free-running counter and match channel 0. */
++#include <linux/clk.h>
++#include <linux/clockchips.h>
++#include <linux/clocksource.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
++#include <linux/sched_clock.h>
++
++#define AT550_MATCH0	0x08
++#define AT550_STATUS	0x20
++#define AT550_ENABLE	0x24
++#define AT550_WATCHDOG	0x28
++#define AT550_DIVIDER	0x2c
++
++static void __iomem *at550_timer;
++static struct clock_event_device at550_event;
++
++static u64 notrace at550_sched_read(void)
++{
++	return readl_relaxed(at550_timer);
++}
++
++static int at550_shutdown(struct clock_event_device *event)
++{
++	writel(0, at550_timer + AT550_ENABLE);
++	return 0;
++}
++
++static int at550_next_event(unsigned long delta,
++			    struct clock_event_device *event)
++{
++	u32 target;
++
++	writel(0, at550_timer + AT550_ENABLE);
++	target = readl(at550_timer) + delta;
++	writel(target, at550_timer + AT550_MATCH0);
++	writel(1, at550_timer + AT550_STATUS);
++	writel(1, at550_timer + AT550_ENABLE);
++	if ((s32)(target - readl(at550_timer)) <= 0) {
++		writel(0, at550_timer + AT550_ENABLE);
++		return -ETIME;
++	}
++	return 0;
++}
++
++static irqreturn_t at550_timer_interrupt(int irq, void *data)
++{
++	struct clock_event_device *event = data;
++
++	if (!(readl(at550_timer + AT550_STATUS) & 1))
++		return IRQ_NONE;
++	writel(0, at550_timer + AT550_ENABLE);
++	writel(1, at550_timer + AT550_STATUS);
++	event->event_handler(event);
++	return IRQ_HANDLED;
++}
++
++static int __init at550_timer_init(struct device_node *node)
++{
++	struct clk *clk;
++	unsigned long rate;
++	unsigned int irq;
++	int ret;
++
++	if (at550_timer)
++		return -EINVAL;
++	at550_timer = of_iomap(node, 0);
++	if (!at550_timer)
++		return -ENOMEM;
++	clk = of_clk_get(node, 0);
++	if (IS_ERR(clk)) {
++		ret = PTR_ERR(clk);
++		goto unmap;
++	}
++	ret = clk_prepare_enable(clk);
++	if (ret)
++		goto put_clock;
++	rate = clk_get_rate(clk);
++	if (!rate) {
++		ret = -EINVAL;
++		goto disable_clock;
++	}
++	/* Do not disturb a running firmware watchdog or unknown divider bits. */
++	if (readl(at550_timer + AT550_WATCHDOG) ||
++	    readl(at550_timer + AT550_DIVIDER) > 0xffff) {
++		ret = -EBUSY;
++		goto disable_clock;
++	}
++	irq = irq_of_parse_and_map(node, 0);
++	if (!irq) {
++		ret = -EINVAL;
++		goto disable_clock;
++	}
++	writel(0, at550_timer + AT550_ENABLE);
++	writel(0x3f, at550_timer + AT550_STATUS);
++	at550_event.name = "at550-match0";
++	at550_event.features = CLOCK_EVT_FEAT_ONESHOT;
++	at550_event.rating = 200;
++	at550_event.set_next_event = at550_next_event;
++	at550_event.set_state_shutdown = at550_shutdown;
++	at550_event.set_state_oneshot = at550_shutdown;
++	at550_event.set_state_oneshot_stopped = at550_shutdown;
++	at550_event.tick_resume = at550_shutdown;
++	at550_event.cpumask = cpumask_of(0);
++	at550_event.irq = irq;
++	ret = request_irq(irq, at550_timer_interrupt, IRQF_TIMER,
++			 "at550-match0", &at550_event);
++	if (ret)
++		goto dispose_irq;
++	ret = clocksource_mmio_init(at550_timer, "at550-counter", rate, 200,
++				   32, clocksource_mmio_readl_up);
++	if (ret)
++		goto free_irq;
++	/* Firmware has configured the divider; the supplied clock is its output. */
++	sched_clock_register(at550_sched_read, 32, rate);
++	clockevents_config_and_register(&at550_event, rate,
++					max(32UL, rate / 10000), 0x7fffffff);
++	return 0;
++
++free_irq:
++	free_irq(irq, &at550_event);
++dispose_irq:
++	irq_dispose_mapping(irq);
++disable_clock:
++	clk_disable_unprepare(clk);
++put_clock:
++	clk_put(clk);
++unmap:
++	iounmap(at550_timer);
++	at550_timer = NULL;
++	return ret;
++}
++TIMER_OF_DECLARE(at550, "sirf,at550-timer", at550_timer_init);
 
 -- 
 2.56.0

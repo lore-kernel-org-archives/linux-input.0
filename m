@@ -1,98 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795281814;
-	b=i27QWskTLYmi2dQ9LixZ+BbQrPvOmHWO3/5MI1hEhNA7b+puEJSggVLNk9s0t8XeNQtv
-	 iPyt6HPrhPyfz0mYnMDfo7nQUcHidf7dYdSYfWo5WAUcAl0LpEntntcWYXKfmqLnjwrZv
-	 odmfnoZ2FuI89VlBRiAe9WX07yUV1Y7aqNwMLVAmHRgSYt7n1iIUMrk2VdpoRN0K7sWc9
-	 70ea4KVGSUeR4N1J8s0LCNMEsa1uK4rKgCTbR59VEWWw/+rTw5tcd17sWk1plAUP46t2R
-	 2TVkLo3UgfwGaa+ozZg5pzC0oGGOoEod2G2uRX/PrGU07u0sdM9uuXQfktJOh8i8HSA==
+	t=1795293610;
+	b=QGY0LeUkKGJCD3RKi6EktcAep+GH4OHpJNtSa2bMP0YYlbMM7+ItAb+1BLCXCk0RFOLK
+	 J3qabXOdOAd9d7RsXr5X6F+qJzBed5wX182N+kAYTbnqH/3zW13R2SimgOALzYrDB3n1j
+	 ySuOO1y9C1g4p9UMRxCbf+HZYlBvYUI8sZWCsTFI/QZbrZoyLlJpe+45Hn4ohLM/Ko0YI
+	 VbEOSCJ/38d3EoOHgjrY8gMK8sMpGzySOEwKIZhHGOodqjchNWq1gNh2k7h7dhs92N3Qf
+	 HZ/Q8FUxsQ3f+CL6shUsc29J4DT+gPnyyS0x5St7D7xPc4qB8z/7u8J+J2GWKLfcVNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795281814;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=qNh4Be9XbgejPuvlvikrrq9VO3koxch/dMJ6rmrGJx0=;
-	b=4o9CwloYmGe3Q+KF3m+i6rFMZe2mbkIAH3JfNi6ouQNZgmPs8xoMCMckJLfSykKFk487
-	 fBUdvDQCBirJPqE7x4Omh3vA1+YKNz45C6AcMNfH2TnEEKv7l/RkwzzJfoRnzIZNuc96m
-	 cIHH2gXWM6ZHjh4m8EBxrqtuMMTvBbxG3JKQPyJbxu2r8/886L+Ovx6x0n+kjpSG03col
-	 hottySeYOnNMQ5biFJaMb2O0S9MUgAjYtc+HqXa4Ekw03ewhLi8nOvHMeEf4LVY3kJZZa
-	 AKKbclGqq50sV7N1SdUgbr9WYoZPJ4GR+eMRk1eY3mgumGMjUIEtOMJeqHX5IPUvs7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795293610;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=TBjlLLaSMdptS1qSf1sy2MeZrQefDkAIXeGwS3xNDrU=;
+	b=JcTyVrb3VjT0VohNcwjvCF5VmLjYB465Y303yra3ZcP4dZqwunFVBhXPSozFP9z/NiSd
+	 NHTUxSF82XakZU1+6zyh+Z8vtrNNmLmUAUItJj7UEw37CzBN38kNqfa7QQ4yuDJ+dOByk
+	 AUQdbPyHn8J0vozCyfDpd0xTpFeOc1USjyaFjrhUh4ij9+VyF7k1Pi84hQ0RECBE64ktx
+	 LWZtRfkzxJOevKbEZ8b81NUuqCRqUIB4VCDs6Tsh6rpje/MsNWlAKM3nz61gqxxbOeCfF
+	 o/DRd3LyKsSuklWkSvb9RguTWPLXX7c/+IeA1PjRoQNdVd9fbFTzt6rpikSGu/n5Mdw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R11vgZXD;
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2ICUGWl;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E67AC606A32A
-	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 17:23:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E67AC606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C52E606A320
+	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 20:40:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R11vgZXD
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36a315ed211so2355550eec.0
-        for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 09:23:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795281813; x=1795886613; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qNh4Be9XbgejPuvlvikrrq9VO3koxch/dMJ6rmrGJx0=;
-        b=R11vgZXDtT0N1QS40z2jBWPHC2Kg9bm2pjRcg3i9B3OU76zGxhVGRQipuB0fwvJHly
-         w4JVWdT+vNjXzrfyALBi7YH+eCmry2WyWitMBFUxOdxTSU3vCv0oWbrp1ALvIr3+u0oC
-         Jm7eNHgERnJ4ppODCcwQlrA6xeCUO/5e9Sb78/HU5PFfdwwFOEbnPWR42LfEYRd0cZm8
-         PDKLsp7J+Q1ODvaWNdvLo7K2k7bxl9ovhMlOhnSO0nzrcZQSOJV47AgVhZuNSKv7hPwP
-         GUEfzGZwqwWL66JKNrXRvqNReWkvoPH9jQNJKbui6z7L2SmZzrTkYT2jQl7su5UxWjcy
-         mn7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795281813; x=1795886613;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qNh4Be9XbgejPuvlvikrrq9VO3koxch/dMJ6rmrGJx0=;
-        b=ytzxRSF/TDDSr4IlS0LlmaJWed334nZ5eMZHclSxepvL8wShedr8QB7kEWYG6+k/y8
-         huIYt0WjzdXNwQIYWHewLtlpEvqAonz9844VojEMoajakm0PHpO7Wd8YTXiULiW3eto7
-         7uPQ6b3+f4XNqAR3+bB9qKPEB2eqFhsVWQI8wbSeCavHRpQURNqh4tbvpYocq/4X8yVZ
-         c2cuWkuMQsLMS13qoe9gP0QqpfXSHWd6xXwKqeG630xUlRV/Cs/KTssE+xsr9CFylNKU
-         FEJB/EwGipAF4c+h+K9RiY0Vp4LKycJrAZJvWnyk1AGTu/bDEqymxUTjsaDcu9ietDcq
-         TIXA==
-X-Forwarded-Encrypted: i=1; AL+hErHqK6UD/7dSqRijxPUZKQ9otB5eJqmTWGDCo7ZNFZnBfXuEpe5w3gk3jTvhEfnP+W/CFNDZTE5vxV1G3Q==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8QUpCWolIXUncgTjbSMgtfJPbM0a4zuPTmvEOxpgdzPEv0pvey
-	01Ir2EhC46DFawziQIsY2VuLq7PbZNDge3UmsUCTHZ9cAryZD9CsuoHA
-X-Gm-Gg: AZFdTZduLcA/e2DGddGdijhF4Y0leMIlpqAOzlci+83Cjch+oNocZacIiNCoJ+LiWrg
-	kiSIr+k5htS4P+qaNTIic0KsgzSEvagG/L6lM1PedcLoh2AvynLgu6xgoF6WmxPnnrGQjkhB+zr
-	/3v6mNwUdb8jejEQ5yrfv9LLw0w2rz8FDlPvGYtNFzNZj9WT3iVC4yn/jBxVSJSqScr7SMBL27K
-	UzQTtSi9KDCvJ0pwGisA7nU6klEzC1EjeW8+6ajzfHsDGVt6ua74DhzHwlQUE14ZReBILt7BZ3P
-	Dz6M6+/HgC8DIlUllmiVspF5ogZPpLRwuwwL1AuvWUBh8rCriE3o35diuSnu+8UVV78W12pNMJf
-	isAhswZb96H4cosgG+PaCnsQubgzdYYx92igyInef3YtcJDIcxQov1UbmHQWL4ExeB2LusiseYP
-	uJh0BZyXtTwE3tzis4nGGNxBeq5z5PhGANrGVxclkCiCJ0HrGXGesmtMq58ATA0fGcCN5Z1FVeP
-	swAG0JJ4IAQsS+i5PTeBXLvm7gqFdl/nvEPX5FCn+H3mIifqkaIXMcrnUB24Ni+3O3nBjRIk7T9
-	3AsuohfnjacSazEMAKS2kBIS5lXt1UHWRY3Z
-X-Received: by 2002:a05:693c:20ce:20b0:381:761b:f335 with SMTP id 5a478bee46e88-3856f94eda0mr6911423eec.6.1795281812915;
-        Sat, 21 Nov 2026 09:23:32 -0800 (PST)
-Received: from DESKTOP-NM9EKIA ([2001:e60:8509:ba6c:4c23:efbc:89e:50d9])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385f68bc0adsm16633136eec.13.2026.11.21.09.23.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Nov 2026 09:23:32 -0800 (PST)
-From: Joonhoe Kim <26rote@gmail.com>
-To: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Subject: Re: [PATCH v2 6/6] Input: aw86927 - stop playback over suspend and on shutdown
-Date: Sun, 22 Nov 2026 02:23:31 +0900
-Message-ID: <20261121172331.863-1-26rote@gmail.com>
-X-Mailer: git-send-email 2.55.0.windows.5
-In-Reply-To: <20261117052112.32527-7-xiaqinghuan@mail.ustc.edu.cn>
-References: <20261117052112.32527-1-xiaqinghuan@mail.ustc.edu.cn> <20261117052112.32527-7-xiaqinghuan@mail.ustc.edu.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2ICUGWl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4778E1F000C4
+	for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 20:40:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795293610;
+	bh=TBjlLLaSMdptS1qSf1sy2MeZrQefDkAIXeGwS3xNDrU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=T2ICUGWlgRPchPUIQ+snZtdHmoEPJlYmXRuIWM2+7qMxZIlvBCJrzjTXVxZgCIuOS
+	 ygV5zB9T/a/BXUUN5D1Ua9irV1wgk8khz2Ed5wJG1l+tw/TKbLFs2TclDlVOHf4keG
+	 zhfeOIhuGmJyMd/6QgHDnCggwAPS8flD2uxh8EaQiq+++vVweWsOAru9rbf1EoRT0a
+	 YuCQw2jJ+hyvE4IWqe2nF6iVwkTRcIcJMdFwTaulrrTGzVzas9YmEswKX5Olu1Ps+C
+	 +nY64hZEYEW9UutqbeW1HSUfdJ1aE/GKm42Nie2xhlgdYGB7LcsoWyOYvc7GGe8Gca
+	 /3zyilDJuASkg==
+Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5c1479a959aso1462268e87.2
+        for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 12:40:10 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErGDU0SIozYufdVIvCWYjS2q4D9+bmovtOzYWjYcmzaa59TX+mmbdCDjQ36QAbPsUNxiAoR22TbZbtWYLA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+GNVGMMgWulDsvv+DMoGLcJSdEzSSRbcx0zpxUqvEEA7c0GrJf
+	/yBQRxYMXAaWiv/mONCFj8OevEDrNoT+uFmWx4IhfzVGlPPyNmg5ARR4BZG9900xi6zz/ZXAsKc
+	MrgQWj5sC09OPk77s60HHsZOTPZZa7IU=
+X-Received: by 2002:a05:6512:33ca:b0:5c1:57b6:5ffd with SMTP id
+ 2adb3069b0e04-5c1bc552d9emr2306559e87.0.1795293609072; Sat, 21 Nov 2026
+ 12:40:09 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,15 +59,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20261112064957.1796975-1-dmitry.torokhov@gmail.com> <20261112064957.1796975-2-dmitry.torokhov@gmail.com>
+In-Reply-To: <20261112064957.1796975-2-dmitry.torokhov@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Sat, 21 Nov 2026 21:39:57 +0100
+X-Gmail-Original-Message-ID: <CAD++jL=ww5ujTR8rL8htZ6APrbKqD0K+N6J6-LeMZsPSOhUtew@mail.gmail.com>
+X-Gm-Features: Aa3M54rUPZzCG9ojMkF6fiFvoquOOcY_PUVJLfl5nrRmYMblL1z9xSrx8VOuWKs
+Message-ID: <CAD++jL=ww5ujTR8rL8htZ6APrbKqD0K+N6J6-LeMZsPSOhUtew@mail.gmail.com>
+Subject: Re: [PATCH 1/5] Input: ads7846 - drop platform data support
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Daniel Mack <daniel@zonque.org>, 
+	Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, 
+	Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, 
+	"H . Nikolaus Schaller" <hns@goldelico.com>, Kris Bahnsen <kris@embeddedts.com>, 
+	Mark Featherston <mark@embeddedts.com>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, linux-input@vger.kernel.org, 
+	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 17 Nov 2026 13:21:12 +0800, Qianhui Xu wrote:
-> The chip keeps playing whatever was programmed into it when the system
-> suspends or reboots, so the actuator can still be buzzing after the screen
-> is off.
+On Thu, Nov 12, 2026 at 7:50=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Tested on a Lenovo Y700 Gen 5 (TB323FU, Kaanapali) with two AW86937
-(chip ID 0x9370), compatible "awinic,aw86937", "awinic,aw86927".
-Rumble works before and after s2idle.
+> Now that all in-tree board files (including board-nokia770, spitz, and
+> db1000) have been converted to Device Tree or software nodes, legacy
+> platform data support is no longer needed.
+>
+> Remove struct ads7846_platform_data and associated callbacks, parse
+> device properties directly without allocating a temporary structure,
+> and delete the unused header file.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Tested-by: Joonhoe Kim <26rote@gmail.com> # Lenovo Y700 Gen 5 (TB323FU)
+Good riddance!
+Reviewed-by: Linus Walleij <linusw@kernel.org>
+
+Yours,
+Linus Walleij

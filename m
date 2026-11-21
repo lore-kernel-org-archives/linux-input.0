@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795256710;
-	b=TgvPDHPygQNh4s64Pf5wPIuzXqMOTtI89EHsa1WyvHnkrkedk8K4Glvusm9Lt74yyAMj
-	 F/8zmHfhwF83xZ92EfSwWv9VvcxQ8JWbO5COsDZ8+vbDm9o+/R91S7+qfxQ7OSnqR9BJI
-	 WKsgJxEzp+lPx2ZeYUbIUWwJYi0+WDE3jbuY9wJ2N7CAULjB9YXKBi99TZnGpB9Mye4Ig
-	 ex/StkhhB+2dkObsi0TFIMKQipkUsuNrW4NzIzzxblGj0nHxn9kIgxCbev7PhbSdSyg4F
-	 tWJsk7JOqjOblrBeUaf5ZfBZLkaedHd1qUteLFXpHz6UoetAKPrTO1kx4p0Vv4NLsyQ==
+	t=1795256729;
+	b=P8JYJeLoQWBFsK6gpcr43A9Dic2jEj3EOYUnkkLYb3L6ujacjd7g/Km/njubgQT/I3Ti
+	 PfSuKUAkkxK620NdeLoPyLGOqaPm8ELicQn4bGfGJSwjoUTJ1wvwtd54BMVp3Y+N+7XW2
+	 qsEPOTMIX0qv3KqAbiPZgtsx5FAAsFGB0pw1yZQyUNv1Y4OU3PLYk+vVnQdDsJSXpqzZP
+	 NUOvpCDvXFUD4ULcEWEY6BrjQdAG6eiey1j7EMUhmVxQ+RXHQpmwM/Io1VxSW2Aaq1I23
+	 nKRV3d1ZQXI9lUL1z+F7wmzbo6upPFGFCxTSAeDfkwyq5QhuITClLQNMLGlg9bRe1kw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795256710;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795256729;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=FS0SGY45488KZrZ0atpu54dpxNlj/6wagsa2k03gJzU=;
-	b=5bCqJrmw+ZSygteuTXSYGpepQgoIb8VbVfSyW5YR0TkNFQsqRMwx7v1Rjo8opYGPIP2d
-	 qVJJ3aHdFPKms2SYCyd5SAJccw+IRc8x1F74JXys94GzOTKVKcs3mG5wP25EHB5bpr42S
-	 1V7zYcZpRk6+GRObmrGLO0i7AzQ2usMwcYxIKhv0Iar4EzGdirUCKSxv7jRde3BuTJQ8Z
-	 RZM+mW9GderuOHFyJI/RXlg6O8lfSlW/IIZKSpiiy0BfSNGdVnEZQdllleVOi371rosta
-	 sUX8ybAHvqwtAyZF4HsdJAA7GByzYZRtxT0ntz20o+bQxADsBk7XZ1a0e2AKOXv0XTw==
+	bh=zcYwiYMgwHPQSKRl9NzBw2LKspoM6b+H+dLztCd23Cg=;
+	b=HOgTzwIxPu3kJgliAZzYHDIo1iijmVQi91NzQJdtsOMiOYZ41JeWfJZfZlAbbmldhRJ8
+	 CL3LeMWAAqERIKeFGS1uzQrL/ZcKB5ZGVChpCAy+d905PBoL3/Qii8KUwtoxDeVVtvdvf
+	 O9/3nJpezh3El9zD2iKVIDC//EPDnedSk3lrghH0pqSurC9LYiAYm5pY1rusQR85KJBdA
+	 /cBWF9F5XFxR+wv/SsNQ3XkFd3Khp+XOaWKbCIg314rRYB6XRZf+EtBpbV/M4soNXH2FN
+	 X6DWEwcJCKzR4fX/avSQ5qwVMx0/P+icrBe5H/6dtfKfx0NM4/uITeKqK14RIe1Yz6A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hBz7WbYY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Mb94tnCW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0089606A32A;
-	Sat, 21 Nov 2026 10:25:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97924606A33A;
+	Sat, 21 Nov 2026 10:25:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hBz7WbYY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 909A51F000C4;
-	Sat, 21 Nov 2026 10:25:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Mb94tnCW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DA11F000C0;
+	Sat, 21 Nov 2026 10:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795256710;
-	bh=FS0SGY45488KZrZ0atpu54dpxNlj/6wagsa2k03gJzU=;
+	s=k20260515; t=1795256729;
+	bh=zcYwiYMgwHPQSKRl9NzBw2LKspoM6b+H+dLztCd23Cg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=hBz7WbYYrXorJK9xAFL6eIh9ORLC89FZ2RPxREuoxuc1sLOgkxrwxEmX2vcMO8Tdw
-	 8raUF4itO4NSXzGm7nNsI6d8gaqXSi0K/0o2ak1bWJ17UR7TXWYUKJUQVGY9nR3WyB
-	 MYq3c3m/+W8/AFGUFk0sy+EdcMIuAI7UwGqGOVWP0BkBgefRFWoLMggMuh85L87C7E
-	 jmh0BoFMn2lPWbcZ8EI4aBOFq7UD/i/DcLgXGN8D4CpWYslU99+0h3SzjZUDDBqD1F
-	 qZ3HwE8ONVRDd2qSVXATjiBNPkPRxLbScjsEI7cI7GF2cRJLEsX92+GaoEwb5dCy9J
-	 ju+GmBRSv5+yQ==
-Date: Sat, 21 Nov 2026 11:25:07 +0100
+	b=Mb94tnCWX/iYDn9bt0VqQnsMIk2qoUIRC14x9VjZlMkPCi/+ubRWhQ9kq/WIXwV6h
+	 YMlLbsqBU467I2LaNg3KvLo8R0fSLbaKmjo9aaC7vaMFsomO7P8f1I2yB6ROoNsOaa
+	 924v6loVFKQBJP0psU7EfhB24rlH9Ab5uDdFV/w7AH8ZxfMutfLEyzvC9YBp0flGJH
+	 cLkqYiKyKo8DDomEwCcbvLTg5qcobNTuIVo1OLMGjILjmyAfB0cWVQX2LafKqV/O/4
+	 b3hstB0e1qvpmyEdF2EakNa8jAvm/eKJJE+s0FIK/merQPOwZ8J7XV2DQ7ZH1jiSw7
+	 hJwq6mSHlUIAg==
+Date: Sat, 21 Nov 2026 11:25:25 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Abdur Rofik <rofikcoga@gmail.com>
 Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
@@ -48,11 +48,11 @@ Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
 	Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
 	Neil Armstrong <neil.armstrong@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 07/10] arm64: dts: qcom: sm8250-lg-timelm: enable
- SW43103 panel
-Message-ID: <20261121-furious-turquoise-zebra-28c6ed@quoll>
+Subject: Re: [PATCH v5 08/10] arm64: dts: qcom: sm8250-lg-timelm: add SW42902
+ touchscreen
+Message-ID: <20261121-skilled-boisterous-antelope-0ca5ef@quoll>
 References: <20261120155450.7719-1-rofikcoga@gmail.com>
- <20261120155450.7719-8-rofikcoga@gmail.com>
+ <20261120155450.7719-9-rofikcoga@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,18 +64,18 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261120155450.7719-8-rofikcoga@gmail.com>
+In-Reply-To: <20261120155450.7719-9-rofikcoga@gmail.com>
 
-On Fri, Nov 20, 2026 at 04:54:46PM +0100, Abdur Rofik wrote:
-> Enable MDSS, DSI0, and its PHY. Attach the SW43103 panel with its power
-> rails, enable and reset GPIOs, and four-lane DSI link.
+On Fri, Nov 20, 2026 at 04:54:47PM +0100, Abdur Rofik wrote:
+> Describe the SW42902 touchscreen on GENI I2C13 with its interrupt,
+> reset, regulator supplies, pinctrl, and native 1080x2460 touch area.
 > 
 > Signed-off-by: Abdur Rofik <rofikcoga@gmail.com>
 > ---
->  arch/arm64/boot/dts/qcom/sm8250-lg-timelm.dts | 36 +++++++++++++++++++
+>  arch/arm64/boot/dts/qcom/sm8250-lg-timelm.dts | 47 +++++++++++++++++++
+>  1 file changed, 47 insertions(+)
 
-Why is this separate? When you have your new board DTS ready, and you do
-have, posting a new board is one commit.
+Don't split logical patches into multiple chunks.
 
 Best regards,
 Krzysztof

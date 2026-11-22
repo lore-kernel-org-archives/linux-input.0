@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795313964;
-	b=Oaoq+pt0nmkW5Lok0Ry8ZQwhAGEKUWQjKOMlnyNa4GximLHSbF573CEfTclu0kApDUG4
-	 R/2++77StGaPe56lCW6b6CIFauEeVyH4g1MVuhSYQIHI94ruNdei0OQJwvnQcdRfZJApx
-	 llZO+UZ5BnzHFdYY7yq995eNmu76NeWe6E0RCSy2R6WCYBca1aWCOE318LBwFsDvzkkK5
-	 Lul+vUBasBl79OpSwGRVejgBnEiZe9hB8rRearxQEIEAY1ne2OmFvzAEtOuTenpz2g+iB
-	 QP71i0ITeBclrDWWp1k4EGN0SBr2aYm7OY99lWRc3vAl9qnwLN4hU08kp/+9AsYJm4w==
+	t=1795313966;
+	b=qMZdI4jSaFcYn+anXOmXsjmjUAbtzqaq9tAOaasGgUVspUalgfUkeMdHAiATPmzpJXJd
+	 NrvF+LE/VX+0yanApaIYGaQSxj/t0/mKznEigloSlu8YSgJE86pZs8YupVELSVYS1PKSc
+	 YevA76MHQrQ+Njlsp6uDa4kM9puNfottTjxr59JDyTzV6jQF4ucmAcb3nnNwdbdhLHeql
+	 DLGBTtzpx+ZZz9hU811R1QYeN6SpXSR5Kstt7YM5I4PyP9NxO7jKKdZGZv0Xx+o2ACvyW
+	 TpQfcOfeHy3fS1lbAtaAp2zJ7Ix4ONtxlI9BZRju77sjhMsza8ixUU90tAtaUeIIcmQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795313964;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795313966;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=mavopvP4VyCYqaJMzHHYu9dRYym673qnfMMpdHtcl/4=;
-	b=TK34qkE798DUld/b8tz6JoCFpvEHnQLSQUIU7Qv52Hy/wWxQ8qxtapuFGNyupq06whCI
-	 D+dJ7N8dXBu9D/ao1yneqvtwAOHGrHGql0OT9kQDgPFK11AWvGT8CBMyra21LYXTUBft4
-	 ETZrfQFW1H8zzeU2q+xO3CQ3GxEZ3xlNkwuIEcyNskNMHlF3+WcSl8Q6t5WzfmfoybqVR
-	 LSS38ezO/hlRDxyaFvAoQwyzxztg+1jQJdDqbFiFQzSRlltf4Y2YgjJ/jv2nS4wAcL6jW
-	 ldoz4DD5iFViEO9dOCVV8Kha2X4kZgfFc00jIDEU7XISElA7/piOfRqHSFJlKxxb0lA==
+	bh=gxc1O/IrSzA0ZBAxGSkHNev7+DO88ESpjBA/745lot8=;
+	b=3sE8TvHtxMAwu4JPr7x0Ljd21aOhVCdijcxaaT6Ap3+mHd8y2HJ3kd6JSAu/ryyrcTCt
+	 NYUa/xm2fbAoLEF6ulNF9OgFOXNJEMY6j0dngzze6M0qzuZmRL1MUwmIPJDtKE17Ighdp
+	 WqFXclTltdXarNLqBQwuZMEBz7KEVIedJpXgsRgePkQDQrpbz342jvlPQhB3w4PTEY+ex
+	 fBmhMpbnmCiUVHtUMCw05TGbSJ1E+gqa9Gep/zjBU6d2zfe4aGRUU8i+QdG7uV6HCW/ss
+	 6nz3YXOpE0ApKVH+h220LIOZ/+d3hxWd1hF3NVEwUvBY+0HWfqj1c1icbUXyjYmQLAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=imIIcYh7;
-	arc=none smtp.remote-ip=95.215.58.124
-Received: from mta1.migadu.com (out-124.mta1.migadu.com [95.215.58.124])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kAbHEn3C;
+	arc=none smtp.remote-ip=95.215.58.133
+Received: from mta1.migadu.com (out-133.mta1.migadu.com [95.215.58.133])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F2A606A6B2
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 02:19:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 95F2A606A6B2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E30360A261D
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 02:19:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2E30360A261D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=imIIcYh7
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kAbHEn3C
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=XaSYbnwfb8auu8jGDJj8PtD/TNHbFRPpp5JMyLlKZiM=;
+DKIM-Signature: a=rsa-sha256; bh=xjYeWvN0yA9r0bljBcsMh+pq7nf1KQ/syQfV3aKQR3o=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795313961; v=1; x=1795918761;
- b=imIIcYh7end1Q6z2u5SuyTnYI4B2NW6nf+CMz7n/DWLPLw3uRuowpM5r/ea3rBzlaqIMiLZG
- kQS84nWV6/v5DKI3TDEz8er3cvgRgYu627m8CFkMOYgc3ADcHOuiIbzJLsft4W3HsMa1Ouz8Qef
- fYvPoX1caivNiHVWPedBDYoM=
+ t=1795313963; v=1; x=1795918763;
+ b=kAbHEn3CRul394ncVXV1owKCdOhhHA0ocyUlKt0jvMrYx/5SFq1QXfzQPKPCwvjB6DYTBKca
+ Fs21bZxTjKyyVyNCv6fPZQpk21bZFPaLeJMaeHtaTKxmZWp7Wuuw9QmnI4w3zZg//sHxT5k8kSA
+ w6M0SGV+69JfSxXZa9Xa/X1I=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 63c5f756edbe1c73;
-	Sun, 22 Nov 2026 02:19:16 +0000
-X-Mizu-Trace-ID: 63c5f756edbe1c73
+Received: by smtp.migadu.com with ESMTPS id f1aa1d2b89d6f5d2;
+	Sun, 22 Nov 2026 02:19:19 +0000
+X-Mizu-Trace-ID: f1aa1d2b89d6f5d2
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v16 15/19] HID: asus: expose XG Mobile identity and firmware information
-Date: Sun, 22 Nov 2026 02:18:44 +0000
-Message-ID: <20261122021849.57863-16-denis.benato@linux.dev>
+Subject: [PATCH v16 17/19] HID: asus: document ROG Ally sysfs attributes
+Date: Sun, 22 Nov 2026 02:18:46 +0000
+Message-ID: <20261122021849.57863-18-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261122021849.57863-1-denis.benato@linux.dev>
 References: <20261122021849.57863-1-denis.benato@linux.dev>
@@ -85,276 +85,426 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The identity query also reports the mainboard part number, the serial
-number and the part number of the station, and the 0xCE 0x03 query
-answers with an 8-byte binary blob followed by "tag, length, data"
-fields where GEN holds the station generation and VER the firmware
-version.
+The driver publishes the gamepad configuration of the ROG Ally
+handhelds through sysfs: the controller emulation and the
+operating mode, the per-motor vibration strength, the per-axis
+joystick calibration (dead zone, outer threshold, anti-dead
+zone and response curve), the trigger activation ranges, and
+the per-button mapping, macro and turbo settings.
 
-Collect this information at probe time and expose it read-only on the
-HID device:
-
-  /sys/bus/hid/devices/<bus>:<addr>.<intf>/xgm_model             (PRO)
-  .../xgm_serial                                              (SN)
-  .../xgm_mainboard                                           (MB)
-  .../xgm_part_number                                         (PNUM)
-  .../xgm_firmware_version                                    (VER)
-  .../xgm_generation                                          (GEN)
+Document each file: where it is created, what a read returns,
+which values a write accepts, and the error returned when the
+controller lacks the capability.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 188 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 186 insertions(+), 2 deletions(-)
+ .../ABI/testing/sysfs-driver-hid-asus         | 396 ++++++++++++++++++
+ 1 file changed, 396 insertions(+)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 2af1e4817176..a1cae9bc1d84 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -75,6 +75,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- /* XG Mobile station protocol on FEATURE_KBD_LED_REPORT_ID2. */
- #define ASUS_XGM_CMD_QUERY 0xce
- #define ASUS_XGM_QUERY_IDENTITY 0x01
-+#define ASUS_XGM_QUERY_VERSION 0x03
- #define ASUS_XGM_INFO_LEN 32
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-asus b/Documentation/ABI/testing/sysfs-driver-hid-asus
+index 30e0d17d4cec..8a11a4b1944a 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-asus
++++ b/Documentation/ABI/testing/sysfs-driver-hid-asus
+@@ -93,3 +93,399 @@ Description:
  
- /* Identity string fields, each "TAG:value;" inside the query answer. */
-@@ -82,6 +83,12 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define ASUS_XGM_TAG_SERIAL	"SN:"
- #define ASUS_XGM_TAG_MODEL	"PRO:"
- #define ASUS_XGM_TAG_PART	"PNUM:"
-+#define ASUS_XGM_TAG_GENERATION	"GEN"
-+#define ASUS_XGM_TAG_FIRMWARE	"VER"
+ 		Access: Read only
+ 		Valid values: a single line of text
 +
-+/* A version field is a 3-character tag, one length byte, then the data. */
-+#define ASUS_XGM_TLV_TAG_LEN	3
-+#define ASUS_XGM_TLV_HDR_LEN	(ASUS_XGM_TLV_TAG_LEN + 1)
- 
- /*
-  * Every station answer echoes the report id, the opcode and the
-@@ -249,6 +256,8 @@ struct asus_xgm_info {
- 	char serial[ASUS_XGM_INFO_LEN];
- 	char model[ASUS_XGM_INFO_LEN];
- 	char part_number[ASUS_XGM_INFO_LEN];
-+	char firmware_version[ASUS_XGM_INFO_LEN];
-+	char generation[ASUS_XGM_INFO_LEN];
- };
- 
- struct asus_touchpad_info {
-@@ -5193,6 +5202,153 @@ static bool asus_xgm_is_supported_model(const struct asus_xgm_info *info)
- 	return false;
- }
- 
-+/**
-+ * asus_xgm_tlv_str() - Extract a "tag, length, data" field
-+ * @dst: destination buffer
-+ * @dst_len: size of @dst, including the trailing NUL
-+ * @buf: answer of a version query
-+ * @len: size of @buf
-+ * @tag: three-character tag to look for
-+ *
-+ * Return: 0 on success, -ENOENT if @tag is missing or its data does not
-+ * fit in @dst.
-+ */
-+static int asus_xgm_tlv_str(char *dst, size_t dst_len, const u8 *buf,
-+			    size_t len, const char *tag)
-+{
-+	const u8 *p = buf + ASUS_XGM_RESP_PAYLOAD;
-+	const u8 *end = buf + len;
-+	u8 n;
++What:		/sys/bus/hid/drivers/asus/<dev>/xbox_controller
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Enable or disable the Xbox controller emulation of the
++		gamepad.
 +
-+	/*
-+	 * The payload starts with a binary prefix and then the fields.
-+	 * The station pads between fields with 0xff, so the tag is sought
-+	 * at every byte rather than walked as a packed list.
-+	 */
-+	while (p + ASUS_XGM_TLV_HDR_LEN <= end) {
-+		if (!memcmp(p, tag, ASUS_XGM_TLV_TAG_LEN)) {
-+			n = p[ASUS_XGM_TLV_TAG_LEN];
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller. A read
++		returns 1 when the emulation is enabled and 0 when it
++		is disabled; the emulation is enabled by default.
 +
-+			if (n >= dst_len ||
-+			    end - (p + ASUS_XGM_TLV_HDR_LEN) < n)
-+				return -ENOENT;
++		Reading and writing return -EOPNOTSUPP when the
++		controller does not report the capability.
 +
-+			memcpy(dst, p + ASUS_XGM_TLV_HDR_LEN, n);
-+			dst[n] = '\0';
-+			return 0;
-+		}
++		Access: Read/Write
++		Valid values: 0, 1
 +
-+		p++;
-+	}
++What:		/sys/bus/hid/drivers/asus/<dev>/gamepad_mode
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Operating mode of the gamepad. In "gamepad" mode the
++		buttons report gamepad codes, in "desktop" mode they
++		report keyboard, mouse and media codes. The default
++		mode is gamepad.
 +
-+	return -ENOENT;
-+}
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller. A switch
++		asks the controller to change mode and resets the
++		recorded button mappings to the firmware defaults of
++		the new mode, so the remap, macro and remap_available
++		files report those defaults afterwards.
 +
-+/**
-+ * asus_xgm_get_version() - Query the firmware version of a station
-+ * @hdev: HID device
-+ * @info: identity structure whose generation and firmware_version fields
-+ * get filled in
-+ *
-+ * Return: 0 on success, negative errno on failure.
-+ */
-+static int asus_xgm_get_version(struct hid_device *hdev,
-+				struct asus_xgm_info *info)
-+{
-+	size_t len = asus_report_len(hdev, FEATURE_KBD_LED_REPORT_ID2);
-+	int ret;
++		Access: Read/Write
++		Valid values: "gamepad", "desktop"
 +
-+	if (!len)
-+		return -EINVAL;
++What:		/sys/bus/hid/drivers/asus/<dev>/gamepad_mode_index
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		List of the operating modes the gamepad_mode file
++		accepts, space separated.
 +
-+	u8 *buf __free(kfree) = kzalloc(len, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller.
 +
-+	ret = asus_xgm_query(hdev, ASUS_XGM_QUERY_VERSION, buf, len);
-+	if (ret < 0)
-+		return ret;
++		Access: Read only
++		Valid values: "gamepad desktop"
 +
-+	if (len <= ASUS_XGM_RESP_HDR_LEN ||
-+	    buf[ASUS_XGM_RESP_OPCODE] != ASUS_XGM_CMD_QUERY ||
-+	    buf[ASUS_XGM_RESP_SUBCMD] != ASUS_XGM_QUERY_VERSION)
-+		return -ENODEV;
++What:		/sys/bus/hid/drivers/asus/<dev>/left_vibration/intensity
++		/sys/bus/hid/drivers/asus/<dev>/right_vibration/intensity
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Strength of the left or the right rumble motor, in
++		percent of the maximum intensity. The controller does
++		not keep the strength across a reset: the driver sends
++		the recorded values again when it re-initializes the
++		controller.
 +
-+	asus_xgm_tlv_str(info->generation, sizeof(info->generation),
-+			 buf, len, ASUS_XGM_TAG_GENERATION);
-+	asus_xgm_tlv_str(info->firmware_version, sizeof(info->firmware_version),
-+			 buf, len, ASUS_XGM_TAG_FIRMWARE);
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Both
++		motors default to 100 and a write is rejected when the
++		value is above 100.
 +
-+	return 0;
-+}
++		Access: Read/Write
++		Valid values: an unsigned number 0..100
 +
-+/**
-+ * asus_xgm_drvdata() - Get the drvdata behind an XG Mobile attribute
-+ * @dev: HID device the attribute is attached to
-+ *
-+ * Return: the asus_drvdata of @dev.
-+ */
-+static struct asus_drvdata *asus_xgm_drvdata(struct device *dev)
-+{
-+	return hid_get_drvdata(to_hid_device(dev));
-+}
++What:		/sys/bus/hid/drivers/asus/<dev>/left_vibration/intensity_range
++		/sys/bus/hid/drivers/asus/<dev>/right_vibration/intensity_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling intensity file accepts.
 +
-+static ssize_t xgm_model_show(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->model);
-+}
-+static DEVICE_ATTR_RO(xgm_model);
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
 +
-+static ssize_t xgm_serial_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->serial);
-+}
-+static DEVICE_ATTR_RO(xgm_serial);
++		Access: Read only
++		Valid values: "0 100"
 +
-+static ssize_t xgm_mainboard_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->mainboard);
-+}
-+static DEVICE_ATTR_RO(xgm_mainboard);
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/inner_threshold
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/inner_threshold
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Size of the inner dead zone of the joystick, in percent
++		of the axis range. The default is 10.
 +
-+static ssize_t xgm_part_number_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->part_number);
-+}
-+static DEVICE_ATTR_RO(xgm_part_number);
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
 +
-+static ssize_t xgm_firmware_version_show(struct device *dev,
-+					 struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->firmware_version);
-+}
-+static DEVICE_ATTR_RO(xgm_firmware_version);
++		Access: Read/Write
++		Valid values: an unsigned number 0..50
 +
-+static ssize_t xgm_generation_show(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->generation);
-+}
-+static DEVICE_ATTR_RO(xgm_generation);
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/outer_threshold
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/outer_threshold
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Outer threshold of the joystick, in percent of the axis
++		range: at and beyond this deflection the joystick
++		reports full deflection. The default is 90.
 +
-+static struct attribute *asus_xgm_attrs[] = {
-+	&dev_attr_xgm_model.attr,
-+	&dev_attr_xgm_serial.attr,
-+	&dev_attr_xgm_mainboard.attr,
-+	&dev_attr_xgm_part_number.attr,
-+	&dev_attr_xgm_firmware_version.attr,
-+	&dev_attr_xgm_generation.attr,
-+	NULL
-+};
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
 +
-+static const struct attribute_group asus_xgm_attr_group = {
-+	.attrs = asus_xgm_attrs,
-+};
++		Access: Read/Write
++		Valid values: an unsigned number 70..100
 +
- static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
- {
- 	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
-@@ -5500,9 +5656,29 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
- 
- 	drvdata->xgm_info = info;
- 
-+	ret = asus_xgm_get_version(hdev, info);
-+	if (ret < 0)
-+		hid_warn(hdev, "Failed to query XG Mobile version: %d\n", ret);
-+	else
-+		hid_info(hdev, "XG Mobile: firmware %s, generation %s\n",
-+			 info->firmware_version, info->generation);
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/inner_threshold_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/inner_threshold_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling inner_threshold file
++		accepts.
 +
-+	/*
-+	 * The attribute group is not devm-managed: a creation failure is
-+	 * fatal and unwound through asus_xgm_init_err, while on the unbind
-+	 * path the removal is gated on xgm_info exactly like the creation.
-+	 */
-+	ret = sysfs_create_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+	if (ret) {
-+		hid_err(hdev, "Failed to create XG Mobile attributes: %d\n", ret);
-+		goto asus_xgm_init_err;
-+	}
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
 +
- 	drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
--	if (drvdata->xgm_led == NULL)
--		return -ENOMEM;
-+	if (!drvdata->xgm_led) {
-+		ret = -ENOMEM;
-+		goto asus_xgm_init_err;
-+	}
- 
- 	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s-%s:led",
- 			      info->model,
-@@ -5535,6 +5711,8 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
- 
- 	return 0;
- asus_xgm_init_err:
-+	sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+	drvdata->xgm_info = NULL;
- 	drvdata->xgm_led = NULL;
- 	return ret;
- }
-@@ -5775,6 +5953,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
- 
-+	if (drvdata->xgm_info)
-+		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++		Access: Read only
++		Valid values: "0 50"
 +
- 	if (drvdata->xgm_led)
- 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
- 
-@@ -5799,6 +5980,9 @@ static void asus_remove(struct hid_device *hdev)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
- 
-+	if (drvdata->xgm_info)
-+		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/outer_threshold_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/outer_threshold_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling outer_threshold file
++		accepts.
 +
- 	if (drvdata->xgm_led)
- 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
- 
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "70 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/anti_deadzone
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/anti_deadzone
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Anti-dead zone of the joystick, in percent of the axis
++		range: the deflection the controller applies to
++		counteract the inner dead zone. The default is 0.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report anti-dead zone support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/anti_deadzone_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/anti_deadzone_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling anti_deadzone file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/response_curve
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/response_curve
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Response curve of the joystick, as four points. Each
++		point is a pair: a move percentage, the deflection at
++		which the point is placed, and a response percentage,
++		applied from that point on.
++
++		The values are ordered "move_1 resp_1 move_2 resp_2
++		move_3 resp_3 move_4 resp_4". move_N is the joystick
++		deflection percentage at which curve point N is placed
++		(0-100, each move_N must be greater than the previous
++		one). resp_N is the response percentage applied from
++		point N on (0-100).
++
++		The write is all-or-nothing: it is rejected when any
++		value is out of range or the move percentages are not
++		strictly increasing, and the recorded curve is left
++		untouched. The default is the linear curve
++		"0 0 33 33 66 66 100 100".
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report response curve support.
++
++		Access: Read/Write
++		Valid values: eight unsigned numbers 0..100, the move
++		ones strictly increasing
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/response_curve_index
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/response_curve_index
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Explanation of the format of the sibling response_curve
++		file.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: a single line of text
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_lower_limit
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_lower_limit
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Lower limit of the analog trigger activation range, in
++		percent of the trigger travel: below this deflection
++		the trigger reports zero. The default is 0.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..50
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_upper_limit
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_upper_limit
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Upper limit of the analog trigger activation range, in
++		percent of the trigger travel: at and beyond this
++		deflection the trigger reports full deflection. The
++		default is 100.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 70..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_lower_limit_range
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_lower_limit_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling range_lower_limit file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 50"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_upper_limit_range
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_upper_limit_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling range_upper_limit file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "70 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/remap
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Target the button is remapped to, by name. A write
++		sends the mapping to the controller and is rejected
++		when the name is unknown or not valid for the button
++		in the current mode; the recorded mapping is restored
++		when the controller rejects it.
++
++		"NONE" is always valid. In "gamepad" mode only gamepad
++		codes are valid, in "desktop" mode only keyboard,
++		mouse and media codes are; btn_m1 and btn_m2 accept
++		every code.
++
++		The file is created in one directory per button of the
++		configuration interface of a bound ASUS ROG Ally or
++		ROG Ally X controller. <btn> is one of: btn_a, btn_b,
++		btn_x, btn_y, btn_lb, btn_rb, dpad_up, dpad_down,
++		dpad_left, dpad_right, btn_l3, btn_r3, btn_menu,
++		btn_view, btn_m1 and btn_m2.
++
++		Access: Read/Write
++		Valid values: one name from the sibling
++		remap_available file
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/macro
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Macro target of the button, by name. The macro target
++		is not restricted by the controller mode: every name
++		the controller knows is valid for every button.
++
++		The file is created in the <btn> directories listed
++		for the remap file.
++
++		Access: Read/Write
++		Valid values: one name; the btn_m1 and btn_m2
++		remap_available files list them all
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/remap_available
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Names the remap file of this button accepts in the
++		current mode, space separated. The btn_m1 and btn_m2
++		files list every known name in every mode.
++
++		The file is created in the <btn> directories listed
++		for the remap file.
++
++		Access: Read only
++		Valid values: a single line of text
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/turbo_period
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Repeat period of the turbo function of the button, in
++		firmware units: while turbo is on, the button is
++		automatically pressed again at this period. The period
++		0, the default, disables the function.
++
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..20
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/toggle_period
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Toggle period of the turbo function of the button, in
++		firmware units.
++
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..255
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/turbo_period_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling turbo_period file
++		accepts.
++
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
++
++		Access: Read only
++		Valid values: "0 20"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/toggle_period_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling toggle_period file
++		accepts.
++
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
++
++		Access: Read only
++		Valid values: "0 255"
 -- 
 2.47.3
 

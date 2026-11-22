@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.127
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1795313964;
-	b=QuDUjhf/ftfeGomOo3tsEvAnC+zeYzbFFl1F0Cxx/O9AgsqycXswhPZjGcUrLykVnQAE
-	 0rdUg4DRUP9H+EDQXVVPbIfLDMtVpqo1WM2mdNJuIYve+B93hlm2fzSUjj0c2+xyS2Efj
-	 zv9I1H82pimuOrEXaTj/z5H+rJA3z1qFFjPpiZpq+TwpLsNzYcRfOprPKzINsKMLCOeOY
-	 iA31fSmlivaxQLVL9dzLmp0FcRcXNIjaAk9SjlLR3eROdFf7AHuaBTqvEnn/ARLz+GZ7I
-	 IaX4BD0nSchbuOwsVI55WlpXoRv2LmRfKaCuTy775qV6CwVm3NwYdUt8zl0Pe0Lox9A==
+	b=Oaoq+pt0nmkW5Lok0Ry8ZQwhAGEKUWQjKOMlnyNa4GximLHSbF573CEfTclu0kApDUG4
+	 R/2++77StGaPe56lCW6b6CIFauEeVyH4g1MVuhSYQIHI94ruNdei0OQJwvnQcdRfZJApx
+	 llZO+UZ5BnzHFdYY7yq995eNmu76NeWe6E0RCSy2R6WCYBca1aWCOE318LBwFsDvzkkK5
+	 Lul+vUBasBl79OpSwGRVejgBnEiZe9hB8rRearxQEIEAY1ne2OmFvzAEtOuTenpz2g+iB
+	 QP71i0ITeBclrDWWp1k4EGN0SBr2aYm7OY99lWRc3vAl9qnwLN4hU08kp/+9AsYJm4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795313964;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=5379CRQJx8I15aivicNrF0oYqHlT2w74jNzhiFSUHZA=;
-	b=gH1HWuFhkJSMOHgDwWa6r+rmL5C/s2Tn3sb3k56xuGlojCjIJpUmSeVsPPhgv3mmSapJ
-	 mRHIMR4IFX34CMUY2SVVE88mbwMqQ9k+2DzlE5WBZYfA1CBu87DbUj0bRvQGQ1Cwe/miB
-	 JLDSW5WJzgJ4IbxQPv4AjQyrZL7fYrZcxv6KdMYe9lr0HmvRaS+2HAmthQEFRwEASr4Q+
-	 xcOu2/TyfnP167YBWFF9b9+0o1iuo9VG1hktmFV+Br4Xf5VQCEeIZUrora4l6US6ktOGf
-	 XwmzqGHuWR5MvMcEsvrAU9x3p/mj21+2RUmsdiHf15gqDJxJqoxuKqf8bXVI0HpEC7A==
+	bh=mavopvP4VyCYqaJMzHHYu9dRYym673qnfMMpdHtcl/4=;
+	b=TK34qkE798DUld/b8tz6JoCFpvEHnQLSQUIU7Qv52Hy/wWxQ8qxtapuFGNyupq06whCI
+	 D+dJ7N8dXBu9D/ao1yneqvtwAOHGrHGql0OT9kQDgPFK11AWvGT8CBMyra21LYXTUBft4
+	 ETZrfQFW1H8zzeU2q+xO3CQ3GxEZ3xlNkwuIEcyNskNMHlF3+WcSl8Q6t5WzfmfoybqVR
+	 LSS38ezO/hlRDxyaFvAoQwyzxztg+1jQJdDqbFiFQzSRlltf4Y2YgjJ/jv2nS4wAcL6jW
+	 ldoz4DD5iFViEO9dOCVV8Kha2X4kZgfFc00jIDEU7XISElA7/piOfRqHSFJlKxxb0lA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=o49NzHcI;
-	arc=none smtp.remote-ip=95.215.58.127
-Received: from mta1.migadu.com (out-127.mta1.migadu.com [95.215.58.127])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=imIIcYh7;
+	arc=none smtp.remote-ip=95.215.58.124
+Received: from mta1.migadu.com (out-124.mta1.migadu.com [95.215.58.124])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D781060A2610
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F2A606A6B2
 	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 02:19:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D781060A2610
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 95F2A606A6B2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=o49NzHcI
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=imIIcYh7
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=PzuoZhu6Eoqymm75/Wmyv8NSmRksFQncwoKiOhcjjSQ=;
+DKIM-Signature: a=rsa-sha256; bh=XaSYbnwfb8auu8jGDJj8PtD/TNHbFRPpp5JMyLlKZiM=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795313962; v=1; x=1795918762;
- b=o49NzHcIuYrHBiqUa6MPObB/lrTows3AchSB1TpnRURF+R5m9FeY+KaVWJtrNVkhhIAi4F+6
- 0JC9m1N0ttL3h0tGQ/yv0RrrpAl3V8cwCg9XpF4HaSTiwGyNL57KrIcLtLlDdLIyjwn5zsMffl2
- H9p3T/9lGB4XW+xaQW2+GSFo=
+ t=1795313961; v=1; x=1795918761;
+ b=imIIcYh7end1Q6z2u5SuyTnYI4B2NW6nf+CMz7n/DWLPLw3uRuowpM5r/ea3rBzlaqIMiLZG
+ kQS84nWV6/v5DKI3TDEz8er3cvgRgYu627m8CFkMOYgc3ADcHOuiIbzJLsft4W3HsMa1Ouz8Qef
+ fYvPoX1caivNiHVWPedBDYoM=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 44227067b1cb5981;
-	Sun, 22 Nov 2026 02:19:18 +0000
-X-Mizu-Trace-ID: 44227067b1cb5981
+Received: by smtp.migadu.com with ESMTPS id 63c5f756edbe1c73;
+	Sun, 22 Nov 2026 02:19:16 +0000
+X-Mizu-Trace-ID: 63c5f756edbe1c73
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v16 16/19] HID: asus: document ROG XG Mobile sysfs attributes
-Date: Sun, 22 Nov 2026 02:18:45 +0000
-Message-ID: <20261122021849.57863-17-denis.benato@linux.dev>
+Subject: [PATCH v16 15/19] HID: asus: expose XG Mobile identity and firmware information
+Date: Sun, 22 Nov 2026 02:18:44 +0000
+Message-ID: <20261122021849.57863-16-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261122021849.57863-1-denis.benato@linux.dev>
 References: <20261122021849.57863-1-denis.benato@linux.dev>
@@ -85,118 +85,276 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The driver publishes the station's model, serial, mainboard identifier,
-part number, firmware version and hardware generation as read-only
-sysfs files. Document each file: when it is created, what a read
-returns, and when that read is an empty line.
+The identity query also reports the mainboard part number, the serial
+number and the part number of the station, and the 0xCE 0x03 query
+answers with an 8-byte binary blob followed by "tag, length, data"
+fields where GEN holds the station generation and VER the firmware
+version.
+
+Collect this information at probe time and expose it read-only on the
+HID device:
+
+  /sys/bus/hid/devices/<bus>:<addr>.<intf>/xgm_model             (PRO)
+  .../xgm_serial                                              (SN)
+  .../xgm_mainboard                                           (MB)
+  .../xgm_part_number                                         (PNUM)
+  .../xgm_firmware_version                                    (VER)
+  .../xgm_generation                                          (GEN)
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- .../ABI/testing/sysfs-driver-hid-asus         | 95 +++++++++++++++++++
- 1 file changed, 95 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-asus
+ drivers/hid/hid-asus.c | 188 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 186 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-asus b/Documentation/ABI/testing/sysfs-driver-hid-asus
-new file mode 100644
-index 000000000000..30e0d17d4cec
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-asus
-@@ -0,0 +1,95 @@
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_model
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Model of the connected ASUS ROG XG Mobile station, as
-+		reported by the station. An example is "GC33Y".
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 2af1e4817176..a1cae9bc1d84 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -75,6 +75,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ /* XG Mobile station protocol on FEATURE_KBD_LED_REPORT_ID2. */
+ #define ASUS_XGM_CMD_QUERY 0xce
+ #define ASUS_XGM_QUERY_IDENTITY 0x01
++#define ASUS_XGM_QUERY_VERSION 0x03
+ #define ASUS_XGM_INFO_LEN 32
+ 
+ /* Identity string fields, each "TAG:value;" inside the query answer. */
+@@ -82,6 +83,12 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define ASUS_XGM_TAG_SERIAL	"SN:"
+ #define ASUS_XGM_TAG_MODEL	"PRO:"
+ #define ASUS_XGM_TAG_PART	"PNUM:"
++#define ASUS_XGM_TAG_GENERATION	"GEN"
++#define ASUS_XGM_TAG_FIRMWARE	"VER"
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The value is one line and is never empty while the file
-+		exists.
++/* A version field is a 3-character tag, one length byte, then the data. */
++#define ASUS_XGM_TLV_TAG_LEN	3
++#define ASUS_XGM_TLV_HDR_LEN	(ASUS_XGM_TLV_TAG_LEN + 1)
+ 
+ /*
+  * Every station answer echoes the report id, the opcode and the
+@@ -249,6 +256,8 @@ struct asus_xgm_info {
+ 	char serial[ASUS_XGM_INFO_LEN];
+ 	char model[ASUS_XGM_INFO_LEN];
+ 	char part_number[ASUS_XGM_INFO_LEN];
++	char firmware_version[ASUS_XGM_INFO_LEN];
++	char generation[ASUS_XGM_INFO_LEN];
+ };
+ 
+ struct asus_touchpad_info {
+@@ -5193,6 +5202,153 @@ static bool asus_xgm_is_supported_model(const struct asus_xgm_info *info)
+ 	return false;
+ }
+ 
++/**
++ * asus_xgm_tlv_str() - Extract a "tag, length, data" field
++ * @dst: destination buffer
++ * @dst_len: size of @dst, including the trailing NUL
++ * @buf: answer of a version query
++ * @len: size of @buf
++ * @tag: three-character tag to look for
++ *
++ * Return: 0 on success, -ENOENT if @tag is missing or its data does not
++ * fit in @dst.
++ */
++static int asus_xgm_tlv_str(char *dst, size_t dst_len, const u8 *buf,
++			    size_t len, const char *tag)
++{
++	const u8 *p = buf + ASUS_XGM_RESP_PAYLOAD;
++	const u8 *end = buf + len;
++	u8 n;
 +
-+		Access: Read only
-+		Valid values: a single line of text
++	/*
++	 * The payload starts with a binary prefix and then the fields.
++	 * The station pads between fields with 0xff, so the tag is sought
++	 * at every byte rather than walked as a packed list.
++	 */
++	while (p + ASUS_XGM_TLV_HDR_LEN <= end) {
++		if (!memcmp(p, tag, ASUS_XGM_TLV_TAG_LEN)) {
++			n = p[ASUS_XGM_TLV_TAG_LEN];
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_serial
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Serial number of the connected ASUS ROG XG Mobile station,
-+		as reported by the station.
++			if (n >= dst_len ||
++			    end - (p + ASUS_XGM_TLV_HDR_LEN) < n)
++				return -ENOENT;
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		serial number.
++			memcpy(dst, p + ASUS_XGM_TLV_HDR_LEN, n);
++			dst[n] = '\0';
++			return 0;
++		}
 +
-+		Access: Read only
-+		Valid values: a single line of text
++		p++;
++	}
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_mainboard
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Mainboard identifier of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++	return -ENOENT;
++}
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		mainboard identifier.
++/**
++ * asus_xgm_get_version() - Query the firmware version of a station
++ * @hdev: HID device
++ * @info: identity structure whose generation and firmware_version fields
++ * get filled in
++ *
++ * Return: 0 on success, negative errno on failure.
++ */
++static int asus_xgm_get_version(struct hid_device *hdev,
++				struct asus_xgm_info *info)
++{
++	size_t len = asus_report_len(hdev, FEATURE_KBD_LED_REPORT_ID2);
++	int ret;
 +
-+		Access: Read only
-+		Valid values: a single line of text
++	if (!len)
++		return -EINVAL;
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_part_number
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Part number of the connected ASUS ROG XG Mobile station, as
-+		reported by the station.
++	u8 *buf __free(kfree) = kzalloc(len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		part number.
++	ret = asus_xgm_query(hdev, ASUS_XGM_QUERY_VERSION, buf, len);
++	if (ret < 0)
++		return ret;
 +
-+		Access: Read only
-+		Valid values: a single line of text
++	if (len <= ASUS_XGM_RESP_HDR_LEN ||
++	    buf[ASUS_XGM_RESP_OPCODE] != ASUS_XGM_CMD_QUERY ||
++	    buf[ASUS_XGM_RESP_SUBCMD] != ASUS_XGM_QUERY_VERSION)
++		return -ENODEV;
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_firmware_version
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Firmware version of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++	asus_xgm_tlv_str(info->generation, sizeof(info->generation),
++			 buf, len, ASUS_XGM_TAG_GENERATION);
++	asus_xgm_tlv_str(info->firmware_version, sizeof(info->firmware_version),
++			 buf, len, ASUS_XGM_TAG_FIRMWARE);
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the version query failed or
-+		the station did not report a firmware version.
++	return 0;
++}
 +
-+		Access: Read only
-+		Valid values: a single line of text
++/**
++ * asus_xgm_drvdata() - Get the drvdata behind an XG Mobile attribute
++ * @dev: HID device the attribute is attached to
++ *
++ * Return: the asus_drvdata of @dev.
++ */
++static struct asus_drvdata *asus_xgm_drvdata(struct device *dev)
++{
++	return hid_get_drvdata(to_hid_device(dev));
++}
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_generation
-+Date:		October 2026
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Hardware generation of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++static ssize_t xgm_model_show(struct device *dev,
++			      struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->model);
++}
++static DEVICE_ATTR_RO(xgm_model);
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the version query failed or
-+		the station did not report a generation.
++static ssize_t xgm_serial_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->serial);
++}
++static DEVICE_ATTR_RO(xgm_serial);
 +
-+		Access: Read only
-+		Valid values: a single line of text
++static ssize_t xgm_mainboard_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->mainboard);
++}
++static DEVICE_ATTR_RO(xgm_mainboard);
++
++static ssize_t xgm_part_number_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->part_number);
++}
++static DEVICE_ATTR_RO(xgm_part_number);
++
++static ssize_t xgm_firmware_version_show(struct device *dev,
++					 struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->firmware_version);
++}
++static DEVICE_ATTR_RO(xgm_firmware_version);
++
++static ssize_t xgm_generation_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->generation);
++}
++static DEVICE_ATTR_RO(xgm_generation);
++
++static struct attribute *asus_xgm_attrs[] = {
++	&dev_attr_xgm_model.attr,
++	&dev_attr_xgm_serial.attr,
++	&dev_attr_xgm_mainboard.attr,
++	&dev_attr_xgm_part_number.attr,
++	&dev_attr_xgm_firmware_version.attr,
++	&dev_attr_xgm_generation.attr,
++	NULL
++};
++
++static const struct attribute_group asus_xgm_attr_group = {
++	.attrs = asus_xgm_attrs,
++};
++
+ static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+ {
+ 	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
+@@ -5500,9 +5656,29 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+ 
+ 	drvdata->xgm_info = info;
+ 
++	ret = asus_xgm_get_version(hdev, info);
++	if (ret < 0)
++		hid_warn(hdev, "Failed to query XG Mobile version: %d\n", ret);
++	else
++		hid_info(hdev, "XG Mobile: firmware %s, generation %s\n",
++			 info->firmware_version, info->generation);
++
++	/*
++	 * The attribute group is not devm-managed: a creation failure is
++	 * fatal and unwound through asus_xgm_init_err, while on the unbind
++	 * path the removal is gated on xgm_info exactly like the creation.
++	 */
++	ret = sysfs_create_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++	if (ret) {
++		hid_err(hdev, "Failed to create XG Mobile attributes: %d\n", ret);
++		goto asus_xgm_init_err;
++	}
++
+ 	drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
+-	if (drvdata->xgm_led == NULL)
+-		return -ENOMEM;
++	if (!drvdata->xgm_led) {
++		ret = -ENOMEM;
++		goto asus_xgm_init_err;
++	}
+ 
+ 	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s-%s:led",
+ 			      info->model,
+@@ -5535,6 +5711,8 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+ 
+ 	return 0;
+ asus_xgm_init_err:
++	sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++	drvdata->xgm_info = NULL;
+ 	drvdata->xgm_led = NULL;
+ 	return ret;
+ }
+@@ -5775,6 +5953,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (drvdata->listener.brightness_set)
+ 		asus_hid_unregister_listener(&drvdata->listener);
+ 
++	if (drvdata->xgm_info)
++		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++
+ 	if (drvdata->xgm_led)
+ 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
+ 
+@@ -5799,6 +5980,9 @@ static void asus_remove(struct hid_device *hdev)
+ 	if (drvdata->listener.brightness_set)
+ 		asus_hid_unregister_listener(&drvdata->listener);
+ 
++	if (drvdata->xgm_info)
++		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
++
+ 	if (drvdata->xgm_led)
+ 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
+ 
 -- 
 2.47.3
 

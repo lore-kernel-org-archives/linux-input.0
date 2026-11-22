@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.78
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.154
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795313955;
-	b=2iKpVBBC0bnQ/EWHKBJF+meQlfIjv6nucDHfWm5iFeKnXh+lvQGQ38+azcxWL0UeHqcf
-	 0UdFAO+ZOw50e9Kmt6a46ohSuYtJZmWzXhteVpqzc2IBbjYOlZX6tlAm11WEbhI2zy9JD
-	 r9o3DjdJPrCjtrrX/ElxCL/uWyr8v1IaezXfzD3T+3HRUykTK21/nIuqZE/BNBdhlp1O8
-	 cehLVmB3m1m9ccf/nIHaHQDcJTIusOx1KsNe1NBQK3V3q62wAxHrVr8lScOHU5wf1Idj7
-	 yRIRjLndFBZ721cJ9wMtx3T+3525JDKvx/AJbf4S/FsAtDi8ZgPwqGHPW7mHxY7tg9g==
+	t=1795313958;
+	b=ACG76hA8MGH66seqU5p/okjgZR7bfBnCEe2ipDxMcXP682N5RGt0Y0L12p0dgATQJnoi
+	 j4lx50bFXdCUvFyxQnu8fy8hXKlK5So78opzLS6rqUN++sSKMgX8hcZbH+JML+xJX5net
+	 uVBr7tMDc4P9/mfhxYCAt8QGTj4DLmCJroHj68F/phljqiu12WbYc3Wqog42BgDP2ZYI8
+	 7ZLfGMk9nYlLQm6HvtpMpQsz1yCINTPzVpereIRQ4ZnGbT47ZRzCGlztaDiuD+i4JlCyg
+	 hrBI2hQSepOiGXF+93MfYt7v15n415SI0pOrY4IwDKyuy2gTEfzyG4APurmv74Y6HYw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795313955;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795313958;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=N0Ba61PeHLA6TT0p/hPWEo1z+w5bAcrtvN6PkvsIC5U=;
-	b=D0i3QrWgwnADCRScCoLvWGa8lUuSUk6PNo1IMwiG5TUDGBrln1BvpgwTLhPugGtCcZiH
-	 C14LwcsJuQdlLQs+fOvyBG+O6NiOZTGq9e1YL+AWpTTWG17zhQdgS6sNI7/o64kMQjEa+
-	 EyV1Dywe0WrGhRu9SsABpVWUdUPNnzjsqoHl/yH47coI3nYnOl2TUg64sYmTXBZzdPaHl
-	 6BJ45WY3AqneRhCb5TtWA3w7D9LjebVCkuQYE5BhvoGjJWQ49SMCWtA850R2zUOEoZ0l0
-	 iKEUIA7w4j06XLtJ6b5HML4pjVA8feGOMgOjivaX9UBVY7d17NhtJgfv2a/SKId1skw==
+	bh=AdLPe00BBhg2gaOM6RYlx29EDWP5ypanQ5aPbrTroe4=;
+	b=qMywfpKAVB8ESN3mHxvcH4+vL3dbuhmrwdtSBeVrVW1W614I/V4qUezzAPvpohywwxfX
+	 MyL8xSXNlxve+hY53OJOKu/lwVMHjhTueoIT3A7314vSxEvm5Yt6KxMCR+KWl1efgk6M7
+	 Ngj9TQsxhCIVovxtyEDIGtOuaNQkjUVfr1mcSXdTSu2AYmquA46hUva/agAri1N7SgiDj
+	 gB95915XnZ2FRNIBbkrixSHZ19KoznttjeghUVziCrt5WA+yUFDe1Prm3OsPKMgfwxYwK
+	 jLJHzWaiuOTu0g4edPLz2fn3k8z9/O3v0ZhlcftWOSm2wpL9MdhRNVnP0OWDDuVy/FQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ejjel8sV;
-	arc=none smtp.remote-ip=95.215.58.78
-Received: from mta1.migadu.com (out-78.mta1.migadu.com [95.215.58.78])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=QFGMB5Eq;
+	arc=none smtp.remote-ip=91.218.175.154
+Received: from mta0.migadu.com (out-154.mta0.migadu.com [91.218.175.154])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5157760A2617
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 02:19:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5157760A2617
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B46C606A682
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 02:19:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B46C606A682
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ejjel8sV
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=QFGMB5Eq
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=vo0EfJxTu4IvXEKr/uoBoT5LLl7+DB6q1Xfi623BBqs=;
+DKIM-Signature: a=rsa-sha256; bh=EmWTJNNWkYdmsRJuDxLaa8+zN65Nhv1g5Uakt5Fxi3s=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795313952; v=1; x=1795918752;
- b=ejjel8sV+8Q34GDL0v4zwwbJoixe/yzJTVjJS9b8WzuMVcxNI7DKXkgn7BL6cUcDCEJk8K+I
- IphIhT1zJ6/6Zlp0LVCYE0qs0ek8+Ztek2aTc4Y6R9Q6W+Tu0lM1w3VrfDXo10xrByN4q2KZePL
- kJAdru5tAXz/f3jKYb4mG0OI=
+ t=1795313955; v=1; x=1795918755;
+ b=QFGMB5EqWH790JTULt5omOdsMRDo1wo+4/cuWw74K5NpizkIe+vf1jdoDra8gyLg6puZR34Y
+ PUPG1ecgGJB7rmNcIPGhc+wNdDqfURUNMiP5PkXkNidETYr9FRziZEtl+XMlW5tUWtTFuDm3NYV
+ SQQEUGkO5J7IVrgFcwlstQdg=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 83db0147324d8526;
-	Sun, 22 Nov 2026 02:19:12 +0000
-X-Mizu-Trace-ID: 83db0147324d8526
+Received: by smtp.migadu.com with ESMTPS id 7447cc19af4a10bb;
+	Sun, 22 Nov 2026 02:19:15 +0000
+X-Mizu-Trace-ID: 7447cc19af4a10bb
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v16 12/19] HID: asus: add support for turbo buttons
-Date: Sun, 22 Nov 2026 02:18:41 +0000
-Message-ID: <20261122021849.57863-13-denis.benato@linux.dev>
+Subject: [PATCH v16 14/19] HID: asus: identify XG Mobile stations and bind the LED to the reported model
+Date: Sun, 22 Nov 2026 02:18:43 +0000
+Message-ID: <20261122021849.57863-15-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261122021849.57863-1-denis.benato@linux.dev>
 References: <20261122021849.57863-1-denis.benato@linux.dev>
@@ -85,445 +85,310 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ROG ally devices supports a feature called turbo buttons that allows
-the user to quickly toggle button state by keeping a button pressed,
-therefore allow userspace to configure the feature by exposing
-relevant sysfs attributes.
+The XG Mobile LED interface is currently bound to two USB product IDs
+(0x1970, 0x1a9a). The stations identify themselves through the vendor
+report 0x5E: after the usual "ASUS Tech.Inc." unlock, the 0xCE 0x01
+query answers with a NUL terminated string of the form
+
+  MB:<mainboard>;SN:<serial>;PRO:<model>;PNUM:<part number>;
+
+Run this query at probe time to initialize the LED interface only on
+supported models (GC31, GC32 and GC33). The LED name is the model
+followed by the bus identity (asus:xgm-<model>-<uniq>:led).
+The identity query is tried three times, one second apart, so one
+missed transfer does not leave the LED unregistered.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
-Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
-Co-developed-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
 ---
- drivers/hid/hid-asus.c | 351 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 351 insertions(+)
+ drivers/hid/hid-asus.c | 234 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 232 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index bc1618698ab2..4af60e76a298 100644
+index c42c8ca5ff9f..2af1e4817176 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -242,6 +242,8 @@ struct ally_ff_report {
- 	struct ally_ff_data ff;
- } __packed;
+@@ -26,6 +26,7 @@
+ #include <linux/compiler_attributes.h>
+ #include <linux/container_of.h>
+ #include <linux/ctype.h>
++#include <linux/delay.h>
+ #include <linux/dmi.h>
+ #include <linux/err.h>
+ #include <linux/hid.h>
+@@ -71,6 +72,29 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define FEATURE_KBD_LED_REPORT_ID1 0x5d
+ #define FEATURE_KBD_LED_REPORT_ID2 0x5e
  
-+struct ally_btn_sysfs_entry;
++/* XG Mobile station protocol on FEATURE_KBD_LED_REPORT_ID2. */
++#define ASUS_XGM_CMD_QUERY 0xce
++#define ASUS_XGM_QUERY_IDENTITY 0x01
++#define ASUS_XGM_INFO_LEN 32
 +
- struct ally_intf {
++/* Identity string fields, each "TAG:value;" inside the query answer. */
++#define ASUS_XGM_TAG_MAINBOARD	"MB:"
++#define ASUS_XGM_TAG_SERIAL	"SN:"
++#define ASUS_XGM_TAG_MODEL	"PRO:"
++#define ASUS_XGM_TAG_PART	"PNUM:"
++
++/*
++ * Every station answer echoes the report id, the opcode and the
++ * subcommand, then the payload.
++ */
++enum {
++	ASUS_XGM_RESP_REPORT_ID,
++	ASUS_XGM_RESP_OPCODE,
++	ASUS_XGM_RESP_SUBCMD,
++	ASUS_XGM_RESP_PAYLOAD,
++	ASUS_XGM_RESP_HDR_LEN = ASUS_XGM_RESP_PAYLOAD,
++};
++
+ #define ROG_ALLY_X_MIN_MCU 313
+ #define ROG_ALLY_MIN_MCU 319
+ 
+@@ -220,6 +244,13 @@ struct asus_xgm_led {
  	struct hid_device *hdev;
- 	/* HID-core evdev of this interface. Reports for it land here. */
-@@ -258,6 +260,7 @@ struct ally_intf {
- 	 */
- 	bool sysfs_live;
- 	bool cal_sysfs_live;
-+	struct ally_btn_sysfs_entry *button_entries;
- 	struct {
- 		/* Guards live, update, and packet. */
- 		spinlock_t lock;
-@@ -893,6 +896,80 @@ struct ally_joystick_resp_curve {
- 	struct ally_joystick_resp_curve_param entry_4;
- } __packed;
- 
-+enum ally_button_id {
-+	ALLY_BTN_A,
-+	ALLY_BTN_B,
-+	ALLY_BTN_X,
-+	ALLY_BTN_Y,
-+	ALLY_BTN_LB,
-+	ALLY_BTN_RB,
-+	ALLY_BTN_DU,
-+	ALLY_BTN_DD,
-+	ALLY_BTN_DL,
-+	ALLY_BTN_DR,
-+	ALLY_BTN_J0B,
-+	ALLY_BTN_J1B,
-+	ALLY_BTN_MENU,
-+	ALLY_BTN_VIEW,
-+	ALLY_BTN_M1,
-+	ALLY_BTN_M2,
-+	ALLY_BTN_MAX
-+};
-+
-+static const char *const ally_button_names[ALLY_BTN_MAX] = {
-+	[ALLY_BTN_A] = "btn_a",
-+	[ALLY_BTN_B] = "btn_b",
-+	[ALLY_BTN_X] = "btn_x",
-+	[ALLY_BTN_Y] = "btn_y",
-+	[ALLY_BTN_LB] = "btn_lb",
-+	[ALLY_BTN_RB] = "btn_rb",
-+	[ALLY_BTN_DU] = "dpad_up",
-+	[ALLY_BTN_DD] = "dpad_down",
-+	[ALLY_BTN_DL] = "dpad_left",
-+	[ALLY_BTN_DR] = "dpad_right",
-+	[ALLY_BTN_J0B] = "btn_l3",
-+	[ALLY_BTN_J1B] = "btn_r3",
-+	[ALLY_BTN_MENU] = "btn_menu",
-+	[ALLY_BTN_VIEW] = "btn_view",
-+	[ALLY_BTN_M1] = "btn_m1",
-+	[ALLY_BTN_M2] = "btn_m2",
-+};
-+
-+struct ally_btn_turbo_params {
-+	u8 turbo;
-+	u8 toggle;
-+} __packed;
-+
-+#define ALLY_TURBO_PERIOD_MAX 20
-+
-+/* Payload order. Not the same order as enum ally_button_id. */
-+struct ally_turbo_config {
-+	struct ally_btn_turbo_params btn_du;
-+	struct ally_btn_turbo_params btn_dd;
-+	struct ally_btn_turbo_params btn_dl;
-+	struct ally_btn_turbo_params btn_dr;
-+	struct ally_btn_turbo_params btn_j0b;
-+	struct ally_btn_turbo_params btn_j1b;
-+	struct ally_btn_turbo_params btn_lb;
-+	struct ally_btn_turbo_params btn_rb;
-+	struct ally_btn_turbo_params btn_a;
-+	struct ally_btn_turbo_params btn_b;
-+	struct ally_btn_turbo_params btn_x;
-+	struct ally_btn_turbo_params btn_y;
-+	struct ally_btn_turbo_params btn_view;
-+	struct ally_btn_turbo_params btn_menu;
-+	struct ally_btn_turbo_params btn_m2;
-+	struct ally_btn_turbo_params btn_m1;
-+};
-+
-+struct ally_btn_sysfs_entry {
-+	struct attribute_group group;
-+	struct attribute *attrs[5];
-+	enum ally_button_id btn;
-+	struct device_attribute attr_turbo_period;
-+	struct device_attribute attr_toggle_period;
-+};
-+
- /*
-  * Settings that must survive the controller powering off and coming back.
-  * No device or input pointers live here: every transfer uses the interface
-@@ -940,6 +1017,8 @@ static struct ally_prefs {
- 
- 	struct ally_joystick_resp_curve left_curve;
- 	struct ally_joystick_resp_curve right_curve;
-+
-+	struct ally_turbo_config turbo;
- } ally_prefs = {
- 	.lock = __MUTEX_INITIALIZER(ally_prefs.lock),
- };
-@@ -2165,8 +2244,261 @@ static const struct attribute_group ally_attr_groups[] = {
- 	},
  };
  
-+static struct ally_btn_turbo_params *ally_btn_table[ALLY_BTN_MAX] = {
-+	[ALLY_BTN_A] = &ally_prefs.turbo.btn_a,
-+	[ALLY_BTN_B] = &ally_prefs.turbo.btn_b,
-+	[ALLY_BTN_X] = &ally_prefs.turbo.btn_x,
-+	[ALLY_BTN_Y] = &ally_prefs.turbo.btn_y,
-+	[ALLY_BTN_LB] = &ally_prefs.turbo.btn_lb,
-+	[ALLY_BTN_RB] = &ally_prefs.turbo.btn_rb,
-+	[ALLY_BTN_DU] = &ally_prefs.turbo.btn_du,
-+	[ALLY_BTN_DD] = &ally_prefs.turbo.btn_dd,
-+	[ALLY_BTN_DL] = &ally_prefs.turbo.btn_dl,
-+	[ALLY_BTN_DR] = &ally_prefs.turbo.btn_dr,
-+	[ALLY_BTN_J0B] = &ally_prefs.turbo.btn_j0b,
-+	[ALLY_BTN_J1B] = &ally_prefs.turbo.btn_j1b,
-+	[ALLY_BTN_MENU] = &ally_prefs.turbo.btn_menu,
-+	[ALLY_BTN_VIEW] = &ally_prefs.turbo.btn_view,
-+	[ALLY_BTN_M1] = &ally_prefs.turbo.btn_m1,
-+	[ALLY_BTN_M2] = &ally_prefs.turbo.btn_m2,
++struct asus_xgm_info {
++	char mainboard[ASUS_XGM_INFO_LEN];
++	char serial[ASUS_XGM_INFO_LEN];
++	char model[ASUS_XGM_INFO_LEN];
++	char part_number[ASUS_XGM_INFO_LEN];
 +};
 +
-+static struct ally_btn_turbo_params *ally_btn_param(enum ally_button_id btn)
+ struct asus_touchpad_info {
+ 	int max_x;
+ 	int max_y;
+@@ -299,6 +330,7 @@ struct asus_drvdata {
+ 	struct asus_hid_listener listener;
+ 	bool fn_lock;
+ 	struct asus_xgm_led *xgm_led;
++	struct asus_xgm_info *xgm_info;
+ };
+ 
+ /**
+@@ -4998,6 +5030,169 @@ static int asus_battery_probe(struct hid_device *hdev)
+ 	return ret;
+ }
+ 
++/**
++ * asus_xgm_query() - Run a query command against an XG Mobile station
++ * @hdev: HID device
++ * @subcmd: query sub-command
++ * @buf: buffer to store the answer in
++ * @buf_size: size of @buf
++ *
++ * Windows re-sends the "ASUS Tech.Inc." unlock before every command
++ * burst, so do the same.
++ *
++ * Return: 0 on success, negative errno on failure.
++ */
++static int asus_xgm_query(struct hid_device *hdev, u8 subcmd,
++			  u8 *buf, size_t buf_size)
 +{
-+	if (btn >= ALLY_BTN_MAX)
-+		return NULL;
++	const u8 unlock[] = {
++		FEATURE_KBD_LED_REPORT_ID2,
++		'A', 'S', 'U', 'S', ' ', 'T', 'e', 'c', 'h', '.', 'I', 'n', 'c', '.'
++	};
++	const u8 cmd[] = { FEATURE_KBD_LED_REPORT_ID2, ASUS_XGM_CMD_QUERY, subcmd };
++	int ret;
 +
-+	return ally_btn_table[btn];
++	ret = asus_kbd_set_report(hdev, unlock, sizeof(unlock));
++	if (ret < 0)
++		return ret;
++
++	ret = asus_kbd_set_report(hdev, cmd, sizeof(cmd));
++	if (ret < 0)
++		return ret;
++
++	return asus_kbd_get_report(hdev, FEATURE_KBD_LED_REPORT_ID2, buf, buf_size);
 +}
 +
 +/**
-+ * ally_set_turbo_params() - Set the turbo parameters
-+ * @hdev: The HID device to send the packet to.
++ * asus_xgm_info_assign() - Copy an identity field up to its ';'
++ * terminator
++ * @dst: destination buffer
++ * @dst_len: size of @dst, including the trailing NUL
++ * @src: start of the field inside the identity string
++ * @src_len: number of bytes available at @src
 + *
-+ * Context: Caller holds ally_prefs.lock.
-+ *
-+ * Return: 0 on success, negative error code on failure.
++ * Copies up to @dst_len - 1 bytes from @src, stopping at the first ';'
++ * field separator, and NUL terminates @dst.
 + */
-+static int ally_set_turbo_params(struct hid_device *hdev)
++static void asus_xgm_info_assign(char *dst, size_t dst_len,
++				 const char *src, size_t src_len)
 +{
-+	struct ally_turbo_config *turbo = &ally_prefs.turbo;
-+	size_t buf_len;
++	const char *sep = strnchr(src, src_len, ';');
++	size_t n = sep ? (size_t)(sep - src) : src_len;
++
++	if (n >= dst_len)
++		n = dst_len - 1;
++
++	memcpy(dst, src, n);
++	dst[n] = '\0';
++}
++
++/**
++ * asus_xgm_take_field() - Copy one tagged field out of the identity string
++ * @dst: destination buffer
++ * @dst_len: size of @dst, including the trailing NUL
++ * @identity: identity string returned by the station
++ * @identity_len: number of bytes available at @identity
++ * @tag: field tag, including the colon
++ *
++ * A tag that is absent leaves @dst untouched.
++ */
++static void asus_xgm_take_field(char *dst, size_t dst_len,
++				const char *identity, size_t identity_len,
++				const char *tag)
++{
++	size_t tag_len = strlen(tag);
++	const char *found = strnstr(identity, tag, identity_len);
++	size_t value_off;
++
++	if (!found)
++		return;
++
++	value_off = (found - identity) + tag_len;
++	if (value_off > identity_len)
++		return;
++
++	asus_xgm_info_assign(dst, dst_len, identity + value_off,
++			     identity_len - value_off);
++}
++
++/**
++ * asus_xgm_get_identity() - Query the identity of an XG Mobile station
++ * @hdev: HID device
++ * @info: identity structure to fill in
++ *
++ * The identity query answers with a NUL terminated string of the form
++ * "MB:<mainboard>;SN:<serial>;PRO:<model>;PNUM:<part number>;", which is
++ * split into the fields of @info. The model field is mandatory: a station
++ * that does not report one is treated as absent.
++ *
++ * Return: 0 on success, negative errno on failure.
++ */
++static int asus_xgm_get_identity(struct hid_device *hdev,
++				 struct asus_xgm_info *info)
++{
++	size_t len = asus_report_len(hdev, FEATURE_KBD_LED_REPORT_ID2);
++	const char *payload;
++	size_t payload_len;
 +	int ret;
 +
-+	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_TURBO_PARAMS,
-+					       (const u8 *)turbo, sizeof(*turbo),
-+					       &buf_len);
++	if (!len)
++		return -EINVAL;
 +
++	u8 *buf __free(kfree) = kzalloc(len, GFP_KERNEL);
 +	if (!buf)
 +		return -ENOMEM;
 +
-+	ret = ally_gamepad_send_packet(hdev, buf, buf_len);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to set turbo parameters: %d\n", ret);
++	ret = asus_xgm_query(hdev, ASUS_XGM_QUERY_IDENTITY, buf, len);
++	if (ret < 0)
 +		return ret;
-+	}
++
++	if (len <= ASUS_XGM_RESP_HDR_LEN ||
++	    buf[ASUS_XGM_RESP_OPCODE] != ASUS_XGM_CMD_QUERY ||
++	    buf[ASUS_XGM_RESP_SUBCMD] != ASUS_XGM_QUERY_IDENTITY)
++		return -ENODEV;
++
++	payload = (const char *)buf + ASUS_XGM_RESP_PAYLOAD;
++	payload_len = strnlen(payload, len - ASUS_XGM_RESP_HDR_LEN);
++	if (!payload_len)
++		return -ENODEV;
++
++	asus_xgm_take_field(info->mainboard, sizeof(info->mainboard),
++			    payload, payload_len, ASUS_XGM_TAG_MAINBOARD);
++	asus_xgm_take_field(info->serial, sizeof(info->serial),
++			    payload, payload_len, ASUS_XGM_TAG_SERIAL);
++	asus_xgm_take_field(info->model, sizeof(info->model),
++			    payload, payload_len, ASUS_XGM_TAG_MODEL);
++	asus_xgm_take_field(info->part_number, sizeof(info->part_number),
++			    payload, payload_len, ASUS_XGM_TAG_PART);
++
++	if (!info->model[0])
++		return -ENODEV;
 +
 +	return 0;
 +}
 +
-+/* Which per-button period a sysfs attribute operates on. */
-+enum ally_btn_period {
-+	ALLY_TURBO_PERIOD,
-+	ALLY_TOGGLE_PERIOD,
-+};
++static const char * const asus_xgm_models[] = { "GC31", "GC32", "GC33" };
 +
-+static u8 *ally_btn_period_field(struct ally_btn_turbo_params *params,
-+				 enum ally_btn_period which)
++/**
++ * asus_xgm_is_supported_model() - Check that a station is supported
++ * @info: identity of the station
++ *
++ * The supported families are the GC31, GC32 and GC33 stations.
++ *
++ * Return: true if the reported model belongs to one of the supported
++ * families, false otherwise.
++ */
++static bool asus_xgm_is_supported_model(const struct asus_xgm_info *info)
 +{
-+	return which == ALLY_TURBO_PERIOD ? &params->turbo : &params->toggle;
++	for (size_t i = 0; i < ARRAY_SIZE(asus_xgm_models); i++)
++		if (strncmp(info->model, asus_xgm_models[i],
++			    strlen(asus_xgm_models[i])) == 0)
++			return true;
++
++	return false;
 +}
 +
-+static ssize_t ally_btn_period_show(struct ally_btn_sysfs_entry *entry, char *buf,
-+				    enum ally_btn_period which)
-+{
-+	struct ally_btn_turbo_params *params;
-+	u8 value;
-+
-+	scoped_guard(mutex, &ally_prefs.lock) {
-+		if (!ally_prefs.turbo_support)
-+			return -EOPNOTSUPP;
-+
-+		params = ally_btn_param(entry->btn);
-+		if (!params)
-+			return -ENODEV;
-+
-+		/*
-+		 * Snapshot the field while holding the lock: the store
-+		 * writes it in-place before the feature report transfer
-+		 * and rolls it back on failure, so reading it unlocked
-+		 * could observe a value that never took effect.
-+		 */
-+		value = *ally_btn_period_field(params, which);
-+	}
-+
-+	return sysfs_emit(buf, "%hhu\n", value);
-+}
-+
-+static ssize_t ally_btn_period_store(struct device *dev,
-+				     struct ally_btn_sysfs_entry *entry,
-+				     const char *buf, size_t count,
-+				     enum ally_btn_period which, u8 max,
-+				     const char *name)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct ally_btn_turbo_params *params;
-+	u8 old_value, value, *field;
-+	int ret;
-+
-+	ret = kstrtou8(buf, 10, &value);
-+	if (ret)
-+		return ret;
-+	if (value > max)
-+		return -EINVAL;
-+
-+	scoped_guard(mutex, &ally_prefs.lock) {
-+		if (!ally_prefs.turbo_support)
-+			return -EOPNOTSUPP;
-+
-+		params = ally_btn_param(entry->btn);
-+		if (!params)
-+			return -ENODEV;
-+
-+		field = ally_btn_period_field(params, which);
-+		old_value = *field;
-+		*field = value;
-+
-+		ret = ally_set_turbo_params(hdev);
-+		if (ret) {
-+			*field = old_value;
-+			return ret;
-+		}
-+	}
-+
-+	sysfs_notify(&dev->kobj, entry->group.name, name);
-+
-+	return count;
-+}
-+
-+/* Generates btn_<kind>_period_{show,store,range_show}. */
-+#define ALLY_BTN_PERIOD_FUNCS(kind, KIND, max)						\
-+static ssize_t btn_##kind##_period_show(struct device *dev,				\
-+					struct device_attribute *attr, char *buf)	\
-+{											\
-+	struct ally_btn_sysfs_entry *entry = container_of(attr,				\
-+		struct ally_btn_sysfs_entry, attr_##kind##_period);			\
-+											\
-+	return ally_btn_period_show(entry, buf, ALLY_##KIND##_PERIOD);			\
-+}											\
-+											\
-+static ssize_t btn_##kind##_period_store(struct device *dev,				\
-+					 struct device_attribute *attr,			\
-+					 const char *buf, size_t count)			\
-+{											\
-+	struct ally_btn_sysfs_entry *entry = container_of(attr,				\
-+		struct ally_btn_sysfs_entry, attr_##kind##_period);			\
-+											\
-+	return ally_btn_period_store(dev, entry, buf, count, ALLY_##KIND##_PERIOD,	\
-+				     max, #kind "_period");				\
-+}											\
-+											\
-+static ssize_t btn_##kind##_period_range_show(struct device *dev,			\
-+					      struct device_attribute *attr,		\
-+					      char *buf)				\
-+{											\
-+	return sysfs_emit(buf, "%u %u\n", 0, (unsigned int)(max));			\
-+}
-+
-+ALLY_BTN_PERIOD_FUNCS(turbo,  TURBO,  ALLY_TURBO_PERIOD_MAX)
-+ALLY_BTN_PERIOD_FUNCS(toggle, TOGGLE, U8_MAX)
-+
-+static struct device_attribute dev_attr_btn_turbo_period_range =
-+	__ATTR(turbo_period_range, 0444, btn_turbo_period_range_show, NULL);
-+
-+static struct device_attribute dev_attr_btn_toggle_period_range =
-+	__ATTR(toggle_period_range, 0444, btn_toggle_period_range_show, NULL);
-+
-+static void ally_btn_turbo_init_attrs(struct ally_btn_sysfs_entry *entry)
-+{
-+	sysfs_attr_init(&entry->attr_turbo_period.attr);
-+	entry->attr_turbo_period.attr.name = "turbo_period";
-+	entry->attr_turbo_period.attr.mode = 0644;
-+	entry->attr_turbo_period.show = btn_turbo_period_show;
-+	entry->attr_turbo_period.store = btn_turbo_period_store;
-+
-+	sysfs_attr_init(&entry->attr_toggle_period.attr);
-+	entry->attr_toggle_period.attr.name = "toggle_period";
-+	entry->attr_toggle_period.attr.mode = 0644;
-+	entry->attr_toggle_period.show = btn_toggle_period_show;
-+	entry->attr_toggle_period.store = btn_toggle_period_store;
-+
-+	entry->attrs[0] = &entry->attr_turbo_period.attr;
-+	entry->attrs[1] = &entry->attr_toggle_period.attr;
-+	entry->attrs[2] = &dev_attr_btn_turbo_period_range.attr;
-+	entry->attrs[3] = &dev_attr_btn_toggle_period_range.attr;
-+	entry->attrs[4] = NULL;
-+}
-+
-+static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct hid_device *hdev)
-+{
-+	int i, ret;
-+
-+	scoped_guard(mutex, &ally_prefs.lock)
-+		if (!ally_prefs.turbo_support)
-+			return NULL;
-+
-+	struct ally_btn_sysfs_entry *entries __free(kfree) = kzalloc_objs(*entries, ALLY_BTN_MAX);
-+	if (!entries)
-+		return ERR_PTR(-ENOMEM);
-+
-+	for (i = 0; i < ALLY_BTN_MAX; i++) {
-+		entries[i].btn = i;
-+
-+		if (!ally_btn_param(i)) {
-+			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-+			ret = -EINVAL;
-+			goto ally_btn_err_cleanup;
-+		}
-+
-+		ally_btn_turbo_init_attrs(&entries[i]);
-+		entries[i].group.name = ally_button_names[i];
-+		entries[i].group.attrs = entries[i].attrs;
-+
-+		ret = sysfs_create_group(&hdev->dev.kobj, &entries[i].group);
-+		if (ret < 0) {
-+			hid_err(hdev, "Failed to create sysfs group for %s: %d\n",
-+				ally_button_names[i], ret);
-+			goto ally_btn_err_cleanup;
-+		}
-+	}
-+
-+	return no_free_ptr(entries);
-+
-+ally_btn_err_cleanup:
-+	while (i--)
-+		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-+
-+	return ERR_PTR(ret);
-+}
-+
-+static void ally_remove_button_attributes(struct hid_device *hdev,
-+					  struct ally_btn_sysfs_entry *entries)
-+{
-+	int i;
-+
-+	if (!entries)
-+		return;
-+
-+	for (i = 0; i < ALLY_BTN_MAX; i++) {
-+		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-+	}
-+
-+	kfree(entries);
-+}
-+
- static int ally_prefs_setup(struct hid_device *hdev, struct ally_intf *intf)
+ static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
  {
-+	struct ally_btn_sysfs_entry *entries = NULL;
- 	bool cal_live = false;
- 	int ret, i, cal_n = 0;
+ 	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
+@@ -5268,14 +5463,49 @@ static void asus_initialize_reports(struct hid_device *hdev)
  
-@@ -2227,7 +2559,15 @@ static int ally_prefs_setup(struct hid_device *hdev, struct ally_intf *intf)
- 		}
- 	}
- 
-+	entries = ally_create_button_attributes(hdev);
-+	if (IS_ERR(entries)) {
-+		ret = PTR_ERR(entries);
-+		hid_err(hdev, "Failed to create button attributes: %d\n", ret);
-+		goto err_cal_groups;
-+	}
-+
- 	scoped_guard(mutex, &ally_prefs.lock) {
-+		intf->button_entries = entries;
- 		intf->cal_sysfs_live = cal_live;
- 		intf->sysfs_live = true;
- 	}
-@@ -2246,6 +2586,7 @@ static int ally_prefs_setup(struct hid_device *hdev, struct ally_intf *intf)
- 
- static void ally_sysfs_remove(struct hid_device *hdev, struct ally_intf *intf)
+ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
  {
-+	struct ally_btn_sysfs_entry *entries;
- 	bool cal_live;
- 	int i;
- 
-@@ -2260,10 +2601,14 @@ static void ally_sysfs_remove(struct hid_device *hdev, struct ally_intf *intf)
- 			return;
- 
- 		intf->sysfs_live = false;
-+		entries = intf->button_entries;
-+		intf->button_entries = NULL;
- 		cal_live = intf->cal_sysfs_live;
- 		intf->cal_sysfs_live = false;
- 	}
- 
-+	ally_remove_button_attributes(hdev, entries);
++	struct asus_xgm_info *info;
+ 	const char *name;
+-	int ret;
++	int attempt, ret;
 +
- 	for (i = 0; i < ARRAY_SIZE(ally_attr_groups); i++)
- 		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
- 
-@@ -2623,6 +2968,12 @@ static int hid_asus_ally_init(struct hid_device *hdev)
- 			hid_warn(hdev, "Failed to restore gamepad mode: %d\n", ret);
- 	}
- 
-+	if (ally_prefs.initialized && ally_prefs.turbo_support) {
-+		ret = ally_set_turbo_params(hdev);
-+		if (ret < 0)
-+			hid_warn(hdev, "Failed to restore turbo parameters: %d\n", ret);
++	info = devm_kzalloc(&hdev->dev, sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return -ENOMEM;
++
++	/*
++	 * The station reports its identity through the query protocol: the
++	 * reported model decides whether the LED interface is registered.
++	 * The LED name is that model, then the bus identity. One missed
++	 * transfer used to leave that LED unregistered, so try three times
++	 * and wait a second between attempts.
++	 */
++	for (attempt = 0; attempt < 3; attempt++) {
++		ret = asus_xgm_get_identity(hdev, info);
++		if (!ret)
++			break;
++		if (attempt < 2)
++			ssleep(1);
++	}
++	if (ret < 0) {
++		hid_warn(hdev, "Failed to query XG Mobile identity: %d\n", ret);
++		return 0;
 +	}
 +
- 	return 0;
- }
++	hid_info(hdev, "XG Mobile: model %s, serial %s\n",
++		 info->model, info->serial);
++
++	if (!asus_xgm_is_supported_model(info)) {
++		hid_warn(hdev, "Unsupported XG Mobile model %s\n", info->model);
++		return 0;
++	}
++
++	drvdata->xgm_info = info;
  
+ 	drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
+ 	if (drvdata->xgm_led == NULL)
+ 		return -ENOMEM;
+ 
+-	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s:led",
++	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s-%s:led",
++			      info->model,
+ 			      strlen(hdev->uniq) ? hdev->uniq : dev_name(&hdev->dev));
+ 
+ 	if (name == NULL) {
 -- 
 2.47.3
 

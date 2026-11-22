@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795324436;
-	b=yi9fjYiNvn5fNy/Hiv11XmtIflHDVGRn0B+MY/WspHCbOU0EETY8RkZOfHL9OnI1/Tqv
-	 ooA4YiDF757j6C08XoCRJA5PYUw6YnQFDONLpYENtyQNcqlCsBhmkguwpPo63jxPJmnaS
-	 oJ3GQui+J3krEnJ9F4AGsrpHkf8Mta632kLtpG031HhP4NQU+/PyGt7FlxzmcMmYvs0+0
-	 UXwW4f9XafKbFaRHqj2N0juNRYXzRgF8ShC7ZijCmpZKEUntLGENbmku/DuZZo1LgKxKw
-	 oeb2ecbtvlc2DuwXRhVtTu3cjrGSeHcxTUWUlBwf0vSAkYzkcab0TDJ3qYKsGzKjYew==
+	t=1795324435;
+	b=s2cBr491+qY2fRwjyYAh/+QiVeATz2k6VYdRKE+tjqlRlDM+GdtSJ6zgws6ZaxR4tEHP
+	 friBEbcfFvZmdHI3AHiV7/Crrvuuheyc+OslWzK75ofFzaRVmfJgoYZvUS8wQpNqytDbn
+	 YkjEYCEnPW2JuhfgM6ygBW8dqBSRlM2g2gHk+UuinnPr42D+7Kp2t8QkD6IHuaWXEA0bb
+	 akSdlTSMsDyY17PtcoQog/W+V7djSbmq1zscEMuMllf68Io/UbX8POSfloj6OFvfcXido
+	 aJyXkiY5PeEsjIND5UQY8IekTSfTzvzbIa0SO5fGG85z6uU+Sc/q30D8MUHrtWHiJeg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795324436;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=/QrJTXR+9tGdWyJeoCL5ze/rHmBkcQAMi7mOI8oYCYI=;
-	b=JRdqp0IkMTifhIH5l5UgvmqSOUYtLU/qq+4VAv8XJLbX3osQktIfvXEFvrwPIUfhnlwI
-	 OvLBjkMmyXI4XC3lyUc2NccMqTh5GP02V9IPdjYrdlfRIkMzqIZt3FOtYrrRHawW5eROd
-	 oY6QHz6e0IXYYHGHawSc7Z6/2NyxAQq3Y7uqg/o7Zm5u3X7LGSC0cS3MWc9PIqZ+AokJu
-	 3ou42K5m2eC/cQ2PCinbVCrdpzq4qMFyS5nWwys26qZuaTUkylVB3YP4dnX5GJ8Fnr677
-	 312R3Gqi6qrndV88H3BFYOQOJ3DjmkrdY23mdwDXltxoCJXdmz7E6SFtN+W+cTu9Wrw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795324435;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=edfAV7sjiyxrEsTsjRbWE2ESXJEHHcgg3MhsTRg16rI=;
+	b=e1onEU99tsDQiq/yOmxJLVaqzwhftiMqiXpEitOvy9V4YTlOR77mkzcx7jhJzmvGmGaP
+	 YXEzwIz4XT1K6V80foPTDNvAs7pLsjI5+jEu5wgfyDK8fv2a8ylb0yVUykieVo1NCmzfS
+	 FZ2dM/jR/8/cQZzbFj/JI3v+t/fntTH3beG2wjani+vrFb8nUM5B9KLvdLWeYKpG5Ng9f
+	 7p+0RgdaZ4CQiejznmAlij2O7qB9eW+zt/zaWG4TxiE/+Z8bd4Wzr2orktC5t+dCKTBgB
+	 Dgp6EP3WcHx4yZ56dxoBgiLjchcnXp6lrvHGXqv593SzjUVTri2S2MZMGnOGfvYtAfw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RGAdWzJH;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lEbPrjn2;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23609606A682;
-	Sun, 22 Nov 2026 05:13:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40B23606A330;
+	Sun, 22 Nov 2026 05:13:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RGAdWzJH
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lEbPrjn2
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795324436;
-	b=jgW6V82QJKvVsEe+gecp+TfojTTgpg1CLRQSbQhqh3mfClhyY7cBpiapvlQmNLd6o2iE
-	 Esxre8m1vdI0rksgwpYMj5TUXAByDmxoYH9T4FQRAX3EVNwtvcXZUFe9zdtDMa17g9hk+
-	 exG0wevMUa9jkh2YoW+y7PeYeZ7E93jhZG+LKGtdPCvbk8fujZykd7AYPoyrsrcPqGMh/
-	 Wnr+CSEsRZzvqa+whOZGWPoqs1YsZAvJ+DAlNXPCo/koy2bIFMjQ6Lh5zzL229x6DVtAC
-	 SVEPiuQ/uV3BKYxnvF3SezHujhyjlZT7TbwKgddQZ3IMVW6Zm02k3gONbwKsLgDUing==
+	t=1795324434;
+	b=YEYsk3D9fA7YgpeNohOAjJRs+NtiLRIGQkAl8U1zrdbVe0W5wURBsBbQBUr1c6qU5kwu
+	 Nivd2t44DuEvf1DK19b4G+Rreyf1PPnWFz0asaAg5x1d3Gyk5FgoEZAKod2kvOy+idaKR
+	 dqEmKR9NPHNXYPBMo2fAlZWLsE2as0S3mjyaOEHhuVFC70J7YKD/hMutprfrb/JCOUZpU
+	 gE8gJjl5lM1hNhT6mQcaaLQkifmipNiwt49mc24T8wdAG20DlRWl5It/Z9+uIFkDVQvNQ
+	 6Rkjm0ht5dglHo1tyZHoJ37EP65aPAdcG+D5YO+/dvNVnSPzv7Qzn/xXt75hCvu8Iug==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795324436;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=/QrJTXR+9tGdWyJeoCL5ze/rHmBkcQAMi7mOI8oYCYI=;
-	b=BZWkpMeg4kdA/PDGJ9BFjxE2cgd/mqZGEL6Ln7K+SyfqvzUiDg610A9fW+oSe7GzOCWC
-	 QTolTK9YgQk59Hz30hPPy2AHqI3zWxqf9TjuJ4/P88wtoonFAfu50JhhrgBCtdSHIovgS
-	 IL+0GtiPePF4p/6LWJEnakgAVJlmAFoIk5DvfgKe6WY1XFIZMRStRE7uL7JN8dGg08kz0
-	 WEVIlAq6zTL5rQjCNx2h99smRIhzg3zg48ZbDk6xEiRIxtZ7AZOzRTRefd+xwNK2zypVt
-	 O8WOhly1tbMCVJQsRR3V5bdV2KHnCQcPhsdHojg0CvK4GKWQCqx+PVktSYMooHUI8bA==
+	c=relaxed/relaxed; t=1795324434;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=edfAV7sjiyxrEsTsjRbWE2ESXJEHHcgg3MhsTRg16rI=;
+	b=Ay/7dDZuQVoTdeZty0qCFizyHF7mUlXYjyv9NtjqfM5VhDtd//+ers14V20JpjRNTsQe
+	 Ym1SZIs6mgNvy2qEDK0vaTv0tqUDZRZlqVtRK/PvGSLcTfZow4i+mCQnEw7p31wLTpc4e
+	 3ukY1eOUSVjIvw5r2k1oEyMMoKOpEQ5tjcFm6llTUuXvC3Wm9S0vzYoivNKqqeWPWkH1d
+	 nZFb00d2E0KGaa/XPvl2hJiEyD6nvkdmCzH/EC65GxgQVMUiiJLcmVROGHbcjW33xHuHM
+	 nb1Oj0T2BSEx9lgTOvVHMNuEwHjhn5plLm9FWSexek/c+AX4CFZ7kdjWb4aLaoa50sQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id A0B301F000E0;
+	by smtp.kernel.org (Postfix) with ESMTPS id 510FE1F000D2;
 	Sun, 22 Nov 2026 05:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795324436;
-	bh=/QrJTXR+9tGdWyJeoCL5ze/rHmBkcQAMi7mOI8oYCYI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=RGAdWzJH7f7noEDdtliIQfd4XUVEFu+XjLnWRCGUp0Qx70MmBTgpAdKLU/e0Ez2JR
-	 9DpOZnoT/iC244Aq+E+pMYBmoL5s5zG4GUmPleq6Lfl3BrQq5RQ9JBn756oUMmDvcN
-	 iT+Rpabt9I0VHbDxYjcgzHKDW1eGUFEBp7Olkx8900De7XBLwJA2EjsKtVKv7ec62x
-	 +hIKyCZqpV80OYxOcYnA1gcJbtIleKN1Ru+SJ6fNRWdGoCKiD8AeYr4AkwuJfA4c+o
-	 hMZmZrCpMC4lghDGVVeweoM75h4sZS8ogIDjHgYe2FFPA0tKoWL0tIgShmX/LVCjgc
-	 Tl7ueKnnOmCbA==
+	s=k20260515; t=1795324434;
+	bh=edfAV7sjiyxrEsTsjRbWE2ESXJEHHcgg3MhsTRg16rI=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=lEbPrjn2tdIwhP60mY03l8d+TXqX76lKXUJsgXIJwtM8cEh7S4zi1Q//AdDSjNxcM
+	 Tbpx4wlQ4SG1wPUqDM0Uek8Ak2xkj3Kq5Aaayu0iSr9prB/9X6DdIutnQzG8u9gZ/U
+	 Of0loellYfLu3Zv0xklTiC32DU+5IEJqtHw7/hQpd5gXH4gNAewMhyKu9hAZVrNU7S
+	 VC3ywJzyUK7h83lRbM/wgzHVu1aWG+BIDpU/RMgqTNqoQK0aFvCfd4qLb4/5yE50un
+	 jp2d98eShRTPMeX6TW2Dzs9YFImj3reQJDeLulrPL6PXy/sR1XGSbeddRsuuf5WnAW
+	 tYXsaJq5lLeuw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 319644BF5C;
-	Sun, 22 Nov 2026 05:13:54 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id D5CA84BF4B;
+	Sun, 22 Nov 2026 05:13:53 +0000 (UTC)
 From: EMCP333 via B4 Relay <devnull+emcp.enser.io@kernel.org>
-Date: Sun, 22 Nov 2026 05:13:52 +0000
-Subject: [PATCH 3/3] arm64: dts: qcom: sdm845-oneplus: Mark the touchscreen
- as a wakeup source
+Subject: [PATCH 0/3] Touchscreen wakeup for the OnePlus 6 and 6T
+Date: Sun, 22 Nov 2026 05:13:49 +0000
+Message-Id: <20261122-b4-rmi4-wakeup-v1-0-1b662be4a9d6@enser.io>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,9 +84,11 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261122-b4-rmi4-wakeup-v1-3-1b662be4a9d6@enser.io>
-References: <20261122-b4-rmi4-wakeup-v1-0-1b662be4a9d6@enser.io>
-In-Reply-To: <20261122-b4-rmi4-wakeup-v1-0-1b662be4a9d6@enser.io>
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAA16AmsC/yXM0Q6CMAyF4Vchvbbq5hTwVYwX3ahSjZOsgiaEd
+ 3fTy6/p+WdQTsIKx2qGxJOoPGOGWVUQeopXRumywW7twRhr0TtMD3H4pjuPA+5b17impl3LHeT
+ RkPgin1/wdP5bR3/j8CqV8uFJGX2iGPpyKtxM9Tpng4Vl+QInVbR7kgAAAA==
+X-Change-ID: 20261122-b4-rmi4-wakeup-5948487a39ed
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Bjorn Andersson <andersson@kernel.org>, 
  Konrad Dybcio <konradybcio@kernel.org>
@@ -99,60 +101,62 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  EMCP333 <emcp@enser.io>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795324430; l=1595;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795324430; l=2234;
  i=emcp@enser.io; s=ultron; h=from:subject:message-id;
- bh=BkQi/aNaLB67MHOxqLW5Gip80XqiKJZrg366Q7Ri004=;
- b=J53g3RH6mgQUU1cTTdsIFH+7zNmEtVWORHfkzsm+AxjYIaboThSB1k48F2OE4wyxbZ24qVK+w
- f03KZuq8B+SBnLvJsXW19NtdD1zXyMLsXmg4sNMiuJF9abQalhPkjjS
+ bh=QsipX2VlKzNSrE69Li9weyplTtRqzi4er6aXQmYWKZU=;
+ b=Ujgb/6+o4SSZEZGHqa6k3zVuHNJ3GGH5slwBQhXUXAED0jiFfNVOj9jWe9PMmkOvOat5tntXw
+ RUsFCVng9YYBOz2bw0tTuDNeyk/bFb2F4BoTXQs17VohXNLhIqsxsOK
 X-Developer-Key: i=emcp@enser.io; a=ed25519;
  pk=5sG48Lul+Vn7OzXu3VZrCWk5uvEFPYMXYnAV0TZR/tY=
 X-Endpoint-Received: by B4 Relay for emcp@enser.io/ultron with auth_id=1598
 X-Original-From: EMCP333 <emcp@enser.io>
 Reply-To: emcp@enser.io
-Content-Transfer-Encoding: 7bit
 
-From: EMCP333 <emcp@enser.io>
+The Synaptics touchscreen on the OnePlus 6 and 6T is meant to wake the
+SoC from s2idle. The I2C core and the rmi4 driver already handle
+"wakeup-source", but rmi_i2c cuts the controller's supplies in system
+suspend right after it arms the wake interrupt. Unpowered, the
+controller cannot report a touch, and on these phones cutting the
+supplies also raises the attention interrupt, which ends every s2idle
+within a few seconds.
 
-Without "wakeup-source" the Synaptics touchscreen on the OnePlus 6 and 6T
-has no power/wakeup attribute and its attention IRQ is not armed across
-system suspend, so a touch (for example double-tap-to-wake) cannot wake
-the SoC from s2idle.
+Patch 1 lets the rmi4 binding accept "wakeup-source". Patch 2 keeps an
+rmi4 I2C device that may wake the system powered in system suspend, as
+edt-ft5x06 does. Patch 3 sets the property in
+sdm845-oneplus-common.dtsi.
 
-Mark it as a wakeup source. The I2C core registers it as a wakeup-capable
-device and arms its IRQ for wake.
+Patches 1 and 2 are for the input tree and patch 3 for the Qualcomm
+tree. Patch 3 needs patch 1 for dtbs_check, and should not land before
+patch 2: without it, every s2idle on these phones ends at once.
 
-This needs "Input: synaptics-rmi4 - keep an I2C device that may wake the
-system powered". Without it rmi_i2c cuts the touchscreen supplies in
-suspend, the attention line falls and every s2idle ends within seconds.
+Tested on a OnePlus 6T on v7.4-rc3 with all three patches, rmi_core and
+rmi_i2c built as modules from patch 2's commit. With nobody touching the
+phone, "rtcwake -m freeze -s 30" slept the full 30 seconds with no
+attention interrupt (2 of 2); without patch 2 it came back after 3 to 4
+seconds, one attention interrupt each time (3 of 3). A double-tap on the
+dark phone woke it from "rtcwake -m freeze -s 120" after 3 and 7
+seconds, one attention interrupt burst each. With wakeup disabled the
+supplies are cut as before and it slept the full 30 seconds (2 of 2).
 
-Tested on a OnePlus 6T on v7.4-rc3 with that change:
-/sys/bus/i2c/devices/12-0020/power/wakeup reads "enabled". With nothing
-touching the phone, "rtcwake -m freeze -s 30" slept the full 30 seconds,
-and a double-tap woke it with a 60 second RTC fallback.
+On v7.4-rc2, dt_binding_check is clean, dtbs_check reports nothing new
+for fajita or enchilada, and rmi_i2c.c builds cleanly with W=1.
 
-The code and this changelog were prepared with the help of an AI coding
-assistant. The submitter has reviewed both and takes responsibility for
-them.
-
-Signed-off-by: EMCP333 <emcp@enser.io>
 ---
- arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+EMCP333 (3):
+      dt-bindings: input: syna,rmi4: Document wakeup-source
+      Input: synaptics-rmi4 - keep an I2C device that may wake the system powered
+      arm64: dts: qcom: sdm845-oneplus: Mark the touchscreen as a wakeup source
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-index 1df09da3c4..187bd6f45e 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-@@ -533,6 +533,7 @@ synaptics-rmi4-i2c@20 {
- 
- 		syna,reset-delay-ms = <200>;
- 		syna,startup-delay-ms = <200>;
-+		wakeup-source;
- 
- 		rmi4-f01@1 {
- 			reg = <0x01>;
+ .../devicetree/bindings/input/syna,rmi4.yaml       |  2 ++
+ .../arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi |  1 +
+ drivers/input/rmi4/rmi_i2c.c                       | 22 +++++++++++++++-------
+ 3 files changed, 18 insertions(+), 7 deletions(-)
+---
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+change-id: 20261122-b4-rmi4-wakeup-5948487a39ed
 
--- 
-2.47.3
+Best regards,
+--  
+EMCP333 <emcp@enser.io>
 
 

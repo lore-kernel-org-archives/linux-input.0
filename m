@@ -1,55 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795376848;
-	b=FqZ0ZXhcDqyqRaR1smkViNVzf/nU8wLAwv3BmHKlEBagqmHk0lfOTQ3ZBeykqoKCYf/x
-	 zjAfVc2hWan8RgJH5VVRGDqiqniUI8xyaaJMacD5nHw2GNRDiCfzhM0n622sJbYq7M+ZV
-	 M0ANE+2rOZpg1FaXU4Nai/AgltAcHoG86AT1aUxOKuhHUzz5uf1LcZyfzUTBAW9ll7Uqa
-	 PpHtf4iWSuMKJqtucjHNq8c/AQ0WMV/UHci7O85V97Xu7sRmvbTfZKFGSVVbVP5kRthiA
-	 MRwt9EpNj4Md2rfUCRYnb8180JnmhQ+QhrXSdhOMgqT7ReWcXspgJCM9bXBGX+qbodA==
+	t=1795384948;
+	b=OtJNA8EryhzhYW/sNFZFS+BdM4j7QdGib1kMzT4FumdE/FcYXQ9NmlAcLM3CEcdMZzfY
+	 P18xuj5CEI866gCFlKDqXxWy3eBbg9gqddcR/x2njDoe9kK044xdwzW54xKXTY1bIt8jG
+	 FuiDxaHLkOHJjAsBHrfnvCJX30GnIJ1pzgg/eR68/Gt+WhYZ48aVyfvzn8njClHrZc1aF
+	 AVwGU+4kXr4gn6Q+yqS4Q+KqzFW1w89YO3MejEPg6MWGIRIeJ8VhrYtJJieUA7illntwb
+	 nqYshzMsnwdTOqchsgVFNZZL+sPTrBCz/anR8LmFUSa+vBIr02gDoHFEhAK+Sd87jpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795376848;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=j+mnsELK7VXL2g2cb9zfpiYJx7Lm1c8s2ym5muvm05g=;
-	b=SZCjwW9vNlwyXBKcgfciqGHnt5De7MERuLRHy9fEpLIJBtj9yJBoUNVAN+ar+7AWNp2b
-	 qYxCDoEB3SbWtRMhUPESbzYZ2l0EbdKQ+FZe33/vEsnuQLZPS6f39E+FEQBR64JCja95H
-	 L0qd2vKRQkZ09uttk1DAf9wXzXWCaHBLOhlPmcp4bV8CL9MT75noF+T40XC/tT01QglZs
-	 yglgfnqmiKh+XhovGNOws+OqtNyZgbZ+X3C9meXhuw/O+5XfdxvyrtKylUl+Ik8nbjKXw
-	 Glg3iyVzQvYB6+iVVOx++IxnjnE6i1I7y9s/9McnaCctpBhgKE27bfnOBqAj2ISb6HQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795384948;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
+	b=1bo2Yu+Rj9LY1bChkOaUvKkCw8EiCk0MS9x4PjwzjRD7CHLUasM7Iu3FnakFtS7oXxXu
+	 ybFIK6gjvEOT9j1vokxkUniZQaCD3mi2SXP7biCv+KzBPgY8S1/C+NQLZLOdfFE4smO/b
+	 lDz+RVw/827LqqAVdwtsqRlCJm/h9Lmsu4MFBYWzXICs6ZLZ9R3GPdrT3cZKihAlNwtZ1
+	 0I3oxgwLJ3B9MgavyaLC/j/SHnkZEvuofcapMefrMB1nIyySPQbIUVVpOyQ++tU+m91n1
+	 cj7vNNlsU29LlbfgO44KFiyaZmuYuQXA2qW8tfw4wPz2ScHdFsVCqv9kELnRaYxvtXA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K41iAq7t;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nzzwumsk;
+	arc=none smtp.remote-ip=209.85.128.49
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10D33606A31A
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 19:47:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6510606A330
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 22:02:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E6510606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K41iAq7t
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350921F000C6;
-	Sun, 22 Nov 2026 19:47:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795376847;
-	bh=j+mnsELK7VXL2g2cb9zfpiYJx7Lm1c8s2ym5muvm05g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K41iAq7tl5Jgp7uhPki3vaB/pofCuV75sfmvWLQE++ZD9QtfLbn8VsGMnVOrHQfUc
-	 n/ebse9ZCKDHlPiYAkrDSconyuJegtOEXf3TTVPBdoUVufB1VySCvKdqXDHJrybnkK
-	 QFdbSiakGrkZB4J7+sLrRR3S+8EsWm2CrTjTswtF7iZcgBbng2ZfVWlyPK8CQaJb3C
-	 UjEMWx54XO7fyda6PlUgTf/G0tTqQVDpmBOxvbZqLsQl8ybDYG6BiGi4JnhwK6JL2T
-	 kvIlD2SYcK3yzqInmE7z2dJsKYLoADOhMsDIzRKxUYGazflIMwbLjKGz6ZGmBkRmAm
-	 Z1iYvkF6n276g==
-Message-ID: <sashiko-outbox-228283@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Erlend Jacobsen" <erlendjacobsen@pm.me>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261122-b4-rdmctmzt-v1-1-d45883e1fe33@pm.me>
-References: <20261122-b4-rdmctmzt-v1-1-d45883e1fe33@pm.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 22 Nov 2026 19:47:26 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nzzwumsk
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4bb606491faso14597395e9.3
+        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 14:02:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795384946; x=1795989746; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
+        b=nzzwumskbK3DA1kPojxI22aHsM2COpjXjLFnBJuYrFk/0c63YJwNaGpbrKmcnE74pT
+         eAEJ/umE5HL/9r9XOiZen2xUSPR/A3boXva0K9D04xfZwoM4hPEBWzodL1yiKvgDV23H
+         AlBRos+7VDWwK07OAvBHmlj8OlbUhF2uHl5hNmKOBf370uXiMhxyV6WiIS30kw3SeT9d
+         n3VL2jNJlxmEXhs8XAE9M63xj+iJOX4uCWCMlXhpuhJA8Ssjvqqy8GT/HSlecQ+oEMRN
+         UliV0idfmxBlSPPG2nkh0fPO2DvFq568oCdQZKyO5mNPQgJ2v5PwYThsuSHy0p69jSqb
+         46mw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795384946; x=1795989746;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
+        b=SMa/QmpINWOCc7L5maUap7BTUEkwA6KTYwjs6N0co14X+FaUYFjzK1cVy5ScpFw37r
+         z/5hQp2AgJG49zITlRK1ygxBaRsEwRSjzyFwjkHa56KXexcxpjw95IdYWt4LAeYk7nL/
+         6VFR1q+xxS9DWEkbLkVeLS4fbj5boodNoqWRbLuw9jdngBDmq+s2TzdZuqzog0nUfIBC
+         6xMLt3108b3HkFGfgqdgxiaBlOYjEOO7OrnMuVWdJNCvtDkF4fvj8mkP4FrSWtJCE22f
+         dO/ighvgqnEhZkU0uYl6DlpX95XY2gC0TgBWcu5QSn6/GslSH6ECef5QauAc7JvES4UJ
+         wyVg==
+X-Forwarded-Encrypted: i=1; AL+hErEfRLAoxSQweTCBQmNpN5P5I5UKw0I336Ei56vtyUG+/t66cQhB/PjDhzZEFfj0olKa1UU1QM0e6pdGzA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Gytj+733FpNsXQVAme99H6m2UWlCYCLdMjSqZd+9kacksot++
+	p948JSzeeRSD0mHE7rcbuYAilfa+j6houdz2x1mM12GxHjxaJ/DmNWXL
+X-Gm-Gg: AZFdTZfcTl83hg4BK2rGve6NFeT4XpB+KbGkjjcFpLouqrZsQhqKY5p8DnOQSXX2or8
+	a9C2K4WQzN6uys9Bbfxv5ebPmWOSPeEIJPM6/OyFb6Xf/MKOljVDSftJAjk9k4fatKeHsYxfdbv
+	Z0pDuEbidg5T7Bto07VQSHeouxH2OfCYav5+vHdqLlvGGRz5tt8bkvHUR2BSleTjtzMk+fMJ6Qa
+	iYayEqZZnxaWhnEwKNvsN7P1YY+d0+3pUZtwdjstBCxq54DBikZdHQngw4PvPxCFs9kjtJvJRWx
+	k7CtpDvJ1xpVpn5E9LDTDYs7fsMfzUlBlH1Oycrp5c+ESCkA0lelPlSJWMo4P7KhkXGeXu1S2Ch
+	7E3boHsQCQDZypKcy3L2MRB4HMSrXVMgBCdejTzKNPxfjH3RH0xyfZ7XPZI7kCIw1Cl6sppoGtp
+	Z70zryXJCllExd4hP0D32hfoFpkzGY3o0s1X1qf0qx7qTw2XwcWJZMDRqD87CSRDHRzpq2ekdwc
+	vgltZa2NwViaO/T65eOO2bEe9k0P/TEecBiO2uW8hrWzvIiGZx9SQs0iwfcMYZeCiIFROGSyYML
+	n2ulIfQYh1frswZPM7iZPO/DwL2AfByjF8Gcsnx4
+X-Received: by 2002:a05:600c:1c1c:b0:4a2:1364:252b with SMTP id 5b1f17b1804b1-4bb8892ac4amr217905975e9.35.1795384946093;
+        Sun, 22 Nov 2026 14:02:26 -0800 (PST)
+Received: from foxbook (bfh118.neoplus.adsl.tpnet.pl. [83.28.45.118])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab69bf61e8sm19676778f8f.11.2026.11.22.14.02.25
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Sun, 22 Nov 2026 14:02:25 -0800 (PST)
+Date: Sun, 22 Nov 2026 23:02:29 +0100
+From: Michal Pecio <michal.pecio@gmail.com>
+To: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
+Cc: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: steelseries: Add support for Arctis 7 (2018)
+Message-ID: <20261122230229.1bdc3bd0.michal.pecio@gmail.com>
+In-Reply-To: <Rv7nePC3RfOSidIKv_K-KQ@gmail.com>
+References: <20261121121129.2a1d3013.michal.pecio@gmail.com>
+	<Rv7nePC3RfOSidIKv_K-KQ@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,153 +97,39 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] HID: rdmctmzt: stale fails count delays reconnect retry in
-  rdm_battery_work()
-- [Medium] HID: rdmctmzt: battery polling stops permanently on -ENODEV
-  during USB reset
---
+On Sun, 22 Nov 2026 19:32:53 +0100, Erik H=C3=A5kansson wrote:
+> > URB status -75 is -EOVERFLOW: URB buffer too small for data returned
+> > by the device or the device babbled (exceeded wMaxPacketSize). =20
+>=20
+> I can't reproduce this locally, neither with or without USB hub.
+>=20
+> But it seems someone else is reporting the same on Bazzite:
+> https://github.com/ublue-os/bazzite/issues/6344
+>=20
+> It seems the hub itself reports that the port is disabled, both in
+> this report and in the bazzite report:
+>=20
+> "Nov 19 20:47:58 [REDACTED HOSTNAME] kernel: usb 4-1-port4: disabled
+> by hub (EMI?), re-enabling..."
+>=20
+> "Nov 15 16:05:59 [REDACTED HOSTNAME] kernel: usb usb1-port2: disabled
+> by hub (EMI?), re-enabling..."
 
-commit df75940f34ec97cd0e02102aba217a05fb6752a4
-Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+Per USB2 8.7.4 and 11.2.5, hubs are supposed to disable downstream
+ports which are still receiving packet near the end of frame. So it
+might be that the device (at some point) never terminates a packet
+at all, or its packets are too long and occasionally reach EOF.
 
-HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+I suppose the latter could happen because the host schedules the
+transfer near EOF believing that it will be shorter and complete
+sooner. Scheduling may depend on host controller type and on other
+periodic traffic to low/full-speed devices behind the same hub.
 
-This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
-dongles to poll battery status over the vendor raw-HID interface and report
-wireless link status.
+Or maybe you are missing some other detail. Just guessing.
 
-> diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
-> new file mode 100644
-> index 0000000000000..9966025b40587
-> --- /dev/null
-> +++ b/drivers/hid/hid-rdmctmzt.c
-> @@ -0,0 +1,654 @@
-
-[ ... ]
-
-> +/* Send one command; its answer arrives in rdm_raw_event() */
-> +static int rdm_send(struct rdm_device *rdm, u8 cmd)
-> +{
-> +	size_t raw_len =3D rdm->len + 1;
-> +	int ret;
-> +
-> +	memset(rdm->buf, 0, raw_len);
-> +	rdm->buf[0] =3D 0x00; /* unnumbered report ID */
-> +	rdm->buf[1 + RDM_PREFIX_BYTE] =3D RDM_PREFIX;
-> +	rdm->buf[1 + RDM_CMD_BYTE] =3D cmd;
-> +	rdm->buf[1 + RDM_SIZE_BYTE] =3D rdm->len;
-> +
-> +	ret =3D hid_hw_output_report(rdm->hdev, rdm->buf, raw_len);
-> +	/*
-> +	 * -ESHUTDOWN from the transport (an endpoint flushed by a USB reset)
-> +	 * is a lost poll; it must not end the polling like rdm->stopping does.
-> +	 */
-> +	if (ret =3D=3D -ESHUTDOWN)
-> +		return -EIO;
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret !=3D raw_len)
-> +		return -EIO;
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +/* The dongle's link byte, asked for now: an 0xd0 may have been missed */
-> +static int rdm_dongle_linked(struct rdm_device *rdm, bool *linked)
-> +{
-> +	u8 reply[RDM_ANSWER_LEN];
-> +	int ret;
-> +
-> +	ret =3D rdm_command(rdm, RDM_DONGLE_STATUS, reply);
-> +	if (ret =3D=3D -ENODEV || ret =3D=3D -ESHUTDOWN)
-> +		return ret;
-
-[ ... ]
-
-> +static void rdm_battery_work(struct work_struct *work)
-> +{
-> +	struct rdm_device *rdm =3D container_of(to_delayed_work(work),
-> +					      struct rdm_device, work);
-> +	enum usb_wireless_status wireless =3D rdm->wireless;
-> +	bool linked =3D true, answered =3D false, got =3D false;
-> +	bool changed, present;
-> +	unsigned int delay;
-> +	u8 capacity =3D 0;
-> +	int status =3D 0;
-> +
-> +	if (rdm->dongle && rdm_dongle_linked(rdm, &linked))
-> +		return;
-> +
-> +	if (linked && rdm_poll_keyboard(rdm, &linked, &answered, &got,
-> +					&capacity, &status))
-> +		return;
-
-[Severity: Medium]
-Can a runtime USB reset stop rdm->work permanently when usb_submit_urb()
-returns -ENODEV?
-
-During usb_reset_and_verify_device(), usbhid runs hid_pre_reset() and
-hid_post_reset() without calling the driver's suspend or reset_resume
-callbacks, and hub_port_init() temporarily places udev->state in
-USB_STATE_DEFAULT and USB_STATE_ADDRESS.  If hid_hw_output_report() runs
-during that window, usb_submit_urb() fails with -ENODEV (while
-dev->state < USB_STATE_CONFIGURED), causing rdm_dongle_linked() or
-rdm_poll_keyboard() to abort rdm_battery_work() before
-queue_delayed_work().
-
-Since rdm_stop_polling() sets rdm->stopping and cancels the work on unplug
-and suspend, should rdm_dongle_linked() and rdm_poll_keyboard() only bail
-out on -ESHUTDOWN (or should rdm_send() also map -ENODEV to -EIO)?
-
-> +
-> +	if (!got)
-> +		hid_dbg(rdm->hdev, "no battery status (linked %d, answered %d)\n",
-> +			linked, answered);
-> +
-> +	rdm->silent =3D answered ? 0 : min(rdm->silent + 1, RDM_MAX_FAILS);
-> +	rdm->fails =3D got ? 0 : min(rdm->fails + 1, RDM_MAX_FAILS);
-> +	if (!linked) {
-> +		rdm->fails =3D RDM_MAX_FAILS;
-> +		wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
-> +	} else if (answered) {
-> +		wireless =3D USB_WIRELESS_STATUS_CONNECTED;
-> +	} else if (rdm->silent >=3D RDM_MAX_FAILS ||
-> +		   rdm->wireless =3D=3D USB_WIRELESS_STATUS_NA) {
-> +		wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
-> +	}
-> +
-> +	/* Without a link the dongle reports when it comes back */
-> +	if (got || !linked)
-> +		delay =3D RDM_POLL_MS;
-> +	else if (rdm->fails < RDM_MAX_FAILS)
-> +		delay =3D RDM_RETRY_MS;
-> +	else if (rdm->dongle && rdm->silent >=3D RDM_MAX_FAILS)
-> +		delay =3D RDM_SEARCH_MS;
-> +	else
-> +		delay =3D RDM_POLL_MS;
-
-[Severity: Medium]
-Does a stale rdm->fails count after the keyboard reconnects delay the next
-retry for RDM_POLL_MS (60 s) instead of RDM_RETRY_MS (5 s)?
-
-While the keyboard is off or unlinked, rdm->fails reaches RDM_MAX_FAILS.
-When the keyboard powers on, the dongle's 0xd0 report in rdm_raw_event()
-queues rdm->work with delay 0 without resetting rdm->fails.  If that
-immediate poll runs before the newly booted keyboard has measured its
-battery, the keyboard answers RDM_CMD_START (answered =3D true) and refuses
-RDM_CMD_BATTERY with 0x0f (got =3D false): rdm->silent is reset to 0 while
-rdm->fails stays at RDM_MAX_FAILS, so the delay check skips both
-RDM_RETRY_MS and RDM_SEARCH_MS and falls through to RDM_POLL_MS, leaving
-the battery unregistered or marked not present for a full minute.  The same
-60 s stall happens if one !linked poll sets rdm->fails =3D RDM_MAX_FAILS
-while rdm->silent is 1, and the immediate poll on reconnect times out
-(leaving rdm->silent at 2).
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261122-b4-rdmctmz=
-t-v1-1-d45883e1fe33@pm.me?part=3D1
+Regards,
+Michal

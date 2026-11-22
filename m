@@ -1,99 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795329732;
-	b=p2NgNFG762dHwXN8sa0UaEQQUDuUOIoYaCk4tpguIMnbBDRvgE1lKuuxTwSxuoKpSvme
-	 BFtY6AEGt/uECWuuvZ3rLjf5VDhGGt4GO/K9KuOEkKPb7PpphKSDXm9ilAMpZ++n6l2Dr
-	 7uqsQlhSWDJA5U0xUH9IZ8IFlMjPBPwB46XGJr0QFoxV3ZX7VNBGAyVfiQC4/pLttLrh1
-	 JrU3dSx+7wdti91uwkinNBewrhUUsAztx1mFjrc1wDGfsfhg/ZH132sJryOMCLdWgA00M
-	 BN51LRJ6h9V4xAj9KYOi9bdaPqv0BzpX8gKYV85VeZ28O1Gmzk+2u3loxPxXObuHipA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795329732;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795340049;
+	b=Z3Bwg/TK8eODMpJJTTRF9iGbP9y98yNdS17vPA3CK7FhTffN9NpQckr0IIqLS5IE6YmP
+	 JJEZwPwKTIrvLdMyRpSJ3tI/AlSgNaYOkD2G8s8DRJiGKy80TgmUu+sO0tcuOe0Fk++aA
+	 vadY5rGlXUlPgJs2i9JuIS7e0EHnC2QMoA6hQwRTTX99iSGZsCnS6UpyBp5Et/jWwsBAV
+	 JavJSvkC3zusJ+RseNlcv2gsVvlDiixL0lxTlFGIPi2LHogS1bOG4HAvcW7Qoq4LWFlnM
+	 E7ejxYqwx6JItCaOS0S9R4+LXTZ2l4yL+PF5lrClcv7zQ5BRyGgFRJTYp798f3Umgwg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795340049;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=uFwt6mW+1RfJR5QBxZ88YeWE43yBZuAMkFsXG5rT/+k=;
-	b=cQa8RxYV01VqxjdHw5aC1bvYorCavAFyNUrBvYNLRqpoTOI1cS1et5k+8J7LhloGn7xU
-	 c8KKY4Nu+cUt84GUBNiQin4yQ9GayXSVSzOtxzhQQcY9sEREDcBuny9CD/1xVmbn4wVt+
-	 7K1T/Jt36nKYEQozMmQh0RUY1T1LyMJYsEnR9+GDSRWOijwEGJdHAOyq3NmMUpKa4mis3
-	 INHpFdFKMXGK2E+1Y039tofcwRfE22rQXhNY0qmwe78HKdz6bsjS+y80UbINR8dXOQpAK
-	 IcPcuGqvOf7Pkba6tbeTISSVAXLnT/5/RvramVdb0+xHkb0OWZp5tdcQKJUb257h6dw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=none header.from=enser.io;
-	spf=none smtp.mailfrom=enser.io;
-	dkim=pass header.d=enser-io.20260707.gappssmtp.com header.i=@enser-io.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=bNZB0BOo;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
+	b=22qyIBdwM5N3syJHU9+4d4GhxRLMqsaOgvPWEUuwVbWo32xU0zUbhu9ER5TxxpyCYvnV
+	 Zpm1jDVMmE6jZdRRDPuJCjfKV75cY9p16C+8clMAK4lBasgGJt+KkKeDdjjEw8LGZ9LAH
+	 yvLLvj+lknvOaITgQ7tHsIsEzVVrtm0UGxNAcDDeKUQpdWal+ndYVO77YIzQ87AewCkQ6
+	 QSOQuKcfEuWRrae2sCsXuOiAm1WFktalz6NwGI8eMYBOgeGavFXBzyAdoBx5SA5i1oG9x
+	 unAQzM1UyKYRKO6TkJiUl0wEE1Nsa/xDpXREI3WJUu2LxxNaLh2NSXjCUyKzM9I1MGw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=teslabs.com;
+	spf=fail smtp.mailfrom=teslabs.com;
+	dkim=pass header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b="fVlBys2/";
+	arc=none smtp.remote-ip=209.85.221.48
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69EE0606A32C
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 06:42:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69EE0606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enser.io
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=enser.io
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3A1606A32C
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 09:34:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA3A1606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=teslabs.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=teslabs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=enser-io.20260707.gappssmtp.com header.i=@enser-io.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=bNZB0BOo
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-67bec17daf1so244919d50.2
-        for <linux-input@vger.kernel.org>; Sat, 21 Nov 2026 22:42:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795329731; cv=none;
-        d=google.com; s=arc-20260327;
-        b=LkaK59iIr5ZMxhoi7QHOM9Nxn99jqBsx5RtGYuZ5P0/AW5moV+15cy+XPI7uNGiZe5
-         xM/zjLDHzZGHzd5KlpR4C7eMFUmtRMVsHZAivngqWAMoRMJSu26QiSRHc4TXPTfisIbj
-         Vip31uaPG9Z34t+QtIWng4MdBXXf5tAMpAWn1fZ+eKIW5C4IH5nTrrJ26WtVhxRKn0JD
-         x8zOtnTN/eogF7P5xwyHxOF7bpJ2OBWWuOitsHBgP1C1hjfq7qn9q39UtpddlAB9kEOU
-         rU34k9zjnEJ8mOd1Aluxu9Ikq6u+9QFSxlMJwxL3ADSqOOtx0dqnkwG2BBl+TflRcYRX
-         ya9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uFwt6mW+1RfJR5QBxZ88YeWE43yBZuAMkFsXG5rT/+k=;
-        fh=5hiyMW3zTy6f0deBmE7Hi0iLsyarFZFW/iW5KxHjKZQ=;
-        b=UskN+yApCnDLfwb9GwNy0WXmn/vlA0tkjHp8LhMBSZpFe9dOwgBmRZKZoxGFNMh6HL
-         QN4Ck4R5RsV+GfgNaeuXzKOYPl1HYJklhREmhiw8amvmPQpTILHuD0SO4XXOm4UXADZM
-         UoNAhFNrUvVlhGQqiMe4VzKxrTmXSeDML6FVP5hfzqEy4PszY7Sej9BXuTMN4u9+Xhyo
-         o4+FA3ZYXGgFeOlLDcWbICq5BTJz+HesPzfFSbb6ejmQbueRixfaWpIjdf2OR5b1GT//
-         NPqxSNtkWjX71zo0TuJ8XIN+EkWJUj2KqAcUPbu16sc+Io2GnZjz1ihGfA1rHO0anZg9
-         AMEg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=fVlBys2/
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-498f5fa4f70so1837180f8f.0
+        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 01:34:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=enser-io.20260707.gappssmtp.com; s=20260707; t=1795329731; x=1795934531; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=uFwt6mW+1RfJR5QBxZ88YeWE43yBZuAMkFsXG5rT/+k=;
-        b=bNZB0BOoRQz1FxNQ2GzB9WUdytrvsG+ktDXAS+RgINcwH+MVX9oU42NXCMDUJNqgXo
-         IbNDMZrLOztY2Y9+FQ6sFuzDI8orCzvtG9gSXn058LDGgYiFFDFR7WGDp0QRUwHsYIx8
-         JRdlCafvMIQXvdaIiQWFkHVnMX2hYnrBTmt1IsORCctzHga66b5xk3cnDPni7ym8g6K5
-         W21tiuMMwzFVpDGHTR8AFlIrZ1QfZFgIjnN7YSNziuFdgepwmYdbNBPDkgNPwGXXsb2h
-         QSFjWVfcgs/ZDFq2xVYWaHV5LaAygLOhGDKgHMvzVrq6KnbJj14PVdkz+pwKpuv2w86O
-         8J/Q==
+        d=teslabs-com.20260707.gappssmtp.com; s=20260707; t=1795340047; x=1795944847; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
+        b=fVlBys2/1b9RonUCt+ctCL0AFnUAaSbp9xup9SH4y05xeewwNLJoQLtaq/JM9aGvwz
+         YCcWWAp9kfarcxdpWfXqnOpooDVodnj1eziNgUNi+lM4W5MBj3FAPFGUBrKZcyfDfL6/
+         EnA3JZ2yejNWEfuFd5F3DzH+lFPxlNEsNRhH5LCnwGUDMcFrIT9ychQLz034ThQhkFNM
+         /q1BRTa9tVHwKWhAFF0GqEqrpf3V4p2EVyIm2LtQ0a//FIbsVqXyepMGJ8lsPt+AbN17
+         wfnmGO5YuH/3OJ6DE3xxCoHk4GNdtN3xycReOflY9h5OD+OyR93DHh0SaVKgTR1YIMit
+         ziIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795329731; x=1795934531;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uFwt6mW+1RfJR5QBxZ88YeWE43yBZuAMkFsXG5rT/+k=;
-        b=pcEEnIDgrclvRxs/mJJiH18VtApy0ujIfLFuyQUJeVFG+15XIY1BXYhncoZbP1iU/l
-         47MZ8puUwrK2YlZTQ5pZwAcudkkHR12K8brkTZ75mHSU7CfXABUhnoLUKZNYLmojtjMN
-         XEj/y9uxhyppBS92t/6r9RgEREerVWa/Nt38tavEEZb/YDxRkLwJy8VNWhSBrCFqUJF4
-         ePg9f/sOD1efjCCGmqVyvpl375N7HUZ2Bw+LLXpTciNi6Ndn1RvQyaYIrnDsMXOr0y0L
-         Mo1tHwljeVLGJg2VMDch+9pDg+kWIfsR2vEvbkgfK58v1vEcLevwDxW25mINcQA3RqpI
-         MMtQ==
-X-Gm-Message-State: APuU4Z+4RTlDxtgR9NbhBu8/Rv7SoGr2h4NW2vr+m0WUvJl7wXO/LjlM
-	R+zcEjYZiq6LPo04QbcPGN2+D4rz+4oVNWgfFNiiiVdaPcGxy2T5OczL6Jnv3aJ1aPmhQEuDfyn
-	lND+UdvBMEo0qzABLtcgEhOX0rviSLiI4LRrv1Q3P/0QgNkoT+C56GKqjmA==
-X-Gm-Gg: AZFdTZcWX8sVfO5fsJAeB/e0pcKbSX+wd9kkMZ1t64VYMPXrWQrPpR/7JMIykW3GP4j
-	g69ZVaLHBxoATGTMhMruZkEwa4Cy6/SlFPTlgSLKOb1PpSmKA+sxu2sFSTmETfntiEppYdMM8Bl
-	ltBH2h+uzctOIWDKUc6xkvoSTwwA4pHC2ozOSFMuwISNSPEQ1UbCQ024F5hoaJA9rVdL2d7j0ZC
-	9+Ixn1tBFSQ5LHanLyywoeakKpNzjqUIQgamwlleG1FLMwAFImuQcK7Sba3udfG9KkaxygJDGQQ
-	paP07gYf/dqyTwXiPQ3BBj0uYttEZWuhe7N3kQOjPeY1zRmb/XDZ+Px5LyruLsmdx7z+mSqonv0
-	58pjVKacxQMaW8N0eQ0MMRCN5cBze239tupSernYSO/Sj+5Wc8Vo7BBydnm4=
-X-Received: by 2002:a05:690e:bc5:b0:679:8c5f:3fc6 with SMTP id
- 956f58d0204a3-67df43af88fmr6006818d50.3.1795329731209; Sat, 21 Nov 2026
- 22:42:11 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795340047; x=1795944847;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
+        b=kI4SyLgNSCsGzxRbghQ6rWSM7bsrhXGiLND/c26tbAQFW4RckeS556LS8ZfPTvdASj
+         KySI8b8cJW/68XcM6ucnoiG7rA/fWwmGpTnpuMfWS9shcYbYsMyYXeVXSdGX5XPSPXuf
+         XhUAxFvnl+ttZIoryl7ZBclp16lz09EitVloMsalp6g0swoZiG6gLhHlim/ynDmnxq0G
+         FcxxEzqmvVvu03TIGFZtr0czjHkl0xA3RSXnsmGtEkyQCqt7mdhFrbBFTPiWTqCQAIjx
+         5cDxDVM059sksxhjwwK4Pdn0xUoRyrPGqap92F6KVhQsXM7Rsonrv6hzR8f2CvQiUnFz
+         WTbg==
+X-Gm-Message-State: APuU4Z/fPsKSa4jgH/t7zVnZNgrcSMipab7ziUnpqK2ZUuTBtx8tmyeM
+	puSTl3gkPw1QBKnWGDQowTv8m/vSx69vSeAPlIo20r2jdJCAReMN9BYeFxG21A8BbWeKLsl98tp
+	lSbWJbvDcEe9N
+X-Gm-Gg: AZFdTZe3GhHSKp5ueCjfuQp7UxprRK6eBEYZyx7jpmfpQPMdc1XungVACyW/TP0DWQn
+	74VIAqj/7DVyAT24AWm+Yha5jMZJgqG5kbMG8y+eXdfJq0v8txmNdSxGG2dTLtWemz11E8vyOAe
+	86vR4NkWFGxCc56MHe8xshlr4liS8NzFrrocs2VuUbl8T+9jHLLweGW8vwPMVqfd9yuljAwjsCB
+	tC0/VEwmKNtgOTHr5A2/cCRCKJllaXpvoh2ji8iaXTy2DqN9Q69aKRWZx7vMzR6sOEi+W1zzoge
+	4c1equ27GL3KsyXIFNXmZjZY04ZIuUmm2cR2NA95ti9n/xH4yY+6LZCmHh0kZlv34GE7HuNKugQ
+	5Q4qaUkoSju1NBpE61BUW6OEHcwXmHJq6aIWuRD0vDIGb8Gc6zghfDPhrphGeZKDRQhN1j/86tK
+	c5Rqw/CVBYXGEaPt+vCoAT9Ao+VQ1HTJuGr3L2fZvxuSxCvNTz60BJoLV711VWCedEnfNT9SJoX
+	5IvIzO7+lqAafF2+d9kVSRZPuWhVp1umXzXGd3VmCP4BReYKvuZr/h8ZTEyqIQC7/D4CFsWxww5
+	ROj5kWpcQaV3yH1vI0oh9jFvWU3cBkOAcz62fP3wl05JO8wpQR+8Q3qLPSF7uJzgHT3QwftlrqJ
+	lGqdDYg9UTfI7COcjW+LDzNFQOb2zsT6s
+X-Received: by 2002:a05:6000:46c7:b0:49d:7e8c:e8ad with SMTP id ffacd0b85a97d-4abb272758amr11104935f8f.35.1795340046997;
+        Sun, 22 Nov 2026 01:34:06 -0800 (PST)
+Received: from localhost.localdomain ([139.47.121.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4b1ed8b6a05sm1552848f8f.43.2026.11.22.01.34.06
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 22 Nov 2026 01:34:06 -0800 (PST)
+From: Gerard Marull-Paretas <gerard@teslabs.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Oleh Kuzhylnyi <kuzhylol@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [PATCH 0/2] dt-bindings: input: touchscreen: hynitron,cst816x: Common properties and supply
+Date: Sun, 22 Nov 2026 10:34:03 +0100
+Message-ID: <20261122093405.70406-1-gerard@teslabs.com>
+X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,86 +98,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261122-b4-rmi4-wakeup-v1-0-1b662be4a9d6@enser.io>
- <20261122-b4-rmi4-wakeup-v1-2-1b662be4a9d6@enser.io> <sashiko-outbox-227741@kernel.org>
-In-Reply-To: <sashiko-outbox-227741@kernel.org>
-From: Erik Peterson <emcp@enser.io>
-Date: Sat, 21 Nov 2026 22:42:00 -0800
-X-Gm-Features: Aa3M54o4H3dZxCmAiIO7gvw6DhWgTDlv3S5qgVksMYPQ1wzHp1Iq6bG55ke5jY4
-Message-ID: <CAOY-3nAwYxgAeu1zUPOBO_PQtswKtsEOnV6a8hfnZf312ALT6g@mail.gmail.com>
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4 - keep an I2C device that may
- wake the system powered
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, 
-	conor+dt@kernel.org, dmitry.torokhov@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-=E2=8F=BA (Resending as plain text; the lists rejected my first copy.)
+The CST816x binding allows no properties besides the controller's
+resources and gesture keycodes. Boards also need to describe the
+coordinate range and orientation of the panel the controller is fitted
+to, and its supply, which is often switched along with the display.
 
-  Thanks. 946c8432aab0 is where rmi_i2c_suspend() started disabling the
-  supplies after arming the wake IRQ, so the tag is right. I'll add it in
-  v2; Dmitry, if v1 is otherwise fine, could you add it when applying?
+Patch 1 references the common touchscreen schema, patch 2 documents the
+supply.
 
-  Fixes: 946c8432aab0 ("Input: synaptics-rmi4 - support regulator supplies"=
-)
+Gerard Marull-Paretas (2):
+  dt-bindings: input: touchscreen: hynitron,cst816x: Reference
+    touchscreen.yaml
+  dt-bindings: input: touchscreen: hynitron,cst816x: Add supply
 
-On Sat, Nov 21, 2026 at 9:23=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue to consider:
-> - [Low] Input: synaptics-rmi4 - missing Fixes trailer for commit
->   946c8432aab0
-> --
->
-> commit 83b2656443640f5726e0dae2d6e9d52155752d68
-> Author: EMCP333 <emcp@enser.io>
->
-> > Input: synaptics-rmi4 - keep an I2C device that may wake the system pow=
-ered
-> >
-> > rmi_i2c_suspend() arms the attention interrupt for wakeup through
-> > rmi_driver_suspend(..., true) and then disables the vdd and vio supplie=
-s.
-> > Unpowered, the controller cannot report a touch, so the wakeup it has j=
-ust
-> > armed can never come from the user. Where the attention line is pulled =
-up
-> > from the switched I/O supply, cutting that supply also pulls the line
-> > low, and that falling edge ends the suspend by itself.
-> >
-> > On a OnePlus 6T (S3706B, attention on a falling-edge GPIO, vio from a
-> > GPIO-controlled fixed regulator) with the touchscreen marked as a wakeu=
-p
-> > source, every s2idle ended within 3 to 4 seconds with nobody touching t=
-he
-> > phone, with one attention interrupt per suspend.
-> >
-> > Keep the supplies on in system suspend when the device may wake the
-> > system, as edt-ft5x06 does, and skip the matching re-enable and startup
-> > delay on resume. A device that may not wake is powered down as before.
-> >
-> > Tested on a OnePlus 6T on v7.4-rc3 with 'wakeup-source' on the
-> > touchscreen node. With wakeup enabled and nothing touching the phone,
-> > "rtcwake -m freeze -s 30" slept the full 30 seconds with no attention
-> > interrupt (2 of 2), and a double-tap woke it (2 of 2, 120 second RTC
-> > fallback). With wakeup disabled the supplies are cut as before and it
-> > slept until the RTC (2 of 2).
-> >
-> > The code and this changelog were prepared with the help of an AI coding
-> > assistant. The submitter has reviewed both and takes responsibility for
-> > them.
-> >
-> > Signed-off-by: EMCP333 <emcp@enser.io>
->
-> [Severity: Low]
-> This fixes a bug introduced when regulator support was added to
-> rmi_i2c_suspend() and rmi_i2c_resume(). Should the commit message include=
-:
->
->   Fixes: 946c8432aab0 ("Input: synaptics-rmi4 - support regulator supplie=
-s")
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261122-b4-rmi4-=
-wakeup-v1-0-1b662be4a9d6@enser.io?part=3D2
+ .../bindings/input/touchscreen/hynitron,cst816x.yaml  | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+
+base-commit: c44104f3642da720164042623e4832836aefdd8e
+-- 
+2.45.2
+

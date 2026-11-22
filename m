@@ -1,94 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795384948;
-	b=OtJNA8EryhzhYW/sNFZFS+BdM4j7QdGib1kMzT4FumdE/FcYXQ9NmlAcLM3CEcdMZzfY
-	 P18xuj5CEI866gCFlKDqXxWy3eBbg9gqddcR/x2njDoe9kK044xdwzW54xKXTY1bIt8jG
-	 FuiDxaHLkOHJjAsBHrfnvCJX30GnIJ1pzgg/eR68/Gt+WhYZ48aVyfvzn8njClHrZc1aF
-	 AVwGU+4kXr4gn6Q+yqS4Q+KqzFW1w89YO3MejEPg6MWGIRIeJ8VhrYtJJieUA7illntwb
-	 nqYshzMsnwdTOqchsgVFNZZL+sPTrBCz/anR8LmFUSa+vBIr02gDoHFEhAK+Sd87jpw==
+	t=1795385639;
+	b=BSpj8IjwPH7wrSYQ7lKhKdhhrGdrgwAWGMfXO4tbx1jWpz5THUcjWs2KaIJJM1dFGgas
+	 fFxGDnBn/8bapXuSS1czFD+17YhAwjEi2pDeascwwUuPmqL5IV/2C4ewfDlbaqELbcZ1O
+	 rjgd+dUjj3OFAChs3RZz8WHuudHNy3zsTAWp+iVnX6uduCTW/eXLPQZys2qF89dlI+T+I
+	 N9X9VTF53FXu6iEllyqLKei5h/mADnez/SAr42BWK9suy9LX8jRt9fcAduFiKqgNJkhYA
+	 OYeqf/ta9lflwatCz/yS0ovWU1nUM5r6SQj0oZrWzKp5mLpC6Ypw8C+FsdtM32PSlAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795384948;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795385639;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
-	b=1bo2Yu+Rj9LY1bChkOaUvKkCw8EiCk0MS9x4PjwzjRD7CHLUasM7Iu3FnakFtS7oXxXu
-	 ybFIK6gjvEOT9j1vokxkUniZQaCD3mi2SXP7biCv+KzBPgY8S1/C+NQLZLOdfFE4smO/b
-	 lDz+RVw/827LqqAVdwtsqRlCJm/h9Lmsu4MFBYWzXICs6ZLZ9R3GPdrT3cZKihAlNwtZ1
-	 0I3oxgwLJ3B9MgavyaLC/j/SHnkZEvuofcapMefrMB1nIyySPQbIUVVpOyQ++tU+m91n1
-	 cj7vNNlsU29LlbfgO44KFiyaZmuYuQXA2qW8tfw4wPz2ScHdFsVCqv9kELnRaYxvtXA==
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
+	 In-Reply-To;
+	bh=b0kJw802gh5uy3Pr7DaE+7uxe9KZuq1T1lj2n5oppe8=;
+	b=pSjgpSNOFEsShv7Cif8WsEoKQQdZJdaH+ir4uwGuY9UCm634kjQw0gC5HO2Unn0VfB/1
+	 5B64R/ugfbJi/Kesy8Vv4KVgvm8X3/yLXWC/4KJUPByzYHlTqAQgZmAUB5eCd5RpE0mVC
+	 Rcm31JspXIkce89tvsPW+614iB3EadGCsaFvFlLsUaAvwTQamwH6q5Ij30mS7uxDj6Icc
+	 HZco0uOcU1RlLWdQvx3jsHaLWEaUYhmcCuzoMxspwE5G1LlzmVFl9xXJVHNPbjDTiYD4w
+	 YtVT6BVvnNhcG1PaK0nJgnoTEKsIqaK57fhJjJTyWFRWSu3tLseT9XHiLNUxu7bntQg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nzzwumsk;
-	arc=none smtp.remote-ip=209.85.128.49
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YEoxDNjf;
+	arc=none smtp.remote-ip=74.125.82.170
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6510606A330
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 22:02:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E6510606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2774C606A31D
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 22:13:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2774C606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nzzwumsk
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4bb606491faso14597395e9.3
-        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 14:02:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YEoxDNjf
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-385c497bf94so822815eec.1
+        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 14:13:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795384946; x=1795989746; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
-        b=nzzwumskbK3DA1kPojxI22aHsM2COpjXjLFnBJuYrFk/0c63YJwNaGpbrKmcnE74pT
-         eAEJ/umE5HL/9r9XOiZen2xUSPR/A3boXva0K9D04xfZwoM4hPEBWzodL1yiKvgDV23H
-         AlBRos+7VDWwK07OAvBHmlj8OlbUhF2uHl5hNmKOBf370uXiMhxyV6WiIS30kw3SeT9d
-         n3VL2jNJlxmEXhs8XAE9M63xj+iJOX4uCWCMlXhpuhJA8Ssjvqqy8GT/HSlecQ+oEMRN
-         UliV0idfmxBlSPPG2nkh0fPO2DvFq568oCdQZKyO5mNPQgJ2v5PwYThsuSHy0p69jSqb
-         46mw==
+        d=gmail.com; s=20260707; t=1795385638; x=1795990438; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=b0kJw802gh5uy3Pr7DaE+7uxe9KZuq1T1lj2n5oppe8=;
+        b=YEoxDNjfmSNdYkLMgwYovHLULl2T8UFnl97qapp9oxPQs4yPVY1VTXqDcPl0qCaY4L
+         3aKI3+Tj/pgxPgZAnzg0sZD8w2KfMeUYI0tp5TOBcLzvO+fsqt48QSI2dyTbha5IvEad
+         X0fLmJpDuELJ0MyHbRIZOBREheTjNFT/UUrkK0fu5RDFxH85WNylOQ9XftVK9VMgT20F
+         68KPtthsqnf3mmmsBf9bldSGAD3FO4PZfxCZ8yhbfpNH3vcXUwDD+AhQr3GN7xzzQsOk
+         C3lqAnNrN/X/joFDQerIc0QZjiFycMOPP6DBk+VMLZS+2z1c81ItTP0wD7H2sXB3BkvL
+         il9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795384946; x=1795989746;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4UxiOydDwa3I67Iaoew4LDFIsocWQ9uqy+MKnlF8rqM=;
-        b=SMa/QmpINWOCc7L5maUap7BTUEkwA6KTYwjs6N0co14X+FaUYFjzK1cVy5ScpFw37r
-         z/5hQp2AgJG49zITlRK1ygxBaRsEwRSjzyFwjkHa56KXexcxpjw95IdYWt4LAeYk7nL/
-         6VFR1q+xxS9DWEkbLkVeLS4fbj5boodNoqWRbLuw9jdngBDmq+s2TzdZuqzog0nUfIBC
-         6xMLt3108b3HkFGfgqdgxiaBlOYjEOO7OrnMuVWdJNCvtDkF4fvj8mkP4FrSWtJCE22f
-         dO/ighvgqnEhZkU0uYl6DlpX95XY2gC0TgBWcu5QSn6/GslSH6ECef5QauAc7JvES4UJ
-         wyVg==
-X-Forwarded-Encrypted: i=1; AL+hErEfRLAoxSQweTCBQmNpN5P5I5UKw0I336Ei56vtyUG+/t66cQhB/PjDhzZEFfj0olKa1UU1QM0e6pdGzA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9Gytj+733FpNsXQVAme99H6m2UWlCYCLdMjSqZd+9kacksot++
-	p948JSzeeRSD0mHE7rcbuYAilfa+j6houdz2x1mM12GxHjxaJ/DmNWXL
-X-Gm-Gg: AZFdTZfcTl83hg4BK2rGve6NFeT4XpB+KbGkjjcFpLouqrZsQhqKY5p8DnOQSXX2or8
-	a9C2K4WQzN6uys9Bbfxv5ebPmWOSPeEIJPM6/OyFb6Xf/MKOljVDSftJAjk9k4fatKeHsYxfdbv
-	Z0pDuEbidg5T7Bto07VQSHeouxH2OfCYav5+vHdqLlvGGRz5tt8bkvHUR2BSleTjtzMk+fMJ6Qa
-	iYayEqZZnxaWhnEwKNvsN7P1YY+d0+3pUZtwdjstBCxq54DBikZdHQngw4PvPxCFs9kjtJvJRWx
-	k7CtpDvJ1xpVpn5E9LDTDYs7fsMfzUlBlH1Oycrp5c+ESCkA0lelPlSJWMo4P7KhkXGeXu1S2Ch
-	7E3boHsQCQDZypKcy3L2MRB4HMSrXVMgBCdejTzKNPxfjH3RH0xyfZ7XPZI7kCIw1Cl6sppoGtp
-	Z70zryXJCllExd4hP0D32hfoFpkzGY3o0s1X1qf0qx7qTw2XwcWJZMDRqD87CSRDHRzpq2ekdwc
-	vgltZa2NwViaO/T65eOO2bEe9k0P/TEecBiO2uW8hrWzvIiGZx9SQs0iwfcMYZeCiIFROGSyYML
-	n2ulIfQYh1frswZPM7iZPO/DwL2AfByjF8Gcsnx4
-X-Received: by 2002:a05:600c:1c1c:b0:4a2:1364:252b with SMTP id 5b1f17b1804b1-4bb8892ac4amr217905975e9.35.1795384946093;
-        Sun, 22 Nov 2026 14:02:26 -0800 (PST)
-Received: from foxbook (bfh118.neoplus.adsl.tpnet.pl. [83.28.45.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab69bf61e8sm19676778f8f.11.2026.11.22.14.02.25
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Sun, 22 Nov 2026 14:02:25 -0800 (PST)
-Date: Sun, 22 Nov 2026 23:02:29 +0100
-From: Michal Pecio <michal.pecio@gmail.com>
-To: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
-Cc: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: steelseries: Add support for Arctis 7 (2018)
-Message-ID: <20261122230229.1bdc3bd0.michal.pecio@gmail.com>
-In-Reply-To: <Rv7nePC3RfOSidIKv_K-KQ@gmail.com>
-References: <20261121121129.2a1d3013.michal.pecio@gmail.com>
-	<Rv7nePC3RfOSidIKv_K-KQ@gmail.com>
+        d=1e100.net; s=20260707; t=1795385638; x=1795990438;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=b0kJw802gh5uy3Pr7DaE+7uxe9KZuq1T1lj2n5oppe8=;
+        b=Wy/9htNUXDuEjk0LrqPqb1a+IXtsvxfOlv3mmDgmjwKN/YqfLnV98ysndPSpEsRsFs
+         desEl+3EMYE8eJBx0Nmv9O5lnDHbYLsn8SRJsyo7dLzc0oKwKcAaGo97cg7pLweD2l9w
+         hRsWQoB3OhNIuzze4zl2EtAs2RqtTDHBPT4lyidQ2GfQxkfZqdOu5h5Ip9jgW+Aj2AcG
+         RlaxD+8qlmbzIafToQP6aO8uD31HybhpURlijN0NXH5ZiGbP07ZnFgEOsNCj9PAbKEjh
+         sFl3OeXcr8LPd0wrN1lZybpv8YwjeECHRArUhLoO/ey8Z0y+IalHpltwvwFtvMfC3s5L
+         tWVQ==
+X-Forwarded-Encrypted: i=1; AL+hErE8/3fmwXzb7yohcENldUegMbOjYDx13BzxjcomqzcnzZDaMO3saHCxoISs82vSghlVpidlnJiuUG017Q==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+8KgKoo8ILo6tEpgJQccwd+ghZm0eyHcMpXsQfUN+gpit2e767
+	69vj/97D3vS+hWO68Wyl8eQPbgPRXTgCYpmG7Af4aTyf4FbS2zXxFOgj
+X-Gm-Gg: AZFdTZfxFzINNuvJaVqRh3LtmJjLrErIIZ1330Bc2HmwwoUEfyv7CtySPVYtlfiuA5v
+	AHVfOxuHz5VNI/NxEHI++l+FJPhZIVtvLJeZ9hgW4I40dqsEB/dlsxT1y27ym2IqNOoTi2LYrLL
+	Pyz4G9Z226UkW+aUiqysLtyWMOPGSSNDRMEabTIyEmtzr9e+CTZihRNGD72RxU5MbXYBMWniEqn
+	/cue+z8SN0LGc+82Fj6YGqsMHuYUeU9zvxOKF29eSU5cQUaknjh7qnirGErMu2nM6G2Xvttkoe2
+	TIY6MebHOz70hEdt4+mwh9VXsdkN1UUalUes7WOTYc4yf0J6qXxXSeXYM6qToE05yaoJHWTzRF8
+	1IzGFOUcBl4ztZhlnbRUX1Rgb1L9yd5mJJxxfxkQlXKGxEdl/i0k2iEozxBbwW0XOhJUfK39DrS
+	ggpKUR1qxmdFIMZoT50u+QWWBxiNkX9kdkUn6bHNi1wAvlWyj3V0ZfSypJ6rybgaN+9gj2F8HhS
+	pHV3YkEmNiOHvPLl+C/7nt0f3bJNqnHkbmTJ1PVhtouuY8LaALWlRnyGwhZlAT1weINmXYTxN/E
+	yjVFGnd9BGNHDidyP7vnVDWyAlc9YVRVhkbK3WQXsyhd6mGmDonnUitu6mjG69JK6/1laog=
+X-Received: by 2002:a05:7301:dd86:b0:351:2958:1740 with SMTP id 5a478bee46e88-3856fb641famr10062602eec.37.1795385638023;
+        Sun, 22 Nov 2026 14:13:58 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:f002:4621:aeeb:e0e7])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386b1965c02sm1957225eec.27.2026.11.22.14.13.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Nov 2026 14:13:57 -0800 (PST)
+Date: Sun, 22 Nov 2026 14:13:54 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Siarhei Vishniakou <svv@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Input: add ABS_TWIST and support it in HID and Wacom
+Message-ID: <awNosbiWPFdsbUN5@google.com>
+References: <20261110020632.4003499-1-svv@google.com>
+ <avKAaJxlxE8gOYVV@google.com>
+ <CAKF84v00nJ_+2Tf8m66LhGEKvqnHb26YD6p+FRUXK5juYEPQZA@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,38 +102,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKF84v00nJ_+2Tf8m66LhGEKvqnHb26YD6p+FRUXK5juYEPQZA@mail.gmail.com>
 
-On Sun, 22 Nov 2026 19:32:53 +0100, Erik H=C3=A5kansson wrote:
-> > URB status -75 is -EOVERFLOW: URB buffer too small for data returned
-> > by the device or the device babbled (exceeded wMaxPacketSize). =20
->=20
-> I can't reproduce this locally, neither with or without USB hub.
->=20
-> But it seems someone else is reporting the same on Bazzite:
-> https://github.com/ublue-os/bazzite/issues/6344
->=20
-> It seems the hub itself reports that the port is disabled, both in
-> this report and in the bazzite report:
->=20
-> "Nov 19 20:47:58 [REDACTED HOSTNAME] kernel: usb 4-1-port4: disabled
-> by hub (EMI?), re-enabling..."
->=20
-> "Nov 15 16:05:59 [REDACTED HOSTNAME] kernel: usb usb1-port2: disabled
-> by hub (EMI?), re-enabling..."
+On Tue, Nov 10, 2026 at 10:57:31AM -0800, Siarhei Vishniakou wrote:
+> пн, 9 нояб. 2026 г. в 18:25, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> >
+> > Hi Siarhei,
+> >
+> > On Mon, Nov 09, 2026 at 06:06:29PM -0800, Siarhei Vishniakou wrote:
+> > > Some styli can report rotation along their long ("barrel") axis,
+> > > commonly referred to as "twist". While the HID specification defines
+> > > this usage as HID_DG_TWIST (0x000d0041) in the Digitizers page, there is
+> > > currently no corresponding evdev axis code to expose it to userspace.
+> > >
+> > > Because evdev has no MSC_SCAN equivalent for axes, drivers and OEMs
+> > > currently work around this by mapping stylus twist onto unrelated axes
+> > > such as ABS_Z or ABS_RZ. As a result, userspace input stacks must
+> > > maintain device-specific workarounds to know which axis carries twist.
+> >
+> > How is it different from orientation?
+> >
+> > Thanks.
+> >
+> > --
+> > Dmitry
+> 
+> ABS_MT_ORIENTATION describes the 2D angle of the contact ellipse (or
+> tool projection) on the surface of the touchscreen. Looking strictly at that
+> initial sentence in multi-touch-protocol.rst, it sounds promising:
+> 
+> > ABS_MT_ORIENTATION ... The value should describe a signed quarter of a
+> > revolution clockwise around the touch center.
+> 
+> However, the rest of the section clarifies that this is the alignment of
+> the contact ellipse with the X/Y axes, not the "twist" of the finger
+> itself. In fact, the docs note that orientation can be omitted if the
+> contact area is circular - even though a circular finger or stylus tip
+> could still spin in place, and that rotation would not be conveyed.
+> 
+> For a stylus, orientation is equivalent to the tilt
+> projected onto the touchscreen plane (which single-tool stylus drivers already
+> capture via ABS_TILT_X / ABS_TILT_Y).
+> By contrast, the proposed ABS_TWIST can be thought of as keeping the
+> stylus at a fixed position and tilt angle, and using two fingers to roll
+> it in place like a pencil.
+> 
+> This also matches the HID Digitizers specification, which defines
+> Azimuth (0x3f, rotation of the tool projection around the surface Z
+> axis) separately from Twist (0x41, clockwise rotation of the tool around
+> its own major axis), and hid-multitouch already maps HID_DG_AZIMUTH to
+> ABS_MT_ORIENTATION. Since styli can report tilt/azimuth and twist at the
+> same time (and single-tool pen devices don't use ABS_MT_* events), twist
+> needs a dedicated axis.
 
-Per USB2 8.7.4 and 11.2.5, hubs are supposed to disable downstream
-ports which are still receiving packet near the end of frame. So it
-might be that the device (at some point) never terminates a packet
-at all, or its packets are too long and occasionally reach EOF.
+OK, let's add it then. But we need a more precise definition of what the
+values mean (i.e. is rotation clock- or counterclockwise, only positive
+or negative, what 0 means).
 
-I suppose the latter could happen because the host schedules the
-transfer near EOF believing that it will be shorter and complete
-sooner. Scheduling may depend on host controller type and on other
-periodic traffic to low/full-speed devices behind the same hub.
+Can we also move it below ABS_SND_PROFILE in the doc?
 
-Or maybe you are missing some other detail. Just guessing.
+Thanks.
 
-Regards,
-Michal
+-- 
+Dmitry

@@ -1,101 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.176
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795347056;
-	b=dAntKB4sZCIB5PUD4wZITY69OgunOW9IcYCOTS6nBuqP8mUGGkq1MsEB31FXkGSvolk3
-	 M6b2OJ8szWMMUbRmQ5V3ApBBb+jqZhuFmE7c4hXLwaSJ68OaKI0HrelVJDSYM3LG1DGKq
-	 bxRxYarf5evI4enZMyU33bfngEqYnfxRCXEqpdTcWv510d6wfFRLPpOV/A/UwFjeaXYwl
-	 lqqyDIEuMCZe1mV5jZKbhqFWtzNLznNyRENNbWWtYInRTZoTRDoCR7VIGg0LEqyJZvlO5
-	 zb5AqJTW6W0WdoSnTseFy3fTnUZrhFh8snA38HJGhSiUjgWgwfp0UF6YHWDV4e37YrA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795347056;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=HTIrhwJl/9ipJcdFd57QjcFO8vQHJXUr0hmcwxLC+cc=;
-	b=bSh1CPc1+WDEHEmLGx9k0Qco3cURGp51tHXesw7WZOGiDcuoxkpe48rWFqcPmHjRA+ma
-	 dyhRny2D/L13wyhEVGYTqLSs57wx3wJt+v+CzLYtbpQ6ouABxNmGTWXA/11ys75LozanN
-	 R4fhOX72G27wJvR6uqZAIT+dQakfz/h7yh4b86hCtlv+Ojj7Hu9cdcxOGUIgapEHd4KcR
-	 N1sNDWs0NoImOO4dA3QHdnWjFHXLbt7pOJEs/CJGVm7PuiTB0ex8ctRTOdNN7/2Vkg4/b
-	 8f2MeTHUHmzPOLu/Dic4YYuEYaMQMVFaGz2DfutInhjLQ3oufL6WVMvH0f/mM0iPBSw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Re6I7jHK;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.176
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795355800;
+	b=P7n/rmTzYvVgdxeQoK23s2ijINki51R65bBgsuEQ1WSOLqvX31CwU1STx6RUXrCdbO0w
+	 UDtyPtpHIMds5ucQsNrn5grnXJjxg/y4bvgxYk4vNItJEUaT/BTqej/Y12AQPwk9AC7bp
+	 RkPuPbF5h4V1+qjXQsGXtv16IcbeMihGetw1+1PfWHjQ8CYDByWhb1BYd8Pa9KagxJ+CE
+	 krVAiGkeG4SL2mvT0lOXKBNPnkQO/051XXqfgplttOSoI+9w/NO1DRvufOp1YakxvX1fX
+	 lrBmme/jNoy/BDT924CJLQn7tJ5Bvl/SqLXBdR4X5HVChs6xchnU7ZkT8s6q2wCG4HA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795355800;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=G/WdTtQSROSLrn837YYgbig1TKg++uOCFXqqP6VdarQ=;
+	b=t/ziZ+98+ywzTO731E6mWF7+65zaERP35D3BF4CJRitTU48B6BhkbyvpC0fDNQbd6VYN
+	 JaNiR0zdfLU17VhZcKUWiuhlgRQacmDdzaIdWGmTa+UT3TtA3rPU+PJCjjVXvjZBW5T0+
+	 +Q0CAsFVT9Ct0QZuDG3zdXu6iwHELfHEwiEFUG1dc2IKD7DuF3AxZUQdDnDxvSjVAiUWP
+	 PyVx8y5KODYIv/SFU4AHq+69KZ6TRRfJ4nsx5a/db31RKh1Ey0oCMB0Nna/q/gP6XGNbG
+	 cCgvEhVhdbE2TCmzD7rFgwXHlRwMHL5NM/XgPjXHYmfDpba0t9hd0x/4fDkE/VHnjyw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IlGhsWEl;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FE69606A330
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 11:30:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8FE69606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8606B606A320;
+	Sun, 22 Nov 2026 13:56:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Re6I7jHK
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3acd523a802so21384051fa.2
-        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 03:30:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795347055; cv=none;
-        d=google.com; s=arc-20260327;
-        b=mv+4+pjOCgz40WguPN1shHzPNNwTL3FqNTuDtujARPLHXd48SVnr6LdiRRbGiCea//
-         lPvpEpYvvJPD6YnXuMzNibAoxPesSjm2kVfOO9EiSnGdn6tb+0vT3CiJppPLvPm7eQQy
-         seDybx++iAeZ3TvbW0yaDpfRwYroWRgqRHweGcPuUsJyoiXx1AJ4G8LW96FyVcNowBPI
-         WZAiuerf7gLGvgTSvjZx46YkvVEosDQDI3zsqw3J9D6TyQMk1pRzz434dGCgGte35sCe
-         BWA3L0XyrIWumuEpCC3ds7XJ+Zc8EFRhs+2Fo/QgMiAFF08H3mjJ0P1VydRjn3OTcbaC
-         VusQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=HTIrhwJl/9ipJcdFd57QjcFO8vQHJXUr0hmcwxLC+cc=;
-        fh=MCcSqvRAChdBY99IB0jO9Mmxs6vUOBcuUq4jOEnomIA=;
-        b=kkAap05wR6gXAGA7vH3bz55kl/kmhkbJsKKAzlmxKMEimNpfj9dtfbvo2Wm4Bisdr7
-         GwXWPXxNjWd4sZBJBfsr47LVZHTFYw/LFT5ECxsSJnfvgao4l8Zj/oXS1L6LecvkGcrp
-         A2fxjg3VzNkIB0VdSIx00vWOhLKUZNvr64Ez6+JTnG4CzhL2CgL142CWVNPaoyztSf/Q
-         CSje3lrBwQh+W59JHt+zJkVYcAIFGulvWHhrW3p/l+wFhmZim96prunYxImn2zFQ4+0w
-         +xmYNyIaonloB56vkE9dGym3lVmm5/KkbOuutV/j4ZAKM+nqeJ7IwPGPa057TgGTHDCz
-         lQUw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795347055; x=1795951855; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=HTIrhwJl/9ipJcdFd57QjcFO8vQHJXUr0hmcwxLC+cc=;
-        b=Re6I7jHK9+vdc0lUYaTP7u5shUce1zWoTNliKBzI29xJ1G0YpcCBwSl3NB810ns/j4
-         thf7iOUognRvFMB6YS5SSTzTMbeb2bYFYL7HTKo2zHRSv835Wk1p2QlfvF/6ndXHkL+L
-         hJ5/JEmbt+Dp7xqaUab7+nByfRsYddAXTgP3BJYjyiupy+ixStpqCjaJOL7k3OS022yv
-         4chmwOwNaJxQhjNvdyItIe6ybl/H58EjUROgx7fnIsMqrTI4HbHH8Lc0ykBth3vkkoxI
-         7oPbLCQjDDjrqL9v19yciwvehcL2dKkM557aO+qoJduIUfcsDT8ObclkWApiGGCkCEuE
-         wnig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795347055; x=1795951855;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HTIrhwJl/9ipJcdFd57QjcFO8vQHJXUr0hmcwxLC+cc=;
-        b=i59sDhxG91NNVah7GQShu/M7mrjG/HfQAYQH+Vl2DdeW4m7Bt//qI9/Hnm2zxIoonU
-         sh+dgT9B/Kdd6+r1K2JXycZlDdwomIMgCdXemuqfaTvKqYO6K5kxWYzjrHMeql4dJPb4
-         VGGyrRyrPp1va7YAljmNJcdpNiQtuoEDsCWdtBBFoZJ4lDn+U/S4wObevEZfyzLbtRor
-         87YYR26pxPe9n9pq0S5Kt5vsIr9aPdl+tJSkUNyKcz4Bwssb+1l3dsHfjub0dnatj5zZ
-         IHKGHTsXtN+aT4X7zDcwVW4egHtP2oSlSVHbV5cgmvnuGpRyEcuJ6e6wAF9LJZ5bFLV0
-         uAuw==
-X-Forwarded-Encrypted: i=1; AL+hErHWNVGaxgIT6vF+IDXF6ECWY/oBeVjVfm0LpfOGJaQyc78YPqhfdFuEJuA5gCwA+76WKWXmsGa09EcL6Q==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+XvfTAimN47JGFS2VaXzZKNrmiSwsQ04JwMfQwLjSoNM4go+yJ
-	pJ42CFhQiIWbHXjuHqU6GliEAxz7R+Ax/0M467hRA0RE3Hd8r1gz56x4NefTQnDPVK/FTMLchha
-	Diuc5+A8LSrBvRmAGPh1XU6Unn9N8PbSYzA==
-X-Gm-Gg: AZFdTZfCOf6Hy9EGsxXleCOm3ULwA67M6WfM8VfX5GZ+YMG9xJGE7kwy1XCNBWlkmPT
-	Dn0ngcORvVI641ttz09d2eGb+5YXrlGFvdJNiAsjPfyc1X2My+orPp3bE0Xuz6BSEkvZSvGyoRg
-	W8/CrUjn4s02yTU7n+Ujd/x6zAMiRq3vg2V3y5au2BJiDkbCds94tImx0LbIYiXh4I5MVkOK2dU
-	fIsCLXnNwHwA2zjrkW5gB2SEHvfwTwGHlQqKHMM6AK+2wIXWtivG1FyMngreDmq9cvj+m2WPl5g
-	YIG6cQzNLHF2kLgQ8MAXK6RsGuyHdRTs3WJwt2itEyWwImCIQ+Gey2TyUDzB+2KiQ2mVtmIUi4b
-	R6A1BXMaItDzkcx6Qc3WdIPaFev6+Jq8ayZIwGqBlRj1B66V4GY1HUlsZO45r2nInKC9c7nUUoj
-	uN44B1zb5rFx3+by35z3qp/ib6hA9agHMGqNxAlQgoNkOc+Rs=
-X-Received: by 2002:a05:651c:a32f:b0:3ad:fb2d:a757 with SMTP id
- 38308e7fff4ca-3ae7fa45871mr24883491fa.24.1795347054437; Sun, 22 Nov 2026
- 03:30:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IlGhsWEl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076461F000CA;
+	Sun, 22 Nov 2026 13:56:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795355800;
+	bh=G/WdTtQSROSLrn837YYgbig1TKg++uOCFXqqP6VdarQ=;
+	h=From:To:Cc:Subject:Date;
+	b=IlGhsWElHygfBdeLG5MLbBSkQtgOwo+WW7E16kw0T0xmhhwLu2kEBfc5vq6oUN4X3
+	 jIXxZKcYmlZOY9emTDgmhicMuAh57z7PTfbPUK1/hvyHIAcVwgbr8oCvqm50ixS5Zp
+	 8JoTY9g5BsN6/bqs40/nkxeA9hVbj8CMDDkO6NYCz0X86i3lIv80B4v6sHnL7u/YeF
+	 KbpZJiEeHtOUZRNFp2tAfY7gmxOK9qdiO1rtUHa4ryeimSVB75qTWWfyZGNRiOkELs
+	 5JSpFNlxD1o6/bY5X4C1tfRcYStpSdwunKUsdIpkkFpfExVl+3ODYkzuq17lp6KmTE
+	 bW16nP7vCVoNg==
+From: Geert Uytterhoeven <geert@kernel.org>
+To: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Ion Agorria <ion@agorria.com>,
+	Lee Jones <lee@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Sebastian Reichel <sre@kernel.org>
+Cc: mfd@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-tegra@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 0/4] Improve MFD_ASUS_TRANSFORMER_EC dependencies
+Date: Sun, 22 Nov 2026 14:56:29 +0100
+Message-ID: <cover.1795355432.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -105,30 +64,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261119134041.16611-1-festevam@gmail.com> <20261121231726.71aa1aba@jic23-hlaptop>
-In-Reply-To: <20261121231726.71aa1aba@jic23-hlaptop>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Sun, 22 Nov 2026 08:30:41 -0300
-X-Gm-Features: Aa3M54qp-5FUOe8r1ZuLPebMgOZXGH2Yo_N6UQqWLwX2mQ0uaPQ4PbhpovaTi3g
-Message-ID: <CAOMZO5Dp6KYkd6=hsK366x_83ji9tdumq9k5tWXJGvW0EeRpDg@mail.gmail.com>
-Subject: Re: [PATCH v5 1/4] dt-bindings: mfd: mxs-lradc: Fix interrupt order
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: lee@kernel.org, maz@kernel.org, andy@kernel.org, dmitry.torokhov@gmail.com, 
-	linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-iio@vger.kernel.org, 
-	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, crofts@kernel.org, 
-	devicetree@vger.kernel.org, imx@lists.linux.dev, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Jonathan,
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-On Sat, Nov 21, 2026 at 8:17=E2=80=AFPM Jonathan Cameron <jic23@kernel.org>=
- wrote:
+	Hi all,
 
-> This bit belongs below the --- with the change log.
-> I'll fix up if you don't have to do a v6 for other reasons.
+This patch series improves dependencies for the MFD_ASUS_TRANSFORMER_EC
+MFD driver and its various subdrivers:
+  - The first patch adds a missing dependency for the MFD driver,
+  - The other patches enable compile-testing for the input, serio, and
+    battery subdrivers.
 
-Please fix it up. For now, I don't plan to do a v6.
+Note that compile-testing cannot be enabled for the LED and charger
+subdrivers, as they have a hard dependency on the MFD driver.
 
-Thanks
+Changes compared to v1[1]:
+  - s/is only found/is currently only found/,
+  - Add missing dependencies on I2C.
+
+Thanks for your comments!
+
+[1] https://lore.kernel.org/cover.1795095742.git.geert+renesas@glider.be
+
+Geert Uytterhoeven (4):
+  mfd: MFD_ASUS_TRANSFORMER_EC should depend on ARCH_TEGRA
+  input: keyboard: Enable compile-testing for
+    KEYBOARD_ASUS_TRANSFORMER_EC
+  input: serio: Enable compile-testing for SERIO_ASUS_TRANSFORMER_EC
+  power: supply: Enable compile-testing for BATTERY_ASUS_TRANSFORMER_EC
+
+ drivers/input/keyboard/Kconfig | 3 ++-
+ drivers/input/serio/Kconfig    | 3 ++-
+ drivers/mfd/Kconfig            | 1 +
+ drivers/power/supply/Kconfig   | 3 ++-
+ 4 files changed, 7 insertions(+), 3 deletions(-)
+
+-- 
+2.43.0
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,82 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795340049;
-	b=Z3Bwg/TK8eODMpJJTTRF9iGbP9y98yNdS17vPA3CK7FhTffN9NpQckr0IIqLS5IE6YmP
-	 JJEZwPwKTIrvLdMyRpSJ3tI/AlSgNaYOkD2G8s8DRJiGKy80TgmUu+sO0tcuOe0Fk++aA
-	 vadY5rGlXUlPgJs2i9JuIS7e0EHnC2QMoA6hQwRTTX99iSGZsCnS6UpyBp5Et/jWwsBAV
-	 JavJSvkC3zusJ+RseNlcv2gsVvlDiixL0lxTlFGIPi2LHogS1bOG4HAvcW7Qoq4LWFlnM
-	 E7ejxYqwx6JItCaOS0S9R4+LXTZ2l4yL+PF5lrClcv7zQ5BRyGgFRJTYp798f3Umgwg==
+	t=1795340050;
+	b=KqPbYnHvxXEaRG8cfDJlhpzX4aTJsxWSW0LytM0YQ5cCmhg9WL7QdgVh5lSf8PHU+jCg
+	 6oCAruzf5tOFSQRhUZ0+P46C/NkcXSKeIjZLT38dKkLdkAjbjBm8MZqwahYTF/3AOOmeH
+	 8S+yxeoPL1186dRAQaAFjw8urGmua96f2evacrgPOLu//+1sDLVBeOkRgVDUKy+8R2h4t
+	 DUJjhUMuBqZ8t5pVnMT36GCZSXRL6zZrNs4sEYcn/2z4I+FFC+ufj8mHeavy1QTIOifKH
+	 iieg+4BZY57pkr4mUFRalQd7CKCnPVeSHpI1NCA6+KyddLyerWgWWEr5awFJGTkD9Rg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795340049;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795340050;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
-	b=22qyIBdwM5N3syJHU9+4d4GhxRLMqsaOgvPWEUuwVbWo32xU0zUbhu9ER5TxxpyCYvnV
-	 Zpm1jDVMmE6jZdRRDPuJCjfKV75cY9p16C+8clMAK4lBasgGJt+KkKeDdjjEw8LGZ9LAH
-	 yvLLvj+lknvOaITgQ7tHsIsEzVVrtm0UGxNAcDDeKUQpdWal+ndYVO77YIzQ87AewCkQ6
-	 QSOQuKcfEuWRrae2sCsXuOiAm1WFktalz6NwGI8eMYBOgeGavFXBzyAdoBx5SA5i1oG9x
-	 unAQzM1UyKYRKO6TkJiUl0wEE1Nsa/xDpXREI3WJUu2LxxNaLh2NSXjCUyKzM9I1MGw==
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=EMGZeiHC1km9rdIIguTSZBczlbZkEbh605v5+C7/h1o=;
+	b=sb9nePUA6ldbkgTXqYr1prByRdjbiynZzQnFbBgxjKuDW9rSgK2lI6QOQ6Dsqo4D+orn
+	 z5DfRzkf5n1E0u/NsghQj4a8r7L4VMYF7kXokBohc5Ot7RmgfYVDkz6pws+tVBOdqOXxQ
+	 JvlE8kbXWeAdQGgt4/VHzVAfP3/POTiUa+yzobohzSe6jC8CWna6YBDUkJn8qHoHbHTlv
+	 8x8zaVODtlyMhm7UW4sy493MyqbLx5PFRwmnhgUmftNt2awZMVRJhKm3xBa8ecoW4tpUF
+	 JxQDCasrzSHnOQusB4euwtvzIQH3VGRiDPCpAUKfTNxrw/xJ6lz+e89bsr+Z3oT74QQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=teslabs.com;
 	spf=fail smtp.mailfrom=teslabs.com;
-	dkim=pass header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b="fVlBys2/";
-	arc=none smtp.remote-ip=209.85.221.48
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	dkim=pass header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=B6fhYufr;
+	arc=none smtp.remote-ip=209.85.221.46
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3A1606A32C
-	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 09:34:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA3A1606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD850606A330
+	for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 09:34:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD850606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=teslabs.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=teslabs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=fVlBys2/
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-498f5fa4f70so1837180f8f.0
-        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 01:34:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=teslabs-com.20260707.gappssmtp.com header.i=@teslabs-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=B6fhYufr
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-48dee593f18so2167189f8f.3
+        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 01:34:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=teslabs-com.20260707.gappssmtp.com; s=20260707; t=1795340047; x=1795944847; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
-        b=fVlBys2/1b9RonUCt+ctCL0AFnUAaSbp9xup9SH4y05xeewwNLJoQLtaq/JM9aGvwz
-         YCcWWAp9kfarcxdpWfXqnOpooDVodnj1eziNgUNi+lM4W5MBj3FAPFGUBrKZcyfDfL6/
-         EnA3JZ2yejNWEfuFd5F3DzH+lFPxlNEsNRhH5LCnwGUDMcFrIT9ychQLz034ThQhkFNM
-         /q1BRTa9tVHwKWhAFF0GqEqrpf3V4p2EVyIm2LtQ0a//FIbsVqXyepMGJ8lsPt+AbN17
-         wfnmGO5YuH/3OJ6DE3xxCoHk4GNdtN3xycReOflY9h5OD+OyR93DHh0SaVKgTR1YIMit
-         ziIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795340047; x=1795944847;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=teslabs-com.20260707.gappssmtp.com; s=20260707; t=1795340048; x=1795944848; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=MuQqDS4gHRiIDL/AerQd8OJ/xrrO8MJ2dvAzRmjTLio=;
-        b=kI4SyLgNSCsGzxRbghQ6rWSM7bsrhXGiLND/c26tbAQFW4RckeS556LS8ZfPTvdASj
-         KySI8b8cJW/68XcM6ucnoiG7rA/fWwmGpTnpuMfWS9shcYbYsMyYXeVXSdGX5XPSPXuf
-         XhUAxFvnl+ttZIoryl7ZBclp16lz09EitVloMsalp6g0swoZiG6gLhHlim/ynDmnxq0G
-         FcxxEzqmvVvu03TIGFZtr0czjHkl0xA3RSXnsmGtEkyQCqt7mdhFrbBFTPiWTqCQAIjx
-         5cDxDVM059sksxhjwwK4Pdn0xUoRyrPGqap92F6KVhQsXM7Rsonrv6hzR8f2CvQiUnFz
-         WTbg==
-X-Gm-Message-State: APuU4Z/fPsKSa4jgH/t7zVnZNgrcSMipab7ziUnpqK2ZUuTBtx8tmyeM
-	puSTl3gkPw1QBKnWGDQowTv8m/vSx69vSeAPlIo20r2jdJCAReMN9BYeFxG21A8BbWeKLsl98tp
-	lSbWJbvDcEe9N
-X-Gm-Gg: AZFdTZe3GhHSKp5ueCjfuQp7UxprRK6eBEYZyx7jpmfpQPMdc1XungVACyW/TP0DWQn
-	74VIAqj/7DVyAT24AWm+Yha5jMZJgqG5kbMG8y+eXdfJq0v8txmNdSxGG2dTLtWemz11E8vyOAe
-	86vR4NkWFGxCc56MHe8xshlr4liS8NzFrrocs2VuUbl8T+9jHLLweGW8vwPMVqfd9yuljAwjsCB
-	tC0/VEwmKNtgOTHr5A2/cCRCKJllaXpvoh2ji8iaXTy2DqN9Q69aKRWZx7vMzR6sOEi+W1zzoge
-	4c1equ27GL3KsyXIFNXmZjZY04ZIuUmm2cR2NA95ti9n/xH4yY+6LZCmHh0kZlv34GE7HuNKugQ
-	5Q4qaUkoSju1NBpE61BUW6OEHcwXmHJq6aIWuRD0vDIGb8Gc6zghfDPhrphGeZKDRQhN1j/86tK
-	c5Rqw/CVBYXGEaPt+vCoAT9Ao+VQ1HTJuGr3L2fZvxuSxCvNTz60BJoLV711VWCedEnfNT9SJoX
-	5IvIzO7+lqAafF2+d9kVSRZPuWhVp1umXzXGd3VmCP4BReYKvuZr/h8ZTEyqIQC7/D4CFsWxww5
-	ROj5kWpcQaV3yH1vI0oh9jFvWU3cBkOAcz62fP3wl05JO8wpQR+8Q3qLPSF7uJzgHT3QwftlrqJ
-	lGqdDYg9UTfI7COcjW+LDzNFQOb2zsT6s
-X-Received: by 2002:a05:6000:46c7:b0:49d:7e8c:e8ad with SMTP id ffacd0b85a97d-4abb272758amr11104935f8f.35.1795340046997;
-        Sun, 22 Nov 2026 01:34:06 -0800 (PST)
+        bh=EMGZeiHC1km9rdIIguTSZBczlbZkEbh605v5+C7/h1o=;
+        b=B6fhYufr40VSF2/kzijMbnYxB648vZ8pjssxb+JPNuhijzjwKFnrcuFJ4CIBls+tKz
+         PnrMNTTLa/ddouxB5hpm+9a99T37Yz3QKh3u6vu2fjlPDuTW7cOEJndzgi9a61czhR8V
+         TxFinq+72O3dRH7BxXu5cT9TU2WiK9Tbpc0wLcqFf7gEttly1dO80Fn/IONv5Z7/HXBy
+         v8zAc0ZguLpPv8mwf78oKzbOudYOO2dA7iSGfdxmk5elfFEVMwdXTeSyowJNf0571g/4
+         RrmeG4UICtXTfnWk5nojO3ADd6hMV7aGk6xfHmWStRN37y/V6aBeTT1dRxfMZSOW0iFZ
+         41Nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795340048; x=1795944848;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=EMGZeiHC1km9rdIIguTSZBczlbZkEbh605v5+C7/h1o=;
+        b=wK8HVj6cIKchxu3ngjUj5V9Vi7kmpp1qE0UloxXgbAG8Wty/Y5RUnPPvplW45MO6+K
+         PvBU8MgeE7Ik3hTu/Zj9orurIYh48HV74ZqUiadgF3N8Ir7rZ+w5kPVMFYjgeqTaLCf4
+         BTVWZU0BHqNqNl7r1GWPBnLY4Ztd2DZFXVUDVM++75tKDvj13dM6Zln9cT3GAKL0NG51
+         1hwoHhdHdgrFJRRdu1hMIFfA6qyhV1KSs4L3SczFQx+Grequ66kQssXR2roWXjKqy7ZX
+         oQ7SyMoR1/dxL06eKQZUJcyWWIdK1Otllo0Vkyffl9O4IvPoDToYD7Sq2yYmQJQHB2PQ
+         DwBA==
+X-Gm-Message-State: APuU4Z+2uAM9GFVIuif70/SwWWnfiE6x942HOC9YJSMlTII6HLir1Ig/
+	JDGpFSi/TwfWWgWRwICfOLDO7t8PwSxhxZP9qnAgjucvjDIVTshV60Eva2JlIOL3s+o=
+X-Gm-Gg: AZFdTZd68wV7pEE5U9QD//jn56YPVNOdXxLKSgf7gkKghFk/mOXn8DlnrLwNa7Tzs85
+	OVlJz8ztHxBPDpQ4RxaVIL3Zv0krsejKSjrxDU6WoQzqOiQ6Qsl7gEe7iyKjIGRsHNVke3vJc7T
+	Dl526J7f2Aa7rkYsLr0nGwlmCc+pYYAPssR2Ew9/H0xlFl48UK7et+hIFJfPHzw3Fqm+mvwp8Gh
+	Om9mLcXQLBAuuEtMmqQXsG/1qIJLl7zBxThL0hW59ZbHvi/KctQ9VRoONY7Sw0EcV+aAKsluxbS
+	BjS8Z9gsKZM9Q+6kViAxGL02ZYiZh3yTS4fN1tYuouwwd+IyBXFizJChgfAKFb1AisGJpIg6M/8
+	uDtPRqCQZ6tQ1VisC0pbpfIK/CN+hCeQEROAjs8eVyLkNEu4g34Z2Dh4dyQyGknvKlIO7dIL2OM
+	xgJzUnRbf5zx5X8Y0bGR9x2qBI2GqBcKvOzTmM5lVKm1dTehC/RfGn8ftHgg1tNDiiJJh9DUmvA
+	9ogGowVdW1jOKFBpNpGUSzsPHRb8wlJFyLATNNpJsHLL3gOlh3s3VNVYn3yUWzrJO0z1p93EDE4
+	xtZNG2Sh+h+fvmGjCRVcxfiTi1dYRP2y5yH8VMDELVETGZpaQXa8WVT1csDbuvYp8fDr74y4Nai
+	Gmjj9LnS1N38=
+X-Received: by 2002:a05:6000:299c:10b0:4a7:9630:7b5a with SMTP id ffacd0b85a97d-4abb47b2043mr11673178f8f.47.1795340048064;
+        Sun, 22 Nov 2026 01:34:08 -0800 (PST)
 Received: from localhost.localdomain ([139.47.121.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4b1ed8b6a05sm1552848f8f.43.2026.11.22.01.34.06
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4b1ed8b6a05sm1552848f8f.43.2026.11.22.01.34.07
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 22 Nov 2026 01:34:06 -0800 (PST)
+        Sun, 22 Nov 2026 01:34:07 -0800 (PST)
 From: Gerard Marull-Paretas <gerard@teslabs.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -85,10 +86,12 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Oleh Kuzhylnyi <kuzhylol@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org
-Subject: [PATCH 0/2] dt-bindings: input: touchscreen: hynitron,cst816x: Common properties and supply
-Date: Sun, 22 Nov 2026 10:34:03 +0100
-Message-ID: <20261122093405.70406-1-gerard@teslabs.com>
+Subject: [PATCH 1/2] dt-bindings: input: touchscreen: hynitron,cst816x: Reference touchscreen.yaml
+Date: Sun, 22 Nov 2026 10:34:04 +0100
+Message-ID: <20261122093405.70406-2-gerard@teslabs.com>
 X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20261122093405.70406-1-gerard@teslabs.com>
+References: <20261122093405.70406-1-gerard@teslabs.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,24 +103,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The CST816x binding allows no properties besides the controller's
-resources and gesture keycodes. Boards also need to describe the
-coordinate range and orientation of the panel the controller is fitted
-to, and its supply, which is often switched along with the display.
+The controller reports positions in the coordinate range of the panel
+it is fitted to, and how the panel is mounted varies from one board to
+another. Reference the common touchscreen schema, so that boards can
+describe them with the common properties (touchscreen-size-x/y,
+touchscreen-inverted-x/y, touchscreen-swapped-x-y, ...), as other
+touchscreen controller bindings do.
 
-Patch 1 references the common touchscreen schema, patch 2 documents the
-supply.
+Signed-off-by: Gerard Marull-Paretas <gerard@teslabs.com>
+---
 
-Gerard Marull-Paretas (2):
-  dt-bindings: input: touchscreen: hynitron,cst816x: Reference
-    touchscreen.yaml
-  dt-bindings: input: touchscreen: hynitron,cst816x: Add supply
+Notes:
+    Checked with dtschema 2026.9: the steps of dt_binding_check run by hand (host make too old), yamllint and dt-check-style --mode=strict.
 
- .../bindings/input/touchscreen/hynitron,cst816x.yaml  | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ .../bindings/input/touchscreen/hynitron,cst816x.yaml       | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-
-base-commit: c44104f3642da720164042623e4832836aefdd8e
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
+index 72d4da636881..df52431b1d49 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
+@@ -13,6 +13,9 @@ description: |
+   Bindings for CST816x high performance self-capacitance touch chip series
+   with single point gesture and real two-point operation.
+ 
++allOf:
++  - $ref: touchscreen.yaml#
++
+ properties:
+   compatible:
+     enum:
+@@ -41,7 +44,7 @@ required:
+   - reg
+   - interrupts
+ 
+-additionalProperties: false
++unevaluatedProperties: false
+ 
+ examples:
+   - |
+@@ -57,6 +60,8 @@ examples:
+             interrupt-parent = <&gpio0>;
+             interrupts = <4 IRQ_TYPE_EDGE_RISING>;
+             reset-gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
++            touchscreen-size-x = <240>;
++            touchscreen-size-y = <240>;
+             linux,keycodes = <KEY_UP>, <KEY_DOWN>, <KEY_LEFT>, <KEY_RIGHT>,
+                              <BTN_TOOL_TRIPLETAP>;
+         };
 -- 
 2.45.2
 

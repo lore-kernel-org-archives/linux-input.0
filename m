@@ -1,57 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795427404;
-	b=ZlmUgSE0vHiqvsItbCyfd4esU84FIVc88Y5qyhdXp5t4bKw7D92pQwwv7ERBSmqYIraY
-	 q+I9s8XEykOqzNngmNJYPJuO88nCEoObYQCWA0UdHY/CU7DxFza3reE9sOL+Svrw/rE6v
-	 IpvQx53aZnrWFUc9pTN8KjwhZj33GgoGqBVQFNiL+XIearV0BLHESzXfc+arsmH8RuTyv
-	 tnROH1SND7/bu1nPzgFsqe82ecanypc35yEWdJcFiCtPiPtl4CCbrR0qzpEo7jb/nX8Uq
-	 QMQs2pR/oN1k24tqlHQ3fjUZszlwU13iWuDwPVLQOv4wq6xrRs9UFr3PFFdSiWeTrCw==
+	t=1795427440;
+	b=qjWLrKwBxhnpoepprBGNYbyT77ezDE9yNMfM1iijbrQ9gMOGXgKZl2IeWij7HQtOMlL0
+	 D0KlzzKNg2GZLuBfQrUXqIxu+urjPSgrtQZhR2aSLTOFM77MXjXhGy10XTPx7zQFdqK90
+	 SuJHfznffZ1vX9On/qbKme87cY1YvpCGcd/pK9JX2PXD5A9TVjCFBmZ+onV6XK+vd8Ef0
+	 bPBIaZVr87uALlEiIi8Bj9qHZRL1OJKCmm+ks2w+1Ll3fUEDaZcBerlDTtd/LJZ7DxbSW
+	 WRrau84hs1rnZjH8zHtjBuf62rL/LoSIqfVpQvazkX8imquwxLRVGTWq+QJJChWSzMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795427404;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=N7yDg1jS2E8ZCXNtP72vSPpBD2Z2Qt0T19MdanjZIfs=;
-	b=hGlNZB0kPZDgWVvBdznabAMO56eo7AlsA2R/RKtIQSnwsdDR8Oa+tEbDY59y33px7yGt
-	 ze11X7SuRHf7Hfpl7k3XykV8wMlSDWfSDRNMPn6EIl/zL6+YXKe0n2Ec9rqu4LM0pWPwO
-	 0zAAgnc0Tt2vBtQGGLdWteEUc6esxJEpd07h+YuHcH0IJfElS9kuRHp8k5n9AsMFzZClB
-	 xDJfsAFybNyES4T9G4s3jMYg2HSf1ldAIrtsfil1nwP1f47IWL6L7CIv4xboHtqur0PDE
-	 jDBMioEYDkPxTcUM/9Ye2BHEhIuij6InkkyJtRY2x+idqp66/vigc45GWvITtH9vJyg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795427440;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=wQ5HxMKBN9+cpxRgNYUc0mLXgwK6Ebc3oSMgUp1t0Is=;
+	b=W8UC5RTjG0VwBP+pFnNdjGS4spI4JqDYS9K3yobP+pW6ly6KXt9briQxlxLe2fTF5y4/
+	 bHYxiCZmWEt+4ljDuSvPfrv91i/0s+TrTezEZkipAyyMxLubiN861szFfd3XzbcwbTl24
+	 0xBQzgRYxCbKbgMdBKJX4buA+Bih+pOHNa0dKRctYQt5wx3GJ8UtV3NwRROij99Vtc7Zh
+	 Ib8tW8+CDZ9abBJhL49vNiFVy9QsmbF2JRoN2LlLYkUBPmqLRbbVqrwn7Xo8ED7Nk8M+q
+	 HnWUg5FOBFBgtyH5Fqf7ftgmC8U4zdDgaJ7Vvy2hiunq7HawoOiyZOJ/R8ipIKWAGsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=collabora.com;
-	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=jRITqFx8;
-	arc=none smtp.remote-ip=148.251.105.195
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SJqa+w4+;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2678606A337;
-	Mon, 23 Nov 2026 09:50:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2678606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF96A606A31A
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 09:50:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=jRITqFx8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1795427402;
-	bh=CPgJojwzYBCxEhJmvECCQ+W9MCWeNgq7tm1d4lpevIM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=jRITqFx8dcuWF5L8ddFKB7RdkiTji2UrVdFR3yRyshOEO0LJyY6mB9jQaDW6HHRE0
-	 PWwfXI44nIZiA6T+mpabpGmephLhwESHRQKdBjgEXn0tZYV+Qwl7wb3BjJg6/nuRcM
-	 bZ0s4bM6K9oL7jWZfmjVCAbf/cL1/uVsGKUcWqMyXAikqlU1DFk++x114e87SLlU9N
-	 6msKMyRuSLvwWducNH5dEDGDpXzWLxYg9oogAwGiq6VwqDzC2zCespXEnP+TX9gmbO
-	 o0WGY8I9UuOUQeN/q9Z9JWXyCeQHhLU/MxMw6bQ25ZPRakpHDU0uqAOqEcLmR3Fnkf
-	 OR4cH11C15A5A==
-Received: from [100.64.1.21] (unknown [100.64.1.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 870E417E0EB0;
-	Mon, 23 Nov 2026 10:50:01 +0100 (CET)
-Message-ID: <ec9462da-2e48-4140-8648-e566da305010@collabora.com>
-Date: Mon, 23 Nov 2026 10:50:01 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SJqa+w4+
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEC171F000D0;
+	Mon, 23 Nov 2026 09:50:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795427439;
+	bh=wQ5HxMKBN9+cpxRgNYUc0mLXgwK6Ebc3oSMgUp1t0Is=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SJqa+w4+S7Stm5qUtPmIII7crcnmylesb5/fqspHrzPlErI2IkO+bNLo0NJ/kJkQ8
+	 ZVOnsKl8K8Fn5uZxta5sXTNK6/Qp6w1BC+buB2kO342x43O0GTYr9DOPOvNDFiud/g
+	 kDVYuv5kAgTHkD9ujuHrSbgi/wPmbME0NgOEd2hn8vyP3JIw34lPsQ3QsjGWtb1997
+	 liiE8LmWIh1tr1FY9Ay6t1xG4Hjdcv4/24R9o9xkimHoXcL992E7zMTsqKcupg13tL
+	 rlSBD2tVPz56stHPjnBM+g1pT74PYKT7ICOCieRCqPNPm1gX24u+3ioM0wRGF9t6la
+	 q18elTfN56oiw==
+Message-ID: <sashiko-outbox-229009@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] HID: intel-ish-hid: Reallocate hid_devices for a
+ larger device count
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Maoyi Xie" <maoyixie.tju@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261123092816.2200718-3-maoyixie.tju@gmail.com>
+References: <20261123092816.2200718-1-maoyixie.tju@gmail.com>
+ <20261123092816.2200718-3-maoyixie.tju@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 23 Nov 2026 09:50:39 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,40 +60,96 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/9] dt-bindings: watchdog: mediatek,mtk-wdt: Add
- compatible for MT6895
-To: Alexander Letuchiy <asalde.le1@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Sean Wang <sean.wang@mediatek.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner
- <tglx@kernel.org>, Mattijs Korpershoek <mkorpershoek@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kees Cook <kees@kernel.org>,
- Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
- linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-input@vger.kernel.org, phone-devel@vger.kernel.org
-References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
- <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 11/13/26 20:04, Alexander Letuchiy wrote:
-> Add a compatible string for the watchdog of the MediaTek MT6895
-> (Dimensity 8000/8100) SoC. It does not fall back to mediatek,mt6589-wdt,
-> which implies the MT6589 TOPRGU reset layout, as the MT6895 one is not
-> known yet.
-> 
-> Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] HID: intel-ish-hid: use-after-free in process_recv() on
+  hid_devices realloc
+--
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+commit 354365a28c1b9e56e376d6cd317766efa118e7ec
+Author: Maoyi Xie <maoyixie.tju@gmail.com>
 
+HID: intel-ish-hid: Reallocate hid_devices for a larger device count
+
+This commit uses devm_krealloc_array() in process_recv() to resize
+client_data->hid_devices when a HOSTIF_DM_ENUM_DEVICES response announces
+more devices than previously allocated.
+
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
+ntel-ish-hid/ishtp-hid-client.c
+> index 24f4032d6dfe1..864a06a7bd3ff 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> @@ -70,6 +70,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl,=
+ void *recv_buf,
+>  	unsigned char *payload;
+>  	unsigned char *descr;
+>  	struct device_info *dev_info;
+> +	struct device_info *devices;
+> +	unsigned int count;
+>  	int i, j;
+>  	size_t	payload_len, total_len, cur_pos, raw_len, msg_len;
+>  	int report_type;
+> @@ -124,19 +126,21 @@ static void process_recv(struct ishtp_cl *hid_ishtp=
+_cl, void *recv_buf,
+>  			}
+>  			if (client_data->init_done)
+>  				break;
+> -			client_data->hid_dev_count =3D (unsigned int)*payload;
+> -			if (!client_data->hid_devices)
+> -				client_data->hid_devices =3D devm_kcalloc(
+> -						cl_data_to_dev(client_data),
+> -						client_data->hid_dev_count,
+> -						sizeof(struct device_info),
+> -						GFP_KERNEL);
+> -			if (!client_data->hid_devices) {
+> +			count =3D *payload;
+> +			devices =3D client_data->hid_devices;
+> +			if (count || !devices)
+> +				devices =3D devm_krealloc_array(cl_data_to_dev(client_data),
+> +							      devices, count,
+> +							      sizeof(struct device_info),
+> +							      GFP_KERNEL | __GFP_ZERO);
+> +			if (!devices) {
+>  				dev_err(cl_data_to_dev(client_data),
+>  				"Mem alloc failed for hid device info\n");
+>  				wake_up_interruptible(&client_data->init_wait);
+>  				break;
+>  			}
+> +			client_data->hid_devices =3D devices;
+> +			client_data->hid_dev_count =3D count;
+
+[Severity: Medium]
+Can reallocating client_data->hid_devices on a second
+HOSTIF_DM_ENUM_DEVICES response cause a use-after-free in
+hid_ishtp_cl_init()?
+
+After the first response sets client_data->enum_devices_done and wakes
+client_data->init_wait, hid_ishtp_cl_init() proceeds to read
+client_data->hid_devices[] across descriptor queries and
+ishtp_hid_probe() while client_data->init_done is still false:
+
+CPU0                                  CPU1
+hid_ishtp_cl_init()                   process_recv()
+  ishtp_enum_enum_devices()
+                                        case HOSTIF_DM_ENUM_DEVICES:
+                                          devm_krealloc_array(...)
+                                          enum_devices_done =3D true
+                                          wake_up_interruptible(...)
+  for (i =3D 0; i < num_hid_devices; ++i)
+    ishtp_get_hid_descriptor(i)
+                                        case HOSTIF_DM_ENUM_DEVICES:
+                                          devm_krealloc_array(...)
+                                            /* frees old hid_devices */
+      client_data->hid_devices[i].dev_id  <-- use-after-free
+  client_data->init_done =3D 1
+
+Because HOSTIF_DM_ENUM_DEVICES only checks client_data->init_done and not
+client_data->enum_devices_done, a second response with a larger count
+frees the old client_data->hid_devices buffer without synchronization
+while hid_ishtp_cl_init() is still iterating over it.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123092816.2200=
+718-1-maoyixie.tju@gmail.com?part=3D2

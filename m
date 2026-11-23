@@ -1,94 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.19
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795443361;
-	b=N3GZpPphzniAdSs8wtzX9dyzvvXUQ7AcKco6kv2krM17nnYpUVEjdShtRkkN1pMmHuz4
-	 n9iSQZyfSV6qF2cUWbAL1Wi89nPjit0zKD29nSjXFL9ULGcmOAbXThKkcvqmUPSVD32NY
-	 7GDsEnI3ZPjT57au+lif437PuHV/RbjLAD/rrdnj/12r/leZnWGd6kYJELs1myRqQ5j7N
-	 kAK2ImOjRlY/hS4xmqGXcb7uF5XPWyKYPAudUuV7xpPK16Dc6yc75daJ6LlMITLMJ5MfL
-	 K5zc9nr1KV+hTH/VE7cGaxAxiW5zSxvnrTAUM3lIhv1qqC2mi40BX/90EJPyrTzRjtA==
+	t=1795443676;
+	b=mzrahvuRu8QEokEx20q+rcG9rLirTBrdDqMX+HD+XHUywJtDUAMtFs6aBG1QbFNOST1j
+	 SHmo4+ZbBQ0HRT/1N3HqBf33upcqygES4qd6TUxS4+BX7TZ39vNed3d3+yRI1it8Eyato
+	 PhltYtqJ7EFtgc+l+J7RHpVeZCgbSG/8MJs0LBK3XFnGkGr6C1/YkrAKwvBPCPDWcWoTI
+	 2reh6H6xk8BsLuK2fxWzyQImtZq7qHGB+UvQXXNciazr33vt+nZWDTGCMJoZvpYeEmTns
+	 boHBRHtpJm+SDdhBT2Tlqr6deuXDXnYjhpA5Svv4ykK2PguFTzhvSUeXjTYopxauWLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795443361;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=uXc58AQIKnSVosQ4y4//VCEnNXKp3+RfnItc2ijL3c4=;
-	b=zqtHCgMN9NWtMARCmOEeBki7K9In1w0SNDJbxdxlu6Wuk8DNBDACcjSHCHwmIuiShCbJ
-	 2Ya5C4n94DXVCyE1Y7H3FRqG15PEXWF3cdGSEstCaCcfAxIEkQuh6VNtzqfhR0WaTzPob
-	 wFgqLbRY4pPbFIrxDUiS/Cv5OtCe4g8XbTSGinmkWibPW7A20qIhKJFA4X/GV7cTJy3MV
-	 slnPF81vEXDADsOuLjWOdRRB4GsTGXeQ/8xAhZiC5RPZ+e2u2nIJpHT2gy42QfVNccrb/
-	 rqLz8BXDllHzJbjlSkRezAaunWDkxfFy1syUvLi4IZYKBroptWk/UX2etyOrJXBkm7w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795443676;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=yiAShk857UHrziL4yG9wJZEirsFk53j6ZB0m2dkAIaE=;
+	b=bzQdWbO9ddC9Awh8gYm6X83ZhqUmhIChpK3cHWJnzRVuTdAeTgeSU2Gu6ot0AYzUvUpY
+	 9Uufkujq5NZQOyqmnAtffdMvSiZ2FtOoJ6xej7bP6X1dJFgNvaKJN2Du8KVvJDCkJDT3L
+	 nV4SNwB35/xqYtII/MoC7TBS68bwSx4I8Fw0pUkmse3EKgXyCoo7E84vi3xhgtLx4UTkj
+	 xX0lR/f6THDwc7d/JQM5lRKYtUZ4MFeBqeDmmgdj1qg+376uu3eWLiZBi9uMHgkVA0Yar
+	 iqUXacInoisQ67H7iT4S1VM15MWWIeu0R8fBZNvqJ30gXNadPgpUjpX4lRN4c+22upA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AdTIIVRn;
-	arc=none smtp.remote-ip=209.85.128.176
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="EsM9K/rh";
+	arc=none smtp.remote-ip=192.198.163.19
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9B3A606A336
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 14:16:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C9B3A606A336
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC96606A31A;
+	Mon, 23 Nov 2026 14:21:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0CC96606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AdTIIVRn
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-8b2d14968c9so30448877b3.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 06:16:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795443360; x=1796048160; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=uXc58AQIKnSVosQ4y4//VCEnNXKp3+RfnItc2ijL3c4=;
-        b=AdTIIVRn6Lxhzc6Yc705wIxBDbpGUgNUhfSKZ7GONm6tJ+3dI9gSC/C6Y79w2kicxX
-         gUcNglSdGFx52HYLa7pOXPVYOwAUWMb1dKuPudB0MUTrEhShEOUSBUfsONTrgE7ZTUzf
-         KlqVcIRuTqMuKo0jiuIhR9sLqEwQDHQjkxabbMv5QswxeufvY8ZpZ7jw60fMx/iJJ8AZ
-         LR3mrqjaM5wEfwTBTUdwj5z4/BEMsNzXxGQq3REXQC+plIZlhB8eZHdNxEtH2WS+FZtJ
-         9wNjuwA1NXZ/8VhWdWaEWogwHVbQbTlVNihs5qbJMUjRpRXjPycuFG0x11V9r4JbduXK
-         rCtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795443360; x=1796048160;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=uXc58AQIKnSVosQ4y4//VCEnNXKp3+RfnItc2ijL3c4=;
-        b=MnTDSa+MLl2NFnsTQu0EEsPv/1yeLdByjR/y0IcFtTO3vmBPwj1bLX9FfD8Hw7P3eC
-         qWGXr7vn6Vpbxf0WpEZpsa8h8qalCZYcxmT/h1QS2QTRSxGr8EtTVqCYmOLVPKsfp2eH
-         l44xIn+JqQYklh+jD37x8r6B192X1lvf5z+ZAIaf0Mz3t43Rm8+2+zYihsEce96whI20
-         27xEcZPMYCeeywU/dHTEDt4/vHteLqzFOejT2r3bQi9UI0vhQnmdWgLVJStSHyAnyvJl
-         2CBQOj8uS6+cPTFAZNOuAmCM7OXwUKTK3Smbd9rakOZBugjCRNBK4YrsJJ3tWsYZnNRw
-         MYPw==
-X-Forwarded-Encrypted: i=1; AL+hErGyi2xdTv0TAbInG/nHL6Sg4ulMI5zalhu5EDjvuXffR0/NgaQiTK7V2m9DHs4fgclOMuW4pm9XR0KFqg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9q6EU/HY1IZ5+8P4SgXrPxNeyjGUI/cim/5nfvlNO8QbpHykU0
-	FxB5AnQ6QnZihn4BmWYY6tAmZzbN9Xy5Fp57Uus+FnQPi6KmF/XhMgtP
-X-Gm-Gg: AZFdTZcCNub9wQ6fZEO2m84NIfPZ2589or/s42SMutj5SmIzK2P7y4CTjZVHHrcwLU+
-	uoJgL1Iqg80Dn3vcLvlO4v2B9XKxYZV+BRXkfMiqb1RLowfYabsauiMLfyVVqimdIeDS7qj8bAK
-	dAuizSfzvKSn4+bGP7pTs3H+r8Zp1fDpHWpVyAqUi05iQWYHmfwCqLngbEZlYR6tfO+8Mp/Rv75
-	XmtFA3GIfYszFQAC2RyJCaJQQz9LtZ8TKCwZGGz1wbZU2dRpLLD8zgYJWDzAKW3w3y4C/HBUARW
-	oRjDDK0LzYfg2teaPiIHC0eCxMewtnRWXtwjinIubmpz74CsTbe7iWGMga3kUljsvvG5Yi0oLPP
-	8Vn1ho8k4vKwiKbOM9XmuTtJUTFl3AzQnWF25bXRXUwtPeKtwJQKDg+Ti0Y1TebCXYMRQIZ0GT4
-	gRcxhXCgU8ihliJIXf7GTy9voiCvPmyo7lWSTWT0v8TNzE56Q5CR47KbceM7G9Waf8Du9BihXD5
-	NyV8x0kznVJQy6rkH8RuTmq4v3JKiw9IAiT59ZKQh0vWZTI6bKwvSp7MN5xLdFc95GMhZcQpOzN
-	C4FYu08fF4XBwBLV
-X-Received: by 2002:a05:690c:7206:b0:8b4:e51a:c4f9 with SMTP id 00721157ae682-8b52032b68dmr39735177b3.1.1795443359626;
-        Mon, 23 Nov 2026 06:15:59 -0800 (PST)
-Received: from pc-i7 ([192.3.12.183])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-8b5202c089dsm45681087b3.22.2026.11.23.06.15.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 06:15:59 -0800 (PST)
-From: Aaron Ma <mapengyu@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Nikolas Koesling <nikolas@koesling.info>,
-	linux-input@vger.kernel.org
-Subject: [PATCH 3/3] HID: pulsar: add support for Akko Gaming Mouse
-Date: Mon, 23 Nov 2026 22:15:42 +0800
-Message-ID: <20261123141542.8128-3-mapengyu@gmail.com>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261123141542.8128-1-mapengyu@gmail.com>
-References: <20261123141542.8128-1-mapengyu@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=EsM9K/rh
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795443676; x=1826979676;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=uOnAdYGAKwtdFMh1IEJyXNKhjlMEOwk9h1WPy3NE2PA=;
+  b=EsM9K/rhOpLCyIOdoG5beSZ+CmT7701XAm+jXZILIG6rkqfIE5iBojMJ
+   Lc7C6Jh+QCMKQtEdhuzfSKoA3NU1xCmFZ9AhpwCeUhISxvSQVoSCVICIy
+   esfyKB2po69V8k91B5Vis83nFkxCY4P9eWSGuwW56qavsp5sEO3jb4FlQ
+   Jrh57WtnjRIQeW0kYY9XNAU3iq4qWPYKuCmUH6l4Ye5f5JauHGqn/Y1SU
+   cSClSAmIhONyo+MkdhOGk0fA3+3QEOQ9GlRiaZ5F9+BcTr0KS6W9KwQve
+   73BleaDmfQMJKMLf/hwonwWmaCLmpRPlaoXl2RswaRSwRIM5qkR5wnmej
+   A==;
+X-CSE-ConnectionGUID: wKKOYWvRRP+K2PZbjcEePw==
+X-CSE-MsgGUID: 2zeC8cg3QjKLn/rgwmjD0A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11975"; a="4358102"
+X-IronPort-AV: E=Sophos;i="6.27,227,1787036400"; 
+   d="scan'208";a="4358102"
+Received: from fmviesa012.fm.intel.com ([10.60.135.152])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2026 06:21:15 -0800
+X-CSE-ConnectionGUID: lh7kW8LBT06SblzEz/2FEQ==
+X-CSE-MsgGUID: fbT19V47RsSZhj8amLOedQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,227,1787036400"; 
+   d="scan'208";a="13010864"
+Received: from spandruv-mobl5.amr.corp.intel.com (HELO [10.124.220.112]) ([10.124.220.112])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2026 06:21:13 -0800
+Message-ID: <3d83eafc370354cef4280fd70d1228191486a212.camel@linux.intel.com>
+Subject: Re: [PATCH v3] HID: hid-sensor-hub: avoid lock inversion in
+ sensor_hub_remove()
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>, Jiri Kosina	
+ <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, Jonathan
+ Cameron	 <jic23@kernel.org>
+Cc: Zhang Lixu <lixu.zhang@intel.com>, Zheng Shuhao <viennaoffh@gmail.com>, 
+ Arnav Kapoor <kapoorarnav43@gmail.com>, Lee Jones <lee@kernel.org>, Heiko
+ Stuebner <heiko@sntech.de>, 	linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, 	linux-kernel@vger.kernel.org, 
+	syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+Date: Mon, 23 Nov 2026 06:21:12 -0800
+In-Reply-To: <20261123124715.351511-1-ayaanmirzabaig85@gmail.com>
+References: <20261123124715.351511-1-ayaanmirzabaig85@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,65 +88,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add USB device IDs for the Compx Akko Gaming Mouse in wired mode
-(3554:fb29) and via its 8K wireless receiver (3554:fb2a).
+On Mon, 2026-11-23 at 18:17 +0530, Ayaan Mirza Baig wrote:
+> In sensor_hub_remove(), spin_lock_irqsave(&data->lock, flags) is held
+> while calling device_for_each_child(), which iterates child devices
+> via
+> klist_next() and acquires the driver core's &k->k_lock.
+>=20
+> Because &data->lock is acquired in softirq context by
+> sensor_hub_raw_event() while &k->k_lock is acquired elsewhere with
+> softirqs enabled, nesting &k->k_lock under &data->lock triggers a
+> SOFTIRQ-safe -> SOFTIRQ-unsafe lockdep warning and risks an ABBA
+> deadlock between process context and softirq context.
+>=20
+> Move spin_lock_irqsave()/spin_unlock_irqrestore() into
+> sensor_hub_finalize_pending_fn() and pass data through
+> device_for_each_child(), so &data->lock is only held while inspecting
+> and completing each child's pending state after klist_next() releases
+> &k->k_lock.
+>=20
+> Fixes: 8a5b38c3fd70 ("HID: hid-sensor-hub: don't use stale platform-
+> data on remove")
+> Reported-by: syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
+> Closes:
+> https://lore.kernel.org/all/6afddf21.a11fe2ad.1b4426.0003.GAE@google.com/=
+T/
+> Suggested-by: Zheng Shuhao <viennaoffh@gmail.com>
+> Signed-off-by: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
+> ---
+> Changes in v3:
+> =C2=A0- Actually pass 'data' instead of NULL to device_for_each_child()
+> =C2=A0=C2=A0 (missed in the v2 submission).
 
-Signed-off-by: Aaron Ma <mapengyu@gmail.com>
----
- drivers/hid/hid-ids.h    | 4 ++++
- drivers/hid/hid-pulsar.c | 8 ++++++++
- 2 files changed, 12 insertions(+)
+Are you sending correct patch?
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 91319aa6516d..47e4a9cecad4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -75,6 +75,10 @@
- #define USB_VENDOR_ID_AKAI_09E8		0x09E8
- #define USB_DEVICE_ID_AKAI_09E8_MIDIMIX	0x0031
- 
-+#define USB_VENDOR_ID_AKKO		0x3554
-+#define USB_DEVICE_ID_AKKO_WIRED	0xfb29
-+#define USB_DEVICE_ID_AKKO_8K_DONGLE	0xfb2a
-+
- #define USB_VENDOR_ID_ALCOR		0x058f
- #define USB_DEVICE_ID_ALCOR_USBRS232	0x9720
- #define USB_DEVICE_ID_ALCOR_MALTRON_KB 0x9410
-diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-index 299baf38a2ff..5133c87b1854 100644
---- a/drivers/hid/hid-pulsar.c
-+++ b/drivers/hid/hid-pulsar.c
-@@ -14,6 +14,9 @@
-  *		- VXE R1 SE+
-  *	- VXE
-  *		- Dragonfly R1 Pro
-+ *	- Akko
-+ *		- Gaming Mouse
-+ *		- 8K Receiver
-  *
-  * Copyright (c) 2026 Nikolas Koesling
-  */
-@@ -59,6 +62,7 @@ enum dev_type {
- 	TYPE_KYSONA,
- 	TYPE_ATK,
- 	TYPE_VXE,
-+	TYPE_AKKO,
- };
- 
- /* ----- structs ----- */
-@@ -756,6 +760,10 @@ static const struct hid_device_id pulsar_table[] = {
- 	  .driver_data = TYPE_VXE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED),
- 	  .driver_data = TYPE_VXE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AKKO, USB_DEVICE_ID_AKKO_WIRED),
-+	  .driver_data = TYPE_AKKO },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AKKO, USB_DEVICE_ID_AKKO_8K_DONGLE),
-+	  .driver_data = TYPE_AKKO },
- 	{ }
- };
- 
--- 
-2.55.0
+=20
+-	spin_lock_irqsave(&data->lock, flags);
+ 	device_for_each_child(&hdev->dev, NULL,
+ 			      sensor_hub_finalize_pending_fn);
+-	spin_unlock_irqrestore(&data->lock, flags);
+=20
 
+
+Thanks,
+Srinivas
+
+> =C2=A0- Drop the NULL platform_data guard since hid/for-next already
+> checks
+> =C2=A0=C2=A0 dev_is_platform() and !hsdev.
+>=20
+> Changes in v2:
+> =C2=A0- Attempted to pass 'data' instead of NULL to
+> device_for_each_child().
+>=20
+> =C2=A0drivers/hid/hid-sensor-hub.c | 7 ++++---
+> =C2=A01 file changed, 4 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
+> hub.c
+> index e9d6eb3b3831..090e5a232efa 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -808,6 +808,8 @@ static int sensor_hub_probe(struct hid_device
+> *hdev,
+> =C2=A0static int sensor_hub_finalize_pending_fn(struct device *dev, void
+> *data)
+> =C2=A0{
+> =C2=A0	struct hid_sensor_hub_device *hsdev;
+> +	struct sensor_hub_data *sd =3D data;
+> +	unsigned long flags;
+> =C2=A0
+> =C2=A0	if (!dev_is_platform(dev))
+> =C2=A0		return 0;
+> @@ -816,8 +818,10 @@ static int sensor_hub_finalize_pending_fn(struct
+> device *dev, void *data)
+> =C2=A0	if (!hsdev)
+> =C2=A0		return 0;
+> =C2=A0
+> +	spin_lock_irqsave(&sd->lock, flags);
+> =C2=A0	if (hsdev->pending.status)
+> =C2=A0		complete(&hsdev->pending.ready);
+> +	spin_unlock_irqrestore(&sd->lock, flags);
+> =C2=A0
+> =C2=A0	return 0;
+> =C2=A0}
+> @@ -825,14 +829,11 @@ static int
+> sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+> =C2=A0static void sensor_hub_remove(struct hid_device *hdev)
+> =C2=A0{
+> =C2=A0	struct sensor_hub_data *data =3D hid_get_drvdata(hdev);
+> -	unsigned long flags;
+> =C2=A0
+> =C2=A0	hid_dbg(hdev, " hardware removed\n");
+> =C2=A0
+> -	spin_lock_irqsave(&data->lock, flags);
+> =C2=A0	device_for_each_child(&hdev->dev, NULL,
+> =C2=A0			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sensor_hub_finalize_pending_fn);
+> -	spin_unlock_irqrestore(&data->lock, flags);
+> =C2=A0
+> =C2=A0	mfd_remove_devices(&hdev->dev);
+> =C2=A0	/* Clients share one HID open; release it if references
+> remain. */

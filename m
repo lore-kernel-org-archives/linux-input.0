@@ -1,58 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.36.144.171
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795439029;
-	b=l322WslX9jSblI3Ll6gwCLqYNSLh6JOjN8IGyPRCLkHr9zHNcN2hAuRVe1LZyNZiVQyf
-	 7g4o6ICS5pL94mYVN6olDG9m47987mtx2xiQx2Qw/I+3NNq/mGbanOjkJ3M6XTH7tdHSj
-	 3xTV6EqOE65dL02n8bZy+2AiIbupnO1Qsci6l6jKVOrD5iRPFysyxGeIejq5AL+m+PHJN
-	 KhmP9EOkUZPCwqYy8OiWAWDuUfRGHQSKWilfMvCZNzAOQAg4WpJ5V+qvlgIXOSu+Lh//H
-	 2i07UC2U5OOSWZo9YM49RIQ9dee23iNSBm40iKA3PjCAtb1Zrvb12kHwH4ki5Ea6OSw==
+	t=1795443355;
+	b=w7IK1Z+6SVyxqaclIggLsuHODfy/o+7VdVXCo3OIwq7os51ax9hsKhwHI8bNeKXN94xi
+	 MzPQL+yvPcLUAWaXPwsAczCODEvh8goIZcm3cgmDdowJX86XDKV1yeXXi7AYlepAJvbzl
+	 c9Cp2RsbE0PVAroxADdfoS/OZ1D11GTmQJ0LBI9T255kDRTWzKjdB8B5qfXMC2advxGrp
+	 VsGSPoxGYJvpoVKhHZLGTgTH4C4LBffnSZ+9EEBfG0+O8cqUeNkSDlBuDyIWNr6bGzxMn
+	 l66Xsc5kny9eNCaqTke5hd6JNjq+wEkov3fzRBVifxoUr2tWs7nHrHwYq/Jc+bvIv6A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795439029;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Last-TLS-Session-Version;
-	bh=ekjuJETxBofgW47xyMti6B4g7UJc0kIjJ8m41jtns8U=;
-	b=EmcBkJcxILh7qqJmzbqT93zmacijWvCx4QtawN4vF0xT3vQYpbQbvxIY0+rXEFWWrWFT
-	 sJhvO55+NMrW66wKY+4FwmaFuAZZn2Z7ItxKUrax7xXGoZElxv92LGjBSDatZF5oNFxUq
-	 upFtUneXuUFRPuscpfpDX1/JFy11rP+XSlIIfg+D3wjnIGbskXMZpCtkXqiqC9W+eBP6i
-	 7ineq+Qw7gR/O+dU3iFdqVJCyukOg+1XH+pLf4qvnPH8VOJVhrhatap0QobwuCtPrkmTV
-	 QZ+c7DYI542HK84Rs7aoZbQUmYjvulNVr40pky47IqU8eJbEe6M32jTOHxZtikN1Bnw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795443355;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=0vGNyzaHVqr7cdz5nWqPjLRfXfGYkfsBDDj61ImzMyg=;
+	b=SIXy2zCy+ISnHzMqUmvX/yErW+xusZqjiZqPh2rK0DgqClpPGE8emADcwmbOdJxMqPm0
+	 ZzWg3jl5xrb6PARYaI38DYeZrz9xqn0j/E2iLhUEPJ8h6T7zWRjKqrMS2LXurHgKhsj/C
+	 FHrn3ca4jmCX9C0tZ6bPgvqjAc/Joy4ijUYfiP5l5qTiC+5dewVN2C2yQG7fbxErGe3KV
+	 ESdwtIC31fl5dsdbtoPRN6nH4hn0rkV6oQ1DcB5p+yoSe3ZKdOU5XSFbMMDYRRWwYw/pW
+	 /xrAS17ERyiNydhzk8V53fIO13pb2oF/7ZErAoEbcA6PAxuK4ZvDm0R5o1x5qxwxsNg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=yoxcu.de;
-	spf=pass smtp.mailfrom=yoxcu.de;
-	dkim=pass header.d=yoxcu.de header.i=@yoxcu.de header.a=rsa-sha256 header.s=dkim header.b=qyMrZ5x1;
-	arc=none smtp.remote-ip=194.36.144.171
-Received: from morty.yoxcu.de (morty.yoxcu.de [194.36.144.171])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RhX+tYfK;
+	arc=none smtp.remote-ip=209.85.128.176
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99790606A31A;
-	Mon, 23 Nov 2026 13:03:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99790606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=yoxcu.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yoxcu.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBD2F606A337
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 14:15:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBD2F606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=yoxcu.de header.i=@yoxcu.de header.a=rsa-sha256 header.s=dkim header.b=qyMrZ5x1
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EE4521D827A6;
-	Mon, 23 Nov 2026 14:03:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yoxcu.de; s=dkim;
-	t=1795439024; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding; bh=ekjuJETxBofgW47xyMti6B4g7UJc0kIjJ8m41jtns8U=;
-	b=qyMrZ5x1hjNCHT79tEdPMisOuvgjp0hcT10NEZAWbHYqPBp3jgEYsFmvf5+cS8Mre8mIDX
-	O1Utv9aj0xUSEo+ueX+5Daz1tdKx+Wg2J8dwJutg5lsKnO+ODk6TuaqngarU703O0m6EE6
-	70qaLRqM7LrN0fS2mb40kjZHfsmHo1ZuxK1jBbyM+wauG3a9rUOIsyzmwOsCGR85DSo2Va
-	yRxCXzK+xiR74CNeaTW1coXkhXvfK1/r9fRHsiIblCZIVPn216049fiSJ0CiuCbUlXq+2N
-	wJKa85fVZKO7n8d/OERy0BRyl7TFxdb2qHdYlMrWs97FE15rC9ubP4fRqcbmvA==
-From: Michael Auer <mick@yoxcu.de>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Michael Auer <mick@yoxcu.de>
-Subject: [PATCH v2] Input: pm8941-pwrkey - report wakeup events
-Date: Mon, 23 Nov 2026 14:03:36 +0100
-Message-ID: <20261123130336.1316006-1-mick@yoxcu.de>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RhX+tYfK
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-8b4c685c751so27755327b3.1
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 06:15:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795443354; x=1796048154; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=0vGNyzaHVqr7cdz5nWqPjLRfXfGYkfsBDDj61ImzMyg=;
+        b=RhX+tYfKYsuNzQgEKwj/hHuhak3o1aa3YlSYYgnwTkQCvKTS6+GmMwt7j/swEFvEbE
+         t+ipiwmepCeR18bmCqMSVWYwF+ogZu+avjczkfCUqu17wu7c8MiB9clma/8HfYOVlWbr
+         jgMYohdxkFiMcDjhm96bSU/U+7whFr99UdIo1eDBchx8vBTwBeb2tLLGYtGN3xjfXPCk
+         7Nntzy6t2qPVdWwEpTa4dJtuEwykjQ4VPnwHiwwM88MmkA89xmSRue59wNDUdBG1vcwF
+         kK1YJT7vwU4KtBEPtNMXsaLJb2Azzm3j9xPVk6BBsuVh1KIW/sN96YAwm/QyVBlWltrE
+         5XlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795443354; x=1796048154;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=0vGNyzaHVqr7cdz5nWqPjLRfXfGYkfsBDDj61ImzMyg=;
+        b=tJzPGxOirp+Et86MXyHiTjy6ZoBTGEYv/9QrhNykR6aP1GPBSg/9+h6Zm/85ky6KcL
+         eR/HvnjQs0ctP/61gzgJZl2VWPYn3ZVrq7RDWnQ5OM2Aieaefgay6QR/M86cmyagOHsR
+         uHc32K+v0Vn3no/VT2CEuqwREPnBJWEQH+fmKPrN6YE1gskBvnbmR3LA6v0qCm/1fX0M
+         qyNOvsax0uOuWNKujfS9Pe/NSeTLgx2H/CeA9+5Gpj4e/0Y1LDy4Tua91xHjsEwhs+PH
+         GlLx9EE7ADnRruxQRnBddzTvmNIU5N4bZH4vkhBV/r6BxjoenIqFLV1xQtAd1XwOCdKi
+         F7mg==
+X-Forwarded-Encrypted: i=1; AL+hErG5gVwV0d/vAVhR2VeHxEa7fplCt5jwFPlh1b04rL1NNfm58vuA5+3wVW5IwSoMUisZLZ62PcUXzIC0eA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/GKkEISE7uQGc6JejymsXDrbPG97zy0kqb3O01eyF4G2Gz9ZaK
+	66LthKEpbIOUeWzIZ7Cfc4nUuYNeLjWV+RKtp3PBu98HD8kByJIQ85GKNZJG5QhZ
+X-Gm-Gg: AZFdTZcCOYiRazm6/2AfUBu42uqFXaNY3JinLOzNoNVAJmeFEN1AVA35LyzUVkdaqEl
+	0zeOxKMifXm43pBiT47N9gMIUVkbj16t+tQngLPRNgsMcqtkHpZUeeMkVcVcynJjHqPYhBT8YqI
+	/KxGRTF8UrsB5opiE7u8FI8mbx0qqaO13ZH/Scp/pDhC6O7RjTdnb+YbnqnwsevR+0iwxcKw3uc
+	vRCOOUEfGE4LRiw9KS10nWRz9A/qbHh3yDjvt4N7ExL1AD/yn7tyTSirnVZJrWN429TwonRHxeH
+	G/MqdwNUPaerB+SnjF8cvM65+h0+fJwplDoSwCnvw/fxkhl2ceUZ4GS05LM5H6O0+4tEx+kVitB
+	9JaP7+/0gSv2t4xrmBH3cTa5Bmq5p7ogB1LA8D0PqXQPzRvWUV+bHKyuWAt74slQTVLq8uX6C3q
+	F1+ImzfxNyEFdhcAwF3CbBqkZohoPNvCFMM5LuUnaQ4zOq9JNsopf+zBN9gqmzc/8qMmetMi1QK
+	JHiu/KP1vD9DXFUS4bbV7mePJpm1DGsqRU8VSREio0dWAg/0T/JfGIHueMZZtk9/p2CslP+dUcb
+	zJM/Dn8MWRzlNb8y
+X-Received: by 2002:a05:690c:a202:20b0:8b5:3578:f44a with SMTP id 00721157ae682-8b53578f8cdmr11263107b3.37.1795443353775;
+        Mon, 23 Nov 2026 06:15:53 -0800 (PST)
+Received: from pc-i7 ([192.3.12.183])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8b5202c089dsm45681087b3.22.2026.11.23.06.15.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 06:15:53 -0800 (PST)
+From: Aaron Ma <mapengyu@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Nikolas Koesling <nikolas@koesling.info>,
+	linux-input@vger.kernel.org
+Subject: [PATCH 1/3] HID: pulsar: keep battery online across RF standby
+Date: Mon, 23 Nov 2026 22:15:40 +0800
+Message-ID: <20261123141542.8128-1-mapengyu@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,58 +96,52 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-The power key (and resin, with "wakeup-source") is a wakeup source, but
-the driver never reports a wakeup event. Its wakeup_count in
-/sys/class/wakeup stays 0 even after it woke the system, so user space
-cannot tell a key press from other wakeups. PowerDevil, for example,
-uses the wakeup counts to decide whether to turn the display on after
-resume.
+Wireless mice using this protocol enter RF standby when idle, causing
+CMD_STATUS to return 0, and may wake on motion without emitting
+EVENT_PWR. Tying STATUS, PRESENT, and ONLINE to battery.available marks
+the power supply offline and absent during standby, causing userspace
+power managers to treat the device as disconnected, hide the battery,
+and stop polling for updates.
 
-Report a wakeup event from the interrupt handler, as other power key
-drivers do.
+Report ONLINE as 1 while the receiver is bound, matching hid-input, and
+gate PRESENT and STATUS on battery.last_read so the battery stays absent
+until the first valid reading and retains its cached state across RF
+standby. Because CMD_STATUS does not distinguish RF standby from
+power-off, the last reading remains visible until the receiver is
+unplugged.
 
-Signed-off-by: Michael Auer <mick@yoxcu.de>
+Fixes: e55cf379e822 ("HID: pulsar: add driver for Pulsar gaming mice")
+Signed-off-by: Aaron Ma <mapengyu@gmail.com>
 ---
-Changes in v2:
-- Report the wakeup event only after the status register was read
-  successfully (Dmitry)
-- v1: https://lore.kernel.org/linux-input/20261121204112.847960-1-mick@yoxcu.de/
+ drivers/hid/hid-pulsar.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Tested (v1 and v2) on a OnePlus 6 (sdm845, PM8998) with an
-sdm845-mainline 7.1-rc1 based kernel: after a power key wakeup from
-suspend the key's wakeup_count is no longer 0, and PowerDevil reports
-the wakeup as coming from the power key. On input/next it was only
-build tested (W=1, arm64 and x86_64 allmodconfig).
-
-The event is reported for every interrupt, press and release. After
-resume the press can be read as a release (the handler then simulates
-the press), so reporting only presses could miss the wakeup.
-
-Tool use: the analysis, the code and the commit messages were
-written with an LLM coding assistant (Claude Code). I reviewed all
-of it and tested it on my phone as described above.
-
- drivers/input/misc/pm8941-pwrkey.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index 34b4afbb1984..034db0ccc9b3 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -165,6 +165,9 @@ static irqreturn_t pm8941_pwrkey_irq(int irq, void *_data)
- 	if (err)
- 		return IRQ_HANDLED;
+diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
+index a1f0dcda92df..e726dffb2f33 100644
+--- a/drivers/hid/hid-pulsar.c
++++ b/drivers/hid/hid-pulsar.c
+@@ -362,7 +362,7 @@ static int battery_get_property(struct power_supply *psy,
  
-+	/* Let user space see that the key woke the system */
-+	pm_wakeup_event(pwrkey->dev, 0);
-+
- 	sts &= pwrkey->data->status_bit;
- 
- 	if (pwrkey->sw_debounce_time_us && !sts)
-
-base-commit: fed36ea16e3e9929a07c7dc285916216dffac7fa
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_STATUS:
+-		if (!drvdata->battery.available)
++		if (!drvdata->battery.last_read)
+ 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 		else if (drvdata->battery.conn && drvdata->battery.level < 100)
+ 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
+@@ -378,8 +378,10 @@ static int battery_get_property(struct power_supply *psy,
+ 		val->intval = drvdata->battery.voltage * 1000;
+ 		break;
+ 	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = drvdata->battery.last_read != 0;
++		break;
+ 	case POWER_SUPPLY_PROP_ONLINE:
+-		val->intval = drvdata->battery.available;
++		val->intval = 1;
+ 		break;
+ 	case POWER_SUPPLY_PROP_SCOPE:
+ 		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
 -- 
-2.43.0
+2.55.0
 

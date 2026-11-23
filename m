@@ -1,98 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795465533;
-	b=C8x44D2UycmiyekuRkH5f3iZyLHfnupbVNF0eqH4s2k8t/rMjPRSc7Y1Mr1IfvB/kiCZ
-	 +mHfsDtQInSLfzjCr/5DgJ98eTnVLqccsCYa0/466j8GDqeIfBZ4SmS03SdnfH/vDyp75
-	 XzKmQN4kliGGQpnztdVW13cBxyDWhF6dUHz8Z6S4CeCRKbcnLMUCOIveeVNpFCQozPLR9
-	 LxOoTOqGMKyoYR2dqBjepdS3UsSeBeGazVKBZ/uVJOXkBOE9GMq8+Y2ZgnDNJeQAd+aQV
-	 2pyfwj72ZRhKCOCumWAdZmOasOhPB545XWTOqSmqwo6NZIBzXHjOkVKZqnfQWHL2pNA==
+	t=1795465544;
+	b=Me3BjVUMRgjVTWT0sM85JGHhBhL3sToqQOWXhxvjYHFQJydLpqXStPWqbrN3cEFeiSmk
+	 FyKfo2jovgQ6IsatKBCG2QhoThD4lRj8wc6k/nlTYuDjD/KX4bykM3z7gWSzApf0YKXjD
+	 28x5lmLMGyCPP2ilTrkJgI+YsYSOOltFKkTGBwcJ3C+ds8B5XX35zSPghHa/jnkSJjrx7
+	 uyd1eChKbFhoeEZ3NO/2ybqgPmxaUzruYW0Z8q7vfP1GDd+ef66jntsEcUxUlF4XYgspV
+	 GKIX7DY1LgEcn2Trw23Nrowsi5IM4jV2WzWkRbtN9g6bwJKgRVmSeMt3E5xP3bNFphQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795465533;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795465544;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=3VcpHnSiwyTeiDddBV3SmBxGPQ1li3vFXIux+h2TFxk=;
-	b=rDAPDe7azixgrYXP12kd6a1tePYqLIy78O8N2G1y2WNUYcXt7kDTHaO/by55nyekVjHC
-	 RVAQqICa8KnXWmh/R6kYCBJSXxDboMw8hAgSHg/mz4a/Eh0WcevN1YpZ6SRrrHe4Pulsh
-	 55zRyRFsS01nCgrz94a+oRHpOxQevxKhoSmdjENrUnaj3J+8YZxJhZN/smFNKvybMyizt
-	 Ta7cxu26m8EmEtgWXXNUTyvyPod4dOHouY3Kbk7vPoOY1Eu1BN1D0zVdlAuFxt+nyIUXE
-	 0IBF/1bNtALmc3kwzV/FAiYCaBtcBvJrNv6nReqoHmjeKcKroRbMcb/A0jPSrDRTTOQ==
+	bh=htaRIjRweiLZjcs4Tzl0zEgyIU7UNaepRLCTi+oWXpM=;
+	b=jGA7hFxEUMF7UEWM3yuZbeEEap48jgpDZrKzuBMvr5tJ88WojPtG8HHpFf+iKGqdwKB1
+	 j/B/tTj1T8RgnZCEzarpmfQNyWwc2EzSC+8pusMnDVkGALzASgHCdL+GvAm0NHffyFIIi
+	 xRGcu88OgXAcNpKKmb/1X5m7/aB/S8b0I+M4ewreJlCHsEpnUOm1DVyIzUXQ1WfAz+d2C
+	 BS1SkRYbPiFMbWm7vpyblWNo8kcjHOoHAi46CPC3Kr51Q9Qjrao475ouOriW7Dx+oEIew
+	 BJi1zdC/++3Ps6ORKQLRA+J3rBwxiwU7ut7wsA0xKO9h/lOsRp8Fkg+SNlHBJisckyw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCd6gmjn;
-	arc=none smtp.remote-ip=74.125.82.43
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LGoQEP38;
+	arc=none smtp.remote-ip=74.125.82.175
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDAFD606A321
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:25:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BDAFD606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6E7606A326
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:25:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC6E7606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WCd6gmjn
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-1b3a05f8b5bso4727234c88.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:25:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LGoQEP38
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-38644aedba1so5668570eec.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:25:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795465532; x=1796070332; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795465543; x=1796070343; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=3VcpHnSiwyTeiDddBV3SmBxGPQ1li3vFXIux+h2TFxk=;
-        b=WCd6gmjncxMKRkd3iKSikeE3vcvosLDXqXyReoAZrp6OZ4q2WT8+0IcqcC6y0DBGnK
-         Z/qPmKd3p7srywRjuTHqBTPm8wHoCQqGrGMP3tiQFsED0ZnQmO2w5ggdMmOqJnaKA1Jx
-         dzPYRhXIXslkbw7j8nS0MqG6ExvbF0rpiQi+u4Acp5jjPSCm1LsV7Sq2cWd3DgXN2jvY
-         11FqIOt5eHTARvp4KmADAMrXyHWBX67qEzNn5eVvz8+uSyeAJCE/J200NSoJtSqgvjZ3
-         dE/K8YQpTCLaYSaKa+Jg2F6mrpdTitmcWKIn0812wjnhPAGL5aAjGTEyLpbI5bMnBfqy
-         JaDg==
+        bh=htaRIjRweiLZjcs4Tzl0zEgyIU7UNaepRLCTi+oWXpM=;
+        b=LGoQEP38QC3mznKKpYLgQAySy0alTcR0n0d7eNlMT3FTZ1BpQLcmGokdl0DN0D4DEi
+         47ol5mg9dX4fE+VZWjDPKzH2w00w48XuQmGfvKWD30EwXq4wBxe2OswhF+w8cYXN8Yvh
+         GXWkJ4OuH/HOLmkq91vhcZdPy2oROb6p1SQsZzZC49xdJZVUd0doiVxlS2wNVTRB1Zf1
+         swaGUIsQ4cEvd35wpIMB3iECKpLwpiSKr8ymAleMNompx+7dgzkqhjVtbNdU7D1+KLbS
+         4UqVK2cEA/Gnqkl6pXK7FD3rEANBEflkhlpTtkxAXmeEQWmOIp72hjpMQ1KC9MFWoxje
+         HGZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795465532; x=1796070332;
+        d=1e100.net; s=20260707; t=1795465543; x=1796070343;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3VcpHnSiwyTeiDddBV3SmBxGPQ1li3vFXIux+h2TFxk=;
-        b=e26HHAKHkiP1AIdpu4dx9vWCSeMuBntZRbFBgjKSOsFhn2EdIE+fCa+7Z2a4Am7bva
-         tjZH/bEl0OVktZokfqDlLUkcd+VDjzy5UTwar7jJXu3aSq7Bc77dRJJDtYExtZFFQiJB
-         YlzRLPxqKt8OVrvENXP4kbPuBzbGXbOGzIaV7OQQnU/3tCn7ka9rn5n7KkCDpT+UpTO4
-         vs7oa/EVvjtUbh4V7aPeedbu6/9mcOabfQAJDNZ0BtmT3ljwOc7MUFkmp1iJhjPjubPD
-         XaobTnCkNK1ymQ0mRLQi2Tlnm1/nun5ix+trPDn7WMXYsMMsX93qM9UAGpXCBMKYXA2d
-         gHKw==
-X-Forwarded-Encrypted: i=1; AL+hErG+M4QhtHS5o3qK4UXcBJVQp380PvIB9OkR6xxNxEMZJR6v7YJQ6SUJesXwf6sXQmHh336ARLz+KdSiNw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/quE7GCSRq349nQHVNm7dELokHNs8sPq6HQkBFFloZQBI2Zw1r
-	EH6sTnid1CdjrcfAAdF6Lz0n6EOmnfu8feUX+Byi5Njs0PEtTaEDlf0k
-X-Gm-Gg: AZFdTZfeqciNfNoLgb2rHFzMDFc1JBxNjsoHTtS656qEWPIe27bWv0fwiDttEQ564P/
-	lGXg6Oe8Gr+T7tE4mYZlxQkAyIGNSUe/p4y1onzZXwF7QLSYngmbE0G9z200PD+pyvEAVMGCVKj
-	f1mhZjD1AlDyU6sMDdpiDuf+ubjD88lNt1aN8CkU9uiCXuxbF4rYuXqh2oH04HPAu8n3YfQyRu/
-	Lgarh+Pz/+DnkLgEgHXkHp2UZ63tDqVqYqU06HpFTvjtE5PBCM52ZEJOaMrWuDZYKozda7EuRAe
-	Yo6kfoD7qu9MH2n9m8AUGX05R/wiQdn3iDiyX/vKIGL0ovYq1XNsoZ0d2gLxsayuVGlY0gNBKQO
-	6kXC0ZYz1Yi7BZfg1LN07Pd+LVoKeOhz3491Yfz4ye7ME4FL8V+Wdioj5bb1V5uw42smSXwRDeR
-	Z/hcJyk5eycnkkRntob36rqMWQKoULKwHd/3VfhiOw9DV9+FKzriy/Ga0486LaQAiIiUW78gFpt
-	YsMnRq38+Jq+nFjfgjte654RpNTrbE90McDeNviOruIJmNz6eDv1bm7+11ZUXyvDSOmZGvcE1lj
-	zarNwZbtiJBT7TJPCKhVvXpG8TpNyhKgJLviGc0pCpV8OV3r35jgRypT59u9CazXAJYyGsM=
-X-Received: by 2002:a05:7022:290:b0:1b5:dc3:209b with SMTP id a92af1059eb24-1b5568ac6b0mr11976416c88.22.1795465531758;
-        Mon, 23 Nov 2026 12:25:31 -0800 (PST)
+        bh=htaRIjRweiLZjcs4Tzl0zEgyIU7UNaepRLCTi+oWXpM=;
+        b=R4PzOqd+sBXsMrYQ6l0F17oPnB09KNDH7QJMlasb3WGsJJ/vjge8ast5trcAPqwCgW
+         Zw4XnvU0OuMxjmzZjaVCLjoT9xrvdw9NDTI0RdpJhXj6HRvmI4qOZnhP/EPCm172MlAs
+         C6MhsgjM2/n4/9njmoV4FD/LuO4pon5EfwSN7Q+cQCVB/Org7vH6REcib/uFu+GF1rSj
+         YtjRzbR3NdroS5klM1+9XMVeFzi0zbrDrDEClcG0rqFqyccWJvgYmdW0NjqYevtazCWl
+         OXI+0D1tpg2f7hDjVBxIjnW7HS3MlXn69zwuDArwt2bL3bLFKqNt2O9i/faTNhKyAoVu
+         TOJg==
+X-Forwarded-Encrypted: i=1; AL+hErFJ8VdI7oxJfff03Lhb7zOFblxPPAmyWO7OadtwMXCE6CwHqkXkNWsYjibABZlE8SgQJhePI29rhD7oKw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/8cDrRShd9b8zd1MwSdlLle3mohi/CCzpo/NAItT0EEQpEkKUQ
+	YfPgnOlgDXq/pjYdTchwF6+Op+mzKDl3vCnZfnledtAWCiAj7CuEiX9N
+X-Gm-Gg: AZFdTZemRCJ+6WMjrDOsY6C9zi1rOvmzlBkVqSY5nS3510TJsVyLta+KA7GusaXTKwk
+	hA0kIqJQ/xj/ZD9TVMr7BijRME7hhaVK/H9WWANJMgDhLkAJ2qQrJ3B9AEh+H5RjHnVYmpgQNru
+	GCEpU9CObVuhL9iuhiDwqJ2zZJfqwHlhBJVCVnC1KiG5csRDU6+JIliSu17K8FJKbUeEW8mYzUR
+	lr8pgWoYIRo2YZKZFqvWSLBD4ZSmmNKlKlQJkrKjavjfNVPgMtm88yC90DSaDWRZ2NlB7McX6pT
+	JyvH0VoEnO9Pu2FoG6XYl1VEYPOFZSph5fElUU2L0tyt1SxMspy+zDqeW9hIdt3mD0PedEe119Y
+	AMWX0R4+Vs6YLzW3HqeAAJoYKgWahrJpTyn8xXUwsIHhTrvfnPE120BoaY7tO+kMWfmHsvmlfT5
+	HsXMAURFtZjkdPoj+YPsaEVFtQzbqcXgx8iKEpjCqr0SUTPfG7Y20ZNce+ohSn0/T+XbjLWoN7B
+	ve9AWO0bBDuiPgI+4B3UzWm4T+cVm+RkuD4zHEoerM866EVmcyIEGCLK8ODj23St1NJl3djpRvk
+	2AbPGqlhJLKkJBcUev1FSNzR1z9YtrGxOfHUgqbzYBVSSDsWP79FpCIoKm7JzK8lwkf3MOqenwP
+	0yw328e6d0wo/zirb
+X-Received: by 2002:a05:7301:211a:b0:373:5561:8d06 with SMTP id 5a478bee46e88-38570c36e7cmr11463927eec.37.1795465542635;
+        Mon, 23 Nov 2026 12:25:42 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5567e2bd1sm29277191c88.3.2026.11.23.12.25.30
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38566cd46c5sm46389898eec.11.2026.11.23.12.25.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 12:25:30 -0800 (PST)
-Date: Mon, 23 Nov 2026 12:25:27 -0800
+        Mon, 23 Nov 2026 12:25:40 -0800 (PST)
+Date: Mon, 23 Nov 2026 12:25:37 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Lee Jones <lee@kernel.org>
-Cc: Mattijs Korpershoek <mkorpershoek@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Fengping Yu <fengping.yu@mediatek.com>, 
-	Marco Felsch <m.felsch@pengutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH 08/10] Input: mt6779-keypad - enable keypad clock before
- programming registers
-Message-ID: <awShM65vJT7DhZLT@google.com>
+Cc: Samuel Holland <samuel@sholland.org>, 
+	Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>, Danilo Krummrich <dakr@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Takashi Sakamoto <o-takashi@sakamocchi.jp>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 09/10] Input: pinephone-keyboard - request IRQ before
+ registering input device
+Message-ID: <awShPfjuvVjlw-Kj@google.com>
 References: <20261123183200.3900004-1-lee@kernel.org>
- <20261123183200.3900004-9-lee@kernel.org>
+ <20261123183200.3900004-10-lee@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,22 +103,27 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261123183200.3900004-9-lee@kernel.org>
+In-Reply-To: <20261123183200.3900004-10-lee@kernel.org>
 
-On Mon, Nov 23, 2026 at 06:31:14PM +0000, Lee Jones wrote:
-> mt6779_keypad_pdrv_probe() writes the debounce and matrix selection
-> registers over MMIO before acquiring and enabling the "kpd" clock via
-> devm_clk_get_enabled().
+On Mon, Nov 23, 2026 at 06:31:15PM +0000, Lee Jones wrote:
+> ppkb_probe() registers ppkb->input before installing its threaded
+> interrupt handler with devm_request_threaded_irq().
 > 
-> When the keypad clock is gated off at boot or its clock provider defers
-> probe, accessing unclocked keypad MMIO registers can trigger a bus abort
-> or silently drop the configuration writes.
+> As soon as input_register_device() exposes the keyboard (including
+> synchronous open by the console keyboard handler), ppkb_open() enables
+> matrix scanning.  If a key is held during this window, the controller
+> asserts its level-triggered interrupt line before the handler is
+> registered, causing the kernel to disable the unhandled IRQ.  In
+> addition, devres unwinds in reverse order on unbind, freeing the IRQ
+> handler before input unregistration invokes ppkb_close() to disable
+> scanning.
 > 
-> Acquire and enable the "kpd" clock before accessing the keypad
-> registers.
+> Request the threaded IRQ before calling input_register_device() so the
+> handler is in place before scanning can be enabled and outlives input
+> unregistration on teardown.
 > 
-> Fixes: f28af984e771 ("Input: mt6779-keypad - add MediaTek keypad driver")
-> Closes: https://sashiko.dev/#/bug/linux-fc15622a-407a-48b2-88db-195cdb311dbf
+> Fixes: 17406967ec0f ("Input: pinephone-keyboard - add PinePhone keyboard driver")
+> Closes: https://sashiko.dev/#/bug/linux-f24d8390-cd48-42d7-a3ea-c075b69c127a
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Lee Jones <lee@kernel.org>
 

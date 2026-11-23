@@ -1,95 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795464783;
-	b=kftlHLAM0lNolXvro3rM1XQXeFZkwayJ7s+r8h0v9q9oLgqQqqjfTyqWFJsLrU2jJMfX
-	 LF37yeO4sadP8UGI/lR63rHPiWYGL1FiCLuknd9F+Dby5WSk0gDHKaTaeW7NVa8+uqoZ2
-	 Zkw95wyxTD4/ZsDa5s98OKSlBMkIg2zXhXnqh7i5/3zxseE7UoO9vqU9a7I9oPfEGGbuZ
-	 83I4+pYPAwNzNosvl/eiA8ttxzFYwNLNBp/eB6kEsh30JE29yQ0JdjRfIBpBTGmCOlzY4
-	 gHtOZDEa/znA6XNuoej3dJAEjAplO+/QmsJdlDiHPXTYXeo1RjkAcNCqDZjRcCCZ+Ew==
+	t=1795464845;
+	b=ZAkjyo+yumgCjSfthTo6oSgPA3KZ/a6e/yTTO2wPbNDzx64F8gJPQlU9f7Hh1UZspGe5
+	 +dbx76Qo+JVHCFoQ9QYuig/d9BIUKglIdrloK0Ld2Jb06zGlm5qhmnWaRv9aTasOEhuQk
+	 /IfT4f/0zgjnuaHsefR1wMkfwFpES2g0DMmeSoY6AHpLEROE6uya9LgiBCkt0okVmElEA
+	 8HiWeeDQ3AdpyQ0tC6B+qlic2Ad8c4q+yO5ov9sVN88G4LxXsI71SMlGs+xnNmgv5nt8u
+	 exoKj5u/7FB8UyqESW39T88JyVHWtKYQGCWFzTK+4FKsvhAbyDMYnFwbQii214tnsrg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795464783;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795464845;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=Vl+Jr3N/YEqz9NFVbM7G/TwPrthGUN0HgQHZE/6GVYs=;
-	b=Jk4ck9edpvuRScjhgGd+ptBiYQSPbzoJuZv1+5DSXpdIneRtwdkYQEKqZ1z3VUzW6Viw
-	 mqvaIpfCaca38/l+OEPoIAP30HA8fLUYvd7WvkaCOVEv9zWe85PSxAbec716CrkX/425n
-	 xFepwvkiHuw1CAaOsUmnY3CmqLefS8u0MDzdrMvzX0DmVwqYBHDd8OzJCFwlPFlgddXcV
-	 JKkO9SxJku8qc2iDNRL8x2ztIFbCi8bwrp/i2ff3eSxq/rsy3PJ/Vdup9mPXuGoTzb7+4
-	 Cod80pRpoVmiJRIS23KTigET3c9jsLxUPasqzSQCtm0qhp1ve7jFLXa8WTa+bUtzAtw==
+	bh=dgeT5HSySDkjBdmipJm4ZLy1GjB1CH3yde0pguoA2Lg=;
+	b=oqZQOCbKTtJLYnTfYpgKRFieuP3exewHRi7KO9UBnh9iMwoibWbObo7s4NloaDsCpZW7
+	 oUXx8kXZE8+DUfw76aM00XlnKqDmOk8Swn3WdNB6lqqrMmq43UsWW9IfECYhNNIBhgyET
+	 c4tp0j6LvIz4Iwtf1Nk+9dixIE/+zVVaHuUb2/3Pp0nbWdOlaaJrQ42RiFkUhK0FwH2fM
+	 9Eu/qcMj0xYjYNob2jkvf0QTyt5a+bE/1Vm7+EaK7PjhidpXFBhGFMLNCeIuyTMhIbAMa
+	 ym3FaSgNETu7b6dEXTO+srXdVPHJcScP0mCqCRlQUxtfx/u5Xt6TKy3Xu+U6TsVTcDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XBwGTjYq;
-	arc=none smtp.remote-ip=74.125.82.53
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="O/QYgvZm";
+	arc=none smtp.remote-ip=74.125.82.169
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4054E606A321
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:13:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4054E606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E72B606A321
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:14:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2E72B606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XBwGTjYq
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1a2761c69fbso2875749c88.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:13:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=O/QYgvZm
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-38699cf08dfso3771717eec.1
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:14:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795464782; x=1796069582; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795464843; x=1796069643; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Vl+Jr3N/YEqz9NFVbM7G/TwPrthGUN0HgQHZE/6GVYs=;
-        b=XBwGTjYqQTUhH8gOOPo7XYWKULuUQj/EpvbNDliWDwCiUoZljy6hipnGBLvu6Cnf5I
-         QB4eBs8VRrzDPEFIyfvnEECbj62cghj/ipTuo/74QHstzb5WBVfWu4m02MzsNJkRGKvI
-         SL8fcrbPP0dhsR+7166QGff/5/sQV76QwiPZ7j97puU4qusj2tHix5UXAB3PKH0FfvdF
-         VB7kwwzfXflu7ZjkINak8Hp7mvsdVxjbRWKOPxeP6S6R2nC5D+bm4l+C8kc5KUkVw6fN
-         cK8+myDOVOK7fbti9aE2nqTQHnvbOopkfcQ73z56fwYLjpAI07pa3Vv+0MfVvQC4YUsN
-         YlFQ==
+        bh=dgeT5HSySDkjBdmipJm4ZLy1GjB1CH3yde0pguoA2Lg=;
+        b=O/QYgvZmhabx3+D1Ox0nAqUklAwki5ts/e5ICD3coNuTFdwkbOEZN1+A7RpaXEaQwL
+         Mp4iBvaRVCxjPQ7fVMeTNRD8T8FoxT7n7oxKfV3t3J8vEdjJqUCAKqgmMab+Ay57xxB+
+         bcVpILohdXpSCjVMN7aXBpUyixQATBOkrAY8wSTNkf2jhPRN+Q1N5+TQTREXzogel4si
+         QW5sgjsw7YTrPRx/77ku31KCZRv/wLnBT0F18Vn/OdNghH4QCpBIP9G2+idR7IOZuGCS
+         itNt8FdcM5sVUtZT2ZP7qYHmDSK2KV8KeJFQXljcQIviEb/kursmQKvy6ypAemXGiOae
+         +Q2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795464782; x=1796069582;
+        d=1e100.net; s=20260707; t=1795464843; x=1796069643;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Vl+Jr3N/YEqz9NFVbM7G/TwPrthGUN0HgQHZE/6GVYs=;
-        b=EMgogjqt/U8ZDiftesryq1pJZYpHdYrTwc4W4C9sPWhh1mVaaiNLlodWch0n9Ig8IY
-         BFdDo54Vosa749v2yJm3ZINrtJFa6cyJMuTLmJ4iMaDUcyetLi9c2rapYko2I+fM14hU
-         DqHdaidTjLcMkopxpasCBUj1lW0vs5keNig+4msGKOJgZhGXmDMJvdizyu7Og07Cp7gk
-         7637bq61sU4V0qFfpzNMWiuOeG/CT4eLlLD/micz4X5KHJ08cQBz1sEt+l2rdvRbxA+U
-         5QzrEHPe3Rv3icH9nX+OPkdeitzYppDM6diRfWnHehr7jU/uwvMxzRcPfLV2OLa6vQD/
-         dXXg==
-X-Forwarded-Encrypted: i=1; AL+hErHTRPfuuqpRqVPWZ0/1RiAEQdXUxfPSPknU25BbrDvMJf77JgMrl58/ZmWGrxQRPCI9p3AMFsh163/22A==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+88wNeAj65Sif1Cj62a3WSzxEasqiuJyR4MFH6cgNG5mcWRgQ4
-	hvze7eHQIrZPd8hkYwv0hPWqhN5YbMFc/I1GUw2RxMmrjs7u3yqOX+oX
-X-Gm-Gg: AZFdTZdJNS/3QkDlFd4TTti9m+F2MikcUdwUDRPAIilKSPAk2JexqCpBzasxWPPFNw3
-	vb7h7fxYqS6K48sw0RFo+ph0g8HgvvMtp8Of74di+fcwsmU5M79EutoFY2ERs+LRTzXtLz5WC6L
-	ZBCdPWxfcGerxjEOOjUSB5MEJk+yKxSSIwQDHs43UlUowEBa5z+/Anu3JhfsLclEKkQE1KGE7TU
-	cLeetDH9Y724JqvbWT1tg3U5eOlwFVZNwhNtp1kk8W3iJk9wWu0dQ2/bjBDcdQPnHh8DGd7xNnh
-	4cI5wlqHbp9sD7/KsOZ76xfL1nSKhDnya1/eepjsnQQsuRP/t0qWDTOSpMJQ3efu2NWm0lD8Sg7
-	I0RTzUKTfQU/Ov4N2n26vbsOA7PjpG8801bbVAu009FazYenrQi+4c2iq/uQx1Z9erKcxF5N6P9
-	jLktxNYfzm1yYqb4eLFBqbeuDJIxy0Z6ktRNpnZNgZ49yRKYieLcCRlS8uttjQgQ7dwXeDZXujc
-	tt2fS2QKE9uxQtvRj+CmqUk1DnqR1R+xZBSATJ7XGTZfXuZ1m44SPu0wE88inbK4WY4/EBHIDGt
-	jWXUUKFh+vqP3UEHiiZ88odjsfyNm6BmoX2vaCT4V7AND5wNyiceGP2sj4X1c97exNHrI1o=
-X-Received: by 2002:a05:7022:e80e:b0:1ab:de8b:5f0f with SMTP id a92af1059eb24-1b556924b07mr13875087c88.40.1795464782093;
-        Mon, 23 Nov 2026 12:13:02 -0800 (PST)
+        bh=dgeT5HSySDkjBdmipJm4ZLy1GjB1CH3yde0pguoA2Lg=;
+        b=g4tryDnVe+gCZcgu7bK1M+/NKf6envmBAW/18DuNXv5UfV6TIAxXYPXKJT3nDS4t0s
+         Tdc0mR15RLehmFOzxp3rUrbzEPUGaBWx+OEurHmFv3J0djik6/vVAg/3DXsFME47tVnC
+         6PAB4mPlRnlopI6Y8B7GKs9ILYiasckKvVFeXJWKElM9Bg4vPkcCmHwLA0a8BDpqPiiH
+         E0jBo0HMmF36dSIA+o/z/GkMZKbFn1fLqtEPXP5gC15DOcY58wkVzzMqXiS19tBZ5O+R
+         qTZ21pnbQ7qM4yoehi+iWz1xBOrFzKtcHlo1hxO2ydXrItjc1n4HOoFhNeY0/oFxwaAy
+         oDTA==
+X-Forwarded-Encrypted: i=1; AL+hErF9ZQYv5dryOaufMWePD6q2lZKn+hjJKUexMeyZuADCxf6mIrAKiaOB7aqmhK/8yB7nyFxGPbaUPGUaag==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+CkxqZU+1eA0EYPEte1PdpWygtL11jatrgXcDZc7DGO43wPnLI
+	N9sJz9/7fL0b5h44Zzn6skH9BkdDQ1T3vtT6+feY3e5NtMnvjVGoDeMM
+X-Gm-Gg: AZFdTZeHfvj/i3EDHHXEFPtvL/We51ejMMsWesq0uyp8CLWAu50zM4/bE/GOBnFoesi
+	wgUi2iHoo8W2qibTRJtZyChm/FM+80cQA+NepIYJEqEYVw3tseP4mEAxXGDRRNLgEWSKUofCX4E
+	wBkEjwlBAUP41ulDV84Wr1cWjSG3P3MAf9OVy3VDEM3jbKPWfXh4ynlcwqUsJuodT7l1kK4xaip
+	qbho2x6MvwO7rZ6sAOP/DcdlgcdgnSbbPojhH0X9O1Ogp+LiDKeeHqzbKOtqtvo1V4lH7N/469c
+	5K0ENhfl+cyGQz003XDbf4EFrGqvYTwGzwavHWB759wzy1Ic4svW7sjMjsEEAGwRVROAbf5gN+X
+	x5HTme9ClvHzq33l8e2qyzjSxXvI5Sb+qk3fzRThu9lCLZXLAcDu0uZjFB17PgH29FuiQ0+hZ9Q
+	dmJ8pWL1N3rg+FyhvB6HlxWcM4C2qb4kg45aJVCq54y1SRmrycHDqBA27Hi0KCX+UikllfKFLLR
+	9RmC5060RjDM+ARy6CSeEw95Nvz9jiRfoV0dSXI1up+Sg+Ex2otz3oi5jMCFx0Fu1CHbsiBVLgE
+	uBKi52nqWbGVeLfqsPncD8wa0vnC77Lhs29jnHR/sVNwx4EE46x9ri5kJkG5qZvetPgkm5s=
+X-Received: by 2002:a05:7301:259a:b0:36e:800a:71fe with SMTP id 5a478bee46e88-3856c4b844cmr12383687eec.1.1795464843155;
+        Mon, 23 Nov 2026 12:14:03 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b556847fdasm34059654c88.13.2026.11.23.12.13.00
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386b9bdafb5sm4836352eec.9.2026.11.23.12.14.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 12:13:01 -0800 (PST)
-Date: Mon, 23 Nov 2026 12:12:58 -0800
+        Mon, 23 Nov 2026 12:14:02 -0800 (PST)
+Date: Mon, 23 Nov 2026 12:13:59 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Lee Jones <lee@kernel.org>
-Cc: Marek Vasut <marek.vasut@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH 01/10] Input: matrix_keypad - validate GPIO counts
- against matrix limits
-Message-ID: <awSdwBnT5bk_BS-G@google.com>
+Cc: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>, 
+	Ronald =?utf-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 03/10] Input: applespi - cancel touchpad registration
+ work on removal
+Message-ID: <awSebEs9zEV7GDF8@google.com>
 References: <20261123183200.3900004-1-lee@kernel.org>
- <20261123183200.3900004-2-lee@kernel.org>
+ <20261123183200.3900004-4-lee@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,72 +101,43 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261123183200.3900004-2-lee@kernel.org>
+In-Reply-To: <20261123183200.3900004-4-lee@kernel.org>
 
-On Mon, Nov 23, 2026 at 06:31:07PM +0000, Lee Jones wrote:
-> matrix_keypad_init_gpio() obtains the row and column GPIO counts via
-> gpiod_count() and only checks for negative error codes before storing
-> them in keypad->num_row_gpios and keypad->num_col_gpios.
+On Mon, Nov 23, 2026 at 06:31:09PM +0000, Lee Jones wrote:
+> applespi_probe() allocates its driver state with devm_kzalloc_obj() and
+> initiates an asynchronous touchpad information query whose completion
+> schedules applespi->work to allocate and register the managed touchpad
+> input device in applespi_worker().
 > 
-> If firmware supplies more than MATRIX_MAX_ROWS (32) row GPIOs or
-> MATRIX_MAX_COLS (32) column GPIOs, the setup loops write past the fixed
-> row_gpios, col_gpios, and row_irqs arrays inside struct matrix_keypad,
-> and matrix_keypad_scan() overflows the stack-allocated new_state array.
-> Conversely, a zero count causes get_count_order() to return -1, leading
-> to an undefined shift when computing row_shift.
+> applespi_remove() disables the ACPI GPE and drains in-flight SPI writes
+> and reads, but never cancels applespi->work.  If a touchpad info
+> response scheduled applespi->work just before applespi_drain_reads()
+> completed, applespi_worker() can run during or after devres teardown,
+> corrupting the device resource list via devm_input_allocate_device() and
+> dereferencing freed driver data.
 > 
-> Reject non-positive GPIO counts as well as counts exceeding
-> MATRIX_MAX_ROWS or MATRIX_MAX_COLS, and size col_gpios with
-> MATRIX_MAX_COLS for consistency.
+> Cancel applespi->work synchronously after applespi_drain_reads(), once
+> no further SPI responses can schedule it.
 > 
-> Fixes: 584bf366f8fa ("Input: matrix_keypad - switch to gpiod API and generic device properties")
-> Closes: https://sashiko.dev/#/bug/linux-ed4b89af-6c76-4e5f-b140-fb2b107b12d0
+> Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
+> Closes: https://sashiko.dev/#/bug/linux-bb2fd773-6c20-468c-a092-6814f008077f
 > Cc: stable@vger.kernel.org
-
-We trust DT somewhat so I do not think this needs to be in stable.
-
 > Signed-off-by: Lee Jones <lee@kernel.org>
 > ---
->  drivers/input/keyboard/matrix_keypad.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
+>  drivers/input/keyboard/applespi.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-> index 11018382e84e..c2f839a3de90 100644
-> --- a/drivers/input/keyboard/matrix_keypad.c
-> +++ b/drivers/input/keyboard/matrix_keypad.c
-> @@ -33,7 +33,7 @@ struct matrix_keypad {
->  	struct gpio_desc *row_gpios[MATRIX_MAX_ROWS];
->  	unsigned int num_row_gpios;
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+> index 96c504f28495..d964cd3ee5af 100644
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+> @@ -1819,6 +1819,7 @@ static void applespi_remove(struct spi_device *spi)
+>  	device_wakeup_disable(&spi->dev);
 >  
-> -	struct gpio_desc *col_gpios[MATRIX_MAX_ROWS];
-> +	struct gpio_desc *col_gpios[MATRIX_MAX_COLS];
+>  	applespi_drain_reads(applespi);
+> +	cancel_work_sync(&applespi->work);
 
-Luckily they are the same...
-
->  	unsigned int num_col_gpios;
->  
->  	unsigned int row_irqs[MATRIX_MAX_ROWS];
-> @@ -302,11 +302,16 @@ static int matrix_keypad_init_gpio(struct platform_device *pdev,
->  
->  	nrow = gpiod_count(&pdev->dev, "row");
->  	ncol = gpiod_count(&pdev->dev, "col");
-> -	if (nrow < 0 || ncol < 0) {
-> +	if (nrow <= 0 || ncol <= 0) {
-
-gpiod_count() never returns 0. It's either positive, or -ENOENT.
-
->  		dev_err(&pdev->dev, "missing row or column GPIOs\n");
->  		return -EINVAL;
->  	}
->  
-> +	if (nrow > MATRIX_MAX_ROWS || ncol > MATRIX_MAX_COLS) {
-> +		dev_err(&pdev->dev, "too many row or column GPIOs\n");
-> +		return -EINVAL;
-> +	}
-> +
->  	keypad->num_row_gpios = nrow;
->  	keypad->num_col_gpios = ncol;
->  
+Likely should be disable_work_sync() instead.
 
 Thanks.
 

@@ -1,57 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.16
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795450453;
-	b=lqJECLlZ9qK4QaUlRkefu3sNdBVTidO5opu/Y7YwlomZP+zhEwkoxgsDwOOLYlf2dFvq
-	 sSovczSQRCQWYctyMPi1Or1L/1bQI4kb2Tn4L76IJFKwenntBCuLrZxtYzYROZ33TREhg
-	 Oi4NK26SuTa/kXRPKHG4cbB7IpKMMG9hxJp7qSG90kjg90bDC3Wz2tbARFWEzdLidXDdB
-	 dImfTxyk5Oh3WBIYnyo3tRkfyhnJg2DscxcMoG/Y6Yk2Ei88qsQl3g8+NijO/wWNILmUf
-	 J6cM6MNA/2bT9DrlNYZzfTgMhXgcYo22D/ycrAIfuegf+pQqRr0sTES2u+8UcVkD43g==
+	t=1795452216;
+	b=JiRtPVOh1rlU59kHM2fZHYX1gBXpkME665pr/tFhQ0G0b3VI7o5KU15e4aWw1zfD9kJ/
+	 +/zeD03isznWLHHKWC1cxUDv6HLzAJbyuB1MmtkunXB3OJlL5SpXS78O+qCh1/rxmMElw
+	 LtLQ3cpC6BFsJa0c3YWbpAdQptZU2wVT5CWwHwx2m9hQWu9jjGwwQtngY9ZBgmX3X+7qv
+	 uH6fJnfd/LtXtrte6yBQu8bQbWZkJ+Zg5fLrBJtJF4RPQl/Sjt0G4M2SGUUnqa7s1Ou1s
+	 yUUB7KyH8wXSD92H2olKIG+UL6+/FfbVTWu0Fnj1H+x5DR4G6d1xT6kzC2xsjlqoU9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795450453;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HuMsJ/NMP6M4D8y009h1H7LqOhbPDVgEF7wa1Gd13Po=;
-	b=e7QDfLW3PiOfwXmy+Bskck4nbkIpe4NfQcz3i3deZqgPYnalVsaV+vulKHWg7sfravrk
-	 pru0qHN6hRXnQ9KmQkoWyhs62KSosiIXnTflqOnT1W5g/9pNAXhLI+1KPmWA4ELMgo+y+
-	 Fqzn8em4j7rXNAbG7fNW17zvVAZPfsAVqaOO4rF6htlFgLFHCW47VWrd5Lz4Ui1thNHI1
-	 to3FTEQ3yc5jZNHC/28mEFicQHMxfJJfMgTLqGsvLIkjKsYDVbrZKbMtxf14pe6luPMEE
-	 RIgz6DoHLs6C2lfhFXnntqL2t0NVvjd8UY+/Di/T6eQXWJUt+UJWMVmV3+gWjz/iFvQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795452216;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=U3bXzxE9PE+5EeuflkK/MmHPqdxGmTfaMaP+/oBWzZc=;
+	b=xwkbw6T96A2NUhSq3Cz16b9wi/BC3nNePXzYzMw63UaA1IOBI80s5vWJZnT1aZtmzdtr
+	 me4AOMwYjdGMbaTycZMh4h2EjzIqIg2FjDxBMDSE9zg9QxL+AbnkOT8few7vn/I41j4HX
+	 7kKRn3Wv/rfubz3VMkkgU+DLhGpGHKD8RvA3DIhezrOKa9sjuewwWkKRHHAXS//1ZOz6Z
+	 QG+xi45RiOUau8akCTTO+MgOJhfVooqlARH31C9oMalEGP+4JniW24XI+i+w4IT3pU2Dd
+	 bkjVxLpakhJly1iRm9obBMMlyM6jltEnVjW1VM7cJlq85aqH9/wwV3DW2HGrVcj5SDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dTbXE57l;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=LgqU0EGt;
+	arc=none smtp.remote-ip=109.224.244.16
+Received: from mail-24416.protonmail.ch (mail-24416.protonmail.ch [109.224.244.16])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20484606A31E
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 16:14:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DAEF606A31A
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 16:43:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0DAEF606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dTbXE57l
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B60B1F000C0;
-	Mon, 23 Nov 2026 16:14:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795450452;
-	bh=HuMsJ/NMP6M4D8y009h1H7LqOhbPDVgEF7wa1Gd13Po=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dTbXE57lOZJr/p1sV3eCy3mXKgNXhFHFdNLOF41WdJPr2jdR7amIsRe3pRnkXXbtx
-	 YbdRyfDN7u2DFZ77nWI7x3EM7TvKVZTx4i1e7MHH/VXkP0WZ3rvO4XpmSJaHnnyWLJ
-	 9VypzmUP3IgSkkfUvFRreOD7t4QhEckq/oreeAhpGJ4yoTRpK1B7CcAZjQ0GmijAP7
-	 1eSHJE2+2faDgN8+pLr/gmXr/8Sp0RIMPkiS7H3ionAgzUTmiOq3obdb//dIZ7RhXw
-	 oMKLL+dvWfasNS7Nfpqv6yhUdrSiTx/urmJiJAJ8tZqE015KtzE47e2lNLoxYLj3Kg
-	 71okkK7cdXIjQ==
-Message-ID: <sashiko-outbox-229648@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 03/10] HID: logitech-hidpp: Synchronise send_receive_buf
- against raw events
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lee Jones" <lee@kernel.org>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261123155138.2907049-4-lee@kernel.org>
-References: <20261123155138.2907049-1-lee@kernel.org>
- <20261123155138.2907049-4-lee@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 16:14:11 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=LgqU0EGt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1795452213; x=1795711413;
+	bh=U3bXzxE9PE+5EeuflkK/MmHPqdxGmTfaMaP+/oBWzZc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=LgqU0EGtTxPVm84NmjBCuOxtU0pT3Ya1J6e4Jq/WCcRy22KYyRJE4kXUDvNAzpmc/
+	 7vBuHSQ+HxlHDGMCo61X/zzd4augXImPxYmtkfFG+FAOot7UHIqcJBjrwNunLGqzWx
+	 XzDH0y2wtJRvDOpFPfmYhT55y4xylXhDLNXGaJarbrWXO1eVrRPQ4kDcdDGxsvg4AV
+	 LEkElHuamueRsJ/HJBfOIQeuvMYu1dAdBTvbRzilOcvO5xyit5P4LA9JQ9Ho4jFkEA
+	 TPRu3Q7+a6kY0qzVmFux5QZIbrdBruMUuBj1ZjZ7IuyVz3bdw0C/Rp64Ca5LgjR3kx
+	 vhPBw+Fu4JgwQ==
+Date: Mon, 23 Nov 2026 16:43:30 +0000
+To: sashiko-reviews@lists.linux.dev
+From: Erlend Jacobsen <erlendjacobsen@pm.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v2] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+Message-ID: <32ixcLJs8A9rbhRwB5jUgryVZNwXWjwE5lF7zmNwREwiHEgmJRO75Oeu0jTf5ULhfvqn7L18SXFxPrvauHHdbnpD-7vGQQSl96jC5vt2E1g=@pm.me>
+In-Reply-To: <sashiko-outbox-229637@kernel.org>
+References: <20261123-b4-rdmctmzt-v2-1-8c18d7dac4bc@pm.me> <sashiko-outbox-229637@kernel.org>
+Feedback-ID: 128302180:user:proton
+X-Pm-Message-ID: 88fa773171a6e136de1fb1cb0c973705660714f3
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,68 +63,97 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [Critical] HID: logitech-hidpp: out-of-bounds read in
-  hidpp_raw_hidpp_event() [1]
---
+Thank you for the review.
 
-commit 289546ca1e2e40f3f7b8470e29a3d15053ba75d0
-Author: Lee Jones <lee@kernel.org>
+> When a dongle keeps linked =3D=3D true while the keyboard is silent (such=
+ as
+> bcdDevice 0x0102 reporting link byte 0x00), three unanswered polls leave
+> both rdm->silent and rdm->fails at RDM_MAX_FAILS.  If the keyboard then
+> connects and answers RDM_CMD_START without returning a battery status yet
+> (for example, refusing with 0x0f before measuring the battery),
+> rdm->silent resets to 0 while rdm->fails stays at RDM_MAX_FAILS.
+>
+> Does delay then fall through to RDM_POLL_MS (60 s) instead of
+> RDM_RETRY_MS (5 s) on that first answer?
 
-HID: logitech-hidpp: Synchronise send_receive_buf against raw events
+Yes. v3 resets rdm->fails when the keyboard answers after
+RDM_MAX_FAILS silent polls, as v2 already does while the dongle reports
+no link, so that first answer is retried after RDM_RETRY_MS.
 
-This commit adds a spinlock to synchronize access to send_receive_buf and
-answer_available between __do_hidpp_send_message_sync() and
-hidpp_raw_hidpp_event().
+Erlend
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 60fc6b86a0857..6c95c4bcdd42f 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
 
-[ ... ]
 
-> @@ -4125,27 +4136,33 @@ static int hidpp_raw_hidpp_event(struct hidpp_dev=
-ice *hidpp, u8 *data,
->  	 * previously sent command.
->  	 */
->  	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
-> +		unsigned long flags;
-> +		bool matched =3D false;
-> +
-> +		spin_lock_irqsave(&hidpp->send_receive_lock, flags);
->  		question =3D hidpp->send_receive_buf;
->  		answer =3D hidpp->send_receive_buf;
-> =20
-> -		if (!question)
-> -			return 0;
-> -
->  		/*
->  		 * Check for a correct hidpp20 answer or the corresponding
->  		 * error
->  		 */
-> -		if (hidpp_match_answer(question, report) ||
-> -				hidpp_match_error(question, report)) {
-> +		if (question && (hidpp_match_answer(question, report) ||
-> +				 hidpp_match_error(question, report))) {
->  			*answer =3D *report;
+On Monday, November 23rd, 2026 at 17:03, sashiko-bot@kernel.org <sashiko-bo=
+t@kernel.org> wrote:
 
-[Severity: Critical]
-This problem wasn't introduced by this patch, but can hidpp_raw_hidpp_event=
-()
-read past the end of data [1] when an undersized HID++ report arrives?
-The function casts data to struct hidpp_report without validating the size
-parameter, so matching and copying *answer =3D *report unconditionally reads
-sizeof(struct hidpp_report) bytes from the incoming buffer, and the
-27 MHz encryption-key check further below likewise reads data[0], data[2],
-and data[3] without checking that size >=3D 4.
-
-[1] https://sashiko.dev/#/bug/linux-f6721ec8-6f81-400f-a691-6d48de7fd9b5
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123155138.2907=
-049-1-lee@kernel.org?part=3D3
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Low] HID: rdmctmzt: 60s retry delay in rdm_battery_work() on first
+>   answer
+> --
+>=20
+> commit db1494c514873abbd1e68abaf2e2c2ff69742269
+> Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+>=20
+> HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+>=20
+> This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
+> dongles to poll battery status over the vendor raw-HID interface and
+> report the dongle's wireless link status.
+>=20
+> > diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
+> > new file mode 100644
+> > index 0000000000000..cad89c22577d4
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-rdmctmzt.c
+> [ ... ]
+> > +static void rdm_battery_work(struct work_struct *work)
+> > +{
+> [ ... ]
+> > +=09if (!linked) {
+> > +=09=09/* A keyboard that comes back starts with fresh counts */
+> > +=09=09rdm->silent =3D 0;
+> > +=09=09rdm->fails =3D 0;
+> > +=09=09wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
+> > +=09} else {
+> > +=09=09rdm->silent =3D answered ? 0 : min(rdm->silent + 1, RDM_MAX_FAIL=
+S);
+> > +=09=09rdm->fails =3D got ? 0 : min(rdm->fails + 1, RDM_MAX_FAILS);
+> > +=09=09if (answered)
+> > +=09=09=09wireless =3D USB_WIRELESS_STATUS_CONNECTED;
+> > +=09=09else if (rdm->silent >=3D RDM_MAX_FAILS ||
+> > +=09=09=09 rdm->wireless =3D=3D USB_WIRELESS_STATUS_NA)
+> > +=09=09=09wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
+> > +=09}
+> > +
+> > +=09/* Without a link the dongle reports when it comes back */
+> > +=09if (got || !linked)
+> > +=09=09delay =3D RDM_POLL_MS;
+> > +=09else if (rdm->fails < RDM_MAX_FAILS)
+> > +=09=09delay =3D RDM_RETRY_MS;
+> > +=09else if (rdm->dongle && rdm->silent >=3D RDM_MAX_FAILS)
+> > +=09=09delay =3D RDM_SEARCH_MS;
+> > +=09else
+> > +=09=09delay =3D RDM_POLL_MS;
+>=20
+> [Severity: Low]
+> When a dongle keeps linked =3D=3D true while the keyboard is silent (such=
+ as
+> bcdDevice 0x0102 reporting link byte 0x00), three unanswered polls leave
+> both rdm->silent and rdm->fails at RDM_MAX_FAILS.  If the keyboard then
+> connects and answers RDM_CMD_START without returning a battery status yet
+> (for example, refusing with 0x0f before measuring the battery),
+> rdm->silent resets to 0 while rdm->fails stays at RDM_MAX_FAILS.
+>=20
+> Does delay then fall through to RDM_POLL_MS (60 s) instead of
+> RDM_RETRY_MS (5 s) on that first answer?
+>=20
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-b4-rdmct=
+mzt-v2-1-8c18d7dac4bc@pm.me?part=3D1
+> 

@@ -1,102 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795423644;
-	b=OUd+bzutIVic5AFwLasBgHRh0e8D3FWZze8S0Ps+ITndm0VZ2lTtFztMbFhAWTVhNv+P
-	 JUG40u3kkvmA1z8RU75Kfg28ulxlKk+esI4b2+Rcke3IQrDX66q9XOggpE9WrfyN+LUFc
-	 eY+89124e8SBAg0XaPdMmjMQwFG3cSBiokR5VCZ/VsVz2k3W4+Bfbvl4WcIvZNyocppL5
-	 vlFL2b7F8znvdTpMBf71nLaTS6FnBp8a93h79fZma9eaDhmXX0QTsx8MfsW9MtmTrXPqq
-	 c66wPyeo3OrjXLu+K3+fEzg30X/LnEtKBAhtfywmYCye/INNBc3avaVgd0M9GXYFXfQ==
+	t=1795423711;
+	b=K2ShcKP8q8smgBM3l19VZ2S6rHNb60/LLQalXlwqjBO0HgiqA/uSDYIQsoXACLON6D9I
+	 nbPbk13/l/K68dwRt+P2uZByp1xLaXZ6YcysSmakdcmdXtmCaTxS9Cd9Le/qnJz+/20aE
+	 1AiHZMp6JfzTgRJQBPKxcrfwSicV9rz9AM6Mtg7/rf4LlrEV+UzMUyeRVG4jQ0RzRR3uP
+	 lDe4FMS/nizMvx5EKjAjmMyRKSNcv2niF+8ARyCqeKfyL1UrvZCNa45yGQFO72IsK6ip6
+	 wW7Bt9KQK+rZL8IKQVG68Or5felf4s8mFv76U+CVajIWRITI36voNTlvmXObBH9g3UQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795423644;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:Content-Transfer-Encoding:MIME-Version;
-	bh=a9avre7WPVBTm+1ssGfTak2MnTio6f4/ruqgmNL/TRE=;
-	b=TTnqhStMXcFQsY9Fd+7xFeqX7gbwEBB9bMjtcFWBWJS/ISlD5grFRxHtNsCG7OOKzQHH
-	 thptkgtn8rqemIE52jL90o66EQB2FuIeRinLV1z2t9grtSDwasdnegzIQWyQSvrzKKGg6
-	 UCawaRBcQppeLqP297K06K3UMgST3FWJwNLEdxJ2EpBPptQxAlEIyjiltEliC7nEwewrp
-	 zqJ3EkjiuVzdusbcvjH4YUbGsxby9TJ8PmRghNy6PaIWO7SDRhg7mrz7j9W9SPQyTwZwf
-	 A/X/M9fROid1fllNc2UiI8pj9Bsh27VqQiLr4C1zML42E+PtE8D6ya+4I8RMTIwXP/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795423711;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=nwKJl00tpwdLLtoEZ27UPU0xq2dCJMGiy6FAFfkNDtk=;
+	b=HSK0AOq3pSTvrRchOmhfYhTICWCHry2XCcgg+F1YU5YTgEKpc8nwRTNQ1DGmWSgTUoPQ
+	 nnQ80vpmHFzqGU+ydBB7D9A2N+TuGtVwKYYRIrLS8nN9ionZHXqCFB37QqwaPc/dbKPa0
+	 V2iystWCo5xQWDIgGdUHwkXfNfvhjqbGCJNuLIJ5SPU4zE0bIQfKcij0EE8vU5hkvrST9
+	 OgpOilLgkiAcQr1BVwjfzvsXBrNVTEldxjQtNBzI4NgdtA6rBvxrec71VzZGVOtNltkCR
+	 Bnn1PLcRWIvhHgd8Tt7Pm64hFsMHbPXtsKgbMzs7QMJDutdAeLy54DhljVtuJ5R/paQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QEWpBz0U;
-	arc=none smtp.remote-ip=209.85.216.41
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Z/hgRgEi";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19FA4606A32A
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 08:47:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19FA4606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3575606A31E;
+	Mon, 23 Nov 2026 08:48:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QEWpBz0U
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-3b10ca4e3f9so1468570a91.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 00:47:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795423643; x=1796028443; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=a9avre7WPVBTm+1ssGfTak2MnTio6f4/ruqgmNL/TRE=;
-        b=QEWpBz0UF+1mc1fKVDkphV8Vq4Od5PrcQOIScdeTZwTHzNVAeyUZ7atmbcZwDRSx5C
-         N9BE3MswpXI2ysrY0V0pC+iuFUgXVGkjHCcJZDhk/J3TfM5WJPkPVU1sdHjuMkm93WoD
-         4wnmZiMs/Tj0led+OWYVnQfjkFsVsDw0SSpyr9gK7Kxr1fgpqa4VD7KGk1iblYk27dfV
-         bx69GBVCacNwq6JbAY8ZKc1kQytU15PmLYTEWqSF8MJrqyy8pJwad8dcqj22RWS76bTg
-         W7ddBTGFIvgJcat39+CKHAyp+puat+bN1IEcW5U9ibMNVNbanKAKvpOLobUxkD9/N9YE
-         uAGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795423643; x=1796028443;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=a9avre7WPVBTm+1ssGfTak2MnTio6f4/ruqgmNL/TRE=;
-        b=snDBQVHUc4VF+LKjrp4shj6R/YWGm7Izc341XskcrEn4gm50sJ4LS2AiXFhX9zdO6x
-         rJVmdiKIsXzG3f6cCDXfPVJMnwyZ6H1Aua/dOZSTcizZx8SzoPKRPKsBNtysYshULD8K
-         bMrA0VLlJb+GUtLv69STff2PB1yTP1rMEN1cobg0H6m2Mc9DzfhSRX2GQFpsRhsaVFuv
-         LXulaIiivXClo5+GVLFSO4gRYUTU3vnmP3aqYNoIxvyHbgHz4I9Oz/m3fS+3OiHipTHQ
-         C9tOu73HerXsZ0qU7bKwSrdW5ZSgNltZtLLA14JfbvKfPjoOLrBvZ+I5TXPc6DSrv7M/
-         34tg==
-X-Forwarded-Encrypted: i=1; AL+hErHGpKdUl6/bFXzs3hEVVY+gOdnSrOVFzni8NERZVfnWkXr/TaIapsPnM9RtU6V3X8f+u1GShs0jLPp5rw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/CDYUs8XR05ycKpKeV1onHfQNqP0l3aVFHYisdhn2sX7GCFuRG
-	oGbVDMn89n+/yCenbDecNhzsBRdpg/lrGkz3l4KiUjy6epma4hYGGgkJ
-X-Gm-Gg: AZFdTZf7oS+aeR1zN5+Ykm3tKzRCWicqIypgWBKoroZ87fdwKYui/MbTKKQ/22Qmuem
-	FvNYv8NzTK/CLb1P/MgsWNBahe7KKVGhQna3YeLmXjB5/ezb6uMTNfUa3Vnd4dYi9ms9H7WLucg
-	dOBulHCX1owrpreyyVqwP5i1q6nxHm1OVIaIqC/y+GJop59dR4EYEuZhguaLSxr/4govTGV7NGc
-	JqWeNsTc1oF7gwe63TsXdp9HK+HBaHgTMK8UFt9oWoeP4zea/DuPEBFcex9qBtwJILaitL/3b/l
-	9KTwuake4wMQgwGhIE/9ioSOsF14lppHHzOis6GVKD7adgWYmTxJ58cx3biduJe+auJlN7wMasG
-	+tCgTt3RWEX++VJYjel9HdmX1sjORQMR+OjT4OUglyN5ydELBwEWryKBlKdF7/KDEuSUshNy49D
-	h6oLg12eN0OO+64DOj8bC7q+vf5OObuIV/lK0aH1pxBSBYX6S9WJYycGdzFVoGRtD0z3Fonu6Kt
-	/WhKiMt81FMgAf3fdvevtRxF2VIb3nPO3XWIWvtmqJbAaIT6zJpxJ3k92elsDv/pM2CqxZzRIQJ
-	lTVo5548Oph3xxpmOquHSTqMZJsbvbgfguRuXZzN/FUITq/j
-X-Received: by 2002:a17:90b:1cc4:b0:3ac:ffb8:1809 with SMTP id 98e67ed59e1d1-3b41caea9e3mr8391385a91.39.1795423643465;
-        Mon, 23 Nov 2026 00:47:23 -0800 (PST)
-Received: from [169.254.42.106] ([113.200.174.114])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b40f4312dfsm18558082a91.3.2026.11.23.00.47.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 00:47:23 -0800 (PST)
-From: Zheng Shuhao <viennaoffh@gmail.com>
-To: Ayaan Mirza Baig <ayaanmirzabaig85@gmail.com>
-Cc: kapoorarnav43@gmail.com, jikos@kernel.org, bentiss@kernel.org,
- srinivas.pandruvada@linux.intel.com, jic23@kernel.org, lee@kernel.org,
- heiko@sntech.de, lixu.zhang@intel.com, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
- syzbot+fb951970a334aaff00ba@syzkaller.appspotmail.com
-Subject: Re: [PATCH v2] HID: hid-sensor-hub: avoid lock inversion in
- sensor_hub_remove()
-Date: Mon, 23 Nov 2026 16:47:15 +0800
-Message-ID: <179542363584.4684.890797902249469950@gmail.com>
-In-Reply-To:
- <CAJi8Lv-orD3VA1NJ71L1Qcw6=AWuBZesVFOHe5Y+bwzWxT8KRg@mail.gmail.com>
-References: <20261120210317.184756-1-kapoorarnav43@gmail.com>
- <179526830578.567.7445109567862298713@viennaoffh.gmail.com>
- <CAJi8Lv-orD3VA1NJ71L1Qcw6=AWuBZesVFOHe5Y+bwzWxT8KRg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z/hgRgEi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2851F000D0;
+	Mon, 23 Nov 2026 08:48:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795423711;
+	bh=nwKJl00tpwdLLtoEZ27UPU0xq2dCJMGiy6FAFfkNDtk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Z/hgRgEiZXH+GOjsznrUlAcd6Pq3ZE9bvNHbRTtnKCtfArV9H03FPjlty2mJMcajD
+	 lZ+Kh/YIrpgPzhxkovGb5ALDef929PqUA0FN9yYlFoQfsfx6MpH2vb3Hra94LSuKDv
+	 Oc7d0+Bnj+FAKnSpmr+qeMZdWy/kcR7iG0Amyecekdaz8Z9EaVwaZzUrT1BZprNH0N
+	 JsxCafbmVxsZHsoqGJgpF4SnBvEWVd8bg+GKEBXl8NkH0vXo+ty6xBn3Z8/m30TTnh
+	 vC1NTr9+Q7HLpP63seG2GKsN0DbomgBATQ6/MmmhVSOBDlyD+BaB9/pGvJhZOvQRLj
+	 5/x8iK+NXxdlQ==
+Date: Mon, 23 Nov 2026 10:48:26 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
+	dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v3 09/31] USB: Pin modules for unregistered interface
+ claims
+Message-ID: <20261123084826.GJ14811@unreal>
+References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
+ <20261118-device-trust-core-v3-9-d655875c4bfb@nvidia.com>
+ <sashiko-outbox-223895@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,34 +60,85 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sashiko-outbox-223895@kernel.org>
 
-Hi Ayaan,
+On Thu, Nov 19, 2026 at 07:29:27PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Medium] usb: core: premature claim_owner release in
+>   usb_set_configuration()
+> --
+> 
+> commit afd725f56c3717b2e1f97538c7c8fdee117c4deb
+> Author: Leon Romanovsky <leon@kernel.org>
+> 
+> USB: Pin modules for unregistered interface claims
+> 
+> This commit pins the owning driver module in struct usb_interface.claim_owner
+> when an interface is claimed before registration, and releases that reference
+> upon interface registration or claim teardown.
+> 
+> > diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> > index 0a6fdf2e88f4e..b7bd9226d2627 100644
+> > --- a/drivers/usb/core/driver.c
+> > +++ b/drivers/usb/core/driver.c
+> [ ... ]
+> > @@ -619,6 +634,7 @@ static void usb_unbind_claim(struct usb_interface *iface)
+> >  	usb_unbind_interface(dev);
+> >  	dev_set_drvdata(dev, NULL);
+> >  	dev->driver = NULL;
+> > +	usb_put_claim_owner(iface);
+> >  }
+> >  
+> >  /**
+> > @@ -653,6 +669,7 @@ void usb_driver_release_interface(struct usb_driver *driver,
+> >  	if (device_is_bound(dev)) {
+> >  		device_unlock(dev);
+> >  		device_release_driver(dev);
+> > +		usb_put_claim_owner(iface);
+> >  		return;
+> >  	}
+> >  
+> > diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> > index e56079398d26e..306978caaf1ef 100644
+> > --- a/drivers/usb/core/message.c
+> > +++ b/drivers/usb/core/message.c
+> [ ... ]
+> > @@ -2269,6 +2270,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+> >  	 */
+> >  	for (i = 0; i < nintf; ++i) {
+> >  		struct usb_interface *intf = cp->interface[i];
+> > +		struct module *claim_owner;
+> >  
+> >  		if (intf->dev.of_node &&
+> >  		    !of_device_is_available(intf->dev.of_node)) {
+> > @@ -2282,12 +2284,16 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
+> >  			dev_name(&intf->dev), configuration,
+> >  			intf->cur_altsetting->desc.bInterfaceNumber);
+> >  		device_enable_async_suspend(&intf->dev);
+> > +		device_lock(&intf->dev);
+> > +		claim_owner = xchg(&intf->claim_owner, NULL);
+> > +		device_unlock(&intf->dev);
+> >  		ret = device_add(&intf->dev);
+> >  		if (ret) {
+> >  			device_lock(&intf->dev);
+> >  			intf->unregistering = 1;
+> >  			device_unlock(&intf->dev);
+> >  		}
+> > +		module_put(claim_owner);
+> >  		if (ret != 0) {
+> >  			dev_err(&dev->dev, "device_add(%s) --> %d\n",
+> >  				dev_name(&intf->dev), ret);
+> 
+> [Severity: Medium]
+> Does clearing intf->claim_owner before device_add() and calling
+> module_put(claim_owner) unconditionally drop the module reference too early
+> when device_add() leaves a pre-claimed interface unbound in the driver core
+> (!device_is_bound(&intf->dev))?
 
-OK, I think it would be better if you sent v3.
+Yes, the complaint is valid. Triggering this race requires root
+privileges, but that's fine. Let's fix it.
 
-Thanks,
-Zheng
-
-> Hi Zheng,
->
-> I'm fine with merging the fixes into a single version. I've just now
-> read the other mail thread.
-> If you can, please send the v3; else let me know and i'll do it.
->
-> Thanks,
-> Ayaan
->
->
->
-> On Sat, Nov 21, 2026 at 7:08 PM Zheng Shuhao <viennaoffh@gmail.com> wrote:
-> >
-> > Hi Ayaan,
-> >
-> > Hmm, I overlooked the latest discussion, which caused some overlap
-> > between our patches. Sorry for the confusion.
-> >
-> > We can merge the fixes into a single version or find another
-> > compromise. Either way works for me.
-> >
-> > Thanks,
-> > Zheng
+Thanks

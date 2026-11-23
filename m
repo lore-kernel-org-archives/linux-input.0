@@ -1,79 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795448835;
-	b=P6Rw/IMoLB9xY8lFC8b9smJZ94sMxE09rT8akA/zSPUKEbm3lWmssNWEZPgPvdUlQLl7
-	 XOxzaHdMGrHy4eB+b/s5mlTBLqktrMMMABe3KeUd1FKnWa1v54z7obuYsir40rth3nzwd
-	 7RnUNIfRIv7cwUI/2smpIP9IT84uX650wtDtD3Dk5ags/8ad4WQCJxke3vPpgGLCbJ+RZ
-	 mJGdj1J5uBl+bry6dboHHKsQzthw51MxU67GPWoJmdNTdOKtBCdu3HMfO+7qsbmnuDy39
-	 5LA1BoJdSCClPYsa12NIsrmslX+OfScWV4i42F2wiRx8NHVfkVc4pJhClg1CZrgo5Ew==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795448835;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=w6GSaQZ1YWPu7r01oRscCvKngFyipxtXhFF9Dl0tkUI=;
-	b=dk4YLJx/aJ05CMOM/iyhYu8LUrAnE7u3S+8cF458TyAk0A0K1vwfDVcwigKkB7NR/Iqx
-	 KNomcjWhDBnSp8TTRO09P/uq9Uth8gpqBMEIXFVVeDGvHi/SR+TGdTnVreLUBehKM5Ks1
-	 aGmRc6pKi1AToXMvgFd6F9GN4JzOW8oe/E5spw/Gd/fROTVCAA5zh4hAFIp6tlSSc9EbZ
-	 gfgI0C9TIiuKZQKOX3aPPnSFT1IqytQ8UUmIXxYjc/kKXkETCbxApZQ7HspuHeqyj/YYO
-	 rAwGNz1BkeQXSqq1rHftH2WSW7itqKccvVf6pVTcLP5F90dsoFySsFOSjDuq+3jV7dA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ImKEQIYr;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65A83606A31E;
-	Mon, 23 Nov 2026 15:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ImKEQIYr
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795448834;
-	b=XnYBIAURtWhMH4hN41KCeocIyp3iW0jlycJmYCmQ9a//s9J0fJ+kUZ2D1bLWdY5sWDVb
-	 0wAEQQM8bcrOYRoSjSdAZVc7nl9oWoc4dte4NfJwTu9c/zYRzMxJxccczXjhBVrQccDLw
-	 QpY1qCAqGPR5mZjRrLkHL730ckwONT7QM5LI4J9zVmigzJpFBPwCDT/syd6c12QH91sVF
-	 7QaK9WSXDR6M67VopRGAi86Q1cWGqdxXV3IY/VsYdxxZFLHHka28SA1MRjwkJTUqZpLKT
-	 0KD1GDXVCef1T0hs8IVrjxH2xuUfzWv1geN33LYiX7mw82aXTso+rxYwAebOw75MUyg==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795448834;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=w6GSaQZ1YWPu7r01oRscCvKngFyipxtXhFF9Dl0tkUI=;
-	b=vPDm2zVwrKLh7HCN6F1wrnqOXQjmoihFxpnrsbeNB+vf2dCEhekwP+nWp+w00YtgMaVy
-	 tH/Y6Iq0gp88/EeDti2ETionhuqFg8oTi6zRYCuvN/yCEBNyqr5tsWU9hmH2bDtk2sfaJ
-	 SulJtrhDVEOEKojxaZ1hV9Shjf4Vq+kP8tPcws81D1J9oj9+u7DJ4xZZMnOya97dM6iYs
-	 6UcHaRsewsEaTYuO6+x7EtHfXguMa9o1fI1xRC7zwstGp2E/NcR7gWYs7pfwpE+Q0Cb9T
-	 PrwafwOjkz8h0kZ4sk9L78fbqFmcgzcrB9oGSukIdk50HQY3A7skVaXMtOPNYjM2pYg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.17
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795448872;
+	b=ODzoiKSWDAIRj+CAE7cVWbzFZXpS8VK1F97P2aFS+aOYvyM/O2DPA4cYwzMsStkdXNTX
+	 Rnc5spuNfp21WWmZlkd36Q38NAKbWsVCVFHdnoM9/QGPNYAPZ4ikskW9SBKc4WB4wDOkE
+	 c1p7a4wTZOpKPoAHf9XdB4LQIuQFgkbptbQeaPDwAa7NrCO2Ij+47JreAoSQfm4nOiS1Y
+	 30OShdzzsyi4QCjl5kiJSaq8EVJP2Q03IZGQbaaOV7p4eDzW8NXpdSQn4BqZ4UQC6vQ4a
+	 1O7QAsQl4Wxw/mU1t5XP6AAf5mWbBLJGgO01RORx7C/HeTtIMHr1JOpJXtoVWeYap2A==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795448872;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=Sxme6riOmitdd/D4oIIp+QdlkQ7Ium7Vb6++P08XVEc=;
+	b=V6ll+OIbY0+uAbg5Wrwtmd399vkfxsBw9ZuH+8YCiVQ4YvkJW5k+OYscPTsvRBkQMC8P
+	 w9FAjT0tFog4o0dN/TUjnPzncQfrVkH2yRcXWomp5vMuzZYGwXY8o44MppyaXFYLK6JQd
+	 uJz0IGjepEUM6HaN8EQ4KadlvM5KT6ljiT3ohvtBRdZ1jAHcNbxtJnGL4kv3SXMD2pUAP
+	 1ZFF1x/5lSo8dzLp38qhPeEvOqttASc0fSOApU43QFtSu5YSPtYScVBQM4ACxQhenSwiO
+	 Zpvfr62uSRXn9ABlDza5QXNCtmj/rohUc7ZBhrWTypLVdXDG2+bHI9kbyAxJFgNLhJg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b="jPVS/347";
+	arc=none smtp.remote-ip=109.224.244.17
+Received: from mail-24417.protonmail.ch (mail-24417.protonmail.ch [109.224.244.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 12CE51F000D4;
-	Mon, 23 Nov 2026 15:47:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795448834;
-	bh=w6GSaQZ1YWPu7r01oRscCvKngFyipxtXhFF9Dl0tkUI=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=ImKEQIYrYNyjnhpEsdUJ1WTKWXXvvYLRL9g217ZqLAF3wcODuw6gZx0ne6lPDpXzP
-	 O/QSeLo2UF5uQ+Zt22cOKzHz0hFvbgTp42/4yPGQAedITdhiskQdRORf89ej4e5DXl
-	 kYbw+P1GeuElVH+XD5qBf3dOgka5xjwbZIcWMFo0kzfWv60D2U9CW3RXHqrRlAQQr1
-	 rHTT1JywTsQXAYzADo8plqC8kuFSlbgVcBi929xN1BDycfbOF+dJIEfJndfepAhPnu
-	 FgDun8ecII1o9Kn7fr0hzulbfZl1lVlIAB1NDmYb4iAXODhlfSndNTpQSG4CLw6CR0
-	 WyvAwDBT5J0Qg==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 6437C4C535;
-	Mon, 23 Nov 2026 15:47:03 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Mon, 23 Nov 2026 16:47:01 +0100
-Subject: [PATCH v9] arm64: dts: qcom: sdm845-google: Add STM FTS
- touchscreen support
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35197606A31A
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 15:47:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 35197606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=jPVS/347
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1795448869; x=1795708069;
+	bh=Sxme6riOmitdd/D4oIIp+QdlkQ7Ium7Vb6++P08XVEc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=jPVS/347IrIWLHKWBdXz7gUhrjzvQbtCFy95+UuGoV80C7jlrUST1sRUH+4fU8DR5
+	 uAzZpHE2ZB0YC0LxOzMbsZEoeUWof2EyZRUZxdRDgf1keoenVm5AuTmrC3qhpnH97T
+	 wtvw0/YSAwbMfdbsNBMCJKzVCa0Gm1aspboF1dmpbdpn6D268yUYEm78L84lwg+vo7
+	 FZKLgPHG2+14djl9FBjfgDH68nwPtmQtxEKL/Sad5FzpjLHUYyOGOeMd4cLSKuJrNQ
+	 v9Nwbb5Vo7cfr+T+szfZB3Wt074PZyEl5gSMeQ50QmtRhERiIeKF1QxFDmb0sG34GH
+	 7gfipNs6QEJ4w==
+Date: Mon, 23 Nov 2026 15:47:45 +0000
+To: sashiko-reviews@lists.linux.dev
+From: Erlend Jacobsen <erlendjacobsen@pm.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+Message-ID: <n7p9VNimdc3xx8VRUl1TSM5nXeabeiKke7akTR6m6222F0B7bbhPzUa1YI2QwFIxHoiHP7n2csrJECs1M-mT6JcQtaoh-fyevF7qgqjgpu4=@pm.me>
+In-Reply-To: <sashiko-outbox-228283@kernel.org>
+References: <20261122-b4-rdmctmzt-v1-1-d45883e1fe33@pm.me> <sashiko-outbox-228283@kernel.org>
+Feedback-ID: 128302180:user:proton
+X-Pm-Message-ID: 4a443b90599a4db757be5d5508b1a347ce8e9400
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,237 +64,201 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261123-stmfts5-v9-1-3ab247cd32c0@ixit.cz>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/13Qy07DMBAF0F+pvCZoPH6MzYr/QCz8pF7QojiKC
- lX+HadIOMny2nOuRnNnNY0lVfZyurMxzaWW66UF+3Ri4ewuH2kosWWGgBqQy6FOn3mqavCSBOf
- ZRxLI2vTXmHK5PZre3ls+lzpdx+9H8czX178OAfy/Y+YDDIhBKuOtC9q8lluZnsMPWxtm3Ciuu
- sKmCHwwIiWrLN8r0ZUE0ZVoSkVH2oQcEQ5KbpXtSjalZU66fVH0aq9UV4ZDV6opCCQoWrSW9F7
- prizorvS6IWSftcuG+OEatFXUFTUlnRLC8BBBHJTZKNzc0Kwb5pClTRiMyl0ty/ILzIIP/RYCA
- AA=
-X-Change-ID: 20260214-stmfts5-b47311fbd732
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
- Abel Vesa <abel.vesa@oss.qualcomm.com>, David Heidelberg <david@ixit.cz>, 
- Abel Vesa <abelvesa@kernel.org>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7114; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=BZ0jNhMewCco0W3GXqptMNj2qzAX+JOz+BtCMJgBCLQ=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBrBF/2l+atC2bSO1qox+encpqS3x3oTwbR9q7P1
- lPMQNUewEOJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCawRf9gAKCRBgAj/E00kg
- ckQkD/wLWCfHtUy1Alv7HMK0uwsEWGQx7am6tJx3Xevd6TXHu3eW0yb3UPBFvEVDMTnrw9I/7uJ
- L0pvQj0EKAPLLRxfF+IOpYfOgYae/siKX3/Ybq76Rna6oxqBnjrroXC87AJG3iDyykB+SWKME1i
- WGfOJ2eBYx6G0rVwP3p17VwH4SGe9KgLZdAN7vpyGxJHJkHTXUqaqWhDD2wYLxLh579ro/0OZsp
- TD/LdMuqnPsRpEC3YyQ5x8fwOipEe5iO8X6eGEgFpqe8O/fb5c0vwV98VjJMe42HoDHeJmEKCaM
- ymOPyKevexWYrQIeiMCnaVJtFEDuCE16SBNvAzvR1EK4qtanVjpJITPPcM2GvemKy++TJNtuv5Y
- 3tu9ezw9RmJPjfBcgs9kWixfwqe7QaMUJjxBdp+9uMkox4JqZ8YyBBumsMNbjs/+bDxpr2KkOZz
- FDArT1MI5ZMB3CIE6ATcYP9uq0eFRuMA02JK1U+tuFtpHVBzTEJ7GtLyerNIkyihM3t7T6WDh40
- SIoguFUqZgc0iqC2/ZQmtIUAmeV8v02DP9EiLOM8SfMcSpxf1NIFZqz0+WRfDHmalyupW33H7OE
- fDVlfEFPWnTyeH5hYzC+LJrnlwTU7uiFj9tL2JGzxekvqCkbNhbxdZn10u45/XHepZ0/wHcuW8E
- F87mQ3iaVyufD/Q==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-From: Petr Hodina <petr.hodina@protonmail.com>
+Thank you for the review. Both points are addressed in v2.
 
-Basic touchscreen connected to second i2c bus.
+> [Severity: Medium]
+> Can a runtime USB reset stop rdm->work permanently when usb_submit_urb()
+> returns -ENODEV?
 
-Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
-Co-developed-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
-Changes in v9:
-- Only Device-tree patch remains, rebased against next-20261120.
-- Link to v8: https://patch.msgid.link/20260925-stmfts5-v8-0-0fcf49e2c85f@ixit.cz
+I don't think a reset can produce -ENODEV here: usb_submit_urb() returns
+it only while dev->state < USB_STATE_UNAUTHENTICATED, and a reset moves
+the device through USB_STATE_DEFAULT and USB_STATE_ADDRESS, both above
+that. The only way to get there is USB_STATE_NOTATTACHED after a failed
+reset, which usb_set_device_state() never leaves, and the disconnect
+then calls rdm_remove().
 
-Changes in v8:
-- Split DT binding example changes into own commit (Krzysztof, Dmitry)
-- Refectored the stmfts_power_on fix. (Dmitry)
-- Added ABS_MT_TOOL_TYPE. (Dmitry, Sashiko)
-- Link to v7: https://patch.msgid.link/20260907-stmfts5-v7-0-4a53381cd038@ixit.cz
+Still, v2 makes the rule simpler: the work now ends only on -ESHUTDOWN,
+which rdm_command() returns only when rdm->stopping is set. Any error
+from the transport, -ENODEV included, counts as a lost poll.
 
-Changes in v7:
-- Added 'Input: stmfts - wait for controller ready after reset',
-  the waiting is done for both FTS4 and FTS5, similarly to the
-  downstream driver. Should improve reliability everywhere.
-- Link to v6: https://patch.msgid.link/20260906-stmfts5-v6-0-50fbf6af8718@ixit.cz
+> [Severity: Medium]
+> Does a stale rdm->fails count after the keyboard reconnects delay the nex=
+t
+> retry for RDM_POLL_MS (60 s) instead of RDM_RETRY_MS (5 s)?
 
-Changes in v6:
-- Enable only the multi-touch scan on FTS5 sense-on (0xff was wrong,
-  only 0x01 is needed. This broke Xiaomi Mi 8 toucschreen).
-- Fixed Y-coordinate comments. (Dmitry)
-- Corrected event[0] parsing. (Dmitry)
-- Dropped checking < 0 on unsigned area. (Dmitry)
-- Dropped unnecessary i2c writes after reset. Verified against
-  downstream driver. (Dmitry, Sashiko)
-- Added pieces for supporting non-OF integration. (Sashiko)
-- Shared input open/close into one impl. (Dmitry).
-- Link to v5: https://patch.msgid.link/20260810-stmfts5-v5-0-0c737d929976@ixit.cz
+Yes, that is a bug. In v2, fails and silent are reset to 0 while the
+dongle reports no link; the battery is already marked not present then,
+because of the linked check. A keyboard that comes back is retried after
+RDM_RETRY_MS. Tested by switching the keyboard off and on through the
+dongle: the battery was back at the first poll after the reconnect.
 
-Changes in v5:
-- 3.3V is analog, 1.8V is digital supply. Fix that.
-- Name the error variables "err" (Dmitry)
-- Use scoped_guard() for ->running, and only set it once the scan
-  mode has actually been enabled. (Dmitry)
-- Use i2c_master_send() instead of open-coding a single-message
-  i2c_transfer(). (Dmitry)
-- Drivers may report coordinates outside the declared min/max, so
-  remove the clamping. (Dmitry)
-- BTN_TOUCH and INPUT_PROP_DIRECT are already set up by
-  input_mt_init_slots(..., INPUT_MT_DIRECT). (Dmitry)
-- Let the input core track contacts: drop the touch_id/stylus_id
-  bitmaps and the hand-rolled BTN_TOUCH reporting, and sync the frame
-  once per interrupt with input_mt_sync_frame() instead of calling
-  input_sync() per contact event. The controller pushes contacts one
-  by one into the event FIFO and only resends the ones that changed,
-  so INPUT_MT_DROP_UNUSED is wrong here and is dropped as well. (Dmitry)
-- Restore the FTS4 interrupts accidentally dropped by introduction of
-  FTS5.
-- mode-switch-gpios isn't required with stmfts5. Some designs, such as
-  Xiaomi Mi 8, has no such GPIO connected and is limited to AP mode.
-- Nit: updated example to use interrupts-extended.
-- Nit: (maximum x/y coordinate reported + 1), corrected example.
-- Link to v4: https://lore.kernel.org/r/20260409-stmfts5-v4-0-64fe62027db5@ixit.cz
-
-Changes in v4:
-- Wrap everything below enabling the supplies into stmfts_configure()
-  to avoid bunch of gotos to power off on error (Dmitry T.)
-- Finished chip specific ops and removed is_fts5. (Dmitry T.)
-- Link to v3: https://lore.kernel.org/r/20260403-stmfts5-v3-0-5da768cfd201@ixit.cz
-
-Changes in v3:
-- s/touchscreen_pins/touchscreen_irq_n. (Konrad)
-- Use interrupts-extended. (Konrad)
-- Fixed rebase conflict against 8665ceb926ec ("Input: stmfts - use guard notation when acquiring mutex")
-- Rename switch-gpios to mode-switch-gpios.
-- Do not define properties in if:then: branches. (Krzysztof)
-- Link to v2: https://lore.kernel.org/r/20260315-stmfts5-v2-0-70bc83ee9591@ixit.cz
-
-Changes in v2:
-- Fix typo in the binding s/switch-gpio/switch-gpios/.
-- Deduplacate allOf. (Rob yamllint)
-- Add missing S-off-by. (Dmitry B.)
-- Dropped irq-gpios as it's not needed. (Konrad)
-- Correct x and y touchscreen area size. (Konrad)
-- Correct reset introduction commit description. (Krzysztof)
-- Partially implemented chip specific ops. (Dmitry T.)
-- Separeted license naming cleanup into separate commit (Dmitry T.)
-- Link to v1: https://lore.kernel.org/r/20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz
-
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-To: Alexandre Torgue <alexandre.torgue@foss.st.com>
-To: Petr Hodina <petr.hodina@protonmail.com>
-To: David Heidelberg <david@ixit.cz>
-To: Rob Herring <robh@kernel.org>
-To: Krzysztof Kozlowski <krzk+dt@kernel.org>
-To: Conor Dooley <conor+dt@kernel.org>
-To: Henrik Rydberg <rydberg@bitmath.org>
-To: Bjorn Andersson <andersson@kernel.org>
-To: Konrad Dybcio <konradybcio@kernel.org>
-To: Abel Vesa <abelvesa@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: devicetree@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org
----
- arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts | 19 ++++++++++++++++++-
- arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi  |  2 +-
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-index a000c75494f1c..f65263955229c 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-@@ -21,17 +21,34 @@ &framebuffer0 {
- 	stride = <(1080 * 4)>;
- };
- 
- &i2c2 {
- 	clock-frequency = <1000000>;
- 
- 	status = "okay";
- 
--	/* ST,FTS @ 49 */
-+	touchscreen@49 {
-+		compatible = "st,stmfts5";
-+		reg = <0x49>;
-+
-+		pinctrl-0 = <&touchscreen_irq_n>, <&touchscreen_reset>;
-+		pinctrl-names = "default";
-+
-+		interrupts-extended = <&tlmm 125 IRQ_TYPE_LEVEL_LOW>;
-+
-+		mode-switch-gpios = <&tlmm 136 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
-+
-+		avdd-supply = <&vreg_l19a_3p3>;
-+		vdd-supply = <&vreg_l14a_1p8>;
-+
-+		touchscreen-size-x = <1080>;
-+		touchscreen-size-y = <2160>;
-+	};
- };
- 
- &mdss_dsi0 {
- 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
- 
- 	status = "okay";
- 
- 	panel@0 {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-index 3c9656b88b696..7d90c0be485ff 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-@@ -525,17 +525,17 @@ firmware-pins {
- 
- 	touchscreen_reset: ts-reset-state {
- 		pins = "gpio99";
- 		function = "gpio";
- 		drive-strength = <8>;
- 		bias-pull-up;
- 	};
- 
--	touchscreen_pins: ts-pins-gpio-state {
-+	touchscreen_irq_n: ts-irq-n-gpio-state {
- 		pins = "gpio125";
- 		function = "gpio";
- 		drive-strength = <2>;
- 		bias-disable;
- 	};
- };
- 
- &uart6 {
-
----
-base-commit: 909ef7a9a30fa139e69e555e3606680f5cca7726
-change-id: 20260214-stmfts5-b47311fbd732
-
-Best regards,
---  
-David Heidelberg <david@ixit.cz>
+Erlend
 
 
+
+On Sunday, November 22nd, 2026 at 20:47, sashiko-bot@kernel.org <sashiko-bo=
+t@kernel.org> wrote:
+
+> Thank you for your contribution! Sashiko AI review found 2 potential
+> issues to consider:
+> - [Medium] HID: rdmctmzt: stale fails count delays reconnect retry in
+>   rdm_battery_work()
+> - [Medium] HID: rdmctmzt: battery polling stops permanently on -ENODEV
+>   during USB reset
+> --
+>=20
+> commit df75940f34ec97cd0e02102aba217a05fb6752a4
+> Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+>=20
+> HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+>=20
+> This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
+> dongles to poll battery status over the vendor raw-HID interface and repo=
+rt
+> wireless link status.
+>=20
+> > diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
+> > new file mode 100644
+> > index 0000000000000..9966025b40587
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-rdmctmzt.c
+> > @@ -0,0 +1,654 @@
+>=20
+> [ ... ]
+>=20
+> > +/* Send one command; its answer arrives in rdm_raw_event() */
+> > +static int rdm_send(struct rdm_device *rdm, u8 cmd)
+> > +{
+> > +=09size_t raw_len =3D rdm->len + 1;
+> > +=09int ret;
+> > +
+> > +=09memset(rdm->buf, 0, raw_len);
+> > +=09rdm->buf[0] =3D 0x00; /* unnumbered report ID */
+> > +=09rdm->buf[1 + RDM_PREFIX_BYTE] =3D RDM_PREFIX;
+> > +=09rdm->buf[1 + RDM_CMD_BYTE] =3D cmd;
+> > +=09rdm->buf[1 + RDM_SIZE_BYTE] =3D rdm->len;
+> > +
+> > +=09ret =3D hid_hw_output_report(rdm->hdev, rdm->buf, raw_len);
+> > +=09/*
+> > +=09 * -ESHUTDOWN from the transport (an endpoint flushed by a USB rese=
+t)
+> > +=09 * is a lost poll; it must not end the polling like rdm->stopping d=
+oes.
+> > +=09 */
+> > +=09if (ret =3D=3D -ESHUTDOWN)
+> > +=09=09return -EIO;
+> > +=09if (ret < 0)
+> > +=09=09return ret;
+> > +=09if (ret !=3D raw_len)
+> > +=09=09return -EIO;
+> > +
+> > +=09return 0;
+> > +}
+>=20
+> [ ... ]
+>=20
+> > +/* The dongle's link byte, asked for now: an 0xd0 may have been missed=
+ */
+> > +static int rdm_dongle_linked(struct rdm_device *rdm, bool *linked)
+> > +{
+> > +=09u8 reply[RDM_ANSWER_LEN];
+> > +=09int ret;
+> > +
+> > +=09ret =3D rdm_command(rdm, RDM_DONGLE_STATUS, reply);
+> > +=09if (ret =3D=3D -ENODEV || ret =3D=3D -ESHUTDOWN)
+> > +=09=09return ret;
+>=20
+> [ ... ]
+>=20
+> > +static void rdm_battery_work(struct work_struct *work)
+> > +{
+> > +=09struct rdm_device *rdm =3D container_of(to_delayed_work(work),
+> > +=09=09=09=09=09      struct rdm_device, work);
+> > +=09enum usb_wireless_status wireless =3D rdm->wireless;
+> > +=09bool linked =3D true, answered =3D false, got =3D false;
+> > +=09bool changed, present;
+> > +=09unsigned int delay;
+> > +=09u8 capacity =3D 0;
+> > +=09int status =3D 0;
+> > +
+> > +=09if (rdm->dongle && rdm_dongle_linked(rdm, &linked))
+> > +=09=09return;
+> > +
+> > +=09if (linked && rdm_poll_keyboard(rdm, &linked, &answered, &got,
+> > +=09=09=09=09=09&capacity, &status))
+> > +=09=09return;
+>=20
+> [Severity: Medium]
+> Can a runtime USB reset stop rdm->work permanently when usb_submit_urb()
+> returns -ENODEV?
+>=20
+> During usb_reset_and_verify_device(), usbhid runs hid_pre_reset() and
+> hid_post_reset() without calling the driver's suspend or reset_resume
+> callbacks, and hub_port_init() temporarily places udev->state in
+> USB_STATE_DEFAULT and USB_STATE_ADDRESS.  If hid_hw_output_report() runs
+> during that window, usb_submit_urb() fails with -ENODEV (while
+> dev->state < USB_STATE_CONFIGURED), causing rdm_dongle_linked() or
+> rdm_poll_keyboard() to abort rdm_battery_work() before
+> queue_delayed_work().
+>=20
+> Since rdm_stop_polling() sets rdm->stopping and cancels the work on unplu=
+g
+> and suspend, should rdm_dongle_linked() and rdm_poll_keyboard() only bail
+> out on -ESHUTDOWN (or should rdm_send() also map -ENODEV to -EIO)?
+>=20
+> > +
+> > +=09if (!got)
+> > +=09=09hid_dbg(rdm->hdev, "no battery status (linked %d, answered %d)\n=
+",
+> > +=09=09=09linked, answered);
+> > +
+> > +=09rdm->silent =3D answered ? 0 : min(rdm->silent + 1, RDM_MAX_FAILS);
+> > +=09rdm->fails =3D got ? 0 : min(rdm->fails + 1, RDM_MAX_FAILS);
+> > +=09if (!linked) {
+> > +=09=09rdm->fails =3D RDM_MAX_FAILS;
+> > +=09=09wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
+> > +=09} else if (answered) {
+> > +=09=09wireless =3D USB_WIRELESS_STATUS_CONNECTED;
+> > +=09} else if (rdm->silent >=3D RDM_MAX_FAILS ||
+> > +=09=09   rdm->wireless =3D=3D USB_WIRELESS_STATUS_NA) {
+> > +=09=09wireless =3D USB_WIRELESS_STATUS_DISCONNECTED;
+> > +=09}
+> > +
+> > +=09/* Without a link the dongle reports when it comes back */
+> > +=09if (got || !linked)
+> > +=09=09delay =3D RDM_POLL_MS;
+> > +=09else if (rdm->fails < RDM_MAX_FAILS)
+> > +=09=09delay =3D RDM_RETRY_MS;
+> > +=09else if (rdm->dongle && rdm->silent >=3D RDM_MAX_FAILS)
+> > +=09=09delay =3D RDM_SEARCH_MS;
+> > +=09else
+> > +=09=09delay =3D RDM_POLL_MS;
+>=20
+> [Severity: Medium]
+> Does a stale rdm->fails count after the keyboard reconnects delay the nex=
+t
+> retry for RDM_POLL_MS (60 s) instead of RDM_RETRY_MS (5 s)?
+>=20
+> While the keyboard is off or unlinked, rdm->fails reaches RDM_MAX_FAILS.
+> When the keyboard powers on, the dongle's 0xd0 report in rdm_raw_event()
+> queues rdm->work with delay 0 without resetting rdm->fails.  If that
+> immediate poll runs before the newly booted keyboard has measured its
+> battery, the keyboard answers RDM_CMD_START (answered =3D true) and refus=
+es
+> RDM_CMD_BATTERY with 0x0f (got =3D false): rdm->silent is reset to 0 whil=
+e
+> rdm->fails stays at RDM_MAX_FAILS, so the delay check skips both
+> RDM_RETRY_MS and RDM_SEARCH_MS and falls through to RDM_POLL_MS, leaving
+> the battery unregistered or marked not present for a full minute.  The sa=
+me
+> 60 s stall happens if one !linked poll sets rdm->fails =3D RDM_MAX_FAILS
+> while rdm->silent is 1, and the immediate poll on reconnect times out
+> (leaving rdm->silent at 2).
+>=20
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261122-b4-rdmct=
+mzt-v1-1-d45883e1fe33@pm.me?part=3D1
+> 

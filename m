@@ -1,56 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795415085;
-	b=cDCZyzVl/FX81BfBFVzgRLUPBGncsctx8g8UoUmeiuJ/t9CPqjOg4/UQWWzNEi7e8+B9
-	 h4t/KUFTNP6cIIWN8nEkRjnpxNh6Szam6iyVukwsPLES7Ne/0VQGq8wT6QxgZT4i5Ymc/
-	 HjqocgvAywRRGteFEgMrcsXgOIPW8G+7+3wZkLUa02cRR97XOh/7B0dtzst9QTdp80Ov5
-	 Lbd+xHdibSGGSfb/GHvWvj5fX5HUt0nwSlOIk4ANZ4dT9IWbZukRnferAWg47x+73UniQ
-	 E2BOvCB5m+5IO3goOb59PynfUf1k2RuQshZHmm7eQwQi6YodaSR6lTCP88p3Vu8cfLw==
+	t=1795415639;
+	b=DAk962d+z4et77X1iSsfzcKukfCdDF0JNIPWV38M0Qzb3aepVTfFFd6yGnm4sLKGcnwh
+	 E79AR5ruGbgffm20/9eAvcmIiVSvtbdn14HpAIbbL7W72MNTPLZXoS5ctu85uMDtXWw6K
+	 7XOH/OPRkM1nwb/JTaXtCKYBAnIcOZxsYWLW3zUcx+GLoPmKYFQnAtYMFdOx7kSfSEPHf
+	 2VHwszOWwDbm8ADSbPDMz/FXL4316oZL/YQShgMaQii1fHtpO3zK0Q5SBfdePKx/7K3gU
+	 /nqLUAmIMg75Rm9dddL4FRSl02LbBHKLNMio60/BM5dW5h0ZbtguCZx3EVcw2cAqo1Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795415085;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=7Spu6iERSMp8X5jycD4uaqYLUWuaLmQA+SUdHGO231I=;
-	b=BbJiTZUJNKK++Mm6TPPOP81ZFDuxTyBqzP+1/TUj3cVtsF2gWVa1H9DF6hPOelvBTWPR
-	 AiCrzWLoNRFdI1XOQdFY8RG4PI0J501JK/I0/sI9wTvMUUJ7xXrpTAR48Ud66cKvk7Bz7
-	 6kQdYwXnsI0rOmLAVqpVFQaoUbxP/Bk+W60pdJCIVKgF+ZLZ5ZmC43RMhZaTQ1uSpM1kt
-	 woI8XhqHvf3PoLvw2Tqv5XKnvivFh0C27FU+pzVIBZ4GRe67xQ98/yXWkhZhgNI+xAHwu
-	 wtRU15I0/7Vb4i8Yy/0YjHK1EhgnxPUUgNnmCt8oYVfmWzu5/a3jw8Y2vyBWCpG80qw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795415639;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=R33dPDMuza4ECLYFcFANy1WXUDU0B8B9euDHWq09YZA=;
+	b=SnMNmDNUn0eb+9F3eefXopOv5Hd5C8wEggFmqqjZ1qreoXQ47friikZv6GBnn0sgCrwR
+	 0kQeJkEvx00dp50Tiw9M4azwYqwO91do6uaIgMEu/sQBg07b4T+SChlw4UKQAXqJTHZ0P
+	 /uCw8QoeW8JZgEM2OF/Oe2Z4Sty8RG6q/lCuBRQJ2qzRouiD6K3fpaKYDMyD42nMHmi21
+	 VacyDZWwOIG2JmWHeIgKCSZonH+T8ZZ28WuOWbgSbk21wz8WKxOOGBDfgGPeS6dl6cmVf
+	 H5opdGO8j/+4IqEqGhkvonhbha9slN+01Y5WxGvgzB11ReFwaNB6thCJgHMxoDvnj6Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fTFysfv9;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uEqiWOsX;
+	arc=none smtp.remote-ip=209.85.214.180
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 607E8606A31E;
-	Mon, 23 Nov 2026 06:24:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEFD4606A31A
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 06:33:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DEFD4606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fTFysfv9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E2981F000C0;
-	Mon, 23 Nov 2026 06:24:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795415084;
-	bh=7Spu6iERSMp8X5jycD4uaqYLUWuaLmQA+SUdHGO231I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fTFysfv9y+1eQJV7/sIm78b0uaInwqHQrYtSRrs9/+vW/ZcpifhXcRHBzjRtyInUR
-	 z8Uj59oGbZw0faZ3k9xBq4zycIIKS1BzcUXqDMHyE5UzDQrDikHDCsSy4JvvXrteMV
-	 ql3vZx7j3VZ8F/k5YDYi6JYFrKiYJ/pqMZv09/+6q32tEbkhs8M3JHys3WEFnU/IYZ
-	 hnUZ8dmnSNfIONVq9PceAMwvwbT9ptf20GsbITJltShk98CO70lYTzaW0xqwoCp+CY
-	 prjdzUCVfsaxo74rrEQ/ChZThNRG5BSim1GmX6ghNs5LfjrAoWZ7QQlVAbsigKH95o
-	 Vr1yHTtLuEUlw==
-Date: Mon, 23 Nov 2026 08:24:39 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
-	dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v3 02/31] Bluetooth: btusb: Fix MediaTek ISO claim locking
-Message-ID: <20261123062439.GH14811@unreal>
-References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-2-d655875c4bfb@nvidia.com>
- <sashiko-outbox-223888@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uEqiWOsX
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2f0918f9e6cso2146505ad.1
+        for <linux-input@vger.kernel.org>; Sun, 22 Nov 2026 22:33:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795415638; x=1796020438; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=R33dPDMuza4ECLYFcFANy1WXUDU0B8B9euDHWq09YZA=;
+        b=uEqiWOsXnHL+ewbkdo7xIx5r1ZiDVhi8BkQXY7iR+QXmWEwfgpRUYFpXHagHVYx9ur
+         AUCMJv3qG+dGBHgtE9VZTNQ9pTI64ButO0XmSq3/yTH4zc5P5PFyPVGxOJVXyLpsVgYo
+         tm+RlvnKVTW7BJOz1jx4YyWKEB+tCZB0gK2QccBZmJHnrzRFNsj/m1Rp+wfRe1fqPYFR
+         wNAQRa8aUmzo5I/RLA7+gTw2vXyhias/qpas18aYv4SbQZF0qCNgV3hW4+5YOISF+B0j
+         LF9qo2qs7+DTSKamehb1dKg5/DD9tCNmqy9q6VJE/O0zDRUmlmdkPLWaMZP0blZI+AFp
+         FN9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795415638; x=1796020438;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=R33dPDMuza4ECLYFcFANy1WXUDU0B8B9euDHWq09YZA=;
+        b=QQ+XZKoUubeoMKiuS/3oIN3Wh1OUy5sld/+1xaeTIPY5Umf5zAlMCwGoLKvEDpGSdK
+         nV1NoYcEbfEq3ETZahf9iEJWfqsL/YsY0MLsUhpbsna7Qsb10AlD1ru0j7/ssqWhHU6r
+         3A/Cm2MNuvfESs5YW0gr3s4jc1CGCj6Go9jD/25D0Jq+M/uMvP+r+hGh4xH1HqSU0pDY
+         Y2nS7GYKPf5NypKxIOO0z+KkpP83Qbr8AquLMwLWJYV2hyL5hJMIGh9iEdo2tL5B4CjG
+         qdxNMpeFWu/G+ZZq6eMBGySdpjJRUP/xN6K8+BFU81FRw1hz1/wpHMLpi7rMihdA4p7i
+         b9gA==
+X-Forwarded-Encrypted: i=1; AL+hErG+naDBytOqfHTBq4xPLQpUJlg3gQ24MoloRK4mMXJ7gB93/NS46obj3qaR3jwXd/MxjvJTCDG8dKTWtg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9xUoPBzIVxUeR91mN1OWUX1gSktacduHLYmFtb4yHZDhYExVB+
+	sOa3jYD4Jfvi4nEa5TO7liD2iWbkCXPk+KFLve4WTtsJh5T54U4zQRPN
+X-Gm-Gg: AZFdTZf55428pepOV8F+QQaFe57w3ereCUlQLGqtaI2xT3txgmONUW36ORBVBdZOR04
+	BvmIdAkheblbtAxieSOC/aip258rNH3N3EZQKskE/KvGzsQ1vlHFgS003tyZa54g1zDNkBDGT16
+	3SmKm4Xkac+KdPujbpPcABN+KNveOL4P3D7U2p4iCvfaUppdxQ2kHHGDjCddn74Lddf4Woc7gEw
+	zzw8vbUuPN8L/uXMzbdIorcE9wrJmPQXU4u4K9ewEaMku3j3P1zHLtXU//BGYJQUdIioD8HgKnh
+	DrHApqLSRIT1VbinK4BVkxfEyQbajPrXIxvgcEZx/doQN01sWmaUbMBLJnfvmkvCmx18R25U3GV
+	SxB45hhfF0+DHmPa5rClV6lgWpz/yF+0NMl4m6yhT/OQ3xzGqyGMK3yZf61TJ5BWNHr1yaki97N
+	ARtBPAyMB/bEI2RvaeXsTz2MxfmsYWICBdkHi0DJe4n2o4gXzdZaM+b48S8L+Do7Y5Fln1pz9CN
+	eZGWjCR3BIUzYygfhHBE9LzDPQlSFVE+8jZyITdPWSrWALOPucHPGpGk1cLN9EDGJNnnP9oXIb1
+	qZxfB7oqI5f5jLqH96QEQ0W0MZ6xbzmTU/Dq/393Y/k2bh6ay/xTUl1xyU0wdtEqDY3iuO4=
+X-Received: by 2002:a17:903:19cb:b0:2e9:821a:5527 with SMTP id d9443c01a7336-2f03f1d85bemr94913765ad.12.1795415638290;
+        Sun, 22 Nov 2026 22:33:58 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f122548sm47173495ad.66.2026.11.22.22.33.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Nov 2026 22:33:57 -0800 (PST)
+Date: Sun, 22 Nov 2026 22:33:54 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jaewon Kim <jaewon02.kim@samsung.com>, 
+	Hyunhee Kim <hyunhee.kim@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, 
+	Pankaj Dubey <pankaj.dubey@samsung.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] Input: regulator-haptic - drop platform data support
+ and style fixes
+Message-ID: <awPeS7mL5KM2swfP@google.com>
+References: <20261112065115.1803973-1-dmitry.torokhov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,144 +99,22 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <sashiko-outbox-223888@kernel.org>
+In-Reply-To: <20261112065115.1803973-1-dmitry.torokhov@gmail.com>
 
-On Thu, Nov 19, 2026 at 07:29:22PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue to consider:
-> - [High] Bluetooth: btusb: btusb_mtk_setup() aborts when interface 2 is
->   claimed by Wi-Fi
-> --
+On Wed, Nov 11, 2026 at 10:51:13PM -0800, Dmitry Torokhov wrote:
+> This short series removes unused legacy platform data support and its
+> header file from the regulator-haptic driver (as all users configure the
+> device via Device Tree) and fixes minor coding style issues.
 > 
-> commit 40159ea2da44fd76ee32a7e5d004d0dc5227de46
-> Author: Leon Romanovsky <leon@kernel.org>
+> Thanks.
 > 
-> Bluetooth: btusb: Fix MediaTek ISO claim locking
-> 
-> This commit resumes the USB interface, acquires the parent device lock with
-> bounded retries before claiming the MediaTek ISO interface, and propagates
-> claim errors to btusb_mtk_setup().
-> 
-> > diff --git a/drivers/bluetooth/btusb_main.c b/drivers/bluetooth/btusb_main.c
-> > index 92a78a7e60396..8307fd819cc2e 100644
-> > --- a/drivers/bluetooth/btusb_main.c
-> > +++ b/drivers/bluetooth/btusb_main.c
-> > @@ -2993,40 +2993,57 @@ static int btusb_recv_event_realtek(struct hci_dev *hdev, struct sk_buff *skb)
-> >  	return hci_recv_frame(hdev, skb);
-> >  }
-> >  
-> > -static void btusb_mtk_claim_iso_intf(struct btusb_data *data)
-> > +#define BTUSB_MTK_ISO_LOCK_TRIES	5
-> > +static int btusb_mtk_claim_iso_intf(struct btusb_data *data)
-> >  {
-> >  	struct btmtk_data *btmtk_data;
-> > -	int err;
-> > +	int err, i;
-> >  
-> >  	if (!data->hdev)
-> > -		return;
-> > +		return 0;
-> >  
-> >  	btmtk_data = hci_get_priv(data->hdev);
-> >  	if (!btmtk_data)
-> > -		return;
-> > +		return 0;
-> >  
-> >  	if (!btmtk_data->isopkt_intf) {
-> >  		bt_dev_err(data->hdev, "Can't claim NULL iso interface");
-> > -		return;
-> > +		return 0;
-> >  	}
-> >  
-> > -	/*
-> > -	 * The function usb_driver_claim_interface() is documented to need
-> > -	 * locks held if it's not called from a probe routine. The code here
-> > -	 * is called from the hci_power_on workqueue, so grab the lock.
-> > -	 */
-> > +	err = usb_autopm_get_interface(data->intf);
-> > +	if (err)
-> > +		goto err_clear_iso_intf;
-> > +
-> > +	/* Disconnect may hold the parent lock while waiting for this work. */
-> > +	for (i = 0; i < BTUSB_MTK_ISO_LOCK_TRIES; i++) {
-> > +		err = usb_lock_device_for_reset(data->udev, data->intf);
-> > +		if (err != -EBUSY)
-> > +			break;
-> > +	}
-> > +	if (err)
-> > +		goto err_put_interface;
-> > +
-> >  	device_lock(&btmtk_data->isopkt_intf->dev);
-> >  	err = usb_driver_claim_interface(&btusb_driver,
-> >  					 btmtk_data->isopkt_intf, data);
-> >  	device_unlock(&btmtk_data->isopkt_intf->dev);
-> > -	if (err < 0) {
-> > -		btmtk_data->isopkt_intf = NULL;
-> > -		bt_dev_err(data->hdev, "Failed to claim iso interface: %d", err);
-> > -		return;
-> > -	}
-> > +	if (err)
-> > +		goto err_unlock;
-> >  
-> > -	set_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags);
-> >  	init_usb_anchor(&btmtk_data->isopkt_anchor);
-> > +	set_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags);
-> > +	usb_unlock_device(data->udev);
-> > +	usb_autopm_put_interface(data->intf);
-> > +	return 0;
-> > +
-> > +err_unlock:
-> > +	usb_unlock_device(data->udev);
-> > +err_put_interface:
-> > +	usb_autopm_put_interface(data->intf);
-> > +err_clear_iso_intf:
-> > +	bt_dev_err(data->hdev, "Failed to claim iso interface: %d", err);
-> > +	return err;
-> >  }
-> >  
-> >  static void btusb_mtk_release_iso_intf(struct hci_dev *hdev)
-> > @@ -3169,7 +3186,11 @@ static int btusb_mtk_setup(struct hci_dev *hdev)
-> >  	/* Claim ISO data interface and endpoint */
-> >  	if (!test_bit(BTMTK_ISOPKT_OVER_INTR, &btmtk_data->flags)) {
-> >  		btmtk_data->isopkt_intf = usb_ifnum_to_if(data->udev, MTK_ISO_IFNUM);
-> > -		btusb_mtk_claim_iso_intf(data);
-> > +		err = btusb_mtk_claim_iso_intf(data);
-> > +		if (err) {
-> > +			btmtk_data->isopkt_intf = NULL;
-> > +			return err;
-> > +		}
-> >  	}
-> >  
-> >  	err = btmtk_usb_setup(hdev);
-> 
-> [Severity: High]
-> Does propagating the usb_driver_claim_interface() error abort
-> btusb_mtk_setup() on composite MediaTek Wi-Fi/Bluetooth USB devices where
-> interface 2 (MTK_ISO_IFNUM) belongs to Wi-Fi?
+> Dmitry Torokhov (2):
+>   Input: regulator-haptic - drop platform data support
+>   Input: regulator-haptic - fix coding style issues
 
-Yes, Sashiko's findings are correct. I don't think the MediaTek examples are
-correct, but that is less important. We need to fix this to support devices
-with multiple interfaces.
+Applied the lot.
 
-Thanks
-
-> 
-> btusb_mtk_setup() runs for all BTUSB_MEDIATEK devices and unconditionally
-> attempts to claim interface 2 before btmtk_usb_setup() identifies the chip.
-> On composite devices such as MT7663U (0e8d:7663, 043e:310c), MT7921U
-> (0e8d:7961) and MT7925U (0e8d:7925), interface 2 is the vendor-specific
-> Wi-Fi interface bound to mt76 (mt7615u, mt7921u, mt7925u).
-> 
-> Because usb_set_configuration() holds the parent device lock while probing
-> all interfaces and btusb_mtk_claim_iso_intf() now waits for that lock from
-> the hci_power_on workqueue, the Wi-Fi driver binds to interface 2 first.
-> usb_driver_claim_interface() then returns -EBUSY, and returning that error
-> from btusb_mtk_setup() prevents Bluetooth from powering on instead of
-> continuing without the optional ISO-over-interrupt interface.
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com?part=2
-> 
+-- 
+Dmitry

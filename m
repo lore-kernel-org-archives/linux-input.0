@@ -1,57 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=84.247.164.36
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795462867;
-	b=swTGos3auHQo8lcpkifWdv0taHcOuY5viaRSssadEd65AEZN+GTs3HxXZXAHGYYl1Gjz
-	 H0680H9eO+bE3s6ECCLKkAU2Ol3ZtkiAlSZKsA/ZYfdkyR6sEf4g+Tww5DBtD4wx5+XLc
-	 wc60YzP4J+s7rNsuxque+R1/IIFWkxwnzc9S0T7/frTIVmhVBH+ZXpJgBemJ97I+0SHIs
-	 5UpM6FQT06MbZkIbgQwyDM57lteobl2iE9vmakj+VAuoT7hlEOnbRt8vyj5KEzebQ11Ze
-	 WQeUp3T5HJQhPzXNA9VVVo5z2UHDqz76ofi7wBTNYdMgma5JhiguPQqxIoupIPJoAxA==
+	t=1795463434;
+	b=xO64wjsRJ+OZQyO8fZUCFFWo5SpXyHlH6Qrqs94MG8jOiIvmEjvLYQb0Joi3x3wyAszA
+	 /e1ExFlubD+Cc1RVFaliES4ox7aola5rugNa+wYxrUAZnO4YmWAS/vecyfDSvAdhI0UiM
+	 8bIM9+tp5/dO/DkFYq+K9/JiLO1t/0/a8gxjJa1t0Q9ylNSZwA/dT1XnUTlaojYXMAt56
+	 RIbL13GUWTohZe6oXb3JAum6N8KNwPnBRcZ6d0EwwtxnTAlBGDzNINgIBkEQu5QC/jej8
+	 dI+3XP1dC7F0/d4JziZPDqJEicN0iBUZN8VUCc/9kAg9Ki4NvIPxR3weD2bZRJDUjwg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795462867;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795463434;
 	h=DMARC-Filter:Received:DKIM-Signature:From:To:Subject:Date:Message-ID:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:
 	 Content-Type:X-Last-TLS-Session-Version;
-	bh=wPkSieJ5nOiDvrjtKoYhtGwoxz9FoYkfamWj05YqIBw=;
-	b=xC6e4eJw7LJ+28+4kNvJKQSBEqLrdt8rAbqiP69rHxfJs0s9rOqgp4dN/tjlbk5/BtOK
-	 NSnUxeodh6zKKldESFHbSGd1G3Nd1ITwRXzIOTjDdakfGFpVNocds3FkMPH9BOgWmCNC0
-	 K12aBX0yqlo28Lde0O2QXv1xc+hmhcetDKYQGi+9nTniK712Ait04Bs5eAHSFYQ08LbDd
-	 ucwZa3IcIgu9L1+sWQf+JOQSPT9Z8JVVhaeoJH8Ko3CYa+Tg7t22ALw7GKwQF6VUujINM
-	 7SuR5TX8+O47lHV34ShB7JSUKXQrxgCs09VDEHe4SIbbXm/RiHSQJkb/F+5b3yn/KqA==
+	bh=comPKp6BAVZLBWCy+PQv3XeIRpcVvcg/5X7fNTty6Qo=;
+	b=glRHXp4QdathQk99nOu+aaX35lJqXeEOjkUYTJ3cr/tzh0CqB3BiWVa2mBjjJoGtx1xn
+	 sbO68PUo72rrAYS/LIG8PFcoR9MdsN3YOgLaFy45aVPd7mtrT2YmbtikFd8gKeauYWVaO
+	 HQN4rShVTw5WdygadKrRBGSH9r3cgfE/szgfhpk5elXpuPKP4yPquZiHKNlNGPFeaDpt/
+	 tSEI2PGnehPwR2Zt7l7i8TD2lN5r96E1u8+4VhrnxhK4xr35DV8zsV1/a+7SLCvv6sTt9
+	 EC2W+wiIgvUH2D3yKOp8yUIRDvr7c4JUw4YcZcn1fOcHlCkrJqROvvzJu1Kqt9L3jBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=koesling.info;
 	spf=none smtp.mailfrom=koesling.info;
-	dkim=pass header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=LdoDXy1d;
+	dkim=pass header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=cnW1Yav0;
 	arc=none smtp.remote-ip=84.247.164.36
 Received: from mail.koesling.network (mail.koesling.network [84.247.164.36])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF347606A31F
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 19:41:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AF347606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E112606A31E
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 19:50:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6E112606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=LdoDXy1d
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EF3431320F9F;
-	Mon, 23 Nov 2026 20:40:56 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=cnW1Yav0
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3C2181320FA0;
+	Mon, 23 Nov 2026 20:50:31 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
-	s=dkim; t=1795462857; h=from:subject:date:message-id:to:mime-version:content-type:
+	s=dkim; t=1795463431; h=from:subject:date:message-id:to:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=wPkSieJ5nOiDvrjtKoYhtGwoxz9FoYkfamWj05YqIBw=;
-	b=LdoDXy1doJELuLaZNGRwosbjS+iTqODYP6RUqdk7mhgx5hyV5cpNS9RJeSoXdckZZdPSI+
-	4PSP5ACEbazKB9/tTJuQtR0KGIgfeHa2bq3ixGnJvubuLgmshbOZH4vQi+/eEHJquG80hA
-	5KP7Vh+z6iEqXMhJOQIxvz561V19gMA7sP7n4Uh7lYLVYZLwRnFYG0GuqL5jULJI825uoi
-	cJ98xjm9Or15lBUVXESkpHyky75Tseew289T2EQYinD5KJfIKDuvbeme2M9DsyIZ+z/aXc
-	U41Arddh/41NDFzRn4o6+1pUR1/c8x6WjvJzM84/4DlMWhaIoXS6IGXVu6UGbg==
+	bh=comPKp6BAVZLBWCy+PQv3XeIRpcVvcg/5X7fNTty6Qo=;
+	b=cnW1Yav0g1W7JnKdKR5md5ZZJWsRpkPJv/ubQZ2Z3JkWjesJeekgBvNUmRf5JRiZ1Qo6+/
+	ZVylLcpKruSbmFEoghvirBYeiAOqV/HTplWudxpoYesgoAlhRczZmTibEHTQAgwfh4LMQG
+	NJqjTEfwirelShOULTVjnvBIz54vWU1EatYA8l5xy8CnzehR+xlSpyClLmYtjKkBOQHtts
+	CMuwmksWzZ5AXQWPaRt2OfQ8xnrHfgyb0P0tIDjE7bcsfWIS2K+trxilrINy9xGXBwaEww
+	agJEdfSigMjtMQsFJzkB+6XoIGNmaCE79P4jV2DZuk+BdEmfEqRLw8C3+W3tPQ==
 From: Nikolas Koesling <nikolas@koesling.info>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
  linux-input@vger.kernel.org, Aaron Ma <mapengyu@gmail.com>
-Subject: Re: [PATCH 1/3] HID: pulsar: keep battery online across RF standby
-Date: Mon, 23 Nov 2026 20:40:51 +0100
-Message-ID: <ppdppF9HS6q1hX_QC0gzmA@koesling.info>
-In-Reply-To: <20261123141542.8128-1-mapengyu@gmail.com>
-References: <20261123141542.8128-1-mapengyu@gmail.com>
+Subject: Re: [PATCH 2/3] HID: pulsar: resume device for raw command execution
+Date: Mon, 23 Nov 2026 20:50:30 +0100
+Message-ID: <3ssTmVAPSp6OcQzpLtff0Q@koesling.info>
+In-Reply-To: <20261123141542.8128-2-mapengyu@gmail.com>
+References:
+ <20261123141542.8128-1-mapengyu@gmail.com>
+ <20261123141542.8128-2-mapengyu@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -67,53 +69,28 @@ X-Last-TLS-Session-Version: TLSv1.3
 
 Hi Aaron,
 
-thank you for the patch.
+> usbhid drops its runtime PM reference after open, allowing the USB
+> device to autosuspend while idle. When suspended, hid_hw_raw_request()
+> fails with -EHOSTUNREACH (-113), causing battery status reads to fail.
 
-> Wireless mice using this protocol enter RF standby when idle, causing
-> CMD_STATUS to return 0, and may wake on motion without emitting
-> EVENT_PWR. Tying STATUS, PRESENT, and ONLINE to battery.available marks
-> the power supply offline and absent during standby, causing userspace
-> power managers to treat the device as disconnected, hide the battery,
-> and stop polling for updates.
+thanks, good catch. I could reproduce it with power/control=auto on the
+receiver: once it autosuspends, battery reads fail with -EHOSTUNREACH.
+With this patch applied they succeed.
 
-I can confirm this. With ONLINE reported as 0, upower 1.91.5 stops polling the
-battery and does not notice when the mouse comes back.
- 
-> Report ONLINE as 1 while the receiver is bound, matching hid-input, and
-> gate PRESENT and STATUS on battery.last_read so the battery stays absent
-> until the first valid reading and retains its cached state across RF
-> standby. Because CMD_STATUS does not distinguish RF standby from
-> power-off, the last reading remains visible until the receiver is
-> unplugged.
+> +	ret = hid_hw_power(hdev, PM_HINT_FULLON);
+> +	if (ret < 0)
+> +		goto out_unlock;
 
-I don't think keeping the cached state is the right trade-off. When the
-mouse is switched off, it keeps reporting "discharging" with the same
-level for hours, and if it was switched off while charging it would
-report "charging" until it is turned on again or the receiver is
-unplugged.
+> +out_power:
+> +	hid_hw_power(hdev, PM_HINT_NORMAL);
 
->  	case POWER_SUPPLY_PROP_PRESENT:
-> +		val->intval = drvdata->battery.last_read != 0;
-> +		break;
->  	case POWER_SUPPLY_PROP_ONLINE:
-> -		val->intval = drvdata->battery.available;
-> +		val->intval = 1;
->  		break;
+A failed hid_hw_power() is returned silently, while a failed send is
+logged. Please add a hid_err() there in v2.
 
-I tested a variant that keeps STATUS and PRESENT tied to
-battery.available and only reports ONLINE as 1: 
+With that change:
 
-        case POWER_SUPPLY_PROP_PRESENT:
-                val->intval = drvdata->battery.available;
-                break;
-        case POWER_SUPPLY_PROP_ONLINE:
-                val->intval = 1;
-                break;
-
-With upower 1.91.5 the battery keeps being polled, and while the mouse
-is in standby or switched off it is shown as absent instead of with
-stale values. Could you send a v2 with only the ONLINE change and
-update the commit message accordingly?
+Tested-by: Nikolas Koesling <nikolas@koesling.info>
+Reviewed-by: Nikolas Koesling <nikolas@koesling.info>
 
 Thanks,
 Nikolas

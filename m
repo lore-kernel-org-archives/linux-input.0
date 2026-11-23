@@ -1,93 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.57.71
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795419287;
-	b=h6R3Ao2sDM45hfKudV9YRKCgB51f8aEmmW3e6wGOqZSOIHa0e3VNT2RAe1DMGPZsx48p
-	 hsOrSy3eb86RHDd0BZhv5JTIg9YyQ2esfUPTdI2nKjkJUfJPFyylVDAZaTF47UWvz8OQI
-	 VivWYZhTDSx5wmJYPCxWGU83tpDtAjWnZt0PhqcYXrmuSTwxeJbA6CNY0tOfSsALdAzfg
-	 QrYbJ8NLUpV5EvtEm+c3xORHsa4UcEKo1VaIVwWnVriUNKSRcGHBRGCpdpUcTab7F9lEb
-	 F0UGXrjP2PcOI+8DEO4HjVgckJhbQ+QfJfRN5QzuZAlc8pNISLFX/VxiQ5riOQxOv2g==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795419287;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=T57QsN6rKUlQzjinlx/Lv/9B6wUmyTki1OLw3GS78MQ=;
-	b=0lFjjSgvKSgN+H7o63CzMohMUzkW+/SIdf1UIicqD4tLw0dGDA6jHfl6zR6KBk0gN9k/
-	 M9x//JyHqLS9BhrlDnoQhwqC8YVnDWfSWvs9XNgW3Vy5M4k5q0C8kRfHwWbsjZ4Lc7Q+0
-	 7NZD6ew/wPYorDyl3O2C4It0yZyMG5gcMmay9Eiu/lR5tQmTgyHlsn645yxMBVBlDKLvS
-	 pICjyYZO/j+JMrKlndcfbdkFMLf7Wu/mPjVKhZGG2Wu4ov7YrrbOxrWTY+HHClgHx8vfZ
-	 Ml+eANwtGEP4PAcy12KtexhYeX8towwnlbm2/sa6BxpdDvSy6VUYNWb1DxnkSjmY1IA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=amd.com;
-	spf=fail smtp.mailfrom=amd.com;
-	dkim=pass header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=1XLB9VQX;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.57.71
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011071.outbound.protection.outlook.com [52.101.57.71])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795419671;
+	b=JqRWTznEHqQ4eN1mHF8BWJXi+KXBCIyOrjV79Q540VUC59R5sxs3uTPr6HgOESnOZlgF
+	 cQLfwAKVcllqCqJJEnL/KPnn/jsG7+VfaICLVh4/jvUsa1sYc+gTLvalvOJ3SuHZFJ0lI
+	 GrdR9FvZuAiyAWd3Qn7HjkM4kV+LuZ9n2dP2JWygEnUv7ZYHEyGt3SgEeL5e4+QiE9B4E
+	 XUaRT/TPo5kqZkwFtw7CPT+n05SnRT1pJgW9W5SYi6aIYuc/2LgX4aZMsk+YFDLZYbIn/
+	 1f9SstPC/zGK3sEsCcRFTpiuAvjxphvzWeQ1DGdpcQH7c3mPSSii3LZNurr2k0jkVDA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795419671;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=l/Pc2DCUBFyAS6tazwdq2rsCOqbWYdzdUOXxolyW3Sg=;
+	b=0mzVz6vGU3Srj/Sn1qvQsYOckCdHLQiHpEsx/QCB7db3KuL3B1ySgQR4LfFVrTB2vqoe
+	 g/QIXQxcjObJA8l4DfNHR4o5ussOWrFw/1UI8y2rllc4TLI391/S35zSJa5qYk4IsbTfG
+	 We9wXEpJ60qnUjDJEQG8WIXZ40ASDoWN9RUF3XskAaRVFTIvtT+wKZ5lxYw/zm5Pi64BY
+	 p+FbGH6l9Jh8o6/DOc6m/bY/GykBqMQZmH+2FaBBnblWQhUOEsHpeKUOnE8EthMJsExwY
+	 C363Rf8aLWtDgZX70Z/EUGvm4HqzIKyYw+rQn1H9vBLOBte6W1ojPDaaqoNf69Eodzw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8vX8WCH;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0E0606A31A;
-	Mon, 23 Nov 2026 07:34:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CD0E0606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA04D606A31A;
+	Mon, 23 Nov 2026 07:41:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=1XLB9VQX
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=F6wCn880QuBUiSuqiWYI6ykbYm7hSmP31d7bD7hZggCAKosPBRQ9dB4njy3nq8CCFPkuudL88OISn2Dc57bos67/mkfRXx0UdeHre/o90oSFyCecMLXbbSQNERh2w7v4JqnIwQuP04/Zvvp7B0ROjTSbPOTqidupGOg+fwF5MyNRnf8G+t4sENHITPD9nYn6Gh8/eb5FNmMIlxakVc+7K2GKtCEIr61Wc4NQI+gRWfH14pHsklTREt9DiY7ttRV7K0+4wbVSGsKDm4eGuNs66IHaaiBGpphpLDEIPBsE+cddbvUFoK/XLvOCuUoWqkAgTy/yFRbzsq5YjpLR5HLAsg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=T57QsN6rKUlQzjinlx/Lv/9B6wUmyTki1OLw3GS78MQ=;
- b=lX6hyLi0UI0H2NbIpW3P1rGAZv7FzykSRjz+2xWBJscLBRQ/4dNgfXac/nDNllhvHnwL3PmJznXOM4eoqDxRyjZ8r9vFVgsCuCXJl782HOsxM6N1vZztpApQ3SQFvI/YEwahdl/LByvrXCrfQHisq5gTbhjDZZqmu7rJDjAvLHAod4/GGv2/f1y8Bjxa/6E3tyBhs0qx1JfMuP3jenyvS23nnC20YoQVxebvvVNsAC0ti1rw70AqRNFSBsLabusyJjqfWoEjhwMgb/iivezabvemiJMZ7ddheh1otndMN5mTKU2Is1mm5PbVWzazR0Nke5mmlxOkCa9YPBqQLqKSsw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=T57QsN6rKUlQzjinlx/Lv/9B6wUmyTki1OLw3GS78MQ=;
- b=1XLB9VQXcM9vgNPMoxWC14l+DjR9dwvHmtUgb+lj0ygrWiKCtgNT7b7WT0ZIpZ5JWEREFCxIx4Lrg9NYZP7+QdpNq7qX+9Cb//q2Ztw9T051WX3fA/y/MJM8rn4jvgY7tHaK+j75wLkLNeBjJkhyc5bGjyFp+ec7UcIcNCqlOCo=
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DS0PR12MB6559.namprd12.prod.outlook.com (2603:10b6:8:d1::6) by
- MW6PR12MB8867.namprd12.prod.outlook.com (2603:10b6:303:249::6) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.639.12; Mon, 23 Nov 2026 07:34:43 +0000
-Received: from DS0PR12MB6559.namprd12.prod.outlook.com
- ([fe80::3f99:f532:cf6b:ea46]) by DS0PR12MB6559.namprd12.prod.outlook.com
- ([fe80::3f99:f532:cf6b:ea46%5]) with mapi id 15.21.0615.013; Mon, 23 Nov 2026
- 07:34:42 +0000
-Message-ID: <14c1def9-4423-4907-8c50-6d8de91fcc57@amd.com>
-Date: Mon, 23 Nov 2026 13:04:37 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drivers/hid: fix brackets in comments
-To: Manuel Ebner <manuelebnerli@mailbox.org>,
- Basavaraj Natikar <basavaraj.natikar@amd.com>, Jiri Kosina
- <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
-Content-Language: en-US
-From: Basavaraj Natikar <bnatikar@amd.com>
-In-Reply-To: <20261121085628.1430330-2-manuelebnerli@mailbox.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MA5PR01CA0210.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:1b0::15) To DS0PR12MB6559.namprd12.prod.outlook.com
- (2603:10b6:8:d1::6)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8vX8WCH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B241F000C0;
+	Mon, 23 Nov 2026 07:41:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795419671;
+	bh=l/Pc2DCUBFyAS6tazwdq2rsCOqbWYdzdUOXxolyW3Sg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Z8vX8WCHlaqlsh+8ELEhbThFKWLc9wm9zz52RUYCQ9QEMaBW7ZSNNmBpKXZFR8gUm
+	 j2VWKcsvpEqnj6Fwj+yz/LLmfCevthUS8E06zcb1dHm2iPqQqS4Zvn/+cIjPG4zU3v
+	 S9ucD4a6TM5TVQKFQ4fKC8Y2O2AEOUgGnwlGKGoHJ7vpD1QOU8A+D/hdMqBJoHB/m+
+	 V6qf38AYpbcn04RKcXEcOXW9w4D8fnTNbjvX+dQ26Yhu8UWFspm2Hru6/QYy2Mg2Vs
+	 H0of26p9CrxAH7qzsAlnanMpiTKaPDjQyE9JKpwi01gXZlVXvhY/xK20HFZaj5ULo9
+	 XO1eCi7V1XN8g==
+Date: Mon, 23 Nov 2026 09:41:05 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
+	dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v3 06/31] USB: Release interface claims according to
+ binding state
+Message-ID: <20261123074105.GI14811@unreal>
+References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
+ <20261118-device-trust-core-v3-6-d655875c4bfb@nvidia.com>
+ <sashiko-outbox-223892@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,160 +60,120 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB6559:EE_|MW6PR12MB8867:EE_
-X-MS-Office365-Filtering-Correlation-Id: 12ec6570-9c9f-4e9e-1c0a-08df49343d42
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|376014|1800799024|366016|10067099003|11063799006|261026140227099003|56012099006|261028144727099003|261021123027099003|261022105027099003|261009223027099003|261021121427099003|261102123227099003|261022115727099003|261026121527099003|261022075727099003|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	r2KpoGl8J2bQ1yDk+zhjdmHmyLUACnSe5TIwWOoJkrwb/o0V+ntGYBZadQlMRSxoYzF9v9Aaae9w4I5VoAxK+/sSLmhbltvuH5nvEpnvJ/3Tl1U4ZPSLA5OqZRQOZAKJN414Vkz+f0i7UzEsbogDW2y/qm4JYKWbDIZQPKCiwTX5P+cK16hFhJUNkMRoXh0BEdgWybfbb4clML5NZ158980QAhNm9c/QurbfArbNMZG4zPAPY9Qotots998Oa14mXktI82l4nNmyRVJmQSdL8F0MJAfTRqo7LihACUHpZM8LOryOFV6VpWxKBqwixcEiso8EL1rvO+Hq9lA4NsHcun9DR97GUv2iIJxwighYo3whVUzByFAlJLRRaLF6dmcIdEJ8GABjxZM41sWoBY2pLS04dprBNso5L6LG520KR/WGuwgxkDoJM9KUenwNbrKTyQji5x6Q2st12bMha+pNazmccuQd2C9Sy8junwC0CQg+rodwgzatnFWZZPkvGHnsNkUpsfP/QP2zOBmC0SzVeEHkyvplCGrVwl1oBfRXYhm1aDeoZxlkAkLVrU/ffpKc6AE2NIBSJvX8rcuv4W2lYbF9j7bUbdj3Kr4Q8VamcdyZx7x7kBWUccJGheA4A9evBGXI0sO6wKR3jLTS7yFWEIPDdQ6XefsBqYw3RQ4TBYc=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB6559.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(1800799024)(366016)(10067099003)(11063799006)(261026140227099003)(56012099006)(261028144727099003)(261021123027099003)(261022105027099003)(261009223027099003)(261021121427099003)(261102123227099003)(261022115727099003)(261026121527099003)(261022075727099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MTcwaUl2MVVJQUlmVGQ4UWVJK3JxT1pnUllvNTVCQ3hDdzlNcjRtRUNjQUdG?=
- =?utf-8?B?MktRWXNkV1MyMjExU08yOTZuakNTVk9OSGNLbFJDeUIydHVyZytwRmFMVE9k?=
- =?utf-8?B?eE9VSUJpVzNjYWlxMVVVamJma0J3ZmxjbDlxUE84eWVjRkNxbW41Um9zSEEy?=
- =?utf-8?B?U3pqWXF5NDZQT0ZXdXlWWktyalZ1YXZzYW4veWxrc3ViVjhFOHAvNGE1dU1F?=
- =?utf-8?B?eTRGOG5jUnJtMG95WkxiRjExemxnUTVHMzVKR0Z4S2Z1enFnQXh6T1pKQjNJ?=
- =?utf-8?B?cGtYZnpBM0J6UnVrZEVINldMQWFYL3NWaDZlZWNVU0ZLT3d6V0l3MWNpYW5s?=
- =?utf-8?B?S2lkQkV5OERNa2xZTVd3WGZ1MXEzSU1yVDhraGM5QTk0VFZFYW5tdDVTQ2Q1?=
- =?utf-8?B?aWdsNGN2d0VqLytjdFZlSmpHSyt3d2ZBTmY0NTg1aGJzVU1CMXJrYThPZStr?=
- =?utf-8?B?VGdXSXNGczdpU09QNkppaWg5enBsUFNLc0lUL0MxTmxqdmhXQ3RGeGpJZWZE?=
- =?utf-8?B?N01JSHZFaDJaS3phQzRvZUw5QWNmMnV0ZlJSSUxnT2k4b3I4K3ZYTFRFYnBE?=
- =?utf-8?B?MFd2dkIySWFpNE1jdVAxbVFWMWx0M05EUnR0ZVBrMlB3RE1vZ2VtcHU5SEFa?=
- =?utf-8?B?b25zTEdzR3ZaQW9COFRzV3Z3UitQcDhXeVJDS3RjNWZqTWNFV2xQMGdqUno0?=
- =?utf-8?B?MG1PTmIzcFJsbmxPRjR0QWpjREltNE5tQzBwai9KTTh0T200bXZDYVRNSHF3?=
- =?utf-8?B?NDRnWVJEb25YdDhGUHB3Vktna2wyRjgvRXMzdmhUU01NWUp2TWZpcXZFVjJv?=
- =?utf-8?B?TkFydFpxdjBXUHFTdzVJbjVPNU9Mek45RWRZSmcwQURSTmY4cGZELzZ6UkJ6?=
- =?utf-8?B?VXMwbkNub0NBZStsWGJZSGt5OTQ0Nml4bURndVBQS1lOOFYzWXB2dExkVmpX?=
- =?utf-8?B?QjNSZG1adDYwZ1lWcGllOGwwKy95Uy9PUitvNlZhQzh6bTRQTWVnSlhmSmth?=
- =?utf-8?B?UW1CVjFrakdScUlCcFJTMnRGRW9HUkdCOWhpQkVXNk9rTXQrcVhJUHZmVnMv?=
- =?utf-8?B?dG91MUFCWHdIMTdFODBIdkJBQkJoL2xyZS9rZnp3dWJpOW1EUEdoNDZmTGpS?=
- =?utf-8?B?U2REZ1BXWU5TeWFteEN0ek0rSktQZ2hFT2hkZ0g5eWZFbjFtZXNrV2Jwd29I?=
- =?utf-8?B?S0c0UkNEcDc4RzlKaEpTNy9mUUtLQ2pFZitybmlTQTNQaWNUd01SRmNlbFRE?=
- =?utf-8?B?VS91Tks3T1ZVc1BHcHNzU3NqUm16bys4dU1YMitwVnZrd3lMeXJ1SHVHK2xR?=
- =?utf-8?B?YmRwMHRLc0FjTGdad3FSTTlnRldUejgwWlk2R0ZTRmdvZTlmaUFyeE93dHA1?=
- =?utf-8?B?MTl5cWtVWjhZdVB1ckEzSEF4ZTIzZDhBWG5RbjNVUmJIdXBoM0hmK2YzT0ZI?=
- =?utf-8?B?NTVqSm9BdzU2VGlob1prQ3U3c2UrOWJyeEl3TEF5MTVOYzNZaHZpYUpNbFhj?=
- =?utf-8?B?UzZpeC9ieFVRY1FtRWFJbEFQMEFUSXFGK0haNmtEdDdlRlJIeG81N09jdUtM?=
- =?utf-8?B?SEJxZDB2VnY4dkt3MDk2V1BZQnFMZmZDUGdRRFAvRmtLYlZISXUycWdKL2VU?=
- =?utf-8?B?WWpvUlRHc3RvODZPZkQ4TFo2U3JtOUNXQlRaa3AwN0tqTm9xYWNRZVUydWJN?=
- =?utf-8?B?MGpVanlTR2ozQ1dKdC9hUytyYWJjRzVUWDhxNnRqVXB2T3hSUnJUb3ZsYmla?=
- =?utf-8?B?VlNHQit2ajYyOUx5UnNYS0FrTGk0dm5OTXdkYmdaaUR4WlNzUVhPbVpXT3pt?=
- =?utf-8?B?ZW1aN3d0ejB2b3BqeXdjajM4SXRHUTBhYXJDQVd4Qk9pK1NpY21oYWpQVGdp?=
- =?utf-8?B?QXluZFVzQnRwdmZybDZtRG04SzBOVW1PcDMrVmpDd0dXOW1JeGxPc2ZhRkpD?=
- =?utf-8?B?MWVyR2JXNVhtRnNDK0pDQ0F2czBZY3Fkb0U4ejRRS2pCa1dIV2p1T3NLNmVJ?=
- =?utf-8?B?Um5vc0lSYnBXOEZ0QXNSbjlhVTN1dFhlOUpNUi81S2Mrc1FmSU5UUHRYYnZt?=
- =?utf-8?B?MVpwWmU5cFY4ejhDc3hIN1FNNUdDVyt4UFA2N1dibDFMd0toS0YvWEhQa1pM?=
- =?utf-8?B?Z2JBa1JwQmRKTUZaS1NYTHM4c2lrWE5hQzhTelowazNtVll3ZnV0RENiWWlL?=
- =?utf-8?B?N3dSd2xCT1BYUTFHdTlmYndtc2RNYm02V205NGhobGFjcHp2dThpajlWTmVo?=
- =?utf-8?B?Zk02ajRqdG5WYm9YUk1jNEw1Ukl5YXRhUTVwYi9FdU1tUlFUaC90emthblBh?=
- =?utf-8?B?ekFaWnBnOGx1aWlGVjRBU2RMamkrKzZ3QndpQlRQeGx2YUV3cGNHQT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 12ec6570-9c9f-4e9e-1c0a-08df49343d42
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6559.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2026 07:34:42.8654
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HWU9sxoR0l0J/GTZqAqiAJPQe8/WWTDnuhsFCH2CNwkXwx6xY+U4tbcXMqL9zd2xojTW+6XPf7x6eWtjmfI7mw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8867
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sashiko-outbox-223892@kernel.org>
 
-
-On 11/21/2026 2:26 PM, Manuel Ebner wrote:
-> [You don't often get email from manuelebnerli@mailbox.org. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
->
-> Remove multiple ')' without opening '(' and add missing '(' in comments.
->
-> Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
-
-Reviewed-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-
-Thanks,
---
-Basavaraj
-
-> ---
->   .../hid_descriptor/amd_sfh_hid_report_desc.h         | 12 ++++++------
->   drivers/hid/wacom_wac.c                              |  2 +-
->   2 files changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> index 67ec2d6a417d..6c331c2c63b8 100644
-> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> @@ -81,7 +81,7 @@ static const u8 accel3_report_descriptor[] = {
->   0x95, 1,         /* HID report count(1) */
->   0x55, 0,         /* HID unit exponent(0) */
->   0xB1, 0x02,      /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS) */
-> +0x0A, 0x52, 0x14, /* Sensor data motion accel and mod change sensitivity ABS */
->
->   0x15, 0,               /* HID logical Min_8(0) */
->   0x26, 0xFF, 0xFF,      /* HID logical Max_16(0xFF,0xFF) */
-> @@ -248,7 +248,7 @@ static const u8 gyro3_report_descriptor[] = {
->   0x95, 1,               /* HID report count(1) */
->   0x55, 0,               /* HID unit exponent(0) */
->   0xB1, 0x02,            /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0x56, 0x14,      /* Angular velocity and mod change sensitivity ABS)*/
-> +0x0A, 0x56, 0x14,      /* Angular velocity and mod change sensitivity ABS*/
->
->   0x15, 0,               /* HID logical Min_8(0) */
->   0x26, 0xFF, 0xFF,      /* HID logical Max_16(0xFF,0xFF) */
-> @@ -408,7 +408,7 @@ static const u8 comp3_report_descriptor[] = {
->   0x95, 1,               /* HID report count(1) */
->   0x55, 0,               /* HID unit exponent(0) */
->   0xB1, 0x02,            /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0x71, 0x14,      /* Orientation  and mod change sensitivity ABS)*/
-> +0x0A, 0x71, 0x14,      /* Orientation  and mod change sensitivity ABS*/
->   0x15, 0,               /* HID logical Min_8(0) */
->   0x26, 0xFF, 0xFF,      /* HID logical Max_16(0xFF,0xFF) */
->   0x75, 16,              /* HID report size(16) */
-> @@ -429,14 +429,14 @@ static const u8 comp3_report_descriptor[] = {
->   0x95, 1,               /* HID report count(1) */
->   0x55, 0x0F,            /* HID unit exponent(0x0F) */
->   0xB1, 0x02,            /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0x84, 0x14,      /* Maganetic flux and change sensitivity ABS) */
-> +0x0A, 0x84, 0x14,      /* Maganetic flux and change sensitivity ABS */
->   0x15, 0,               /* HID logical Min_8(0) */
->   0x26, 0xFF, 0xFF,      /* HID logical Max_16(0xFF,0xFF) */
->   0x75, 16,              /* HID report size(16) */
->   0x95, 1,               /* HID report count(1) */
->   0x55, 0x0E,            /* HID unit exponent(0x0E) */
->   0xB1, 0x02,            /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0x84, 0x24,      /* Maganetic flux and mod change sensitivity Max) */
-> +0x0A, 0x84, 0x24,      /* Maganetic flux and mod change sensitivity Max */
->   0x16, 0x01, 0x80,      /* HID logical Min_16(0x01,0x80) */
->   0x26, 0xFF, 0x7F,      /* HID logical Max_16(0xFF,0x7F) */
->   0x75, 16,              /* HID report size(16) */
-> @@ -581,7 +581,7 @@ static const u8 als_report_descriptor[] = {
->   0x95, 1,               /* HID report count(1) */
->   0x55, 0,               /* HID unit exponent(0) */
->   0xB1, 0x02,            /* HID feature (Data_Arr_Abs) */
-> -0x0A, 0xD1, 0xE4,      /* Light illuminance and sensitivity REL PCT) */
-> +0x0A, 0xD1, 0xE4,      /* Light illuminance and sensitivity REL PCT */
->   0x15, 0,               /* HID logical Min_8(0) */
->   0x26, 0x10, 0x27,      /* HID logical Max_16(0x10,0x27) */
->   0x75, 16,              /* HID report size(16) */
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index da1f0ea85625..b7aa6b60fb02 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -546,7 +546,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->                   * physically implemented as a touchstrip. Each button
->                   * is approximately 3 bits wide with a 2 bit spacing.
->                   * The raw touchstrip bits are stored at:
-> -                *    ((data[3] & 0x1f) << 8) | data[4])
-> +                *    (((data[3] & 0x1f) << 8) | data[4])
->                   */
->                  nkeys = 3;
->                  keys = ((data[3] & 0x1C) ? 1<<2 : 0) |
+On Thu, Nov 19, 2026 at 07:29:25PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential
+> issues to consider:
+> - [Medium] usb: core: pre-claimed interface with autoprobe off crashes
+>   on core unbind
+> - [Medium] usb: core: NULL dereference in usb_driver_release_interface()
+>   when driver is NULL
 > --
-> 2.54.0
->
+> 
+> commit 03347cb54cf6030265378e68aba157a23982255b
+> Author: Leon Romanovsky <leon@kernel.org>
+> 
+> USB: Release interface claims according to binding state
+> 
+> This commit updates usb_driver_release_interface() to check
+> device_is_bound() instead of device_is_registered() before releasing an
+> interface through the driver core, and holds the device lock while
+> checking and unbinding unclaimed interfaces.
+> 
+> > diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> > index 735ae3310b45d..926f63cd2c834 100644
+> > --- a/drivers/usb/core/driver.c
+> > +++ b/drivers/usb/core/driver.c
+> > @@ -612,6 +612,15 @@ int usb_driver_claim_interface(struct usb_driver *driver,
+> >  }
+> >  EXPORT_SYMBOL_GPL(usb_driver_claim_interface);
+> >  
+> > +static void usb_unbind_claim(struct usb_interface *iface)
+> > +{
+> > +	struct device *dev = &iface->dev;
+> > +
+> > +	usb_unbind_interface(dev);
+> > +	dev_set_drvdata(dev, NULL);
+> > +	dev->driver = NULL;
+> > +}
+> > +
+> >  /**
+> >   * usb_driver_release_interface - unbind a driver from an interface
+> >   * @driver: the driver to be unbound
+> > @@ -631,27 +640,25 @@ void usb_driver_release_interface(struct usb_driver *driver,
+> >  {
+> >  	struct device *dev = &iface->dev;
+> >  
+> > -	/* this should never happen, don't release something that's not ours */
+> > -	if (!dev->driver || dev->driver != &driver->driver)
+> > -		return;
+> > -
+> > -	/* don't release from within disconnect() */
+> > +	/* Avoid recursive locking from disconnect(). */
+> >  	if (iface->condition != USB_INTERFACE_BOUND)
+> >  		return;
+> > +
+> > +	device_lock(dev);
+> > +	if (dev->driver != &driver->driver ||
+> > +	    iface->condition != USB_INTERFACE_BOUND)
+> > +		goto unlock;
+> 
+> [Severity: Medium]
+> Can dropping the !dev->driver check cause a NULL pointer dereference in
+> usb_unbind_interface()?
+> 
+> When intf->dev.driver is NULL, usb_forced_unbind_intf() passes driver =
+> to_usb_driver(NULL), whose &driver->driver member address evaluates back
+> to NULL, making dev->driver != &driver->driver false.  If an interface is
+> claimed before registration and registered while drivers_autoprobe is
+> disabled, device_add() succeeds with iface->condition ==
+> USB_INTERFACE_BOUND and device_is_bound(dev) == false (so the unwind in a
+> later commit "USB: Unwind interface claims after registration or binding
+> failure" does not run); if a subsequent __device_attach() fails in
+> device_bind_driver(), it clears dev->driver to NULL while leaving
+> iface->condition as USB_INTERFACE_BOUND.  Calling
+> usb_deauthorize_interface() -> usb_forced_unbind_intf() on that interface
+> then passes the guard and dereferences to_usb_driver(NULL) in
+> usb_unbind_claim() -> usb_unbind_interface().
 
+This path is already unreachable in the current code, and patch 11 removes that
+state entirely.
+
+> 
+> >  	iface->condition = USB_INTERFACE_UNBINDING;
+> >  
+> > -	/* Release via the driver core only if the interface
+> > -	 * has already been registered
+> > -	 */
+> > -	if (device_is_registered(dev)) {
+> > -		device_release_driver(dev);
+> > -	} else {
+> > -		device_lock(dev);
+> > -		usb_unbind_interface(dev);
+> > -		dev_set_drvdata(dev, NULL);
+> > -		dev->driver = NULL;
+> > +	if (device_is_bound(dev)) {
+> >  		device_unlock(dev);
+> > +		device_release_driver(dev);
+> > +		return;
+> >  	}
+> > +
+> > +	usb_unbind_claim(iface);
+> > +unlock:
+> > +	device_unlock(dev);
+> >  }
+> >  EXPORT_SYMBOL_GPL(usb_driver_release_interface);
+> 
+> [Severity: Medium]
+> What happens if a pre-claimed sibling interface registered with
+> drivers_autoprobe disabled is detached through the driver core rather
+> than usb_driver_release_interface()?
+
+This is a pre-existing issue, I didn't modify btusb_disconnect(). It
+appears that the "if (intf == data->intf) ..." checks can never be true
+for ISO in any leaf.
+
+Thanks

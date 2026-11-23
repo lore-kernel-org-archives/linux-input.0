@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795436020;
-	b=b1ly89OAQ19h1Lb6jRVLbNsr+tgPcOkuGAiX+jvL1XM9YvacoP+X6B+6HT5qyF0HefXE
-	 30T2cOUtWOcDOiGEgS0tlaPTUb6K2FOo9RW6us/k3zfXkec0ooqEfqv608blyOicjrcnO
-	 6MN90opLE/p94kFEQeqqdGxgURMbgYcHJUJkpRH7HuBkmbX31ZTa1FY3ppgZBQWuswTvL
-	 Lo+UDRywCQy4DlXLQBz+Z+CvuLVuKrWaegEpUd1DM3OFiDxyRkzmW56RIFeRtarxGBMtj
-	 2c5ZoESLYBQ2fO2xb9CWhAxwxWVcl49ZdQ+YKnRWlD5e81a6CSXKiGj4FTMR1DWxfgg==
+	t=1795436282;
+	b=uCxy83YT6bksp5/gQlpqaxuGj7m7qgYpcHAn3CMqRu3E67F+EkvCDHYnwwYz0TX0EjkV
+	 I2pzZ/2ZrJHNme/KQbHFDatip39r7rl1qkHL9BrLcIXnK6cLqFBV8KB4HvtanubUMyCLM
+	 mzvpMjcMd3K1x6xKQgPU2/ntWZwrlnsC0yReighgqlCuo28lB3H+7VkhcmqQA9g81lD9Y
+	 WxDA2EB0QRUWwQ1j7pDjCHXrUJIadiGufJ9cJ3MJTCmZNFN+wZ6PaWxBeX7R5PK9CKHZA
+	 R3tCFZpyzfGxAjXS+qJXqfsgawXPMx8YAmdaYhXZfXKiOidH+jnRIpCT/Dc13mweZ3A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795436020;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795436282;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Mime-Version:Content-Transfer-Encoding:Content-Type:Date:Message-Id:
 	 Cc:Subject:From:To:X-Mailer:References:In-Reply-To;
-	bh=vsGgiE2lye4hbouBWbMldcxgaC/s2n/Qfy8fpJXTtCc=;
-	b=5PquJAct4Uucwwf3zcAB3RXYTj1LpLoNVD79sL3f4DDYh4GNgH1tbsu0p7lUWBcWulj4
-	 34E6ywmqQgVloHeAutkEBxheXJmCubcz+1NeiXskkPu9TCSyJ+onVVyNgIvSTFL3PGGjj
-	 qtwt/5YNuWM5nOCHYq5HweL3q0zE8ogdpM6sWfFgXrvyps8RxYwTnpVztxqmb4Wt0q3EG
-	 FFWKBpCSP/IzEidvwQXCUYuEEQ0vrYocOxVEJ4qqp1Nz4iOe04NNNz2aTa9Aa36v8MFKf
-	 +ph3JNHqMHi6eby4TVhVzF9UWxSS5fmA0WrKw+9FfCyetYU77SLBJCOc7Q3jfhD1zkA==
+	bh=a88ULBFAQx4LAiXbEAQvfvekeJqnITJpUHZuo0L1DZQ=;
+	b=p0KNk5FQ1X9j3T9dkaHWWPrA+339ylQv+psSVOUp/+GAKg2HzHsbXR5m7Jv1rrbPO7ZM
+	 Ngr0MSY1hq8nzvcTWoioWaDRGtnK66dxadj1f4VY3M3oQI1ULrecIrzaqtIusp3Ama/92
+	 FfzXf6Wk1tbFaSnzISVvBte/Z0m4rLNL5eTKyXI1MilPtGCH4pVIurTWs0Y2+5JH398VE
+	 UkZZjySZV0RR0cQ09g6ECUUTKTHwVpYg04keCahliQk/sAeqfP/qrOgX4bFugjZplMoQ0
+	 d2iGJbNlWigrN2EkUajKAoafn8hEmxhOAa2pDos+IBno+jRucL1uFayTELKopuLL9Ow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bHGR44PV;
-	arc=none smtp.remote-ip=209.85.208.47
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d6YfVoas;
+	arc=none smtp.remote-ip=209.85.218.53
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5C22606A321
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:13:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A5C22606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2726606A321
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 12:18:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B2726606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bHGR44PV
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6b587538a37so4661851a12.2
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 04:13:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d6YfVoas
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c50d3ac6b51so861401066b.1
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 04:18:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795436018; x=1796040818; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795436280; x=1796041080; darn=vger.kernel.org;
         h=in-reply-to:references:to:from:subject:cc:message-id:date
          :content-type:content-transfer-encoding:mime-version:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=vsGgiE2lye4hbouBWbMldcxgaC/s2n/Qfy8fpJXTtCc=;
-        b=bHGR44PVxLG3t2B14cgDrCo2Ck5i4EHcesQaHIz5JBjtcP4OZc8U6jPhFWjT255fPF
-         M/vxlBLGjHpAPsUYF3SFhZRN+CCcCiihtxgsQRCSUy8X0aV0Ar9JuF1BOLXQ/71JGRYA
-         F4oagLvjNqr0ieuo8CzMea/RE9OIf2BjLN36ltLUGVOkjasfGSd5CMlWaje3MSbBQpXu
-         iqAXurSOGSmmFrQqgsOohgmvEGEHrD5MDSVfvDCIbe3+kHp65puY8xMEyoN9wuSWN0+p
-         BdYKvquP78cHpuW7MK47qI1IlVOPkVP/7YgnnglfHQLmjU4jcikc1utMqT8zJaHLVTro
-         DB+w==
+        bh=a88ULBFAQx4LAiXbEAQvfvekeJqnITJpUHZuo0L1DZQ=;
+        b=d6YfVoaswLbKwgD3P19bFRJ7ZURGLAM6cgUFg1Az7CArc+wqW7p9oN5XEDfz/OWZM7
+         BNhsP3uqnO00vH5pTASrYPmILCkbDfnqyXbzN1aOLyXO8gKYRq0+8PPp6XSsqmClS/8y
+         QKiU2lH2JXFvZ/cONB9A/We4EBus2jE8TIhb0YJYYCNbsds4KUlnma5I/AYVFUNggDM7
+         VwxyJX7CVMT991m7EQNBh0qTSsWXSpLL8PQg+qDdReUbN6U2+9KdXOVGrc0vAuPLIv2T
+         56SIttjVScC5XssqtGrOHAGAyglgIEmqbhLOnpJbhijs2+qCpmOi+mgWNmrU6hfO5c0h
+         qjNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795436018; x=1796040818;
+        d=1e100.net; s=20260707; t=1795436280; x=1796041080;
         h=in-reply-to:references:to:from:subject:cc:message-id:date
          :content-type:content-transfer-encoding:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=vsGgiE2lye4hbouBWbMldcxgaC/s2n/Qfy8fpJXTtCc=;
-        b=tEXt4JKoOBY1aGV4+kyrt1DfpG42QCAZdk3LlqfCTUR6LgQHYqlLgWE9F8U/JYUwSR
-         evuYbdJk6aCAIqVIcLMS/hESPpo6K7HmgotFHVpij5lZj6E4EnM44rXbBNn0mRtZbf3V
-         m+LM35FtR0iVAE3KiEVNuYZxCkrbaOkXhgZJXFRqX/K2vDuE3izj+zv/w4d4PIlJkVUA
-         tXZSIRz+WbJQ3PmOWbnUIm9fSBUoe+Nwm72bNZjRWmaHvcghwc8l3SdkCMMnkzoY9Kkt
-         /fShaJYY90gZZ01sJqEdIDSPDI6zTMy38b214gMj9n5bgOyf5kmSGgcfVVYwTunUZ1i6
-         3QaA==
-X-Forwarded-Encrypted: i=1; AL+hErE9f0OKvhaoqZ3r+gc8CAzHdKynqmImvnJ5UJvB/ABIdupBWKB3nLMd0McFEhSmyljm2uuzDQZndbH5CA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+wHPXM7UKTW7K2londPcTgpPgI83TD3nCdM3Dx1ZhJCdfy7jZ0
-	czX0p31C0cxtYScn62LRFVniGD2hwJRHaMpF0lfJTAh2NSCkyAfRCsXD
-X-Gm-Gg: AZFdTZcHYfZu8tEZsMu3urq1kETyWivZGtJ8jXNgO1pOgWe8ZJvbxiuEXu0LbItxJli
-	hBtuJvqc8M4sJyUwaqfF5Jpr/6AQ/6UwHf7mSl75XMY8razD8+ic+h0kT3014Dd5CwVNTgv+PIG
-	8Qs49V/VZzd3Hza739KvRoXw6ZivIMhnqpcd9THp+OEAlOhfsZW2f7cLjRib1q/1WLe+pN41/JN
-	/2qoW2Bd/qgo/FHnYWCUjrTQw+e4ER5eh8wM8eFrAt8vETkgRSn646CFTO4YF669GX2xdqtVHPz
-	Dt/a2DA6IFDBhoVn1VVNB/nhDWm3IlPJQ6d7XaTjZpsiAsr4kPaaNRSJGhKxKzC0QVrBr1OdkCU
-	XaaD2Rggri8eEDkhfh/SlQwPe/HLx7157Z+vN721lr8aoA+DjxJqwMS6dKvIZGLH+vWJuuuqx+Y
-	uEn5b/MM/k1EEEJ8DEfq6/BemCHV6GB136jOzfMVutigde5LCwQ+AMzn3FW+JTw5BKpunaa5A9q
-	O7ZPeM1aEmjruzVjJm6pR44fdJNvTWXwxZxcBAxlcFDLUFs82UMDvPEuMIqmqCl8Fw9qnJ7KYoO
-	UraJG80kKJEY8FN8d6KF14P4CdSt2evPLDPPE6EsjwpCniDBRt6AGv0e
-X-Received: by 2002:a05:6402:3207:b0:6ba:9cea:5bdf with SMTP id 4fb4d7f45d1cf-6ba9cea5dbfmr2715988a12.8.1795436017691;
-        Mon, 23 Nov 2026 04:13:37 -0800 (PST)
+        bh=a88ULBFAQx4LAiXbEAQvfvekeJqnITJpUHZuo0L1DZQ=;
+        b=VsGngFn6fFqOfupRkQP/la+KA+kYu4jzoembGe5DjgRT0U9LhRa0SNDbnphJ5uqNu6
+         8vgHJxEQDWAEk0RBRZw07we09w2wDql8Pnrsl4Ythr2iainnLrbgA4deXJqUcAXAoxpM
+         s+B3IzfqB1xK64wzx+l/pFdLVAMFld/sIh1wsReFSlMcxar5KEZenuqL9iTSDoh2lLs5
+         M7pUt+uXd/76FKT8oWJ7YS9G46NIjHoypmw7Gd7zP10xu6ukad2asvoDFD1Nx1dYmJkJ
+         V6md1zYaPV0CWgHq7GxRgCUCQvNw+R2TnHUjMsX6+KCS5whSE3Ske67lz/ku3J6NYvez
+         WEtg==
+X-Forwarded-Encrypted: i=1; AL+hErFvgDUUpKAtMWo9qx9L50+eJbxdGEdl6MQaZpvP9RqkoHVuxPxs8aEJaqcxHfWBykPazJ4YsqLdMs8uNw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z93ZWGY9fg+S/rXKBR/qeiMokOw76N3P5ShOOGztMfCJTOHophJ
+	cKgFyFJ8LaMt5Ob2OOuIqdxqyWXygzLHj8wj6XUPvzZkEPs91F11x3gg
+X-Gm-Gg: AZFdTZeY8F6EVX0YoPC8M4qu4bV8/dGP3x7ChhDc9AOX6wswc5leyQBtlcUbh0v1O9G
+	DK9u77NFMvHvIPFbbMhstv8k9/XeTydV+llpDhPMXbu+v3wUtZR07eNfcuGTUKIT7R3+fXrrx9p
+	WbKPntrl2trlpBpn93EXIN/xNXaFd3h5vDWz/KioqUscwKun/g5eEyJ0gJq9bnZbPLxiljyAJOi
+	a9GANMIR9kWPlfsP/WoC5No6wuF2u5VMt8r+G1mTlsFx7tu/ylPX1nRNrw9yRcAKQsZOlADsfDI
+	87s9gwurz5HkhNYu1ytAHKf97HhCSfFU07fM2x8w/sotr9uOPhzTt7AnGw1DOhD9lbv8j/Y/QGQ
+	i3RioWtfadybc1qAtJIoSVdy8Vj+lr+2gNSmeXS7w/a6yhvrb1gpj1k4kjVztmtvdkx078TxPKv
+	gqI9mEjs9By50i7bI8xrzNzCLEp++/MLzIWX49hywa+jpNhyFgpG+1JZBTl0qK5p02lZQ1VBKO9
+	miQNnHU4KAm5RNueV4EemQQ0iHUHwloCCZXOZtfC0XTSHnsNg72JcFTyi0/cLAn4ijyplfhf9rF
+	gCUzMC/gCv4Ua13JWGrJKyy2Mw8PQq1Vc2S2ObhStZ4WsuwDXR7iRu+M
+X-Received: by 2002:a17:907:6d26:b0:c51:50c9:741c with SMTP id a640c23a62f3a-c5150c98208mr692273566b.10.1795436279974;
+        Mon, 23 Nov 2026 04:17:59 -0800 (PST)
 Received: from localhost ([50.7.123.82])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6ba370fe162sm5443990a12.26.2026.11.23.04.13.34
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513aec5115sm397263266b.51.2026.11.23.04.17.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Nov 2026 04:13:36 -0800 (PST)
+        Mon, 23 Nov 2026 04:17:59 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,8 +90,8 @@ Precedence: list
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Mon, 23 Nov 2026 15:13:32 +0300
-Message-Id: <DN2KY5MGERWB.3DN1SFL7JZDLO@gmail.com>
+Date: Mon, 23 Nov 2026 15:17:55 +0300
+Message-Id: <DN2L1II131YK.3M3CEKXTOAUDX@gmail.com>
 Cc: "Rob Herring" <robh@kernel.org>, "Krzysztof Kozlowski"
  <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>, "Matthias
  Brugger" <matthias.bgg@gmail.com>, "AngeloGioacchino Del Regno"
@@ -105,138 +105,60 @@ Cc: "Rob Herring" <robh@kernel.org>, "Krzysztof Kozlowski"
  <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
  <linux-arm-kernel@lists.infradead.org>,
  <linux-mediatek@lists.infradead.org>, <linux-serial@vger.kernel.org>,
- <linux-input@vger.kernel.org>, <phone-devel@vger.kernel.org>
-Subject: Re: [PATCH v3 7/7] arm64: dts: mediatek: Add Xiaomi Poco X4 GT
+ <linux-input@vger.kernel.org>, <phone-devel@vger.kernel.org>, "Krzysztof
+ Kozlowski" <krzysztof.kozlowski@oss.qualcomm.com>, "Conor Dooley"
+ <conor.dooley@microchip.com>
+Subject: Re: [PATCH v3 0/7] arm64: mediatek: Add initial MT6895 and Xiaomi
+ Poco X4 GT support
 From: "Alexander Letuchiy" <asalde.le1@gmail.com>
 To: "Roman Vivchar" <rva333@protonmail.com>
 X-Mailer: aerc 0.22.0-0-gc2f86b7abde3
 References: <20261123-initial-mt6895-v3-0-95c46597e63d@gmail.com>
- <20261123-initial-mt6895-v3-7-95c46597e63d@gmail.com>
- <cYX8v2leizSJfWjS_2dbkU2i6ApgjEKmgar6xjZopFQipSXW6YZNgjexWomHucqKghaTzW7oO5GN_jeNBM1MBy0u7aEDR2ygQ1s7x_L2jpA=@protonmail.com>
-In-Reply-To: <cYX8v2leizSJfWjS_2dbkU2i6ApgjEKmgar6xjZopFQipSXW6YZNgjexWomHucqKghaTzW7oO5GN_jeNBM1MBy0u7aEDR2ygQ1s7x_L2jpA=@protonmail.com>
+ <ckJZtdZ4-fPzsa3vkozNyEYYUbG9qd134hYb0hHEuq2nL8WMAR1PS87OpDfXrkU-E-85rsG1I4V99_M41j6-ewkD_41XPguDel3z8z0lmMk=@protonmail.com> <DN2KN6PFHOXG.1EWK1XUHY7IKK@gmail.com> <OZecqgdcxZrbwT7Ps6SDq9u1Q2EeF9jng68KHoWs8vTEetcTU8GAfC5LYcKzDGEZlr5Rlzh4rgzVh36JelFK1zHk3Dgh3TVGqj_a5Y3hv6Y=@protonmail.com>
+In-Reply-To: <OZecqgdcxZrbwT7Ps6SDq9u1Q2EeF9jng68KHoWs8vTEetcTU8GAfC5LYcKzDGEZlr5Rlzh4rgzVh36JelFK1zHk3Dgh3TVGqj_a5Y3hv6Y=@protonmail.com>
 
-On Mon Nov 23, 2026 at 3:00 PM MSK, Roman Vivchar wrote:
-> On Monday, November 23rd, 2026 at 1:20 PM, Alexander Letuchiy <asalde.le1=
+On Mon Nov 23, 2026 at 3:04 PM MSK, Roman Vivchar wrote:
+> On Monday, November 23rd, 2026 at 1:59 PM, Alexander Letuchiy <asalde.le1=
 @gmail.com> wrote:
 >
->> Add a device tree for the Xiaomi xaga board, which is sold as Xiaomi
->> Poco X4 GT, Redmi Note 11T Pro/Pro+ and Redmi K50i. It enables a serial
->> console on UART0 and the volume down key on the SoC keypad. The power
->> and volume up keys are connected to the MT6363 PMIC, which isn't
->> supported yet.
+>> Hi Roman,
 >>=20
->> The DT only describes the memory that Linux itself uses, which is the
->> ramoops region. The bootloader updates the /memory node and adds the
->> firmware carveouts to /reserved-memory, so their addresses are not
->> hardcoded here. This DT must not be booted with a bootloader that does
->> not do this, as Linux would then use memory owned by the firmware.
+>> On Mon Nov 23, 2026 at 2:41 PM MSK, Roman Vivchar wrote:
+>> > > Bootloader dependency
+>> > > ---------------------
+>> > > This was tested with a modified LK bootloader that is not public.
+>> >
+>> > How are other xaga users supposed to boot the kernel? You might want t=
+o
+>> > port uniLoader instead, or if you're on an old enough security patch y=
+ou
+>> > can even replace stock LK with U-Boot. U-Boot chainloading is also
+>> > possible.
 >>=20
->> The ramoops zone sizes place the console zone at the offset where the
->> bootloader expects to find it.
+>> Right now I am replacing the stock LK with a modified one that knows
+>> how to handle mainline DTs without expecting downstream Android nodes.
+>
+> LK is known to mess up GPIO and clock state. The earlier you replace LK
+> the better.
+>
 >>=20
->> Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
->> ---
->>  arch/arm64/boot/dts/mediatek/Makefile              |  1 +
->>  .../arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts | 87 +++++++++++++++=
-+++++++
->>  2 files changed, 88 insertions(+)
->>=20
->> diff --git a/arch/arm64/boot/dts/mediatek/Makefile b/arch/arm64/boot/dts=
-/mediatek/Makefile
->> index a86fb313b1a9..d73489149ab5 100644
->> --- a/arch/arm64/boot/dts/mediatek/Makefile
->> +++ b/arch/arm64/boot/dts/mediatek/Makefile
->> @@ -6,6 +6,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt6795-evb.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt6795-sony-xperia-m5.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt6797-evb.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt6797-x20-dev.dtb
->> +dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt6895-xiaomi-xaga.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt7622-rfb1.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt7622-bananapi-bpi-r64.dtb
->>  dtb-$(CONFIG_ARCH_MEDIATEK) +=3D mt7981b-cudy-wr3000-v1.dtb
->> diff --git a/arch/arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts b/arch/=
-arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts
->> new file mode 100644
->> index 000000000000..7bfe0d438803
->> --- /dev/null
->> +++ b/arch/arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts
->> @@ -0,0 +1,87 @@
->> +// SPDX-License-Identifier: (GPL-2.0 OR MIT)
->> +/*
->> + * Copyright (C) 2026 Alexander Letuchiy <asalde.le1@gmail.com>
->> + */
->> +
->> +/dts-v1/;
->> +#include <dt-bindings/input/input.h>
->> +
->> +#include "mt6895.dtsi"
->> +
->> +/ {
->> +	model =3D "Xiaomi Poco X4 GT";
->> +	compatible =3D "xiaomi,xaga", "mediatek,mt6895";
->> +	chassis-type =3D "handset";
->> +
->> +	aliases {
->> +		serial0 =3D &uart0;
->> +	};
->> +
->> +	chosen {
->> +		stdout-path =3D "serial0:921600n8";
->> +	};
->> +
->> +	memory@40000000 {
->> +		device_type =3D "memory";
->> +		/* The size will be filled in by the bootloader */
->> +		reg =3D <0x0 0x40000000 0 0>;
->> +	};
->> +
->> +	reserved-memory {
->> +		ranges;
->> +		#address-cells =3D <2>;
->> +		#size-cells =3D <2>;
->> +
->> +		/* The firmware carveouts are added by the bootloader. */
->> +
->> +		ramoops@48090000 {
->> +			compatible =3D "ramoops";
->> +			reg =3D <0 0x48090000 0 0xe0000>;
->> +			no-map;
->> +			console-size =3D <0x40000>;
->> +			ftrace-size =3D <0x10000>;
->> +			pmsg-size =3D <0x10000>;
->> +			record-size =3D <0x10000>;
->> +		};
->> +	};
->> +};
->> +
->> +&keypad {
->> +	debounce-delay-ms =3D <32>;
->> +	keypad,num-columns =3D <1>;
->> +	keypad,num-rows =3D <1>;
->> +	linux,keymap =3D <MATRIX_KEY(0, 0, KEY_VOLUMEDOWN)>;
->> +	pinctrl-0 =3D <&keypad_pins>;
->> +	pinctrl-names =3D "default";
->> +
->> +	status =3D "okay";
->> +};
+>> In an ideal world, I would like to replace LK directly with U-Boot as
+>> you suggested, though U-Boot chainloading or uniLoader are also valid
+>> options. Luckily, the security patch level isn't really a concern here =
+=E2=80=94
+>> xaga is already EOL and hasn't received official firmware updates for a
+>> while, so LK replacement works across the final stock builds. I
+>> definitely plan to look into a proper open bootloader setup for other
+>> users in the future.
 >
-> Nit: vendor,property should go after pinctrl.
->
-> debounce-delay-ms
-> pinctrl-0
-> pinctrl-names
-> keypad,*
-> linux,keymap
->
-> status
->
-> P.S. scripts/dtc/dt-check-style --mode stricter can be handy.
+> You can take a look at mt6768. It's not upstream, but we replace U-Boot
+> and TF-A with custom forks, as well as provide tooling to prepend
+> meditek-specific headers for the latter.
 >
 > Best regards,
 > Roman
 
-Thanks, I followed the ordering Angelo suggested in v2, so I missed
-this.
+Thanks for the pointers and the mt6768 reference, I'll check it out.
 
 Best regards,
 Alexander

@@ -1,96 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795458847;
-	b=AeA3JoRRN5cl8++a+OtbTPPHCtnx+XiiMGJp1ulVb8LxoKwX7PVsyTa5F0ymdoXnmgmy
-	 rKcxQTVtrfH01PUgq8czbMdiZ6031kOd4EL5DCq90VZQRLb5xr43fxgEdVaeypafKpEvS
-	 RBfF9ywhAfrO0eF3qDSugqeBD/tax2E1fbYBxiKyAWHErhrGf9bNSFrQjs+oQgIqKb8T4
-	 Ow9rzCa/PxrEBmjrU3+ZGMxOevSWJZ7kwyii5G1KhS0DCYFSS5I/TzTi97zdldwV10K1+
-	 FwhhinuFtWGtL2GWc7ct26AmE0pkSJxD/I38Mlv8iB+qS33QC3kGVg2T7Fw+qZsKNLw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795458847;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=Otb5sptt/O2moH4ZmOuRJ8i8LXpeoJWjWRCpePvANNg=;
-	b=oNKC29cozpLK2axBQ/qQwe+Sy8gQZSE5bFZ2WRyRNf5dl8mrKx13hhgANSzYOQIS0akh
-	 lqM3xFxGlgptXWULp/rvb4Hq5thlKOSr3FuOi10O3SEFCFERUe/K3G/bk8S5cErIcI8tU
-	 h+obeVldOVezf5XNkBOD5wZ8upfIfAeNEK/CKuaML8dEJ3yQNvsvd5f9AcqjMtYAMYjKI
-	 1wK0nttEi84hQyduORpVG1nNZFSzfld6AYFGS0icA0Dby/EvIFmwCL/9N9N8WCnN2unhd
-	 prPzcMfnKH6TVLR+pJn6hPptNM4lvY+f+0w6g8CT7rnryi3x0SogTcYKAwGVEf8xcKw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q10AmrpX;
-	arc=none smtp.remote-ip=209.85.221.48
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795459342;
+	b=desDUDM5Cz7HdANFL3+LSHKIN8JjU42lFBKjKYWXbeurH1Wu8KIn/gi6IOBAw4tfbui+
+	 gkGYHK+JvkYt66VsDNrZvh9IQzMbAayf2DxQ2ELAHAno5CH6OLle6VS/CIg87XDO99B+w
+	 tR4JZKMceEDv0f5NeRAjArIu34flhMmKoq3Yf9RKtkPhLD+yClYOsm0ORadNmCX0HTb8K
+	 Acav+hpPo08NH1DNMi1P0qiOf7jjpnq2A9qjhVG/6WRB8h0X43frWKHhtGk7iakxRIXPh
+	 YfPyjqDwSaViQKcvYT9W8NDF9ob9n+Trl+NzjiIZ/mj2W+hqAw6LaRZOFrchShtVLsQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795459342;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Sj1QgnUCcj67Wu9CL/Rk6ZEmkka+I0rDPwZuBpcCNdg=;
+	b=x1q/qC0CHi1zEJJb5vjqEeqF2du6+c0SwZaFZkkwWWobl17A0mjF/ocKXix2f6DoZb6Q
+	 HTm0R8lQ63YDsA5rZdeRdXeO7WQ/SJOrb3YICx0mVSkQWeB123fu6LQAUXRTGiCLZpOWz
+	 aDCWR8UNb4L7ZPF9227m2k6U2vfpyq/exnDuH8bBioH4AbUUaoHuhuonV83K6nTMyVeAb
+	 SFKJBD2LJ3C9jidjmJMviEcMeNUXz9CkU3ZTgA3ji2ZmIXK1I8NVT/FqMSLahmO4doycY
+	 7PvS9rLpnIAEQwTxvBG3LnSdNYN+hVN/6X+wTZY2VTVifScaGsGsO+90wO4KdNjtT7w==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=We4KrTBt;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2986606A6AE;
+	Mon, 23 Nov 2026 18:42:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=We4KrTBt
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795459341;
+	b=3bMLqSSks6qTrILDZ5eTP3aL1auiW1fcZPtsx5xW/Gv9TYSqkpw7QGO4STNn4M/GXPnj
+	 CK0z+LnpOMAiZ9spKlqheTmNkH/MfU3F83byNzcLropywnvoz7siYYoLjQWRqjzdu6X/M
+	 8XFXT1cM4VjzsOcm5X/IYZ7De9iDPaAjhuh9slqrbjrWHrdvk2hT6Q2B8wG2iNyc+sMUh
+	 EnWjAbyKRfVfao/dzTNNIUVxL+/m5+ij5aYRfkYH88UwfTbeuNRm7KOmuS5yXfm7YzEq3
+	 vZWb41QWKrCFqNRDbD/uyOxH+ToPsQ6SzWvHmP7/Z8Dls2lqe9mmACo0n25isF7YUXA==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795459341;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Sj1QgnUCcj67Wu9CL/Rk6ZEmkka+I0rDPwZuBpcCNdg=;
+	b=OlxE1oHQfyGmDnkDLlp3R6rOCqx/s9wpI8RN939rSb+9wAT7ybm+29t0HSMRECE1v2X2
+	 jJ/l/U0VLD2E/WftteNfljA9/CI2hnAEKtQ5Z9bGb1iD/T8A/OSjdsutcZFuekUbphItv
+	 cIZRXe2LU723hTUHqC4iv3dRbeU8Foo1vHdYOINvneU1TBCdYpXJ+6wojD0VyGLeRl44W
+	 nZur0Mf4qHCPmYWjLyRVDpK44drxii9c80hU/3nIjJHTSBfbypZAoiaK7NUPzG6x2i059
+	 gi83VRGSfgImkW6WlMGhcmt5asxa8BAirzlrR7vAhdGZQe/YTlWZCTcjib0mAAXjR2w==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1C38606A31A
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 18:34:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A1C38606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q10AmrpX
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-4a7b8abe209so2809167f8f.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 10:34:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795458845; x=1796063645; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Otb5sptt/O2moH4ZmOuRJ8i8LXpeoJWjWRCpePvANNg=;
-        b=Q10AmrpXNfizMTlCVJVVqWmyE1wnvQzO3SpxGCsnyfF5d+0dap3FQv446ZHvOlArGl
-         h1ANPDM/fqk7FaE7jUkfX7ByRqq9GIbMagcV1kVccUTQElcfpS9lHjDQnE7RXD66gR2m
-         IREEiSwh8+Xch3vZTS2fMA7AJXssEM/UUQW9POTMw4ijXqfldZ5BDlDPVEwTgWjGtR4M
-         Zs5o7AYON2LgrD09pgWkVcSfwPJEdeL2J5UpplHJuJZAf3ZoIxlbQfBK8kyj3bHTCsEN
-         n9z6HHDnCUwzZU5TyERqBMhgWI/cCQIYTRpA5o5LlESVuRndcHhZqFN0ZdSBUFDdClEP
-         dRcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795458845; x=1796063645;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Otb5sptt/O2moH4ZmOuRJ8i8LXpeoJWjWRCpePvANNg=;
-        b=luw5SkPro8Gfxkik5m5A7iTcS0Xh352a3+M59x7xpkCGMZwWhExhvs+i/s+q+YiAD9
-         69hgfbL238qGuZLwh/spwM3G7wnMHiatBTaDMLgLEICqPP/IUjvTvAmZSlvDV6YfFOHH
-         phrPEC9lElzCNOum/feuvozVAY579s0FN5gzY6kXT7SDHsfnEnUsULss2aepIdA7DHjA
-         EoSQySAgyhSY456y0ioe43nQ4LL8aa21gWfw09KoQvjRP1SqWvMwtLxkN/tt/cDgmXNB
-         g6g05GnbdGdgGc3WPYwkWihM2THdRJF3EQeEdJaqGTZ66GIB29zz+mwqZdGGTSvLhpHZ
-         qZqQ==
-X-Forwarded-Encrypted: i=1; AL+hErGVYW70590mx9yWdmwaDVdMdgw7iYid2OA/6W1/ikW+2By4vLOmbrMDlKbmxLyeNDbCQHu3bKFoBgjJUw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+HmrM/tYvY+dNoii8nE+0b9C3W+uWl0FsZvji7kUHkyNIUSM1v
-	m3x7A0UYHbxgStso7MyRxbDcM5hIyUTntHpl4fw8y9ULKNxoACsGWRbECDIFOaiCPx8=
-X-Gm-Gg: AZFdTZcAoRNsYUZ5j/KKqN3+HCEKGYrMK8JSGfgd2ft1gMXHsSvZ1+mJMUjGPRMd2ps
-	XVCS19DoNGarwyS1CpFWEKklTsN/THNsxiGrdt7Y+OeSYn4ifODsbKntw2ayldWWp9o+68n6sT9
-	rDBxH8lwgtFA1yf2piZtjzb0gntQxVp1Po6e1bSlsggMlIEGn+ddFnK/w3OUJR4oFiyWlg0tHDo
-	46fgJNDtklr7NqiKi1kJ/7/yjSk/EjCWm8l3eWt5uvyFxLBMu7xXc+NAP1+pjBi7kzmhJOu2RhT
-	EEaxyWLuD4S5XuG1Gt2tfo4lJuDSLRSWL6FAnhUQigrSfZZkTK+ETUd/oN83Gj5Md15m7nLDZom
-	/rz5NS87X6UIZa+0Zw6NbH+DE4VZcZG3PP8GTxzVYIXYm570RY5VZOcUMZam9L2gKQfhlSE9K5y
-	ywfvi/2CtULaYwQVTk4dxldwYqjTmZjNeRL7sXoelz0H3lVQYtrIwXsqyPkapdzipH4P3lVF4Yz
-	nOQwpOYtJxq1g5wvmkV0Pha6CV3Rmx4oRa87AlLG3YdqvCnYkaaTbOG2Mj866ZL1DqYs47f+XVf
-	XD3aDoFJFR8slGL6GpUnO44f3mOEzSfPOG4o4WIFloJsqYZ7+vV+k/ZqMXJRaEt8OVCF8zUDJUA
-	8GINFKRGnBhBNjb3oLYpRzbifqfM=
-X-Received: by 2002:a05:6000:26ca:b0:4a7:1fca:e52b with SMTP id ffacd0b85a97d-4abb0e469damr24892047f8f.19.1795458844808;
-        Mon, 23 Nov 2026 10:34:04 -0800 (PST)
-Received: from dmig-l13.lan ([2a02:2455:ffd8:3900::c9b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6a680355sm20408949f8f.27.2026.11.23.10.34.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 10:34:04 -0800 (PST)
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-To: jikos@kernel.org
-Cc: bentiss@kernel.org,
-	hadess@hadess.net,
-	lains@riseup.net,
-	rydberg@bitmath.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: [PATCH v4] HID: logitech-hidpp: add native touchpad support for K400 Plus
-Date: Mon, 23 Nov 2026 19:33:47 +0100
-Message-ID: <20261123183347.54413-1-dmitriy.geels@gmail.com>
-X-Mailer: git-send-email 2.56.1
+	by smtp.kernel.org (Postfix) with ESMTPS id D3F191F000E6;
+	Mon, 23 Nov 2026 18:42:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795459340;
+	bh=Sj1QgnUCcj67Wu9CL/Rk6ZEmkka+I0rDPwZuBpcCNdg=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=We4KrTBtNPfLe7ix9ckReVLOB5ASEIsa5r0A8qLmhJFA2YfsfCmePnHv/c6NybNG+
+	 +QZ9V7Lt3tPW0Xe6N5t/MVwTE9uH8omHf9Q9zLHjLTPDpJtajE+rYMbPHRQPbY6hju
+	 l+cZieG1tNDcq1gGrUssT+o1Wk/X390/fA4QDlRWSMnH9zDmjeNEdGrlSu0hb4pZ1T
+	 UUqL7EgFbjjqW6/DcknZRgT91LHkrcPLYy/nUyzpu1O8wpd0SoQ68Luuo6voQllu6d
+	 jiNcJpfwT4/200bKIkVozYfrH4Fpa91vX/V1rsuqoLRnZv94RHTmd5OHhGGrLXHCyc
+	 Y6pY0yMINjIMg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id BABE94C603;
+	Mon, 23 Nov 2026 18:41:45 +0000 (UTC)
+From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
+Date: Mon, 23 Nov 2026 21:41:46 +0300
+Subject: [PATCH 2/2] Input: sx8654 - check SX8650 status read errors
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,441 +82,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261123-b4-sx8650-fixes-v1-2-b82a881b971d@gmail.com>
+References: <20261123-b4-sx8650-fixes-v1-0-b82a881b971d@gmail.com>
+In-Reply-To: <20261123-b4-sx8650-fixes-v1-0-b82a881b971d@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795459304; l=1341;
+ i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=j7j0QABqTYkyAI99G3MkmYNFWGfU+BRfuwxQGR7FYUQ=;
+ b=hULECcoojitZP+pdrqNygybaX6ioV4cxlzfhmHcoFE2ypGfqmkKU23TUc6GA3WWApdVcX4F5r
+ 0tyqMowE55xD4j+hCYp50w3NPquNMPFb1GJUq4iGkAlkFNMBU9GXydX
+X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
+ pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
+X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
+ auth_id=1085
+X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Reply-To: filipp.dunsky@gmail.com
+Content-Transfer-Encoding: 7bit
 
-The Logitech K400 Plus (WPID 0x404d) exposes its touchpad through the
-HID++ TouchpadRawXY feature, but currently operates as an emulated mouse.
+From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Add support for the native raw touchpad reports by creating a separate
-multitouch input device while leaving the keyboard and physical button
-reports on the existing HID input device.
+Keep the signed return value of i2c_smbus_read_byte_data and reject
+errors before testing CONVIRQ. Truncating an errno to u8 can set the
+conversion-pending bit; for example, -EIO becomes 0xfb and causes a
+channel read and potentially a touch report after the failed status
+read.
 
-The K400 Plus reports an area range of zero. Do not expose
-ABS_MT_PRESSURE when the TouchpadRawXY feature reports no contact area,
-as a permanently zero pressure value causes userspace to treat contacts
-as hovering rather than touching.
+Fixes: 43df039c6d92 ("Input: sx8654 - add sx8650 support")
 
-This enables native touchpad handling, including multitouch gestures and
-two-finger scrolling.
+Cc: stable@vger.kernel.org
 
-This is an AI-assisted patch.
-
-Signed-off-by: Dmitriy Geels <dmitriy.geels@gmail.com>
+Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
-Changes in v4:
-- Rebase onto the current HID for-next branch.
-- Do not advertise clickpad buttons on the separate K400 Plus touchpad
-  device; physical button events remain on the existing HID input.
-- Use a stable K400 Plus touchpad name, independent of receiver naming
-  and the longer HID++ firmware product name.
-- Publish the touchpad input pointer only after successful registration and
-  use READ_ONCE() in the raw event path.
-- Keep the existing WTP input pointer path unchanged and clean up allocation
-  failures. The touchpad name no longer needs a separate allocation.
+ drivers/input/touchscreen/sx8654.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
- drivers/hid/hid-logitech-hidpp.c | 211 ++++++++++++++++++++++---------
- 1 file changed, 153 insertions(+), 58 deletions(-)
+diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
+index 13dd80a8e..1ae00cc2a 100644
+--- a/drivers/input/touchscreen/sx8654.c
++++ b/drivers/input/touchscreen/sx8654.c
+@@ -130,8 +130,7 @@ static irqreturn_t sx8650_irq(int irq, void *handle)
+ {
+ 	struct sx8654 *ts = handle;
+ 	struct device *dev = &ts->client->dev;
+-	int len, i;
+-	u8 stat;
++	int len, i, stat;
+ 	u16 x, y;
+ 	u16 ch;
+ 	u16 chdata;
+@@ -142,6 +141,9 @@ static irqreturn_t sx8650_irq(int irq, void *handle)
+ 	stat = i2c_smbus_read_byte_data(ts->client, CMD_READ_REGISTER
+ 						    | I2C_REG_SX8650_STAT);
+ 
++	if (stat < 0)
++		return IRQ_HANDLED;
++
+ 	if (!(stat & SX8650_STAT_CONVIRQ)) {
+ 		dev_dbg(dev, "%s ignore stat [0x%02x]", __func__, stat);
+ 		return IRQ_HANDLED;
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 27d83b8bbaaf..7b52c88506a1 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -64,6 +64,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_CLASS_K400			BIT(2)
- #define HIDPP_QUIRK_CLASS_G920			BIT(3)
- #define HIDPP_QUIRK_CLASS_K750			BIT(4)
-+#define HIDPP_QUIRK_CLASS_KBD_WTP		BIT(5)
- 
- /* bits 2..20 are reserved for classes */
- /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
-@@ -2931,11 +2932,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp,
- #define WTP_MANUAL_RESOLUTION				39
- 
- struct wtp_data {
-+	struct input_dev *input;
- 	u16 x_size, y_size;
- 	u8 finger_count;
- 	u8 mt_feature_index;
- 	u8 button_feature_index;
- 	u8 maxcontacts;
-+	u8 area_range;
- 	bool flip_y;
- 	unsigned int resolution;
- };
-@@ -2947,8 +2950,8 @@ static int wtp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return -1;
- }
- 
--static void wtp_populate_input(struct hidpp_device *hidpp,
--			       struct input_dev *input_dev)
-+static int wtp_populate_input(struct hidpp_device *hidpp,
-+			      struct input_dev *input_dev)
- {
- 	struct wtp_data *wd = hidpp->private_data;
- 
-@@ -2962,22 +2965,31 @@ static void wtp_populate_input(struct hidpp_device *hidpp,
- 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, wd->y_size, 0, 0);
- 	input_abs_set_res(input_dev, ABS_MT_POSITION_Y, wd->resolution);
- 
--	/* Max pressure is not given by the devices, pick one */
--	input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
-+	/*
-+	 * The driver exposes contact area as pressure.  Do not advertise a
-+	 * pressure axis when the device does not report contact area; userspace
-+	 * may otherwise interpret a permanently-zero pressure value as hover.
-+	 */
-+	if (wd->area_range)
-+		input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 50, 0, 0);
- 
--	input_set_capability(input_dev, EV_KEY, BTN_LEFT);
-+	/* The K400 Plus reports its physical button on the HID input. */
-+	if (!(hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP)) {
-+		input_set_capability(input_dev, EV_KEY, BTN_LEFT);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS)
--		input_set_capability(input_dev, EV_KEY, BTN_RIGHT);
--	else
--		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-+		if (hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS)
-+			input_set_capability(input_dev, EV_KEY, BTN_RIGHT);
-+		else
-+			__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-+	}
- 
--	input_mt_init_slots(input_dev, wd->maxcontacts, INPUT_MT_POINTER |
--		INPUT_MT_DROP_UNUSED);
-+	return input_mt_init_slots(input_dev, wd->maxcontacts, INPUT_MT_POINTER |
-+				   INPUT_MT_DROP_UNUSED);
- }
- 
- static void wtp_touch_event(struct hidpp_device *hidpp,
--	struct hidpp_touchpad_raw_xy_finger *touch_report)
-+			    struct input_dev *input,
-+			    struct hidpp_touchpad_raw_xy_finger *touch_report)
- {
- 	struct wtp_data *wd = hidpp->private_data;
- 	int slot;
-@@ -2986,41 +2998,47 @@ static void wtp_touch_event(struct hidpp_device *hidpp,
- 		/* no actual data */
- 		return;
- 
--	slot = input_mt_get_slot_by_key(hidpp->input, touch_report->finger_id);
-+	slot = input_mt_get_slot_by_key(input, touch_report->finger_id);
- 
--	input_mt_slot(hidpp->input, slot);
--	input_mt_report_slot_state(hidpp->input, MT_TOOL_FINGER,
--					touch_report->contact_status);
-+	input_mt_slot(input, slot);
-+	input_mt_report_slot_state(input, MT_TOOL_FINGER,
-+				   touch_report->contact_status);
- 	if (touch_report->contact_status) {
--		input_event(hidpp->input, EV_ABS, ABS_MT_POSITION_X,
--				touch_report->x);
--		input_event(hidpp->input, EV_ABS, ABS_MT_POSITION_Y,
--				wd->flip_y ? wd->y_size - touch_report->y :
--					     touch_report->y);
--		input_event(hidpp->input, EV_ABS, ABS_MT_PRESSURE,
--				touch_report->area);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_X,
-+			    touch_report->x);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_Y,
-+			    wd->flip_y ? wd->y_size - touch_report->y :
-+			    touch_report->y);
-+
-+		if (wd->area_range)
-+			input_event(input, EV_ABS, ABS_MT_PRESSURE,
-+				    touch_report->area);
- 	}
- }
- 
- static void wtp_send_raw_xy_event(struct hidpp_device *hidpp,
-+		struct input_dev *input,
- 		struct hidpp_touchpad_raw_xy *raw)
- {
- 	int i;
- 
- 	for (i = 0; i < 2; i++)
--		wtp_touch_event(hidpp, &(raw->fingers[i]));
-+		wtp_touch_event(hidpp, input, &raw->fingers[i]);
- 
- 	if (raw->end_of_frame &&
--	    !(hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS))
--		input_event(hidpp->input, EV_KEY, BTN_LEFT, raw->button);
-+	    !(hidpp->quirks &
-+	      (HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS |
-+	       HIDPP_QUIRK_CLASS_KBD_WTP)))
-+		input_event(input, EV_KEY, BTN_LEFT, raw->button);
- 
- 	if (raw->end_of_frame || raw->finger_count <= 2) {
--		input_mt_sync_frame(hidpp->input);
--		input_sync(hidpp->input);
-+		input_mt_sync_frame(input);
-+		input_sync(input);
- 	}
- }
- 
--static int wtp_mouse_raw_xy_event(struct hidpp_device *hidpp, u8 *data)
-+static int wtp_mouse_raw_xy_event(struct hidpp_device *hidpp,
-+				  struct input_dev *input, u8 *data)
- {
- 	struct wtp_data *wd = hidpp->private_data;
- 	u8 c1_area = ((data[7] & 0xf) * (data[7] & 0xf) +
-@@ -3054,7 +3072,7 @@ static int wtp_mouse_raw_xy_event(struct hidpp_device *hidpp, u8 *data)
- 		.button = data[0] & 0x01,
- 	};
- 
--	wtp_send_raw_xy_event(hidpp, &raw);
-+	wtp_send_raw_xy_event(hidpp, input, &raw);
- 
- 	return 1;
- }
-@@ -3065,8 +3083,16 @@ static int wtp_raw_event(struct hid_device *hdev, u8 *data, int size)
- 	struct wtp_data *wd = hidpp->private_data;
- 	struct hidpp_report *report = (struct hidpp_report *)data;
- 	struct hidpp_touchpad_raw_xy raw;
-+	struct input_dev *input;
- 
--	if (!wd || !hidpp->input)
-+	if (!wd)
-+		return 1;
-+
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP)
-+		input = READ_ONCE(wd->input);
-+	else
-+		input = hidpp->input;
-+	if (!input)
- 		return 1;
- 
- 	switch (data[0]) {
-@@ -3077,16 +3103,16 @@ static int wtp_raw_event(struct hid_device *hdev, u8 *data, int size)
- 			return 1;
- 		}
- 		if (hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS) {
--			input_event(hidpp->input, EV_KEY, BTN_LEFT,
--					!!(data[1] & 0x01));
--			input_event(hidpp->input, EV_KEY, BTN_RIGHT,
--					!!(data[1] & 0x02));
--			input_sync(hidpp->input);
-+			input_event(input, EV_KEY, BTN_LEFT,
-+				    !!(data[1] & 0x01));
-+			input_event(input, EV_KEY, BTN_RIGHT,
-+				    !!(data[1] & 0x02));
-+			input_sync(input);
- 			return 0;
- 		} else {
- 			if (size < 21)
- 				return 1;
--			return wtp_mouse_raw_xy_event(hidpp, &data[7]);
-+			return wtp_mouse_raw_xy_event(hidpp, input, &data[7]);
- 		}
- 	case REPORT_ID_HIDPP_LONG:
- 		/* size is already checked in hidpp_raw_event. */
-@@ -3095,7 +3121,7 @@ static int wtp_raw_event(struct hid_device *hdev, u8 *data, int size)
- 			return 1;
- 		hidpp_touchpad_raw_xy_event(hidpp, data + 4, &raw);
- 
--		wtp_send_raw_xy_event(hidpp, &raw);
-+		wtp_send_raw_xy_event(hidpp, input, &raw);
- 		return 0;
- 	}
- 
-@@ -3108,6 +3134,9 @@ static int wtp_get_config(struct hidpp_device *hidpp)
- 	struct hidpp_touchpad_raw_info raw_info = {0};
- 	int ret;
- 
-+	if (wd->x_size)
-+		return 0;
-+
- 	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_TOUCHPAD_RAW_XY,
- 		&wd->mt_feature_index);
- 	if (ret)
-@@ -3122,6 +3151,7 @@ static int wtp_get_config(struct hidpp_device *hidpp)
- 	wd->x_size = raw_info.x_size;
- 	wd->y_size = raw_info.y_size;
- 	wd->maxcontacts = raw_info.maxcontacts;
-+	wd->area_range = raw_info.area_range;
- 	wd->flip_y = raw_info.origin == TOUCHPAD_RAW_XY_ORIGIN_LOWER_LEFT;
- 	wd->resolution = raw_info.res;
- 	if (!wd->resolution)
-@@ -3145,22 +3175,27 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
- 	return 0;
- };
- 
-+static int wtp_enable_raw_mode(struct hidpp_device *hidpp)
-+{
-+	struct wtp_data *wd = hidpp->private_data;
-+
-+	return hidpp_touchpad_set_raw_report_state(hidpp,
-+						  wd->mt_feature_index,
-+						  true, true);
-+}
-+
- static int wtp_connect(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
--	struct wtp_data *wd = hidpp->private_data;
- 	int ret;
- 
--	if (!wd->x_size) {
--		ret = wtp_get_config(hidpp);
--		if (ret) {
--			hid_err(hdev, "Can not get wtp config: %d\n", ret);
--			return ret;
--		}
-+	ret = wtp_get_config(hidpp);
-+	if (ret) {
-+		hid_err(hdev, "cannot get WTP config: %d\n", ret);
-+		return ret;
- 	}
- 
--	return hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
--			true, true);
-+	return wtp_enable_raw_mode(hidpp);
- }
- 
- /* ------------------------------------------------------------------------- */
-@@ -4063,15 +4098,20 @@ static int hidpp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- }
- 
- 
--static void hidpp_populate_input(struct hidpp_device *hidpp,
--				 struct input_dev *input)
-+static int hidpp_populate_input(struct hidpp_device *hidpp,
-+				struct input_dev *input)
- {
-+	int ret;
-+
- 	hidpp->input = input;
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
--		wtp_populate_input(hidpp, input);
--	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-+		ret = wtp_populate_input(hidpp, input);
-+		if (ret)
-+			return ret;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
- 		m560_populate_input(hidpp, input);
-+	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_WHEELS)
- 		hidpp10_wheel_populate_input(hidpp, input);
-@@ -4081,6 +4121,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_HIDPP_REPROG_CONTROLS_BTNS)
- 		hidpp20_reprog_controls_populate_input(hidpp, input);
-+
-+	return 0;
- }
- 
- static int hidpp_input_configured(struct hid_device *hdev, struct hid_input *hidinput)
-@@ -4109,9 +4151,7 @@ static int hidpp_input_configured(struct hid_device *hdev, struct hid_input *hid
- 		}
- 	}
- 
--	hidpp_populate_input(hidpp, input);
--
--	return 0;
-+	return hidpp_populate_input(hidpp, input);
- }
- 
- static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
-@@ -4273,6 +4313,9 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
- 		return wtp_raw_event(hdev, data, size);
-+	else if ((hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP) &&
-+		 data[0] == REPORT_ID_HIDPP_LONG)
-+		return wtp_raw_event(hdev, data, size);
- 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
- 		return m560_raw_event(hdev, data, size);
- 
-@@ -4481,7 +4524,50 @@ static void hidpp_connect_event(struct work_struct *work)
- 		return;
- 	}
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_KBD_WTP) {
-+		struct wtp_data *wd = hidpp->private_data;
-+
-+		if (!wd->input) {
-+			ret = wtp_get_config(hidpp);
-+			if (ret) {
-+				hid_err(hdev, "cannot get WTP config: %d\n", ret);
-+				return;
-+			}
-+
-+			input = hidpp_allocate_input(hdev);
-+			if (!input) {
-+				hid_err(hdev, "cannot allocate touchpad input device\n");
-+				return;
-+			}
-+
-+			/* This quirk is specific to the K400 Plus (WPID 0x404d). */
-+			input->name = "Logitech K400 Plus Touchpad";
-+
-+			ret = wtp_populate_input(hidpp, input);
-+			if (ret) {
-+				hid_err(hdev,
-+					"cannot initialize touchpad input device: %d\n",
-+					ret);
-+				input_free_device(input);
-+				return;
-+			}
-+
-+			ret = input_register_device(input);
-+			if (ret) {
-+				hid_err(hdev,
-+					"cannot register touchpad input device: %d\n",
-+					ret);
-+				input_free_device(input);
-+				return;
-+			}
-+
-+			WRITE_ONCE(wd->input, input);
-+		}
-+
-+		ret = wtp_enable_raw_mode(hidpp);
-+		if (ret)
-+			return;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
- 		ret = wtp_connect(hdev);
- 		if (ret)
- 			return;
-@@ -4572,7 +4658,12 @@ static void hidpp_connect_event(struct work_struct *work)
- 		return;
- 	}
- 
--	hidpp_populate_input(hidpp, input);
-+	ret = hidpp_populate_input(hidpp, input);
-+	if (ret) {
-+		hidpp->input = NULL;
-+		input_free_device(input);
-+		return;
-+	}
- 
- 	ret = input_register_device(input);
- 	if (ret) {
-@@ -4712,7 +4803,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	    hidpp_application_equals(hdev, HID_GD_KEYBOARD))
- 		hidpp->quirks |= HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS;
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-+	if (hidpp->quirks &
-+	    (HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_CLASS_KBD_WTP)) {
- 		ret = wtp_allocate(hdev, id);
- 		if (ret)
- 			return ret;
-@@ -4843,6 +4935,9 @@ static const struct hid_device_id hidpp_devices[] = {
- 	{ /* Keyboard logitech K400 */
- 	  LDJ_DEVICE(0x4024),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K400 },
-+	{ /* Wireless Touch Keyboard Logitech K400 Plus */
-+	  LDJ_DEVICE(0x404d),
-+	  .driver_data = HIDPP_QUIRK_CLASS_KBD_WTP },
- 	{ /* Solar Keyboard Logitech K750 */
- 	  LDJ_DEVICE(0x4002),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
 -- 
-2.56.1
+2.53.0
+
 

@@ -1,57 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795425756;
-	b=mV0zUD+IW1odUyDHqx4KNeJayr5h0sHCX9BW1c9VRCyE2eHKbn4WCbd4bLiT3DGOb972
-	 0xqbatX2VB5+sKoL9w4xSnJ/AeEqY62A8nQth0QLNBOJZu44EkKueuJ5xOIzEmw2OQaZZ
-	 yKbaTZ7kA1UYJMyMnRWDKdUEOxpVo+37u+UEKCco0GSGrCf/RQw8Um8KHRfpPEfioCqZf
-	 LvaiA/t+wp2ztMVsK/xuXCMdCeBn8nLG4QWV83YS+vcvxLTbsGjS2KARN7Hcj5M853CCW
-	 SuAALhohXBZuFoCxzzjzZ9yR/WtnCyWQphOwOKP2IbMqAkPhAOg1NnfIenWCxfsTBvA==
+	t=1795426101;
+	b=NKvnwH2Yfb9xhxZvwKex8Ocu9h6GcKijgjLgXenVs2fCBE90HsnAtcyk2w/ZY0I8C0BF
+	 Es7BeezOJ1J26ezfUj8G+s3pBJAaLUn8/j2DkFOtTVKmkiU8VMuJ0Yf7g8I9cCmfNdxgu
+	 WloLJbvQI+EKjm/gkL8yOerMLtVKhb4r2XWmuhSNKmRyPoeM8bsjHIlsjZUlBL9aj8Bep
+	 dE5K10AxEhR/DqUpsdi8r6xNzuw5FdY8LxnA4EDGbpC2CGy6k6ifVl2dfQKoeI/f9PpW7
+	 BdnsxQhomtSZit92COQN7gJbyr9UItxXLBSRkx1po9N0I/YdwukXJdvRQziHPDhtD1g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795425756;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=+YqP0VPIZaqejn7zGmUTDDm9+wSwQPjiEk9xfXfIWnE=;
-	b=HVuYhuJCwfCVK0Mg5STYlYDKHOa3UZzhxMnHa3XU+89Qot5fvDMaw+EB7WwLZ2MIJuqn
-	 s5evdo6qFql6eA/Mp2gzkhujvOYzcM0ayDgfBrcaa35RxZja8PqNsFxVLy4qEe1Ygrfrp
-	 ddkupb2YLMmm8wEzNOxxXKdYGwHyTAax1tHvTwuFtdtsoOLnrtbX3hBWqlCg+hPUOMNbj
-	 GoIZ5R6u0qwuT3wTTtZXsAQ5jP10Qzx0z3pN3GXvpKWL87hjy/H1b1F9jVdaaFsLU9/ND
-	 w5SM07KIZKLkARUa/YZszVf4C+6izODFDafF9TP4IU5pZlKZMyT8/EvSYWkRGy6h6OA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795426101;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=xMh8nLDv9y7NsT+ecpEuvl1iTz2rhgn90sr5gGapFe4=;
+	b=KBDBUSCdqO7BFHcf2o+NoTDtw04AKRUGvWKct8ff6TlHmAwryqCt9Qt282wuLBgI3uUC
+	 AIQr5hmvHhkzM94xknUN9gjWSXIfjiijaFRXpRluwftd4zURAa4vUcYMZv5B7iBJc1AeV
+	 iJhG4Y9vIlzxx8JDShO77kA3LzyDlEgjLrdxnHDXLbrN1+1SNBRuemcD6DKv63O8KYTA+
+	 GToEezioasnRRlhGeIXbQaetV1QQj6Hm6dQaBgqVfL4VZsG/XlTwGUtLgoo6iNrvl4ftk
+	 cj/mrF+w1czH6RFVOm4GNYOGPiTYR2Teb1dUkZOqzakARH27vH7E1ouy/FEFW07TUNA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="N8/2hWLQ";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="EIGlLh/Q";
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83015606A31F;
-	Mon, 23 Nov 2026 09:22:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBD4F606A31E
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 09:28:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBD4F606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N8/2hWLQ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 139A21F000C0;
-	Mon, 23 Nov 2026 09:22:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795425755;
-	bh=+YqP0VPIZaqejn7zGmUTDDm9+wSwQPjiEk9xfXfIWnE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=N8/2hWLQXF3Tz0DxjD59Gbri4SwGVHJ216vpug58t4irfv8+mrjF5xzBNq+C35x+P
-	 bODMqKM7CBfY9UJOKzGBGmAhn1s5xCmQ5Eh/JIAfExZ9H2K6PHWKSi+ZqodV1LQHzY
-	 3Uuj2D5YhvXpIKwr7penjZBqZ0d/cwmauzmVO1uk11l9A1yrwJ7+/WeNOCKUgkailw
-	 oNzhbBUQ46R9F+okFKligmxxuA9VJxKDAIJlV87PgplVO1G2gzg2/SxD+AQHTrR5SS
-	 /KkKsLiaRB3l5QgW2b60BRw1cQNavX2io3nFPrd+eULRwrxTzEwCKYNkZ88pkd2JJQ
-	 mTBV+JgiNTRfw==
-Date: Mon, 23 Nov 2026 11:22:31 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
-	dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v3 11/31] USB: Unwind interface claims after registration
- or binding failure
-Message-ID: <20261123092231.GL14811@unreal>
-References: <20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com>
- <20261118-device-trust-core-v3-11-d655875c4bfb@nvidia.com>
- <sashiko-outbox-223897@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EIGlLh/Q
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-38564b4b017so3297557eec.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 01:28:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795426100; x=1796030900; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xMh8nLDv9y7NsT+ecpEuvl1iTz2rhgn90sr5gGapFe4=;
+        b=EIGlLh/Qjr29R3wYSOqe6uXfmo3k6/RWKWo2+0DbA76xCFksTWx1pJ+v/6bKzq0qK5
+         647EAPnyjElcZqWDM2MeaY5xI0FEuYdtcTwNcCAURNaiKd9jJ3Lhc9g9Sua6Gz0uEV5d
+         ZX6csy5DqvefAbdQdr0UQJx2tQIgSt2LylMsrpPecD0kzkvK0doqqMBwU4AG0t/89rSG
+         oT/NHE55yKtWNbOl5Z482vFhW8613MzvUNeMfAmJHPGwPhOuYmzrJYXWQjvvNSZLrx5X
+         +Mfbb+xYokZBP00QZiSlMyww34WIeNUYdh+2h/wx7c5Qmt5zMplQjIr6ELcHy54n59p2
+         whog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795426100; x=1796030900;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xMh8nLDv9y7NsT+ecpEuvl1iTz2rhgn90sr5gGapFe4=;
+        b=Irv5rG5kDiPFKskIdbMIFqdcINR+T2QdqUYEBf0PzO+tff8X2lDkZD85B8zyaevzax
+         6KGZEsJS+RqcWw9htxIH1Dj5T2Wtuyxmup8OMvDkP423+Zrh5n+kocpdq/qChPNrxuxy
+         K9nKLmQM0KFNduf8vxoEODP0oI7vyOQZxk1E153oV/jujDG7Wi/plYxu72hj71AVkxx4
+         rgXDhEpAFTlop/u6GprGW9YqRpJUjA927FTE7AfjwkhxjiqgPIr9vY4HM+GhjlS5lG4C
+         +IUpZBFirspDGSRZ8keosDgmfCTqAdB8FEWlNb8sdxgsKtfoqHD+oy4IkhWGYpXQWzP+
+         sjKg==
+X-Forwarded-Encrypted: i=1; AL+hErEMFvUxUc29cHbxqhYFVx/VrEtsXoSZ6P4Z0hAjR6awj191t5grnGxpLz5OGtpB5jWfilX9ZOGO2bNcxA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8+z9fOBBei3MFfYVYvJM5uZdREwLTLvt2t2pA2Q5sfUxCW1Arh
+	/GgwsQVJ+7dgmEqAMfuvaCkadtpDlMGccaeNEhad5VTV01PAWUq4liK/
+X-Gm-Gg: AZFdTZfo7hVjngAX0rCuKVokxgoh58Nzd+ZBZrB60AEf30rJgYWcaD2W81hMir9sIqO
+	M8UKlKfR6wEIMBr/PNHMrn8PFnEdXB8s+vjDZsomg3xvOhPC3QsvUhceUqARXrf338+wKEw1TYi
+	pNw61/stgtdGj5vmnTSfgftc8gh0kmdbzplZhbRBkqRJ3NMvEuNYYOFOltAdo4Vmi7eA3b9eSkG
+	7dLp4n2JD8b1srvs9xC9SOAL+RKH3unlyb8stkoHWsxr620yJD/a1qBI06lxF86v3ujaqSkczYX
+	mx6iX63uEJWcPZTj5czPpIQ40+8kcTGr+CeOcxUs40nJ+BRgPG4pQyV1LGNMnB9VUjxrPzFjKe5
+	g0w8ufc18wctZ7kuB7fXVJFcRYRW2MZApxCIGNEOXRwn+5rC3BO5sTqvw/PW5uvrnDBQr5W35zn
+	70zIahMdTh61pMG0JFNfHRYdBfQlr/+R3SwhW9DWzgZ11IWIONKDxL5mE58fDWQqxVwaJbXniI4
+	ic3Z3fPThF8thC5zHVkjBQpNpHwleCBxHX28NyB0Hqh+Tz721SfcMuwT512wh/wXnr6mUtTOyyt
+	kx2zQVfjsO5tgGNnadpkD+fsLn0Axjv1q89B6WoSUVXw4FiQ9wwbQ9HU+fji3i5a9ixLOQS6OFw
+	=
+X-Received: by 2002:a05:7022:4181:b0:14a:a6dc:9cbf with SMTP id a92af1059eb24-1b5568abf0bmr16302203c88.4.1795426099783;
+        Mon, 23 Nov 2026 01:28:19 -0800 (PST)
+Received: from csl-conti-dell7858.ntu.edu.sg ([155.69.195.57])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b55ff0e4e6sm19861941c88.11.2026.11.23.01.28.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 01:28:19 -0800 (PST)
+From: Maoyi Xie <maoyixie.tju@gmail.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH 0/2] HID: intel-ish-hid: Reallocate buffers for a later, larger response
+Date: Mon, 23 Nov 2026 17:28:14 +0800
+Message-Id: <20261123092816.2200718-1-maoyixie.tju@gmail.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,127 +97,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <sashiko-outbox-223897@kernel.org>
 
-On Thu, Nov 19, 2026 at 07:29:29PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential
-> issues to consider:
-> - [Medium] USB: unbound claim missed in usb_set_configuration() when
->   autoprobe is off
-> - [Medium] usb: core: failed interface claim unwind skips altsetting 0
->   reset
-> --
-> 
-> commit 5e9d278c3fe83635c408aabb0f7fdb4a22c1316b
-> Author: Leon Romanovsky <leon@kernel.org>
-> 
-> USB: Unwind interface claims after registration or binding failure
-> 
-> This commit unwinds pre-claimed USB interfaces when device_add() fails or
-> driver binding does not complete during usb_set_configuration(), and releases
-> remaining unregistered interface claims in usb_disable_device().
-> 
-> > diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-> > index 306978caaf1ef..b2e5ed35a4a59 100644
-> > --- a/drivers/usb/core/message.c
-> > +++ b/drivers/usb/core/message.c
-> 
-> [ ... ]
-> 
-> > @@ -2270,6 +2292,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
-> >  	 */
-> >  	for (i = 0; i < nintf; ++i) {
-> >  		struct usb_interface *intf = cp->interface[i];
-> > +		struct device_driver *claimant;
-> >  		struct module *claim_owner;
-> >  
-> >  		if (intf->dev.of_node &&
-> > @@ -2285,6 +2308,7 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
-> >  			intf->cur_altsetting->desc.bInterfaceNumber);
-> >  		device_enable_async_suspend(&intf->dev);
-> >  		device_lock(&intf->dev);
-> > +		claimant = intf->dev.driver;
-> >  		claim_owner = xchg(&intf->claim_owner, NULL);
-> >  		device_unlock(&intf->dev);
-> >  		ret = device_add(&intf->dev);
-> > @@ -2293,7 +2317,22 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
-> >  			intf->unregistering = 1;
-> >  			device_unlock(&intf->dev);
-> >  		}
-> 
-> [Severity: Medium]
-> Does setting intf->unregistering = 1 before calling
-> usb_driver_release_refused_claim() prevent usb_unbind_interface() from
-> resetting the interface back to altsetting 0?
-> 
-> When a driver such as cdc_ncm claims a sibling data interface and switches it
-> to a non-zero alternate setting during probe(), a later device_add() failure
-> on that sibling sets intf->unregistering = 1 before
-> usb_driver_release_refused_claim() runs usb_unbind_interface().  Inside
-> usb_unbind_interface(), driver->disconnect() releases the control interface
-> and usb_set_interface() is called to restore altsetting 0, but
-> usb_set_interface() rejects the request with -ENODEV because
-> iface->unregistering is already set.  Since disconnect() released the sibling
-> claim, usb_has_claimant() returns false and the device stays configured with
-> the failed interface and its HCD bandwidth stuck on the non-zero altsetting.
+process_recv() sizes the descriptor buffers of each device and the
+hid_devices array by the first firmware response. It then reuses them
+for later, larger responses. Patch 1 fixes the descriptor buffers and
+patch 2 fixes hid_devices.
 
-This is worth fixing, but the race is difficult to trigger, it requires
-device_add() for a sibling device to fail at just the right time.
+A pending patch [1] limits hid_dev_count to MAX_HID_DEVICES, and it is
+still needed with this series. Patch 2 touches the lines next to that
+patch. If that patch goes in first, I can rebase patch 2 on it.
 
-> 
-> > -		module_put(claim_owner);
-> > +		if (claimant && (ret || !intf->dev.driver) &&
-> > +		    usb_driver_release_refused_claim(intf, claimant)) {
-> > +			bool unconfigure = usb_has_claimant(dev, claimant);
-> > +
-> > +			get_device(&intf->dev);
-> > +			if (unconfigure)
-> > +				usb_set_configuration(dev, -1);
-> > +			module_put(claim_owner);
-> > +			put_device(&intf->dev);
-> > +			if (unconfigure) {
-> > +				usb_autosuspend_device(dev);
-> > +				return ret ? ret : -ENODEV;
-> > +			}
-> > +		} else {
-> > +			module_put(claim_owner);
-> > +		}
-> 
-> [Severity: Medium]
-> Can checking (ret || !intf->dev.driver) without device_lock(&intf->dev) miss
-> an unbound claim when drivers_autoprobe is disabled?
+The series is based on hid.git for-7.4/upstream-fixes. In mainline,
+patch 2 conflicts with the treewide devm_kmalloc_obj() conversion
+(4dd10fbbeb9c), and taking the lines of patch 2 resolves it. I can send
+a version for mainline if you prefer.
 
-This is same pre-existing issue as in patch 6.
+I used an LLM to help write the harness and these patches.
 
-> 
-> If an unregistered sibling interface was claimed during an earlier probe() and
-> bus autoprobing is disabled before device_add() runs device_initial_probe(),
-> __device_attach() is skipped:
-> 
-> drivers/base/dd.c:device_initial_probe() {
-> 	if (sp->drivers_autoprobe) {
-> 		ret = __device_attach(dev, true);
-> 		if (ret == 2)
-> 			__device_attach(dev, false);
-> 	}
-> }
-> 
-> device_add() then returns 0 with intf->dev.driver still pointing to claimant
-> while device_is_bound(&intf->dev) is false.  Because (ret ||
-> !intf->dev.driver) is false, usb_set_configuration() skips
-> usb_driver_release_refused_claim() and drops claim_owner in the else branch.
-> When usb_disable_device() later runs, device_is_registered(&interface->dev) is
-> true, so device_del() is called before usb_release_unregistered_interface()
-> and __device_release_driver() calls klist_remove(&dev->p->knode_driver) on an
-> unattached klist_node, causing a NULL pointer dereference in klist_put().
-> 
-> Checking !device_is_bound(&intf->dev) under device_lock(&intf->dev) inside
-> usb_driver_release_refused_claim() instead of the unlocked !intf->dev.driver
-> check would catch this case.
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20261118-device-trust-core-v3-0-d655875c4bfb@nvidia.com?part=11
-> 
+[1] https://lore.kernel.org/all/tencent_130404E5ABECE66E8D0E70D8E6892C751C0A@qq.com/
+
+Maoyi Xie (2):
+  HID: intel-ish-hid: Reallocate the descriptor buffers for a longer
+    response
+  HID: intel-ish-hid: Reallocate hid_devices for a larger device count
+
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 41 +++++++++++---------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
+
+
+base-commit: 10bc1d627c297097cfdc099377f8a13efdfffd86
+-- 
+2.34.1
+

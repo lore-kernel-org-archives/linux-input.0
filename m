@@ -1,96 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795457842;
-	b=EbFGkeZdAcasj3whi6TKh/I2N6ztnzI9e1LP/FEWQ/Rstpng/qEIhNT79bEcJ1RtaEXt
-	 Q6VypY0A/S2JqneZnMfd8eWLO0GhgrGlGf8ItoLR3psSKoL6xIvvpja4S8AgfpiG5+xZx
-	 6oUbaCiijGsM8GRv0gfbsj18jCRL7BCAPV96ng2Y6PADdumyoxwpC5AXoe90SMMSin6oY
-	 2vVKoSDKL30MCeT0rjOvJ0RE6Xm1NX0PANa+I2xB6NE9N8iRoO2/4wmy9LmVseHrsUoZE
-	 UOviFmqEuAo/j/2+H8hVjxZ35PG4urdud0da2p8TgIFApVTEH2SkfgGNynGvII/aUGg==
+	t=1795458729;
+	b=EWs3vWoAaX7t8EzhpNtBYbnIMn419HPkm/GH3KqdWD0Wp0t4uaCbWbmgwYZzCToUHkZU
+	 Mbi20bTeQwaXCj/4E6MOvZTDbUkgP7VcX9zoHNTa2fKxgrfRDnlfm642S571G+ehqBGkY
+	 2f4RujpfjLH0BZ9rmLTgMCmk+Exm11s1Q8Tr6p9kA9V9EBrvYnt5YHCFwuFOr4JM68WaR
+	 NAbem34vMzNvOkPaGW2x/pBCuZIdVwp5YFsx40sr5hynIAIpq9QOWWjedvdQoXNE7aS91
+	 UvyGYHA8gabtTJwRLNxdhvD4wMs6JEJYUigZhbW9MYv3orzGx6wt30Zs5N86RUdnkBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795457842;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=nutOLNh5W4dTyqWoDODtl05Z3AwT5FmB7YX35PdwCns=;
-	b=v8Er2DmqVR7AdbtfYACJejY0+CMfVy6zvxdbHN8xOyh89e2M6eHtUMyZM/P3jVKR+A2F
-	 d6bX28fcx4YjNlqbKSFCCoSx3akFE5HlPSVSPpvMsMC1zOOVXHigV99VOZVii2RkZyykp
-	 XA2RVnpMPx2MeLDfLTh5EZGjXomaAj3iP48FjYk85N3hS/M6UbObxpfk2S3FVyDjL+GQk
-	 DUD+omXIWfLOVS5pjwadjE8J5ofQqSduiYBJamOn159czf7LbssSSkISftrq35Ygp/0ho
-	 QORHDimsfrGwkwTdBCZlyA6ZdjRBoU0Thq48HrD/kzEfa8RfcAsN3kHP+GRHNYFsskA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795458729;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=w3cnyFXRTHoFwReHmudPZ5M2WczBBfc0l9gr3HBh5B4=;
+	b=vwtqcwITc3olOS9pGcbrpA+ecW/phK1UVTJLWJ6f1uVQ5QdeCwnGm6KtQf2UKLlJ428T
+	 Evuo9Y4hK2XEGSS1nFdsIu50mTL+LWRpSWM6RluSrXUlzv8NNclelzkiTDofPYFAtjwfo
+	 V4tOovvlUicGsZzxNKFa3+M24pzxBPqK0/ZtSbe4yfc3ybktI8MW6QfzLQW1hQbgbl7Zp
+	 rn+BOd7cWBUdrwxu9tvvboTAT+DLZl5ETY0gAQ/HCrQByRv+HKuS+yqajYZXdFInzO9W0
+	 x+/zdi2IJ2rLOtIXuSEmpbxkt962jfJ/zapNc7E0w+r3A1xNRkU65kiNk83zOicFKNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="rAYH/KsP";
-	arc=none smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VqpqqUkm;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30280606A31E
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 18:17:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 30280606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1793A606A31A;
+	Mon, 23 Nov 2026 18:32:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rAYH/KsP
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1aefd1bf74aso1536000c88.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 10:17:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795457841; x=1796062641; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=nutOLNh5W4dTyqWoDODtl05Z3AwT5FmB7YX35PdwCns=;
-        b=rAYH/KsPQ2r/RcXZrUUK/+RyNmCDADQytEDNpjaMcCXTfiXyWEnnWAeUTHlbeT1h/Y
-         qHwaPsDQAmRjVTxo3yHP/ZxdK2d1pQPZJTuRho+pPQ54PpswU33GkPgAhpInghjXSwrr
-         nTGajwtB+qtkURu4+ZKSqSL3sh8sqJhc2yEryyEwGVpB7uIOdec+bJD7aF3syrUVN8Xr
-         aye+4YEwqCu4SqRp+p75soLvgnuiZ6sRscgSsHz44gG7pV2rY0DpCQ7KvVAhkwx1+C5U
-         dh41FWY8UzlZRHj+N1E6SmqbM9tBGQqKhbGxWZ5SH/nVYnxMMFCwy3o3GYL116ewZSfF
-         uNPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795457841; x=1796062641;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nutOLNh5W4dTyqWoDODtl05Z3AwT5FmB7YX35PdwCns=;
-        b=qh5ESmHvYFHTINy22dszLpjg49Ddz6IP8O7E5y8gOVMY/fG59HIFsUO+ZZ7mrRz9+0
-         yleCA24FTmvFFAsnbX3pgAJJdJTTfm1dfdQdcis9vJdpQhJFKWhMkLgRFz4zr+s2QnTt
-         aOelQcQTW8Hf8svj7Kyh8Cl8YQKBHkZrsO/dMf7/6qjFkmYY27XCkgoyVDG1Owog6EVx
-         HsY0JsZmemI9WW6wLpnlEPW6W1IGqJ+aW5BTHAwOlZPHQEPgOgrQwAiLuVR28+FdB4YN
-         8q4boUdVe8J26hg9U1/N15FzXQ44y5nDirmCQHhug3egLBcN1Vx9g8UlmOVkq7qbextY
-         YuRQ==
-X-Forwarded-Encrypted: i=1; AL+hErF8WCf19ajusTV9lbYOsdDFBwzdoVCxpzHzgtbdmKzaqi9y2S+IkknoVLlAFy4FZTVeJbRrQolrEE7sQg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/4PYg9qeZXuMEI6omKr5OSBItDa96G1vOiU0eUzP6rFBLX6JK4
-	xGXQfkr56KR4JLw8I+nL84ujt7TuBUsaehGsscBwlw08urmLwUbOY5Hw
-X-Gm-Gg: AZFdTZeYmFp4+q+A1Y4hu5/D6+iWUSaEBAmnfE8inzrp158cC5VYFNN5ey92Ac5yf51
-	spILq/owTjUEfJ7NqRhK+/ZOmFXQ/6zhvRP3DiH7dH3xxRFd/vsBtLpUgchOYHgNwi2cq/+gCy1
-	ILimIOHZFx5GBGisXD0jQXTgo8kvH1p3dCrl19IO4lRiOr7c7DB9l6GV49GO+jUTZc+jRcl+pkY
-	l9m2fEkqhtWL9SlhekSQc3EQiR9XipLcjt44421eFZBtUkMj1jBewOj5vsisgNWBGH6FPhwIPYf
-	X4Qt7h3PozrQT2ajizvej2PX+VCuUpbizXnbqbgAGzeklVrWsp5w5a+5n5Y30nHmPoS2u5HEeN3
-	DkefrNCnnhbiVZIpdzUznswfCbp2MIFnXOvX++wF73jCmsBadEUCOGoQ5h2jOopWpc6LHAjQH5J
-	/UWQyUZxbUC8Qvetd++4Ni0lXiXPvFpzw4xoLY5XAifykUjKmMyVqx29P2NUC0NsdZM4YQpmGun
-	qfKz7PyxkMYe5kBskeR+Bglr+Rzk3/vg4kev5pl83MOrC6nidx1XJQJH6VWeMs0VEzykYXRkKRB
-	H8AVZ4HhBnw5BZb6KGNJgOpj0BTe2hvIzMdii3I7OR0o7+7vb1L1p3NDCtfUp3++VBD+xPOz
-X-Received: by 2002:a05:7022:1703:b0:1b5:64c0:d2be with SMTP id a92af1059eb24-1b564c0d31fmr7645119c88.19.1795457840287;
-        Mon, 23 Nov 2026 10:17:20 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b556840494sm30439137c88.12.2026.11.23.10.17.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 10:17:19 -0800 (PST)
-Date: Mon, 23 Nov 2026 10:17:16 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: david@ixit.cz
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Andi Shyti <andi@etezian.org>, 
-	Javier Martinez Canillas <javier@osg.samsung.com>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, 
-	phone-devel@vger.kernel.org
-Subject: Re: [PATCH] Input: stmfts - restore touch after system resume with
- the device open
-Message-ID: <awSDI1T2DjX63HlL@google.com>
-References: <20261123-stmfts-suspend-v1-1-4b2276879e8d@ixit.cz>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VqpqqUkm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 873F61F000D0;
+	Mon, 23 Nov 2026 18:32:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795458728;
+	bh=w3cnyFXRTHoFwReHmudPZ5M2WczBBfc0l9gr3HBh5B4=;
+	h=From:To:Cc:Subject:Date;
+	b=VqpqqUkmfi4DHoKE6YP7bpEvLzUv96RQgHL7OA8dKq/lyse5senryP7efA/DQlFeU
+	 G7KhCVzmT7akQnmGu8o+F+6YwswzcqE91LE7xnPDU4W2u0aRrADHqRaqfRyCsPsd9F
+	 9RfRdhobzagzcsJ09n80tNPXiNLIFSel+d4zHON0VgUp1MO7eFdeS17+pUsE/P1uKV
+	 XWSULDlN9oFHahCFNc9I/LLeJrYpD/qCkZxWD3zz/QJtrLfsLFSS6csS5I/3zeGolP
+	 8/WV0OLrgG8H1vEOua58Cx/znV6pnCH7AyHZPHLWNnzDhwq94mXnOnliFgZ6zNsuFM
+	 saBdJino7XmEA==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Cc: "Cheng, Wacom" <pingc@wacom.com>,
+	=?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>,
+	Andrew Duggan <aduggan@synaptics.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Carlo Caione <carlo@caione.org>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Dudley Du <dudl@cypress.com>,
+	Fengping Yu <fengping.yu@mediatek.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Hans de Goede <hansg@kernel.org>,
+	Ian Bridges <icb@fastmail.org>,
+	Jaya Kumar <jayakumar.lkml@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	linux-input@vger.kernel.org,
+	Marco Felsch <m.felsch@pengutronix.de>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Mattijs Korpershoek <mkorpershoek@kernel.org>,
+	Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+	Vojtech Pavlik <vojtech@ucw.cz>
+Subject: [PATCH 00/10] Input: assorted bug fixes across input drivers
+Date: Mon, 23 Nov 2026 18:31:06 +0000
+Message-ID: <20261123183200.3900004-1-lee@kernel.org>
+X-Mailer: git-send-email 2.56.1.831.g720f3f5937-goog
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,31 +87,72 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261123-stmfts-suspend-v1-1-4b2276879e8d@ixit.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 23, 2026 at 05:13:41PM +0100, David Heidelberg via B4 Relay wrote:
-> From: David Heidelberg <david@ixit.cz>
-> 
-> stmfts_resume() only calls stmfts_power_on(), which re-initialises the
-> controller and deliberately leaves it in SLEEP_IN, assuming nobody uses
-> the touchscreen yet. That assumption does not hold for a system resume:
-> userspace keeps the evdev node open, runtime PM still considers the
-> device active and stmfts_input_open() never runs again, so the
-> controller stays asleep with scanning off. On FTS5 the controller
-> interrupt enable command is part of the runtime resume sequence, so the
-> result is a completely dead touchscreen until the input device is
-> reopened.
-> 
-> Factor the scan enable part of stmfts_input_open() into
-> stmfts_start_scan() and, when the input device is open, replay the
-> runtime resume sequence and re-enable scanning from stmfts_resume().
-> 
-> Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
-> Signed-off-by: David Heidelberg <david@ixit.cz>
+These issues were reported by Sashiko.
 
-Applied, thank you.
+None of these changes have been tested on physical hardware.
+
+Cc: "Cheng, Wacom" <pingc@wacom.com>
+Cc: "Ronald Tschalär" <ronald@innovation.ch>
+Cc: "Uwe Kleine-König (The Capable Hub)" <u.kleine-koenig@baylibre.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Carlo Caione <carlo@caione.org>
+Cc: Chen-Yu Tsai <wens@kernel.org>
+Cc: Danilo Krummrich <dakr@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dudley Du <dudl@cypress.com>
+Cc: Fengping Yu <fengping.yu@mediatek.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Hans de Goede <hansg@kernel.org>
+Cc: Ian Bridges <icb@fastmail.org>
+Cc: Jaya Kumar <jayakumar.lkml@gmail.com>
+Cc: Linus Walleij <linusw@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-mediatek@lists.infradead.org
+Cc: Marco Felsch <m.felsch@pengutronix.de>
+Cc: Marek Vasut <marek.vasut@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Mattijs Korpershoek <mkorpershoek@kernel.org>
+Cc: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: Samuel Holland <samuel@sholland.org>
+Cc: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: Vojtech Pavlik <vojtech@ucw.cz>
+
+Lee Jones (10):
+  Input: matrix_keypad - validate GPIO counts against matrix limits
+  Input: cyapa - validate firmware image size in cyapa_pip_check_fw()
+  Input: applespi - cancel touchpad registration work on removal
+  Input: matrix_keypad - only stop and start active device across sleep
+  Input: stinger - zero-initialise driver state in stinger_connect()
+  Input: synaptics-rmi4 - check for NULL drvdata in rmi_set_attn_data()
+  Input: axp20x-pek - skip IRQ handling during sleep without input
+    device
+  Input: mt6779-keypad - enable keypad clock before programming
+    registers
+  Input: pinephone-keyboard - request IRQ before registering input
+    device
+  Input: wacom_w8001 - use reinit_completion() in w8001_command()
+
+ drivers/input/joystick/stinger.c            |  2 +-
+ drivers/input/keyboard/applespi.c           |  1 +
+ drivers/input/keyboard/matrix_keypad.c      | 19 +++++++++++++++----
+ drivers/input/keyboard/mt6779-keypad.c      |  8 ++++----
+ drivers/input/keyboard/pinephone-keyboard.c | 12 ++++++------
+ drivers/input/misc/axp20x-pek.c             |  6 ++++++
+ drivers/input/mouse/cyapa_gen5.c            | 15 +++++++++++++++
+ drivers/input/rmi4/rmi_driver.c             |  2 +-
+ drivers/input/touchscreen/wacom_w8001.c     |  2 +-
+ 9 files changed, 50 insertions(+), 17 deletions(-)
 
 -- 
-Dmitry
+2.56.1.750.gf70dc682cf-goog
+

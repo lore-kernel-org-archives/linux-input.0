@@ -1,56 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.122
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795433159;
-	b=YBPFLwSg8Bm6YDPI975vt33U+yoVHvrzahxQLsyQNu+OUT8mRCJnT4wcBNOQSlgkmOiq
-	 oX4pS3E0XUhr/1dQDcn6XPFutLycZ7HNAvA3mZlQ4Qsa8yFAyS3EyYZthBQrHCcAh16vQ
-	 BMiHXXJ5EmGdM40jm8aNQQaDXUIYEUo3LjTzeM6uHpYZM4zLuCQS0i4gwZ2TZZGaGVuA0
-	 WMBbcLH1s32/Anvm2+C7M516MoMYU2KovIX/sj4rQm0v/XlBSdRvsBccn4125MB0zx4+u
-	 NirEnSmxGa5AXUMPLXIZBZEALDSdBLLnfVPeiuY9vtJc0kH3PNvB+n0BrhY89Yin+7Q==
+	t=1795434097;
+	b=qXGFKQu6Ax2wmNpyEmA2EHRmOJJnOYCsLs2Yj1pub0iMzkLtY/ySF0r8VeZBAOaDcxkC
+	 t2ITXz8R8VltH0s+xb10dJMjRjTjdKjwCyiWqlFRxlCyL51giF2veuE2cp12zaP/7caLR
+	 sSLbOL7MGAFpzzdqY17nttyNyaZhkCFM2QZlTz03RO764gxU173uB9+XFi2z4VxPHl0YK
+	 Bc8oQsc/xygV4Rx90eziiyjCfKpfO0UGwI1R8OtnL8pMJqFyM1BC2VUcALYT/Km/TyZRt
+	 vnXwe7Q/K8v+oIJwIa9gdWLzCCtXOUX7d2R/UREV7EbAJXT4JTkdbJaw0hfOFtNFipw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795433159;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=BPsht/5iEQfOrJQkEqh/BYL6rcKpiFRPvBgpI9YBkWw=;
-	b=OMvFswPRbRr15qnISMf79ErwU4XcRUdj6arhu0bqwnzJrfV1CSReTgETWvW3XDSFwMAt
-	 XCwp40uSl5dlaM1c+/hW6C+u+GgVDvwmk+yIp6Stvv6WZKpK6+OmDTfAu3Jme2vnea6X7
-	 dOU45r39qSyeQa7S++n2kJYfrHggv3WTlBdhglVe6AzcgcG6/dxQeiw29lQWBGHN6s9R3
-	 ZoSJPNnnPh+Cid5uZdGuCtppfMv20kHokEOgTpxiywv3oA0P/+eJDyRPppwS3VxyLHQ1e
-	 sDdAiKwhWpCY3dDWfcdmX+bEupBQZrDaQpx5XdenNWEhooaxe6vv9eJEdPfxNLpoEsg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795434097;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=hPH+xwQQ5YvRprFEfig6JwjI4JJt7gcVnXPnZvpsz58=;
+	b=qvy4DPtj9P2eS/37fjb2pQAeVns3f9n8Ht5vEYAASFDWUGrLyg4L8iDg+n10pJjaGx8E
+	 /kzv2lTSwiLEMGE3r3fAZYvLSQk8NXQSyoCwBtHiwVGhif96G2thhwzaFewxMzNPeAc25
+	 gygc+tzX4RzyAJne5LhKKCdjarLMhQRuYiRqXN0jRGfBrENI6O1F7KWB5iEDSZbdc5y3U
+	 jc3AJ0C6sXmvKcNH7ybX386rjiCwfz/ebbfVHW5gp54wQY7vYFdZfxkRSgfiYOVx3SYRK
+	 TiEsKGThCqzBYx3cdcvDmSvRa/AZfyTTTx3zQ7GGnqgECt5Srm++QN5uXEHlRGu/T5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jRMUncjP;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=protonmail.com;
+	spf=pass smtp.mailfrom=protonmail.com;
+	dkim=pass header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=AqvTCW5q;
+	arc=none smtp.remote-ip=109.224.244.122
+Received: from mail-244122.protonmail.ch (mail-244122.protonmail.ch [109.224.244.122])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D49C5606A31E;
-	Mon, 23 Nov 2026 11:25:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C2B606A32A;
+	Mon, 23 Nov 2026 11:41:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52C2B606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jRMUncjP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 038571F00A36;
-	Mon, 23 Nov 2026 11:25:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795433159;
-	bh=BPsht/5iEQfOrJQkEqh/BYL6rcKpiFRPvBgpI9YBkWw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jRMUncjPzShYgUHPBOpyHICKE0J9p8mOiEj+JF34NBhjnVFJfXiXVCS0gbjYN6tJI
-	 dsAN4h43e3Mn4Eh6hag0qEp5Xkt3HiZw2sLBC+F57l1rNrz7I4bk5QmG/FnoPFRWbe
-	 sId2/CQXb+fRC1QDuuzssJZzGI5LJLJVzG++w+5BDXYJcpaOWyNKWwwVyIMkg5+T2v
-	 bTlDBmoy6wfvUxGyd7zDklgD20wx8hVV5qj1qCGcK6AqUp+hZaOZOiSAf0jqTfBrxa
-	 wnPFVXAabP6bAZ6U7jk79QNT5K58dA/RUxO2l2HXDApcjmPXenOO/DSnUaNSPWD/sR
-	 /RvFvmj71ctWw==
-Message-ID: <sashiko-outbox-229131@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 6/7] arm64: dts: mediatek: Add MT6895 SoC
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alexander Letuchiy" <asalde.le1@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261123-initial-mt6895-v3-6-95c46597e63d@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=AqvTCW5q
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+	s=protonmail3; t=1795434092; x=1795693292;
+	bh=hPH+xwQQ5YvRprFEfig6JwjI4JJt7gcVnXPnZvpsz58=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=AqvTCW5qPw2qcd8PAjH5z5PbIyHUU6oizOI+s+K7cDDXtV7PFmj9IPlnbrb215L2x
+	 m/RWi1veWIhSUlB/2yxBLWKrJ69FXS+kDOfxoOAtKdY0VGw8HX5V4CcN9NMqqdSUOO
+	 TkIY/hivq//dNMMUveqVLQH7TGTHMWrbAEWJz1WnXIp5tUbeopHRYv8Nald0kGqiD6
+	 +ZHfgxEipxsOUqfvrohVIY580xB1XNgjb6Uv0ukoGEnvbw3xOJCRhfzLNO0s80dZKr
+	 coDUkztBL3JK1cVGJ9a4XYR96VHe4UDIgcQUy1tcuYlBRkExLmlf0LDqW/KmalhSrC
+	 CcDxrCenLvhJw==
+Date: Mon, 23 Nov 2026 11:41:26 +0000
+To: Alexander Letuchiy <asalde.le1@gmail.com>
+From: Roman Vivchar <rva333@protonmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Sean Wang <sean.wang@mediatek.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Mattijs Korpershoek <mkorpershoek@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, phone-devel@vger.kernel.org, Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, Conor Dooley <conor.dooley@microchip.com>
+Subject: Re: [PATCH v3 0/7] arm64: mediatek: Add initial MT6895 and Xiaomi Poco X4 GT support
+Message-ID: <ckJZtdZ4-fPzsa3vkozNyEYYUbG9qd134hYb0hHEuq2nL8WMAR1PS87OpDfXrkU-E-85rsG1I4V99_M41j6-ewkD_41XPguDel3z8z0lmMk=@protonmail.com>
+In-Reply-To: <20261123-initial-mt6895-v3-0-95c46597e63d@gmail.com>
 References: <20261123-initial-mt6895-v3-0-95c46597e63d@gmail.com>
- <20261123-initial-mt6895-v3-6-95c46597e63d@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 11:25:57 +0000
+Feedback-ID: 173184497:user:proton
+X-Pm-Message-ID: c6b719aaffbb9f16cf86df1433c20e78eaceb862
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,49 +63,61 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] arm64: dts: mediatek: mt6895: missing EL2 virtual timer
-  interrupt in timer node
---
+Hi,
 
-commit 52307c1c986494baf205914bdd46826de40efb27
-Author: Alexander Letuchiy <asalde.le1@gmail.com>
+On Monday, November 23rd, 2026 at 1:19 PM, Alexander Letuchiy <asalde.le1@g=
+mail.com> wrote:
 
-arm64: dts: mediatek: Add MT6895 SoC
+> This series adds initial support for the MediaTek MT6895 (Dimensity
+> 8000/8100) SoC and the Xiaomi xaga board, sold as Xiaomi Poco X4 GT, Redm=
+i
+> Note 11T Pro/Pro+ and Redmi K50i. It is enough to boot to an initramfs
+> with a serial console, CPU idle, the CPU and DSU PMUs and the volume down
+> key.
+>=20
+> Dependencies
+> ------------
+> The SoC DT describes the pin controller and the board DT uses its pinmux
+> macros, so this series depends on the MT6895 pinctrl series:
+> https://patch.msgid.link/20261118-pinctrl-mt6895-v2-0-0728c4eddcac@gmail.=
+com
+>=20
+> Bootloader dependency
+> ---------------------
+> This was tested with a modified LK bootloader that is not public.
 
-This commit adds initial devicetree support for the MediaTek MT6895 SoC,
-describing its Cortex-A55 and Cortex-A78 CPUs, caches, GICv3, PMUs, timers,
-pin controller, UARTs, watchdog, and keypad.
+How are other xaga users supposed to boot the kernel? You might want to
+port uniLoader instead, or if you're on an old enough security patch you
+can even replace stock LK with U-Boot. U-Boot chainloading is also
+possible.
 
-> diff --git a/arch/arm64/boot/dts/mediatek/mt6895.dtsi b/arch/arm64/boot/d=
-ts/mediatek/mt6895.dtsi
-> new file mode 100644
-> index 0000000000000..62584cec0f4fc
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/mediatek/mt6895.dtsi
+> The stock LK cannot boot this DT, as its Android fixups expect nodes
+> that are not present here.
+>=20
+> The DT relies on the bootloader to:
+>=20
+>  - update the /memory node
+>  - add all firmware carveouts to /reserved-memory
+>  - pass the command line from the boot image
+>=20
+> The carveout addresses are therefore not listed in the DT, as the
+> bootloader allocates some of them dynamically. I can describe the
+> fixed ones in the DT if that is preferred.
+>=20
+> Firmware behaviour
+> ------------------
+> Two things in the stock TF-A affect what the DT describes, but not the
+> DT itself:
+>=20
+>  - TF-A rejects CPU_SUSPEND for about the first 40 seconds after boot.
+>    The vendor kernel lifts this earlier with a SiP call, so with this
+>    series the idle states only start to be used after that time.
 
-[ ... ]
+It might be worth porting upstream TF-A too.
 
-> +	timer {
-> +		compatible =3D "arm,armv8-timer";
-> +		interrupts =3D <GIC_PPI 13 IRQ_TYPE_LEVEL_HIGH 0>,
-> +			     <GIC_PPI 14 IRQ_TYPE_LEVEL_HIGH 0>,
-> +			     <GIC_PPI 11 IRQ_TYPE_LEVEL_HIGH 0>,
-> +			     <GIC_PPI 10 IRQ_TYPE_LEVEL_HIGH 0>;
-> +	};
-> +};
-
-[Severity: Low]
-Should this timer node also include the fifth PPI (<GIC_PPI 12
-IRQ_TYPE_LEVEL_HIGH 0>) for the EL2 virtual timer?
-
-Cortex-A55 and Cortex-A78 implement FEAT_VHE, so when Linux boots at EL2 in
-VHE mode without the fifth interrupt entry, arch_timer_select_ppi() logs a
-FW_BUG warning ("VHE-capable CPU without EL2 virtual timer interrupt") and
-falls back to the EL2 physical timer.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-initial-mt=
-6895-v3-0-95c46597e63d@gmail.com?part=3D6
+Best regards,
+Roman

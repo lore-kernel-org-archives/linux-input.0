@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795450117;
-	b=edjrN/p96izCHMtb1VVbcVohfYFrvdfWr76I1G9OYXEzYkI4dbp+7Zzgg94uT7OCjNOQ
-	 LZZQuYzXf3wR3G12S3zmFOzZj8c7umOujkLYvOLco2sP3QfF98b0NI6ZsqNzeoCTZVt7x
-	 sX9JNn64aWoJ1ZVsMP54vRTRuCYIFzJV88K+H/KG8ZQQK1vhrXsqO5DGxsTrhKYU5Xmx+
-	 ehYavFWywfkwthPZVvWej6VeKL6/lmpXw91q9LP3DjhT6txUeX16HE6oNkVQb8D6leEQa
-	 ezznN0DxiZmnYiluqF4PTpwn2/Dp2sfX5NRetEDa0JIio7HFXDL+6MfTfwttjhxHk4w==
+	t=1795450399;
+	b=gpGvO/SM8FMkBjUEC1oQAB/1EQF0CK/1ibYSt5gsKwlQ9sqwXjxITRC+UvChGtU7qZW8
+	 K6t8IE7L+iVECQULlm9zHNI9PhMjDs6AoU12cpzfLj7VqxqXzhxDCtYUeTBfrCW4lA9RO
+	 ozySShUh90dx44i7kzVBhILt1WRXpmgOnJBZVd+B4AdwLNSanpFD8qhpaA3k2ge5kGqZo
+	 U9+xhsUcW3d2PzAf1/7CCTg2NPhqmoXWM5nkLAtfHdFiNc9gRVNhXfQsTb5fPf5lf+K8X
+	 JbZSZkLTOfgiMGR6ACPUCSVASjBaA8YpXJTS/N2+K7G+mH18GVt+AhoFFVk4cqkMbVg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795450117;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795450399;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=t9jOk3je7+24C/kM2nXtwpWWGqJWoEHgyDXlLUT3QjU=;
-	b=QYmYKx3it0SvLR1CJiqkFQ7PpbIXkDQt9kUBX+zrWSxtRhJ8cjX2jFVrqLueOPes9ryE
-	 bgx3lC3re6oVTnZyda22btb63DEvxYNzomF24yLAN2TAQIjfqW5et1hBSHwDCs0UL8Kyr
-	 EI1FP62GgoxP8PWG5PMY/BmDmL+0bufFwpMFZn59UH61yUqTXPan5tShOD8PNAGtzq9/f
-	 GuY4JFwKY+PNqeHg45/T/m3crHafIvWypF1dFVJNjdteupF6TnO4T7NUZSr61ZtjT4nPE
-	 boaXymiqXCpJBFPRaRTwH1WvRbHj/noJRfc5xw+HKOkm1+SqClqoRy/fxk+CvMMN0BA==
+	bh=yLg7CtvCWS7g2MW1oLG7yOqSSijURNDskxDbBDbJcfI=;
+	b=oIjZP2ClS7QPz4LS7ZJU9nX5+hsgQUZHQknkhewDdsvXWyFNeHg5D0yqk2vfjQUu0uhV
+	 6mPi6RQgAQPpBChT7joeNMaH7KkzfLFy99j7pwbSGnksDLW6VqPiPrke7lG+DMyGrrS8a
+	 hKzhUvjyb76hL11KLptHBS+tsg4zTt96zeVRMBu9SdNqwMzLq6q7GWBIbf/dyq9eR/CxL
+	 qspSzuHH2oG2p+wiHMTm5Yvix7g++Fa+JgFA2mjJCuMmXcMIEs4RcMJnmJB5PZvGJg0Bs
+	 fQvj9OQQMinCqtHxpAz0G0hP5SIBLtvBBiOA4ObREul045XWvl5KnG/Lb9K+OlXRf7w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZQmVJ0T6;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="f/E6rmVw";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B78606A31E
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 16:08:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47643606A31A
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 16:13:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZQmVJ0T6
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EAE11F000C0;
-	Mon, 23 Nov 2026 16:08:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f/E6rmVw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0BA1F000CA;
+	Mon, 23 Nov 2026 16:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795450116;
-	bh=t9jOk3je7+24C/kM2nXtwpWWGqJWoEHgyDXlLUT3QjU=;
+	s=k20260515; t=1795450399;
+	bh=yLg7CtvCWS7g2MW1oLG7yOqSSijURNDskxDbBDbJcfI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZQmVJ0T6eWHIoyCSnMWdlPNGsZL228NkzWkiLQWWtUtziM/flu7jdFDmujVdqKPwN
-	 oNNXOEdoSEF+vIIhOQdaIXDc8rlPmbYqgP5vEzbp/FJak6ql3K7t1oXZq++h02/x9Y
-	 kdqr9GnNq34oxBjACov4Y5nYherWCp+SwaXYRUr0Bm6IBLKpzA40OaYJwhAOLFNYle
-	 C07nEMctLCJVcbX2dkUIQ6cWuJWZnfQjJa9qXwTdaTo96rB2pjr/xXm26cNxZ/1nGO
-	 hjyxhn9qf4Bm6a3ylWvkEyG3XVzjrkGPRQfM4vE3vy8hiTBjrv0cmLz9uFKHQFRWqM
-	 1Wj0f0gxwgcjw==
-Message-ID: <sashiko-outbox-229644@kernel.org>
+	b=f/E6rmVwVg880NklwFd9QWlWI4Iq+9lhczoYXZ5yY/++ZCbQM6bCRDyVjeM9rBKE/
+	 QsOIGhupoXxFq3RCV6WNUfvrZh4F5kNqPBuKJqXFSyID0n8KT/aHrag8+SF2MvohER
+	 B8VKLU86TI1z79K36xo/Vkn29MOKrapJF9AQc+XO5c2dxTIGHV98ZIUiVFtS9HEhYr
+	 aCobavIU0LdPxsU9oEVDmQpe5f9h3Kz7SkGPY51fbE/RTVFaJSXSMypiJMkaDQWeJK
+	 ML7k9dRF1wn0DI9tG97PvEtG+I58lJK6jLat+JPfdbgJUJnLaRCkFbs7vxxMfnYYGJ
+	 TfsaUUQPq887g==
+Message-ID: <sashiko-outbox-229647@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 08/10] HID: wacom: Stop HID hardware before releasing
- resources on mode change
+Subject: Re: [PATCH 04/10] HID: sensor-hub: Serialise synchronous read
+ teardown under data->lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lee Jones" <lee@kernel.org>, linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261123155138.2907049-9-lee@kernel.org>
+In-Reply-To: <20261123155138.2907049-5-lee@kernel.org>
 References: <20261123155138.2907049-1-lee@kernel.org>
- <20261123155138.2907049-9-lee@kernel.org>
+ <20261123155138.2907049-5-lee@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 16:08:35 +0000
+Date: Mon, 23 Nov 2026 16:13:18 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,76 +64,84 @@ Precedence: list
 Thank you for your contribution! Sashiko AI review found no new issues
 in this patch, but noticed 1 related pre-existing issue it does not
 introduce:
-- [Critical] HID: wacom: resources released before hid_hw_stop() in
-  wacom_wireless_work() [1]
+- [Critical] HID: sensor-hub: use-after-free in sensor_hub_raw_event()
+  [1]
 --
 
-commit 32ce19fdb19359280af8da0840cd4996821af3f2
+commit 60026af9c0858d9a91fa3bec4905b88a658f6493
 Author: Lee Jones <lee@kernel.org>
 
-HID: wacom: Stop HID hardware before releasing resources on mode change
+HID: sensor-hub: Serialise synchronous read teardown under data->lock
 
-This commit stops the pen and touch HID interfaces before calling
-wacom_release_resources() in wacom_mode_change_work() to prevent a
-concurrent wacom_raw_event() from accessing freed resources.
+This commit acquires data->lock when tearing down synchronous read state
+in sensor_hub_input_attr_read_values() and
+sensor_hub_input_attr_get_raw_value(), and frees any prior
+hsdev->pending.raw_data before allocating a new buffer in
+sensor_hub_raw_event().
 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 2d2a4d56a8da7..121bead90147c 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2887,16 +2887,16 @@ static void wacom_mode_change_work(struct work_st=
-ruct *work)
-> =20
->  	if (pen) {
->  		wacom1 =3D hid_get_drvdata(pen);
-> -		wacom_release_resources(wacom1);
->  		hid_hw_stop(wacom1->hdev);
-> +		wacom_release_resources(wacom1);
->  		wacom1->wacom_wac.has_mode_change =3D true;
->  		wacom1->wacom_wac.is_direct_mode =3D is_direct;
->  	}
-> =20
->  	if (touch) {
->  		wacom2 =3D hid_get_drvdata(touch);
-> -		wacom_release_resources(wacom2);
->  		hid_hw_stop(wacom2->hdev);
-> +		wacom_release_resources(wacom2);
->  		wacom2->wacom_wac.has_mode_change =3D true;
->  		wacom2->wacom_wac.is_direct_mode =3D is_direct;
->  	}
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 028e70ec7bace..6aaf0df4b6dc1 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+[ ... ]
+> @@ -625,6 +638,7 @@ static int sensor_hub_raw_event(struct hid_device *hd=
+ev,
+>  					}
+>  				}
+>  			} else {
+> +				kfree(hsdev->pending.raw_data);
+>  				hsdev->pending.raw_data =3D kmemdup(ptr, sz, GFP_ATOMIC);
+>  				if (hsdev->pending.raw_data)
+>  					hsdev->pending.raw_size =3D sz;
 
 [Severity: Critical]
-This problem wasn't introduced by this patch, but does wacom_wireless_work()
-have the same issue [1] where wacom_release_resources() is called on
-wacom1 and wacom2 while their HID interfaces remain started?
+This problem wasn't introduced by this patch, but can
+sensor_hub_raw_event() race with sensor_hub_remove_callback() [1]
+and trigger a use-after-free on callback?
 
-drivers/hid/wacom_sys.c:wacom_wireless_work() {
-    ...
-	/* Stylus interface */
-	hdev1 =3D usb_get_intfdata(usbdev->config->interface[1]);
-	wacom1 =3D hid_get_drvdata(hdev1);
-	wacom_wac1 =3D &(wacom1->wacom_wac);
-	wacom_release_resources(wacom1);
+sensor_hub_get_callback() returns callback->pcallbacks after dropping
+pdata->dyn_callback_lock, while sensor_hub_remove_callback() only takes
+pdata->dyn_callback_lock before freeing the entry and returning to the
+client driver teardown path:
 
-	/* Touch interface */
-	hdev2 =3D usb_get_intfdata(usbdev->config->interface[2]);
-	wacom2 =3D hid_get_drvdata(hdev2);
-	wacom_wac2 =3D &(wacom2->wacom_wac);
-	wacom_release_resources(wacom2);
-    ...
+drivers/hid/hid-sensor-hub.c:sensor_hub_remove_callback() {
+	...
+	spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
+	list_for_each_entry(callback, &pdata->dyn_callback_list, list)
+		if (callback->usage_id =3D=3D usage_id &&
+						callback->hsdev =3D=3D hsdev) {
+			list_del(&callback->list);
+			kfree(callback);
+			break;
+		}
+	spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
+	...
 }
 
-When a wireless tablet connects or disconnects, wacom_release_resources()
-releases the devres group for both interfaces before hid_hw_stop() is called
-(and hid_hw_stop() is never called on disconnect, on an unknown PID, on
-hdev2 for pen-only tablets, or on the fail path after hdev1 has restarted).
-Because wacom_wac->features remains populated while the HID hardware is
-active, an incoming report in wacom_raw_event() can dereference the cleared
-shared or input pointers or access the freed pen_fifo and input devices,
-causing a NULL pointer dereference or use-after-free.
+If a client driver unbinds or fails probe while an incoming report is
+being processed, the client driver frees its callback structure and driver
+data while sensor_hub_raw_event() still holds the returned pointer:
 
-[1] https://sashiko.dev/#/bug/linux-0154f73a-a980-4d2c-8f09-407e588762d9
+CPU0                                  CPU1
+                                      sensor_hub_raw_event()
+                                        spin_lock(&pdata->lock)
+                                        callback =3D sensor_hub_get_callbac=
+k()
+sensor_hub_remove_callback()
+  spin_lock(&pdata->dyn_callback_lock)
+  list_del(&callback->list)
+  kfree(callback)
+  spin_unlock(&pdata->dyn_callback_lock)
+// client driver frees callback and priv
+                                        callback->capture_sample(...)
+                                          <-- use-after-free
+
+Acquiring pdata->lock around the removal in sensor_hub_remove_callback(),
+or holding pdata->dyn_callback_lock across the callback invocations, would
+serialize teardown against in-flight events.
+
+[1] https://sashiko.dev/#/bug/linux-a1e2f25c-d273-4b88-b53e-c38049ea2d5d
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123155138.2907=
-049-1-lee@kernel.org?part=3D8
+049-1-lee@kernel.org?part=3D4

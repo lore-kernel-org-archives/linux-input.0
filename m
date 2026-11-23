@@ -1,55 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795456188;
-	b=bJrbsUESG9WUCtBJazR1FqJJL4y0x68kL/ovPONFGP1RvYWdK3zglR6tlY8XatiFsDHr
-	 wJqXJiP+Bwgh6aJGlpE1YotdgFN8FX6dC4QrSYm0aa5VNS3VE5SZYepQEL0rMckAg84iD
-	 i0ueYeVHYS/objNdWdcqvmC0uR3vLlCPFGA4QkWL2A8ZH3u2Q55+HbVyXUBW7z0m4pSyb
-	 h38sqyuwOX1Vy2jWqTi9w8cq/Toj6a87Cr1ai3sERaqeHbcptOq/dpmw9BKxlf0K7byoD
-	 h1s1mXxZdr/nfz5U1eQrU8En0hZ4eF5WQqwNGJv9OjOwVEfKPoq50r91PBvZRBM2g/Q==
+	t=1795457528;
+	b=RLqLDTIZ80+MGGSU1/0AN/yz+B7yqXXsMFo//od4mj6wZGv26RkxozdVboT6HnehLa74
+	 rtHFc7GJ8OOTorKZgy176dXE7TgQLIeX4Mhw5ljZa3NMKxzjhUdwDRnbxUZijV7rnF521
+	 Ag2V2LIw0qworYjt7/kWOoX84ZczK9R5DYMD2aFGTk9noCdGkLwp+5R84A/FRlLx1twP0
+	 EEIis5UyswgN0Xpp/QHrxPZuQCh6bq8mj4TquriMY5zUyNwRgR45y+s9XOAfrxCQtF5ZK
+	 barcMko0dZVq/5lCR/uZvLjYEE6GCGuJ7Avp3PqpEl7liIgKCaPgWTmiCYvVYBB72sA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795456188;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=DWCgD4jFh5MUzaGBbL+xu9bwZ84EW2hVajAfFpV5Au4=;
-	b=pQ7pKeRTYwDDY2Cb4D0v0kiiIqs4NdxiqpBVcFI3fO1yg69L2WbMf4jzBZL82t3ft2/r
-	 wOd58JA7SA8aMRjLtAGe8iDo4GCQE+9tsWkPxzTmtRJ0KvsO/lVkfwXK5QoEaN90GlyHW
-	 ZKE0tI9JLSiF1IVWzWBfH6XqJnlFP6xeI/efVhSPdrwAHslzVE9ADWepWqOPk7WdHcBVS
-	 TWS9r4zen8MBCY2aY30UK0g4oTMXi/qMvz5GSFvfMdHQtaEw2NB7z93PVzdHqpZretxNl
-	 gA2Gm0IGRehYtuK2LmY3kk1cyzeTx44SrMclpnoInkQWauoR2PoITgpFAJbw4VSGrLQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795457528;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=jzqkJeZaTQXahw6ShZXqUnXj4qKS+ePavQpcZ/GtLFg=;
+	b=WMxgoy85VP0TLAjkKVkRVkkpV1QB7cSTVsxOnKvMU7tEHcYHMcylwELGOhNRnG0MmQLx
+	 XsKVDghzZxA0OCdpxtpeI46GRi59cuzzQN+NbOLUEH4Xv8b5R3hqjOThKlSIL09Vc2nFe
+	 wfHWzJu3zxnKaG2urpgR4j44u3HkvZ2cm2wGVJFM3wy7It49T8p/S+/H4K32suqrdkfxU
+	 ybWZUHlFSYJ0g3JaZQJnqqE+NyiK++XDezIU4hgEa0djuP1bE/g6D55J2gAyzVszoC7BA
+	 MJFTzjMMAQOFwCBlwZdvJkRerKVT4OKETM8VJIc0ywOqSmtbmVZLoEjy+JQajDVEIYg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CtGSCILc;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=u0ywaFlF;
+	arc=none smtp.remote-ip=74.125.82.180
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B3E4606A31A
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 17:49:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71949606A31F
+	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 18:12:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 71949606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CtGSCILc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0EF1F000CA;
-	Mon, 23 Nov 2026 17:49:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795456187;
-	bh=DWCgD4jFh5MUzaGBbL+xu9bwZ84EW2hVajAfFpV5Au4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CtGSCILc5/QjoROrtoEmI08lnblzrvwSvuRHd9F5/lbzJNjNpoW2VpauHhlxRBOa2
-	 ZrTwTWD8tuR8Ngd22DRnbN0f7JvFo1yn4e2AAPegDd6R6HlKqwuFTC2SqPiANEksxf
-	 vOnM0fva103XjhMIFZdQCtZ5WTGAdRfk7begbG5VvUM3dyBbD/8Bizm4qC5b+84Xiz
-	 qaPjf8Dc8tGod9xedJHWVgWfj+VQhqG1aBEm/ZEsfZSmJFDcImAV1KOlT10iUrYrXI
-	 FXIygUR73KA3GYNjntMdHN+spK8lnR7ZZj86JTH59hxZqaW5H5jWa4Mg7a6o3VwPP6
-	 Vs/zaLMansrKg==
-Message-ID: <sashiko-outbox-229783@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Erlend Jacobsen" <erlendjacobsen@pm.me>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261123-b4-rdmctmzt-v3-1-5ce2359df0aa@pm.me>
-References: <20261123-b4-rdmctmzt-v3-1-5ce2359df0aa@pm.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 17:49:46 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=u0ywaFlF
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-38644aedba1so5437055eec.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 10:12:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795457527; x=1796062327; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=jzqkJeZaTQXahw6ShZXqUnXj4qKS+ePavQpcZ/GtLFg=;
+        b=u0ywaFlFQGJU+pxzbL1a6SWXyRaCwXZzS5AbxqdZ8bjRjQdOVXELGmrG31NpNdT2DV
+         YxIToPBydNJ6+VBAerf2ZQUbvV5aP4E1CppnauztHG5J/REu3mfghDTsDFAeeX2N/lxU
+         6yz7wwa07D3H8c3doovT6i2/HLy3Oz/z1mcZZlsvcTBKhBoTDqPcur34aPP/1/esBkW2
+         btuFQ/UveeLAZ4E1UKJBZX6KwNHn8mrS09w24sgdNnEaNnWW2Jhnshx90JwneM7NC1hX
+         wYm3GYbrav8YUhEKwS1jgi5WMlTAjb7yzCUJgCBQAnyewMP7QGHkdSuWb1Iz+cD3sHrx
+         sTcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795457527; x=1796062327;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=jzqkJeZaTQXahw6ShZXqUnXj4qKS+ePavQpcZ/GtLFg=;
+        b=TOgdVjAh22HmtqbPl3C4eMk3c8GRnF2ts7eNu40r25vMBSVZrk6J6RPXEZ30nOagPi
+         /R/hAbkHlTaRzcLL5f7XoMDBAPyrQHDm9HJC2WHPsLm558p8rzTnVCoBI4cASSxO1G15
+         u6NKLrpn1Jb32n6Qc2ecg5DJmle2XAZzo7yf7EqSlp7HCsXlwdcMqjRrQykJLWA11EWX
+         5buAkYQpw13+SAv5J/xsxPOgVe08HQglb6Nr+Re6CfM6Acl/oZiIVbqljzYjwajwvFQn
+         BfnfylGns24TCs5bJAiY1YrZwH0Gpayo+SzIn4zpX9AyETeeeunlaA/ijV6dlmDamSDW
+         K5RQ==
+X-Gm-Message-State: APuU4Z/ywPnrcJHOgBThdBJIrU8Lf0s1hQZh7mHXZ7BpcbuL0KdmYgb4
+	cOkE1rJcKPERN5jT4x9hvmjUv6r36L6ftNAorGYerVkKHHVT6roUfWTs
+X-Gm-Gg: AZFdTZfs4zmf9R9RUANiDdG/wtuJPF7Q/Lyh/wzpHTTz7mooP3lDE8k0ezEcOYuU9KD
+	OZOr5jSHpdzggWui0wQuBkZizwKvxOVuzqfMR0jBWjqu9TOa/Xuhnq/2Y2uKVjfww1/1N8XYvu4
+	2hg22QApYIl14Eb7RtOeEz68gkkUcq7y+9V/mXtnac+1/UMSgfU1keI4A8qny3cgZw+5nWGNvZN
+	oq+TqwHX/T1txPP1HLFo++3b9iugsrK4cn0s6rbPto8soo7GyiB+ScG9uyRpDKzLoeQuM5YPQnL
+	gW16QRigVir2rWq2Wkb9yHXkGUOp3/O5tksn678NbGQGOvY8lxX7ZSgw+yBZbaxDLkfhvS4fC8u
+	ZJVAWb00lYOk5/08RleW9dbmP0KVnaPP89cEVI42qn/NE9wq8eOLIK5u8YU5VRCOVD7OR3nGRZM
+	g0Rem92jSJgUK5s+Tr0URP3lo2rPOa9gTfc3m9t6lcSU4RPyiZqs08yZGrYSaXaw/YJp1E8UGPp
+	4bba7f/8H1lecFNW4NgHwp6w+/C9Pu0TuzVkaXEiy2fO75fqvYB1t/MD+3SPjJWxZLkVqii6pTM
+	io8JRDNt01Kb32wU1k0fZX2H2BpIbv06a5E8H33JbAkEDGVW2+ZQQsRcMUpZAFD9UTXq5Z3QE91
+	gLNoka7OU8sBU4+TG
+X-Received: by 2002:a05:693c:83cf:10b0:386:b526:24d1 with SMTP id 5a478bee46e88-386b52638e1mr2787839eec.9.1795457527409;
+        Mon, 23 Nov 2026 10:12:07 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567cafec4sm43434987eec.26.2026.11.23.10.12.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 10:12:06 -0800 (PST)
+Date: Mon, 23 Nov 2026 10:12:03 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Michael Auer <mick@yoxcu.de>
+Cc: linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: pm8941-pwrkey - report wakeup events
+Message-ID: <awSB8AQVrGEAjFgr@google.com>
+References: <20261123130336.1316006-1-mick@yoxcu.de>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,113 +95,25 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261123130336.1316006-1-mick@yoxcu.de>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: rdmctmzt: split-lock rdm->link update in
-  rdm_dongle_linked()
---
+On Mon, Nov 23, 2026 at 02:03:36PM +0100, Michael Auer wrote:
+> The power key (and resin, with "wakeup-source") is a wakeup source, but
+> the driver never reports a wakeup event. Its wakeup_count in
+> /sys/class/wakeup stays 0 even after it woke the system, so user space
+> cannot tell a key press from other wakeups. PowerDevil, for example,
+> uses the wakeup counts to decide whether to turn the display on after
+> resume.
+> 
+> Report a wakeup event from the interrupt handler, as other power key
+> drivers do.
+> 
+> Signed-off-by: Michael Auer <mick@yoxcu.de>
 
-commit 6c486e725a5b70b38d74595b3572ef11e0c655ce
-Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+Applied, thank you.
 
-HID: rdmctmzt: add RDMCTMZT keyboard battery driver
-
-This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
-dongles to poll battery status over the vendor HID interface and report
-wireless link status.
-
-> diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
-> new file mode 100644
-> index 0000000000000..fc740c7a4e482
-> --- /dev/null
-> +++ b/drivers/hid/hid-rdmctmzt.c
-[ ... ]
-> +/* The dongle's link byte, asked for now: an 0xd0 may have been missed */
-> +static int rdm_dongle_linked(struct rdm_device *rdm, bool *linked)
-> +{
-> +	u8 reply[RDM_ANSWER_LEN];
-> +	int ret;
-> +
-> +	ret =3D rdm_command(rdm, RDM_DONGLE_STATUS, reply);
-> +	if (ret =3D=3D -ESHUTDOWN)
-> +		return ret;
-> +
-> +	scoped_guard(spinlock_irqsave, &rdm->lock) {
-> +		if (!ret)
-> +			rdm->link =3D reply[RDM_LINK_BYTE];
-> +		*linked =3D rdm_link_may_be_up(rdm->link);
-> +	}
-> +	if (ret)
-> +		hid_dbg(rdm->hdev, "no link status: %d\n", ret);
-> +	return 0;
-> +}
-[ ... ]
-> +static int rdm_raw_event(struct hid_device *hdev, struct hid_report *rep=
-ort,
-> +			 u8 *data, int size)
-> +{
-> +	struct rdm_device *rdm =3D hid_get_drvdata(hdev);
-> +
-> +	if (!rdm || size < RDM_ANSWER_LEN || data[RDM_PREFIX_BYTE] !=3D RDM_PRE=
-FIX)
-> +		return 0;
-> +
-> +	guard(spinlock_irqsave)(&rdm->lock);
-> +	if (rdm->expect && data[RDM_CMD_BYTE] =3D=3D rdm->expect) {
-> +		memcpy(rdm->answer, data, RDM_ANSWER_LEN);
-> +		rdm->expect =3D 0;
-> +		complete(&rdm->done);
-> +	} else if (data[RDM_CMD_BYTE] =3D=3D RDM_DONGLE_STATUS && rdm->dongle &&
-> +		   data[RDM_LINK_BYTE] !=3D rdm->link) {
-> +		/* The link to the keyboard came or went: ask now */
-> +		rdm->link =3D data[RDM_LINK_BYTE];
-> +		if (rdm->expect && !rdm_link_may_be_up(rdm->link)) {
-> +			rdm->expect =3D 0;
-> +			complete(&rdm->done);
-> +		}
-> +		if (!rdm->stopping)
-> +			mod_delayed_work(system_dfl_wq, &rdm->work, 0);
-> +	}
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Can rdm_dongle_linked() overwrite a newer rdm->link update or cause
-rdm_raw_event() to drop an unsolicited link-change event?
-
-When rdm_dongle_linked() requests RDM_DONGLE_STATUS, rdm_raw_event() takes
-the rdm->expect branch and completes rdm->done without updating rdm->link.
-If the dongle sends an unsolicited RDM_DONGLE_STATUS report before the
-worker updates rdm->link in rdm_dongle_linked(), the two updates race:
-
-kworker                           <hardirq>
-rdm_dongle_linked()
-  rdm_command(RDM_DONGLE_STATUS)
-    rdm->expect =3D 0xd0
-                                  rdm_raw_event() [reply: link =3D 0x02]
-                                    memcpy(rdm->answer, data, ...)
-                                    rdm->expect =3D 0
-                                    complete(&rdm->done)
-                                  rdm_raw_event() [event: link =3D 0x00]
-                                    data[13] !=3D rdm->link (0x00 =3D=3D 0x=
-00)
-                                    /* reconnect event ignored */
-  rdm->link =3D reply[13] (0x02)
-  *linked =3D false                 <-- stale link state kept
-
-Because rdm->link still held 0x00 when the unsolicited reconnect report
-arrived, rdm_raw_event() did not reschedule rdm->work, and
-rdm_dongle_linked() then stores the older RDM_LINK_NONE (0x02) reply,
-leaving the reconnected keyboard unpolled for RDM_POLL_MS (60 s).  In the
-opposite transition (reply 0x00 followed by unsolicited 0x02),
-rdm_dongle_linked() overwrites the newer 0x02 in rdm->link with the stale
-0x00 from reply[].
-
-Updating rdm->link inside rdm_raw_event() whenever a valid
-RDM_DONGLE_STATUS report arrives (and having rdm_dongle_linked() only read
-rdm->link under rdm->lock) would avoid this race.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-b4-rdmctmz=
-t-v3-1-5ce2359df0aa@pm.me?part=3D1
+-- 
+Dmitry

@@ -1,57 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.251.105.195
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795426979;
-	b=TPTsLlR8Ozt8HwID2/I4V3aD70eGcGi23gXxaQ9j8BGVoSTpb9JU8UrV6R+K6XKsNz8i
-	 FlxZ9DPMe7nHd2OM4HJe/rdTCxsfrjGfeSb80ZTrkgMV5SxS2NbFDkxinnti/vhYI2mC4
-	 IEqWWy1vgKl0M819eM1eiBiwfcE9Yr2a2UfForaESDh+OmPqHaR45Rd+7946y+Y4CExZC
-	 XxB8pQKKTs6Hpg3iYJpeYkIIE7nlaVshQMEHzK7hJrvP5GgC0nGsvNFHm+pR7J5pXLZms
-	 /qv8N/je9NYK8j55C3CJnqT7RE8nKBZg8EKsHHYV5N6vrzezzlJaCOWNlIUoWcx+qCQ==
+	t=1795427396;
+	b=IaNxNIioP4Y5LPQUz8wvHkYcBFM8nqTUNxPH9Lpf6e691pUmEZ6XSvRttPLSRx5KchIE
+	 qHknzNR4EtWCQ6Ct3NbBJdtcmGJH0nA+JLft/uER34nLHeQBM5bt22AY77AJMsrc8xAnV
+	 NvMlbZ/irWbcHqrbkdsKgC4MJi18+wpE9UlhkWotFtf3x5r2JF5NFBYQLvkzUfUuwZwIk
+	 q006tpmHcTvsqTgMqDDu9sPQ5TUOd6Yag/iZNyMHh7T11pVTxFRHf/G5cm3r4kmrRl7k+
+	 OIDWWRHHxuEXzTqHfLCQNUBFNSmRZDgvKGZItqqVFUTEakVhk/fCxVKy0Ik+fkfvTvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795426979;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=luKx7xLkJD8cEmgpccLceBgBfdp4a2QrKT9YJd2DqYg=;
-	b=WENa/Zj8/4k4s2+mBwBlE+xutTVIoX/xeAeW4gzYyPu1MDXs1ndEJ9x6LxjTg2j6TFC9
-	 6Cu0+z9VGeFh+PaqCzv9oO/pVY7y9zGThBEtiFQcPfAYkxRYWCwBq4mdMmWwEoriDVc+9
-	 A3shskSl9cFfObWHBVpTsNCG07jB+tAvK6o94EHl6ArP7h/4bbOykOYinIQpvwTR1/6mt
-	 k+/8Zek67we4hwe6MEj02yC7Lz2cxkL4XzAkhhTCU/20jmfZRnZO+jAFhZyo7svX8RUpY
-	 kwFrJMnB+pvu3n1gqP1Vv7xwfN7PL+oNHIJpGZwowb7RTDlvTvCPinH3qNNbNKpWrmQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795427396;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=+9PCTbh71L1HM3bKlGiIOaVmykcBeQmvpI3vljck9JA=;
+	b=q9cEratgpxXRkbkRmBgowVTCUMOEvsH9gcVQeYCps4M7L8hcaUM/toS379NSmj7QNJri
+	 hApWcYxOt5fJZ3g7KH3i5Rfoqf6dAwgn1GoOjJ6RFSZco4k1yvjozcRwsAOExMso/bAR3
+	 hwAyjXysREsXGochQxp7AHpWWmGlBZAfIkxT4bB/7fVpdUJsediuO33CbaVHnWmbKhFC8
+	 n7TqtRnBolxuhHNTi53PobHnyDGZ69g1FUzWN/0mpub/D8QPql2w2guoTmwbAzzx7JEqc
+	 qsqHvs5jcE4siMLs81rbPsdn8Zqpq5jHyFMn+Kb9LaxeOEjVMM62WX6mwT0tdYmKnOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="cX8V/VXH";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=collabora.com;
+	spf=pass smtp.mailfrom=collabora.com;
+	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bFm2De2+;
+	arc=none smtp.remote-ip=148.251.105.195
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52F23606A31A
-	for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 09:42:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A04606A686;
+	Mon, 23 Nov 2026 09:49:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62A04606A686
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cX8V/VXH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D08541F000D3;
-	Mon, 23 Nov 2026 09:42:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795426979;
-	bh=luKx7xLkJD8cEmgpccLceBgBfdp4a2QrKT9YJd2DqYg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cX8V/VXHBZNhOw0SmAqbnKBihFScGjrvqZXHUPli1AHQdCxRA3fygqUVtSaXqapFj
-	 lWv01L/bW49BdGDKivOkEVcdDP591+KAxYMLiy/cRk5ayFBybgdhUgdbvqc5JgpwPF
-	 rQG84Qil6kUx7/1kR4yr1CHpUj0rLOPZCLbWqkNIFiMJ3+wM+QbDxalE+IOlAZTvUt
-	 Ki0j3+djJQnwiAUUqT603/1772yqjyOlIb6CCnVDG82YIJ5HIjQ52AwnCQthhXbvxw
-	 Zul8fCkfz4i3G2In1o7Q0ki9s+BJP5jQYROQC9y8uG1Cxzz39+fA7d7SUnpOCOXnbc
-	 4NxhqdbpkLShA==
-Message-ID: <sashiko-outbox-228999@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: intel-ish-hid: Reallocate the descriptor
- buffers for a longer response
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Maoyi Xie" <maoyixie.tju@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261123092816.2200718-2-maoyixie.tju@gmail.com>
-References: <20261123092816.2200718-1-maoyixie.tju@gmail.com>
- <20261123092816.2200718-2-maoyixie.tju@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 09:42:58 +0000
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bFm2De2+
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1795427395;
+	bh=qDlQ72Vc7Hc/VU08uITBDl9vO+AOoQTLBFQhPb/BZh4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=bFm2De2+DX6rpDbSTnze1A9rSRSqcnUXretTh32/Cn7I2RwdAEgrER/L4mivzh9xL
+	 hRdrV2rdAkTMcCIe4Eo9oyWwOoNQMJX8aG188briw+qLRAVDGfxaqO5ESMYsvncL45
+	 xXLiDVaNc0XBiNKBv7R2ruM3/NdVD7h5FTYRVBV+iAmdAAS4y86KMKzTD5LqmJYItx
+	 umsbfw6IFNS8mNWp/5iufwz98gKEmde2YZnXUM4cgJg7298j7Qb1vbyljEE0k75wTZ
+	 tYd36wNlizoEd6o5rq/jQ3r0MBJjyxl9U7qf9hkmNvkCvzjoBrZ9uaK5HIuAatTDOx
+	 781Ab+hMHvKxg==
+Received: from [100.64.1.21] (unknown [100.64.1.21])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 249EF17E0CD7;
+	Mon, 23 Nov 2026 10:49:54 +0100 (CET)
+Message-ID: <d367dd8e-d712-49c5-a2ae-30a9b3a41d35@collabora.com>
+Date: Mon, 23 Nov 2026 10:49:53 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,79 +60,41 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/9] watchdog: mediatek: Add support for MT6895
+To: Alexander Letuchiy <asalde.le1@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Sean Wang <sean.wang@mediatek.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Wim Van Sebroeck
+ <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner
+ <tglx@kernel.org>, Mattijs Korpershoek <mkorpershoek@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kees Cook <kees@kernel.org>,
+ Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
+ linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linux-input@vger.kernel.org, phone-devel@vger.kernel.org
+References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
+ <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: intel-ish-hid: UAF race in process_recv() on duplicate
-  report descriptor
---
+On 11/13/26 20:05, Alexander Letuchiy wrote:
+> Add the compatible for the watchdog of the MediaTek MT6895 (Dimensity
+> 8000/8100) SoC. Its watchdog registers are the same as on the other
+> supported SoCs.
+> 
+> The TOPRGU reset layout of MT6895 is not known yet, so the entry has no
+> match data and no reset controller is registered.
+> 
+> Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 
-commit 024e9922cb6a61e316edcda24a29fa99a9eae537
-Author: Maoyi Xie <maoyixie.tju@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-HID: intel-ish-hid: Reallocate the descriptor buffers for a longer response
-
-This commit replaces the one-time devm_kmalloc() calls for hid_descr[i]
-and report_descr[i] in process_recv() with devm_krealloc() so each buffer
-is resized to the received payload length before copying.
-
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/i=
-ntel-ish-hid/ishtp-hid-client.c
-> index ec5e8afe77bd4..24f4032d6dfe1 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-[ ... ]
-> @@ -197,11 +198,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp=
-_cl, void *recv_buf,
->  				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
->  				break;
->  			}
-> -			if (!client_data->report_descr[curr_hid_dev])
-> -				client_data->report_descr[curr_hid_dev] =3D
-> -				devm_kmalloc(cl_data_to_dev(client_data),
-> -					     payload_len, GFP_KERNEL);
-> -			if (client_data->report_descr[curr_hid_dev])  {
-> +			descr =3D devm_krealloc(cl_data_to_dev(client_data),
-> +					      client_data->report_descr[curr_hid_dev],
-> +					      payload_len, GFP_KERNEL);
-> +			if (descr) {
-> +				client_data->report_descr[curr_hid_dev] =3D descr;
->  				memcpy(client_data->report_descr[curr_hid_dev],
->  				       payload,
->  				       payload_len);
-
-[Severity: Medium]
-Can a second HOSTIF_GET_REPORT_DESCRIPTOR response cause a use-after-free
-on client_data->report_descr[curr_hid_dev] in ishtp_hid_parse()?
-
-During initial probe, hid_ishtp_cl_init() wakes up as soon as the first
-response sets report_descr_done and immediately calls ishtp_hid_probe()
-while cur_hid_dev is still i and init_done is still false.  If a second,
-longer (or zero-length) response arrives before cur_hid_dev advances,
-devm_krealloc() frees the old buffer while hid_parse_report() is reading
-it:
-
-CPU0 (probe)                      CPU1 (unbound_wq)
-hid_ishtp_cl_init()
-  ishtp_get_report_descriptor()
-                                  process_recv()
-                                    report_descr[i] =3D descr
-                                    report_descr_done =3D true
-                                    wake_up_interruptible(&init_wait)
-  ishtp_hid_probe()
-    ...
-      ishtp_hid_parse()
-        hid_parse_report(...,
-          report_descr[i], ...)
-                                  process_recv()
-                                    devm_krealloc(..., report_descr[i], ...)
-                                      free_dr(old_dr)
-          kmemdup(start, size, ...)  <-- use-after-free
-
-Ignoring or rejecting duplicate responses when report_descr_done (and
-hid_descr_done for HOSTIF_GET_HID_DESCRIPTOR) is already true would avoid
-reallocating the buffer while the waiter is using it.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123092816.2200=
-718-1-maoyixie.tju@gmail.com?part=3D1

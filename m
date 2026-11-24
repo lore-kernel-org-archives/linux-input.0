@@ -1,92 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795485422;
-	b=clPFsw7PFwbnGA/Yora/7vumNbFFww1teslzU82CVBo9T2AUNwr/Bu17TiDzhb3GshGM
-	 Ao7iitL7yKeaFCE+DTrr1S9QXF0REGC6WqA7fVETAt6yILEJD7Z1ex+nkiNbdX4NZIBJj
-	 3mddNq2kLqoZ9Jjbm71+sk0HcU9EVI4fqxgUATFzT/aFjVv+q1ZobGhsd1JFCrarjaVQT
-	 7pwgA5PE8WvxxwdiWRmT/MluGFfDK5JG0Z7TGQw8x4ryJdTK0TuDQNVAcXCMNghqoyeu8
-	 jl6d5wzM1ZbbVJzdcqXvncmqgpl7KYl2ALLxNhypYyO3HKgtyegBROa3zCa2Yb1zSHg==
+	t=1795485792;
+	b=bUtYLiwcOzKB/DEmRQKw2E3cQWgvR6ea5//yOTn07RP1zf5DF3CLTldQuI5Rjrz/0M55
+	 kVWJtz/dnJedylvZDQoxOuNBVtB0dwsz0IzTb6yuHvekNEl//zOK0tI0ayIhAoNf93Sal
+	 nZTk4bTdTdeJRmoGl4qtcMza/OcF1lpZG++pEINpRVwRbgOmaocls8ZDnviwru/KeN7FV
+	 xwMU1qHNopVXdxDRFLsj2Wt7F5GNhdeu0IXIzg8opcQ9sIT/0R9prDEaZxMvgFtbJ0vID
+	 Vtliyr4TTZi/NV+Xu+9yT/ZK6Hm5Z6LjVLNiCHGbfPNXH5uLvQNN1MZnW0+am5TqSug==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795485422;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
-	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Content-Disposition;
-	bh=/L8uXiaS6bmFC0qrn35Iu5qpKgrTHXQ2XkvCS11ygz0=;
-	b=Vaw2SdTUKuEOMVnaufeHJicswZSp5KnWrwMgqgdlUNEu21MaVmt1e61oW3WyjEqNdXM5
-	 k5/Azh1gfIZoAshR7Wwrx4IwOgN322yKbQlMA18OcLGbJF6Wl0fa08rXZaAJgVQfp6fiX
-	 0qtbO9INxZazxpdheQnKO0lxMeEKt5QWv9gGMgcmSf60o/Ldn+BL4Wv83TU/o1uXEQUB8
-	 eX3R5oyD7UsvI+KQfzHnr5bDUOJjXUVzkjDrpOxe4JnPS5j6b1OY0MkK1GW62EfDxHk/Q
-	 ZeIaZ+CTQ6ljVCHl8vWRdn+y8faqRvOs/twiSdxk+i4Yg3kcqgaC5ARGCWqX5g5vwPA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795485792;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=Kt8dk7Aa6T6YNlLk28kW3BrJ5BHIb7GeM1dAn5MysX0=;
+	b=OOQSVCVdaq/PEfsD18pjFgE2w4VdzbJ2Ov18aZWPaLpBHnVVsfBm0pUPz5TgRPUHQVXX
+	 2ZFZT1vmWE6gZsp3PJ5+BLmT+XgfF3lq5yCDeySS5M63PPQADX4JLb59zGq4v2LIbKXbE
+	 5Wd4LGOwWBWUKTtj+ducWZ+h4IxrdSJo0qAZ4bTbHtoChEo1biqkFyBr8PghxteZGCTZk
+	 aact2Q9rwWZyGw4O5hSwM1eFC777FxneXa5Gz+MJS92+dhXraJGrA7/vts8rTsX9PJaSZ
+	 hcIy38D4POzj9Slwi6R0/Zmv2x7BXwADc2vY33t0QEQy6erORRI5gNz3tBHwzJejrLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HZhSgvR9;
-	arc=none smtp.remote-ip=74.125.82.45
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ddurdLh5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B66E9606A32C
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 01:57:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B66E9606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD0A606A31E;
+	Tue, 24 Nov 2026 02:03:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HZhSgvR9
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-14394530ec6so5758073c88.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 17:57:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795485421; x=1796090221; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/L8uXiaS6bmFC0qrn35Iu5qpKgrTHXQ2XkvCS11ygz0=;
-        b=HZhSgvR92UVg9Gq6HWqTK1bfiQW+QTlzc2rF/HYUTdPNoZvqr10ACNdZxih9eThop9
-         Whqq6Q4xUHj8EtouQFUvHGQPLYCk4ErdQXnKeV2Dx85saqW/mnNmsY0pj1GrYpAvbxJs
-         zCiOYS3IPunuybgG+6XEBCsICaWsDckSZ8WqzSgY4EKkqQ3nGsZotVUrlw6RpdJ3IwLB
-         IcVvPpJ6MCrB+DoBOa7HMARzplDr+2xsgkMu6R0dLGGnwk/GOHhVE2+R0khJGOAa+yZz
-         Gi+IopmJbX+heqCxNBTSn3NMb7/Jo2ZaC0OfwKBOCcxffGA0igcZVxm4FA3vYSwLSV7A
-         RYMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795485421; x=1796090221;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=/L8uXiaS6bmFC0qrn35Iu5qpKgrTHXQ2XkvCS11ygz0=;
-        b=Mlq/ZyxZC3FxbwGf+nBPvUUFHq4nr7DObJPTTo+Dwcv43pOlK4n9ez/o/J8Zknskw0
-         wUQiLqsV/8AMg+YzQrsfuRtnclMYBxoZCqEV2zT9S0W5TVCY1niF3s2eWGReQJrgkH+Z
-         zFAS26Y7GgsuQeCvT01A4W5/Es3babGUdT3KdaKaXJm0aqq3NJIerJwsvgSX4TO7G+fz
-         2r+/TZBhRDyTymXhy0ieI+3G9qiUZQuI8NO5JvJr2GSorQ39odM1e5e02p67QjARP19S
-         7rVD0EjlEBFSCiAdb4E5tpmjyrVq2gdG/IaJIAq1iMZn7Rhe6CqFd21INdqfrR5/tWtX
-         KCjA==
-X-Gm-Message-State: APuU4Z8UWwbewjrTzLzfSbMD18eo6VbyI6oSbgVNZvtSIi0lfySISIl2
-	kQRf+yj8ikYT9UjYyOZQ1Vs/OqvOe7m8eamcB+fSTW9h15dT488OhS4F
-X-Gm-Gg: AZFdTZeH2aeUByUNfXOd8grLSBcAiQAOHvyEpRESlNiDxTJqJ5/GQ5bKyErNR+z0Ucr
-	IiR0WTFiq7IZCkUKhvB/rnjyfM1udLRBO8xGLSUiY1VbMZgDjWAPIfqQD5Zks+mca+tYtiUwIro
-	n7kJVzUNlm7twX7aB0uwyytaKmSYNUGFjs4d3HpCJ+qfuSHhw4g/hMA5FKSyqM9WBGLjwUaiLeL
-	y98Ce8oUudXi3y/YuhMCeMzviG5ku/NHk1EnHmFUcaiJ0UrX+9JsJjozo3uZ0jsKNoUVbmWgvz7
-	qsxEWpOMT2XFFf+sM14jYPKzzdctu/raLvM53V7QG8heByT+LLaF9zqrg9bZvzicI3asp/yg00e
-	cSJRb7G80Fkf4CUifdUQ3ivJifqxfB4j06oTgHqF/Mzqt9ytZMf4At/MebY9W15KhfZEIJU9HKg
-	ZkhtZ1AkVJOiI7tFvU1ykBlSamjj8Ssl6uLCz1hU6cXZlSjR7yV/PxDt4JEtGHH5/QD5LgFbf8c
-	BMkPZY6le/X2ioaHN9XX5fw2UIFObUXtu/+EHLqbfT66lX57GXADbdJ9/P/fDXpEJDqEyjJyqhy
-	z6W+uL4DDFlJNSIBur9hMe7xCatZrDMyPK9W9LJc6kFkhT4nFd6cYbcjJtROnWM9UgPbgg==
-X-Received: by 2002:a05:7022:6988:b0:156:6676:d0e2 with SMTP id a92af1059eb24-1b55689f5dbmr18451310c88.10.1795485420878;
-        Mon, 23 Nov 2026 17:57:00 -0800 (PST)
-Received: from localhost ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b556847fdasm35459890c88.13.2026.11.23.17.56.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 17:57:00 -0800 (PST)
-Date: Mon, 23 Nov 2026 17:56:59 -0800
-Message-ID: <a4ffb45b13ddacd888f169eb9a60aa69@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: CJ <firefly0158@163.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: WARNING in cm109_urb_irq_callback/usb_submit_urb on v7.2-rc3
-In-Reply-To: <4ffee3ca.5062.1a1c4325d29.Coremail.firefly0158@163.com>
-References: <4ffee3ca.5062.1a1c4325d29.Coremail.firefly0158@163.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ddurdLh5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3221F000C6;
+	Tue, 24 Nov 2026 02:03:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795485792;
+	bh=Kt8dk7Aa6T6YNlLk28kW3BrJ5BHIb7GeM1dAn5MysX0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ddurdLh5+MnCGQGQKPLdIEEt1abS3qf+5B1zlqlTEbdz9PeL7uMPoq9PUaOyN7Op3
+	 JNLXBQfPwy7BEjB3fMTew+BPgULbEfXVbddaWt6V7l/PkCRTJl7EGvWELtLly2DzQ3
+	 /0STm0RJ72ZeXuywJu35XszKFTy2BJCdSef/LtGAt59nx/vwmDmVxt44m7kbYmnbFH
+	 dNMu+Ejox4CfDKN1v6hyGDQ7+kxYRFiD5QbQCH0ZRjiNDhaTyKzvmkgfvRj7hPMCZX
+	 Tv1+cvdQjg2HeKxMVBk7eeiGArBX0nVhZe8XkcyqVhTNemqRxj9PU1OvNKC/GZHx/q
+	 /n3js7F+aD2Lw==
+Message-ID: <sashiko-outbox-230375@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] Input: aw86927 - stop playback over suspend and on
+ shutdown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Qianhui Xu" <xiaqinghuan@mail.ustc.edu.cn>
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261124015028.1427420-7-xiaqinghuan@mail.ustc.edu.cn>
+References: <20261124015028.1427420-1-xiaqinghuan@mail.ustc.edu.cn>
+ <20261124015028.1427420-7-xiaqinghuan@mail.ustc.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 24 Nov 2026 02:03:11 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,22 +60,168 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi CJ,
+Thank you for your contribution! Sashiko AI review found 4 potential
+issues to consider:
+- [High] Input: aw86927: missing Signed-off-by trailer in commit message
+- [Medium] Input: aw86927: uninitialized work_struct in aw86927_reset()
+  on probe error
+- [Medium] Input: aw86927: race in aw86927_close() allows timer to
+  restart playback
+- [Low] Input: aw86927: inaccurate chip state claims in commit message
+  and comment
+--
 
-On Tue, Nov 10, 2026 at 02:43:17PM +0800, CJ wrote:
-> syzbot reported "WARNING in cm109_urb_irq_callback/usb_submit_urb" on linux-5.15. The same failure is still reproducible on v7.2-rc3 with the reproducer below.
+commit a797a001f2024a181e85b8bd947512d590b74fb5
+Author: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 
-Thank you for the report. The obsolete cm109 driver is being removed
-(queued in the input next branch for v7.5):
+> Input: aw86927 - stop playback over suspend and on shutdown
+>
+> Playback is not stopped across system sleep or shutdown: an effect
+>   that is
+> being played when the system suspends keeps the chip driving the
+>   actuator,
+> and nothing holds the chip in reset on shutdown or unbind.
+>
+> Park the chip in standby on suspend (resume leaves it in reset, as probe
+> does), assert reset on shutdown, and drain the work item in a devres
+> action
+> so it runs on unbind as well: the memless effect timer can queue the
+>   work
+> again when input_close_device() is skipped for an inhibited device, and
+> the
+> work must not reach the regmap after the device is gone.
+> Changes since v2:
+>  - [sashiko, 2026-11-17, High] "race in aw86927_close() and unbind
+>   queues
+>    play_work after stop": the devres action now drains the work item
+>   before
+>    asserting reset, so an effect timer that re-queued the work
+>   (inhibited
+>    device, or a flush interrupted by a signal) cannot reach the regmap
+>   after
+>    the device is gone.  aw86927_shutdown() calls the same helper.
+>  - [sashiko, same report, Low] "commit message and comment mismatch on
+>    suspend/shutdown": the message now states that suspend parks the
+>   chip in
+>    standby without asserting reset and shutdown asserts reset without a
+>    separate stop, which is what the code does.
 
-https://patch.msgid.link/20261112001642.243554-3-dmitry.torokhov@gmail.com
+[Severity: High]
+The commit message is missing a Signed-off-by: trailer.
 
-Thanks.
+> diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
+> index e1b811e183ea2..a94eb27a82b1b 100644
+> --- a/drivers/input/misc/aw86927.c
+> +++ b/drivers/input/misc/aw86927.c
+[ ... ]
+> @@ -335,22 +337,26 @@ static int aw86927_haptics_play(struct input_dev *d=
+ev, void *data, struct ff_eff
+>  	struct aw86927_data *haptics =3D input_get_drvdata(dev);
+>  	int level;
+> =20
+> +	/* The chip is powered down; a queued event would only fail. */
+> +	if (haptics->suspended)
+> +		return 0;
 
--- 
-Dmitry
+[Severity: Low]
+This isn't a bug, but is this comment accurate?  aw86927_suspend() only
+parks the chip in standby mode via aw86927_stop() rather than powering it
+down, so events are ignored here to avoid restarting playback while
+suspended.
+
+Similarly, the commit message says "resume leaves it in reset, as probe
+does", whereas both aw86927_probe() and aw86927_resume() leave the chip out
+of reset in standby mode with SRAM initialized.  The "Changes since v2:"
+notes should also go below the "---" separator rather than in the permanent
+changelog.
+
+[ ... ]
+
+> @@ -410,6 +417,7 @@ static void aw86927_close(struct input_dev *input)
+>  	int err;
+> =20
+>  	cancel_work_sync(&haptics->play_work);
+> +	WRITE_ONCE(haptics->level, 0);
+> =20
+>  	err =3D aw86927_stop(haptics);
+>  	if (err)
+
+[Severity: Medium]
+Can clearing haptics->level in aw86927_close() without blocking
+aw86927_haptics_play() cause ml_effect_timer() to restart playback while or
+after the device is closed?
+
+When the input device is inhibited via input_inhibit_device(), or when
+input_flush_device() is skipped for a revoked client or interrupted by a
+signal in evdev_release(), active memless effects are not flushed before
+dev->close() runs:
+
+CPU0                                    CPU1 (<softirq>)
+aw86927_close()
+  cancel_work_sync(&haptics->play_work)
+  WRITE_ONCE(haptics->level, 0)
+                                        ml_effect_timer()
+                                          aw86927_haptics_play()
+                                            /* haptics->level (0) !=3D leve=
+l */
+                                            WRITE_ONCE(haptics->level, leve=
+l)
+                                            schedule_work(&haptics->play_wo=
+rk)
+  aw86927_stop(haptics)
+                                        aw86927_haptics_play_work()
+                                          aw86927_play_sine()  <-- restarts
+
+Because haptics->level is reset to 0, even a constant-magnitude effect that
+previously matched haptics->level sees a level change on the next timer tick
+and schedules play_work, leaving the actuator running while the device is
+closed or inhibited.
+
+[ ... ]
+
+> @@ -762,6 +771,20 @@ static int aw86927_detect(struct aw86927_data *hapti=
+cs)
+>  	return 0;
+>  }
+> =20
+> +static void aw86927_reset(void *data)
+> +{
+> +	struct aw86927_data *haptics =3D data;
+> +
+> +	/*
+> +	 * Drain the worker before the regmap can go away: this action also runs
+> +	 * from devres on unbind, where input_close_device() may have been skip=
+ped
+> +	 * (inhibited device) and the memless effect timer can have queued the
+> +	 * work again.
+> +	 */
+> +	disable_work_sync(&haptics->play_work);
+> +	gpiod_set_value_cansleep(haptics->reset_gpio, 1);
+> +}
+> +
+>  static int aw86927_probe(struct i2c_client *client)
+>  {
+>  	struct aw86927_data *haptics;
+> @@ -790,6 +813,10 @@ static int aw86927_probe(struct i2c_client *client)
+>  		return dev_err_probe(haptics->dev, PTR_ERR(haptics->reset_gpio),
+>  				     "Failed to get reset gpio\n");
+> =20
+> +	err =3D devm_add_action_or_reset(haptics->dev, aw86927_reset, haptics);
+> +	if (err)
+> +		return err;
+
+[Severity: Medium]
+Does aw86927_reset() call disable_work_sync(&haptics->play_work) before
+haptics->play_work is initialized if probe fails early?
+
+aw86927_probe() does not call INIT_WORK(&haptics->play_work, ...) until
+after the software reset, aw86927_detect(), interrupt register setup, and
+devm_request_threaded_irq().  If any of those steps fails, devres runs
+aw86927_reset() with play_work.func still NULL, triggering
+WARN_ON(!work->func) in __flush_work().  Initializing haptics->play_work
+before devm_add_action_or_reset() avoids this regression.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124015028.1427=
+420-7-xiaqinghuan@mail.ustc.edu.cn?part=3D1

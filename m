@@ -1,79 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795516540;
-	b=vtFwcRD8T5HImPcnL0bxRcHBryU1c1etn4WaM0l64jfIB9nnNpNHA4tkvunmEArOGnbu
-	 Z2AAHU9OvcCow5T3kSnEo64SJpPCqEdi7bK+xfpU/2Nao67oG8qvXLaVw8B9cDyL8eb+R
-	 JdwInMpiil5ihLaSxlj3mRuAhnEfB9vwBlXfZ7Qaj4zx7XCmA1/mLj7loF0AJvhpzhIn6
-	 5Pktb+GTkz7g+lJaKUWdPmJusIhSGB6DQX5eVBU+djppasxtM0IGGDDQHBIaAlo5a31/T
-	 /ayMLeHLreLHxv6bAKadtwRdd5bTGLDeLMmSEPBsSEz5x5cuUzgUWTUfHdRXNOiPP6A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795516540;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=lkwMDkfjgioryZCX49o7PXJCQBe/jrTnQPOOGXCjrUE=;
-	b=Bp0My8Zg0L8AfYCto+6XGEEWsQ79EPWSnzFFK026Jdnbkc1WfvXW+PDpCxrp2J9zerUV
-	 EwKI0U8hk8iBQTQ7RsJkN3Dp5XO4WIHayc0H7sRyRLMS7bn3UV1ouVjSlmfVoVGBGcWDN
-	 JN+LiGR3bF3KbI4KMA7ThVH8bgZP3YnVivqWO3ie9RHWLv8PabRDZBx13lKPProFh89Pz
-	 7uG7jJ2/xrkTLumVZ9I3QeiYzO13Fj9g1zx2AqRC2Fat/ECa6Gq/ji/GQODrHaxVsJoWZ
-	 ju1ke2iHQRdL16h9d5Y+rE3KQ7rnvcPv+32AGVEbanECr3dxi18dm6SKQ0ms40R6vSQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=epOyB+CW;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB9F3606A685;
-	Tue, 24 Nov 2026 10:35:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=epOyB+CW
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795516540;
-	b=P8CEJmBT5M6fk2SVjjpbBC2sWFt2gAPcpIRwXLPmGIFENUaAMWjCkjZ6gtM8CKRUFAJl
-	 hI22EhyoQZ7vckxQDPuoeFXTvVCZ2qD8HWeg6v4U5Xz4IZ4MnEblOUlqxdTunQnYCkSkw
-	 xzyOy67FJCPbASTw9ZpAGCF6csdQX4ZGrNkd1pkwKplYG8Qce4shdzNkfCVbawCt4uyW9
-	 /0G0jBERuk+ES71OAAyhS5sCfRDR4a9/mZgoxgG2QBIv4exE8S5VCBs6A5PV5hC9XAmGQ
-	 704xQ5kNIHMgCCByQjd5k/8VIbWlg5OgZyN3Zy+X9+qoB6auL8OVemMMcTc1WufDO1g==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795516540;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=lkwMDkfjgioryZCX49o7PXJCQBe/jrTnQPOOGXCjrUE=;
-	b=EmHzvCcwSCwRB3zD07WS9xFfcNQ35iKnSV48ftfYqFbMJDcAUsiBExVSbmk8n0xONiXb
-	 anxxJ62xFspl++PGG9wq6EAwoT5OOM0CTSjvgopQGEs0POZ1DLqESc/jTbbdSBMcjPEx2
-	 zOVFBW9IkFYNeObo8p0VnxwU9jt7Fu6GQ/gBg8rRhs7UQT8VlEDdZcwOFh5rWX1Bt5dWT
-	 tBD8OtKdEVctKjpXVVTcIrRgqX0BfKlTjdbybRXkk8mOqSS+S+04WFaIm1zb6HpCz7H1U
-	 yc4S+UytqjSSVCmv0nmbWNV2DEEWe6rAzy0oq+MqKdn0EhiMGABmfQg73xUBfGQF7Qg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795516788;
+	b=fSsxSybObMT/EaSjSmSuPtrFGQPHkFJwnlQa90yQ2mQSR5v/K144jCjcjOm3E8scjA8N
+	 JM4y004JaTN9QMA/8Yy9ECkQ1n0lZrSCmPY2aNRmbj8W8FCxiQ/wE6JHvqoqUO+pg7OkE
+	 dd9seuOg/J6z8hkt6k49D7ja+EB2fkRGYxApESYcA3vNYFA0DN5Fa61Unhrqf5l8Sm4ed
+	 QZcrX5L2K0d/zVp7Qos0nclDpq3xxbsBCM7mHWB5KakzFHG2YgrJ/q4T6bM4qUVPZVSZU
+	 dnLGmnQRKt8579uWkGwqLeJLDR7h3GO9Pd+IzcGiKoU08xzNcUXvutKQqiLBh+ioE8w==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795516788;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=i67A04/jloiIm4Idm3ymNHqESyF+RQsVbnS4UKmnxA8=;
+	b=xuOsbcuRiPYkh0HddczBqteGcorV/5nzmeHuPZeyGMp2WDYIK2j9esP0QzeQ8zxZJto9
+	 9oRnhhT+IiEUqr9dhgvJyNFirrxW/3QfqZbaMlmk3sC0a6Ym8oYnYSPBRaudEUI71NsL7
+	 IFDfruyRI3O2m9nKRK0Lu6hUVGFzypYgK++UotZQ6ktO/D7T6/vppfRepJHvhmmsS249a
+	 GwPx7LrKZrrFgxFNaDQeYeO6bRGsaYhx6imfVG9OSKfDK8PknyiRasBeyDQXxprsO7ESg
+	 vjXG2Riq4O1Bp2iW4PmufyuGWunpmX2cCKsoppNRM6FLiWP2+J4ikqSFE+cln2ripTg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=suse.com;
+	spf=pass smtp.mailfrom=suse.com;
+	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=KjiX7YWe;
+	arc=none smtp.remote-ip=209.85.221.51
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id EFE651F000D1;
-	Tue, 24 Nov 2026 10:35:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795516540;
-	bh=lkwMDkfjgioryZCX49o7PXJCQBe/jrTnQPOOGXCjrUE=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=epOyB+CWrXVIPZ8Z9XcQ0NQ0bAPmPFEkLeL3LFpJBZtQtpkID68eHL8AKBQqgatfR
-	 b75EunZ8aw63oFHVot1wJGXXVIR4fuzQC8qyC5D1BbckhTD4Pww8PW/oilO0K2eNBn
-	 0QoHJJdaCKuEk2EtzJqBlotT1VMbotJ4k5sUGcDt7KQ67/nFpVupAC9Z/4CQKCMXKq
-	 t5xj3H0vruirBlkFRkX8BfOyJCVgw7k/45iuSp6goG6Y3wotQv9XULyXKFnJD3A45v
-	 fe5tbgjBAlZDzhVd9SeTPZtdyaDl4wgvm0XdZLueoOp/YWQJg+X/vg6riefYvmP/00
-	 xVcOVM+Q3AoWA==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 545054C9A1;
-	Tue, 24 Nov 2026 10:35:31 +0000 (UTC)
-From: Andreas Claesson via B4 Relay <devnull+andreas.aclaesson.com@kernel.org>
-Date: Tue, 24 Nov 2026 10:35:31 +0000
-Subject: [PATCH] Revert "HID: corsair: cancel LED work again after
- unregistering the LED"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228C8606A326
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 10:39:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 228C8606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=KjiX7YWe
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-4acb44dcd7bso3655046f8f.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 02:39:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1795516786; x=1796121586; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=i67A04/jloiIm4Idm3ymNHqESyF+RQsVbnS4UKmnxA8=;
+        b=KjiX7YWeSkA9Dw0WA5xjWaOqnyEHCedD00sUzMhE3sKEAvQ2TPIHmIyS+enWPn9hqU
+         UHnNtz+vsI9HdnLLJLRNEHpW3n0qDPjDGGb+MMmUEkY4+DtknEToZAEEAwd6ErlDRM4U
+         sl6ks9V8P+KgBQBXge6XtIwqjU1IX32GeqDZpfsQ5053CJLA98ICyRMFUcjrF7GwSx6y
+         mLBhDMnek6X1+TiwUBOkVQB80sS1Z2oue9zDTiR4H+wlMmpVb+6EJ+EZoBBfGsOtxa1G
+         85CHt1w3B0RFKCYDolOV20zywTKINPHyMkeAAvRZwyufXjasNY7vVq1oJTMaEgpAJPJ9
+         588Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795516786; x=1796121586;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=i67A04/jloiIm4Idm3ymNHqESyF+RQsVbnS4UKmnxA8=;
+        b=CEsVBYwfHwhUiBpSrQes7ZrSCZ3aorK/DD0znAQvilJGLGMWvI8foEGSfCePfyb3gP
+         GcP+gHunuQiw5JDUTuI9v/DbkjbuH2r9ik8gvajDJu/lgDyCXcd7F056kFeby8seGj5P
+         krAsSQIj5A3Ko7qBR0Vmlf9uBbedUhFc2Hjl5yWNTfcmy5gBoSoJBRGeu7X4t2TLUwSn
+         PGRsPqFfQNCoLXHOXb0aaEwS1smWjFLvYjxkPNsO2PYHKLeMYOZvuU16z41jGABq9MZp
+         M4FM9Ja+phYUI0C2xz7vwT6C9uxjoyGl7YoO2rJtWxDRHFc6IKKn3tZT0Sn4mXr33o4d
+         U1BQ==
+X-Forwarded-Encrypted: i=1; AL+hErEOwLW2rzhDgWXnIr8n4Fdok2HJjA9E0R8aZ6fltrv46oPD005er7CRkOI10NY5LK7Mbdvk6O5HItmEvw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/KLy9xyjNLGbt2yET1EHkapEN2f7uGnG+dmmP+qOjJSF0a62nL
+	9mkSqpaX/8zfBM4Apd2mZPsDc8hxmgX3Gy0kIOEXJPGyiZZdVbdk3APzeMSaPqwuvY8=
+X-Gm-Gg: AZFdTZdKDMP4qGQzxxMeAiVMUveSo1WlS+gbsd6lx5qA0teNm1h00QxRyJKrOUYM51J
+	mOQPZaAgwGQSn3Y/YEM2IE3CSi4ALmVni0g+QpjMkF0JefS3UiAU5qz7EBma0bQZtLpJLFTV+ph
+	egKUID4HdKL58WLZU23f/KJIBMKP2nNo6jZ/feQB6DWk2d5c0n6RcfnzVikx157TMQEF6VjEq5C
+	tezyg61PLxIgDdSbuJTpIE/J7OvXqaZn5pTbTHL+0VxvROylUVaUGcvx5Qbkk0yK2bwq1BiwV6X
+	RPEbZ9RG/gg0GJYTw1yvqyhbqvmj03B8HWEOiTZUOcxb3jk72LBiQvFEhUOwt+e4crN51vow2f6
+	GID3SDvPwSmz9/85OlwUrAirUh3RgTaq5DHrVxGN/IRampFZ2q08Qt6Drwgf3lC1lVLSbip/Ehc
+	82gcifA6jQ8JyxN/Y6VEbtToEVd4dgC3YrocS0ZDDZwwG2he03+wAhwK2qBwRUsB0TA9QpPJFub
+	YgDj/X8w5bT0qnNYxYYndzP+hKbeQ4gUf4rGIEr5CFcSV0JpuqxBwbofk02Q1kGA+SMSFoCPPRW
+	y78jOnhaWEV6Ei7bJEzINsYtLB/MDqIBFzdlWntWpMatrAD3+Pc0ViOXwe49w54MYuiG
+X-Received: by 2002:a05:600c:64c8:b0:4bb:6848:d433 with SMTP id 5b1f17b1804b1-4bb8881d141mr281064655e9.26.1795516786433;
+        Tue, 24 Nov 2026 02:39:46 -0800 (PST)
+Received: from ?IPV6:2001:a61:132b:a401:6cb8:7c28:11e1:499? ([2001:a61:132b:a401:6cb8:7c28:11e1:499])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb8538b2c5sm425218335e9.5.2026.11.24.02.39.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Nov 2026 02:39:46 -0800 (PST)
+Message-ID: <65749362-927a-492d-8bff-573c277fe456@suse.com>
+Date: Tue, 24 Nov 2026 11:39:40 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,82 +92,67 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261124-hid-corsair-revert-redundant-cancel-v1-1-ba4c1418cfa8@aclaesson.com>
-X-B4-Tracking: v=1; b=H4sIAHJoBWsC/yWNQQrCMBBFr1Jm7YBJSi1eRVwkk9GOSCqTtAild
- 3fU1ect/nsbVFbhCuduA+VVqszFwB06oCmWO6NkY/BHPzjne5wkI81aoyjagbXZ5KXkWBpSLMR
- PHMMpJDcm7sMAZnop3+T9q1yuf65LejC1rxr2/QMSB1rVhwAAAA==
-X-Change-ID: 20261124-hid-corsair-revert-redundant-cancel-8373b18be436
-To: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-kernel@vger.kernel.org, 
- Danish Khateeb <danishkhateeb03@gmail.com>, linux-input@vger.kernel.org
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795516530; l=2023;
- i=andreas@aclaesson.com; s=20261109; h=from:subject:message-id;
- bh=BJPb3ySj05euN2/xgTFuifJLkqlbmlH2K5dSAKbRMZA=;
- b=YGPG6bKX40TrHCZ1fi7j4asb2LuIQjbsfjOo8WdQ3Ipc4DIIoKkgYKec26pxdpfMFGf+rzD73
- Diy+ytSxsU9DSMCLHj4sUJDQ6gBa4FEmHft2W7p8uv0mU/YrGP2WfS+
-X-Developer-Key: i=andreas@aclaesson.com; a=ed25519;
- pk=oC+38UX0rqcrEjNMgnKAF1zmrTUMbQ2aH/P5Z4TZOIQ=
-X-Endpoint-Received: by B4 Relay for andreas@aclaesson.com/20261109 with
- auth_id=1465
-X-Original-From: Andreas Claesson <andreas@aclaesson.com>
-Reply-To: andreas@aclaesson.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 02/33] Bluetooth: btusb: Fix MediaTek ISO claim locking
+To: Leon Romanovsky <leon@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+ Heiner Kallweit <hkallweit1@gmail.com>, Russell King
+ <linux@armlinux.org.uk>, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>,
+ Lu Baolu <baolu.lu@linux.intel.com>, Johan Hovold <johan@kernel.org>,
+ Eric Dumazet <edumazet@kernel.org>, Marcel Holtmann <marcel@holtmann.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
+ Chris Lu <chris.lu@mediatek.com>, Mans Rullgard <mans@mansr.com>,
+ Alan Stern <stern@rowland.harvard.edu>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Cornelia Huck <cornelia.huck@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+ Jeff Garzik <jeff@garzik.org>, "Rafael J. Wysocki"
+ <rafael.j.wysocki@intel.com>, Bart Van Assche <bvanassche@acm.org>,
+ Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+ Dan Williams <djbw@kernel.org>
+Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+ linux-input@vger.kernel.org, netdev@vger.kernel.org,
+ linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-pci@vger.kernel.org, iommu@lists.linux.dev,
+ linux-coco@lists.linux.dev, Alexey Kardashevskiy <aik@amd.com>,
+ Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+ Greg Kroah-Hartman <gregkh@suse.de>, linux-sound@vger.kernel.org,
+ Jason Gunthorpe <jgg@ziepe.ca>
+References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
+ <20261124-device-trust-core-v4-2-037eb0d17b1f@nvidia.com>
+Content-Language: en-US
+From: Oliver Neukum <oneukum@suse.com>
+In-Reply-To: <20261124-device-trust-core-v4-2-037eb0d17b1f@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-From: Andreas Claesson <andreas@aclaesson.com>
-
-This reverts commit e624a56578e551b77ee66eef74dc2efcd42deb08.
-
-It added a cancel_work_sync() after led_classdev_unregister()
-in k90_cleanup_backlight() and k90_cleanup_macro_functions(), because
-unregistering the LED turns it off and that used to queue the work
-again.
-
-Commit cc8d022e8679 ("HID: corsair: use disable_work_sync() to tear down
-the LED workers") was applied to the same branch and fixes the same
-problem differently: the work is disabled before the LED is
-unregistered, so the LED-off request can no longer queue it. The added
-cancel_work_sync() calls therefore do nothing, and the comment above
-them is no longer true.
-
-No functional change.
-
-Assisted-by: Claude:claude-mythos-5-2
-Signed-off-by: Andreas Claesson <andreas@aclaesson.com>
----
- drivers/hid/hid-corsair.c | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-index a9f2a0447f2d..f966005d69dd 100644
---- a/drivers/hid/hid-corsair.c
-+++ b/drivers/hid/hid-corsair.c
-@@ -526,8 +526,6 @@ static void k90_cleanup_backlight(struct hid_device *dev)
- 		drvdata->backlight->removed = true;
- 		disable_work_sync(&drvdata->backlight->work);
- 		led_classdev_unregister(&drvdata->backlight->cdev);
--		/* unregister turns the LED off, which re-queues the work */
--		cancel_work_sync(&drvdata->backlight->work);
- 		kfree(drvdata->backlight->cdev.name);
- 		kfree(drvdata->backlight);
- 	}
-@@ -544,8 +542,6 @@ static void k90_cleanup_macro_functions(struct hid_device *dev)
- 		k90->record_led.removed = true;
- 		disable_work_sync(&k90->record_led.work);
- 		led_classdev_unregister(&k90->record_led.cdev);
--		/* unregister turns the LED off, which re-queues the work */
--		cancel_work_sync(&k90->record_led.work);
- 		kfree(k90->record_led.cdev.name);
- 
- 		kfree(k90);
-
----
-base-commit: 10bc1d627c297097cfdc099377f8a13efdfffd86
-change-id: 20261124-hid-corsair-revert-redundant-cancel-8373b18be436
-
-Best regards,
---  
-Andreas Claesson <andreas@aclaesson.com>
 
 
+On 24.11.26 10:43, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
+> 
+> MediaTek ISO claims are performed from HCI setup work outside USB probe.
+> Locking only the interface does not protect the claim against teardown
+> of the parent device. Unconditionally waiting for the parent lock can
+> deadlock with disconnect while it drains the setup work.
+Hi,
+
+your patch raises a question. Can usb_claim_interface() ever be
+used safely outside probe() without this kind of locking?
+If the answer to that is negative, should the locking be integrated into
+usbcore?
+
+	Regards
+		Oliver

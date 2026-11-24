@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795513542;
-	b=tkZWlp219T3UPxRZdUoBqJvVNAC2mpvk5GN9lv7wulKs7xMuR7uxGDA4NDM6nDATa3zO
-	 dGOulmo2LLnoD2j9K8Mrvk/vF9KvvRhXN31QUalcQmeUTQiO0WGeLE/c+nD8jwdWCrcpC
-	 3Sz1oClZd3O+/wNSq3A9g7JAqDVqBzoyNKD/HSinYtkfwz8iKt4VWcHMLkKSGzilL1V8C
-	 bGqcsaLrWLgyNM9+rmbr42CYilKjb8RGZ+96fY3ecsVdjNO4yiWSW3qEfVmBW2v40to3u
-	 B2n7VfcxM/vqJDbij0corWEh2iq1fkqyv5entRW3xqk5jEiNX+zTBtlHe1/GI4s+rQA==
+	t=1795513555;
+	b=WKRwclBXJGKjc26fDIDKem9/FQXFJELPCJY39tPCTS/HcmHPiLzV6v6dFS8OSJKRlZy6
+	 XsJ/6f+/aRJNBYHmYnXVgm2+aOqC/TQBti33vLxtsmJU+BQvIYCqtAnfGpElM4YgQ3IQ4
+	 FLIackiMm1hAeFrFSd2iQSU8IOa2hCm7Cjk9c4qY3CxHqSH59qCoyqQVCf8CZSTeQTIbv
+	 kOydfMRlZWdljfb0FXz0CWQAYvrX+ASXXdF2euhMbGhv3O9SJ4SRybxF6duXyCyHQ9Gbr
+	 /HUa4PmiHmfJ/ntT/7Rtl5XmSinLG5nydiXpaqsZP9421Ig3NEM2Jz+yRV1yfgab5ew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795513542;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795513555;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=7A95a3zzmqez7L1VrQSL7bCJkCoP0qTyJOrz2/9XY40=;
-	b=E9As1noKeFHEKJDVfFbQ8inR/FxYWSHLfUAjIc0DL7jShKg7HjuESbl/R+cAl0Ns3FlV
-	 60uUAn9PH2h6NKXCFvddIBG4NzPAZAXHSu6+L6FAkpO3wrh0zPPLYWBmHj7WhfmzlScRT
-	 8dsOvkKFoF1NxzAP2ZeycE47jOaExx4p4sN5PBI7vee/iZGFjq4atsQieCCxRJKaqTTSF
-	 DDS60uUnIeie4P80XyS8TDZd4nnh8xfQA8MFx+WRpyWV+8BAJ8CF+1/4DlDUnnpfnXgxT
-	 kAXxnbJpgRsxv7i+8nLh5Vm+gR7xHZVTy2zGE8pYuKwQADzWV+Ia6YbEFYdCjl9gLYA==
+	bh=fPLMO38a59Cq4xRM30mvxrCIa9w2Zjn2kMOWQgyh+kA=;
+	b=ASaGRT0zAjqlp1zyE7wOKnw4Hw7tGk1AWxCZMMVsTD4K8ybBjzOJh+5y0llaJEt8rQT/
+	 PvkptXC5myWJcTVEsflMbIGP5immstl2TqRS3HBkbNfIGrd0OVNX7rK/22IsKbP9+DufA
+	 RqRaJyknLsuYXPRlOfXPs3BA8ag3uyGc4QRU+sVXPgUDKwWi8wIyGn8no8uosKA+ZmD3m
+	 9mF2m+yxtvukjJPXb12si+2QTUIs3nsW2U4a53UWxMrnhcOKW5bknydsBXl/ctmKih/qN
+	 UIsEB/EavmHK9GiPT+4BRfUwMre7uC94sot9FBCU7AdRTgFukV0THNrAkSpBMMDwAqw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M3Eixy7x;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SBdY/8tb";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 981C4606A339;
-	Tue, 24 Nov 2026 09:45:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48052606A690;
+	Tue, 24 Nov 2026 09:45:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M3Eixy7x
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F34711F000CA;
-	Tue, 24 Nov 2026 09:45:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SBdY/8tb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9BA21F000D1;
+	Tue, 24 Nov 2026 09:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795513542;
-	bh=7A95a3zzmqez7L1VrQSL7bCJkCoP0qTyJOrz2/9XY40=;
+	s=k20260515; t=1795513554;
+	bh=fPLMO38a59Cq4xRM30mvxrCIa9w2Zjn2kMOWQgyh+kA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=M3Eixy7x59Xw33A1NHFW9l1i/u7HOtweKeSagx6PkrrcOrx09cELk++Qw58UVjFs4
-	 KLpgNp/BPmIptY3+dszn/omQCpb1R4u2VYsI9a89QahOiL1509Teij7uVYd82hh5tc
-	 AgVm4XWFgrnJjvQ9F+dkOtfxtYkRclT8sQQj5j10XvyFaSbXVU5Zv+n6OGB42Wcoxy
-	 7rvdqtpZ9F6FwhyYT2Wq2wjGglgCkiWJ3RjI1I2PyZy8sGONo1mxt6YrQ2KnC9QVCO
-	 KtDpeXPULuphxXLN5UYNMvkJr6uV8DxUPG8+mWleR+NFbmVFgpxoCaCCw+ugDEUkqN
-	 IKZXTgg4sUzyw==
+	b=SBdY/8tbZOu5XJQu7L3YJsH+HvqrGnpk9CMlFnlEFhkskM7H7NirXTxpiebFkOTRO
+	 /8ZbSRuzWulAEgOdpaOIfY3uvt24tMU+UNpN3WwIQweBqI/EtjVPr9TQOqbRH1Lh5Y
+	 oghd60ZbZpUtDD253slVBTUqI8SFMXWOa0aygEgLRUYvwTMAQpGiVhDlglQjQkVWQG
+	 +sTt+Om4ex2L3QosbUcf4ppCIx6Dmw8HgHWnrlV6yR4yswFVomPJYakxr1Vk1+nruU
+	 in8zADJOjiLb/Cr4HdkkUuLtmuUAd5JtH0CaTWs8rFk9Qiv3wdgrhBqezLoE9klXO+
+	 Ca8/ozD5jgWuA==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -100,9 +100,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@suse.de>,
 	linux-sound@vger.kernel.org,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v4 21/33] driver core: Introduce a generic device trust level
-Date: Tue, 24 Nov 2026 11:43:52 +0200
-Message-ID: <20261124-device-trust-core-v4-21-037eb0d17b1f@nvidia.com>
+Subject: [PATCH v4 24/33] driver core: Accept device trust policy by driver name
+Date: Tue, 24 Nov 2026 11:43:55 +0200
+Message-ID: <20261124-device-trust-core-v4-24-037eb0d17b1f@nvidia.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
 References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
@@ -121,661 +121,281 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-Attestation needs to hold devices before driver probing and DMA setup.
-Authorization on individual buses does not provide a common policy that
-drivers and infrastructure can use.
+Device names can depend on enumeration order, making device-specific boot
+exceptions difficult to reuse across machines. Userspace is also too late
+to establish policy for drivers that probe during boot.
 
-Introduce a shared admission policy and operating trust level. Keep the
-accepted level fixed for the device's lifetime because unbind or failed
-setup does not necessarily undo hardware configuration. Retain active trust
-through teardown so cleanup uses the same assumptions as setup. Preserve
-existing behavior when no trust boot options are supplied.
+Allow exceptions selected by bus and driver name, using the names published
+in sysfs so policy does not depend on module aliases. Preserve more
+specific device rules and prior authorization. Keep a matched rule fixed
+across retries so changing the candidate driver cannot replace that choice.
 
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- Documentation/admin-guide/kernel-parameters.txt |  14 ++
- drivers/base/Makefile                           |   2 +-
- drivers/base/base.h                             |  31 ++++
- drivers/base/core.c                             |   5 +-
- drivers/base/dd.c                               |  47 +++++-
- drivers/base/trust.c                            | 187 ++++++++++++++++++++++++
- drivers/usb/core/driver.c                       |   8 +
- drivers/usb/core/message.c                      |   5 +
- include/linux/device.h                          |   8 +
- include/linux/device/bus.h                      |  10 ++
- include/linux/device/trust.h                    |  49 +++++++
- 11 files changed, 361 insertions(+), 5 deletions(-)
+ Documentation/ABI/testing/sysfs-devices-trust   |  7 +-
+ Documentation/admin-guide/kernel-parameters.txt | 15 ++++-
+ drivers/base/base.h                             |  8 +++
+ drivers/base/trust.c                            | 88 ++++++++++++++++++++++---
+ 4 files changed, 107 insertions(+), 11 deletions(-)
 
+diff --git a/Documentation/ABI/testing/sysfs-devices-trust b/Documentation/ABI/testing/sysfs-devices-trust
+index 3bfc85b609a6d..3d72f0268105e 100644
+--- a/Documentation/ABI/testing/sysfs-devices-trust
++++ b/Documentation/ABI/testing/sysfs-devices-trust
+@@ -15,8 +15,11 @@ Description:
+ 		value may be selected by the bus before the device is
+ 		registered; otherwise it is "default". The policy is resolved
+ 		to an active trust level before the device is probed.
+-		A matching device_trust= kernel command-line entry overrides
+-		the initial requested policy before registration.
++		A non-default device_trust.default= kernel command-line value
++		replaces the bus policy before registration. A matching
++		device_trust= entry takes precedence over both, regardless
++		of command-line order. Boot policy also applies to new devices
++		discovered after boot.
+ 
+ 		Changes through this attribute require an explicit device
+ 		trust boot option. Any such option selects an implicit
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 0b3c140babd94..8a94482f0b19b 100644
+index 63831dc40f796..8a33b7010f91a 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -1259,6 +1259,20 @@ Kernel parameters
- 	dell_smm_hwmon.fan_max=
- 			[HW] Maximum configurable fan speed.
+@@ -1269,12 +1269,15 @@ Kernel parameters
+ 			Names match exactly as in /sys/bus/<bus>/devices/<device>.
+ 			Policies are default, blocked, adversarial, and
+ 			unrestricted.
+-			Entries override bus policy and device_trust.default.
++			Entries override bus policy, device_trust.default, and
++			device_trust.driver.
+ 			See Documentation/driver-api/driver-model/device-trust.rst.
  
-+	device_trust	[KNL]
-+			Enable device trust with blocked as the implicit default.
-+
-+	device_trust.default=
-+			[KNL] Set initial trust policy for all devices, including
-+			hotplugged devices.
-+			Format: { default | blocked | adversarial | unrestricted }
-+			No trust options selects legacy unrestricted mode, preserving
-+			bus policy and existing authorization. Otherwise blocked is the
-+			implicit default. An explicit value wins regardless of option
-+			order. default preserves bus policy; other values replace it.
-+			unrestricted disables runtime policy changes.
-+			See Documentation/driver-api/driver-model/device-trust.rst.
+ 	device_trust.default=
+ 			[KNL] Set initial trust policy for devices without a
+ 			matching device_trust= entry, including hotplugged devices.
++			A matching device_trust.driver= rule can replace this
++			initial policy at the first binding attempt.
+ 			Format: { default | blocked | adversarial | unrestricted }
+ 			No trust options selects legacy unrestricted mode, preserving
+ 			bus policy and existing authorization. Otherwise blocked is the
+@@ -1283,6 +1286,16 @@ Kernel parameters
+ 			unrestricted disables runtime policy changes.
+ 			See Documentation/driver-api/driver-model/device-trust.rst.
+ 
++	device_trust.driver=
++			[KNL] Set initial device trust policy by driver name,
++			including for drivers built into the kernel.
++			Format: <bus>:<driver>=<policy>[,...]
++			Names match exactly as in /sys/bus/<bus>/drivers/<driver>.
++			Quote the option value for driver names containing spaces.
++			Policies are default, blocked, adversarial, and
++			unrestricted.
++			Rules remain available for hotplug and modules.
 +
  	dfltcc=		[HW,S390]
  			Format: { on | off | def_only | inf_only | always }
  			on:       s390 zlib hardware support for compression on
-diff --git a/drivers/base/Makefile b/drivers/base/Makefile
-index 435710f643a5c..cb3bd5fa2287a 100644
---- a/drivers/base/Makefile
-+++ b/drivers/base/Makefile
-@@ -3,7 +3,7 @@
- 
- obj-y			:= component.o core.o bus.o dd.o syscore.o \
- 			   driver.o class.o platform.o \
--			   cpu.o firmware.o init.o map.o devres.o \
-+			   cpu.o firmware.o init.o map.o devres.o trust.o \
- 			   attribute_container.o transport_class.o \
- 			   topology.o container.o property.o cacheinfo.o \
- 			   swnode.o faux.o
 diff --git a/drivers/base/base.h b/drivers/base/base.h
-index 61f49fc142f45..87e098790d099 100644
+index 761d52f4c9caf..f6f65046fa206 100644
 --- a/drivers/base/base.h
 +++ b/drivers/base/base.h
-@@ -10,6 +10,7 @@
-  * shared outside of the drivers/base/ directory.
-  *
-  */
-+#include <linux/device/trust.h>
- #include <linux/notifier.h>
- 
- /**
-@@ -88,6 +89,27 @@ struct driver_private {
- };
- #define to_driver(obj) container_of(obj, struct driver_private, kobj)
- 
-+/**
-+ * enum device_trust_state - Device trust authorization and commitment
-+ * @DEVICE_TRUST_SELECTABLE: No authorization or commitment. When runtime
-+ *	policy changes are enabled, any policy can be selected. Selecting
-+ *	blocked enters %DEVICE_TRUST_WAITING.
-+ * @DEVICE_TRUST_WAITING: Blocked policy without commitment. Runtime
-+ *	authorization requires adversarial or unrestricted and enters
-+ *	%DEVICE_TRUST_AUTHORIZED; selecting default is rejected.
-+ * @DEVICE_TRUST_AUTHORIZED: Adversarial or unrestricted selected from
-+ *	%DEVICE_TRUST_WAITING. Policy is fixed, but no operating level has
-+ *	been committed.
-+ * @DEVICE_TRUST_COMMITTED: Policy and operating level accepted before
-+ *	driver setup. Both remain fixed through setup failure and unbind.
-+ */
-+enum device_trust_state {
-+	DEVICE_TRUST_SELECTABLE,
-+	DEVICE_TRUST_WAITING,
-+	DEVICE_TRUST_AUTHORIZED,
-+	DEVICE_TRUST_COMMITTED,
-+};
-+
- /**
-  * struct device_private - structure to hold the private to the driver core
-  *			   portions of the device structure.
-@@ -106,6 +128,7 @@ struct driver_private {
-  * @device: pointer back to the struct device that this structure is
+@@ -129,6 +129,7 @@ enum device_trust_state {
   *	    associated with.
   * @driver_lock: serializes binding and removal, including compatibility attach
-+ * @trust_state: policy admission state
+  * @trust_state: policy admission state
++ * @trust_policy_override: explicit policy prevents deferred driver boot policy
   * @dead: This device is currently either in the process of or has been
   *	  removed from the system. Any asynchronous events scheduled for this
   *	  device should exit without taking any action.
-@@ -124,6 +147,7 @@ struct device_private {
- 	struct device *device;
+@@ -148,6 +149,7 @@ struct device_private {
  	/* Taken after the device mutex, except by compatibility attach. */
  	struct mutex driver_lock;
-+	enum device_trust_state trust_state;
+ 	enum device_trust_state trust_state;
++	u8 trust_policy_override:1;
  	u8 dead:1;
  };
  #define to_device_private_parent(obj)	\
-@@ -169,6 +193,13 @@ void bus_remove_driver(struct device_driver *drv);
- void device_release_driver_internal(struct device *dev, const struct device_driver *drv,
- 				    struct device *parent);
- 
-+int device_private_init(struct device *dev);
-+
-+/* Unrestricted-only manual attachment uses the caller's subsystem serialization. */
-+void device_trust_init_state(struct device *dev);
-+int device_trust_prepare_unrestricted(struct device *dev,
-+				      const struct device_driver *drv);
-+
- void driver_detach(const struct device_driver *drv);
- void driver_deferred_probe_del(struct device *dev);
- void device_set_deferred_probe_reason(const struct device *dev, struct va_format *vaf);
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 92d25bf4f8632..c0006b3aa38f7 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -3613,7 +3613,7 @@ static void device_remove_sys_dev_entry(struct device *dev)
- 	}
+@@ -200,6 +202,12 @@ extern const struct attribute_group device_trust_attr_group;
+ #if IS_ENABLED(CONFIG_KUNIT)
+ int device_trust_parse_cmdline(const char *options, const struct device *dev,
+ 			       enum device_trust_policy *policy);
++int device_trust_parse_driver_cmdline(const char *options,
++				      const struct device_driver *drv,
++				      enum device_trust_policy *policy);
++void device_trust_apply_driver_policy(struct device *dev,
++				      const struct device_driver *drv,
++				      const char *options);
+ void device_trust_apply_boot_policy(struct device *dev,
+ 				    enum device_trust_policy policy,
+ 				    const char *options);
+diff --git a/drivers/base/trust.c b/drivers/base/trust.c
+index 2e339e5ca0122..b968bfc937346 100644
+--- a/drivers/base/trust.c
++++ b/drivers/base/trust.c
+@@ -43,6 +43,11 @@ static int __init device_trust_detect_setup(char *str)
  }
+ __setup("device_trust", device_trust_detect_setup);
  
--static int device_private_init(struct device *dev)
-+int device_private_init(struct device *dev)
++static bool device_trust_unrestricted_allowed(const struct device *dev);
++
++static void device_trust_init_driver_policy(struct device *dev,
++					   const struct device_driver *drv);
++
+ void device_trust_init_state(struct device *dev)
  {
- 	dev->p = kzalloc_obj(*dev->p);
- 	if (!dev->p)
-@@ -3694,6 +3694,9 @@ int device_add(struct device *dev)
- 	if (error)
- 		goto name_error;
- 
-+	device_trust_init(dev);
-+	device_trust_init_state(dev);
-+
- 	pr_debug("device: '%s': %s\n", dev_name(dev), __func__);
- 
- 	parent = get_device(dev->parent);
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 6ac1486b9fbb5..4c4723384dc66 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -541,6 +541,25 @@ static int __device_bind_driver(struct device *dev)
- 	return 0;
- }
- 
-+static int device_bind_driver_locked(struct device *dev)
-+{
-+	bool admitted = dev->trust_level != DEVICE_TRUST_BLOCKED;
-+	int ret;
-+
-+	if (dev->bus && dev->bus->trust_resolve)
-+		return -EOPNOTSUPP;
-+
-+	ret = device_trust_prepare(dev, dev->driver);
-+	if (ret)
-+		return ret;
-+
-+	ret = __device_bind_driver(dev);
-+	/* An early claimant remains active until its bus finishes cleanup. */
-+	if (ret && !admitted)
-+		device_trust_clear(dev);
-+	return ret;
-+}
-+
- /**
-  * device_bind_driver - bind a driver to one device.
-  * @dev: device.
-@@ -561,14 +580,14 @@ int device_bind_driver(struct device *dev)
+ 	if (dev->trust_committed_level != DEVICE_TRUST_BLOCKED)
+@@ -59,8 +64,8 @@ static int __device_trust_prepare(struct device *dev,
+ 	enum device_trust_level level;
  	int ret;
  
- 	mutex_lock(&dev->p->driver_lock);
--	ret = __device_bind_driver(dev);
-+	ret = device_bind_driver_locked(dev);
- 	mutex_unlock(&dev->p->driver_lock);
- 	return ret;
++	device_trust_init_driver_policy(dev, drv);
+ 	policy = dev->trust_policy;
+-
+ 	if (policy == DEVICE_TRUST_POLICY_BLOCKED)
+ 		return -EPERM;
+ 	if (dev->bus && dev->bus->trust_resolve) {
+@@ -115,7 +120,7 @@ EXPORT_SYMBOL_GPL(device_trust_prepare);
+ int device_trust_prepare_unrestricted(struct device *dev,
+ 				      const struct device_driver *drv)
+ {
+-	if (device_trust_default_policy != DEVICE_TRUST_POLICY_UNRESTRICTED)
++	if (!device_trust_unrestricted_allowed(dev))
+ 		return -EPERM;
+ 
+ 	return __device_trust_prepare(dev, drv, true);
+@@ -236,6 +241,7 @@ int device_trust_set_policy_locked(struct device *dev,
+ 	}
+ set_policy:
+ 	WRITE_ONCE(dev->trust_policy, policy);
++	dev->p->trust_policy_override = true;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(device_bind_driver);
+ EXPORT_SYMBOL_GPL(device_trust_set_policy_locked);
+@@ -299,10 +305,11 @@ const struct attribute_group device_trust_attr_group = {
+ };
  
- /**
-- * device_driver_attach_unrestricted - attach a driver using subsystem serialization
-+ * device_driver_attach_unrestricted - attach under a fixed unrestricted policy
-  * @drv: driver to attach
-  * @dev: device to attach it to
-  *
-@@ -583,6 +602,12 @@ EXPORT_SYMBOL_GPL(device_bind_driver);
-  * It calls the bus or driver probe callback and publishes the binding without
-  * performing the normal driver-core DMA, pinctrl or power-domain setup.
-  *
-+ * Requires an unrestricted operating level and either no device trust boot options
-+ * or device_trust.default=unrestricted. Changes through trust_policy are disabled
-+ * in both modes. The caller must exclude bus-specific policy changes.
-+ * When driver boot rules exist, an explicit device boot rule must exclude
-+ * them for @dev. Buses with a trust resolver must use device_driver_attach().
-+ *
-  * Return: 0 on success, -EAGAIN if registration or probing must be retried,
-  * or another negative error before binding.
-  */
-@@ -608,6 +633,10 @@ int device_driver_attach_unrestricted(const struct device_driver *drv,
- 		goto unlock;
- 	}
+ static const char *device_trust_cmdline __ro_after_init;
++static const char *device_trust_driver_cmdline __ro_after_init;
  
-+	ret = device_trust_prepare_unrestricted(dev, drv);
-+	if (ret)
-+		goto unlock;
-+
- 	device_set_driver(dev, drv);
- 	if (dev->bus->probe)
- 		ret = dev->bus->probe(dev);
-@@ -632,6 +661,7 @@ int device_driver_attach_unrestricted(const struct device_driver *drv,
- 	devres_release_all(dev);
- 	device_set_driver(dev, NULL);
- 	dev_set_drvdata(dev, NULL);
-+	WRITE_ONCE(dev->trust_level, DEVICE_TRUST_BLOCKED);
- 	if (ret == -EPROBE_DEFER)
- 		ret = -EAGAIN;
- unlock:
-@@ -763,6 +793,14 @@ static int really_probe(struct device *dev, const struct device_driver *drv)
- 	}
+ static int device_trust_parse_policy(const char *options, const char *target_bus,
+ 				     const char *target_name,
+-				     enum device_trust_policy *policy)
++				     enum device_trust_policy *policy, bool driver_name)
+ {
+ 	enum device_trust_policy selected = DEVICE_TRUST_POLICY_DEFAULT;
+ 	const char *entry = options;
+@@ -326,7 +333,8 @@ static int device_trust_parse_policy(const char *options, const char *target_bus
+ 			return -EINVAL;
  
- re_probe:
-+	ret = device_trust_prepare(dev, drv);
-+	if (ret) {
-+		device_links_no_driver(dev);
-+		/* Report it like a probe error so a scan tries the next driver. */
-+		ret = -ret;
-+		goto done;
-+	}
-+
- 	device_set_driver(dev, drv);
+ 		for (p = entry; p < end; p++)
+-			if (isspace(*p) || iscntrl(*p) || *p == '"')
++			if (iscntrl(*p) || *p == '"' ||
++			    (isspace(*p) && (!driver_name || p < name || p >= level)))
+ 				return -EINVAL;
  
- 	/* If using pinctrl, bind pins now before probing */
-@@ -829,6 +867,7 @@ static int really_probe(struct device *dev, const struct device_driver *drv)
- 		if (dev->bus && dev->bus->dma_cleanup)
- 			dev->bus->dma_cleanup(dev);
- 		device_unbind_cleanup(dev);
-+		device_trust_clear(dev);
- 
- 		goto re_probe;
- 	}
-@@ -855,6 +894,7 @@ static int really_probe(struct device *dev, const struct device_driver *drv)
- pinctrl_bind_failed:
- 	device_links_no_driver(dev);
- 	device_unbind_cleanup(dev);
-+	device_trust_clear(dev);
- done:
- 	return ret;
+ 		for (i = 0; i < ARRAY_SIZE(device_trust_policy_names); i++)
+@@ -361,10 +369,58 @@ VISIBLE_IF_KUNIT int device_trust_parse_cmdline(const char *options,
+ 						enum device_trust_policy *policy)
+ {
+ 	return device_trust_parse_policy(options, dev && dev->bus ? dev->bus->name : NULL,
+-					 dev ? dev_name(dev) : NULL, policy);
++					 dev ? dev_name(dev) : NULL, policy, false);
  }
-@@ -1196,7 +1236,7 @@ static int __device_attach(struct device *dev, bool allow_async)
- 			ret = 1;
- 			goto out_unlock;
- 		}
--		ret = __device_bind_driver(dev);
-+		ret = device_bind_driver_locked(dev);
- 		if (ret == 0)
- 			ret = 1;
- 		else {
-@@ -1448,6 +1488,7 @@ static void __device_release_driver(struct device *dev, struct device *parent)
- 			dev->bus->dma_cleanup(dev);
+ EXPORT_SYMBOL_IF_KUNIT(device_trust_parse_cmdline);
  
- 		device_unbind_cleanup(dev);
-+		device_trust_clear(dev);
- 		device_links_driver_cleanup(dev);
- 
- 		klist_remove(&dev->p->knode_driver);
-diff --git a/drivers/base/trust.c b/drivers/base/trust.c
-new file mode 100644
-index 0000000000000..57f0fcbe1f716
---- /dev/null
-+++ b/drivers/base/trust.c
-@@ -0,0 +1,187 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/device.h>
-+#include <linux/errno.h>
-+#include <linux/export.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+
-+#include "base.h"
-+
-+static enum device_trust_policy device_trust_default_policy __ro_after_init =
-+	DEVICE_TRUST_POLICY_UNRESTRICTED;
-+static bool device_trust_configured __ro_after_init;
-+
-+static void __init device_trust_configure(void)
++VISIBLE_IF_KUNIT int device_trust_parse_driver_cmdline(const char *options,
++						       const struct device_driver *drv,
++						       enum device_trust_policy *policy)
 +{
-+	if (device_trust_configured)
-+		return;
-+
-+	device_trust_default_policy = DEVICE_TRUST_POLICY_BLOCKED;
-+	device_trust_configured = true;
++	return device_trust_parse_policy(options, drv ? drv->bus->name : NULL,
++					 drv ? kobject_name(&drv->p->kobj) : NULL,
++					 policy, true);
 +}
++EXPORT_SYMBOL_IF_KUNIT(device_trust_parse_driver_cmdline);
 +
-+static int __init device_trust_detect_setup(char *str)
-+{
-+	if (!*str || *str == '=' || *str == '.')
-+		device_trust_configure();
-+	return !*str;
-+}
-+__setup("device_trust", device_trust_detect_setup);
-+
-+void device_trust_init_state(struct device *dev)
-+{
-+	if (dev->trust_committed_level != DEVICE_TRUST_BLOCKED)
-+		dev->p->trust_state = DEVICE_TRUST_COMMITTED;
-+	else
-+		dev->p->trust_state = dev->trust_policy == DEVICE_TRUST_POLICY_BLOCKED ?
-+			DEVICE_TRUST_WAITING : DEVICE_TRUST_SELECTABLE;
-+}
-+
-+static int __device_trust_prepare(struct device *dev,
-+				  const struct device_driver *drv, bool unrestricted_only)
-+{
-+	enum device_trust_policy policy;
-+	enum device_trust_level level;
-+	int ret;
-+
-+	policy = dev->trust_policy;
-+
-+	if (policy == DEVICE_TRUST_POLICY_BLOCKED)
-+		return -EPERM;
-+	if (dev->bus && dev->bus->trust_resolve) {
-+		ret = dev->bus->trust_resolve(dev, drv, policy, &level);
-+		if (ret)
-+			return ret;
-+	} else {
-+		level = policy == DEVICE_TRUST_POLICY_ADVERSARIAL ?
-+			DEVICE_TRUST_ADVERSARIAL : DEVICE_TRUST_UNRESTRICTED;
-+	}
-+	if (level == DEVICE_TRUST_BLOCKED)
-+		return -EPERM;
-+	if (unrestricted_only && level != DEVICE_TRUST_UNRESTRICTED)
-+		return -EPERM;
-+	if (dev->p->trust_state == DEVICE_TRUST_COMMITTED &&
-+	    dev->trust_committed_level != level)
-+		return -EINVAL;
-+
-+	WRITE_ONCE(dev->trust_committed_level, level);
-+	dev->p->trust_state = DEVICE_TRUST_COMMITTED;
-+	WRITE_ONCE(dev->trust_level, level);
-+	return 0;
-+}
-+
-+/**
-+ * device_trust_prepare - Admit a driver before operating a device
-+ * @dev: initialized device with its bus, name and initial policy set
-+ * @drv: driver claiming or probing the device
-+ *
-+ * The caller must hold the device lock. Buses may admit a claim before
-+ * device_add(); registration preserves the resulting policy and commitment.
-+ * Clear the active level after the driver has stopped operating the device.
-+ *
-+ * Return: 0 on admission, or a negative error before driver setup.
-+ */
-+int device_trust_prepare(struct device *dev, const struct device_driver *drv)
-+{
-+	int ret;
-+
-+	device_lock_assert(dev);
-+	if (!dev->p) {
-+		ret = device_private_init(dev);
-+		if (ret)
-+			return ret;
-+		device_trust_init(dev);
-+		device_trust_init_state(dev);
-+	}
-+	return __device_trust_prepare(dev, drv, false);
-+}
-+EXPORT_SYMBOL_GPL(device_trust_prepare);
-+
-+int device_trust_prepare_unrestricted(struct device *dev,
-+				      const struct device_driver *drv)
++static bool device_trust_unrestricted_allowed(const struct device *dev)
 +{
 +	if (device_trust_default_policy != DEVICE_TRUST_POLICY_UNRESTRICTED)
-+		return -EPERM;
++		return false;
 +
-+	return __device_trust_prepare(dev, drv, true);
++	/* Driver rules can otherwise change policy outside subsystem locks. */
++	return !device_trust_driver_cmdline ||
++		(device_trust_cmdline &&
++		 device_trust_parse_cmdline(device_trust_cmdline, dev, NULL) > 0);
 +}
 +
-+/**
-+ * device_trust_clear - End a device's active operating level
-+ * @dev: device whose driver setup and cleanup have finished
-+ *
-+ * The caller must hold the device lock. Lifetime commitment is retained.
-+ */
-+void device_trust_clear(struct device *dev)
++VISIBLE_IF_KUNIT void device_trust_apply_driver_policy(struct device *dev,
++						     const struct device_driver *drv,
++						     const char *options)
 +{
-+	device_lock_assert(dev);
-+	WRITE_ONCE(dev->trust_level, DEVICE_TRUST_BLOCKED);
++	enum device_trust_policy policy;
++
++	if (!options || dev->p->trust_policy_override ||
++	    (dev->p->trust_state != DEVICE_TRUST_SELECTABLE &&
++	     dev->p->trust_state != DEVICE_TRUST_WAITING))
++		return;
++
++	if (device_trust_parse_driver_cmdline(options, drv, &policy) <= 0)
++		return;
++
++	WRITE_ONCE(dev->trust_policy, policy);
++	dev->p->trust_state = policy == DEVICE_TRUST_POLICY_BLOCKED ?
++		DEVICE_TRUST_WAITING : DEVICE_TRUST_SELECTABLE;
++	dev->p->trust_policy_override = true;
 +}
-+EXPORT_SYMBOL_GPL(device_trust_clear);
++EXPORT_SYMBOL_IF_KUNIT(device_trust_apply_driver_policy);
 +
-+/**
-+ * device_get_trust_level - Return a device's active trust level
-+ * @dev: device to inspect
-+ *
-+ * The value is stable from the start of DMA configuration through the end of
-+ * DMA cleanup. An unbound device has %DEVICE_TRUST_BLOCKED as its active
-+ * trust level.
-+ *
-+ * Return: The active trust level for the current bind transaction.
-+ */
-+enum device_trust_level device_get_trust_level(const struct device *dev)
++static void device_trust_init_driver_policy(struct device *dev,
++					   const struct device_driver *drv)
 +{
-+	return READ_ONCE(dev->trust_level);
++	device_trust_apply_driver_policy(dev, drv, device_trust_driver_cmdline);
 +}
-+EXPORT_SYMBOL_GPL(device_get_trust_level);
 +
-+/**
-+ * device_is_adversarial - Test whether a device is operated as an adversary
-+ * @dev: device to inspect
-+ *
-+ * Return: True when the active trust level is %DEVICE_TRUST_ADVERSARIAL.
-+ */
-+bool device_is_adversarial(const struct device *dev)
+ static int __init device_trust_setup(char *str)
+ {
+ 	device_trust_configure();
+@@ -379,6 +435,19 @@ static int __init device_trust_setup(char *str)
+ }
+ __setup("device_trust=", device_trust_setup);
+ 
++static int __init device_trust_driver_setup(char *str)
 +{
-+	return device_get_trust_level(dev) == DEVICE_TRUST_ADVERSARIAL;
-+}
-+EXPORT_SYMBOL_GPL(device_is_adversarial);
-+
-+static const char * const device_trust_policy_names[] = {
-+	[DEVICE_TRUST_POLICY_DEFAULT] = "default",
-+	[DEVICE_TRUST_POLICY_BLOCKED] = "blocked",
-+	[DEVICE_TRUST_POLICY_ADVERSARIAL] = "adversarial",
-+	[DEVICE_TRUST_POLICY_UNRESTRICTED] = "unrestricted",
-+};
-+
-+static int __init device_trust_default_setup(char *str)
-+{
-+	int policy = match_string(device_trust_policy_names,
-+				  ARRAY_SIZE(device_trust_policy_names), str);
-+
 +	device_trust_configure();
-+	if (policy < 0) {
-+		pr_warn("device_trust: ignoring invalid default policy '%s'\n", str);
++	if (device_trust_parse_driver_cmdline(str, NULL, NULL) < 0) {
++		pr_warn("device_trust: ignoring invalid driver policy list '%s'\n", str);
 +		return 1;
 +	}
 +
-+	device_trust_default_policy = policy;
++	device_trust_driver_cmdline = str;
 +	return 1;
 +}
-+__setup("device_trust.default=", device_trust_default_setup);
++__setup("device_trust.driver=", device_trust_driver_setup);
 +
-+/**
-+ * device_trust_init - Apply global boot policy before registration
-+ * @dev: unregistered device with its initial policy set
-+ */
-+void device_trust_init(struct device *dev)
-+{
-+	if (dev->trust_committed_level != DEVICE_TRUST_BLOCKED)
-+		return;
-+
-+	if (device_trust_configured &&
-+	    device_trust_default_policy != DEVICE_TRUST_POLICY_DEFAULT)
-+		dev->trust_policy = device_trust_default_policy;
-+}
-+EXPORT_SYMBOL_GPL(device_trust_init);
-diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-index 9dd022c1ca151..1d488111a70fb 100644
---- a/drivers/usb/core/driver.c
-+++ b/drivers/usb/core/driver.c
-@@ -582,6 +582,12 @@ int usb_driver_claim_interface(struct usb_driver *driver,
- 		iface->claim_owner = driver->driver.owner;
- 	}
- 
-+	retval = device_trust_prepare(dev, &driver->driver);
-+	if (retval) {
-+		usb_put_claim_owner(iface);
-+		goto unlock;
-+	}
-+
- 	dev->driver = &driver->driver;
- 	usb_set_intfdata(iface, data);
- 	iface->needs_binding = 0;
-@@ -619,6 +625,7 @@ int usb_driver_claim_interface(struct usb_driver *driver,
- 		if (driver->supports_autosuspend)
- 			pm_runtime_disable(dev);
- 		pm_runtime_set_suspended(dev);
-+		device_trust_clear(dev);
- 	}
- 
- unlock:
-@@ -634,6 +641,7 @@ static void usb_unbind_claim(struct usb_interface *iface)
- 	usb_unbind_interface(dev);
- 	dev_set_drvdata(dev, NULL);
- 	dev->driver = NULL;
-+	device_trust_clear(dev);
- 	usb_put_claim_owner(iface);
+ static int __init device_trust_default_setup(char *str)
+ {
+ 	int policy = match_string(device_trust_policy_names,
+@@ -401,8 +470,10 @@ VISIBLE_IF_KUNIT void device_trust_apply_boot_policy(struct device *dev,
+ {
+ 	if (policy != DEVICE_TRUST_POLICY_DEFAULT)
+ 		dev->trust_policy = policy;
+-	if (options)
+-		device_trust_parse_cmdline(options, dev, &dev->trust_policy);
++	if (options &&
++	    device_trust_parse_cmdline(options, dev, &dev->trust_policy) > 0 &&
++	    dev->p)
++		dev->p->trust_policy_override = true;
  }
+ EXPORT_SYMBOL_IF_KUNIT(device_trust_apply_boot_policy);
  
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index e7a23e406f8a2..ca6976e266f02 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -2237,6 +2237,8 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
- 		pm_runtime_no_callbacks(&intf->dev);
- 		dev_set_name(&intf->dev, "%d-%s:%d.%d", dev->bus->busnum,
- 				dev->devpath, configuration, ifnum);
-+		/* A sibling may claim the interface before it is registered */
-+		device_trust_init(&intf->dev);
- 		/*
- 		 * Make sure the interface does not outlive its parent (e.g.
- 		 * as needed for usb_queue_reset_device() and
-@@ -2319,6 +2321,9 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
- 			get_device(&intf->dev);
- 			if (unconfigure)
- 				usb_set_configuration(dev, -1);
-+			device_lock(&intf->dev);
-+			device_trust_clear(&intf->dev);
-+			device_unlock(&intf->dev);
- 			module_put(claim_owner);
- 			put_device(&intf->dev);
- 			if (unconfigure) {
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 5433b2609ab30..702eb66b81bf3 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -30,6 +30,7 @@
- #include <linux/device/class.h>
- #include <linux/device/devres.h>
- #include <linux/device/driver.h>
-+#include <linux/device/trust.h>
- #include <linux/cleanup.h>
- #include <asm/device.h>
+@@ -412,7 +483,8 @@ EXPORT_SYMBOL_IF_KUNIT(device_trust_apply_boot_policy);
+  */
+ void device_trust_init(struct device *dev)
+ {
+-	if (dev->trust_committed_level != DEVICE_TRUST_BLOCKED)
++	if (dev->trust_committed_level != DEVICE_TRUST_BLOCKED ||
++	    (dev->p && dev->p->trust_policy_override))
+ 		return;
  
-@@ -695,6 +696,10 @@ enum struct_device_flags {
-  * @removable:  Whether the device can be removed from the system. This
-  *              should be set by the subsystem / bus driver that discovered
-  *              the device.
-+ * @trust_policy: Requested operating policy, resolved before driver probe.
-+ * @trust_level: Active trust level through driver setup and cleanup, see
-+ *		device_get_trust_level().
-+ * @trust_committed_level: Operating level retained across bind transactions.
-  * @flags:	DEV_FLAG_XXX flags. Use atomic bitfield operations to modify.
-  *
-  * At the lowest level, every device in a Linux system is represented by an
-@@ -798,6 +803,9 @@ struct device {
- 	struct device_physical_location *physical_location;
- 
- 	enum device_removable	removable;
-+	enum device_trust_policy trust_policy;
-+	enum device_trust_level trust_level;
-+	enum device_trust_level trust_committed_level;
- 
- 	DECLARE_BITMAP(flags, DEV_FLAG_COUNT);
- };
-diff --git a/include/linux/device/bus.h b/include/linux/device/bus.h
-index 9ef7538a9a7f2..ba2b5743a47cd 100644
---- a/include/linux/device/bus.h
-+++ b/include/linux/device/bus.h
-@@ -17,6 +17,7 @@
- #include <linux/kobject.h>
- #include <linux/klist.h>
- #include <linux/pm.h>
-+#include <linux/device/trust.h>
- 
- struct device_driver;
- struct fwnode_handle;
-@@ -59,6 +60,11 @@ struct fwnode_handle;
-  * @resume:	Called to bring a device on this bus out of sleep mode.
-  * @num_vf:	Called to find out how many virtual functions a device on this
-  *		bus supports.
-+ * @trust_resolve: Resolve a requested trust policy to an active trust level
-+ *		immediately before driver probe. The device lock is held and
-+ *		@drv is the candidate driver, which dev->driver does not name
-+ *		yet. Return 0 on success or a negative errno. This callback
-+ *		must not enable the device.
-  * @dma_configure:	Called to setup DMA configuration on a device on
-  *			this bus.
-  * @dma_cleanup:	Called to cleanup DMA configuration on a device on
-@@ -102,6 +108,10 @@ struct bus_type {
- 
- 	int (*num_vf)(struct device *dev);
- 
-+	int (*trust_resolve)(struct device *dev,
-+			     const struct device_driver *drv,
-+			     enum device_trust_policy policy,
-+			     enum device_trust_level *level);
- 	int (*dma_configure)(struct device *dev);
- 	void (*dma_cleanup)(struct device *dev);
- 
-diff --git a/include/linux/device/trust.h b/include/linux/device/trust.h
-new file mode 100644
-index 0000000000000..ff80b7a079eb8
---- /dev/null
-+++ b/include/linux/device/trust.h
-@@ -0,0 +1,49 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _DEVICE_TRUST_H_
-+#define _DEVICE_TRUST_H_
-+
-+#include <linux/types.h>
-+
-+struct device;
-+struct device_driver;
-+
-+/**
-+ * enum device_trust_level - active trust level for a device
-+ * @DEVICE_TRUST_BLOCKED: The device cannot be operated by a driver
-+ * @DEVICE_TRUST_ADVERSARIAL: Classify the operating device as potentially malicious
-+ * @DEVICE_TRUST_UNRESTRICTED: Operate the device with the usual kernel privileges
-+ *
-+ * Active trust levels are discrete states, not an ordered privilege scale.
-+ * Adversarial classification alone adds no protections; these depend on bus,
-+ * DMA and driver support.
-+ */
-+enum device_trust_level {
-+	DEVICE_TRUST_BLOCKED,
-+	DEVICE_TRUST_ADVERSARIAL,
-+	DEVICE_TRUST_UNRESTRICTED,
-+};
-+
-+/**
-+ * enum device_trust_policy - requested device trust policy
-+ * @DEVICE_TRUST_POLICY_DEFAULT: Let the bus select the active trust level
-+ * @DEVICE_TRUST_POLICY_BLOCKED: Request that the device remain blocked
-+ * @DEVICE_TRUST_POLICY_ADVERSARIAL: Request adversarial classification
-+ * @DEVICE_TRUST_POLICY_UNRESTRICTED: Request normal operation
-+ *
-+ * A requested policy is resolved to an active trust level before a driver is
-+ * probed.
-+ */
-+enum device_trust_policy {
-+	DEVICE_TRUST_POLICY_DEFAULT,
-+	DEVICE_TRUST_POLICY_BLOCKED,
-+	DEVICE_TRUST_POLICY_ADVERSARIAL,
-+	DEVICE_TRUST_POLICY_UNRESTRICTED,
-+};
-+
-+void device_trust_init(struct device *dev);
-+int device_trust_prepare(struct device *dev, const struct device_driver *drv);
-+void device_trust_clear(struct device *dev);
-+enum device_trust_level device_get_trust_level(const struct device *dev);
-+bool device_is_adversarial(const struct device *dev);
-+
-+#endif /* _DEVICE_TRUST_H_ */
+ 	if (device_trust_configured)
 
 -- 
 2.56.1

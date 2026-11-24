@@ -1,65 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.112
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.112
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795540360;
-	b=hbCzt1c9oGs35CkdgYxMVQS2/QgKIVw+RjfgZd6x9g24debb69k3UVBrS4msjOVvryGa
-	 cgQm2BTCr8MCMNg57HlY2TujJ81RGEun4b6vpZWXkzZD2ujO9NKrE3z+dElEXrtDdImCH
-	 wjvGKRa1mYDtlacqbf3fK1IDTPoGbcCtqwtNNNSZHXB85S2o/pnaMnw0ckEd0fVtHbeG5
-	 x8NQascConBd0Akx0U2KpbEnvmXas41LgiWeiNHD62j9TClIZmedF/e87Fva6/wQu04+A
-	 nX4LSdYttaJwne43VBg4h4NdQDzwlGadWGVs1B3JnU7t7Fkg2+UkOJzwpdAlSkgs0Cw==
+	t=1795542408;
+	b=04UhAwOEEbHzL10IhmmP3La6wzAop6T+eaRGOrvt2HB6FvGR8TI+a8bKriNidDnHkzBh
+	 cFc5kJL/Vgo50kBfosNCcKHohUDSbjDl0tTJ+BipqYpjxOVVElGUvXkx4t80qhN8E7WGI
+	 5WCkOyf1BzxS94nrMJOA6shP7neBgHA3uvjDZrPtEox9MKhfEackEOLolLSAyq5YaThh/
+	 iENMOxTqrteBXhwOfHA7FNrvMFwHLKgI61pLpF23VUsYGn/kH++0QSdnddzrOV5ajQqPg
+	 e9GVr6bhT5y29dEbKP5gORp7L0cfXaQ5huc8cxFTRkOt0HD+HA6KWwxA1AW4JyDrhIg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795540360;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795542408;
 	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
 	 MIME-Version:User-Agent:X-ZohoMailClient;
-	bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=;
-	b=uqtDvf1noDkqI7lVnaoa2+xf3Bc7tQe32n95j2zvwBpd4VbIwzBMxeHbv+ibUY32pC3C
-	 FAKtraN1sJtWJsCbI4oA+Vmpw+McryASiu/dH8RZrJz7B/F0jhH1Wu5Ho/bt4oTZ1GFaZ
-	 HIcukyZlcxLqVdex/JVCfbk/gLnaaTXdIUlOPcMS7IT7GifJvnSZxnEDWo+HA8qg699WI
-	 aZUCLh7R2xEl0csnZ8mEVRdwDATaNiKwdU7UcyQVcxDQv40pjxxhLRUjcz17n0TqeG4FT
-	 8R/fSkzzXgTCrqpgKgKv3w6Wxoxz1/zEs91hosCGosYNVDTUpAehsQEJU8x4nL0l5Aw==
+	bh=H2f5l5LeTXDL7+v9Qv97t5mgH+JUfpOtVYF84J+Zklw=;
+	b=ZeW6BrbNoCiKhQpD+RrznKjbwZd8tUn2dAH2GPuP0Dro2vR1mFb9YhvrYDhlYd/x1meF
+	 7nVem/SSS50H4AQkzoHg1edYG9YYSiLB0Pd8slETpW9LN9ATfYeovEXSKVNAcc5iHAiJM
+	 HQRmBCIavZv3mQCnKwBVMyrPjwscMZnaznvNmwuYWdHEquyghdW7OnV6i2tIpj4qb3NeE
+	 Q7F5nt+HSEHhfXpEOnP0wqZaLs2tCk7hSGuOmRDfwkOblYNc7cGCrv66lQg0AOSiJvm7z
+	 Cs7cCNScYfanBjyJNw/MDLrCS1ZS8PPP718PtL2hPqRBnqhkJv0PhWA/13C5sDL2aWg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=rong.moe;
 	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=jw0hIujl;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.112
-Received: from sender5-pp-f112.zoho.com (sender5-pp-f112.zoho.com [165.173.182.112])
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=nmfYG8Ns;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.112
+Received: from sender6-pp-f112.zoho.com (sender6-pp-f112.zoho.com [165.173.180.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BFF8606A321
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 17:12:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BFF8606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17A6606A321
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 17:46:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E17A6606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=jw0hIujl
-ARC-Seal: i=1; a=rsa-sha256; t=1795540355; cv=none; 
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=nmfYG8Ns
+ARC-Seal: i=1; a=rsa-sha256; t=1795542402; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=DckYbAUcVMO4Mirjnj5sJ31Gd0MH3Xw2aQiqHOzMzyEcoyNCswe7oKTpTPnAqAGoR5V0Q1YERNcVvwlMgq7++YjYQKe+Wt1j17Wi/g4JM24ARBRU/JWDU0eWh91bEBDAldPnjR7HN6FDva0ya8itXl0UsysbHvFSebIqy4/Y+IU=
+	b=gFy7vilkW5CIKvHUSrqsA/yVXOxUG2ZkVe1E8peh/nBLgxYM/c+7hmo0Hy95t3tSaFJGQhqm9itGoiJLSoBTEplPgkXdssPouCJmCEhn/0iENVJ2u2Jde3O7WnC6wNxxke5VESCF3GlQo3wqcJTJGVP4osvPLCw3syaLS+RH4O0=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1795540355; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=; 
-	b=bSfd2Mw3MW07WKS7CRLjv8SEoKTlftlQUfRC385MyqGSB0bIKdFbBfidgNzuo5fRpK98uz5HV4ayXZeRQRKFIuhTFXXoUJaHNEmlZKx1RZozf9c0toa7mmpBuk7ydnAqWMcl8yxsceGCXMgrapPVYvylozF3YL7BWmKvcaESkBA=
+	t=1795542402; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=H2f5l5LeTXDL7+v9Qv97t5mgH+JUfpOtVYF84J+Zklw=; 
+	b=ikrZCCqYQspV9FqOHX5CGOSX9ZE3EB7GXFg5r4HfOXk5PhP8poo6h3V19HLHKDCDisGL3MX4oHAWo3llpO6u86aysgGmkxdk1NNE/drPXuHd3vqQrlLL8gkmFTm4yxnQDseFkQQie/LDhwwhQhbpTR7ql+ifNjwu/Kvl+EXho1U=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=rong.moe;
 	spf=pass  smtp.mailfrom=i@rong.moe;
 	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=jw0hIujl1+9LcqnwUPYivulIviZKYL/TdvhG1jshMVyoczmC0oaeleQJ9OrJ9YWOmis3WEhSTGJFv8My+Rp+NFX0+BlR/QX+u4wmriAzrdqDOANqeVEc5md64ziRqY0yPAo5Pq+EejBMIHgjxdvNZVTg7O+DSu9JPZ/5268yGqQaKcw1yPup8sftxD1nq5Gv4jkYErJMGm1NwnWt2Qh1VbMIS6PveuSYFWFZaRBehu4fQwp1j2tVW4EZ9HWwuTNCqJF8KvhGrAQpB7uO5yqLpGU4KaT3U4OMd4qumwKAC9MFud6N0stU1Ceog8Qi/G5uwYtiChQil51oMwoYsuFiXw==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1795540352703268.87578966460944;
-	Tue, 24 Nov 2026 09:12:32 -0800 (PST)
-Message-ID: <e7b9f2600bb42e1ed514d02f59ec905757de7ae8.camel@rong.moe>
-Subject: Re: [PATCH v4 1/9] HID: haptic: Get rid of input_ff_destroy() in
- error paths
+DKIM-Signature: a=rsa-sha256; b=nmfYG8Ns7ExuWzLY/GKNqEe50d4a8lSyS2nI2Mhopzu0gUpKU9GHvMK/vhl2v3JF5JW+zIrOpHsUojvS8VdaRKyVLFi8iWegC3tc7oLKGuDyMwp+zJ/r9b/L8VQ7VPFFgNA07YQ/orcM8TZMNDupoY30bSRMfOIXM+MCDZ6gUX4pknJd2PSmLhZm3pk1KTLrRH+AbDt8X8oAVXAaGuSf2O2grQGu79lp2bJvemCKoA1ehl05nZ6F5DqkZU2o8kjoq+C2ncvgs2Gq+qGRb5PS8EAl7c+ZF77+dTBF6X3cL+OJpR8OfPT1ju5gqHrTQoAByrh9oYClFsBMf7tY9ccicA==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=H2f5l5LeTXDL7+v9Qv97t5mgH+JUfpOtVYF84J+Zklw=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1795542401014413.03002637860595;
+	Tue, 24 Nov 2026 09:46:41 -0800 (PST)
+Message-ID: <1d4a4165214fc54a1325ba2298e937751d61f5fb.camel@rong.moe>
+Subject: Re: [PATCH v4 8/9] HID: haptic: Convert into a loadable plugin
+ module
 From: Rong Zhang <i@rong.moe>
 To: sashiko-reviews@lists.linux.dev
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <sashiko-outbox-231650@kernel.org>
+In-Reply-To: <sashiko-outbox-231651@kernel.org>
 References: <20261125-hid-haptic-kmod-v4-0-03713a89f656@rong.moe>
-	 <20261125-hid-haptic-kmod-v4-1-03713a89f656@rong.moe>
-	 <sashiko-outbox-231650@kernel.org>
+	 <20261125-hid-haptic-kmod-v4-8-03713a89f656@rong.moe>
+	 <sashiko-outbox-231651@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 01:07:26 +0800
+Date: Wed, 25 Nov 2026 01:41:34 +0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -77,58 +77,92 @@ Hi All,
 On Tue, 2026-11-24 at 17:04 +0000, sashiko-bot@kernel.org wrote:
 > Thank you for your contribution! Sashiko AI review found 1 potential
 > issue to consider:
-> - [Low] HID: haptic: inaccurate Fixes trailer in hid_haptic_init() fix
+> - [Medium] HID: haptic: module unload race via hid_plugin_put() in
+>   hid-haptic.ko
 > --
 >=20
-> commit e6d3c5552e5a0755862fb250069c54d74d75f7cb
+> commit 36f36535430850c43124dc68d1bb0a9b639c5f30
 > Author: Rong Zhang <i@rong.moe>
 >=20
-> > HID: haptic: Get rid of input_ff_destroy() in error paths
-> >=20
-> > It's painful to have error paths after calling input_ff_create(),
-> > because input_ff_destroy() frees too much things but does not restore
-> > some other things. For example, every error path calling
-> > input_ff_destroy() frees ff->private, while the others don't. This
-> > divergence has caused quite a lot of trouble.
-> >=20
-> > Additionally, the driver's get_device() bail-out path calls module_put(=
-)
-> > right before hid_haptic_destroy() calling it again, causing refcount
-> > underflow.
-> >=20
-> > Since commit 2ae35f090d02 ("Input: destroy force-feedback device on
-> > input unregistration"), the HID device is now guaranteed to have a
-> > longer lifetime than the FF device, making get_device()/put_device()
-> > unnecessary.
-> >=20
-> > Due to the driver being unable to build as a module since commit
-> > 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAPTIC"),
-> > try_module_get()/module_put() is needless, too.
-> >=20
-> > Remove the said calls, so that there is no error path after
-> > input_ff_create(), eliminating the call to input_ff_destroy(). In this
-> > manner, we don't need to restore dev->flush and dev->event either.
-> >=20
-> > Fixes: 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAP=
-TIC")
-> > Cc: stable@vger.kernel.org
-> > Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Link: https://msgid.link/f44447354f28c295e79a025bbcab7a4e@gmail.com
-> > Signed-off-by: Rong Zhang <i@rong.moe>
+> HID: haptic: Convert into a loadable plugin module
 >=20
-> [Severity: Low]
-> 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAPTIC") onl=
-y
-> changed CONFIG_HID_HAPTIC from tristate to bool in drivers/hid/Kconfig.
-> The broken input_free error path and double module_put() in
-> hid_haptic_init() were introduced in 344ff3584957 ("HID: haptic:
-> initialize haptic device").
+> This commit converts hid-haptic into a loadable module using the
+> hid-plugin framework so that hid-multitouch can load it on demand.
 >=20
-> Should the Fixes: tag point to 344ff3584957 ("HID: haptic: initialize
-> haptic device") instead?
+> Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc=
+35inqda3exwzs3tk3ff@oagat6g46zto/
+>=20
+> > diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+> > index cbe834a77fd47..50d6673c7c211 100644
+> > --- a/drivers/hid/hid-haptic.c
+> > +++ b/drivers/hid/hid-haptic.c
+> > @@ -310,11 +310,12 @@ static void hid_haptic_destroy(struct ff_device *=
+ff)
+> > =20
+> >  =09kfree(haptic->hid_usage_map);
+> >  =09haptic->hid_usage_map =3D NULL;
+> > +
+> > +=09hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
+> >  }
+> > =20
+> > -int hid_haptic_init(struct hid_device *hdev,
+> > -=09=09    struct hid_haptic_device *haptic,
+> > -=09=09    struct input_dev *dev)
+> > +static int __hid_haptic_init(struct hid_device *hdev, struct hid_hapti=
+c_device *haptic,
+> > +=09=09=09     struct input_dev *dev)
+> >  {
+> >  =09struct ff_device *ff;
+> >  =09int ret =3D 0, r;
+> > @@ -436,6 +437,20 @@ int hid_haptic_init(struct hid_device *hdev,
+> >  =09haptic->hid_usage_map =3D NULL;
+> >  exit:
+> >  =09dev_warn(&hdev->dev, "Cannot allocate haptic for %s: %d\n", hdev->n=
+ame, ret);
+> > +=09hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
+> >  =09return ret;
+> >  }
+>=20
+> [Severity: Medium]
+> Can calling hid_plugin_put() from inside hid_haptic_destroy() and
+> __hid_haptic_init() allow hid-haptic.ko to be unmapped while a CPU is
+> still executing inside it?
+>=20
+> hid_plugin_put() is an inline helper that calls module_put(plugin->owner)=
+,
+> where plugin->owner is THIS_MODULE (hid-haptic.ko).  Because
+> hid-multitouch holds no direct symbol dependency on hid-haptic.ko, the
+> module refcount acquired by hid_plugin_get() is the only thing keeping th=
+e
+> module loaded:
+>=20
+> CPU0                                  CPU1
+> input_ff_destroy()
+>   ff->destroy() [hid_haptic_destroy]
+>     hid_plugin_put()
+>       module_put(THIS_MODULE)
+>         atomic_dec_if_positive()
+>                                       delete_module("hid_haptic")
+>                                         try_stop_module()
+>                                         mod->exit()
+>                                         free_module()
+>         trace_module_put()
+>     return;  <-- page fault on unmapped hid-haptic.ko text
+>=20
+> The same race exists on the error path of __hid_haptic_init().  To avoid
+> executing module text after dropping the last reference, the caller
+> outside hid-haptic.ko should call hid_plugin_put() after
+> self_plugin->init() fails or after the destroy callback returns.
 
-No. This commit removes try_module_get()/module_put(), and thus depends
-on the current Fixes: commit.
+Due to how the FF core is designed, I haven't figure out an approach to
+move the ff->destroy() callback outside hid-haptic.
+
+I originally planned to prepare another series to make hid-haptic generic
+by attaching it to hid-input after this series is applied (because I
+bought a Logitech MX Master 4 two weeks ago), but haven't started working
+on it. If the delete_module() race is a concern, I think it would be
+better to implement the plan in v5, so that we can defer hid_plugin_put()
+to hid-input or hid-core.
 
 Thanks,
 Rong

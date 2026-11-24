@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795485041;
-	b=nO54LwUylRklc6f1cQ4FrIGuzm+xRpya5CPNh3VZ5in3GDKRgbUXSYcZAQ66ZD4SlMAj
-	 9tAIzrZdYukyt91uSVsFtQSKLXU3gjUzJsG04Xw89Er5tWocv1Nxw8MqMcIyWFvRXkR+9
-	 lF5O5WwrohcESO8LiY5etGtQDksFn+CjHZCap1Hfwc7NRExQY3bV7qm8nitgZiKT0bhUw
-	 lb0a3ymP+6jmtwKzX84VzTZ54/iYk24uU9YGnajM0lY9XxuMtT52lu91gMJVk84zQWmCX
-	 AJIPaQ6ApKBaXGElHCqGrpeES4OSL8PG55ebNsvQNvB/1T69SRUWufnA7UVZADPTFBA==
+	t=1795485043;
+	b=IWBG7cWsESkARvaBpW/xanpzABS3BipXzV5TSJIMOVDGLXJXS5HcV55E7o11HNIaaMLi
+	 N145VX8vMGQXUj35ArCd2NOusQ8WVWrkpS3nf7/EP6xc1CS7hYehZpVtFM7dxoKUc2x21
+	 2P5jlrU+DgCafR0k6x3tVttwYJk5srTQThK8gDtjnXmvPG9SJ9YtaHufFEXgxPZ1IEQCn
+	 bg28jrEDWBa5DLPc4zMUGc5lRHyxAonlCt2vjfrqdQ1xa4ufQa6belUpNdtTghlT8AtqH
+	 xdeTXHq0uAlaQX26ePBm3NJVOugMFABfwBGVwCYKVA+4yAMxba3PClflkUOygXZetGw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795485041;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795485043;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
 	 X-CM-SenderInfo;
-	bh=PcQulF7J6rkUPYH+4J2iV1ojxJYQy0CNMdIGhii5Yrg=;
-	b=Jga1sCs5WOdZ8ILcLwsJ2LQ9WqKFJSaDkwmw5luk6qFJwlXpRU+g3Japs7SDpwtjO5s8
-	 ixVZg5UZAXFcGiMMbC28qDShevgZgcBzOM7xxdJPHt9V3WaSw5lODRO2SG3vGf2xiFy8e
-	 TKuqMyM5ut8JhL+V6FUst+tRVstiffHfkBtL0IqRF4M+QgX/Xm2z+DaCKHx0xupiOd9si
-	 SFyMUDKoeQRr/TP0UEaLsTd1h4Ww4frVBg4JII0aeLj2P4Or4tRwLlEyqo+S6mCb2xs0W
-	 R6r3Ypnx07i0aIPy47D7SI2gz2Pd+l0nj6ybonlEbpI2+Pz///6PcHBXdZQNRGNaoGw==
+	bh=eUcM8EgeA20mYaCEW0h1hqOWjxH+MHwdnDgsqjLUTzg=;
+	b=U/GarN4sJm8tYL4P8hCanoANdO6BizsgOEu/sFP6mcXWtFpn/Fl+IkcTWcu05/pjVlj4
+	 TBkWnPb5Uiv/URs13sPIisiC/96eP2qIXMjNdsPd9OsehCqCqMQCqtWi7qetUWhmsYHxe
+	 S5JWOW+B+drw38b0rZCTomwFDJXeqtP3dYVkmmpG2DiKNPo9GGla/RVQqf73+holx+Clj
+	 yySsclouW0SXh1edo7ao101NS1Y7LUN/gaZflJGl+1Lr812KCz500n3vz6Emb0/NUmHgh
+	 9uOckfDz/vYDv2KFe3EznyjWfXz/ZBiv0Nlw6cJMALpPIUf5aGzcC1k2rbAsKaKk0kA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mail.ustc.edu.cn;
 	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
-	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=yD7HIg4d;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=sVRxlMmD;
 	arc=none smtp.remote-ip=202.38.64.46
 Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0ABB8606A680;
-	Tue, 24 Nov 2026 01:50:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0ABB8606A680
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 63B9C606A69B;
+	Tue, 24 Nov 2026 01:50:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 63B9C606A69B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=yD7HIg4d
+	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=sVRxlMmD
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
 	Message-ID:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=PcQulF7J6rkUPYH+4J2iV1ojxJYQy0CNMd
-	IGhii5Yrg=; b=yD7HIg4dZdgMmxQ5jJ4kwzAZW0W+xlooKxmkQ3+qmbHWG3iA6B
-	huLGUHo2ZGacC3+KfaZE1w0tvAGp4K+qFbfJ8zcmNaAGXHAanf6r5aWFhJ/79747
-	PGKfRpweMyrrj2qIo70AorMmVWXBwIWhm+adskIR7zu3Jy+a3UkVMCW0s=
+	Content-Transfer-Encoding; bh=eUcM8EgeA20mYaCEW0h1hqOWjxH+MHwdnD
+	gsqjLUTzg=; b=sVRxlMmD4BT0tBe+B0KB6176CZsbtHimqYdWYbZHG28+W0p5C2
+	1sHTYLnHEhIoLNGCPvaVxz+5q0HecyGSyWrW60vxF3Fetv2KtV1df3dhxBHczGN7
+	eGojKIYDo5Ap1oJp7bwBxTB/m1DURXJGXQvm6IfjA4aMOrguGGe88NPVE=
 Received: from xuqianhui.tail7a2807.ts.net (unknown [114.214.185.179])
-	by mailimap2024 (Coremail) with SMTP id 3pYKCgDHPDFk7QRrHDHvAA--.1941S7;
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgDHPDFk7QRrHDHvAA--.1941S8;
 	Tue, 24 Nov 2026 09:50:38 +0800 (CST)
 From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 To: dmitry.torokhov@gmail.com
@@ -49,9 +49,9 @@ Cc: robh@kernel.org,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 5/6] Input: aw86927 - handle the AW8693X play and boost register layout
-Date: Tue, 24 Nov 2026 09:50:27 +0800
-Message-ID: <20261124015028.1427420-6-xiaqinghuan@mail.ustc.edu.cn>
+Subject: [PATCH v3] Input: aw86927 - stop playback over suspend and on shutdown
+Date: Tue, 24 Nov 2026 09:50:28 +0800
+Message-ID: <20261124015028.1427420-7-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261124015028.1427420-1-xiaqinghuan@mail.ustc.edu.cn>
 References: <20261124015028.1427420-1-xiaqinghuan@mail.ustc.edu.cn>
@@ -65,10 +65,10 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:3pYKCgDHPDFk7QRrHDHvAA--.1941S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxZrW5Cr18Cr15JF4rXryfCrg_yoW7Jr1xpF
-	15CFyUtrW2grWxK3WvyF1vvF1furnIgF47Xr9Fg343J3W7Xw48KFn7tw40yFyjyFyUKw15
-	Ja1vvFyq9rsrWFUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+X-CM-TRANSID:3pYKCgDHPDFk7QRrHDHvAA--.1941S8
+X-Coremail-Antispam: 1UD129KBjvJXoW3JFyktw45JF1kKFykGF45Jrb_yoWxXry5p3
+	y5AFyYyrWvqF42qwn8Kr12v3W3Cwn7GwsFyF9rWa43tasIq3y8KF95tw4jyF15JrWkGa15
+	Ja1vqFWUur4UAF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
 	9KBjDU0xBIdaVrnRJUUUPqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
 	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
 	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
@@ -79,151 +79,221 @@ X-Coremail-Antispam: 1UD129KBjvJXoWxZrW5Cr18Cr15JF4rXryfCrg_yoW7Jr1xpF
 	Ox8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4kS14v26r126r1DMx
 	kIecxEwVAFwVWkMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E
 	5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAV
-	WUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY
+	WUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY
 	1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14
-	v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x
+	v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x
 	07beD7fUUUUU=
-X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREAB2sElFsCDQA1sN
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREAB2sElFsCDQA2sO
 
-AW86937 and AW86938 keep the same register map as the AW86927 but move
-two bits and invert the stop handshake:
+Playback is not stopped across system sleep or shutdown: an effect
+  that is
+being played when the system suspends keeps the chip driving the
+  actuator,
+and nothing holds the chip in reset on shutdown or unbind.
 
-  - auto boost lives in bit 2 of PLAYCFG3 instead of bit 4, and the boost
-    mode in PLAYCFG1 is a two-bit field at bit 5 instead of bit 7;
-  - the VBAT mode bit taps the battery voltage instead of the software
-    tracked value;
-  - stopping is a two-step sequence: select PLAY_MODE_STOP in PLAYCFG3 and
-    then issue GO in PLAYCFG4, as the dedicated STOP bit does not exist
-    for these parts.  A standby timeout after that is a real failure, so
-    return it instead of forcing the state machine.
-
-Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+Park the chip in standby on suspend (resume leaves it in reset, as probe
+does), assert reset on shutdown, and drain the work item in a devres
+action
+so it runs on unbind as well: the memless effect timer can queue the
+  work
+again when input_close_device() is skipped for an inhibited device, and
+the
+work must not reach the regmap after the device is gone.
+Changes since v2:
+ - [sashiko, 2026-11-17, High] "race in aw86927_close() and unbind
+  queues
+   play_work after stop": the devres action now drains the work item
+  before
+   asserting reset, so an effect timer that re-queued the work
+  (inhibited
+   device, or a flush interrupted by a signal) cannot reach the regmap
+  after
+   the device is gone.  aw86927_shutdown() calls the same helper.
+ - [sashiko, same report, Low] "commit message and comment mismatch on
+   suspend/shutdown": the message now states that suspend parks the
+  chip in
+   standby without asserting reset and shutdown asserts reset without a
+   separate stop, which is what the code does.
 ---
- drivers/input/misc/aw86927.c | 65 +++++++++++++++++++++++++++---------
- 1 file changed, 49 insertions(+), 16 deletions(-)
+ drivers/input/misc/aw86927.c | 85 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 79 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-index 699c92a1ce8c..1dbcba798831 100644
+index 42ae123808b6..a84cada8f570 100644
 --- a/drivers/input/misc/aw86927.c
 +++ b/drivers/input/misc/aw86927.c
-@@ -49,6 +49,14 @@
- #define AW86938_PLAYCFG1_BST_VOUT_VREFSET_MASK	GENMASK(4, 0)
- #define AW86938_PLAYCFG1_BST_7000MV		0x09
+@@ -15,6 +15,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
+ #include <linux/module.h>
++#include <linux/pm.h>
+ #include <linux/regmap.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/types.h>
+@@ -204,6 +205,7 @@ struct aw86927_data {
+ 	struct i2c_client *client;
+ 	struct regmap *regmap;
+ 	struct gpio_desc *reset_gpio;
++	bool suspended;
+ 	u16 level;
+ };
  
-+/*
-+ * The AW8693x parts move auto-boost to bit 2 of PLAYCFG3 and stop playback
-+ * by selecting the dedicated stop mode and then issuing a GO, unlike the
-+ * AW86927 which has an explicit STOP bit in PLAYCFG4.
-+ */
-+#define AW8693X_PLAYCFG3_AUTO_BST_MASK		BIT(2)
-+#define AW8693X_PLAYCFG3_PLAY_MODE_STOP		3
-+
- #define AW86927_PLAYCFG2_REG			0x07
+@@ -366,22 +368,26 @@ static int aw86927_haptics_play(struct input_dev *dev, void *data, struct ff_eff
+ 	struct aw86927_data *haptics = input_get_drvdata(dev);
+ 	int level;
  
- #define AW86927_PLAYCFG3_REG			0x08
-@@ -290,9 +298,14 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 
- 		err = regmap_update_bits(haptics->regmap,
- 					 AW86927_PLAYCFG1_REG,
--					 AW86927_PLAYCFG1_BST_MODE_MASK,
-+					 haptics->model == AW86927 ?
-+					 AW86927_PLAYCFG1_BST_MODE_MASK :
-+					 AW86938_PLAYCFG1_BST_MODE_MASK,
-+					 haptics->model == AW86927 ?
- 					 FIELD_PREP(AW86927_PLAYCFG1_BST_MODE_MASK,
--						    AW86927_PLAYCFG1_BST_MODE_BYPASS));
-+						    AW86927_PLAYCFG1_BST_MODE_BYPASS) :
-+					 FIELD_PREP(AW86938_PLAYCFG1_BST_MODE_MASK,
-+						    AW86938_PLAYCFG1_BST_MODE_BYPASS));
- 		if (err)
- 			return err;
- 
-@@ -300,7 +313,8 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 					 AW86927_VBATCTRL_REG,
- 					 AW86927_VBATCTRL_VBAT_MODE_MASK,
- 					 FIELD_PREP(AW86927_VBATCTRL_VBAT_MODE_MASK,
--						    AW86927_VBATCTRL_VBAT_MODE_SW));
-+						    haptics->model == AW86927 ?
-+						    AW86927_VBATCTRL_VBAT_MODE_SW : 1));
- 		if (err)
- 			return err;
- 
-@@ -312,23 +326,38 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 
- static int aw86927_stop(struct aw86927_data *haptics)
- {
-+	bool aw8693x = haptics->model != AW86927;
- 	int err;
- 
--	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG, AW86927_PLAYCFG4_STOP);
-+	if (aw8693x) {
-+		err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
-+					 AW86927_PLAYCFG3_PLAY_MODE_MASK,
-+					 AW8693X_PLAYCFG3_PLAY_MODE_STOP);
-+		if (err)
-+			return err;
-+	}
-+
-+	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG,
-+			   aw8693x ? AW86927_PLAYCFG4_GO : AW86927_PLAYCFG4_STOP);
- 	if (err) {
- 		dev_err(haptics->dev, "Failed to stop playback: %d\n", err);
- 		return err;
- 	}
- 
- 	err = aw86927_wait_enter_standby(haptics);
--	if (err) {
--		dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
--		err = aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
--		if (err)
--			return err;
--	}
-+	if (!err)
++	/* The chip is powered down; a queued event would only fail. */
++	if (haptics->suspended)
 +		return 0;
++
+ 	level = effect->u.rumble.strong_magnitude;
+ 	if (!level)
+ 		level = effect->u.rumble.weak_magnitude;
  
--	return 0;
-+	/*
-+	 * The AW8693x reliably reaches standby through the stop mode above, so a
-+	 * timeout there is fatal; the AW86927 sometimes needs the nudge.
-+	 */
-+	if (aw8693x)
-+		return err;
-+
-+	dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
-+
-+	return aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
+ 	/* If level does not change, don't restart playback */
+-	if (haptics->level == level)
++	if (READ_ONCE(haptics->level) == level)
+ 		return 0;
+ 
+-	haptics->level = level;
++	WRITE_ONCE(haptics->level, level);
+ 
+ 	schedule_work(&haptics->play_work);
+ 
+ 	return 0;
  }
  
- static int aw86927_haptics_play(struct input_dev *dev, void *data, struct ff_effect *effect)
-@@ -364,9 +393,13 @@ static int aw86927_play_sine(struct aw86927_data *haptics)
- 		return err;
+-static int aw86927_play_sine(struct aw86927_data *haptics)
++static int aw86927_play_sine(struct aw86927_data *haptics, u16 level)
+ {
+ 	int err;
  
- 	err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
--				 AW86927_PLAYCFG3_AUTO_BST_MASK,
-+				 haptics->model == AW86927 ?
-+				 AW86927_PLAYCFG3_AUTO_BST_MASK :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK,
-+				 haptics->model == AW86927 ?
- 				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
--					    AW86927_PLAYCFG3_AUTO_BST_ENABLE));
-+					    AW86927_PLAYCFG3_AUTO_BST_ENABLE) :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK);
+@@ -426,7 +432,8 @@ static int aw86927_play_sine(struct aw86927_data *haptics)
  	if (err)
  		return err;
  
-@@ -604,9 +637,9 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
- 
- 	err = regmap_update_bits(haptics->regmap,
- 				 AW86927_PLAYCFG3_REG,
--				 AW86927_PLAYCFG3_AUTO_BST_MASK,
--				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
--					    AW86927_PLAYCFG3_AUTO_BST_DISABLE));
-+				 haptics->model == AW86927 ?
-+				 AW86927_PLAYCFG3_AUTO_BST_MASK :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK, 0);
+-	err = regmap_write(haptics->regmap, AW86927_PLAYCFG2_REG, haptics->level * 0x80 / 0xffff);
++	err = regmap_write(haptics->regmap, AW86927_PLAYCFG2_REG,
++			   level * 0x80 / 0xffff);
  	if (err)
  		return err;
  
+@@ -445,6 +452,7 @@ static void aw86927_close(struct input_dev *input)
+ 	int err;
+ 
+ 	cancel_work_sync(&haptics->play_work);
++	WRITE_ONCE(haptics->level, 0);
+ 
+ 	err = aw86927_stop(haptics);
+ 	if (err)
+@@ -456,10 +464,11 @@ static void aw86927_haptics_play_work(struct work_struct *work)
+ 	struct aw86927_data *haptics =
+ 		container_of(work, struct aw86927_data, play_work);
+ 	struct device *dev = &haptics->client->dev;
++	u16 level = READ_ONCE(haptics->level);
+ 	int err;
+ 
+-	if (haptics->level)
+-		err = aw86927_play_sine(haptics);
++	if (level)
++		err = aw86927_play_sine(haptics, level);
+ 	else
+ 		err = aw86927_stop(haptics);
+ 
+@@ -801,6 +810,20 @@ static int aw86927_detect(struct aw86927_data *haptics)
+ 	return 0;
+ }
+ 
++static void aw86927_reset(void *data)
++{
++	struct aw86927_data *haptics = data;
++
++	/*
++	 * Drain the worker before the regmap can go away: this action also runs
++	 * from devres on unbind, where input_close_device() may have been skipped
++	 * (inhibited device) and the memless effect timer can have queued the
++	 * work again.
++	 */
++	disable_work_sync(&haptics->play_work);
++	gpiod_set_value_cansleep(haptics->reset_gpio, 1);
++}
++
+ static int aw86927_probe(struct i2c_client *client)
+ {
+ 	struct aw86927_data *haptics;
+@@ -829,6 +852,10 @@ static int aw86927_probe(struct i2c_client *client)
+ 		return dev_err_probe(haptics->dev, PTR_ERR(haptics->reset_gpio),
+ 				     "Failed to get reset gpio\n");
+ 
++	err = devm_add_action_or_reset(haptics->dev, aw86927_reset, haptics);
++	if (err)
++		return err;
++
+ 	/* Hardware reset */
+ 	aw86927_hw_reset(haptics);
+ 
+@@ -900,6 +927,50 @@ static int aw86927_probe(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++static void aw86927_shutdown(struct i2c_client *client)
++{
++	struct aw86927_data *haptics = i2c_get_clientdata(client);
++
++	aw86927_reset(haptics);
++}
++
++static int aw86927_suspend(struct device *dev)
++{
++	struct aw86927_data *haptics = dev_get_drvdata(dev);
++	int err;
++
++	guard(mutex)(&haptics->input_dev->mutex);
++
++	/* Block events from the memless effect timer before draining the work. */
++	scoped_guard(spinlock_irq, &haptics->input_dev->event_lock)
++		haptics->suspended = true;
++
++	cancel_work_sync(&haptics->play_work);
++	err = aw86927_stop(haptics);
++
++	scoped_guard(spinlock_irq, &haptics->input_dev->event_lock) {
++		if (err)
++			haptics->suspended = false;
++		else
++			WRITE_ONCE(haptics->level, 0);
++	}
++
++	return err;
++}
++
++static int aw86927_resume(struct device *dev)
++{
++	struct aw86927_data *haptics = dev_get_drvdata(dev);
++
++	guard(mutex)(&haptics->input_dev->mutex);
++	guard(spinlock_irq)(&haptics->input_dev->event_lock);
++	haptics->suspended = false;
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(aw86927_pm_ops, aw86927_suspend, aw86927_resume);
++
+ static const struct of_device_id aw86927_of_id[] = {
+ 	{ .compatible = "awinic,aw86927" },
+ 	{ /* sentinel */ }
+@@ -911,8 +982,10 @@ static struct i2c_driver aw86927_driver = {
+ 	.driver = {
+ 		.name = "aw86927-haptics",
+ 		.of_match_table = aw86927_of_id,
++		.pm = pm_sleep_ptr(&aw86927_pm_ops),
+ 	},
+ 	.probe = aw86927_probe,
++	.shutdown = aw86927_shutdown,
+ };
+ 
+ module_i2c_driver(aw86927_driver);
 -- 
 2.53.0
 

@@ -1,91 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795529617;
-	b=CNurQjU3ru3tn12C60+sWDZgZkaTEioFtsh7q7BaAYfuKSsOVkUDx50p8eTNK5l3sujg
-	 QuRV7yNq1HkFRvDDVxrCl+6HPbKk1CsDI9N4WE5NS05MuoAIR8eFd2o8l42cE4UuC34ji
-	 NaRzakdiXI26jeBEC4MZKddBNSgmZJ7NPHMaz2OXJRlbboFUGpVSyWm4vQPIVBTzCi5d+
-	 5hGUMo52MBcpB14jF734hqBeICkdBEOZr/wjR979kdKraYt+yCQe1ew5bkMMtBBybmR9T
-	 XGOVfnL3jJqjC5HJ4+x6eM4SGeOzXBtz63yjr+JZIPJE2OTxq6QDLpQ9WPp+2rSL7Zw==
+	t=1795529622;
+	b=XTgZub5o56J2eiJ2N3WHwlMTCtI7GEQeYGOSenb5XMQHxYYrWWH9Nk3ARfwYHScNLQAz
+	 Asd8zoXotkK4LiVAknnFn33VUV5ct0kgbfiMVKin9ekxNXtyD0+T3SbCXSf8W2Fp4Gwc4
+	 lsJddWQCIhO2arEBRfapOuKDeMRuhiolTAGNSW1ZBGkGfOFOhdx1yJkBMEijmGN9Tix0Y
+	 EzJVzKzMCUGDbtckA/sdeWGw4/SXn9fnsack26aVjkVG4yoS48ckhTTmXb0ZqzEX4BWsV
+	 zvAZcZs/OplxkMgZiPIviNIcIY486y03EwQeybzP5QdTnMfec6u8qcwF3fRVSk2Pwyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795529617;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795529622;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=2bPFYZxerW65pYcm0C73RGOg35tpYhA92PuOUtYcAU0=;
-	b=2FMi3b63yC782DI1lXLZBwA3i1b0bEzRijudM4ozxlMFBjbb7cFg4DocHQ8rRN6PCyBE
-	 j/UM0dId3OguR6gmXCi4f224LVvtt/rGOhstvtWQUDErQrvP+fw3DjdwDIAOX0WCrK69b
-	 s8OSBXZs87Nvnodqmli5+iemyl70yLOLc7EQKcIG2Yi+3gNIDJjHCAT8L5bfNGIEV7tBe
-	 vFdbwm4E1KXHuIgfMRqh57+RPMS9KNhs+2Jj32+aYOHcllsk6deOvpGya3jy4Atb140Rn
-	 eazuiT6p2AzOicfw1oqfgwGRrnwxEz9fwBXdnspuxXIsOzgStbQjdzgSEYmwKR49XZQ==
+	bh=WLhTI7zU5hqZsg8IeaK1lNb8A3A2MmWyNK3XItwQyrY=;
+	b=aPKjiVsnRm/14fmW9jUX9hh0ji31p4Obi3FVDFJZgwLeQMIHbPXkdTHdl2a3QGi2zzRf
+	 sqIHO8lyqfWYFT5O/GC49pUdcuyVPqmoGXqNjKd9NS4tXY+loowZMHPwAJjRMDAiUgJba
+	 ZZW75QLGHN/ZCyYQPCZ784CEOIKut5LWRaJR2jI4Mw+hhAP8qnP/8E/en7yHRph8FjPep
+	 EGwCDch0v3D08QV3OjXuec7rYO0cbkZZEGe6Ijv6J/6L7yZYtTQxmFnVjAsmS3qb9Psna
+	 SBZpR47A528PoNEqFLmvNlgQeUY7QyQ3AfI8xjKoI5BCw3AvzpiXNpJNdtxDDEz5+vA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sJpOJQ9v;
-	arc=none smtp.remote-ip=209.85.208.170
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=po0QsIyR;
+	arc=none smtp.remote-ip=209.85.208.176
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CEB6606A31E
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 14:13:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4CEB6606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B864A606A321
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 14:13:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B864A606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sJpOJQ9v
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-3ae854fd0f5so33193851fa.3
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 06:13:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=po0QsIyR
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3ae25dcbd81so39196311fa.3
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 06:13:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795529615; x=1796134415; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795529620; x=1796134420; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=2bPFYZxerW65pYcm0C73RGOg35tpYhA92PuOUtYcAU0=;
-        b=sJpOJQ9voZO2tNvdXAuuDdwG4hYaYim7zgcVR3LiICHHn1MQZZgl3Qdmu9sGqRE47a
-         /D6wr6DA3ZaulvIZBERM3Ik4bNdIJbkBaR/k5QeAS1JTgUovoo8Kr9vzJ4K1pisFs/zN
-         RF9r8macegwMGtDKWmHoYKf1jsgProMHPrSv/2zDN46uVd7GZpBKKiWBRHxSllqeGO2k
-         ba044tfSugr5+usw4oltKHa/41Vx8UIALvyZGl3dzxy4skHN28Uszs3VUFthd6Shu9U9
-         oGV+x8ntBe+rHc7Vj6my5ihLMLqHE8FInba3M1+nxyI3PFOWqedsM5kQRA16YEh5dJoz
-         hDoQ==
+        bh=WLhTI7zU5hqZsg8IeaK1lNb8A3A2MmWyNK3XItwQyrY=;
+        b=po0QsIyR5sR9HSp3kYpyJG0CWaZ7obmhjihqPtLvrVm8M3mkzaGNIMvw/1MCXr0T63
+         KDsYMR5DeAdFebC1pmbT33UadJLnaWRRl0iJ57PsaCzOstJbJ02ywnkc34BcWvL//x2O
+         EJe2xjyyrqbXJfSk0w0a7HDs5gWVupW0rf4YInh/sEzk+myEA2t8lnsbcz+0vH2zLwcN
+         bGtWvhMstfQyVYIwIL0GJ9yNT9HEUT5CufCO2REZK7r02MrS/IP6kyeELcaDES1A7VSQ
+         WidSNET6s3cLdSg1WbzWtL8GrL+UJzDREzCB5TrIyfNpk5DvKAPf1HKI4H54yTho6UEf
+         efNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795529615; x=1796134415;
+        d=1e100.net; s=20260707; t=1795529620; x=1796134420;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to:content-type;
-        bh=2bPFYZxerW65pYcm0C73RGOg35tpYhA92PuOUtYcAU0=;
-        b=EM+8pC9c3A8TJ7I40+VpqEWilf5/VG1ZoUcAUd4i1dzSOEXKo/HY1bIx7W+Q7AfiXd
-         gG1EzpklII/2kPaq/HjPjvGSUUPUNWhonE+WtV2ImvqlbCanYR3k8eIwQJMXL8oJwAzU
-         tn0VkaqlLtVqRhmMfUSLl9Vm+S9xrhyGbX6n9lh/xdf9xIu09jMwhm2iAfV/qo/qHnsc
-         gP/PiDrCN0bds8Dybck3K/m4GBjxd+ucWqY5IXMamPxCkD7YfJerFqkIcf4bNEGnRPCi
-         GLzERJOfOjyZyZek2REpeasp0H9Nod+MbyXHbO36INrcXK6yq5fL5UFprH8H2yfQC4Sg
-         XDuQ==
-X-Forwarded-Encrypted: i=1; AL+hErE7U7bmmu+KmXU9gb0ksZGFi5f11B5YjlSigKkLi7751Ebro78tzIM9ENyc+J1Ah7rYjBzjCCwwLjSjCA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+rDc/DXAGmV+WqoPfVuieJmmqqaLA3Rqh6JVUzhQTlXCCQj1kG
-	XNMaWTCcTw0tOGs+p6h1epYdgI/kD9/+3+Xo7QcQa4V0CxG8OhzJit2d
-X-Gm-Gg: AZFdTZcy/iK/gdaZC/08Sb74GPnWsCjVXwhlb+F+t6xZNipg3q+wZgesEqbcR+6Wo4F
-	tx7ig5bIs8004VHhc5dZ6ApSgSrf/RKoJ8RaHCag7IOSALyrNRbIRZi28GR2dF9zjQczbLt8CGa
-	7sQi9mtoMXNbY9G5RBI0C1PKijYN2ZMPoJuVXo0Hj1wlWwIphOHGJKcOhZHFyI7be2MN3rglMbA
-	64Dj/5U+gi8XJeFxw1ZtilgsVDdnvLu4uveZHNHf3BGo6hlTvzKLv/W5EusVFpvW/4/vwxs0Gfz
-	eu11GopzYLDu21FeS4PEonhGJyxAfTE3T0J0K17ds76HCBrbikWQHv5BSMC/IuRHlNqk7DhmhLQ
-	yV+LiouyNWIjyAncvN6tBH1coPbrUHhlTENe7BOla6jeeNjBinQeFWhPrdoDj21EHinCQT6TGEo
-	pDOmw4S1KZDoE7KWQChYfBDZTYqGC9F0ArpJoj0ze6Rj3bdxbddwTh564rthDY0a+wri2sYKDXT
-	fOPp0UUA7YzXkahZd3d8MosN+opPzxmDftcz9pM19TImdlcdX796Ywe53n67BPrP4pmq9j6Tsok
-	+o0hVVEZZRr/UAAE
-X-Received: by 2002:a05:6512:23a0:b0:5c1:5d1b:9142 with SMTP id 2adb3069b0e04-5c1bc7fb790mr4527558e87.13.1795529615333;
-        Tue, 24 Nov 2026 06:13:35 -0800 (PST)
+        bh=WLhTI7zU5hqZsg8IeaK1lNb8A3A2MmWyNK3XItwQyrY=;
+        b=Axd9lmV7smvrLXutWY5K2+4r2X5Jzu/Bx7e5m8w6iCV31bgl6hRW3Brn/LhGR/oWNv
+         rxPWHoCQdTl9t61IbhLBAfEKhltxXi+aKfHoecioyxNO/ZtJ+/HV1B3zZP+2mLOst3Nm
+         ctZO0StGKIl/QLMA6rLCDXm2er+ED/FpZZqrE3sigZnGHWXJr2TFez3hP4nm1pJzKFxv
+         WkkGm6ptBKJuGui+KDDR+4tTPZqg9+g6zdcTdY8ufk438WqFeqKYnfZhrY5pG+yc5U5e
+         5zfU+jI232yOQ0qJ1nygkokYPUCD3ZUVqu8g6kY+TTNr/ePAzBToHYC992w45u3gSv8w
+         mOHw==
+X-Forwarded-Encrypted: i=1; AL+hErHdFAaeGOxO6I8kECAXuhQ2hregv/+1CvxU6gYmu6B3nAyb/sxS3HvUKCKSrNmnm/42wMZo0L++N4zcGQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Yb72mf3iX/aplqwtTAEIwXoWtWjaN5tGddUaxHw2i2u9G9LX0
+	xaRF55L0as2YE/Ft23XqLxNdZpOmIwsWBPeyQw0O+X9WJc4Bfdv6g9R9pDvlKhjT
+X-Gm-Gg: AZFdTZcKrQG3abQJYFzvITGvF0CpkKs5O/FARIyMP7007nCSHcg6xi9jHFK0bu1vesn
+	XgoX9ft1wymsLigXqO/633WQZMSxv+MVqQvHsogCQCWUDO7Iwt5ujPn//bBdMVaISCSyAKgaHzU
+	dTSqgPQKRCu9R7wHA4DUt+RWQ4sx44qAJWjPTmcYfXN2jfEWo7TjxAEmLTnc+/RljR77BjB63ym
+	XXlrs9FFRS/v0TsEcrrL4CFrMoWZC/k4APVxosMIAwhHWgQ74zqzujzZkhiMUaNvFprjC6+JZT6
+	3TgGxBlVV/ZcbnkBvNXlQd3ijHNXgSpRtiMLkh/pquj9QkmxiJIVdIE6ZUbeQunFZNLqqRwuUvQ
+	AzmAvSFB5gNeNFnkvHmMkKHOchM/GVFgao1VXZPw1lN+W69UTNXEE6q63SUxMMJZk3ijJRZnq6g
+	YOuZ/rdV7dNztRiUWiCVNPIdIWQTi7NZK707d3t2tHmo+9WuZ61JnOsK6v04ztdmv/v4bQWLMjB
+	S5pDpGYt29Y4C0KzFnM90B6sZTOpMpSTclsxGd2If4JfCpoPTgOGx37URe3kSGLrOqVigF5IXLh
+	Mh1payJFSGusoT8D
+X-Received: by 2002:a05:651c:2103:b0:3ac:ff0a:9d9f with SMTP id 38308e7fff4ca-3ae7f9ef3a3mr41214171fa.5.1795529619590;
+        Tue, 24 Nov 2026 06:13:39 -0800 (PST)
 Received: from pc-i7 ([192.3.12.183])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ae80536529sm41169621fa.27.2026.11.24.06.13.32
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ae80536529sm41169621fa.27.2026.11.24.06.13.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 06:13:34 -0800 (PST)
+        Tue, 24 Nov 2026 06:13:38 -0800 (PST)
 From: Aaron Ma <mapengyu@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	Nikolas Koesling <nikolas@koesling.info>,
 	linux-input@vger.kernel.org
-Subject: [PATCH v2 2/3] HID: pulsar: resume device for raw command execution
-Date: Tue, 24 Nov 2026 22:13:14 +0800
-Message-ID: <20261124141315.6745-2-mapengyu@gmail.com>
+Subject: [PATCH v2 3/3] HID: pulsar: add support for Akko Gaming Mouse
+Date: Tue, 24 Nov 2026 22:13:15 +0800
+Message-ID: <20261124141315.6745-3-mapengyu@gmail.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261124141315.6745-1-mapengyu@gmail.com>
 References: <20261124141315.6745-1-mapengyu@gmail.com>
@@ -100,82 +100,84 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-usbhid drops its runtime PM reference after open, allowing the USB
-device to autosuspend while idle. When suspended, hid_hw_raw_request()
-fails with -EHOSTUNREACH (-113), causing battery status reads to fail.
+Add USB device IDs for the Compx Akko Gaming Mouse in wired mode
+(3554:fb29) and via its 8K wireless receiver (3554:fb2a). List the
+mouse in the driver header and Kconfig help.
 
-Hold PM_HINT_FULLON across exec_cmd() so the device resumes and stays
-active during command execution. Log a failure to acquire the power
-reference before returning the error.
-
-Fixes: e55cf379e822 ("HID: pulsar: add driver for Pulsar gaming mice")
-Tested-by: Nikolas Koesling <nikolas@koesling.info>
-Reviewed-by: Nikolas Koesling <nikolas@koesling.info>
 Signed-off-by: Aaron Ma <mapengyu@gmail.com>
 ---
 Changes in v2:
-- Log an error with hid_err() when hid_hw_power(PM_HINT_FULLON) fails.
-  Suggested by Nikolas.
+- Drop "8K Receiver" from the driver header device list.
+- Add Akko Gaming Mouse to HID_PULSAR help text in drivers/hid/Kconfig.
 
-v1: https://lore.kernel.org/all/20261123141542.8128-2-mapengyu@gmail.com/
+v1: https://lore.kernel.org/all/20261123141542.8128-3-mapengyu@gmail.com/
 
- drivers/hid/hid-pulsar.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/hid/Kconfig      | 3 ++-
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-pulsar.c | 7 +++++++
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2481bc01c435..4c3cc2339f59 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1375,7 +1375,8 @@ config HID_PULSAR
+ 	  Provides battery level, voltage, and charging status
+ 	  monitoring via the power supply framework.
+ 
+-	  Additional supported devices: Kysona M600, ATK VXE R1 SE+
++	  Additional supported devices: Kysona M600, ATK VXE R1 SE+,
++	  Akko Gaming Mouse.
+ 
+ config HID_WACOM
+ 	tristate "Wacom Intuos/Graphire tablet support (USB)"
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa6516d..47e4a9cecad4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -75,6 +75,10 @@
+ #define USB_VENDOR_ID_AKAI_09E8		0x09E8
+ #define USB_DEVICE_ID_AKAI_09E8_MIDIMIX	0x0031
+ 
++#define USB_VENDOR_ID_AKKO		0x3554
++#define USB_DEVICE_ID_AKKO_WIRED	0xfb29
++#define USB_DEVICE_ID_AKKO_8K_DONGLE	0xfb2a
++
+ #define USB_VENDOR_ID_ALCOR		0x058f
+ #define USB_DEVICE_ID_ALCOR_USBRS232	0x9720
+ #define USB_DEVICE_ID_ALCOR_MALTRON_KB 0x9410
 diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-index 86b1050230e9..b3f15ddeb39f 100644
+index b3f15ddeb39f..aaacc0550f9d 100644
 --- a/drivers/hid/hid-pulsar.c
 +++ b/drivers/hid/hid-pulsar.c
-@@ -148,7 +148,14 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
+@@ -14,6 +14,8 @@
+  *		- VXE R1 SE+
+  *	- VXE
+  *		- Dragonfly R1 Pro
++ *	- Akko
++ *		- Gaming Mouse
+  *
+  * Copyright (c) 2026 Nikolas Koesling
+  */
+@@ -59,6 +61,7 @@ enum dev_type {
+ 	TYPE_KYSONA,
+ 	TYPE_ATK,
+ 	TYPE_VXE,
++	TYPE_AKKO,
+ };
  
- 	if (atomic_read(&drvdata->stopping)) {
- 		ret = -ENODEV;
--		goto out;
-+		goto out_unlock;
-+	}
-+
-+	ret = hid_hw_power(hdev, PM_HINT_FULLON);
-+	if (ret < 0) {
-+		hid_err(hdev, "failed to power device for command 0x%02x: %d\n",
-+			payload[1], ret);
-+		goto out_unlock;
- 	}
+ /* ----- structs ----- */
+@@ -759,6 +762,10 @@ static const struct hid_device_id pulsar_table[] = {
+ 	  .driver_data = TYPE_VXE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED),
+ 	  .driver_data = TYPE_VXE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_AKKO, USB_DEVICE_ID_AKKO_WIRED),
++	  .driver_data = TYPE_AKKO },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_AKKO, USB_DEVICE_ID_AKKO_8K_DONGLE),
++	  .driver_data = TYPE_AKKO },
+ 	{ }
+ };
  
- 	spin_lock_irqsave(&drvdata->raw_event_lock, flags);
-@@ -164,7 +171,7 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
- 		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
- 		hid_err(hdev, "failed to send command 0x%02x: %d\n",
- 			payload[1], ret);
--		goto out;
-+		goto out_power;
- 	}
- 
- 	timeout = wait_for_completion_timeout(&drvdata->response_ready,
-@@ -175,7 +182,7 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
- 		drvdata->pending_event = CMD_NONE;
- 		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
- 		ret = -ETIMEDOUT;
--		goto out;
-+		goto out_power;
- 	}
- 
- 	spin_lock_irqsave(&drvdata->raw_event_lock, flags);
-@@ -190,11 +197,13 @@ static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
- 			"invalid checksum in response: 0x%02x (expected 0x%02x)\n",
- 			response[USB_PAYLOAD_LEN - 1], checksum);
- 		ret = -EIO;
--		goto out;
-+		goto out_power;
- 	}
- 
- 	ret = 0;
--out:
-+out_power:
-+	hid_hw_power(hdev, PM_HINT_NORMAL);
-+out_unlock:
- 	mutex_unlock(&drvdata->lock_cmd);
- 	return ret;
- }
 -- 
 2.55.0
 

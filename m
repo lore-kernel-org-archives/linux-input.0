@@ -1,88 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795495366;
-	b=iCJNY2k8bhgf/SftHGlHdr7VuXfmwKHAoOwT4kCaxut9TNqQQVyA9Fm1nP5NATqg3zP1
-	 jsCIpMh5zsEMc1Bjhuqb/2gczdl4/bsMubkQtbZ6qsdprTV0u8Af31QmnsN/jtfppwXKz
-	 joaCygfxA9/hZ/O1glb9xlIXuFATI+zqQ2WL3uBGRGrn4rlABTbqMT5LOqdbkGYfuxDHf
-	 uMrUYnKyxOn9X9cJhBgD9mV0jYr7fa7HKjul6h7s1CiLhPYbTG5/nCKrqGymsQUv/Pi/e
-	 8ToSGlaz1ZqHpzl3lshW5dh3poCvNcNhuQY1sj9NIAb0RE0wWFE2PZWrbW2wYPRmwLw==
+	t=1795495774;
+	b=SbqMEt1UG8qAP+IW4QpeFHYl74/+aMlyFhPQB8NDCIFxWrE6Zxiks5PFhHkrnjXiEVNm
+	 RVK1eNZ8P0HSzejJYDo61RnRhZ/UylI13H1/8a3kgVDwjkm5DA9dGjiV/d7zxTYaSiY7X
+	 v1AdCV6nFMv8iW/YSctCSBRPt9Pb9pNayvs00AjT0/IXdDNd6OMo0ZnwtaCbH2DAUCr6L
+	 C9fLAfxTGhpSshMKcFa5r7BX7iN8TtUfYwuLu9V6HDbNevHm7i7LTYGuaEcHUtvRpkccw
+	 qF0kqyQ3lQbJe5g11xLxVFl/xcvoVXHDiRJGJ390iExYIUP42n0PcTFszKq/GJgZYMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795495366;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795495774;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Content-Disposition;
-	bh=BVM0klEKAcwZ1Rgn358Q4l72nbxlX3JpSv5yqpJcU1A=;
-	b=d6LXwjlFlg9k0NI08D8NdutfopgVxG7jLjnL9yMWDeoh/LBhRiQZ5PsYAj8ei8NcoJsn
-	 GgaecOS/1n7/CENBUz4gE/cQOe5gEGFKY9ucoCxm0PAoy72biGppVnKxiy5pwQusUOllC
-	 rmfKKsBeKnQyGw1jfbBctuGJNmfHknjhsD9mFuyadzDtW0eDLklOjLd+NxPjlzyPTRzyq
-	 nFOvIySM7QOJ8cBScxfZkGWV15s7c1TLY8vzAIijv07fgXtRzBfAYdTt1IvyytTn/Dr7R
-	 FDOYi6curjWTkXXZY67/9cJWds5qlGGYL7aGWeF1q3/mJDzksWZiM1U2PosXFxMZTSw==
+	bh=q2AtCKrcnRowgK9UMYU4R00JyvBBzeu6djBwCY8oBcw=;
+	b=b+h2E8i4+4nYUnM/SLkKEDh7AU4Ej2I2iZWss5FIr6d84FVnIeGhY5VwYLEG8Wt7szJb
+	 qEbSdigMcnz9JymdgRVHoY/fSa2OOOylaGnH2o2yZGFDkxVJwJoUurY3kYoWzeMwEr271
+	 L9VurW+I4v5wLcsCkESryevlmfTICv39cp7zn+8/cmzn5ekmRzZdww+Z94nFdFsF00jq+
+	 iy5C3AcbXvIbJDdm0HlBZ+D0+0caorHIiRbHctV8khx6caYDtp/ciuKBvGUlmfql3ptNW
+	 wqylhhNNukErm7waut0BSDsdus8UgpltCK3/fA9RO4vJWX6oCuvsEWlck9+AwRUIYww==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TCOXoLb0;
-	arc=none smtp.remote-ip=74.125.82.172
-Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=T16l0T0G;
+	arc=none smtp.remote-ip=74.125.82.181
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 088BE606A6BC
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 04:42:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 088BE606A6BC
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 838A1606A31E
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 04:49:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 838A1606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TCOXoLb0
-Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-38644aedba1so6267097eec.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:42:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=T16l0T0G
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-3866a784546so5301261eec.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 20:49:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795495365; x=1796100165; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795495774; x=1796100574; darn=vger.kernel.org;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BVM0klEKAcwZ1Rgn358Q4l72nbxlX3JpSv5yqpJcU1A=;
-        b=TCOXoLb0Fd7EWrHlEUDshBAKxbWOLCYu03wn9X4bfGaFTLPqwL3T/vcfsAFR2eoH0P
-         003fq06ou+l1j2ZG542h3B4AiX93jegkRi58ac+u+KCkbKSma35HTDjhaRSuiBejPU5w
-         x60nPAZtBvylYXuSm/Hy8DgZX+eyUnXxwc6lSJjdJ+hAEY2hFdhiLBLvqo2SYlFoaw/a
-         W/lS36sDxZcSysPmSiM1sQgZ3fttMdUjBLxRUdnE4AaLfwiJPtE1i4qvVKT8kkcsQyov
-         7h00fJPrnMykzACUNOg0dudPrpta+g/cKxkPmnCMwhy/W88gkX/n9rlYMGKLLeI9dpe9
-         iZIQ==
+        bh=q2AtCKrcnRowgK9UMYU4R00JyvBBzeu6djBwCY8oBcw=;
+        b=T16l0T0GKicmhbZqRU168+261kQqzq5E0ht5XNJJoCO0QQhpcTXbyhHAMZk8Dv+kdS
+         Zgx2o2KdXpllzpKV/tDJvD9CSZOSS2Xtuh0nJqQfHth0cjymilkWeV9ugO1W3Xu/uim5
+         VJXX794Aawd6Xh9OYL6YaxqC0oNXD03VnrfMpm3mhrkFKTu0SypT3Sjp6UCj3CxbB5T7
+         GTnjHpPwMH+iC/Wcop7g+dDTwv3m66TBh80+D0l+WLVQXmqwtolbLZL/9kCT5WnHkkGf
+         j7AtHdSBeVSPmf8qpOvjjtYSe8HmP2NPTfBa9PjseyDIs9aKp7x+iUpxvHw7vdEUDW5f
+         OYiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795495365; x=1796100165;
+        d=1e100.net; s=20260707; t=1795495774; x=1796100574;
         h=content-disposition:content-transfer-encoding:content-type
          :mime-version:references:in-reply-to:subject:cc:to:from:message-id
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=BVM0klEKAcwZ1Rgn358Q4l72nbxlX3JpSv5yqpJcU1A=;
-        b=Ua7Sh3IP/z13ZhcNZ0KyzEGEfHfIWc9H0shuxAJS7VU5xUTaC+mHpltjMnzETYpGpf
-         e7DLMweHfU2CsOANCxRmVwiOsEr+wXhx8zakuZiu182rvtIgkH1gAQk0jQ3oGFe19qMT
-         MBjtbdrrVPA3f7OAwSP21xAHEskMCdjLN3x/VTFmsA1DQMP+OcMEMC9A9hYJdqg9H52/
-         vC4+lus3ofOv7XO1D5NPEIo4HhWK859aN/gTJ55b4XoQNYIVUQo7kOImyAbJfsOsWxNF
-         MCPz05P3x/OfRbuwiy7jtlFuSS6Lnljxq1Ozv5j7qV2CP0HBJXUqr63MzY/Uj/Tf7O3S
-         g90g==
-X-Forwarded-Encrypted: i=1; AL+hErFM7CINWJDcFkU1TkHUow1bV0Oz0pWBE7rarZxXHS1O2MuHxQYA24VfNLCvmdvQa7PyLrx7X4ZqFtyLyw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/NJInGvhmYx3XSSiK1b2TYGOx3n6zyu4mmwMIaburmazezXEzC
-	2agAhrinlGmHLp6WOZYR+5NlPBlZJrkZR2ZpgTqF+pEQo9mS+TJLBfK+
-X-Gm-Gg: AZFdTZcRd41TDaG5MJ3+Ry3DyDUjc6Gk6eVH30mmn24dJLszNmy53JAGwndTTlKfZla
-	kyTyE3Q21PuKhvev7YjM2EvIAkqtikQ73se51snaESSitBEkJSiTIlTNS6zIf4q6zNzyw6+hxcO
-	egrs8CNWzju/GtRMP6HvcDt736Gmc2XEXo44tka5rd/uPZaVjbxWKcKcW1ZToRi7ugTZE/PB8Z5
-	ynkJuYdoeN5RBMzzoTlwpc+vbDYYO/EWY9hlsa5ZbkfOxgG1uSg89qiktpgvWjGCVK0gDAk+npR
-	rWC4eHMzQPprt0we7ubruUsLY+IhQmngqVdUmTr0cLInAiRAiiiTCNZ6jPK0MnEUHf3Bwu3unx4
-	BsNAsvwAgrIihsiaTtwt2+vsbUuxhn3MlLxywvZahvMWBSHz9OZw+s5DNlXm6tQbnJc1GFIJaBa
-	VVULAgOtR7MDKNMuun1cjNLVEM/KJMbyycHQdk1b6fWiaaVKoFgHnl7smnnGldld52DW8f1ngwE
-	js9CmkFx93yCY0Sch56iWZatJiUw+CVjf2dN/8wdvzmhct1s4dWDbklSbke0iMI6fKBArbLSxNq
-	cTnpIayUtHKpY36RE6EoVy2ai1plzcdf+rwnmQyv42RTi7Rhvj/YNh2z7KcCTcJP8w0+YJ0Tmit
-	tHI/WxpaqUlnTgpDW
-X-Received: by 2002:a05:7022:7f18:b0:1b3:9b4d:85f3 with SMTP id a92af1059eb24-1b5568a28a5mr16074647c88.19.1795495364940;
-        Mon, 23 Nov 2026 20:42:44 -0800 (PST)
+        bh=q2AtCKrcnRowgK9UMYU4R00JyvBBzeu6djBwCY8oBcw=;
+        b=fEvTziNYY0lYoZQhXQ13fmsV6/x/uVcb78TntWxKSPnZeamnJJKCKbLG7yDsx+bRtu
+         /QPNyFxWsCvkI/Va252ymKgg5b68rif5H0bId67bSawt4RINCWXGHzVSzWyereiiXmSQ
+         LncQSR9tS8DQfoxpJdgDK4+FICgnw70TV4saIxOurbHrdKMFdm70k2R18XkSCdkoGGy4
+         4tw/3VS3mTBQbv4nk8veR+KCWVxC0r2PsuBbrxc0F8d/QgvwGRRPf1Tyl5iPk428WmVD
+         XIwmvmT36U0JX+oiCjs1SXwmheMOYEw+SSHZaDtZ8ttMVj9zODL0YlHO35qTt/814HXp
+         Wlww==
+X-Forwarded-Encrypted: i=1; AL+hErEnjgIuDvjAfOFv6uVJBVrAEQuV4MO9oySPc2KBMD8rX8Aiks4V917A0P22OvRyzbO1YkmmdPGyE85pPA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9kGH4pXmFNsp6L73d97PwKejfxb7MGcMsrF8YZEmItoP5SmB0s
+	s+cdhDNGB7nCwREQNpr4YcjrgGBgfi1RqaQuXhRvWtCz6SxHdTm/s+UH
+X-Gm-Gg: AZFdTZci+F/zTXfs/0YUddNV0ITEg20kUowOsEVNQqfwxhbK80wOv1yq15W2z6RFGbu
+	mRwfKnXQ4/WkgGvybTL9mofBdig+RbGklduK7xm4QDiGDvKtiyNCU08lgHP6OYGjplBHKTWeEfS
+	Nozu8360mTceUPZfR7IDc0BSG8PH5tTYIpEz7sAWx5t3X7yx9K2/2NqQxpydpRuCiUDf9m8N6nI
+	f7U7mGbl1nYkSyy9F1Vr5UtnshuVw0e8cPhq5fA/laKbanfUj5alHYrLEDtno6+ODFB1/ww4Svx
+	07Bisd9ifi1v3nHt/OICd8vcJ5omFttRPwlYswGKbuKUdLLMCXGPUjv94LcrJEeAIdIBfKyHJLE
+	O33XoGEQIDr33OxXaZqZkpVZutrmZ023Ol60GwTOXcwuwsHxRt46ImczS9/WaEK3Vk96oOYwINi
+	0vqoWcUxhYhPLMzP1jat/JH/mtk6MXsF40ZojhVaz7xXy/KYLeQgyBXm4SjcfCDzQkor3UfPTOy
+	ThypSk1sMehJN8/uMfY+3nT+XF2E81Nhq190pCaRIjR0HWkw81mxX6KWOOpLzhSaArgNBUDqokh
+	86ndsmYtBgJXcbWaJaYOkd3thGFXlrt0UMMVNvI9NCGfJsp7RiGfFmgoSm/Bz8xbjAw58TmBqer
+	6YLh+MiVr05VLZ38=
+X-Received: by 2002:a05:7301:7004:b0:386:c5b8:960b with SMTP id 5a478bee46e88-386c5b89f9emr166158eec.17.1795495773579;
+        Mon, 23 Nov 2026 20:49:33 -0800 (PST)
 Received: from localhost ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b55684c85fsm45597778c88.14.2026.11.23.20.42.43
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385f68bc0adsm37247605eec.13.2026.11.23.20.49.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 20:42:44 -0800 (PST)
-Date: Mon, 23 Nov 2026 20:42:43 -0800
-Message-ID: <4ab84021a5d175f5d3793e52fd818a21@gmail.com>
+        Mon, 23 Nov 2026 20:49:32 -0800 (PST)
+Date: Mon, 23 Nov 2026 20:49:31 -0800
+Message-ID: <3e575d6e2eb90d4a3707319d37134c1a@gmail.com>
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Pooyan Azad <pooyan.azadparvar@gmail.com>
 Cc: Uwe Kleine-König <u.kleine-koenig@baylibre.com>,
@@ -92,9 +92,9 @@ Cc: Uwe Kleine-König <u.kleine-koenig@baylibre.com>,
 	Jeffrey Lin <jeffrey.lin@rad-ic.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] Input: raydium_i2c_ts - validate report parameters
-In-Reply-To: <26ac42dd18a98c4928cbe7f6b6adb4b396be4c8e.1790612085.git.pooyan.azadparvar@gmail.com>
-References: <cover.1790612085.git.pooyan.azadparvar@gmail.com> <26ac42dd18a98c4928cbe7f6b6adb4b396be4c8e.1790612085.git.pooyan.azadparvar@gmail.com>
+Subject: Re: [PATCH v2 0/3] Input: raydium_i2c_ts report handling fixes
+In-Reply-To: <cover.1790612085.git.pooyan.azadparvar@gmail.com>
+References: <20260927114425.442803-1-pooyan.azadparvar@gmail.com> <cover.1790612085.git.pooyan.azadparvar@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -110,40 +110,41 @@ Content-Disposition: inline
 
 Hi Pooyan,
 
-On Mon, Sep 28, 2026 at 06:26:16PM +0200, Pooyan Azad wrote:
+On Mon, Sep 28, 2026 at 06:26:15PM +0200, Pooyan Azad wrote:
 ...
-> +		if (data_info.pkg_size < RM_PACKET_CRC_SIZE) {
-> +			dev_err(&client->dev,
-> +				"invalid report sizes: packet=%u contact=%u\n",
-> +				data_info.pkg_size, data_info.tp_info_size);
-> +			return -EINVAL;
-> +		}
-> +
-> +		report_size = data_info.pkg_size - RM_PACKET_CRC_SIZE;
-> +		if (data_info.tp_info_size < RM_MIN_CONTACT_SIZE ||
-> +		    data_info.tp_info_size > report_size ||
-> +		    report_size / data_info.tp_info_size > RM_MAX_TOUCH_NUM) {
-> +			dev_err(&client->dev,
-> +				"invalid report sizes: packet=%u contact=%u\n",
-> +				data_info.pkg_size, data_info.tp_info_size);
-> +			return -EINVAL;
-> +		}
+> Patch 2 resizes an existing report buffer when a firmware update changes the
+> packet size. Patch 3 moves the initial allocation to the main firmware query
+> so devices can remain usable for recovery when they probe in bootloader mode.
 
-I folded these two checks and duplicate error messages using
-check_sub_overflow():
+There is a teardown ordering issue with using devm_krealloc() in patches 2
+and 3.
 
-	if (check_sub_overflow(data_info.pkg_size, RM_PACKET_CRC_SIZE,
-			       &report_size) ||
-	    data_info.tp_info_size < RM_MIN_CONTACT_SIZE ||
-	    data_info.tp_info_size > report_size ||
-	    report_size / data_info.tp_info_size > RM_MAX_TOUCH_NUM) {
-		dev_err(&client->dev,
-			"invalid report sizes: packet=%u contact=%u\n",
-			data_info.pkg_size, data_info.tp_info_size);
-		return -EINVAL;
-	}
+When a device probes in bootloader mode, ts->report_data has no devres
+entry before devm_request_threaded_irq() is called: in patch 2,
+devm_kmalloc() with size 0 returns ZERO_SIZE_PTR without calling
+devres_add(), and in patch 3, ts->report_data is NULL. When a later
+firmware update transitions the controller to main mode and runs
+raydium_i2c_query_ts_info(), devm_krealloc() takes its ZERO_OR_NULL_PTR()
+fallback to devm_kmalloc() and appends the buffer to the devres list after
+the IRQ. On driver unbind, devres releases resources in reverse order,
+freeing ts->report_data before free_irq() runs while raydium_i2c_irq() can
+still execute.
 
-Applied the updated patch to for-linus.
+I do not think we need dynamic allocation for the report buffer at all.
+Since pkg_size is a u8 (at most 255 bytes) and raydium_i2c_read() uses
+ordinary i2c_transfer() rather than DMA-safe buffers, we can simply embed
+"u8 report_data[U8_MAX];" in struct raydium_data. That eliminates the
+separate devres allocation, avoids -ENOMEM during firmware updates and
+ZERO_SIZE_PTR/NULL handling in bootloader mode, and guarantees the buffer
+outlives the IRQ. Patches 2 and 3 then collapse into a single patch
+keeping local staging of info/report parameters in
+raydium_i2c_query_ts_info() and switching report_data to a fixed-size
+array.
+
+While looking at bootloader recovery, note that raydium_i2c_fw_update()
+also unconditionally sets ts->boot_mode = RAYDIUM_TS_MAIN even if
+raydium_i2c_initialize() returns 0 after seeing RAYDIUM_TS_BLDR, which
+can leave contact_size at 0 after a bootloader-mode probe.
 
 Thanks.
 

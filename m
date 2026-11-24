@@ -1,57 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.22
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795534514;
-	b=Ja1GFctDefJrulHJJEXzReU3Ze5jHYeTPVTenha72J0zYTEnejRM43sJTLaiw0CmXQjh
-	 qiL/GbMMNBuUjhsRm36/KYV6ifjdohRIKikAXN/ht/bDqG83hMXUJzEHWU9eRP4fMUkk/
-	 s1aSMTSnZjPb3e4ZQ+/An1i4e071Pgr/3jTKuRgEyMw7yJJPlIRj1Pl4pQfionjh8jTvC
-	 xFiT4DdhiYbMkh1QObDACGzuyNOXI+HriZcrVMC2z8MlDJfeCvJGzPEC5ui4WXB4FY4oY
-	 BA4OzjllCBbnGcDijt71dEFaGDrWOyJ6Y5fgyLQFLaKlosUvuCyKBOBcwr6/KV6b2cg==
+	t=1795535414;
+	b=43gB9tQeLsQ+XHdESsZAqXUgBVbJls/8oDFEYP+6MB3nPkyIVF56pYI0qgrgE49ZPNEh
+	 vqNhVBazbed9OjzkJMlqKrfBostzfmKdbymUDtYcmLMViddX+X5r6GzcBs5/DV6uV9wSE
+	 +9x8mbQhqUy4bZaInba93htBE2DhZjUhzW7ib5bSem2Z51wpnHoZNZ/C3KMy22UanTJUB
+	 tOxmUNPDKSzW7SPpv4iWa7UhobiNhIn7MBWQxRz+4pnl7QPbDm2eNkGQrFgKUJq7prhWk
+	 xs7yOeSHZ0frNjBu5jEzYkXX7oO8GT/A03+AswIUKcyclfnE8nBBM49MVOqmWAF/cFw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795534514;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=Vhmq86eX3c8OctvVjT3o+A7beFwqEkoLPX8Yx106nEg=;
-	b=xhF6rMb2c22YJ7I3InflVfoZi3pgoX8+hutwCI5VXeChPJjKLXzWZfvkTorEo8mujMyX
-	 CIHWuG2T/Um3cq1nBYolWu6Uvs7UCzMQaJUN4n2Olrhc7g5mzAluMNg7P8Ep6+8xRZRAq
-	 0Jzl1vy35RKsbrk9HCsXmmrCsniRGjAzi8Bd565tMmFrtl2xOfT2ttOi9JYywp0mEJH5p
-	 AjR2Y0+kewPyjP/tD09k+tqIGDphRsBOmo/4kD34Ut2MpeAsmQInZ74o0usReUXpjJrko
-	 G2KbxvdS5c4bLZPIHd6thOWoXJJVVC+36chfKaQ2Q3h1ARCz+E39L6tkk33989FmkIg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795535414;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=4cxvkU6L9X6WiqXfBYJz1js10t1W7hDsdxZ2dY6jqdc=;
+	b=QIR7+yF8tWADTkf/CsoMT7+VdX9uMAcucYw9UGb2G60S9PR2t/70mNCDEnd0YzOMN7lU
+	 sThqg4B+V/ihs1PDXCllevetsIieT9ErHWc5t48lnDSInW/2UWBYmzcVZa/sDMK57bi6b
+	 SL3VvFCNIV6a5k9JHfLJooJe1XMDaaQYPIczXlmhGJMg4lki8qgH/olYj+SeXk7ANt2Wm
+	 XctlDjaQCBU1M+s0vAThRAnTYXXKSUIC0BL9B3tNbyziWX442gjxtevMVZt/l+pft3AOK
+	 lG0nx/Ye5lcvsHFtZ9ZNYsUmdqJoU95XsXlA775gPYVmoXQtEpqyn+YQTqD/uZ4hsGQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YhWvM9JW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=dNmmwI6E;
+	arc=none smtp.remote-ip=185.70.43.22
+Received: from mail-4322.protonmail.ch (mail-4322.protonmail.ch [185.70.43.22])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C2A606A68E;
-	Tue, 24 Nov 2026 15:35:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E154606A321
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 15:50:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E154606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YhWvM9JW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85501F000F0;
-	Tue, 24 Nov 2026 15:35:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795534513;
-	bh=Vhmq86eX3c8OctvVjT3o+A7beFwqEkoLPX8Yx106nEg=;
-	h=From:To:Cc:Subject:Date;
-	b=YhWvM9JWVNrIVndy+9xoEA4B31S4NsBTpYXEhHM/8EMHKzrgWtZgmt23qI64afdO7
-	 08jZnGO6n8iwPCA/1TJLYNw6F4QDcgx3NVlFz+aMeV+lCp24FYvfTj+SrqmzC9L5i+
-	 DRkIZnuJ33Wixtepgo+ag0zg68OgyoWgrgUi7e0K5pA5cqR/xaAwaQ9N6TTk2wG4sa
-	 nKSTCOv3ahFTfR2Y3e1xharpAvSlBjLnc+05nm8t82v8i0QUNCAtjG7+E5+SKnDAef
-	 TfF2TFB38Umqt7TQ/Q8lddN/Bi9Wby537Z8ZCqsL51tOCab5jp+v1MJkiq+NX7Z/lS
-	 SSAIae0YOey9A==
-From: Sasha Levin <sashal@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Mark Brown <broonie@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: asus: Check CONFIG_PLATFORM_PROFILE for the profile key
-Date: Tue, 24 Nov 2026 10:35:11 -0500
-Message-ID: <20261124153511.702197-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=dNmmwI6E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1795535410; x=1795794610;
+	bh=4cxvkU6L9X6WiqXfBYJz1js10t1W7hDsdxZ2dY6jqdc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=dNmmwI6ENS0bmbPbiqL36KXRquII7zy5UBme8I1utNRAAcEGe6uZe6yoPnHVKECSZ
+	 Lj6N5xFD7cLkUx2XkAC/0EJD1VQDeM2VCoC0qiP2JD1HaUofedbz49nwyfG6HnpOSG
+	 UqDdJ98ZY1DUutNnzWLwP5+LlhZeP7Ma8gLtx3ncQRuixMHspjFL9jpKgcWBd35OL+
+	 woyvCH3QiWzjou1/KkD1Y7Mk+Myyj8wYtp0jKkar5SM0OaQUNd6m0Zl2vJCI/ccRk7
+	 V/6EuNQ7sjh0+h1ZisGJA/FOeRxKIsU0QGhIFxPahq4aNs5j5pQNAbE3+EupTeOdoh
+	 OC/KSM1RH1szA==
+Date: Tue, 24 Nov 2026 15:50:06 +0000
+To: sashiko-reviews@lists.linux.dev
+From: Erlend Jacobsen <erlendjacobsen@pm.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v4] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+Message-ID: <5PQ4CSmlUxHMSHUeyromIa7RlKu03awZ6ZXV3fI9tZOu4A9OzVM4eI60DsA1A0js7NnFI0pPoW-9EFfSZIlMXCkqSu1tzD4lC4E8Bs4l7JQ=@pm.me>
+In-Reply-To: <sashiko-outbox-230592@kernel.org>
+References: <20261124-b4-rdmctmzt-v4-1-9cb23d1ad876@pm.me> <sashiko-outbox-230592@kernel.org>
+Feedback-ID: 128302180:user:proton
+X-Pm-Message-ID: 062a2ca2aeabc06a6ca9c168dd531949ec61c7e5
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,53 +64,97 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Commit 699041135f75 ("platform profile: Extract the core from ACPI")
-renamed ACPI_PLATFORM_PROFILE to PLATFORM_PROFILE. hid-asus.c still checks
-IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE), which is now always false,
-so the Zenbook Duo profile key no longer cycles the platform profile.
+Thank you for the review.
 
-Check the new symbol.
+> [quote the paragraph starting "If rdm_command() fails or times out while
+>  rdm->link is still RDM_LINK_UNKNOWN"]
 
-Link: https://lore.kernel.org/all/20261120194507.593601-1-sashal@kernel.org/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+Yes, that is a real bug. RDM_LINK_UNKNOWN only remains after a poll when
+the 0xd0 query got no answer, and rdm_link_may_be_up() treated it like
+the dongle's 0x02 (no link). In v5 only 0x02 rules out a link, so a lost
+link status counts as a lost poll: the keyboard is still asked, the next
+try comes after 5 s, and a present battery is only marked not present
+after three failed polls in a row. RDM_LINK_UNKNOWN remains the value
+before the first link byte, so that byte is always seen as a change in
+rdm_raw_event().
 
-This needs Rafael's immutable acpi-platform-profile branch in the hid
-tree first:
+Erlend
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git acpi-platform-profile
 
-With the hid and pm trees both merged, hid-asus.o calls
-platform_profile_cycle() again with this patch; without it the call is
-compiled out.
 
- drivers/hid/hid-asus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Tuesday, November 24th, 2026 at 07:25, sashiko-bot@kernel.org <sashiko-b=
+ot@kernel.org> wrote:
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 342a97df44c89..0b9cb5e92dcd6 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -438,7 +438,7 @@ static int asus_platform_profile_cycle(struct asus_drvdata *drvdata)
- 	struct asus_worker *worker = drvdata->worker;
- 	struct asus_work_action *action, *pending;
- 
--	if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
-+	if (!IS_REACHABLE(CONFIG_PLATFORM_PROFILE))
- 		return 0;
- 
- 	guard(spinlock_irqsave)(&worker->lock);
-@@ -870,7 +870,7 @@ static void asus_work(struct work_struct *work)
- 		asus_kbd_wmi_fan(worker->hdev, &action->data.fan_hid_data);
- 		break;
- 	case PLATFORM_PROFILE_CYCLE:
--		if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
-+		if (!IS_REACHABLE(CONFIG_PLATFORM_PROFILE))
- 			break;
- 		ret = platform_profile_cycle();
- 		if (ret)
--- 
-2.53.0
-
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Medium] HID: rdmctmzt: failed 0xd0 poll with RDM_LINK_UNKNOWN treated
+>   as link down
+> --
+>=20
+> commit 10ff773cbdbe0a54663e148f524ced35f821f2d3
+> Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+>=20
+> HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+>=20
+> This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
+> dongles to poll battery status over their vendor raw-HID interface and
+> report the dongle's wireless link status.
+>=20
+> > diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
+> > new file mode 100644
+> > index 0000000000000..391d7c934f5b4
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-rdmctmzt.c
+> > @@ -0,0 +1,664 @@
+>=20
+> [ ... ]
+>=20
+> > +/* Only 0x02 rules out a link; the keyboard's answers decide the rest =
+*/
+> > +static bool rdm_link_may_be_up(u8 link)
+> > +{
+> > +=09return link !=3D RDM_LINK_NONE && link !=3D RDM_LINK_UNKNOWN;
+> > +}
+>=20
+> [ ... ]
+>=20
+> > +/* The dongle's link byte, asked for now: an 0xd0 may have been missed=
+ */
+> > +static int rdm_dongle_linked(struct rdm_device *rdm, bool *linked)
+> > +{
+> > +=09u8 reply[RDM_ANSWER_LEN];
+> > +=09int ret;
+> > +
+> > +=09/* rdm_raw_event() stores the link byte of the reply too */
+> > +=09ret =3D rdm_command(rdm, RDM_DONGLE_STATUS, reply);
+> > +=09if (ret =3D=3D -ESHUTDOWN)
+> > +=09=09return ret;
+> > +=09if (ret)
+> > +=09=09hid_dbg(rdm->hdev, "no link status: %d\n", ret);
+> > +
+> > +=09scoped_guard(spinlock_irqsave, &rdm->lock) {
+> > +=09=09*linked =3D rdm_link_may_be_up(rdm->link);
+> > +=09}
+> > +=09return 0;
+> > +}
+>=20
+> [Severity: Medium]
+> If rdm_command() fails or times out while rdm->link is still
+> RDM_LINK_UNKNOWN (at initial probe or after rdm_reset_resume()), does
+> rdm_dongle_linked() treat the lost poll as an active RDM_LINK_NONE report
+> from the dongle?
+>=20
+> Because rdm_link_may_be_up() returns false for RDM_LINK_UNKNOWN,
+> rdm_battery_work() takes the !linked path: after a reset_resume, a single
+> lost RDM_DONGLE_STATUS query immediately marks a present battery as not
+> present and sets wireless_status to disconnected, and at both probe and
+> reset_resume it delays the next poll for RDM_POLL_MS (60 s) instead of
+> retrying after RDM_RETRY_MS (5 s).
+>=20
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-b4-rdmct=
+mzt-v4-1-9cb23d1ad876@pm.me?part=3D1
+> 

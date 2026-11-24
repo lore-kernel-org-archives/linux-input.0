@@ -1,57 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795539886;
-	b=P8FB2E6ORpEWOIiS7kug0z0/A8IG3jyNnBSQYxOy4p43bmW6YgEedl9C9ugIGaTFhnNy
-	 V2oTl+oiwrkHYdpMfrSL0ewHAfgArUo0QtW0wJU3g7EZO5kIGe2Mpv+TR7nNSzQ1G1vuL
-	 zWX4dbuYlZpmInq2FD8BqjXhIUWax/hoswE8ym7t5qnyLItqBYEfYXSbaf8XcZM9AQnXv
-	 ikuviQOq1ThmD7BMz5fBV2YEjxABTtqL9i4EvDtH7SQO69M9TQr7iwD4g+/rGzBYU1wih
-	 RiDs70P1nVbYhEKZVQP+tu4dkA5cD7bbrbM0PveFAY+czgheyjoQWZhdkmNRPYGQ5yw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795539886;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=OdFN8OH1jfIKIY4uZYUtxur8TK7hOkAru+imBWHpmCQ=;
-	b=a3a6Gb5rq9LrJiGod0h6ytvnhuYZjT1SB4XFGSgV+khtNP8yQEv87Oee605d+7qyPH7T
-	 ht5iSFBWgHRyCzJo1dtzTYM5Ak+r9Bhd0BwuZawaVh6KyRsR/sN0yjfPpQT5dWYM8JtmE
-	 KIEQ4GZSYAgs+ae4FTjN8j/dHtQG086CDcxKvrabCtWs9lsFjMgYgJihhHhnJhZ2rzym0
-	 qcy4wPrF1uhMw5Ncf4AKW2brwRpsTzWskn5c3ejZ8IBP1CIu/8la7sT3P2B5Qzd5B6+ZK
-	 5X2fduK7Jtzw5yBHLeQAUWdjEUcKbBmVLX0fWkp3Y/nQw5OU5wXMoSci32Vrxr21yQA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="OmJ/QVKQ";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.112
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795540360;
+	b=hbCzt1c9oGs35CkdgYxMVQS2/QgKIVw+RjfgZd6x9g24debb69k3UVBrS4msjOVvryGa
+	 cgQm2BTCr8MCMNg57HlY2TujJ81RGEun4b6vpZWXkzZD2ujO9NKrE3z+dElEXrtDdImCH
+	 wjvGKRa1mYDtlacqbf3fK1IDTPoGbcCtqwtNNNSZHXB85S2o/pnaMnw0ckEd0fVtHbeG5
+	 x8NQascConBd0Akx0U2KpbEnvmXas41LgiWeiNHD62j9TClIZmedF/e87Fva6/wQu04+A
+	 nX4LSdYttaJwne43VBg4h4NdQDzwlGadWGVs1B3JnU7t7Fkg2+UkOJzwpdAlSkgs0Cw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795540360;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date:
+	 MIME-Version:User-Agent:X-ZohoMailClient;
+	bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=;
+	b=uqtDvf1noDkqI7lVnaoa2+xf3Bc7tQe32n95j2zvwBpd4VbIwzBMxeHbv+ibUY32pC3C
+	 FAKtraN1sJtWJsCbI4oA+Vmpw+McryASiu/dH8RZrJz7B/F0jhH1Wu5Ho/bt4oTZ1GFaZ
+	 HIcukyZlcxLqVdex/JVCfbk/gLnaaTXdIUlOPcMS7IT7GifJvnSZxnEDWo+HA8qg699WI
+	 aZUCLh7R2xEl0csnZ8mEVRdwDATaNiKwdU7UcyQVcxDQv40pjxxhLRUjcz17n0TqeG4FT
+	 8R/fSkzzXgTCrqpgKgKv3w6Wxoxz1/zEs91hosCGosYNVDTUpAehsQEJU8x4nL0l5Aw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=rong.moe;
+	spf=pass smtp.mailfrom=rong.moe;
+	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=jw0hIujl;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.112
+Received: from sender5-pp-f112.zoho.com (sender5-pp-f112.zoho.com [165.173.182.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410B4606A31E
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 17:04:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BFF8606A321
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 17:12:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BFF8606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OmJ/QVKQ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A211C1F000C4;
-	Tue, 24 Nov 2026 17:04:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795539885;
-	bh=OdFN8OH1jfIKIY4uZYUtxur8TK7hOkAru+imBWHpmCQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OmJ/QVKQRoHFaRAcmQFGBvccQBoEDw8NaDU+46IvgMeqT7Gk68E9Yp4olOchLW45Y
-	 TZk50YPHbQxqux2WIN9PyZOu7/WFEHnuuOfxM0/0GuZGGmTd5UzyRmJMse997LVj54
-	 pZR6GjUEfpzOLpl4K4rDfQNmbvS8pha667HkCI7w7l4W167OTTx+QKPEibG51rb3UQ
-	 I3nf4PDnUPqGMrt+IwzcoB3sI/xyQuFFEAndyY/9tCE9diDRyU7DXj2y0jU+IBQLNW
-	 0hyP62v6tgdU73WzuPI/NSiqaZHM4uJkyq8WkjAagJpJR9u+k88ja51xKha4MnuHeM
-	 4LvE2whunHs/w==
-Message-ID: <sashiko-outbox-231651@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 8/9] HID: haptic: Convert into a loadable plugin
- module
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rong Zhang" <i@rong.moe>
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=jw0hIujl
+ARC-Seal: i=1; a=rsa-sha256; t=1795540355; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=DckYbAUcVMO4Mirjnj5sJ31Gd0MH3Xw2aQiqHOzMzyEcoyNCswe7oKTpTPnAqAGoR5V0Q1YERNcVvwlMgq7++YjYQKe+Wt1j17Wi/g4JM24ARBRU/JWDU0eWh91bEBDAldPnjR7HN6FDva0ya8itXl0UsysbHvFSebIqy4/Y+IU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1795540355; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=; 
+	b=bSfd2Mw3MW07WKS7CRLjv8SEoKTlftlQUfRC385MyqGSB0bIKdFbBfidgNzuo5fRpK98uz5HV4ayXZeRQRKFIuhTFXXoUJaHNEmlZKx1RZozf9c0toa7mmpBuk7ydnAqWMcl8yxsceGCXMgrapPVYvylozF3YL7BWmKvcaESkBA=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=rong.moe;
+	spf=pass  smtp.mailfrom=i@rong.moe;
+	dmarc=pass header.from=<i@rong.moe>
+DKIM-Signature: a=rsa-sha256; b=jw0hIujl1+9LcqnwUPYivulIviZKYL/TdvhG1jshMVyoczmC0oaeleQJ9OrJ9YWOmis3WEhSTGJFv8My+Rp+NFX0+BlR/QX+u4wmriAzrdqDOANqeVEc5md64ziRqY0yPAo5Pq+EejBMIHgjxdvNZVTg7O+DSu9JPZ/5268yGqQaKcw1yPup8sftxD1nq5Gv4jkYErJMGm1NwnWt2Qh1VbMIS6PveuSYFWFZaRBehu4fQwp1j2tVW4EZ9HWwuTNCqJF8KvhGrAQpB7uO5yqLpGU4KaT3U4OMd4qumwKAC9MFud6N0stU1Ceog8Qi/G5uwYtiChQil51oMwoYsuFiXw==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=SLOOv/u5txnHgUHzcfRtK3xy/OPHT+Ffq5I0G4nIvqc=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1795540352703268.87578966460944;
+	Tue, 24 Nov 2026 09:12:32 -0800 (PST)
+Message-ID: <e7b9f2600bb42e1ed514d02f59ec905757de7ae8.camel@rong.moe>
+Subject: Re: [PATCH v4 1/9] HID: haptic: Get rid of input_ff_destroy() in
+ error paths
+From: Rong Zhang <i@rong.moe>
+To: sashiko-reviews@lists.linux.dev
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261125-hid-haptic-kmod-v4-8-03713a89f656@rong.moe>
+In-Reply-To: <sashiko-outbox-231650@kernel.org>
 References: <20261125-hid-haptic-kmod-v4-0-03713a89f656@rong.moe>
- <20261125-hid-haptic-kmod-v4-8-03713a89f656@rong.moe>
-Content-Type: text/plain; charset=utf-8
+	 <20261125-hid-haptic-kmod-v4-1-03713a89f656@rong.moe>
+	 <sashiko-outbox-231650@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 17:04:45 +0000
+Date: Wed, 25 Nov 2026 01:07:26 +0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,83 +68,67 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Evolution 3.62.1-4 
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: haptic: module unload race via hid_plugin_put() in
-  hid-haptic.ko
---
+Hi All,
 
-commit 36f36535430850c43124dc68d1bb0a9b639c5f30
-Author: Rong Zhang <i@rong.moe>
+On Tue, 2026-11-24 at 17:04 +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Low] HID: haptic: inaccurate Fixes trailer in hid_haptic_init() fix
+> --
+>=20
+> commit e6d3c5552e5a0755862fb250069c54d74d75f7cb
+> Author: Rong Zhang <i@rong.moe>
+>=20
+> > HID: haptic: Get rid of input_ff_destroy() in error paths
+> >=20
+> > It's painful to have error paths after calling input_ff_create(),
+> > because input_ff_destroy() frees too much things but does not restore
+> > some other things. For example, every error path calling
+> > input_ff_destroy() frees ff->private, while the others don't. This
+> > divergence has caused quite a lot of trouble.
+> >=20
+> > Additionally, the driver's get_device() bail-out path calls module_put(=
+)
+> > right before hid_haptic_destroy() calling it again, causing refcount
+> > underflow.
+> >=20
+> > Since commit 2ae35f090d02 ("Input: destroy force-feedback device on
+> > input unregistration"), the HID device is now guaranteed to have a
+> > longer lifetime than the FF device, making get_device()/put_device()
+> > unnecessary.
+> >=20
+> > Due to the driver being unable to build as a module since commit
+> > 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAPTIC"),
+> > try_module_get()/module_put() is needless, too.
+> >=20
+> > Remove the said calls, so that there is no error path after
+> > input_ff_create(), eliminating the call to input_ff_destroy(). In this
+> > manner, we don't need to restore dev->flush and dev->event either.
+> >=20
+> > Fixes: 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAP=
+TIC")
+> > Cc: stable@vger.kernel.org
+> > Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Link: https://msgid.link/f44447354f28c295e79a025bbcab7a4e@gmail.com
+> > Signed-off-by: Rong Zhang <i@rong.moe>
+>=20
+> [Severity: Low]
+> 083a4f3f3cc7 ("HID: Kconfig: Fix build error from CONFIG_HID_HAPTIC") onl=
+y
+> changed CONFIG_HID_HAPTIC from tristate to bool in drivers/hid/Kconfig.
+> The broken input_free error path and double module_put() in
+> hid_haptic_init() were introduced in 344ff3584957 ("HID: haptic:
+> initialize haptic device").
+>=20
+> Should the Fixes: tag point to 344ff3584957 ("HID: haptic: initialize
+> haptic device") instead?
 
-HID: haptic: Convert into a loadable plugin module
+No. This commit removes try_module_get()/module_put(), and thus depends
+on the current Fixes: commit.
 
-This commit converts hid-haptic into a loadable module using the
-hid-plugin framework so that hid-multitouch can load it on demand.
-
-Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35=
-inqda3exwzs3tk3ff@oagat6g46zto/
-
-> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-> index cbe834a77fd47..50d6673c7c211 100644
-> --- a/drivers/hid/hid-haptic.c
-> +++ b/drivers/hid/hid-haptic.c
-> @@ -310,11 +310,12 @@ static void hid_haptic_destroy(struct ff_device *ff)
-> =20
->  	kfree(haptic->hid_usage_map);
->  	haptic->hid_usage_map =3D NULL;
-> +
-> +	hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
->  }
-> =20
-> -int hid_haptic_init(struct hid_device *hdev,
-> -		    struct hid_haptic_device *haptic,
-> -		    struct input_dev *dev)
-> +static int __hid_haptic_init(struct hid_device *hdev, struct hid_haptic_=
-device *haptic,
-> +			     struct input_dev *dev)
->  {
->  	struct ff_device *ff;
->  	int ret =3D 0, r;
-> @@ -436,6 +437,20 @@ int hid_haptic_init(struct hid_device *hdev,
->  	haptic->hid_usage_map =3D NULL;
->  exit:
->  	dev_warn(&hdev->dev, "Cannot allocate haptic for %s: %d\n", hdev->name,=
- ret);
-> +	hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
->  	return ret;
->  }
-
-[Severity: Medium]
-Can calling hid_plugin_put() from inside hid_haptic_destroy() and
-__hid_haptic_init() allow hid-haptic.ko to be unmapped while a CPU is
-still executing inside it?
-
-hid_plugin_put() is an inline helper that calls module_put(plugin->owner),
-where plugin->owner is THIS_MODULE (hid-haptic.ko).  Because
-hid-multitouch holds no direct symbol dependency on hid-haptic.ko, the
-module refcount acquired by hid_plugin_get() is the only thing keeping the
-module loaded:
-
-CPU0                                  CPU1
-input_ff_destroy()
-  ff->destroy() [hid_haptic_destroy]
-    hid_plugin_put()
-      module_put(THIS_MODULE)
-        atomic_dec_if_positive()
-                                      delete_module("hid_haptic")
-                                        try_stop_module()
-                                        mod->exit()
-                                        free_module()
-        trace_module_put()
-    return;  <-- page fault on unmapped hid-haptic.ko text
-
-The same race exists on the error path of __hid_haptic_init().  To avoid
-executing module text after dropping the last reference, the caller
-outside hid-haptic.ko should call hid_plugin_put() after
-self_plugin->init() fails or after the destroy callback returns.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125-hid-haptic=
--kmod-v4-0-03713a89f656@rong.moe?part=3D8
+Thanks,
+Rong

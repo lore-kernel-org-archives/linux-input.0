@@ -1,91 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795484263;
-	b=NhU2IHbPrxx8SAE2xLcxFVDGCUHxUjQonP7ROy+pilkRbCTbxAHs/qBSV1dxCIF7vp+y
-	 JaFTwlyEXyUjYTPumz2l/eNNOMOxIhnKs7Dj97w+EvUe2brwUYxYIUu4euKFmDhY4RMf6
-	 E8u6w0Kr/+lhKiqKQTRixTrbXuMLzwwGC0VUy0gcwlRb3rNb3FjpdciU+/6WqNyh7gkme
-	 XTIqo3UYkEDijvnUNkKMBTfjRBUtBj5Jvi+BrBJpjJZNHJApfFNESZaP+aZbT0JJ+LATI
-	 SfpOo4aGzIWgW5isLIug6VavpaQt+Dh2Devatk14xnW+JPjzYEm4I9uJqUT05RkoR2g==
+	t=1795485034;
+	b=HlNr0M2eFvhpXYK1PxdaTj0S41nze7I2bVKaMhJEvSPf29VpigTpm/HBZRK8BPESYl0x
+	 hk8aKS/Jz6sN1StjV4gcad0LkdGXiVYaCZdQwJW0wIx/gyE64cJ7cTiL+uLJqWtKcKEfr
+	 gwi0oHrSRnRWvweuT36Ju+tzOvfF/T6QO1wB5D0ojMW43gd5yQBgWGoPmpnA+bTAh8I9a
+	 vMYbQ9068dCeUlHVvGZtURyUFQmZwDdkd55UfStDC4TREgkJOl92A2g12YYBCO8lMIcwu
+	 Z+25HWx5+m+GPGaP1UJ/fw3jBcwQK9/rfIVAN8Krb/xcBdbdrypb+qGpMy/C+y46wOQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795484263;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=vbV0FpLnVDem8kc+KhRgKSxbkxjFXS6P0ZcqGLrdAOI=;
-	b=iB8kICcP4tgbC4T1KaJT4sX8BJT8SMJ6F3KBOSY4OVi41yc16XNzBQQSBR/a/hN/fPWk
-	 4TLFoBiOvHaiTNO3YcYp+/j7JOk06uEg7srHrKF5egQWw1JlnhQT0GIyCb/yu1Wfeig0o
-	 KzRZNASotkbyT6D7kRU2Gu3PPJJXedHd9+hg87CqBpb2jlLWCYUSaFj7b/7BVfIf3XRfB
-	 i2ISlcoD6k9gFbp6s3G7ImnAgr9Y5bdCHWLhVA6KqQk3eDF/RbI+YHzBJWebU63N1RxQ0
-	 IZj+rhxE0eER+BOSCcmAxyCzivBVrqIEW16BdArnJjQZJMRpSc9yLG2MjdBQ/GRj8+g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795485034;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
+	bh=LXBEQtWGhdWAuU2BEEBSTd2cQCOR0LawNYuwlntiTEM=;
+	b=cMeEMzR+0yOQTKqDoSDLtwt22LRZWyqIT5Nb0EqhStfKkKWSlFT+ovEQgIGXsDk4/xxE
+	 ureCYWCXMPKkrxvPsgr/jO7uC97kqV0FxBvqUQiNAfJ/tj/vhXdFXoHjtJ4uuiwLAmUkr
+	 LrS+/nGnGQXQ2WzTV6KfBIYey3pmfKxH0Is4KjfCuDQHZzgcdsTOmHa+ST67tR/T4/SRJ
+	 svcKcD0ahQv+otLPHTJ/uNrjbR0y6xHuQfr08ekY3iPVrQD42h8MQMNjNv/xkoMVb6AdC
+	 NGf5GH8EOwFCrFhvttTUj3o54JIiwNiFBYuRpI+4WYHy6z0x3eVpDxIXegNHOXZj3lg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BB3rjcwz;
-	arc=none smtp.remote-ip=74.125.82.169
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BCB8606A321
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 01:37:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1BCB8606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	dmarc=pass header.from=mail.ustc.edu.cn;
+	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=luU0AmVM;
+	arc=none smtp.remote-ip=202.38.64.46
+Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6A180606A322;
+	Tue, 24 Nov 2026 01:50:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6A180606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BB3rjcwz
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-386ab9ab619so3594091eec.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2026 17:37:42 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=luU0AmVM
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795484262; x=1796089062; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vbV0FpLnVDem8kc+KhRgKSxbkxjFXS6P0ZcqGLrdAOI=;
-        b=BB3rjcwzTeTydd05Z2ugRZe0xbkIrxB5fxHGYHaNOscwnu4/blfaOFF4/U5y+T+1RL
-         yNPSMJOXSDJczxf1E3OGkBKWiNUQtQP6yli1a9Vghue3+jrKEHNIZdZAxbfKjYZUE8Dd
-         pJxC8qAE5s9b0PZoEAGJixc9d2fL5CtdBOGIJ92trVfDPYNG4nrzafSnnjgQBolJk85l
-         0DFrg4cvqsApIJC0tPf371hQ9a/cFmYasrR43oPG5GCKgTvNyNkNxWZi5f+f5EelojH4
-         /84jbpjwWPQhUH4RENmFDBBuvI9PsjFX4KqdyV+mbWsOS8JOjRIKkb1YQQ63Wq68SvIr
-         CkZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795484262; x=1796089062;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vbV0FpLnVDem8kc+KhRgKSxbkxjFXS6P0ZcqGLrdAOI=;
-        b=bveFenfkH/+CpGgHrEYEOqTb4ozy/tJF+Db0W/pU6LqSnrJ9geGHlAUBtqY4iIrEaC
-         8q/4lnS0MiEZDoSGzweoXsmOijyT3AN7j1Q8S0TCwtntucNTIJvnU0jD9f6AdSgWUQ+B
-         HI2fb6VEz0vOlrtepGaUBz8TbKi5aw+gYBiTFso7rm2Apn9oj3TrJ2yNAd0jgc8va3NM
-         +hFD3W4KqQ2c7I2WGTr2ojjhia8nkwEQ1VFi5QMpDyt/ovFEutOuUGbYs2Ki9qArWEhO
-         xJnsvLzeguGlBf+c+lLlyR+hLRN9pGZxJZ9mVK4s+zv5+0wJd4Vv/w33fCq0ToK4i9GE
-         yKbQ==
-X-Gm-Message-State: APuU4Z+sDlGB9i9ROgspGVMkMUbDG50q6qpO07miRppEF/tNDzCXFqut
-	FkR+DccqAsUAk2WLyhVrufOioWBpxmQWqcnf3zeDZ1EoQdQNXUme/ggXqc5l9Xt/
-X-Gm-Gg: AZFdTZdShkZPEc4n6JBr+zNeeJJwZsE9rmagsZQ+GAeio1NzWCdFdyWBW41hLrP0qZh
-	Zxk8ijWI2qizatmA1/GGOwI2seU+oksC69JSmY3pITQrWPM4rqmBAPtC9KmWV8OmEnvy+1ZyZ3O
-	zJaXUkdTBCAf9Xmu1vk/w0YsisP/zXCLC12aQ4FvlEJikX2f0QWiCQW9+7/6mC0JjqNo6wNW6Xv
-	K7G7u7tHaOoQICA2D+JNpteAUJNS+enJ/o9NgIfUoRUTBPrkxe5QV4PHkyr+Jef/tZs46LJ83tq
-	za7YfMVEYJ07eYlfl8GJ6iAeeFEGMEn6PzpgQUPyMb4oiTi3FgUTpAT3fBV8/YqfyyUGnPehpFC
-	LqKv7Jy9sfXjWwjop/tzbdSlpgyCvm+EpK8jT1OjLLvpkpVACt3VMv6NJux5eiJQy3MTAluSdlE
-	lDqbLOt7EkyiGJ6eqLS0pgbVh6a6dZCicK2RwupxWxMEu+j0bkJOJvmOjYycCcSNCeMv7Gi+VGy
-	5+SD1Owz9J9EBQG0UmRIl23oG/AwHkBNJ7v0vR7P24jBN7GlXLzTCEEk3aTnkELcZM5ObGxZ7hT
-	X85meBN6ZcOcL0XbJppzDAI122C0E1QSRgqC6j7rP0Shih4dOiRSlrZARKxNJnXifyHX4XQ=
-X-Received: by 2002:a05:7301:46a3:b0:369:faa2:1fb2 with SMTP id 5a478bee46e88-3856f65ada3mr14784970eec.8.1795484262241;
-        Mon, 23 Nov 2026 17:37:42 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:4121:d698:201c:9274])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386b1965c02sm11760696eec.27.2026.11.23.17.37.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 17:37:41 -0800 (PST)
-Date: Mon, 23 Nov 2026 17:37:38 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Igor Sousa <contato@igorsousa.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
- 15IWC11 (83WA)
-Message-ID: <awTqX8YvJ-4WsIsu@google.com>
-References: <20261118013902.10467-1-contato@igorsousa.com>
+	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-ID:MIME-Version:Content-Transfer-Encoding; bh=LXBEQtWGhd
+	WAuU2BEEBSTd2cQCOR0LawNYuwlntiTEM=; b=luU0AmVMHAw4vxsg8yR77yfzo5
+	8SsnLaVGjJT0fGZBAi/EGfldLG9Amr3Qbyo3LE+Uy73Ro8fPfBpvMVYPirfI7JJ7
+	BtFpkNo1BJBB+oCmexmS7bLARNaDWRQlVhODbvD64qDETLo9E9iwjxhRt3aa9QiX
+	RzJtRI3nwo/x+dAQQ=
+Received: from xuqianhui.tail7a2807.ts.net (unknown [114.214.185.179])
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgDHPDFk7QRrHDHvAA--.1941S2;
+	Tue, 24 Nov 2026 09:50:28 +0800 (CST)
+From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+To: dmitry.torokhov@gmail.com
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/6] Input: aw86927 - add AW86937 support and fix the AW8693X layout
+Date: Tue, 24 Nov 2026 09:50:22 +0800
+Message-ID: <20261124015028.1427420-1-xiaqinghuan@mail.ustc.edu.cn>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,24 +61,99 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261118013902.10467-1-contato@igorsousa.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:3pYKCgDHPDFk7QRrHDHvAA--.1941S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxXF4DKFy5Jw47GF47Gw18Grg_yoW5KF4rpF
+	Z0ga45JFZ8trWI9a1Ikr1UuFyq9r4fGrW3JrykKry7Zay5W3W8trZak3WFvr1jkws3WF15
+	tFyjqwn5uFsIyF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xII
+	jxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4
+	vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xv
+	F2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r
+	4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUAVWU
+	twCY02Avz4vE14v_KwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s
+	026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_
+	JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20x
+	vEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE
+	14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
+	9x07bn_MfUUUUU=
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREAB2sElFsCDQAvsX
 
-On Tue, Nov 17, 2026 at 10:39:02PM -0300, Igor Sousa wrote:
-> The Lenovo IdeaPad Slim 3 15IWC11 (DMI code 83WA) requires skipping
-> keyboard deactivation in atkbd, similar to the existing "83RR" variant,
-> otherwise the internal keyboard won't work unless the
-> i8042.dumbkbd=1 option is passed.
-> 
-> Added a DMI quirk for the "83WA" variant using atkbd_deactivate_fixup.
-> Tested on the hardware without i8042.dumbkbd=1.
-> Fixes typing and keyboard LEDs even after suspend/resume.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Igor Sousa <contato@igorsousa.com>
+*** AI-assistance disclosure ***
+This cover letter and the six patches below were prepared with the help
+of an LLM coding assistant.  The author reviewed every line, ran every
+gate quoted in this letter himself, and takes full responsibility for
+the content.
 
-Applied, thank you.
+This series adds support for the Awinic AW86937 LRA haptic IC on top of
+the existing AW86927/AW86938 driver, fixes two register definitions that
+are wrong on the AW8693x parts, and stops playback over suspend/shutdown.
+
+Patch 1 fixes the 7 V boost reference value that the AW86938 support
+introduced (0x11 programs 9 V, not 7 V).  Patch 2 widens the AW86938
+boost mode mask: the field is two bits wide at 6:5, so the existing
+one-bit mask leaves bit 6 untouched when the driver selects bypass.
+Patch 3 documents the awinic,aw86937 compatible as another member of the
+AW86927 fallback group; detection stays on the chip ID, so no new
+of_device_id entry is added.  Patch 4 adds the chip ID and init path.
+Patch 5 handles the AW8693x register layout differences (auto-boost bit,
+two-bit boost mode, VBAT mode and the two-step stop handshake).  Patch 6
+stops playback, drains the work item and parks the part in reset over
+suspend and shutdown, and registers the reset action with the device so
+that unbind and probe failure unwind leave the chip asserted.
+
+What changed in v2
+==================
+
+Only the two review points from the previous posting (2026-10-27) are
+taken; patch 1, 4 and 5 are unchanged, 2, 3 and 6 differ exactly as
+follows:
+
+  - patch 2 (new in v2): the boost mode mask is now GENMASK(6, 5)
+    instead of GENMASK(5, 5), so the two-bit boost mode field is
+    programmed as a whole.
+  - patch 6: aw86927_reset() is registered with
+    devm_add_action_or_reset() right after the reset GPIO has been
+    acquired, so unbind and a probe failure after that point leave the
+    part asserted.
+  - patch 3: carries Krzysztof's Acked-by from the previous posting; the
+    binding change itself is unchanged.
+
+The AW86937 has no hardware in hand: the register data comes from the
+vendor driver and the part datasheet, and the commit message does not
+claim otherwise.
+
+Qianhui Xu (6):
+  Input: aw86927 - fix the 7 V boost reference for AW86938
+  Input: aw86927 - widen the AW86938 boost mode mask
+  dt-bindings: input: awinic,aw86927: document the AW86937 variant
+  Input: aw86927 - add support for Awinic AW86937
+  Input: aw86927 - handle the AW8693X play and boost register layout
+  Input: aw86927 - stop playback over suspend and on shutdown
+
+ .../bindings/input/awinic,aw86927.yaml        |   1 +
+ drivers/input/misc/aw86927.c                  | 154 +++++++++++++++---
+ 2 files changed, 131 insertions(+), 24 deletions(-)
+
+Changes since v2: only 6/6 changed, to address Sashiko's review of v2 (2026-11-17).
+
+ - "race in aw86927_close() and unbind queues play_work after stop" [High]:
+   the devres action now drains the work item before asserting reset.  An
+   inhibited device skips input_close_device() on unbind and the memless
+   effect timer can queue the work again, so the worker must not reach the
+   regmap after the device is gone.  aw86927_shutdown() calls the same
+   helper instead of draining the work itself.
+ - "commit message and comment mismatch on suspend/shutdown" [Low]: the
+   message now says that suspend parks the chip in standby without
+   asserting reset and that shutdown asserts reset without a separate stop,
+   which is what the code has been doing since v2.
+
+Gate for this version: W=1 compile of drivers/input/misc/aw86927.o on
+v7.4-rc3 (aebb727447), 0 warnings / 0 errors; checkpatch --strict 0E/0W/0C
+on all six patches.
 
 -- 
-Dmitry
+2.53.0
+

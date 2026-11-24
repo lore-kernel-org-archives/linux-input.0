@@ -1,90 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=84.247.164.36
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795545905;
-	b=MuE+9YhIuI5tRRUTHVxAc8NghCFEZyy4Rw2K2jXk3bXWrLwlwJ3Ln4GQIMBSDQSbN6/a
-	 akJHjMToZzkWeSQ7QmIdyyt4wFkyrNKd8Hlrpi343LuubEjeY5u/Os3hpDQmYJ0+bjOEp
-	 QLzYWCB9Al+V0mXwmtbPh8Sjvd2SX9ZEALYACOuAjfZkdVubCS/TZV6vi1yPqEifWBpFO
-	 nVz/X6Y8pk9W+y92z4flBSsXAs/u2rtWtctjh0t38p1B3dwcTGx4qrrLuaE7fDZ4OOxJi
-	 Faupvn7UJMkpiZspq/riPyGOezDbqX4how9ZUgv4PH8O/MVE1qn0fcndlTXUA/uj76w==
+	t=1795546994;
+	b=mkcMfhLhiartq/FvO3196//yrIbEro235Lec1IIdk7bEmzQ71Jhlue1ko/OcwITII5pD
+	 GGkgaAKqsmA16bFHVjiwO8xSqRNXQ43fuMy03CCHa3EdIuoZ/VBi153wgfQ1gULtH2re+
+	 L218FEQWsfTAVPGWX1mV8za3HTNh5Je67SD5FREo3hyRp7XLL0MzAlr/huaYszXoi+KjR
+	 /4GPEDpfeUihV21COpfzcH7gjvDS7Bi570deeskdoVtKtPR3J8Xh02hkrb1TM3MQVfD07
+	 x44lyakb3NzcpATrn+UpK8oDDnQ5bfJ1y+nNQty1pOcMadkxdVut9K2TElpUxq3/r/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795545905;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=/xyvAEwvMN0iiP6Jlc/d5ZkSXrVRKQJEBJk/cfnUL3M=;
-	b=BFm0qE7V4QXSKfKm2Xa+rsDZcyU2HbNO0w4owY2Pq6TpAXAXL9DxxlorfMJvPYy6TPXd
-	 4DTGX77LJ2duYKarIlhXRJ+KyYcGRohlDm7EAZ879jSKX22x0/MC1KVxTphDCY3nRQpUv
-	 OiHxMa68EPcO9eZEeRKVbyzIJv+tgqJUmIxJf8Y8MX59qnwT0HvoIYobtNkv12YwisrJ2
-	 txxbezNCPr1doN5TE1UcMdcyr/kKx26wv4grkwqRxznNW190oNtrPmiKdqQYDGgyB8w0B
-	 nostXpWw1okZ7qekmx0jUOlfm4N4lqkzsKynISPfAweqeCOdWnyC7A0zFHVHMF2Gmqw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795546994;
+	h=DMARC-Filter:Received:DKIM-Signature:From:To:Subject:Date:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:
+	 Content-Type:X-Last-TLS-Session-Version;
+	bh=QGq5PsB747fFXnGhwiZmxObJKtz9XPqM2sIVwZUd/y4=;
+	b=NTJcsf89hMRiRV+aD5Q5ZnUKc1qJ5KcYqJK6NSxv400Qy4fAg7zHNcqF7BOidqLLMtNU
+	 bAWNtQrh1yKAzsfiyL0UusqTy6B9NLPSMBx3SlmhC2c5wgEuKNhFpvBSZrt5qfCTF0qE0
+	 ldTJt9kW519lNR/tNRGjlJ2jdC8z109xuH7Jq2JkuThCx49j4dyUZs0T1m5vTp69fM8ww
+	 TQHasB5dr5nKRXRUM4UoIAcw9Ux6dDTWNmVldCK+1D8ahvUOWlRVUqI+hzimbLQAAT+Ra
+	 tLSyBszvR5kkgtsBEk+kSoaAoXaPeUSasNwfNBxRZwagE46RNtY3fx8BTtDN1e5ZksA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tYt5ilcq;
-	arc=none smtp.remote-ip=209.85.218.44
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=none header.from=koesling.info;
+	spf=none smtp.mailfrom=koesling.info;
+	dkim=pass header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=Qo4TrMZ2;
+	arc=none smtp.remote-ip=84.247.164.36
+Received: from mail.koesling.network (mail.koesling.network [84.247.164.36])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A0AB606A32D
-	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 18:45:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9A0AB606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08594606A31E
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 19:03:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 08594606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tYt5ilcq
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c40e30c26a4so1147223266b.0
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 10:45:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795545903; x=1796150703; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/xyvAEwvMN0iiP6Jlc/d5ZkSXrVRKQJEBJk/cfnUL3M=;
-        b=tYt5ilcqg//wnIk3FJLq4clqUBGR/FEshho30X05PLJvVCYQCMqEjUvJGCJ4EB3CCu
-         2ukkOVkZTWHFIYfEpzH3H7vjhHjhIU1asLCEpZSaJONvo1cxRlmlCpTUUlgVFALHVCY+
-         ags4lxK5QAKhGaeOHJWJ9cRhAJshDkOFvLh2zojX23DeUrspiqid9PyEj2dZB/gusHsm
-         ttpsFRO3aBbHURubGja6g7cnOSLeVSwjLcLFzCyDnmzXmkZHJnjcZxEo3ECvGaxmbjAP
-         rvb0o8Pp5S9NTJqf3/xdLpeNc0HaTUL05rNY73s0LcUULOibbIKaJxR9T16984D5pKp3
-         ofiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795545903; x=1796150703;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/xyvAEwvMN0iiP6Jlc/d5ZkSXrVRKQJEBJk/cfnUL3M=;
-        b=iup6UkoGF4MQkxEFPoZ+XkkFJZTL3ynCdi+xXZNLpPVpH2g1X+ivxB0SD/SwOyVffT
-         NELV6C8pbQ2qsZdoqDi7KWSsNpzJ9xVfulV7tsFElFmyktohKwtWeyX2M82h8MAnFods
-         xahVYWOIgEUKIREgY4giZz0kjRgP7O7Q3Ue6oc38cmMNHY61c52s0SV3WTQgVLrFEkn2
-         /WXIkz7/uXPrbP1XjofmBhkSUY+9dm++5A3kru8R6u4LraGseA5LYsuhhq8VV45kOGCq
-         FvStGudnlQxPXTPAZuFmnSNUgyKgCcTTWsrrbgnCncYnKZYLZkVkDXTihaVT3jCIMsBq
-         3GNw==
-X-Gm-Message-State: APuU4Z+sdM92EebuGvNqsnRWOn9Rj9rE4S866RB6giAdXgA7/KtrXsVh
-	KzmSXn2BjIJi9+CWDtLG8MTjhSZmUMG4RfFNICMX8vgDXKI91mvrldt07csW+zUg
-X-Gm-Gg: AZFdTZeWgQi+cEhKDO/RrqhiZHyw5hp9byRBrRPttrwPuVB5SLYr90bTBnRGVEi+PdR
-	kOgnfpWz0MK39h2qp0bcAKX+cqSifyjPrFX9k/x4wJFLKQfM0D9yFaik0kaXxXN17KdpNiAmlpa
-	LTdawqLHoGI2vvQVE9ViZbR7NPpeIn99bq4ALj+scGaxPO8Do2RfezJJsPitbarylUo/oRjJ7DK
-	n1t8rfqo9jxzBJMHzNzDQsDEijB2eJFW9d5chjEBIoyHMSPmOqM0gOOrf0ZMfJiEftWD6EgLI7M
-	UHIfUtqqUCQ0wjAj1H33+YUtNy6plAQg70s9YclgxLbDzfMh3ChqvBKkPRKg7hSH/sPU0U0wFjO
-	FPa8GVsPa5asC7N5qZyQBl5Z7yCnJKpY+0p6gUtpbE3oZhI2QLSejIkcHerbiLatjcy/7kKGCjL
-	sRcox1buJdDrUAi56uOiaI5y/7h7oyCTV5Qoi8gAey2FoTV0IROGe40B1lIiRT16YQC7qHiTvS3
-	OVWjRVcSU6FjixZhkCm0UXK55vqlUhJ3+lurrkUo/DCYsprKQrFgKdcHeG97utNC2n5JuLDCevs
-	rUniS0CIzqi/yBvjxlrynQcSZSjoFA7eUt4zdcleLP5EO/youBDGlYojtZTJ5Oyk+ZQCtJHNaR3
-	d1J4d1o7KkPZqXTxsGMeltsKtJ2bnfXnjIh8TV950M8c=
-X-Received: by 2002:a17:907:3dac:b0:c51:9b3f:454 with SMTP id a640c23a62f3a-c519b3f096bmr163841566b.18.1795545902780;
-        Tue, 24 Nov 2026 10:45:02 -0800 (PST)
-Received: from localhost.localdomain (78-82-127-150.customers.ownit.se. [78.82.127.150])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513ad01b0bsm546812066b.10.2026.11.24.10.45.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 10:45:02 -0800 (PST)
-From: Pooyan Azad <pooyan.azadparvar@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	robh@kernel.org,
-	jeffrey.lin@rad-ic.com
-Subject: [PATCH] Input: raydium_i2c_ts - preserve bootloader mode after firmware update
-Date: Tue, 24 Nov 2026 19:41:58 +0100
-Message-Id: <20261124184158.50142-1-pooyan.azadparvar@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.a=rsa-sha256 header.s=dkim header.b=Qo4TrMZ2
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BD6C61320F7F;
+	Tue, 24 Nov 2026 20:03:09 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
+	s=dkim; t=1795546990; h=from:subject:date:message-id:to:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=QGq5PsB747fFXnGhwiZmxObJKtz9XPqM2sIVwZUd/y4=;
+	b=Qo4TrMZ26o853Ex0sxhQkNu+yXhvP1v0hF4li27jXMj+bS1t0TtwmGF9qnIWjG2MRkvxZy
+	YlKvDYTZe5Xx/u1WAz8tRkCp9LmJAHutFcRIf/HZ2n863LzJKd6tTi7SydEAJcA0H1wjdh
+	vc7AaLX6V+G1GxXadWi+sUie+cKFfvy9/NnQ8jD1Up4VLGvqxPKw0fkubCrWGbLwXK00qV
+	qZgzpkcJrnWlTJlZ2d0qROS8G2pJiyyRN6nL6+ezTyMTAcRjBPuoBuSUJQIbZMK08nRhdZ
+	+1n+qidYDkbdAwr3/b/aAlXpdL3NNgJ9bw54VUvJ/vKQXLocHFw9nibTARQHaw==
+From: Nikolas Koesling <nikolas@koesling.info>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org, Aaron Ma <mapengyu@gmail.com>
+Subject: Re: [PATCH v2 1/3] HID: pulsar: keep battery online across RF standby
+Date: Tue, 24 Nov 2026 20:02:56 +0100
+Message-ID: <A6gMEca2RuWRV9y7NPDk-Q@koesling.info>
+In-Reply-To: <20261124141315.6745-1-mapengyu@gmail.com>
+References: <20261124141315.6745-1-mapengyu@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -94,55 +61,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+X-Last-TLS-Session-Version: TLSv1.3
 
-Initialization can succeed in bootloader mode. The firmware update
-path then forces main mode and reports success, so the IRQ handler
-can try to process touch reports without valid report parameters.
-Devices that first probed in bootloader mode still have a zero contact
-size in this case.
+Tested-by: Nikolas Koesling <nikolas@koesling.info>
+Reviewed-by: Nikolas Koesling <nikolas@koesling.info>
 
-Keep the mode detected during initialization. If the controller is
-still in bootloader mode, return -EIO so userspace sees the update
-failure and the device remains available for recovery.
+Thanks,
+Nikolas
 
-Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
-Reported-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/linux-input/3e575d6e2eb90d4a3707319d37134c1a@gmail.com/
-Signed-off-by: Pooyan Azad <pooyan.azadparvar@gmail.com>
----
-Codex helped implement the post-update mode check and draft the
-changelog. The driver object built with W=1 on x86-64 with this patch
-applied on its own. A userspace test with mocked I2C and the buffer
-patch also applied verified that a controller remaining in bootloader
-mode causes the update to return -EIO and skips touch report reads.
-Hardware testing is pending.
 
- drivers/input/touchscreen/raydium_i2c_ts.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 6d6db1395bad..c50fe4aa058f 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -844,11 +844,12 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
- 			"failed to initialize device after firmware update: %d\n",
- 			error);
- 		ts->boot_mode = RAYDIUM_TS_BLDR;
--		goto out_enable_irq;
-+	} else if (ts->boot_mode != RAYDIUM_TS_MAIN) {
-+		dev_err(&client->dev,
-+			"device is still in bootloader mode after firmware update\n");
-+		error = -EIO;
- 	}
- 
--	ts->boot_mode = RAYDIUM_TS_MAIN;
--
- out_enable_irq:
- 	enable_irq(client->irq);
- 	msleep(100);
-
-base-commit: 8d7fe9885c62fc9a95bf55d9db244d9672a8aadc
--- 
-2.34.1
 

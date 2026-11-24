@@ -1,57 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795519271;
-	b=BTee70HFi47pJ+mCPStzGoa2Vhsff1FdtTt5bNhEXZpLUSlMUblmc2aJkZbv3/HXTFsZ
-	 yIQKgcqfnbt/ZJQ4To5FzhLF6NzH0sqIy7dVWsskUBEZ84/lCWZbCVsxoT0HYI6KUf/Qf
-	 xrwXvs699K2zjJsi/fJb5XJ3eAkYwB22XoXpggvzb7kxyGZLWptJjLzAmwcln5moVORSa
-	 R5JVnp+ZI2G61ah4hxm8uDEiOztli2/8VeEkhbEM72FXxkEqbLJ17TM1huvZ13n7aMhyJ
-	 b8Xy+Ek2gFsw0JUOFnMgqXZL71Ji0lFznmZ8ZecHZMHmTggsJkRI4bg4FyQR8+Yx8/g==
+	t=1795519893;
+	b=BprYF/DCwK4oGbrHnGTStD+IX0fzfLW3SglxtFbBvZJ2eFm+To3Y4XvHExViah05WW0F
+	 HwYGcfd0cSJeiNAU2g5TMQJg76p4otxkU+cJZ69Z6kgyvk0Fm7A9l6KQHh7gPTyeW1gsW
+	 KGG/HeLTxY6oCgLEleJqNckTknEkeJ/9ttxCw1RErMkK9DdkU5Z5FH7qqQo11AAD1UMuh
+	 Tv95/jPNo8Fp/Qv6F5SfLIDQUdw5/wDeS1vy82k3RiEoVeCjIS7e/fTwktm9WxesvejWo
+	 KKZa6di6BqZ8s1NrelyddL+wqw2jF1oO5w6wWlFkNVmlckCQkL3lOotX3uvgCkjYeKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795519271;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=eykty3oSoGJNJdXFXeVz8CWaTenWGSavrnXua+sfRF8=;
-	b=O+7FaV3sTq79C70NtyzMLnP8IlLjQSX8WwKd8fEHXAFMACypnxId/R74cIq0VQAlsq9a
-	 gDV1Rhshy1Z7xkBtQwY8waCOA/KojVaexPgMu4myVmtjhFvSivHkToJNlyuxa+lnewpWB
-	 eEkVynip/gjOqIA94wpMrSt4u9Qhsia6obcXGRQnSbaWrjgrggUy5QOHcYqEhi8zeyVoo
-	 4+Y/FXqC93oVHI5LIbag7pgFkOSQB+ah8voZPv0ZuEPpfcIwt8QKKWbIAv0+rs0geXfkO
-	 QPzhi/r2fOQrAfvbs2z3bcriHUicMs7/bV1qkeWQdZ0hXfLrpEf3OOlJdxIiBO6A8ww==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795519893;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=QRZ2OHv+W/MZtU5x/SLd86H93qWbQcIzkOUoCRAkJG0=;
+	b=lcQCI4R6oD+hthbsnojK08LLna92w8uGoYvgjtZh7ksMcFZ960+4f96Gb7AaWwrzaosl
+	 8uDXI7XL/y0r9WYhsZpycE+q9m/9A+mL3aCPAioCN3ceb/J3C1lNFMKNB5f+iNp3LiWN/
+	 ByCLMO1to6pgn28tUJ9RMO0KhsOuTEo1qTzd1VVwvTYtQ/sOnsTGa2B8Iw2MoU36hypxA
+	 4lun/L8bBSzBkTzjzVzQCD6E6SU++50ywUA18NsSeGwNJLCNgFEekmhk88Nj/j1701X8d
+	 tOPMzrStieTg+hwoxqsZ+Y4Wk0YKMW/Vfu28ybQy9k1EnpnoSyVP6XUMmnHEiZUlldQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=collabora.com;
-	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=mR9sDyMn;
-	arc=none smtp.remote-ip=148.251.105.195
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IiK4nVSp;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F335606A321;
-	Tue, 24 Nov 2026 11:21:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F335606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16505606A330
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 11:31:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=mR9sDyMn
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1795519268;
-	bh=X92meWCIe2idWIvdqkPIsxNMMdDXuDPGPKHlu8WtMvU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=mR9sDyMno2ncuDBWp1CXjOfdhq2+FvMOYrlLG1QM5AiNIstJ2Fh5FFKfTDgw811W+
-	 CqrrGgaUUaojO/WET+fhKLVzyMvGvX6gvzFyqx5VLJAsnwpWFwEWZ3Tll8ZZe0WkDu
-	 RJtbOKK2pRbB6rdnaFtq814ERrnL3aGAJhVc57tY+YhN5fnTBfp9Sipycb/fVpeb6c
-	 YQ3atOJeiT5eIydbtYUk/aho8TJUm2G0lwYTsU+vx0PnhdkNF4BfeviWXd9dyMcH03
-	 kYwYE9dBAQfROwvA+qZf5QDuOXP6j0egDeTAmES2mQ0UjpLbBIRh1R4K+EhP5ty+17
-	 KF0Ebeg0cztAA==
-Received: from [100.64.1.21] (unknown [100.64.1.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 8D79617E0309;
-	Tue, 24 Nov 2026 12:21:08 +0100 (CET)
-Message-ID: <c4dcf958-34bf-4000-91b6-d13c12814f8f@collabora.com>
-Date: Tue, 24 Nov 2026 12:21:08 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IiK4nVSp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6921E1F000D8
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 11:31:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795519892;
+	bh=QRZ2OHv+W/MZtU5x/SLd86H93qWbQcIzkOUoCRAkJG0=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=IiK4nVSpepM8ljJG69Rd4H14xhmxeode27C9O0WPN2TGbFT9Z51V/45CalYe+3T1a
+	 72UsfkaPt3CBbgu66RCIVR8VNstPEa3xH9pt9nPcnaAoE7GSQ9ug0B35/HWOBunLNU
+	 bzEo9tQZpmQG3feJfWaycRosXIirkUj5hQApvTN5mJjiZf95lBR1vt0tU3w8qWeK3J
+	 oFzakZs4rnNTXDRfwaeil6ztGMZvo4v9YrC7Ov5vp7yDSYs136Mu3N6hRXtrGbYJpS
+	 H2IbYIxJAXhy27z1fcV6M0W8vS38Koli8L58q/3N4vjMVQhlc+20gBnGD4c2HgxU4A
+	 baB5wf4ug0dAw==
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5be3ed646a5so5990838e87.1
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 03:31:32 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErHEMD/+3juAVfdfcwT9a1vqtG1ZBUTZtrruepKstoiu6ffQEIcQWppvJxnSnlCF/Dp18VdlCjLqM/0JMw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+p8I9I/gy6DDsCAYfR+BU4cEQnXz4wBGIjGydDCIAXb5Kto8+5
+	ko/TyhRXDBARd7KiRLYfOiJxpENrhw1K87cp/CfmTKgSEgyZU7MeLU7wLhQReORWVEQluEo3diP
+	71MNQkmKCKs7Ts2KUhGdTw7UnXeTZl64=
+X-Received: by 2002:a05:6512:304a:b0:5c1:c4d4:2f53 with SMTP id
+ 2adb3069b0e04-5c1c4d430b3mr3666407e87.58.1795519890796; Tue, 24 Nov 2026
+ 03:31:30 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,95 +59,40 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] Input: goodix - sync the irq controller while starting
- firmware
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
- linux-mediatek@lists.infradead.org
-Cc: Hans de Goede <hansg@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Matthias Brugger <matthias.bgg@gmail.com>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20261124085058.128173-1-l.scorcia@gmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20261124085058.128173-1-l.scorcia@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20261120194507.593601-1-sashal@kernel.org> <20261123212630.1203859-1-sashal@kernel.org>
+In-Reply-To: <20261123212630.1203859-1-sashal@kernel.org>
+From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
+Date: Tue, 24 Nov 2026 12:31:17 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0gAwqHNkLGkoKx=mSxeC4UuHdpY=71O3UDxBK99WshULQ@mail.gmail.com>
+X-Gm-Features: Aa3M54qy4cxI7h6w5kV70lvkD1UYd-Ukiv2kA4FJCRoVK3wUJleTkb0zlDrtIJs
+Message-ID: <CAJZ5v0gAwqHNkLGkoKx=mSxeC4UuHdpY=71O3UDxBK99WshULQ@mail.gmail.com>
+Subject: Re: linux-next: semantic conflict between the hid and pm trees
+To: Sasha Levin <sashal@kernel.org>, Jiri Kosina <jikos@kernel.org>
+Cc: Mark Brown <broonie@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Joshua Leivenzon <hacker1024@users.sourceforge.net>, 
+	linux-input@vger.kernel.org, linux-pm@vger.kernel.org, 
+	Linux Next Mailing List <linux-next@vger.kernel.org>, 
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/24/26 09:46, Luca Leonardo Scorcia wrote:
-> On the Lenovo Tab E7 (TB-7104F), which has a Goodix GT-912 touch screen,
-> the touch screen fails to come online after loading firmware, printing
-> the error "Error reading 1 bytes from 0x8041: -6".
-> 
-> Comparing the upstream code with the Android stock sources, the existing
-> call to goodix_int_sync should be moved between the upload of the firmware
-> and the watchdog restart. With this change the touchscreen is correctly
-> detected and working.
-> 
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+On Mon, Nov 23, 2026 at 10:26=E2=80=AFPM Sasha Levin <sashal@kernel.org> wr=
+ote:
+>
+> On Fri, Nov 20, 2026 at 02:45:07PM -0500, Sasha Levin wrote:
+> > d220bf485598 ("HID: asus: Cycle the platform profile from the Zenbook
+> > Duo profile key") in the hid tree checks
+> > IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE), and 699041135f75 ("platform
+> > profile: Extract the core from ACPI") in the pm tree renames that symbo=
+l
+> > to PLATFORM_PROFILE. With both, the check is always false and the
+> > profile key does nothing.
+>
+> Ping. next-20261123 has the hid tree again, and hid-asus.c still checks
+> CONFIG_ACPI_PLATFORM_PROFILE in both places. The fix in my first mail
+> still applies.
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+I think I'll create an immutable branch with platform profile changes,
+so that the hid-asus can be rebased on it.
 
-> ---
-> Relevant bit of the stock source driver at [1].
-> 
-> Credits for noticing the issue and finding its cause go to matemiller992
-> on the postmarketOS forums, I cannot provide tags as he wants to stay
-> anonymous.
-> 
-> Patch tested on the Lenovo Tab E7 (TB-7104F).
-> 
-> Changes in v2:
-> - Instead of adding a second call to goodix_int_sync, move the existing
->    one;
-> - Simplify the access to the necessary arguments/parameters.
-> 
-> v1: [2]
-> 
-> [1] https://github.com/lscorcia/linux-lenovo-tb7104f/blob/2dad69c9f28611ac6d3db2f1ee11b480a60d83ee/kernel-4.4/drivers/input/touchscreen/mediatek/gt912_p98996/gt9xx_driver.c#L1529
-> [2] https://lore.kernel.org/linux-mediatek/20261020122712.526797-1-l.scorcia@gmail.com/
-> 
->   drivers/input/touchscreen/goodix_fwupload.c | 13 +++++++------
->   1 file changed, 7 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix_fwupload.c b/drivers/input/touchscreen/goodix_fwupload.c
-> index 888da7538c06..642a632d363c 100644
-> --- a/drivers/input/touchscreen/goodix_fwupload.c
-> +++ b/drivers/input/touchscreen/goodix_fwupload.c
-> @@ -153,8 +153,9 @@ static int goodix_enter_upload_mode(struct i2c_client *client)
->   	return 0;
->   }
->   
-> -static int goodix_start_firmware(struct i2c_client *client)
-> +static int goodix_start_firmware(struct goodix_ts_data *ts)
->   {
-> +	struct i2c_client *client = ts->client;
->   	int error;
->   	u8 val;
->   
-> @@ -168,6 +169,10 @@ static int goodix_start_firmware(struct i2c_client *client)
->   	if (error)
->   		return error;
->   
-> +	error = goodix_int_sync(ts);
-> +	if (error)
-> +		return error;
-> +
->   	error = goodix_i2c_read(client, GOODIX_REG_SW_WDT, &val, 1);
->   	if (error)
->   		return error;
-> @@ -249,11 +254,7 @@ static int goodix_firmware_upload(struct goodix_ts_data *ts)
->   	if (error)
->   		return error;
->   
-> -	error = goodix_start_firmware(ts->client);
-> -	if (error)
-> -		return error;
-> -
-> -	error = goodix_int_sync(ts);
-> +	error = goodix_start_firmware(ts);
->   	if (error)
->   		return error;
->   
-
+Will that work?

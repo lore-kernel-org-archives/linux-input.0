@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795513529;
-	b=NsKTHZSJOLmOSakE2x+1JzlwqMUNSJlukRt+HNfe3bFD0c/YofsWeEjy9gfDP7Mk6gFG
-	 uCQh5DZENiKBYhdeefJoLhiQPphygmVM7f9tBk7QCZ2VmM6UW9Tbd/aIycYjF9ZNztsQH
-	 pyZh8cEuUkl6QOwb/+lOUdYmw3e56S5xTpyxqKfyxwerId4JkJxptnd4Z9NhsZ2ZnJO+I
-	 W1qw2U5SjUHT+nFWcXUUopOxAJg22lk02TwRHGXXIntM6j3p39dS11O9aZl+z6DzrBx4D
-	 WAGUOn0lt1WKRrqJiLCFuseHlxL885z+YULUHk5NQ+reDLR003NPzVKvZKAGINeh7LA==
+	t=1795513533;
+	b=sneVlvtDlSI5lGg/sgvIBUsdR7kpVLBjslyw6wwTou6zUat7yU1iGHIkNpVuAXDMWLpH
+	 hQM0JMt9QPcYxRTU4JzbyBE94TKxqYmS/7qsy3c2+35RPMjBbC5rvfR2pHzuRI29KpJiO
+	 6Ryn+6M/parTWuWzuaeuqWFIuoAl7/PtmNvvA8w9IvCUrsxg6B07xF4fR+3trmqF5d4+9
+	 gfc07WcK5nrqNT7+w9ip3pQXh0PAVBxb1Nftud2BNawJvumYP0WbLxnMLue1E1VoQTe86
+	 jdOhru3orD415fsa/ZNYo3mCEYzBnYVONlGpctqeFhPtYRcaK2d3vva/FeCk79OeTNA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795513529;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795513533;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=AI23EedCHOkVt2bUFVxVq0Tw4jV6qHaXsCMKfKtBCb8=;
-	b=hD+gFyMGeFGQaiiIDBJxxKXQ3tvNvna7TnJG9KVl1wsitQfRupY/qDPeZ+FFKm3B++at
-	 E4mrx+dmTcCbSUAAMmTET8EGJqvhAM05A4vfHCpPLayjXbbhZOsMeaScC2eFIqrxuz+IL
-	 0xVQZ+Epw/3wXV7vVIjkxcOaF07nV5Zkk8FLWn4eFR5MWp1Z9QV6i0J79GCkqT+oo5CMk
-	 duySJX8MU3PqxbkdttdFmDqshKp9qLS6lniAkEXrLyxNEQhBebYYAu3gwVu6RClOniFNJ
-	 gRAZjEhl3op9GVJHTFAp2erBbxXHGv81SByAjO+wwcYduks+F0m2/J8b2/CttNWPCbQ==
+	bh=ePO1HaQy6BuunjZvvPsV5K/2vWM8debo/YiENR3jWNU=;
+	b=z2mPQGRImZhTVsQXboflvRjJPGAVUCWtYlJX78SMego8+BMA9aLm2oF6F9h0SMEYomoy
+	 aoB7LFqNbYCjfWEWnRD+IJRz/g1tGNLy+mjBXogxGkJhOyKtYMRKezsGbAqQ+VBQZ+PFz
+	 lv2QyUtSlE8wWRoVRbUC79sLqnb+gISXV9udte4stzlo+9ex5zpWLva1BCqHriVj35Y4E
+	 1XmV6Z4xLAKiHkeIC9jkARWwoHbZJt1W8+KSS/iowOGC+bdh74zrjUkJTxeC03Lnk3f/B
+	 0IZVXMi310JlZuQYFinYcwsrOQ+fwkJnaEY3CwxsJT8s15Kt5cL98/WrXmecyVGkuqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nnHik31J;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IJNHHCiG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80E2460A2607;
-	Tue, 24 Nov 2026 09:45:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2A52606B009;
+	Tue, 24 Nov 2026 09:45:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nnHik31J
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B1A1F000C4;
-	Tue, 24 Nov 2026 09:45:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IJNHHCiG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C3EE1F000F4;
+	Tue, 24 Nov 2026 09:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795513529;
-	bh=AI23EedCHOkVt2bUFVxVq0Tw4jV6qHaXsCMKfKtBCb8=;
+	s=k20260515; t=1795513533;
+	bh=ePO1HaQy6BuunjZvvPsV5K/2vWM8debo/YiENR3jWNU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=nnHik31JyN/Y3TS9cyBiDeVRA00Ub5gX3cbTGh5LLBhpP23T1U52BZf4Z3OXrcbY4
-	 whWIq5d7u/lP5039cdtVPaeBNWaoyZkH343rSPE3yYysFNt6Z1+xh8hmVMgwstoXBZ
-	 O8DiJJUb4YTDb1FUZnp7XskQSA5mcrL49QyGzXh0NlfvsyWF88vKOejkr2dlkdzeAD
-	 7GjXVqLpdb5QnUIJFVvJIY/v6UIL1rJOeAgsV4aeVu6m4yeDgK0RptHlm10daF1DWZ
-	 f0fmo265bGWWnLUn9NTXM8iNkDKUIwkv/PrqdITUo25T2QoKRdDZvZ1m0QbGp8Nkba
-	 cAX09au3hVw6g==
+	b=IJNHHCiGzv0WWwdpPr1FMAlFOt8wwBxS5sXv8kmA4ekRytwPIv8fStFQiwgccPJrP
+	 FJcDzCZEXAOXDaG+hW7vVoSHtCvFqsNVshNhdnEkJL8jKIzWWigshXntueRO2pXPqX
+	 2D64PCUgFN2FwBt+1y7HOY4T4SFRY1TX0S+un8UcYb4OFVFHLcDWQBcn17adMbhsmy
+	 /b/g/D8+J1SwD5uUGpy2mMmy0mXkKgT4/6xbQSaTcXsAgfybEHx+HIwbeRtuvdUMym
+	 kTGklVtTRxr9d3w/5mJUYPzDg0/hXfrKvbszu6tItwb8wygBsOuwj8maD4SuAGbryo
+	 ECFVMc6pEGaPg==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -100,9 +100,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@suse.de>,
 	linux-sound@vger.kernel.org,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v4 15/33] driver core: Report deferred probes through sysfs drivers_probe
-Date: Tue, 24 Nov 2026 11:43:46 +0200
-Message-ID: <20261124-device-trust-core-v4-15-037eb0d17b1f@nvidia.com>
+Subject: [PATCH v4 18/33] Input: serio - use the compatibility driver attachment API
+Date: Tue, 24 Nov 2026 11:43:49 +0200
+Message-ID: <20261124-device-trust-core-v4-18-037eb0d17b1f@nvidia.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
 References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
@@ -121,84 +121,72 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-commit b8c5cec23d5c ("Driver core: udev triggered device-<>driver
-binding") introduced the concept of "Systems who want to control the
-driver binding with udev" can use the drivers_probe sysfs to trigger a
-driver bind based on the kernel's match list.
+Manual serio binding holds serio_mutex, but generic sysfs probing does
+not take that mutex. The two paths can race while updating driver state
+or cleaning up a failed probe.
 
-If attaching the driver is deferred before its probe callback runs,
-userspace sees EINVAL and cannot tell it should try again, maybe after
-loading other drivers.
+Use device_driver_attach_unrestricted() after the port ID check to
+centralize binding and cleanup. Acquire the device lock with
+device_trylock() to exclude generic probing, returning -EBUSY instead of
+waiting while holding serio_mutex. Map legacy -1 connect failures to
+-ENODEV in the probe callback so they are not reported as -EPERM, while
+preserving errors returned by the attachment helper.
 
-Map that deferral to EAGAIN and add missed documentation for the
-drivers_probe sysfs. A deferral requested by the probe callback itself
-is still not reported.
-
-Fixes: b8c5cec23d5c ("Driver core: udev triggered device-<>driver binding")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- Documentation/ABI/testing/sysfs-bus-drivers-probe | 14 ++++++++++++++
- MAINTAINERS                                       |  1 +
- drivers/base/bus.c                                |  9 +++++++--
- 3 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/input/serio/serio.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-drivers-probe b/Documentation/ABI/testing/sysfs-bus-drivers-probe
-new file mode 100644
-index 0000000000000..ed8828e55d6bf
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-drivers-probe
-@@ -0,0 +1,14 @@
-+What:		/sys/bus/.../drivers_probe
-+Date:		February 2007
-+Contact:	driver-core@lists.linux.dev
-+Description:
-+		(WO) Writing a device name requests driver attachment on this
-+		bus, even when drivers_autoprobe is disabled. A successful
-+		write does not guarantee that a driver bound. The driver link
-+		can appear before probe completes; a bind uevent signals
-+		successful binding.
-+
-+		EAGAIN means attachment was deferred before the driver's probe
-+		callback, for example while a supplier or the device itself
-+		is not ready. ENODEV means the device was not found. Other
-+		attachment errors return EINVAL.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 93abbb315065d..b726344362b41 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8149,6 +8149,7 @@ M:	Johan Hovold <johan@kernel.org>
- L:	driver-core@lists.linux.dev
- S:	Supported
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/driver-core/driver-core.git
-+F:	Documentation/ABI/testing/sysfs-bus-drivers-probe
- F:	Documentation/core-api/kobject.rst
- F:	Documentation/driver-api/driver-model/
- F:	drivers/base/
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index 396097fdb3162..ecff32c3704b5 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -310,13 +310,18 @@ static ssize_t drivers_probe_store(const struct bus_type *bus,
- 				   const char *buf, size_t count)
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 54dd26249b027..f239217d7de45 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -83,26 +83,15 @@ static int serio_bind_driver(struct serio *serio, struct serio_driver *drv)
  {
- 	struct device *dev;
--	int err = -EINVAL;
-+	int err;
+ 	int error;
  
- 	dev = bus_find_device_by_name(bus, NULL, buf);
- 	if (!dev)
- 		return -ENODEV;
--	if (bus_rescan_devices_helper(dev, NULL) == 0)
-+	err = bus_rescan_devices_helper(dev, NULL);
-+	if (!err)
- 		err = count;
-+	else if (err == -EPROBE_DEFER)
-+		err = -EAGAIN;
-+	else
-+		err = -EINVAL;
- 	put_device(dev);
- 	return err;
+-	if (serio_match_port(drv->id_table, serio)) {
++	if (!serio_match_port(drv->id_table, serio))
++		return 0;
+ 
+-		serio->dev.driver = &drv->driver;
+-		if (serio_connect_driver(serio, drv)) {
+-			serio->dev.driver = NULL;
+-			return -ENODEV;
+-		}
++	if (!device_trylock(&serio->dev))
++		return -EBUSY;
+ 
+-		error = device_bind_driver(&serio->dev);
+-		if (error) {
+-			dev_warn(&serio->dev,
+-				 "device_bind_driver() failed for %s (%s) and %s, error: %d\n",
+-				 serio->phys, serio->name,
+-				 drv->description, error);
+-			serio_disconnect_driver(serio);
+-			serio->dev.driver = NULL;
+-			return error;
+-		}
+-	}
+-	return 0;
++	error = device_driver_attach_unrestricted(&drv->driver, &serio->dev);
++	device_unlock(&serio->dev);
++	return error;
  }
+ 
+ static void serio_find_driver(struct serio *serio)
+@@ -744,8 +733,10 @@ static int serio_driver_probe(struct device *dev)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	struct serio_driver *drv = to_serio_driver(dev->driver);
++	int error;
+ 
+-	return serio_connect_driver(serio, drv);
++	error = serio_connect_driver(serio, drv);
++	return error == -1 ? -ENODEV : error;
+ }
+ 
+ static void serio_driver_remove(struct device *dev)
 
 -- 
 2.56.1

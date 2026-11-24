@@ -1,63 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.204.34.129
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.17
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795499063;
-	b=yCvLYjJzadBKGpJWcEEsmiE6Se1e6dGFPbQ9e626f1TzUhQQRe/QRa0qBv9cG68jHpyh
-	 vEH7CryqGf1FfuzK6+8npl5i9jefS73yrXs0H55pdA/1QnyGPDotVm8DrzhLprNa7qd4a
-	 9Z/nhPfPE7oWoAswM3GFGfIP/dDnQknmCEfX5teKJotLL8ww7PE9r+WFIBfsyMHUPjdCO
-	 69qUSJvZgV6MAhin27mCKZumsV1YEEAzdukFYvRtn28oSSmI8YpeSb/GzDyGurGVpOvyH
-	 kjBL3ZYpTcTAQt9gpYTYXNdDG5bBPWxDkOA8ChTReZnGCaiy/ngTXXGEpk9rC78CshA==
+	t=1795500714;
+	b=W2447/Wba57yAMFd8z4+2p7G2VnAdgYIdI/qNoV8Y1WsxnPTReAlGYdlnCjmZL8DdAWP
+	 2ihZZoGDdEBxM6rKByRZ3JfAJAKRU+a04q8fPydb3GcrQNCPnyKXG9VhFZET45BabUjoR
+	 80MbTZlAZ+JnMlAVHYzLpExS5ddhwhBx9vBxSRYsp6DPSnScvVZ+QTKwBlBdRsc520+rH
+	 2V3kQflGuZL2XVtQFu0ivyGc9AXHWlxhMWyToaJJv1jFAqcP52HLl8EAaudKb9NErmMgY
+	 O4yaRXT6sG1QjDLU4GppjQh8WpJwRAVRKGKa88IBmj0jJj/Nc1x5nLs3LRHxLHn+pMQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795499063;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
-	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:From:To:Cc:Subject:Date:Message-Id:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding:X-QQ-SENDSIZE:
-	 Feedback-ID:X-QQ-XMAILINFO:X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=IWGZLJw2nEHrhWlpNeplAcvwtMTjObjJ+sOkKeJmTMk=;
-	b=B6sZfxJASvlCHxZLNe85jF2vwoohqEiZgif2on9zcpQ5szpTqu623RAqaHah+hy5Qrp/
-	 kzcoXxbNk1XC9VaRKOOhRciRIRzQuIj61UwIBIP3o5rbGnqfZCJNwD5luzGQqm46A+Hbm
-	 SSzl1O3JJ0SXsCAWJDVx7HMdLtF5G8tcZDfPO/ILMFjMavmd4WK2ERMUpuo+nx9D+SkJ+
-	 coygMmOCiQ7AByankTHskva0PJVcebw4dhiYm8YJEexAa1qkI07VpdqAC9rSgSybumxDX
-	 W1lI+8ToSDZUpiKbAMDVwqivbliko6dZyn/Pq4DWcA4Dl7S/BEIwSXPwHOZjgcapYAg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795500714;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=qDNdpUL/8B/XXersHG/IyeaDG2C757klasspkhAuRZQ=;
+	b=BAXD7reeXtUfRs++Z5vS8mEuYLiq4VISMnGjhUNWUZvokwLzUZFyT3b0Y13/HG82d/P1
+	 BzD1LULHz/geavV9snokvdL8T0498pdDW1368XYHsHDbzn5yvKEPwffdpQfe3mHGovtg6
+	 YlPzCc67Pe4psI9PaOJytLIffwli1szChtGrUefT/lTn7PT6SnvtQuEYRO03Oud5gde97
+	 IUASjialoet9AgtxjIp5Q/Pdwf4wcC03itHQsxS4+lqF8Jf1MDEuZlGgAOOI//KARSZWc
+	 RDoNmi+7A3PeykFJLxrgirrLJZ6zwcL5oui2Zp1eIu2CS/NVFQBJTssX8MhDY4Vb34Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=uniontech.com;
-	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=pFIIeVaK;
-	arc=none smtp.remote-ip=54.204.34.129
-Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=QBUndeGG;
+	arc=none smtp.remote-ip=109.224.244.17
+Received: from mail-24417.protonmail.ch (mail-24417.protonmail.ch [109.224.244.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC7B4606A31E;
-	Tue, 24 Nov 2026 05:44:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EC7B4606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7F8606A321
+	for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 06:11:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4C7F8606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=pFIIeVaK
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1795499047;
-	bh=IWGZLJw2nEHrhWlpNeplAcvwtMTjObjJ+sOkKeJmTMk=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version;
-	b=pFIIeVaKc8JUFxJkyM4IkrFAoqQqxkyV6Jh+s71zvmz+2kBLEHX7o7d7z912UKmVJ
-	 kx0ybTaUGCFBSVybWskUevxoVF4CHHt9iZ3hHmSAeHTpDHsPgLiRfVMqMBzm6/Hdov
-	 pllBucsziTheYg58EVcQOlD2d9roJsKjK6t0Q59Q=
-X-QQ-mid: zesmtpgz4t1795499040t63d20f60
-X-QQ-Originating-IP: QChkp0EFt+LbveBJTyYJYqYToPlQRO1O8RmzGAA61wc=
-Received: from localhost.localdomain ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 24 Nov 2026 13:43:53 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 17405222007755505708
-From: Siqi Chen <chensiqi@uniontech.com>
-To: Anshul Dalal <anshulusr@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: adafruit-seesaw - check i2c_transfer() return value
-Date: Tue, 24 Nov 2026 13:43:44 +0800
-Message-Id: <20261124054344.1067234-1-chensiqi@uniontech.com>
-X-Mailer: git-send-email 2.20.1
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=QBUndeGG
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1795500711; x=1795759911;
+	bh=qDNdpUL/8B/XXersHG/IyeaDG2C757klasspkhAuRZQ=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=QBUndeGGmas5wSmiinNp9dsBwUMkQJr2zm9tP3FzKoyuhCYE6txDMO7xbJxzKMwee
+	 3Ispx9EeHfM9wzs4PjvlK0111EDJzNshxk+etrdjx5pXd091X7NMjFBJ77uiC9kyDY
+	 WcEMiuwrjMM6kzpC5eL9quoQyfXyQYAS8CvWsLsztvkayQX5HrowMjYRZdrhzkLGve
+	 NHi7x23pi01TYH0Pfq6/vyCtCRAGaYwgvJN+mTh/lT+/h/lt5sYWTaG9q4ZsD4IgY/
+	 0Ft6scPlCLHvwDwAfNV9aOOoSLicksBHU8t7bHWJL61RIM7CbRs/L0klEC1pjYyiID
+	 2tcuqdz4jRSWQ==
+Date: Tue, 24 Nov 2026 06:11:46 +0000
+To: sashiko-reviews@lists.linux.dev
+From: Erlend Jacobsen <erlendjacobsen@pm.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v3] HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+Message-ID: <7xZrYaTeVw_39BwDhdCjoTvQZqOyrX6ndWt9U8FIXv00PkSpubYb2cSKiRCIU27c0lwc0RaRDKysqWJRedox90ahVd1yg-gp00yWAEj-mH8=@pm.me>
+In-Reply-To: <sashiko-outbox-229783@kernel.org>
+References: <20261123-b4-rdmctmzt-v3-1-5ce2359df0aa@pm.me> <sashiko-outbox-229783@kernel.org>
+Feedback-ID: 128302180:user:proton
+X-Pm-Message-ID: 3b902867fdbf0bafdf0fb36c27930c38c244b490
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -67,67 +64,139 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: OBdIB5dfVSDZ4BWcBi788MB/c/e5UFjmFSeX+n1fcJldE/3CPpZNQe5+
-	flB3cGROt/gvkmlWcnhQasTpu0KsYl9Bj6YNQ3hw73tzeE8UbUuo/zHe8UqFLk0dnk9sVPm
-	7EJM1YQkeLqn7s1ldpca+h86R7+ra4CiaJj6TkkJ8+6uV79x7Z9sacm+EmazxZLRwZUfwse
-	Vu3UmxNc+YcATURiTXkLSa3ljz/nvqtZ9U8EhtkGnlWlxt0CiaWonrVCxfhXtBaehTDsFZ7
-	VoYOlqSuB90PRw7jG/gMr+jgOCeS9ADEwBGh0Pv7JyOMCGumpNh/lxZhZORIuz+jzITks0V
-	HzSC71D+gnFK+63b84PJvLLuPod6vP4V0+T6l0k/GZWenNbFi2I0gC4UZqKx1irBftvwGSu
-	ajTjLNSHLYLBWzl+SMohrQkLF3yBV+ou1PEo5zjrLmGUg+wbhet3S1HTtKarzjxmLYtGahd
-	yATbJnpqmmBhi1XhmPgrzH7C6uMpcdiywcf/ZJQ5Q4/nlSz5CEVIzNDuaLHQtW9z8SyOEnG
-	+RWytxaqCDBJgm2y4JCH3PWGJl1PQVG0XnIFQWJ4clrGKh4Sx4T0VXoy64NbQggFRZdk1oX
-	Bk/FhNPZG5cnoGqkAd113E39he/LKoulmdDIg8hHRez/+5NKwJpgtU7jMYAjFa3MrAUVc0j
-	SZi8D/QePyurkyK4d4tFyP8dt6BjWLVfpBD/37IpO6IKmy6fyhLVyOJP0Oi9drSFfoGZrDx
-	lKMVSDgk+1QLekB1tNRZUV0odQLNVKLTT4cPZQeS+pC1eMVb6KHFNsKIqLyRYCeVIg6YMbb
-	57RK7b8rTmdtysB3e78kT2bqiay8k7wtSt50LbTIPWVXMHO8Z74Mif0HY5MaZVsKBG7c5Tj
-	bMGjgLpZOt4K2+vW/T3eLh8TlpVqJbcKEyfy7CTS7pLZUc8+VzAGMRqanLhJ/5Trrh3ZKze
-	nk2+JO164iga7mZ1YwYwr8cQqifnSetPhbMq9OjP1w8+v7U1D2UzyHwU+Z0+y96RoskDx1f
-	lfU8AJKULRUWILeDPu1vaScHNY0X7+u8mKP0Af1V5XNpOfKQEGvi3Lb5y6LskFoN4qW4Vqy
-	zua8oMjv7RW2sM7dvKIvTU=
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-X-QQ-RECHKSPAM: 0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-i2c_transfer() returns the number of messages transferred or a negative
-error code. The seesaw register read helper only checks for negative
-errors and therefore treats short transfers as successful.
+Thank you for the review.
 
-If only the register-address message is transferred, callers consume
-data that was not read from the device. This can result in bogus button
-or axis events.
+> [quote the paragraph about rdm_dongle_linked() storing the link byte
+>  after rdm_command() returns]
 
-Require both messages to be transferred, preserve negative error codes,
-and return -EIO for a short transfer.
+Yes, that race was real. In v4 rdm_raw_event() stores every link byte
+from the dongle under the lock, whether it was asked for or not, and
+schedules a poll when it changed and was not the awaited answer.
+rdm_dongle_linked() now only reads rdm->link, so a reply can no longer
+overwrite a newer unsolicited status.
 
-Fixes: 52c4e5985a73 ("Input: driver for Adafruit Seesaw Gamepad")
-Signed-off-by: Siqi Chen <chensiqi@uniontech.com>
----
-OpenCode was used to identify the issue and draft the code and changelog.
+Erlend
 
-Compile-tested with CONFIG_I2C=y and CONFIG_JOYSTICK_SEESAW=m using:
 
-  make O=/tmp/opencode/linux-build-seesaw W=1 \
-       drivers/input/joystick/adafruit-seesaw.o
 
-No hardware or I2C fault-injection testing was performed.
+On Monday, November 23rd, 2026 at 18:49, sashiko-bot@kernel.org <sashiko-bo=
+t@kernel.org> wrote:
 
- drivers/input/joystick/adafruit-seesaw.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/joystick/adafruit-seesaw.c b/drivers/input/joystick/adafruit-seesaw.c
-index 897e14bb61f7..8374381dcc87 100644
---- a/drivers/input/joystick/adafruit-seesaw.c
-+++ b/drivers/input/joystick/adafruit-seesaw.c
-@@ -107,6 +107,8 @@ static int seesaw_register_read(struct i2c_client *client, u16 reg, void *buf,
- 			   ARRAY_SIZE(message_buf));
- 	if (ret < 0)
- 		return ret;
-+	if (ret != ARRAY_SIZE(message_buf))
-+		return -EIO;
- 
- 	return 0;
- }
--- 
-2.20.1
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Medium] HID: rdmctmzt: split-lock rdm->link update in
+>   rdm_dongle_linked()
+> --
+>=20
+> commit 6c486e725a5b70b38d74595b3572ef11e0c655ce
+> Author: Erlend Jacobsen <erlendjacobsen@pm.me>
+>=20
+> HID: rdmctmzt: add RDMCTMZT keyboard battery driver
+>=20
+> This commit adds a HID driver for RDMCTMZT keyboards and their 2.4 GHz
+> dongles to poll battery status over the vendor HID interface and report
+> wireless link status.
+>=20
+> > diff --git a/drivers/hid/hid-rdmctmzt.c b/drivers/hid/hid-rdmctmzt.c
+> > new file mode 100644
+> > index 0000000000000..fc740c7a4e482
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-rdmctmzt.c
+> [ ... ]
+> > +/* The dongle's link byte, asked for now: an 0xd0 may have been missed=
+ */
+> > +static int rdm_dongle_linked(struct rdm_device *rdm, bool *linked)
+> > +{
+> > +=09u8 reply[RDM_ANSWER_LEN];
+> > +=09int ret;
+> > +
+> > +=09ret =3D rdm_command(rdm, RDM_DONGLE_STATUS, reply);
+> > +=09if (ret =3D=3D -ESHUTDOWN)
+> > +=09=09return ret;
+> > +
+> > +=09scoped_guard(spinlock_irqsave, &rdm->lock) {
+> > +=09=09if (!ret)
+> > +=09=09=09rdm->link =3D reply[RDM_LINK_BYTE];
+> > +=09=09*linked =3D rdm_link_may_be_up(rdm->link);
+> > +=09}
+> > +=09if (ret)
+> > +=09=09hid_dbg(rdm->hdev, "no link status: %d\n", ret);
+> > +=09return 0;
+> > +}
+> [ ... ]
+> > +static int rdm_raw_event(struct hid_device *hdev, struct hid_report *r=
+eport,
+> > +=09=09=09 u8 *data, int size)
+> > +{
+> > +=09struct rdm_device *rdm =3D hid_get_drvdata(hdev);
+> > +
+> > +=09if (!rdm || size < RDM_ANSWER_LEN || data[RDM_PREFIX_BYTE] !=3D RDM=
+_PREFIX)
+> > +=09=09return 0;
+> > +
+> > +=09guard(spinlock_irqsave)(&rdm->lock);
+> > +=09if (rdm->expect && data[RDM_CMD_BYTE] =3D=3D rdm->expect) {
+> > +=09=09memcpy(rdm->answer, data, RDM_ANSWER_LEN);
+> > +=09=09rdm->expect =3D 0;
+> > +=09=09complete(&rdm->done);
+> > +=09} else if (data[RDM_CMD_BYTE] =3D=3D RDM_DONGLE_STATUS && rdm->dong=
+le &&
+> > +=09=09   data[RDM_LINK_BYTE] !=3D rdm->link) {
+> > +=09=09/* The link to the keyboard came or went: ask now */
+> > +=09=09rdm->link =3D data[RDM_LINK_BYTE];
+> > +=09=09if (rdm->expect && !rdm_link_may_be_up(rdm->link)) {
+> > +=09=09=09rdm->expect =3D 0;
+> > +=09=09=09complete(&rdm->done);
+> > +=09=09}
+> > +=09=09if (!rdm->stopping)
+> > +=09=09=09mod_delayed_work(system_dfl_wq, &rdm->work, 0);
+> > +=09}
+> > +=09return 0;
+> > +}
+>=20
+> [Severity: Medium]
+> Can rdm_dongle_linked() overwrite a newer rdm->link update or cause
+> rdm_raw_event() to drop an unsolicited link-change event?
+>=20
+> When rdm_dongle_linked() requests RDM_DONGLE_STATUS, rdm_raw_event() take=
+s
+> the rdm->expect branch and completes rdm->done without updating rdm->link=
+.
+> If the dongle sends an unsolicited RDM_DONGLE_STATUS report before the
+> worker updates rdm->link in rdm_dongle_linked(), the two updates race:
+>=20
+> kworker                           <hardirq>
+> rdm_dongle_linked()
+>   rdm_command(RDM_DONGLE_STATUS)
+>     rdm->expect =3D 0xd0
+>                                   rdm_raw_event() [reply: link =3D 0x02]
+>                                     memcpy(rdm->answer, data, ...)
+>                                     rdm->expect =3D 0
+>                                     complete(&rdm->done)
+>                                   rdm_raw_event() [event: link =3D 0x00]
+>                                     data[13] !=3D rdm->link (0x00 =3D=3D =
+0x00)
+>                                     /* reconnect event ignored */
+>   rdm->link =3D reply[13] (0x02)
+>   *linked =3D false                 <-- stale link state kept
+>=20
+> Because rdm->link still held 0x00 when the unsolicited reconnect report
+> arrived, rdm_raw_event() did not reschedule rdm->work, and
+> rdm_dongle_linked() then stores the older RDM_LINK_NONE (0x02) reply,
+> leaving the reconnected keyboard unpolled for RDM_POLL_MS (60 s).  In the
+> opposite transition (reply 0x00 followed by unsolicited 0x02),
+> rdm_dongle_linked() overwrites the newer 0x02 in rdm->link with the stale
+> 0x00 from reply[].
+>=20
+> Updating rdm->link inside rdm_raw_event() whenever a valid
+> RDM_DONGLE_STATUS report arrives (and having rdm_dongle_linked() only rea=
+d
+> rdm->link under rdm->lock) would avoid this race.
+>=20
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-b4-rdmct=
+mzt-v3-1-5ce2359df0aa@pm.me?part=3D1
+> 

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795513525;
-	b=KXJlizjgRXIeQV3G1lUl8VKiTOpJ/8r9dmEhrc2gTf77TQJuWjX2nyC2gIlY+gwNb3bp
-	 ZCBLCy0Kq0st5/DTmNda9W6d6nWrjY2MB/E7EHbzwsFVjp9v1SY9zWtbx4v1KMTv62q9V
-	 5CQ/QQV2SXjznaHv5cQytbNxQXViQv/HluKu8+O7Qj+Hb3e3zL9lQBLXBW2YkHcb7ATqY
-	 jTi00orW3uvmSAzqlCDNYDEc8xIRwTHJN1V964/KagaXbYelCFlwnX9LifjQyXksQ/d0r
-	 Ig1459/gVEiCCHfKbEJ4sGd5DPAMMYQU1/P2EvMHr3PYNxQZuAOg9xN5tzL6HMZWKIA==
+	t=1795513529;
+	b=NsKTHZSJOLmOSakE2x+1JzlwqMUNSJlukRt+HNfe3bFD0c/YofsWeEjy9gfDP7Mk6gFG
+	 uCQh5DZENiKBYhdeefJoLhiQPphygmVM7f9tBk7QCZ2VmM6UW9Tbd/aIycYjF9ZNztsQH
+	 pyZh8cEuUkl6QOwb/+lOUdYmw3e56S5xTpyxqKfyxwerId4JkJxptnd4Z9NhsZ2ZnJO+I
+	 W1qw2U5SjUHT+nFWcXUUopOxAJg22lk02TwRHGXXIntM6j3p39dS11O9aZl+z6DzrBx4D
+	 WAGUOn0lt1WKRrqJiLCFuseHlxL885z+YULUHk5NQ+reDLR003NPzVKvZKAGINeh7LA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795513525;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795513529;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 Content-Transfer-Encoding;
-	bh=LHYj5RNi7XvfXBnbm1SbTiMtiCmXpIiLuGJrR2GJWwc=;
-	b=hD/R9Ku13hFZoI/uM0OQsZglUhZjhs/5zJcQ+3U4ZqO5rNv1s8NF7g/eSRbR4fHkUCRN
-	 l9xH9l5YRLlGUMRFDilJLGOgicY+MPjF++6zK9G0txor0wy6tjsINgj/9QoARvAMIeosY
-	 V3U2ZI3qDAadNc7NlSDuJKfmmkJZVdA7xke7af05ukRu/R7x6PiNc17O+IjiDQFm6NEND
-	 Os2OAM1XZ23T3Kb26uGBdu4vdVX8vJkZvHESfpCflbu8pA20i+/1WozKNi4dqYcKshKs5
-	 cDFFiBrcE4EWXejWh9DukEivVUrt5GI1c0MRLud/KfcVNMa8rPlzRC3codQTlY5pQSg==
+	bh=AI23EedCHOkVt2bUFVxVq0Tw4jV6qHaXsCMKfKtBCb8=;
+	b=hD+gFyMGeFGQaiiIDBJxxKXQ3tvNvna7TnJG9KVl1wsitQfRupY/qDPeZ+FFKm3B++at
+	 E4mrx+dmTcCbSUAAMmTET8EGJqvhAM05A4vfHCpPLayjXbbhZOsMeaScC2eFIqrxuz+IL
+	 0xVQZ+Epw/3wXV7vVIjkxcOaF07nV5Zkk8FLWn4eFR5MWp1Z9QV6i0J79GCkqT+oo5CMk
+	 duySJX8MU3PqxbkdttdFmDqshKp9qLS6lniAkEXrLyxNEQhBebYYAu3gwVu6RClOniFNJ
+	 gRAZjEhl3op9GVJHTFAp2erBbxXHGv81SByAjO+wwcYduks+F0m2/J8b2/CttNWPCbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Vmtr/gCV";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nnHik31J;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CCA4606B004;
-	Tue, 24 Nov 2026 09:45:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80E2460A2607;
+	Tue, 24 Nov 2026 09:45:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vmtr/gCV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB31F1F000EC;
-	Tue, 24 Nov 2026 09:45:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nnHik31J
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B1A1F000C4;
+	Tue, 24 Nov 2026 09:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795513524;
-	bh=LHYj5RNi7XvfXBnbm1SbTiMtiCmXpIiLuGJrR2GJWwc=;
+	s=k20260515; t=1795513529;
+	bh=AI23EedCHOkVt2bUFVxVq0Tw4jV6qHaXsCMKfKtBCb8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Vmtr/gCV5mFlhmL5fYdy1BFDkTDFgZXY8A7Ivtap3aBB1FbJnoWDo49qa8zu+i6hg
-	 /qAn4VJVc4NqkdwryMEo+/clY8adVODQ2Nop7ro6aB8lcBjunuNQf7tigwompyOcdw
-	 iZLTxGX/z4ngkEwCrqAGDcGX5yEISXNYXbaCtYMxGxOER/UKG+sCabqa5XDOekqJjG
-	 8ZlN/0kvYu+6bhk8CQcGSG601QgimZ33XvwX8e8no/H3viXDixCxCFSXWVXK+DsoDk
-	 bUwi4RI2kwAk8ZwX7nsbqFCgg8Jr3wZhfCYakMjGRAlAT3g90aPMPMd6AE3hhFsjzy
-	 0464XxhU8qPJQ==
+	b=nnHik31JyN/Y3TS9cyBiDeVRA00Ub5gX3cbTGh5LLBhpP23T1U52BZf4Z3OXrcbY4
+	 whWIq5d7u/lP5039cdtVPaeBNWaoyZkH343rSPE3yYysFNt6Z1+xh8hmVMgwstoXBZ
+	 O8DiJJUb4YTDb1FUZnp7XskQSA5mcrL49QyGzXh0NlfvsyWF88vKOejkr2dlkdzeAD
+	 7GjXVqLpdb5QnUIJFVvJIY/v6UIL1rJOeAgsV4aeVu6m4yeDgK0RptHlm10daF1DWZ
+	 f0fmo265bGWWnLUn9NTXM8iNkDKUIwkv/PrqdITUo25T2QoKRdDZvZ1m0QbGp8Nkba
+	 cAX09au3hVw6g==
 From: Leon Romanovsky <leon@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -100,9 +100,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@suse.de>,
 	linux-sound@vger.kernel.org,
 	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [PATCH v4 17/33] Input: gameport - use the compatibility driver attachment API
-Date: Tue, 24 Nov 2026 11:43:48 +0200
-Message-ID: <20261124-device-trust-core-v4-17-037eb0d17b1f@nvidia.com>
+Subject: [PATCH v4 15/33] driver core: Report deferred probes through sysfs drivers_probe
+Date: Tue, 24 Nov 2026 11:43:46 +0200
+Message-ID: <20261124-device-trust-core-v4-15-037eb0d17b1f@nvidia.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
 References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
@@ -121,57 +121,84 @@ Content-Transfer-Encoding: 8bit
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-Manual gameport binding calls the driver's connect callback without the
-device lock, allowing it to race with generic sysfs probing. Normal
-probing would run CONFIG_DEBUG_TEST_DRIVER_REMOVE under gameport_mutex;
-a disconnect callback that unregisters a child port would then deadlock
-trying to acquire the same mutex.
+commit b8c5cec23d5c ("Driver core: udev triggered device-<>driver
+binding") introduced the concept of "Systems who want to control the
+driver binding with udev" can use the drivers_probe sysfs to trigger a
+driver bind based on the kernel's match list.
 
-Use device_driver_attach_unrestricted() to centralize binding and failure
-cleanup without the debug removal cycle. Take the device lock with
-device_trylock() to serialize attachment with generic probing. Return
--EBUSY on contention because waiting while holding gameport_mutex could
-deadlock with probe cleanup that needs it.
+If attaching the driver is deferred before its probe callback runs,
+userspace sees EINVAL and cannot tell it should try again, maybe after
+loading other drivers.
 
+Map that deferral to EAGAIN and add missed documentation for the
+drivers_probe sysfs. A deferral requested by the probe callback itself
+is still not reported.
+
+Fixes: b8c5cec23d5c ("Driver core: udev triggered device-<>driver binding")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/input/gameport/gameport.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-drivers-probe | 14 ++++++++++++++
+ MAINTAINERS                                       |  1 +
+ drivers/base/bus.c                                |  9 +++++++--
+ 3 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index 9707b155bc947..88b1a3464bf3e 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -216,24 +216,12 @@ static int gameport_bind_driver(struct gameport *gameport, struct gameport_drive
+diff --git a/Documentation/ABI/testing/sysfs-bus-drivers-probe b/Documentation/ABI/testing/sysfs-bus-drivers-probe
+new file mode 100644
+index 0000000000000..ed8828e55d6bf
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-bus-drivers-probe
+@@ -0,0 +1,14 @@
++What:		/sys/bus/.../drivers_probe
++Date:		February 2007
++Contact:	driver-core@lists.linux.dev
++Description:
++		(WO) Writing a device name requests driver attachment on this
++		bus, even when drivers_autoprobe is disabled. A successful
++		write does not guarantee that a driver bound. The driver link
++		can appear before probe completes; a bind uevent signals
++		successful binding.
++
++		EAGAIN means attachment was deferred before the driver's probe
++		callback, for example while a supplier or the device itself
++		is not ready. ENODEV means the device was not found. Other
++		attachment errors return EINVAL.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 93abbb315065d..b726344362b41 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8149,6 +8149,7 @@ M:	Johan Hovold <johan@kernel.org>
+ L:	driver-core@lists.linux.dev
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/driver-core/driver-core.git
++F:	Documentation/ABI/testing/sysfs-bus-drivers-probe
+ F:	Documentation/core-api/kobject.rst
+ F:	Documentation/driver-api/driver-model/
+ F:	drivers/base/
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index 396097fdb3162..ecff32c3704b5 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -310,13 +310,18 @@ static ssize_t drivers_probe_store(const struct bus_type *bus,
+ 				   const char *buf, size_t count)
  {
- 	int error;
+ 	struct device *dev;
+-	int err = -EINVAL;
++	int err;
  
--	gameport->dev.driver = &drv->driver;
--	if (drv->connect(gameport, drv)) {
--		gameport->dev.driver = NULL;
--		return -ENODEV;
--	}
-+	if (!device_trylock(&gameport->dev))
-+		return -EBUSY;
- 
--	error = device_bind_driver(&gameport->dev);
--	if (error) {
--		dev_warn(&gameport->dev,
--			 "device_bind_driver() failed for %s (%s) and %s, error: %d\n",
--			gameport->phys, gameport->name,
--			drv->description, error);
--		drv->disconnect(gameport);
--		gameport->dev.driver = NULL;
--		return error;
--	}
--
--	return 0;
-+	error = device_driver_attach_unrestricted(&drv->driver, &gameport->dev);
-+	device_unlock(&gameport->dev);
-+	return error;
+ 	dev = bus_find_device_by_name(bus, NULL, buf);
+ 	if (!dev)
+ 		return -ENODEV;
+-	if (bus_rescan_devices_helper(dev, NULL) == 0)
++	err = bus_rescan_devices_helper(dev, NULL);
++	if (!err)
+ 		err = count;
++	else if (err == -EPROBE_DEFER)
++		err = -EAGAIN;
++	else
++		err = -EINVAL;
+ 	put_device(dev);
+ 	return err;
  }
- 
- static void gameport_find_driver(struct gameport *gameport)
 
 -- 
 2.56.1

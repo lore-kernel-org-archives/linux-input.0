@@ -1,46 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795495854;
-	b=zjHpdrEwh0htTtHZaWuZJalSr2vTVxkhCxfymxFuor1GUv2ndTO7zw0XHqttHjuOng6X
-	 Oclr6e4WXQpwQE5oHXMVjMfRC0Fn4XzIPuUkWY/a16S3PZR9QlTvkKLIwU1OAUavK4cLD
-	 D7AA29bWyLYm1EDkXBGEJJpGi3Uh/3k1JhLxpnNTEKClG5O8pFAhwOEdq87AkTziz5jDR
-	 DVRJhR0inNJQz1OqtoRXLLs6cr+MkXRcaFVlu5Tt9lv094v9IUVow2rcOjjJnDHIJh1j8
-	 L13zaHPjBhewSJP/oz4oebbdGYu6iLjXTP8nPVNGDd+90CMXg2kz+IvF1Vx/tz5TGdA==
+	t=1795495849;
+	b=ymXxklySVkJ+rnNKnOfnuCU+YAlrZze5Kirb/ttoqohgUj49oqw4NDbq2NR278YEEO17
+	 ffiiXWZ5UPL6WQ+mtpgxNwFdIDm6iWh3U2ukNblVpanM97Rf3hfKTIuUyo889WeDZxyib
+	 6N4wvoJyg0T5Gj6VnrAOFYJ5Qarl294U0PekaolEh3Bzs8d6AybvLgwolhPAk7hMTq/mM
+	 vyuhLl0w51vijSSVYcOnk0RkTmOfGkLue+c/HzJlhkzidEYzUbxeLdJWYPVrCKBtQKFkL
+	 GhC9IOqRkoW/OPGanqAGbTuOYuF6ZyocxMAjAkSbJi5sTzIZOMEc9LKGPG6yQhG9GFQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795495854;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795495849;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
-	 X-CM-SenderInfo;
-	bh=DclO4PPjmHtnFXntHY4BqycynmIJZRy6m9U1ktY1Pws=;
-	b=zNMi0n0GJAQiKs16nLBXIuVFUGq//1pCKnWv/J4V5uMkEcWRbkHYCvlH2oOD5oGi+9tB
-	 5Fdu/NbSuMLfrvvCE9tjRf1pk74v+qpkKfBPrg/p3Q5bRRTN/tBQRv1lFKTvV9BcYh73+
-	 OR1fi9XI2bPeN4QxXt/eqrvO56Gzoi/od2sCvvCLCiA2QxjOtGU8MPyrD9Rwo2BsrHoZe
-	 V67UKnBUxbyUTGxoAnKYzJ1Zb2ohENe2yyksA8OOwxnvaIJApmPVaLY3jICRr1qjjpYHp
-	 5jGsK1SXLk17tCyrVCCt7bffr5GYRufWp3z+HoJMT79Q2fJ0I5H0wAbBq38nKZga41w==
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
+	bh=8AD9JPaBV+HRt3GPHbOk/d60mnF1iR5lZyY5cYdZzTI=;
+	b=b5T3WzE8NO6CQwtjdYI+x57Vbq3K5aXI+rnPkm74kpHteJuvi6d05K63fQLyMX4W5hF3
+	 040lzSxa1JJ1215k5cdB3rn6RsLR+jQbMZOcBzbDt26jq94Cg+QaLNJggDtI8jFn15wJG
+	 Il4lMsig1AcgB1ABPASnLyQaaQeiNwPHUFDesjRJ06pdx88o0r42LRgDvAVqejVPLZ5zh
+	 6KB7DJ3DqGI463IujpjO24/I1T6lrC7jsDqhj2AukYEhg+TNw7smn5RHYJCFqyKU2Cf4V
+	 swGS7fuB1Iec4ksAlzTHz+cs5vIzIl1+Kh1Y8CahDqa6piG3T/Pp6hNe31kALVgB+5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mail.ustc.edu.cn;
 	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
-	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=C3RyTgts;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b="pH/yHJA0";
 	arc=none smtp.remote-ip=202.38.64.46
 Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D9EB8606A699;
-	Tue, 24 Nov 2026 04:50:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D9EB8606A699
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D6455606A321;
+	Tue, 24 Nov 2026 04:50:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6455606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=C3RyTgts
+	dkim=pass (1024-bit key) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=pH/yHJA0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
-	Message-ID:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=DclO4PPjmHtnFXntHY4BqycynmIJZRy6m9
-	U1ktY1Pws=; b=C3RyTgts4WLw0BqBmUAtn8njS8KMDAyTVXfNAoE186OGMpKqHl
-	jWMW05slbI8iO4fEzTs7RMTVzAF4hQGMgOuEyLk6FeMjvt+2ObsYAM/azb6agmuR
-	ZYF6v35gBTgXg63HyG5FFBIg9/Iphnuzp074i1bTCDanQs0L9PEFUPIGE=
+	Message-ID:MIME-Version:Content-Transfer-Encoding; bh=8AD9JPaBV+
+	HRt3GPHbOk/d60mnF1iR5lZyY5cYdZzTI=; b=pH/yHJA0QG67/ud4AjJfV6U2/7
+	f6BvQe21jywB19ltbihUV17yKDLug4K3u+AeAS6JTXEPmi/LO+Wx6c2glvEa0t58
+	6zkH6+974AWBa6gxgwIrSuOUHzjKTlWv/GE0SLTgP2y0Rnbm1/a77NyJ0r1Y/6VH
+	oDqbPNvy7mkJ+T8qo=
 Received: from xuqianhui.tail7a2807.ts.net (unknown [114.214.185.179])
-	by mailimap2024 (Coremail) with SMTP id 3pYKCgBn2i6gFwVruBfwAA--.253S7;
-	Tue, 24 Nov 2026 12:50:50 +0800 (CST)
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgBn2i6gFwVruBfwAA--.253S2;
+	Tue, 24 Nov 2026 12:50:40 +0800 (CST)
 From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 To: dmitry.torokhov@gmail.com
 Cc: robh@kernel.org,
@@ -48,14 +47,11 @@ Cc: robh@kernel.org,
 	conor+dt@kernel.org,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Joonhoe Kim <26rote@gmail.com>
-Subject: [PATCH v4 5/6] Input: aw86927 - handle the AW8693X play and boost register layout
-Date: Tue, 24 Nov 2026 12:50:39 +0800
-Message-ID: <20261124045040.559317-6-xiaqinghuan@mail.ustc.edu.cn>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/6] Input: aw86927 - add AW86937 support and fix the AW8693X layout
+Date: Tue, 24 Nov 2026 12:50:34 +0800
+Message-ID: <20261124045040.559317-1-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261124045040.559317-1-xiaqinghuan@mail.ustc.edu.cn>
-References: <20261124045040.559317-1-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -66,166 +62,105 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:3pYKCgBn2i6gFwVruBfwAA--.253S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxZrW5Cr18Cr15JF4rXryfCrg_yoW7JFyrpF
-	y5CFyUtrW2grWxK3WvyF1vvF1furnIgF42qr9Fg343J3W7Xw48KFn7tw40yryqyFyUKw15
-	Ja1vvFyq9rsrWFUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
-	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
-	jxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI
-	8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E
-	87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64
-	kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm
-	72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1lc2
-	xSY4AK67AK6r45MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E
-	5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtV
-	W8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY
-	1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI
-	0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x
-	07bFWrZUUUUU=
-X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREBB2sElFst2AApsq
+X-CM-TRANSID:3pYKCgBn2i6gFwVruBfwAA--.253S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxXF4kJryrJrW7ur1fXr1UJrb_yoWrWF1fpF
+	Z8Ka43tFWDJrWIkw4Ikw40vFyFvws3JFW5ArykGr1UA3W3G3WrtrZ3Kw1YvFyUKrs2k3W7
+	tFy0qws3ursrAaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUv2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xII
+	jxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I
+	8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
+	64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8Jw
+	Am72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l
+	c2xSY4AK67AK6r45MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I
+	0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWU
+	AVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcV
+	CY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAF
+	wI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa
+	7IU5AR63UUUUU==
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiAREBB2sElFst2AAksn
 
-AW86937 and AW86938 keep the same register map as the AW86927 but move
-two bits and invert the stop handshake:
+*** AI-assistance disclosure ***
+This cover letter and the six patches below were prepared with the help
+of an LLM coding assistant.  The author reviewed every line, ran every
+gate quoted in this letter himself, and takes full responsibility for
+the content.
 
-  - auto boost lives in bit 2 of PLAYCFG3 instead of bit 4, and the boost
-    mode in PLAYCFG1 is a two-bit field at bit 5 instead of bit 7;
-  - the VBAT mode bit taps the battery voltage instead of the software
-    tracked value;
-  - stopping is a two-step sequence: select PLAY_MODE_STOP in PLAYCFG3 and
-    then issue GO in PLAYCFG4, as the dedicated STOP bit does not exist
-    for these parts.  A standby timeout after that is a real failure, so
-    return it instead of forcing the state machine.
+This series adds support for the Awinic AW86937 LRA haptic IC on top of
+the existing AW86927/AW86938 driver, fixes two register definitions that
+are wrong on the AW8693x parts, and stops playback over suspend, close
+and shutdown.
 
-Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
-Tested-by: Joonhoe Kim <26rote@gmail.com> # Lenovo Y700 Gen 5 (TB323FU)
----
- drivers/input/misc/aw86927.c | 65 +++++++++++++++++++++++++++---------
- 1 file changed, 49 insertions(+), 16 deletions(-)
+Patch 1 fixes the 7 V boost reference value that the AW86938 support
+introduced (0x11 programs 9 V, not 7 V).  Patch 2 widens the AW86938
+boost mode mask: the field is two bits wide at 6:5, so the existing
+one-bit mask leaves bit 6 untouched when the driver selects bypass.
+Patch 3 documents the awinic,aw86937 compatible as another member of the
+AW86927 fallback group; detection stays on the chip ID, so no new
+of_device_id entry is added.  Patch 4 adds the chip ID and init path.
+Patch 5 handles the AW8693x register layout differences (auto-boost bit,
+two-bit boost mode, VBAT mode and the two-step stop handshake).  Patch 6
+parks the part in standby on suspend, refuses new effects while the
+device is closed or suspended, asserts reset on shutdown, and drains the
+work item from a devres action so that unbind and probe failure unwind
+stop playback too.
 
-diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-index 699c92a1ce..1dbcba7988 100644
---- a/drivers/input/misc/aw86927.c
-+++ b/drivers/input/misc/aw86927.c
-@@ -49,6 +49,14 @@
- #define AW86938_PLAYCFG1_BST_VOUT_VREFSET_MASK	GENMASK(4, 0)
- #define AW86938_PLAYCFG1_BST_7000MV		0x09
- 
-+/*
-+ * The AW8693x parts move auto-boost to bit 2 of PLAYCFG3 and stop playback
-+ * by selecting the dedicated stop mode and then issuing a GO, unlike the
-+ * AW86927 which has an explicit STOP bit in PLAYCFG4.
-+ */
-+#define AW8693X_PLAYCFG3_AUTO_BST_MASK		BIT(2)
-+#define AW8693X_PLAYCFG3_PLAY_MODE_STOP		3
-+
- #define AW86927_PLAYCFG2_REG			0x07
- 
- #define AW86927_PLAYCFG3_REG			0x08
-@@ -290,9 +298,14 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 
- 		err = regmap_update_bits(haptics->regmap,
- 					 AW86927_PLAYCFG1_REG,
--					 AW86927_PLAYCFG1_BST_MODE_MASK,
-+					 haptics->model == AW86927 ?
-+					 AW86927_PLAYCFG1_BST_MODE_MASK :
-+					 AW86938_PLAYCFG1_BST_MODE_MASK,
-+					 haptics->model == AW86927 ?
- 					 FIELD_PREP(AW86927_PLAYCFG1_BST_MODE_MASK,
--						    AW86927_PLAYCFG1_BST_MODE_BYPASS));
-+						    AW86927_PLAYCFG1_BST_MODE_BYPASS) :
-+					 FIELD_PREP(AW86938_PLAYCFG1_BST_MODE_MASK,
-+						    AW86938_PLAYCFG1_BST_MODE_BYPASS));
- 		if (err)
- 			return err;
- 
-@@ -300,7 +313,8 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 					 AW86927_VBATCTRL_REG,
- 					 AW86927_VBATCTRL_VBAT_MODE_MASK,
- 					 FIELD_PREP(AW86927_VBATCTRL_VBAT_MODE_MASK,
--						    AW86927_VBATCTRL_VBAT_MODE_SW));
-+						    haptics->model == AW86927 ?
-+						    AW86927_VBATCTRL_VBAT_MODE_SW : 1));
- 		if (err)
- 			return err;
- 
-@@ -312,23 +326,38 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
- 
- static int aw86927_stop(struct aw86927_data *haptics)
- {
-+	bool aw8693x = haptics->model != AW86927;
- 	int err;
- 
--	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG, AW86927_PLAYCFG4_STOP);
-+	if (aw8693x) {
-+		err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
-+					 AW86927_PLAYCFG3_PLAY_MODE_MASK,
-+					 AW8693X_PLAYCFG3_PLAY_MODE_STOP);
-+		if (err)
-+			return err;
-+	}
-+
-+	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG,
-+			   aw8693x ? AW86927_PLAYCFG4_GO : AW86927_PLAYCFG4_STOP);
- 	if (err) {
- 		dev_err(haptics->dev, "Failed to stop playback: %d\n", err);
- 		return err;
- 	}
- 
- 	err = aw86927_wait_enter_standby(haptics);
--	if (err) {
--		dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
--		err = aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
--		if (err)
--			return err;
--	}
-+	if (!err)
-+		return 0;
- 
--	return 0;
-+	/*
-+	 * The AW8693x reliably reaches standby through the stop mode above, so a
-+	 * timeout there is fatal; the AW86927 sometimes needs the nudge.
-+	 */
-+	if (aw8693x)
-+		return err;
-+
-+	dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
-+
-+	return aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
- }
- 
- static int aw86927_haptics_play(struct input_dev *dev, void *data, struct ff_effect *effect)
-@@ -364,9 +393,13 @@ static int aw86927_play_sine(struct aw86927_data *haptics)
- 		return err;
- 
- 	err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
--				 AW86927_PLAYCFG3_AUTO_BST_MASK,
-+				 haptics->model == AW86927 ?
-+				 AW86927_PLAYCFG3_AUTO_BST_MASK :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK,
-+				 haptics->model == AW86927 ?
- 				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
--					    AW86927_PLAYCFG3_AUTO_BST_ENABLE));
-+					    AW86927_PLAYCFG3_AUTO_BST_ENABLE) :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK);
- 	if (err)
- 		return err;
- 
-@@ -604,9 +637,9 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
- 
- 	err = regmap_update_bits(haptics->regmap,
- 				 AW86927_PLAYCFG3_REG,
--				 AW86927_PLAYCFG3_AUTO_BST_MASK,
--				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
--					    AW86927_PLAYCFG3_AUTO_BST_DISABLE));
-+				 haptics->model == AW86927 ?
-+				 AW86927_PLAYCFG3_AUTO_BST_MASK :
-+				 AW8693X_PLAYCFG3_AUTO_BST_MASK, 0);
- 	if (err)
- 		return err;
- 
+What changed in v4
+==================
+
+Only 6/6 changed.  All four points of Sashiko's v3 review (2026-11-24
+02:03Z) are addressed:
+
+  - [High] "commit message without Signed-off-by": the trailer is back.
+    The patch is generated as part of the series again, so it also keeps
+    the usual 76-column wrapping that was mangled in v3.
+  - [Medium] "uninitialized work_struct in aw86927_reset()": INIT_WORK()
+    now runs before devm_add_action_or_reset(), so the devres action can
+    no longer reach disable_work_sync() with play_work.func == NULL.
+  - [Medium] "race in aw86927_close() allows the timer to restart
+    playback": close() clears a new "enabled" flag under the input event
+    lock before the work item is drained, and aw86927_haptics_play()
+    ignores effects while that flag (or "suspended") is clear.  A memless
+    effect timer that fires around close() therefore cannot queue
+    play_work again after the driver stopped the chip; a new ->open()
+    callback sets the flag again.
+  - [Low] comment and commit message wording now describe standby rather
+    than power-down/reset, and "Changes since v3" sits below the
+    separator.
+
+Patches 4/6 and 5/6 now carry the Tested-by tag that Joonhoe Kim sent for
+the corresponding v2 patches: the code in them is unchanged since v2 (the
+hunks only shift because the series is rebased onto v7.4-rc3), and he
+tested it on a Lenovo Y700 Gen 5 (TB323FU) with two AW86937, including an
+s2idle round trip.  Patch 6 has changed both in v3 and in v4, so his tag
+for the old version is deliberately not carried there; a re-test of v4
+6/6 would be welcome.
+
+The AW86937 has no hardware in hand: the register data comes from the
+vendor driver and the part datasheet, and the commit message does not
+claim otherwise.
+
+Gates for this version: the six patches apply cleanly to v7.4-rc3
+(aebb727447); checkpatch.pl --strict reports 0 errors and 0 style
+warnings (the only two warnings are "Unknown commit id
+'df53055c540f'" for the Fixes: tag, which resolves in the input tree but
+not in a mainline tag); W=1 compile of drivers/input/misc/aw86927.o for
+arm64 (defconfig + CONFIG_INPUT_AW86927=y) with 0 warnings and 0 errors.
+
+
+Qianhui Xu (6):
+  Input: aw86927 - fix the 7 V boost reference for AW86938
+  Input: aw86927 - widen the AW86938 boost mode mask
+  dt-bindings: input: awinic,aw86927: document the AW86937 variant
+  Input: aw86927 - add support for Awinic AW86937
+  Input: aw86927 - handle the AW8693X play and boost register layout
+  Input: aw86927 - stop playback over suspend, close and shutdown
+
+ .../bindings/input/awinic,aw86927.yaml        |   1 +
+ drivers/input/misc/aw86927.c                  | 195 +++++++++++++++---
+ 2 files changed, 170 insertions(+), 26 deletions(-)
+
 -- 
 2.53.0
 

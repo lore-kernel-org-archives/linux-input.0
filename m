@@ -1,94 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.58.216
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795573927;
-	b=lWvBe2OdlkC2kCBiA8s6MuYsDuasiXdxjhCOsMpI/lN9wh0wJ2CEut1dYX57TFk5knJl
-	 aIxyOkXjeYK+BbD0zEeobcxUFcsg61plexir7FliAfw4cbAujK70Q8bLYnAxSGN4OohL6
-	 rOko/kuBnjMqZvE/asNtHqDEUGS9MJIlzq1HhLLZ8MixgfEa3S9wfbcevPfEHyG8FyU0W
-	 OlMwdyx/33mxJ2C56HOp8xOT1apjDjFrs0dQuaksnLuoQpe+IWf71CcGd9JcRF/vaB9DN
-	 +s9sRI2PtSim31rHJD5jwjlSP0/iYaY7aSD0B77qpRCwW21jOAQeiurLLx3ZBApl/EA==
+	t=1795574556;
+	b=czlg++ppttlJrXx3/fdxlIOPZPbysOxowzkLw2GsnCHCTmIR98vgWn2T7pt21SGM33f8
+	 ejSbamlNvHtyEG2TE+s3/b947NdZqA4NmXZWzDZ6uFLWr2iB/y3TLlRgQC8E6csJQGyOW
+	 xwD3ozyYwuKv00BW3F02Tt+9qv7DjdCz4aMetDcI6Wki08HpJqlyR8VLlqD1pzBWnAT2h
+	 KikpewapMs0MdqkIWhKAj/T3bPVKj0FQoylfVUAMwUlYtttKH4QqQSi42VFsRiPkxBgIk
+	 gDMKi58+huUXDzWjgjCOUV7BqD+zx/TwjzMEk3rDXJscBPo4PuqD+LSQB8yCcc0XX8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795573927;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=ZkakucMXa/GLA6c3NEIv0nalbNEBO6xsvd9bftKJ/G0=;
-	b=0Ox9RZ74nK+/eBIi/dW3yW1nqrDRbdgcXnMluc3/RJxkfeBGRl1qExGPN1DtZ+12tCuv
-	 JLaa7E0tGvY1XE2PoWRwtL2HSwWcqsdl+D2EO1auAuLIegm8ayJFB5WeMjQN6yxI7Z22w
-	 fYA+X69VH+7DA9CDr/yip6/SiEjkkWmRKN9HpwXKJVsSDbu6NUvTrmquJPo7W5JwjBfD/
-	 g/cVFr8/NW/JuDLHxWQ58Hy1jDnHH9WqIM+lIMhCs4b9X4WAJFkp0n2ZI6JTHQo8kaJpU
-	 iEw650MUnsNQsxBQKh8CitLGnm41lqhZkwXMZJc5oAejdLb/UKazu14HSbCd4IRH25Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795574556;
+	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=Zley+tZa5UBCEuXBe2RxpLK6JVeG8RJlYwhvm31EGek=;
+	b=ZfSN8kieNIMjF+5Ruh46fFcpaxRHrOkwYmCEL7b3lqRACD8GND0BdHJX8jrmfvpvabwb
+	 cPbP7BsQWz5vnH4I0goRwpxNefwrC/hvP8AcwMrDtvu+QA9s/ql49qYSQEH5reai0pTd+
+	 bpTVfyoOIu93m72ngr661u5RvymK5/aRQtf8h99xHh7KFR2Bc6UAzLEcbDpthzytCeweu
+	 16JmgAlHPzVyzQpJDEZZtrdOLoFtgbiJJUVha+4eIQXBy0cTZyCtLJr1BVJOq8XABg8Zq
+	 XNUytPnFgMKQJUIkgNJTiDp7OsQXrAHzs+mWQZYKEsycWn0W+XbSrz0IFdaEC3nWtkA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fYJ1MbM7;
-	arc=none smtp.remote-ip=74.125.82.170
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=PjNzkbEF;
+	arc=none smtp.remote-ip=162.62.58.216
+Received: from out162-62-58-216.mail.qq.com (out162-62-58-216.mail.qq.com [162.62.58.216])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D26A606A321
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 02:32:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9D26A606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A07606A327;
+	Wed, 25 Nov 2026 02:42:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 37A07606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fYJ1MbM7
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-38190551625so10520723eec.1
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 18:32:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795573926; x=1796178726; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ZkakucMXa/GLA6c3NEIv0nalbNEBO6xsvd9bftKJ/G0=;
-        b=fYJ1MbM7KOuGMRCQcWCIqbfMFOr2CUQf/B4ldHnewSb4cE9+E0UiaaU/soSCEPq5Dv
-         QHXY0aDlp0D/RDykZzPagQjfF3Bb1TR9D2HLkw5cJJa/RI7l0DS8rmtLSYn372k7W9pe
-         FmNcn1v4CFhzOVrhoyW5ihXGylpn8ajH+Gi68rsERfTmgWWfxZocFIqUdK/cpfHZx5RR
-         Qd/9xyIg7bE3k5+roqXV1QtL0v8zpAJgszjD3SAefDRhLZsZhhB+FF8UaakaZ0t5dFaj
-         FKHLBCZNs1EevVE0mbRaQ/4QDMVCoI1rlucSesLMTKQ638Z5qjL+UwbZ5fZF42mLQeNG
-         jbPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795573926; x=1796178726;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZkakucMXa/GLA6c3NEIv0nalbNEBO6xsvd9bftKJ/G0=;
-        b=J9aHunC5ZUcKyrwewxlRc2bWYbUcDcmPgm55HEWvAP75Briy/+5PC8J+9Oyq9WzrGu
-         4JD9/0oewWmWq9HUvHySv70j/sEDvv8hZm2d0KvQG8DADyLQdrOoFG8EubLU48dsqq36
-         iIXnMaYVzVwy3e3O5fSUwPr4vB3Wgn3yrG04pLe7s5TepZqRfETT89TO8ZSDPZSVUFxb
-         vuPiqOfViBeaBXyXWzxiv2X6BkLei9FKSzoV3FBUooCaIVIvMl1dODvUR6ePXhMwy0X0
-         EKrr5hVLTJsUbB4tPQ9XYOZM/xwy+5mv0U5HNXYpj6am0zeXN6dEZ7CvJBAZBMoJWnzz
-         pMiA==
-X-Forwarded-Encrypted: i=1; AL+hErH8E1d63SLXuCWpGcjpyHqzZtOgGhuNBfKssV309XRIDyRhMwz3UT/G64MXpA73atR+1cJ+9/R90n/MNQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8HDQgJYEuIXyxrV8W9CDFsHCS0l90pGD8Ug3EKAwaGbDWJVyqq
-	W0o7cyKFKmN6OMnKT3SsAuvGInn5VjHs33mQ2WhhyEhP+EXldCIWQVjIKO4aYw==
-X-Gm-Gg: AZFdTZd1QVbqOxraEEtVDPvPCI9y9cYxX5Xga0BwtPgUi+BM8fYeCgKSGJH0ZD51RIp
-	G92Vt3pd6LE87CPTxqGfSEPpAUAnLRu907Fc2SYHNPF7oRoYHI8gDalBdArc7U5J/HuN3TSh4p+
-	aFRDRZfdiznTWTdE5y9SUmVgs8aXPn68KhLikP0GE47OX/WZafiB6rMWF4q0R9kB5u0teqTQWxg
-	NhsMpM+SngypcP9xD/mrKKPBQZm3rECGAsctDbpbP8xQ6+rnkRSa7jWpxBMeTBkCmfbWJGHrq89
-	3ihTV/0UGrzuH8fugCh2pNGT1r/ALmN9X38GYBkcB508jdcsTdjbALmCVmEfWi8qkD2QSTEcCCP
-	03KfiezT4XzyWT735nCE9gbGwxVQ625lF8ORCHsiwdIgcgAdwAB8piTHujiPF4dvvpwAHYGYxgS
-	Pt46PC6/hK9cv9REXeUgc+5p6MJM1YAf2TJQxvkRo+lCY2nch1QyGD3q0t2rYeA9fTpDYc3JKOS
-	4Xm3w9yONHvJZgXAgmnt4FvPIkUEYk1N43nPB9q3C4KPZcNfe9oRGLjNzyyl58vRCpCmHqIdySt
-	c8+An9RvzoOFr7DB/nyZhX1I8W799BcDmJzzO6kYsVL19IDN42QZQB9Y+HTTLFrPxpqoNh4=
-X-Received: by 2002:a05:7301:182d:b0:386:b801:cd06 with SMTP id 5a478bee46e88-386b801cd3bmr6055021eec.40.1795573925600;
-        Tue, 24 Nov 2026 18:32:05 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:ee3b:b892:771b:3bc7])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38566cd4efesm50729285eec.12.2026.11.24.18.32.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 18:32:05 -0800 (PST)
-Date: Tue, 24 Nov 2026 18:32:02 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Hefei <3066883572@qq.com>
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, robh@kernel.org, conor@kernel.org
-Subject: Re: [PATCH v3 5/6] Input: add Jadard JD9365TX in-cell touchscreen
- driver
-Message-ID: <awZIEjbpVfVNoc05@google.com>
-References: <20261125021127.1430-1-3066883572@qq.com>
- <tencent_03FEA6A02E8E137CCC5AC97E6F118A3CC10A@qq.com>
+	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=PjNzkbEF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1795574550; bh=Zley+tZa5UBCEuXBe2RxpLK6JVeG8RJlYwhvm31EGek=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=PjNzkbEFfNbZW/gb0km07ggchSJWfMI5Cag+ZRIjJKybUWEshc7TjVc6WjVppN5zd
+	 USPoQcTpBAPRUpG8kU9ffVUbOgX3pB9V3GX8eF2XfH1eRNRZdnjdTamZ6OdOyDQLtF
+	 PTim8vWj0njQFPRYoUM0mggcPb6+NIdpQT1+ujHY=
+Received: from HF ([113.90.236.90])
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id A9B394D4; Wed, 25 Nov 2026 10:42:27 +0800
+X-QQ-mid: xmsmtpt1795574548td0mvfelj
+Message-ID: <tencent_7B5CDF8F84744FFBBFCFA89FE3651F675608@qq.com>
+X-QQ-XMAILINFO: Nmh4/X5oQWzAbzI4i6Nu6Jkn8vWiOLtxmN4EoCBsQtDez56ZTnB/e9aveeDdAB
+	 2eUUrqW6Gv6GaDkki5415CQnHIueLDUXA2JPI5/2+fbGu1Fv/Ly9S/BucaaulMY6yPCwFjtIN5o7
+	 b7kptzI/iyhUWNsghjVTS8OsHGD+8sBSkpdiEtpowR7s+RlCsjjcRK46nqnoQhyCdNgC3pSiN9iN
+	 TC4VzpA2s2o8CKBf8P/VY8NkxBqHmHIhrXZPhW/qyCDjMitOFr2ddUiTvAQqrjUB69akIluy+tBu
+	 H/LpEZjlPCn3fKM7co3BAJ0sBRBEv49ajnSVQ1Yr6HS2PrM/BLDq38vHnLCGgqa9gG4OxcIpMGx2
+	 pr+Uf5y+2/vOI7Svtu/DR+vICwy7LPpJtTqbgXACPNRyTZbaBQadGjaTv4MiXjGmyy92M44C/k1x
+	 uHD9N86mGox8RUUAm0swNZ3cJdCyE7U6JvJvJvj+rrFUF5b0y0+mRO+qtqmzos19WOc7HI0GjH8P
+	 J+GweOm5zNXMLEV27kWYznSCpz+Dp1m5dDLFgCpsSCYow0ZH7un9wTHRSh3gJ/V21LbaN4OWroBP
+	 w0Nn+14Y2lclLFPnNFqYRF8VXnJ4CzhlzXRQz1AUvoCJ/oe0JUsiG3925Iap+Te8n/88dLBPteDh
+	 hRceAFsn6F6ScBIDr7alg8YfEzzJn0zPS1FWF0qB1l28fxspzx/Hn8XdID1ITMfroGwruPeqCcv8
+	 gWMUoVrPIQbCGgl2yH6Mctq4avOfaojXB2YHY3ZZY/v8KXtRCV666KBG2g8C+R5WZhbtN5sE6JRf
+	 K8KEaUSNv9vnmMVof3tnOj/vYMuF/Y9MiuEpYSXYiGpR1uBTtW3FFHIJqpvA4Nh2fSY6kGDLr5pY
+	 FtL3Po8eB1AGiEP4CNyG7R4X6v/ZIHbe7NuLZy9pSy7ESWl13b6uOxmuZHmPKwUPBN9u0a5LYB+G
+	 /h/zfvOG66ustLjdd9MG6D+UXAIManrWaJZRCgdojv4aYNVeW/Z9qdXRgTQdhhVt3eott0UdV0tZ
+	 2njKO31rTKNnOHkoM1LNbINkqKlkqYM+JICerUW+rHTEsA7sBuHEkei2YWs/c6J/SqeeiiNjLm66
+	 QaZGCMxEczWZ4+mdKrCtCZ/0X3PZzyCVlNmGYIdVnFyDCoZIU7IukFpusfKA==
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+From: Hefei <3066883572@qq.com>
+To: dri-devel@lists.freedesktop.org
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	conor@kernel.org,
+	Hefei <3066883572@qq.com>
+Subject: [PATCH v4 1/6] dt-bindings: display: add VIEWE 7KF82 JD9365TX panel
+Date: Wed, 25 Nov 2026 10:42:21 +0800
+X-OQ-MSGID: <20261125024226.1293-2-3066883572@qq.com>
+X-Mailer: git-send-email 2.55.0.windows.5
+In-Reply-To: <20261125024226.1293-1-3066883572@qq.com>
+References: <20261125024226.1293-1-3066883572@qq.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,16 +84,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tencent_03FEA6A02E8E137CCC5AC97E6F118A3CC10A@qq.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 25, 2026 at 10:11:26AM +0800, Hefei wrote:
-> Signed-off-by: Hefei <3066883572@qq.com>
+Add the device tree binding for the VIEWE 7KF82 720x1280 Jadard
+JD9365TX MIPI-DSI panel, and register the viewe vendor prefix.
 
-Spare a few words (or maybe even a paragraph) for patch description.
+Signed-off-by: Hefei <3066883572@qq.com>
+---
+ .../bindings/display/panel/viewe,7kf82.yaml   | 67 +++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+ 2 files changed, 69 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/display/panel/viewe,7kf82.yaml
 
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/display/panel/viewe,7kf82.yaml b/Documentation/devicetree/bindings/display/panel/viewe,7kf82.yaml
+new file mode 100644
+index 0000000..1ece390
+--- /dev/null
++++ b/Documentation/devicetree/bindings/display/panel/viewe,7kf82.yaml
+@@ -0,0 +1,67 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/display/panel/viewe,7kf82.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: VIEWE 7.0" 720x1280 Jadard JD9365TX MIPI-DSI in-cell panel
++
++maintainers:
++  - Hefei <3066883572@qq.com>
++
++description: |
++  The VIEWE 7KF82 module is a 720x1280 RGB888 video-mode MIPI-DSI panel
++  based on Jadard JD9365TX. It uses two DSI data lanes and exposes in-cell
++  touch over I2C on the same FPC.
++
++allOf:
++  - $ref: panel-common.yaml#
++
++properties:
++  compatible:
++    const: viewe,7kf82
++
++  reg:
++    maxItems: 1
++
++  vdd-supply:
++    description: Panel VDD supply, usually 3.3V
++
++  iovcc-supply:
++    description: Panel IO voltage supply, usually 3.3V
++
++  reset-gpios: true
++  backlight: true
++  rotation: true
++  port: true
++
++required:
++  - compatible
++  - reg
++  - vdd-supply
++  - iovcc-supply
++  - port
++
++additionalProperties: false
++
++examples:
++  - |
++    dsi {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        panel@0 {
++            compatible = "viewe,7kf82";
++            reg = <0>;
++            vdd-supply = <&reg_vdd>;
++            iovcc-supply = <&reg_iovcc>;
++            backlight = <&viewe_bl>;
++
++            port {
++                endpoint {
++                    remote-endpoint = <&dsi_out>;
++                };
++            };
++        };
++    };
++...
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 9ac7e0b..9135da6 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1739,6 +1739,8 @@ patternProperties:
+     description: Vicor Corporation
+   "^videostrong,.*":
+     description: Videostrong Technology Co., Ltd.
++  "^viewe,.*":
++    description: VIEWE Technology Co., Ltd.
+   "^virtio,.*":
+     description: Virtual I/O Device Specification, developed by the OASIS consortium
+   "^virtual,.*":
 -- 
-Dmitry
+2.55.0.windows.5
+

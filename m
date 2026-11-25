@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795604573;
-	b=QGNcmm32GnOXzBq5G5oNuNzzs+6EK5KmZyyU2XYDuUjAO5yG9ILDoPXL1aPJTjZUuTNk
-	 P2Zq48hARWtK2sNYff/QHHbYZorppAcK23kMhMTPyrZqaNh4nTx9g4iNDsK3FuIF7NDYP
-	 NF6IcAm5Ul57G3jUhWjEftjIZStme6kwWUGJGpy8B6Ae7ucviwQNP6XcP8E1EzWObMXa2
-	 2U6y1w+wGo+pYsvgL+QS91N4huW2MxhnhuPhnmV5T2VuwzIxL0Gh7mywGR3XzU/FErlkD
-	 HL0qWC3TMClqfSAg28GWhiWXboNAsSR2idVOA9n9DG6F7LffrLHXTGRjUOXRKvu8rKw==
+	t=1795604600;
+	b=qNO5vS8BkqQbvrvh84v1bFEgWUdyOT9v2FdFfVCl2AJ9RkBf+FnCPXvkkRmhwc7e0Yv/
+	 vbw3SScNMurw219IXpAKhE5o3jn5kzQl0kShx6jq0lgEejhyxGmnC/s5YEB9REFMp9JSW
+	 PGplhYdlmHCmIniT7QHeAWMafrjYxr4qmikU1XF1O38TsjFI60zPqPX7/q5yJZ/wBjyTJ
+	 xGcbgwXVNeGJWVZZXHmD7ruWfeSYY4Gq+c+7QOSAjo0GSmISdNZJcQ38iwELLMJtpPITJ
+	 JFnKrSkDwOYhlje5Du8uTu83y7agDaTAuE633EgOHVbjfLqnZoqIQDaqsRk+4/jA29A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795604573;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795604600;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=aajmODDlBdM3p//i7Wc3yiLuhTRx/OqprtSHdep7VFY=;
-	b=i3W8VDMsoIu0eDfBpMpp+9VisnuFnkuXuNqWlORLmFYoVPv0iLjki+hxWUX18MNcZ4Js
-	 Z4UVPevSHBtgkD2zAAScqfirsRsOE7EnOjAzQPvABqZggIbEBdxOkhCoxYifsUOXp1ARY
-	 MHaz9J3P5c92fNwtaFLIMweLyZgbLjMWUlYr8AgQ/LQtm9XRbU3ymJIe4hlJo7CDCCJ9R
-	 LUB6pAyxssHBqpsFeC2xxFcCw/yuxEkqzaBGJ/quV/NpDGBRAloWLz6ibcAGVHKWZcDZ4
-	 JtRBoctacNOGe80xI7pzWYlAcvFW7zAmnefqoTKrgrYy9kn2FeE/a7ssla3vlIw57NQ==
+	bh=EKS7sk9f4gb4t3CNvTDLtElftgrVs6sbAVW6t0B6AjQ=;
+	b=H4qmhsaWieKCRWGVjNdq8uv8OfX1lSirJ/KgIkx5ny6s6yCYC9gJhFMUoLCytiv8qR6a
+	 wj4KCv2Gas5UwT8sQe68LyNVEI2RhAWRU0aW4f49BZ3y8RWK7uJmn0oQnz+YnspnrR/Oy
+	 k4HpQhl3/PhqFGLXTtcecgjvRkXDtOZwOFVoh51u1WFHlu3LZrOtJHauZz7tRlzbHoR7L
+	 8pn98Z6UtNSPvWagcNmX2uoWxD8aN6KWtbmzI8yWWzScDHhY1m6pRCobqB00JUGrM1hji
+	 g0DOeUU7Nawa3JSqGELCPq71EjgqdRkvtSOl4fubDIJdV6Ojw0IP7zfEknMp6hWN5gA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vy6dT5tI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ehEZR/xm";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 007DF606A323;
-	Wed, 25 Nov 2026 11:02:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13EDE606A31E;
+	Wed, 25 Nov 2026 11:03:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vy6dT5tI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 280301F00A36;
-	Wed, 25 Nov 2026 11:02:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ehEZR/xm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C211F000C6;
+	Wed, 25 Nov 2026 11:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795604572;
-	bh=aajmODDlBdM3p//i7Wc3yiLuhTRx/OqprtSHdep7VFY=;
+	s=k20260515; t=1795604599;
+	bh=EKS7sk9f4gb4t3CNvTDLtElftgrVs6sbAVW6t0B6AjQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Vy6dT5tIMZJR0G6YAijrkEG/KhQq/kwq0TlpT99xuJzUHLw2R7HG3ii8N6U6bwj4J
-	 uGDKLQEW9XSxvh4orj6F5jil1jOVuQK+37aNBB9hGZJgzclm/H98uZAqrcP9d4tkkj
-	 rC/bNWcJlwzqtdwM0b0TJntioAS2sQYNWitYTPfzfeK3xS51fUsf0+MwbKuRugV5+m
-	 tY5YAi7MN4gzPwVGqsvOf1xlWqLg+Z2YEk5FaLCz96N19fQEX9a1DrOJiWidHqgL+p
-	 EQ2zs2sHlDuspkiuXmXyg55B1cv4xtdxvAInChjXZQ1vG7FydZZIGPL8mTZO9QSMvd
-	 eG25sguAebwig==
-Message-ID: <c71378bf-e66d-4cb4-af6a-7f8163499709@kernel.org>
-Date: Wed, 25 Nov 2026 12:02:47 +0100
+	b=ehEZR/xmLze+jFOUHT0sSO0LL8JHwiw6F29MnFtCbS2cx4PsH7uKZ1aF0W0TOwkmf
+	 /FH/ipP83G6RGYwQJNNwjbHigOP72FPwIOj84qHtzFXMOjZpQgFS7Ij+6kExorbPzq
+	 lE1jsxGOwBk5+f08iiqI1QszM/lLej+/8cCqsBC+e35I2ZhzBH/oTXqDQdpMuYzwuj
+	 pqWpK0ujDpYmoV1IgdUiTt1kW3ddBhp3iUVUP+GWJfGGzoVT3XDbHaLtK7PzeLKWU6
+	 degKiekkTsDP8EwqEXUbo9qSv1piNHGrYaFzOuNNaXPJCorBMkWqdD3UBEvnpUfphI
+	 7fkuU8dPiM36g==
+Message-ID: <a8c3852e-2e3b-421a-81f9-643e46193ef1@kernel.org>
+Date: Wed, 25 Nov 2026 12:03:15 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -52,12 +52,14 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 0/6] Add VIEWE 7" JD9365TX MIPI-DSI panel support
+Subject: Re: [PATCH v6 1/6] dt-bindings: display: add VIEWE 7KF82 JD9365TX
+ panel
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org,
  dmitry.torokhov@gmail.com
-References: <tencent_C93E80ACC0BEB9083D9EE87E575073C67D09@qq.com>
+References: <20261125102130.256-1-3066883572@qq.com>
+ <tencent_74A87DE3061F575671DF6384634FE4BFF908@qq.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -103,42 +105,18 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <tencent_C93E80ACC0BEB9083D9EE87E575073C67D09@qq.com>
+In-Reply-To: <tencent_74A87DE3061F575671DF6384634FE4BFF908@qq.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 25/11/2026 11:21, Hefei wrote:
-> Hi,
+> Add the device tree binding for the VIEWE 7KF82 720x1280 Jadard
+> JD9365TX MIPI-DSI panel, and register the viewe vendor prefix.
 > 
-> This series adds support for the VIEWE 7KF82 7" 720x1280 in-cell MIPI-DSI
-> panel based on Jadard JD9365TX (2-lane video mode), plus the companion
-> I2C touchscreen and I2C backlight MCU used on the same FPC.
-> 
-> This is a different programming model from the existing JD9365DA driver
-> (panel-jadard-jd9365da-h3.c): page select uses 0xDE (not 0xE0), bring-up
-> uses 0xDF unlock, and lane config is via 0xCC rather than 0x80.
-> 
+> Signed-off-by: Hefei <3066883572@qq.com>
 
-You still do not bother to use get_maintainers.pl and cc semi-random
-addresses. Please slow down and do it carefully.
-
-Please use scripts/get_maintainers.pl to get a list of necessary people
-and lists to CC (and consider --no-git-fallback argument, so you will
-not CC people just because they made one commit years ago). It might
-happen, that command when run on an older kernel, gives you outdated
-entries. Therefore please be sure you base your patches on recent Linux
-kernel.
-
-Tools like b4 or scripts/get_maintainer.pl provide you proper list of
-people, so fix your workflow. Tools might also fail if you work on some
-ancient tree (don't, instead use mainline) or work on fork of kernel
-(don't, instead use mainline). Just use b4 and everything should be
-fine, although remember about `b4 prep --auto-to-cc` if you added new
-patches to the patchset.
-
-
-
-
+You lost cover letter. Slow down and start using b4, like guides for
+beginners are asking.
 
 Best regards,
 Krzysztof

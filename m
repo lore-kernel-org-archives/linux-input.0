@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795573305;
-	b=Y1TX/Z5sk1w8sZej5CG8Q6M+WU6I8gu8613dk9qxxecAsnNuf9Oqji9YZgUZRkMfFWB8
-	 5LvCZPhqrxwifB614+VAwBQg1t9QvKtOKZmvJrV9KIf/61k/ndYd2ZwHQvFWuZ3SQQnFZ
-	 SMnhyUnuT7QWN6VqdK7WnycxbOYB+O7LKpqcGhLBIECk2QliE3Ut/hxuNp+mm/cTva0oR
-	 hAKJHkXFTLOQjTwrStaKpV36j4A7I8v41Z6/yZWOpPfjAcAPXqxVkiV7QXZgH3WQDqEYh
-	 LvtUNIsVN6qJzK3Xfv5iS5ZtiKM1yTiaeRn7ac/2uYkLVvPgiPyEAcqW3GgPfL28t+Q==
+	t=1795573327;
+	b=k9rgMYHfs41yOoJ1g4aXxomqNgOWFxilpXa2VLUrKaruCpEscJad8B7iW5KNmLczdlXq
+	 Cn9ULurSpAu7hFkxh2oNtIvglEvP5KHxixM7vlRKApMO24n9tLEVrKBVvKGj6u4NZh6BU
+	 9F1TlLXtKD7NyLO7cELkxH+qN3ZPnZoxueJxe66nUyf5BJ2ZVw/cQD7LKVzFPoTanyz0s
+	 MVAoBZNAkXAfHJSMvl69odbwk6xH7HDrcC5ybwRhYciX9C9s3Du6/ErDfDl439xBWqhUw
+	 razLrpS0nX3yOCMyRdc3OTprH5gaURvvyY7i2RaWPz4XXsvMUTP2XtyZR8grLfJyRsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795573305;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795573327;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=T2COakVKMfgrteIQGy9WhpJzbN6q/Tnr0GgzM4kHGCs=;
-	b=Yr/aJU2bY7fhV4EHfhkEPcZPQVspEQslR7C2VBlfvuJggr6wEj9U5O/MHFtGJqQg5uTR
-	 pCJRRJmYpI+SLX50Shk/y2QVTOkLYGJPnv4DdNiw68XcRaR9fdHD6Id692iJs0xexmJjJ
-	 PaD5NTfAtd1rEwbMbB6LO46Evf1yzFOUEBV8fBSDhPMcvP6e7LStuM1vpS0UO1G5wUdq4
-	 buGFxJQbzxjcamHqQSykZOBlnONggYy2d5RJMsti/T44MmYg963XSjjAlB0ZueHwk6fH/
-	 87VXItsatvc0SLya2yZgFNIVQOLciyRXGMxZVjr/6YOJARKxeGXmh4Dn0AZbtBCzYFg==
+	bh=/XSmqqxUGa1wWcATLZ461v+9fzmTTq0bue0NNZazp7c=;
+	b=R/3XGdrxkhyjP4hi2iBml21NkVjp7nrLg35LR8UnKk3iGuaQ07O3r6Wrym65/yJuk8nJ
+	 9oRgexhxazlp+SUQsTCt26Ik63ZjNvUBK6X0t69dSbofQJikg1VQCY0H9VijrTHkBSfQB
+	 urZcpf0StMnLvqC1TybJMX2sJti/BJUdJEJ6KTJKMvl3tiQtCPwUTrXfhjZ1a8+AoNgwx
+	 6H8c6wLzBkqqFl8v/ALR6j2aPl12Q92dFVKdqIUd55r442sRjF/AM8cH54wPLnFJcDLk7
+	 QtpDHxEFDI1jTYQydD0A/E4o4v2TqeILZt+OXnbd9QXKlgcKQZOo7F2Hg8cIr+SAYQA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bg1pMxsx;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OiPYahr8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BC09606A31E;
-	Wed, 25 Nov 2026 02:21:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA281606A31E;
+	Wed, 25 Nov 2026 02:22:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bg1pMxsx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C1FD1F000C0;
-	Wed, 25 Nov 2026 02:21:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OiPYahr8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8E61F000D2;
+	Wed, 25 Nov 2026 02:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795573304;
-	bh=T2COakVKMfgrteIQGy9WhpJzbN6q/Tnr0GgzM4kHGCs=;
+	s=k20260515; t=1795573326;
+	bh=/XSmqqxUGa1wWcATLZ461v+9fzmTTq0bue0NNZazp7c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Bg1pMxsxW2t2fLyMpK7Xr/eFLF3avUpvQQXXCH7Hq5/79WDc8E+wT+VUzrwA50yx2
-	 cvIDsItFfUeqSapaSSSySnPP0MKlENr/Wqwh3pAZ7ygyAFFoxYZU03D02EKanlIDn5
-	 Ec5gtXZ7K9hWx2XwYWGwXco5nRRHVh2kCF1C1tivmE4GtANk45CLQjUDDqg4V/45Y0
-	 tFDfTZ5dIfASz7NQg88BX/gQgOq64snapLYLBwzrr+Mf4t0OHpLJ3IXorHTa/SyLgG
-	 VgsFy5n2BT4/m5WoySJ7q0NtjVu0aA1pgmLRa2gzGaDio9WRrzGp8tfH68+3bpnenk
-	 o3K+qQrYpG9Yg==
-Message-ID: <sashiko-outbox-232404@kernel.org>
+	b=OiPYahr8PyjBdWvoBs6dW5ePPeSKtAOSx3NtYnUnqagMRff6YFfTD21wV+znJ1Pvi
+	 QX+1QO5vBvussr9gHCJDETvHJplt98jNh9E5iuiGRDKLNWNc0rC1lT0Hcj5sk2F4Cd
+	 V5ntSCI/Pq46zDD4IdsMP1Q8LwvYFn3o/Gs6P00osEk8FGn/ZHmtZreYtKzMWJtI66
+	 eN9lYLuFGL7ZzIK+FuZ5hsppoVtIGkNyeN+Hv26HomeRRhjebCWbmtsOOjBGJuRqU5
+	 pd3HGUcWtkUIYGqDqxtJ2HEl8N0mK9JLeLM7/9CVyj1z6fFzOwXP23lRdfKxvfbt+g
+	 ksbhsQS9K+qsw==
+Message-ID: <sashiko-outbox-232405@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 5/6] Input: add Jadard JD9365TX in-cell touchscreen
- driver
+Subject: Re: [PATCH v3 6/6] backlight: add VIEWE I2C backlight driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_0E08C29B27905F3154DF71AA0F7F2BA5EF07@qq.com>
-References: <20261125020944.137-1-3066883572@qq.com>
- <tencent_0E08C29B27905F3154DF71AA0F7F2BA5EF07@qq.com>
+In-Reply-To: <tencent_5185BF35A815E3151FD856BCDF3E84F14F08@qq.com>
+References: <20261125021127.1430-1-3066883572@qq.com>
+ <tencent_5185BF35A815E3151FD856BCDF3E84F14F08@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 02:21:44 +0000
+Date: Wed, 25 Nov 2026 02:22:05 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,318 +60,140 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 8 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issues to consider:
-- [High] Input: jadard_jd9365tx: deferred jd_hw_init() in jd_poll()
-  breaks lifecycle
-- [High] Input: jadard_jd9365tx: broken MT slot gating in
-  jd_report_touches()
-- [Medium] Input: jadard_jd9365tx: uninitialized stack read in
-  jd_report_touches()
-- [Medium] Input: jadard_jd9365tx: missing reset-gpios handling in
-  jadard_tp_probe()
-- [Low] Input: jadard_jd9365tx: signed shift overflow in
-  jd_resolve_coord_addr()
-- [Low] Input: jadard_jd9365tx: duplicate OF-only size parsing in
-  jadard_tp_probe()
-- [Low] Input: jadard_jd9365tx: Input and I2C subsystem convention
-  violations
-- [Low] Input: jadard_jd9365tx: missing commit description and invalid
-  trailer
+- [Medium] backlight: viewe_bl_i2c: missing DT property parsing and
+  initial HW sync in viewe_bl_probe()
+- [Low] backlight: viewe_bl_i2c: positional initializer and mismatched
+  ID in viewe_bl_id
+- [Low] backlight: viewe_bl_i2c: open-coded byte write in
+  viewe_bl_update_status()
+- [Low] backlight: viewe_bl_i2c: hardcoded device name in
+  viewe_bl_probe() breaks multi-instance probe
+- [Low] backlight: viewe_bl_i2c: empty commit message body lacking
+  hardware and driver description
 --
 
-commit 14bb2db3ff6aa2fe722f173dd49badfb3b138498
+commit 4e7ef9a994e068f00aa52e87d93462c70437631d
 Author: Hefei <3066883572@qq.com>
 
-> Input: add Jadard JD9365TX in-cell touchscreen driver
->
+> backlight: add VIEWE I2C backlight driver
+>=20
 > Signed-off-by: Hefei <3066883572@qq.com>
-> Co-authored-by: Cursor <cursoragent@cursor.com>
 
 [Severity: Low]
-This commit adds a new touchscreen driver without a changelog body
-describing the hardware, communication protocol, or polling design, and it
-carries a non-standard Co-authored-by trailer for an AI tool without a
-corresponding human DCO sign-off.
+The commit message has an empty body.  Could you add a description of the
+VIEWE 7KF82 I2C backlight MCU hardware and explain why a dedicated driver
+is needed?
 
-> diff --git a/drivers/input/touchscreen/jadard_jd9365tx.c b/drivers/input/=
-touchscreen/jadard_jd9365tx.c
+> diff --git a/drivers/video/backlight/viewe_bl_i2c.c b/drivers/video/backl=
+ight/viewe_bl_i2c.c
 > new file mode 100644
-> index 0000000000000..2030157c3a5b8
+> index 0000000000000..53dcf0834dcb2
 > --- /dev/null
-> +++ b/drivers/input/touchscreen/jadard_jd9365tx.c
-
-[ ... ]
-
-> +static int jd_resolve_coord_addr(struct jadard_tp *ts)
+> +++ b/drivers/video/backlight/viewe_bl_i2c.c
+> @@ -0,0 +1,79 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2026 VIEWE
+> + *
+> + * I2C backlight for VIEWE 7KF82 DSI modules (MCU @0x45, register 0x86, =
+0..255).
+> + */
+> +
+> +#include <linux/backlight.h>
+> +#include <linux/i2c.h>
+> +#include <linux/module.h>
+> +
+> +#define VIEWE_BL_REG		0x86
+> +#define VIEWE_BL_MAX		255
+> +#define VIEWE_BL_DEFAULT	200
+> +
+> +static int viewe_bl_update_status(struct backlight_device *bd)
 > +{
-> +	u32 esram_num_addr =3D JD_ERAM_BASE + 4 + JD_MAX_DSRAM_NUM * 8;
-> +	u32 esram_sec_addr =3D esram_num_addr + 4;
-> +	u8 buf[JD_ESRAM_SECTION_NUM * 8];
-> +	u32 addr, len;
+> +	struct i2c_client *client =3D bl_get_data(bd);
+> +	u8 buf[2] =3D { VIEWE_BL_REG, (u8)backlight_get_brightness(bd) };
+> +	struct i2c_msg msg =3D {
+> +		.addr =3D client->addr,
+> +		.flags =3D 0,
+> +		.len =3D sizeof(buf),
+> +		.buf =3D buf,
+> +	};
 > +	int ret;
 > +
-> +	ret =3D jd_read_reg(ts->client, esram_sec_addr, buf, sizeof(buf));
-> +	if (ret)
-> +		return ret;
-> +
-> +	addr =3D buf[JD_ESRAM_COORD_IDX * 8 + 0] |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 1] << 8) |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 2] << 16) |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 3] << 24);
-> +	len =3D buf[JD_ESRAM_COORD_IDX * 8 + 4] |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 5] << 8) |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 6] << 16) |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 7] << 24);
+> +	ret =3D i2c_transfer(client->adapter, &msg, 1);
+> +	return ret =3D=3D 1 ? 0 : (ret < 0 ? ret : -EIO);
+> +}
 
 [Severity: Low]
-Can the `<< 24` shifts on `buf[...]` overflow a 32-bit signed int?
-
-Each `u8` element is promoted to signed `int` before shifting, so bit 7
-being set triggers signed integer overflow under CONFIG_UBSAN.  Using
-get_unaligned_le32() avoids both manual byte assembly and the signed shift.
+Could viewe_bl_update_status() use i2c_smbus_write_byte_data(client,
+VIEWE_BL_REG, backlight_get_brightness(bd)) instead of open-coding a raw
+i2c_transfer()?  Using the SMBus helper preserves client->flags and works
+on SMBus-only adapters that do not implement raw I2C master_xfer.
 
 > +
-> +	if (addr < JD_ERAM_BASE || addr >=3D JD_ERAM_BASE + 0x1000 ||
-> +	    len =3D=3D 0 || len > JD_TOUCH_DATA_SIZE)
-> +		return -EINVAL;
+> +static const struct backlight_ops viewe_bl_ops =3D {
+> +	.update_status =3D viewe_bl_update_status,
+> +};
 > +
-> +	ts->coord_addr =3D addr;
-> +	ts->touch_data_size =3D (u16)len;
+> +static int viewe_bl_probe(struct i2c_client *client)
+> +{
+> +	struct backlight_properties props =3D {
+> +		.type =3D BACKLIGHT_RAW,
+> +		.brightness =3D VIEWE_BL_DEFAULT,
+> +		.max_brightness =3D VIEWE_BL_MAX,
+> +	};
+> +	struct backlight_device *bd;
+> +
+> +	bd =3D devm_backlight_device_register(&client->dev, "viewe_bl",
+> +					   &client->dev, client, &viewe_bl_ops,
+> +					   &props);
+> +	if (IS_ERR(bd))
+> +		return PTR_ERR(bd);
+> +
+> +	i2c_set_clientdata(client, bd);
+
+[Severity: Low]
+Does passing the constant string "viewe_bl" to
+devm_backlight_device_register() cause probing a second panel instance to
+fail with -EEXIST when creating /sys/class/backlight/viewe_bl?  Passing
+dev_name(&client->dev) avoids the name collision, and the
+i2c_set_clientdata() call can be dropped since client data is never read.
+
 > +	return 0;
 > +}
 
 [Severity: Medium]
-Can setting `ts->touch_data_size` to a value smaller than 53 cause
-jd_report_touches() to read uninitialized stack memory from `buf`?
+Does viewe_bl_probe() ignore the default-brightness property from Device
+Tree and leave the hardware brightness uninitialized at probe?
 
-jd_poll() allocates `u8 buf[JD_TOUCH_DATA_SIZE]` on the stack without
-initializing it and reads only `ts->touch_data_size` bytes from I2C.
-However, jd_report_touches() unconditionally loops over all 10 slots
-(`ts->max_points`) and reads 5 bytes per slot starting at
-`JD_TOUCH_COORD_INFO_ADDR` (offsets 3 through 52).  If the ESRAM section
-table reports `len < 53`, jd_report_touches() parses uninitialized stack
-bytes and reports them to userspace as touch coordinates and touch major
-values.
-
-[ ... ]
-
-> +static void jd_report_touches(struct jadard_tp *ts, const u8 *buf)
-> +{
-> +	u8 finger_num =3D buf[JD_FINGER_NUM_ADDR];
-> +	unsigned int i;
-> +	bool any =3D false;
-> +
-> +	if (finger_num > ts->max_points)
-> +		finger_num =3D ts->max_points;
-> +
-> +	for (i =3D 0; i < ts->max_points; i++) {
-> +		const u8 *c =3D buf + JD_TOUCH_COORD_INFO_ADDR +
-> +			      i * JD_FINGER_DATA_SIZE;
-> +		u16 x =3D (c[0] << 8) | c[1];
-> +		u16 y =3D (c[2] << 8) | c[3];
-> +		u8 w =3D c[4];
-> +		bool down =3D false;
-> +
-> +		if (i < finger_num &&
-> +		    x <=3D ts->abs_x_max && y <=3D ts->abs_y_max &&
-> +		    x !=3D 0xFFFF && y !=3D 0xFFFF)
-> +			down =3D true;
-
-[Severity: High]
-Does gating `down` on `i < finger_num` drop active touches in higher-number=
-ed
-MT slots when an earlier slot is released?
-
-Each index `i` maps directly to MT slot `i`, while `finger_num` is the total
-count of active contacts.  If two fingers are down in slots 0 and 1 and
-finger 0 lifts, `finger_num` becomes 1 while slot 1 (`i =3D=3D 1`) still ho=
-lds
-the remaining finger's coordinates; `i < finger_num` (`1 < 1`) then evaluat=
-es
-to false and releases slot 1 as well.
-
-Also, when `buf[JD_FINGER_NUM_ADDR] > ts->max_points` (such as 0xFF when the
-report buffer is not ready), clamping `finger_num` to `ts->max_points`
-processes the frame as up to 10 touches instead of discarding the invalid
-frame.
-
-[ ... ]
-
-> +static void jd_poll(struct input_dev *input)
-> +{
-> +	struct jadard_tp *ts =3D input_get_drvdata(input);
-> +	u8 buf[JD_TOUCH_DATA_SIZE];
-> +	int ret;
-> +
-> +	if (!ts->ready) {
-> +		ret =3D jd_hw_init(ts);
-> +		if (ret)
-> +			return;
-> +		ts->ready =3D true;
-> +	}
-
-[Severity: High]
-Does deferring jd_hw_init() from jadard_tp_probe() to jd_poll() break device
-probing, polling, and power-cycle recovery?
-
-Because jadard_tp_probe() never communicates with the controller, probe
-succeeds and leaves `vdd` and `iovcc` enabled even when the device is absent
-or has an unsupported chip ID (`-ENODEV`).  When the input device is opened,
-jd_hw_init() -> jd_section_ready() can stall input_open_device() (under
-`input->mutex`) and `system_freezable_wq` for up to 50 iterations of
-`msleep(2)` plus I2C reads, and any failure causes jd_poll() to retry
-jd_hw_init() on every 8-16 ms poll tick indefinitely.  Furthermore, once
-`ts->ready` is set, it is never cleared across a DSI panel reset or system
-suspend/resume, so the controller is never returned to the 0xF2 backdoor mo=
-de
-required for subsequent 0xF3 register reads.
-
-[ ... ]
-
-> +static int jadard_tp_probe(struct i2c_client *client)
-> +{
-> +	struct device *dev =3D &client->dev;
-> +	struct jadard_tp *ts;
-> +	struct input_dev *input;
-> +	u32 val;
-> +	int ret;
-> +
-> +	ts =3D devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
-> +	if (!ts)
-> +		return -ENOMEM;
-> +
-> +	ts->client =3D client;
-> +	ts->max_points =3D JD_MAX_POINTS;
-> +	ts->abs_x_max =3D 719;
-> +	ts->abs_y_max =3D 1279;
-> +	ts->poll_interval_ms =3D JD_DEFAULT_POLL_MS;
-> +	ts->touch_data_size =3D JD_TOUCH_DATA_SIZE;
-> +
-> +	ts->vdd =3D devm_regulator_get(dev, "vdd");
-> +	if (IS_ERR(ts->vdd))
-> +		return PTR_ERR(ts->vdd);
-> +
-> +	ts->iovcc =3D devm_regulator_get(dev, "iovcc");
-> +	if (IS_ERR(ts->iovcc))
-> +		return PTR_ERR(ts->iovcc);
-> +
-> +	ret =3D regulator_enable(ts->vdd);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D regulator_enable(ts->iovcc);
-> +	if (ret) {
-> +		regulator_disable(ts->vdd);
-> +		return ret;
-> +	}
-
-[Severity: Medium]
-Should jadard_tp_probe() request and deassert the optional `reset-gpios`
-after enabling the regulators?
-
-The `jadard,jd9365tx` Devicetree binding defines `reset-gpios`, so boards
-wiring that reset line can leave the controller held in reset and
-unresponsive on I2C if probe never acquires and deasserts it.
+devm_backlight_device_register() neither parses default-brightness (or
+max-brightness) from device properties nor calls backlight_update_status().
+Any default-brightness configured per the viewe,7kf82-backlight binding is
+silently ignored in favor of VIEWE_BL_DEFAULT, sysfs brightness is out of
+sync with register 0x86 until userspace writes to it, and probe succeeds
+even if the MCU at 0x45 does not respond.  In addition, viewe_bl_ops omits
+.options =3D BL_CORE_SUSPENDRESUME, so the backlight is not blanked and
+restored across system suspend and resume.
 
 > +
-> +	ret =3D devm_add_action_or_reset(dev, jadard_tp_disable_regulators, ts);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (!device_property_read_u32(dev, "poll-interval", &val) &&
-> +	    val >=3D 8 && val <=3D 100)
-> +		ts->poll_interval_ms =3D val;
-> +
-> +	if (!of_property_read_u32(dev->of_node, "touchscreen-size-x", &val) && =
-val)
-> +		ts->abs_x_max =3D val - 1;
-> +
-> +	if (!of_property_read_u32(dev->of_node, "touchscreen-size-y", &val) && =
-val)
-> +		ts->abs_y_max =3D val - 1;
-
-[Severity: Low]
-Why parse `touchscreen-size-x` and `touchscreen-size-y` manually with
-of_property_read_u32() when touchscreen_parse_properties() is called below?
-
-touchscreen_parse_properties() already reads these properties via the
-generic device property API and stores the pre-swap axis maxima in
-`ts->prop.max_x` and `ts->prop.max_y`.  On non-OF property providers where
-`dev->of_node` is NULL, `ts->abs_x_max` and `ts->abs_y_max` stay at 719 and
-1279, causing jd_report_touches() to drop valid coordinates above 719x1279.
-
-> +
-> +	input =3D devm_input_allocate_device(dev);
-> +	if (!input)
-> +		return -ENOMEM;
-> +
-> +	input->name =3D "Jadard JD9365TX Touchscreen";
-> +	input->id.bustype =3D BUS_I2C;
-> +	input->dev.parent =3D dev;
-> +
-> +	__set_bit(EV_ABS, input->evbit);
-> +	__set_bit(EV_KEY, input->evbit);
-> +	__set_bit(BTN_TOUCH, input->keybit);
-> +
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, ts->abs_x_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ts->abs_y_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-> +
-> +	touchscreen_parse_properties(input, true, &ts->prop);
-> +
-> +	ret =3D input_mt_init_slots(input, ts->max_points, INPUT_MT_DIRECT);
-> +	if (ret)
-> +		return ret;
-> +
-> +	input_set_drvdata(input, ts);
-> +	ts->input =3D input;
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	ret =3D input_setup_polling(input, jd_poll);
-> +	if (ret)
-> +		return ret;
-> +
-> +	input_set_poll_interval(input, ts->poll_interval_ms);
-> +
-> +	return input_register_device(input);
-> +}
-> +
-> +static const struct of_device_id jadard_tp_of_match[] =3D {
-> +	{ .compatible =3D "jadard,jd9365tx" },
+> +static const struct of_device_id viewe_bl_of_match[] =3D {
+> +	{ .compatible =3D "viewe,7kf82-backlight" },
 > +	{ }
 > +};
-> +MODULE_DEVICE_TABLE(of, jadard_tp_of_match);
+> +MODULE_DEVICE_TABLE(of, viewe_bl_of_match);
 > +
-> +static const struct i2c_device_id jadard_tp_id[] =3D {
-> +	{ "jd9365tx", 0 },
+> +static const struct i2c_device_id viewe_bl_id[] =3D {
+> +	{ "viewe_bl", 0 },
 > +	{ }
 > +};
 
 [Severity: Low]
-This isn't a bug, but several places in the driver depart from Input and I2C
-subsystem conventions:
-
-- devm_input_allocate_device() already sets `input->dev.parent =3D dev`, so
-  the manual assignment in jadard_tp_probe() is redundant.
-- The `__set_bit()` calls for `EV_ABS`, `EV_KEY`, and `BTN_TOUCH` in
-  jadard_tp_probe() are redundant because input_set_abs_params() sets
-  `EV_ABS` and `input_mt_init_slots(..., INPUT_MT_DIRECT)` sets `EV_KEY` and
-  `BTN_TOUCH`.
-- Calling `input_report_key(ts->input, BTN_TOUCH, any)` in
-  jd_report_touches() is redundant because input_mt_sync_frame() already
-  reports `BTN_TOUCH` via pointer emulation.
-- `jadard_tp_id[]` should use a named initializer (`{ .name =3D "jd9365tx" =
-}`)
-  rather than `{ "jd9365tx", 0 }`.
-- `vdd` and `iovcc` can be managed with devm_regulator_bulk_get_enable()
-  instead of open-coding devm_regulator_get(), regulator_enable(), and
-  jadard_tp_disable_regulators().
-- In Input drivers, error-only variables are conventionally named `error`
-  (or `err`), and functions with multiple failure points check the result of
-  the final call (`error =3D input_register_device(input); if (error) return
-  error; return 0;`).
+New struct i2c_device_id entries should use named initializers (such as
+{ .name =3D "7kf82-backlight" }), and the ID string should match the
+vendor-stripped compatible name ("7kf82-backlight" rather than "viewe_bl")
+so fallback I2C ID matching works with the OF compatible string.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_EE81D0ED29E=
-97716D56BDCF1A3C5AAE35B05@qq.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_A3BF23A8B6E=
+3691F0D567ADF8B84194F4408@qq.com?part=3D6

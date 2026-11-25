@@ -1,93 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591344;
-	b=kVkDeVLZex/MdAjTaI0des3Dq78G+Ae87Q+LuG2/92LARMNvcuWqRvziRZg93cyR0dLV
-	 J+kzfte2c3DU1Y7ycIKqtaQKeg6P0vYdsr6vf1Ols4yeOBi8cZoqHIBHkJskIpXsaPSRg
-	 sc+mjLIzEzrZKVseBUN3GCGV4/J6LQvTsXc/Gkphp3CEdD25huEmuXlpgwnnG2jDpZEwr
-	 4B2Ux94GjfD0xzcVWnuPGBxTu/6vAnslv4A04Vei66CB2ShIvZ2/vHebcneKJn0TRyMjY
-	 M8edoPjannaHIdONHIBk7uH6IitjVdBE+aUoBIYrAc7dX6UfAYuHCIDAlDJDAc8fgEQ==
+	t=1795591346;
+	b=01WVkszawnfCGIp321LdcMffNUa71ZFnSrGIHdzuXIz2xUi8UgBRWf/NZlL0Zi53edxH
+	 wfgko0jRS/tDeATb6bEiRFj/Bfeudhnq7USQxrWJ5cIWVW7ieREuKqNlrehj+UW50S9ZW
+	 gMwkOXPO+/AJQYIr3bG4ILaODhVvwBMo2pYiS4Z2Co7WXvf7XGpWnl3Q0JVu9GwVBMiyw
+	 kNu4hyCRX3wUItHrOAK83VWKwatgeIv0U36hgpgXF8EUSI9D77MaFxq5JuUxXGinHHedo
+	 obctzgMaZl+Z87O0dh/Y0WvPqMhx7D+EpM2f+tdeLiUD9xpoFXHGXjAkeWIhabdSrTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591344;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591346;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Type:X-Developer-Signature:X-Developer-Key:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
 	 Content-Transfer-Encoding;
-	bh=IU/5EU6kLKWQTqQMCwuN+Sfr8qGMe++p5+2CQiOJDp4=;
-	b=QL58hc7VYqvkFqTffHvKbXlEiVrH4uiJQbSeuEQzPv8HRG9Gcow3YrHSspICzY5TVRaQ
-	 IVpYumctmWgqlYuTQfMaFSMfe6FRdEl/fHZmhHVSCxSHyaXB0tgMcBMSxPcDhQ4qkAuQ6
-	 95Ho2T4N/olGprc6JaC4fhgpXd9TplnLeZ6gwqC2EImnaBL0Sjmpz25YRSdFEDYWPQMn1
-	 lJn/9mrJ/z7DfqOgMUhmqGgnVPf7nIJmVIo+M1jgh02ihHh77D0npNWb1kGQp6R5KKk4I
-	 /HKx2YuLdhNvteIohJHuOJutIW6v3Yow05YUnkFX2u+Zmv2pNWkJloHCv527cqy0eNA==
+	bh=5GJjIuaHt/D2r/JVDTfdWB1lkG6fDVc7Xt2s1yufKlg=;
+	b=3KK0NFE37DVIKSSd7fT44RAAUtd08ZT6Rz8rvfGMEnBYi393yBeQ42ebXCn526YTaQ3g
+	 sm/3r15XxHEj2N7a77cVF8q6G+veOaQKVfzjacy2gr0HxdmiPj4x7ml3SbMI9+xGBCux2
+	 YiZW7MUQQ724cP68LvMpEORnZghn92u4NoCqCvwW41zyYP2r3RNGS93fM1aeRaZivciuq
+	 QxjgoHGR6J2LNXylA1R4ZEVUsQkiQGFCwsFk//qK6PrUO757nssMD/zszebAE3PziSC0e
+	 6sPKFHCvKAvhGaUJPHPl2PeYkQX6ncsjYj/t5CNDQFJx9v6Oko0sVovM/eO7ylcLXCw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=baylibre.com;
 	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=jdoByc6b;
-	arc=none smtp.remote-ip=209.85.128.54
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=oQHNGMUx;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AA09606A331
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6AA09606A331
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8ECE606A327
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E8ECE606A327
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=jdoByc6b
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4ac95761c85so41300095e9.2
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=oQHNGMUx
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4bb6adaf0f1so47128935e9.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795591343; x=1796196143; darn=vger.kernel.org;
+        d=baylibre.com; s=google; t=1795591344; x=1796196144; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=IU/5EU6kLKWQTqQMCwuN+Sfr8qGMe++p5+2CQiOJDp4=;
-        b=jdoByc6bVPQCzqFF3mA3N37rzFUSBMbO1xDlXjGGB4wt6hBFsCoE/mXz/sClW2GWsO
-         4+V07N0vs0z6hmkvf47KRF5gK5Ge4HJVqnpMhGe2VAAIs+Tv8GIxp8WQo+T+jIr1Czbr
-         lsULpw2VGZFPbCzXkOaxTCPwQaNdV2tcimg27HZpzzipUa1Id2pldhPlvf8TOJoiLiuP
-         EkgtuCPd9rO+19IacxRw0Z9XjW6Ls77SlhMf9bUROhsfIGbHYBM2c5x3lZ3JA5vuD6H8
-         fIjI2sdXgHXdZfBskPg/yLjbh5KjgO8yJEB/ZoCN4K6xwsEY7pjqh2Nz0hvaIQV8Z6F7
-         BlKw==
+        bh=5GJjIuaHt/D2r/JVDTfdWB1lkG6fDVc7Xt2s1yufKlg=;
+        b=oQHNGMUxb7J0rz1oVQdLEM3PNXOSZ7T5V2z8g39RqOGkMklUi/mpAcgO1/pCNyTuTN
+         GUv2l0y4yJ5vFAAUCDJNHWihy/fW8w432s9SCiM8bzMiuPllj1QDKdU2P2ZtI5sgvm90
+         SnCFoTwgdFaovvSqYA7Di0ma+x2yTl/0Ekc7NoDRQnGozXh6chcfnwyMTQbXjMCe1AGX
+         LrleTCk/xvqeCKiKh2ozTeG497RtOvr5Qw1F7JhW3+s77HqmmW/ytAHQbGX2C6MPuYg8
+         I0oZqXW0b7NBGogepi+DjoTrJKPBjCGMisEd+3l1zKT1RcB4fW2pAyXgKI88TbU2Pwo/
+         oO1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795591343; x=1796196143;
+        d=1e100.net; s=20260707; t=1795591344; x=1796196144;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=IU/5EU6kLKWQTqQMCwuN+Sfr8qGMe++p5+2CQiOJDp4=;
-        b=z8qYlhia7ZkR5SpK4UWEK+nWztL8sDUEcGWsC0XNLwCrUfJKBLPJNaJelSFuOxrlDZ
-         JFxcyyFbvXMryjD5ILbe/teCzYLkODJRqTNsdzLl/1jvhP6sW+doM/sGTYJwP7S5dQx+
-         SfVTfOBylXHcnoD1hAc8njXrlmKhxvES+/5uMvzYXcjjymZqEbPj9140LMh+BozSoiN6
-         JZvlnagtpJYJAYkc+beBOd/tPILyLY7fqQNEj0Janjjv1k1c3bAjJE8qO60EbaoPJUho
-         MwQjUJkHGtWndIO+gHFL2lpXA2BCTtXbYlDIYgCDbr0CN1ZwifhrgEtNuPrH35cpcFAK
-         VUsg==
-X-Gm-Message-State: APuU4Z8wtJlxwVREDXgam/jRMWJ+wb+qBnWrQWDrQ8h0T3RJfemxhFbD
-	s/SZga4yZINZ6zwavUeQbxA9+qsL0+9d/YE2HzKFO7ShTm3kcwLyHX07CLUng25SEvQ=
-X-Gm-Gg: AZFdTZdBnlKVCJoPpKaZBumpW0AUDweYBOPmeDuwItHRYAm0QJ3Vvo+YzuR9vfB9D9z
-	o/9bA9qHcycrpPE2vGQx4XkifXmPxtW/WFc/XT73Z82jO1FiJ2rJbRVni0jZUN/qoN71N7DaXzs
-	uHukm2U/mzQmGLaa1ctFO9Jo2yAwsNirHT5xxlN2yYtR/D4ulS9UwEISLtQUPrnEvvwMI1d8yLR
-	BzUzSRzHXbnZn6sjZrTZCPhXOL/VfYNM5bq40Td0GLy6Dv7xzQJsud5OnOe+TiqsEB7iraUpQnp
-	l/KhTMBp5YrOPV87Xs3NecIGcez2JRCjo7otDr107dPbT9IiR/8EMhVjTO/VrgR6a5zNzlq6v72
-	og+DYWcecmyWHxSRQOxP+XWLRHcIF1GUyTe3b1Y7yKOs/aKBRGK6uzG71ydZuXXzN7Ki/MOxx9P
-	CJ7pXlOLnhjWU0JHytQXaIAD0MOnbX4QxDRyjryS+YXns5tvbDbOES8/UFnS0tvzQb/ocBRnpW9
-	w9ILrkMCVJNIYfpyljldX7YMbh/hmQKKn6uCXij8fLoMueAFrTJFpV9sywhThRpVQcd7C9IgcX6
-	WhZCE/oanQZgKh+5XJGCnbh7hs1VilPNPhM=
-X-Received: by 2002:a05:600c:1d0a:b0:4a2:59:f568 with SMTP id 5b1f17b1804b1-4bb8880ef6amr365746595e9.14.1795591342751;
-        Tue, 24 Nov 2026 23:22:22 -0800 (PST)
+        bh=5GJjIuaHt/D2r/JVDTfdWB1lkG6fDVc7Xt2s1yufKlg=;
+        b=FPhdMka4PaAn8PC7teYMpjUJ+6IaDE/tFecv6JQmKxMlSV10CIofFPiu+Mcg8gyo2i
+         KHszZZs40ZRQoBVEBZlSVAKbhXJrB1rVQ/Dw5KSvtuiDJxbWJxqraGIm1oOUZ1tfYf66
+         TGEL+bh30zSGiREyZ3O2yc9PBhLr1l478ciZk7/WQhg0Sy83BNk52/mDXB+ObHDYZohB
+         2qEmJ2nIUTINZCdqMlY+fMInSxTTmKSNviGSRTQ+aRyJcUei6RexH8dAxCdYdJUial/v
+         H2A99z03fQjCRiC/s4Er/2zayYyytuBGCgToS+yzzqjTg3J6PkPp7BpOrj4AFu0A2k0o
+         nY9A==
+X-Forwarded-Encrypted: i=1; AL+hErEEg4n0u7ycDv+lRe+XCk27bSFoXRrVgVuqH2NXZGIPzG9Nyg5+PXmmAaDsVBH918VSRPtLqUxxzFt9HA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/eaDatjKbF+qoO129KZZTd77Crj3Y0sFScT0Q8oz4v4I7bZvrl
+	THX+jcR3BxWEjaW3/93xYEJJK2DkgOMv0jVNhKy4pMEuJRcYORhfIcT/3WwIK/WIlIU=
+X-Gm-Gg: AZFdTZeW7jYsmwR4Kl5nY3ubMX5DWQOVPAio1cNa6JA1UdEft8qvzo1URj0EvEmQVuJ
+	oReg4/Mrsot3NsJ8GrgoHAvlz/wGKQZSnEu+oz72YcG3BD584IqwoBuFJtI6wq7Q2xUad3oiIZF
+	scYLnksts1ekhrLzJsXas6Z+ceXTidXgbFmQSWNXcHu2beQY/HXiAZlq1/X6c6Vw0MZJ+BeN6mg
+	+QDOuzjW0NcjQw1bNhHY1/gUiALb44LrNsUuWqnKYG0Ns7+RCer99tO7gQiyCE1Lj7gHDnWrVY3
+	r1YiC5+KP/hM5egQozVjjwnj/I2OQFMMYaTVLRKhLYsP5L+8wd9t07s0dImZxeQGGne/iUzyqmN
+	SXOXPA4uI1RWhthpXkzyLN8yJEOz7O+Bdn+junhjGHp+dMDz/9Inj5ggUJumMJ/xtqiABXYaapO
+	GgdHlpWRpk0eeTvlL5sidFYaMhRofkk0Av07kMfaWO7qv+jgGdU/NqtGYSjYpyfp4YZUF9Uz/ye
+	Dm8S7/9y420bTUQeV9uUZwSCvl3jJp8pYv191bBXGGLIKriURi1G8PCxlGU4i/93kjTgUnGgU/z
+	rmlo2pHEq0oYcxdc2+OjD7XR7vaeOvDFWhGll1ywjjTsyRhPE+OpJMk=
+X-Received: by 2002:a05:600c:4fc1:b0:4bb:53e4:a7cc with SMTP id 5b1f17b1804b1-4bb88820741mr378949045e9.30.1795591344294;
+        Tue, 24 Nov 2026 23:22:24 -0800 (PST)
 Received: from localhost ([2a02:8071:6e30:8500:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb8533579csm433940905e9.2.2026.11.24.23.22.22
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb8849247asm502188025e9.7.2026.11.24.23.22.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 23:22:22 -0800 (PST)
+        Tue, 24 Nov 2026 23:22:23 -0800 (PST)
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
+Cc: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	linux-input@vger.kernel.org,
 	Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>,
 	"Christian A. Ehrhardt" <lk@c--e.de>
-Subject: [PATCH v1 7/9] HID: tmff: Benefit from pointer typed driver_data in hid_device_id
-Date: Wed, 25 Nov 2026 08:21:39 +0100
-Message-ID:  <7a81a87f31cab973c732655bfbd1f0a26f10a9e4.1795589119.git.u.kleine-koenig@baylibre.com>
+Subject: [PATCH v1 8/9] HID: wacom: Benefit from pointer typed driver_data in hid_device_id
+Date: Wed, 25 Nov 2026 08:21:40 +0100
+Message-ID:  <23d19d751aea2d855bf1360fd4e84cc30d0fc8ca.1795589119.git.u.kleine-koenig@baylibre.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
 References: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
@@ -101,76 +104,92 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2910; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=Koo/sPRv396KRBYM+orlPuG9eMfo1P9PhjdbhkmFBUg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBoyNx0fNxJxYBJKZzz7osw5SYjT3cCi232BxQ zZMCsxmEEKJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMjQAKCRCPgPtYfRL+ TpZiB/0RRQFM2UcnCkVD4oZCckyuOCPiUxVQlDV09o4yGC4AEGuD8823HWY9+WZMuH0FwKXYtCU IxC9BI+8J7VCe+ebAFBnm9k/fLqaIAVinclHcw87GcOs7ifJHNwG2QanH8Vbu6XUpl0yJ15UJ0C 80ImWk8DVbUaR0bVltDcjvpOSa7+Mcpr1GcCzy4Z8AfKTizlw+T9UoDl4Sw3peNqzY3bXxoISfU 9K9XaLJdxbNMw9vcsu1pgRrFzsrS/BRzxYQtpjrlRUmeA3be6rLbo908s8IvxBHRuHHaEJQDOVB L5z4ew5hW1TKauGpeRJQamZXJirOJaXdC4uRJI2oVpKF73g0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3256; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=04+Lq9F8U8XiKgZ5haxzdh7WYgFsl3nmCxOnWykLAUk=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBoyPhXCykB1OsmdnYwJEUK7A4PzwlD2PmBwd6 1t0D6yykaGJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMjwAKCRCPgPtYfRL+ ThzvCACumwpeYZrNnwuMn1tkoZ3spyCK1kZtH1sTWeTPEj+d1WBFtD+/eI5AjDHhBh5ehC+Oe0C 94nmXR0FV1ZfBTIGbbD1ok1sb7HxaBulgKi+rxWn1Z8OLrsNF/v8+Rw286oOIxxCY7PpcOEb29D G7orUwz6mCi1LXNzlsqX2yugsVXW+MidzMYQI3xB03rE+4Lb9VNEEovAEzoDqcbrLHrhWRt5l67 oefDIBilHTOO/A5z+oDAg6x+hTFmF52ZRkEMhVnQlJQVK4Ll4h56KPzhgH9ga6+kayq3lEZ6O5h 43bxz/UBkDtEXxQI1FE2+xJ2EqhJt1kjoilzaQG1bXcQN41p
 X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 
 With using .driver_data_ptr instead of .driver_data several explicit
-casts can be dropped. Do that. Note that with
-
-	ff_bits = id->driver_data_ptr;
-
-instead of
-
-	ff_bits = (void *)id->driver_data;
-
-the constness of .driver_data_ptr is kept and if ff_bits were not a
-pointer to const data, this would result in a compiler warning.
+casts can be dropped. Do that.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
 ---
- drivers/hid/hid-tmff.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/hid/wacom_sys.c |  8 ++++----
+ drivers/hid/wacom_wac.c | 10 +++++-----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index 303769b07628..795d23cd6290 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -134,7 +134,7 @@ static int tm_input_configured(struct hid_device *hid, struct hid_input *hidinpu
- 	if (!id)
- 		return -ENODEV;
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 2e3ce9b63d7a..d826a6b4d41e 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2657,7 +2657,7 @@ static void wacom_wireless_work(struct work_struct *work)
  
--	ff_bits = (void *)id->driver_data;
-+	ff_bits = id->driver_data_ptr;
+ 		/* Stylus interface */
+ 		wacom_wac1->features =
+-			*((struct wacom_features *)id->driver_data);
++			*(const struct wacom_features *)id->driver_data_ptr;
  
- 	tmff = kzalloc_obj(struct tmff_device);
- 	if (!tmff)
-@@ -217,25 +217,25 @@ static inline int tm_input_configured(struct hid_device *hid,
+ 		wacom_wac1->pid = wacom_wac->pid;
+ 		hid_hw_stop(hdev1);
+@@ -2670,7 +2670,7 @@ static void wacom_wireless_work(struct work_struct *work)
+ 		    (wacom_wac1->features.type >= INTUOSHT &&
+ 		    wacom_wac1->features.type <= BAMBOO_PT)) {
+ 			wacom_wac2->features =
+-				*((struct wacom_features *)id->driver_data);
++				*(const struct wacom_features *)id->driver_data;
+ 			wacom_wac2->pid = wacom_wac->pid;
+ 			hid_hw_stop(hdev2);
+ 			error = wacom_parse_and_register(wacom2, true);
+@@ -2927,7 +2927,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 	struct wacom_features *features;
+ 	int error;
  
- static const struct hid_device_id tm_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300),
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb605),   /* NASCAR PRO FF2 Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651),	/* FGT Rumble Force Wheel */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb653),	/* RGT Force Feedback CLUTCH Raging Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654),	/* FGT Force Feedback Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a),	/* F430 Force Feedback Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, tm_devices);
+-	if (!id->driver_data)
++	if (!id->driver_data_ptr)
+ 		return -EINVAL;
+ 
+ 	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+@@ -2943,7 +2943,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 	wacom->hdev = hdev;
+ 
+ 	wacom_wac = &wacom->wacom_wac;
+-	wacom_wac->features = *((struct wacom_features *)id->driver_data);
++	wacom_wac->features = *(const struct wacom_features *)id->driver_data_ptr;
+ 	features = &wacom_wac->features;
+ 
+ 	if (features->check_for_hid_type && features->hid_type != hdev->type)
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index ab89a11d6740..2b2dbe5f06fe 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -5014,23 +5014,23 @@ static const struct wacom_features wacom_features_0x94 =
+ 
+ #define USB_DEVICE_WACOM(prod)						\
+ 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+-	.driver_data = (kernel_ulong_t)&wacom_features_##prod
++	.driver_data_ptr = &wacom_features_##prod
+ 
+ #define BT_DEVICE_WACOM(prod)						\
+ 	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+-	.driver_data = (kernel_ulong_t)&wacom_features_##prod
++	.driver_data_ptr = &wacom_features_##prod
+ 
+ #define I2C_DEVICE_WACOM(prod)						\
+ 	HID_DEVICE(BUS_I2C, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+-	.driver_data = (kernel_ulong_t)&wacom_features_##prod
++	.driver_data_ptr = &wacom_features_##prod
+ 
+ #define PCI_DEVICE_WACOM(prod)						\
+ 	HID_DEVICE(BUS_PCI, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+-	.driver_data = (kernel_ulong_t)&wacom_features_##prod
++	.driver_data_ptr = &wacom_features_##prod
+ 
+ #define USB_DEVICE_LENOVO(prod)					\
+ 	HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, prod),			\
+-	.driver_data = (kernel_ulong_t)&wacom_features_##prod
++	.driver_data_ptr = &wacom_features_##prod
+ 
+ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x00) },
 -- 
 2.47.3
 

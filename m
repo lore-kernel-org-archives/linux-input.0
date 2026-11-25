@@ -1,93 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591335;
-	b=JsD1thve6oFWSWqHE2ZvwlaakG7JcDaVVdKLFcCOq7HqW1M6lj7YjNymzZvqVrLPmRBh
-	 WCTButeSZ0e/Q21WKkoNKEeLcOwJypVip+ynsfHPbi2HxKPAwbOjJhnenlh0ItoNy2A++
-	 I+Hs/FwtyZdqiZv26RhkeR7hsXClyz3qFKgjpN+WHYozo9VBK4O58baWtwq9ewwKFP7bg
-	 hr/u0RYg0EMdj6uYAnkHLPJinolMXLdotHK6J7ts5c+3xmiBI+/zhswriH5uU12d9eA9U
-	 kQSNEC2qgpN9+K2viT2gIqgx8IPMHn5ab+Qk9sBs4beziexn7LKczNZTMWKosE6ze2A==
+	t=1795591336;
+	b=o7Z4HWW+3JhNgk7SE36prGDABZXtx3mVVtM5WwKQys+KYuN8Y6GEp9Y9ISiSq+cZwDGW
+	 E/N+B3+auWxRjUuf6wGhA9iWfl7U3qksCj3V3iSn8qlXAek2lQVz4dT0GK7UHpbAocOxk
+	 Pyx5YPvvIYYlCQxPWs+whA8r6ulWF0fhubkDkzVBBEHcwGmIO3XTbGAjAOqAEtI3fUbXO
+	 t8JOphy1NLKAGELMLWm0H3l32GQGpe0LqoU4TLi4BF+N0kF2fiKzCgKwNmwJ3iTApG+90
+	 DRAEbrrBYJXY5AGSKMXwIMXZLvow0TbknLOCtZMLFTCWP5kwy9VJ09QnywMgTGGB/wg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591335;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591336;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Type:X-Developer-Signature:X-Developer-Key:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
 	 Content-Transfer-Encoding;
-	bh=+5tpNRXvG2FD/kCmYtpjPEImwzwb0IfLf5mf0pcBb7M=;
-	b=VTKkhoVFGCGwq7n7g/QkwJ2/S7TFGTPckxQ/sGg/nbrQvTRHuisVwF7tsOfwrS2H2B5h
-	 LqSfXXPTfP+22zj1T0PieDJBYbcA1RoBQrOOikIlKj8Gw1CCluIh4Vxr8Zzrv+FRIsVmt
-	 LuFf+oAEgiIRmlRlUizxpp4XOwJ2EuvhKSuTnUKZs04U1YrYeVmqw8FocwOU/C4VZB6Br
-	 cpqMMiH2TJVwvWHz32wXK1xtAC91SbIkTZFirBP1e7cq5EaJtmxaajsj90oeEiwNbzPSE
-	 zSvRs7ybpjIefZDqDtYgrgOgKpBWQg1CQ6pUO6CkSRNuqoOpGmaeydF7+CiuHFEwTdg==
+	bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
+	b=t94oudf4e8nX3F0EMmLMH4him+WAlBaxqBTYRHwiq3SkM4hx/Cw6RJdGYT5tLUAs9hG6
+	 bDgelQyR9A3ysBny7TcnNMFhIq8ohXcRfX+o8pq5RV7FWdcpgSykGEs84ZOZI9cXC0/Wy
+	 wIi9jA2q6cVH+xVuhtNh5QNwAVYQGlWjxG0urLCyL7MqQR0J+0wM9Ks9toxu7yV4cseSf
+	 svbGiTgu3p0qqMLtVpQsI30pCEnj8tlgP/JS2hiLQVXkecuG+Q63ceJQ1VdRyWvQLvKS1
+	 H5eh6raLwicaltPFALkIsRdKMrzti3Ku789DaKEKEtfoICByOw9CSQpinM2K4QuP7zg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=baylibre.com;
 	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=VaOFNXz8;
-	arc=none smtp.remote-ip=209.85.128.44
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=e7ltQSeu;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7459606A335
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C7459606A335
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFB8B606A321
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DFB8B606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=VaOFNXz8
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a214c5c4c0so51159335e9.3
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=e7ltQSeu
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4bb6ba3b244so54963535e9.3
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795591333; x=1796196133; darn=vger.kernel.org;
+        d=baylibre.com; s=google; t=1795591334; x=1796196134; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+5tpNRXvG2FD/kCmYtpjPEImwzwb0IfLf5mf0pcBb7M=;
-        b=VaOFNXz8Qpr78fV7aaws2PyThFPlXAn4JnPVXmLon1UJflIzDzgGSS4llD4hWfqmpZ
-         HuBnXuCNzPLIqKCJwr/mA6B/6pFJV9z8OXOtaBqGjPzPotIdyWn6MAOxlK/dTlEAENPW
-         rlC+2sc5yYoj2vMQVSK800S8wnKgtWL5RdmPu948WfkZZoHbMUoQ+zpiDT9QiE9u30lG
-         3Sy3r835uKkIx148yl/ZmT8Ilzba/xHuUVJq8VZ31un3KgEFLTK+i/q3kr5yhGBklqqJ
-         uxjQd0pr5+S/YdHUpYrbFcdCv2r6CEw6iHk5kIHcdeOEgRkpy24fZylP+sO2bjHOAr9I
-         Ping==
+        bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
+        b=e7ltQSeuZwReH6a/+p+2G0PshsvEhE6QDFxuy6XzzdFU0m66W3NiSJ1eW8f5pF44Mi
+         YnNLhOtQpnoczgYbaecsKwlm57gnOqb7nz2/4DAKtu6wr5PGuJM58N+lsFTi9KR473pq
+         v1BOO6BepaTPAV3eYitt5h6CQdT56A1n5hzKKTTRMuzJ76tlpcDz04KgweNWYKtSRJV6
+         Xffn9KFwIwzlaW0XeP/HBQ5BopVpq/SghpRTAFSiNTyhw022pZHDPSMeEc1wXsc8yMFF
+         Dd2LHg8+Mlst3qiHUi7teZDddcdXLsmt1+g7qQdk1BwTAPLg28nK77Y9mzCpHMYkGqwu
+         Ww8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795591333; x=1796196133;
+        d=1e100.net; s=20260707; t=1795591334; x=1796196134;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+5tpNRXvG2FD/kCmYtpjPEImwzwb0IfLf5mf0pcBb7M=;
-        b=BtVyoWgNnFNft1dnr/19Ko/BlU40sFltJtmuvDlssvgG+km83sMSt3a+5ONq89OXFx
-         prfbGYxFNjBcDgsNtPdoOXdvrr38t68FVs+EQ+Zsfc2Rx2sBT8VjDTdSe/ZlFzD7tLzh
-         Er3eQah/EYdgDMFZKMfDwEOTpsDMAwLtywhFdRH6xgZKik65RPICgcve+c6ojt5afCcD
-         bazrPP/8vOggCuVy26SNhHKN2anCK3GAn+D6+RtfTaCTX5rG91/jbL7lE37pYpucjEPn
-         YWZ0e2ukuiPJcJ2iulSdHZzC/LeuP681bl858zj7d3Ufhm/hpTzOu1P+h5oAkZx8EzW5
-         61Aw==
-X-Gm-Message-State: APuU4Z/8FQhtv94BqWaILuhLvlNCwrkknm+pi/IqQvid6DNkrUhYGhQ+
-	yrrtPmSy/p7gC7CzYGjvqMX9V+wv8K44rZDJcPbbI46bPyln4iflGvX/3u737Ku1aUw=
-X-Gm-Gg: AZFdTZeteAq1I6tTGMVFEsrmn5+kVE2R53n92agm+sW4GrBkhEqx95THm0Qa0SiBkb/
-	V5JtaigTvpCd1I3UL/rm8+qQWkF7j6QR3VpSyDAhkXy95arkod/9x7pjf0QR2iqXayUeJ6TAYDB
-	X/Ct2NuL1ynjI6IsINBwOEQbLkTERcgPQDQ56fbI2iha6G3fKKWYl98w0gnewhn0Mq+u2i9GPk1
-	SAh2AzcloNXAIZ1iNk/8m3mVOV3JOBqRJOBJ1zrBtMpjMjuKh6Y3Nmukw0OQp1g4cfNooVCmCab
-	JYdWj3Z5uFqA+IKcxHi32SXxDgM866N1W+uxYuRsOFDtSelPLwCW4Jkm66Bq8wf85LKSkWVRx+n
-	1p+3YawEnZaQVv7s3fdmZ+JJ52AP0ISXM5NXsZBUE2DXHC3Yx02YI5rKYk7RetlX3Mq4IFx+Tz4
-	euScKge6H2GlETl5e8D4d4A/SABaiIshQz0QtUASfpV6JUM8lORkJNq0pfHSLJgi2VjK3Orp/HE
-	qZWkOEngOwEV8W2gTvrqAwaurnTiRg+L9CU8x7xKz9liXB/EoVqKn+ugxEaIDZmXQEmyrxlwVkK
-	wbAkhHAVG3pI9Th24eZABt2ACthJ/1T3pw==
-X-Received: by 2002:a05:600c:4e4c:b0:4b6:5dac:b61e with SMTP id 5b1f17b1804b1-4bb88938d2dmr315514635e9.32.1795591332789;
-        Tue, 24 Nov 2026 23:22:12 -0800 (PST)
+        bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
+        b=N5ggHf82dcX/dgWpLdOyoD4UofXpYTKLRQBiLCPmdv5V9m2UiMtWtAqxV1phO/ZZWT
+         UCG0Q+kY5EdiwR1i9UzRo3WStf0zCRCpS0cuQyAwIgPWrW20++VqZ7SqXCXhwUXD1FHa
+         VvACRdtNSIq8gbMMbz16zJwHIjKiowrB7CES8sYJZYQEu9lXwEnNMCfW+YyeRQJqMCQQ
+         aYY0miOItR4R3c6d8uKC3/11pEmsKLbfaSnt6ra+O/BXncJFo32iGko8skDoHXF6otVm
+         7lndsPr7bp3NAM38HsPoy4dIQ5CEsgetPnnPipB+3An9obv1mrp2rwvQiyBRXeV/35Ke
+         uSlw==
+X-Forwarded-Encrypted: i=1; AL+hErGUdJMxls6X/eRpEVQpgPKJpr7GvJmztMuawZYfUE3/VBxpleoArV+pI9bWOsIRQ2F0TtY7OpdHM/TIDg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+Qsph2RYXGVpiBrlhGsPKXyq+bn6XY7aGb+vR0kCiMbr/xd0jU
+	sb0P6i0Y1WmCTbsgbDAiyaylGS7lQ/72Nm/Uss3QqkjOwpL/s2RgGv6szmN8eTp4t3w=
+X-Gm-Gg: AZFdTZcd6x3gyjic6BVWaw7G0pkJpP4rhE3A3tf5eTf3fnVKRxq317dMicbxlbNlY6y
+	dT42srIns61cPAXISx4ZYeVnL5BSTm60ZR6XN4qxmYsQCIJQ8ZGL8aKJE7kA+L6+laEPoBEHEdu
+	bLX2/i5OH3P9gy3f2REMkb0IkGjqyAf3eujcDaTSZAlSlipaQrzLsG+jkCytnckHVUp4FH1cqrj
+	9R4vxDlzDWZouoUnDueDAmnt9meen6HdRrKFRb5O73xzzO1QaH893X1tztPXL2enFcT4Q5GgIt6
+	xRke40vrjrjIKlBueJ+YM/axvU24ooadRUY2gdFG/BQaWrPCSgq+NjnW3RGquLYGFkjD3vL0g0y
+	r4yXXSX5LK4+SNG4Ey4oEeY5sq3Rk6EvBdwQYVqiD+9FnHOIg4pzq+qZBbtvMUD3N8zICvv/s2/
+	k1/KOHVqVmdiO1q+nsO8r44coPLh+5FS0nYhQpLCEJ/cKuCakiI4ZNOW5rqSAbW+l2ko+5ubIzF
+	D0VI6keOAxth+JckqJCTD5QU4IJGF9H4eyHwq2NV8FHD/M4UXhjTDgdlzr2MHgLWdKQsAgd/qTt
+	D3X9uNJnrwEuqXOdkcj71wuTe6icZBNE8Q==
+X-Received: by 2002:a05:600c:1115:b0:4bb:a602:6c8b with SMTP id 5b1f17b1804b1-4bba60271damr13131425e9.14.1795591334258;
+        Tue, 24 Nov 2026 23:22:14 -0800 (PST)
 Received: from localhost ([2a02:8071:6e30:8500:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb853ca452sm484273305e9.15.2026.11.24.23.22.12
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884b39b6sm453947725e9.12.2026.11.24.23.22.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 23:22:12 -0800 (PST)
+        Tue, 24 Nov 2026 23:22:13 -0800 (PST)
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
+Cc: Danilo Krummrich <dakr@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+	linux-input@vger.kernel.org,
 	Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>,
 	"Christian A. Ehrhardt" <lk@c--e.de>
-Subject: [PATCH v1 1/9] HID: asus: Use designated initializer for hid_device_id
-Date: Wed, 25 Nov 2026 08:21:33 +0100
-Message-ID:  <74526d9dd0fcf5a63fb1b6b0aff931a63f8a5e3a.1795589119.git.u.kleine-koenig@baylibre.com>
+Subject: [PATCH v1 2/9] HID: i2c-hid: Use designated initializer for hid_device_id
+Date: Wed, 25 Nov 2026 08:21:34 +0100
+Message-ID:  <52586d870a6dfb31d6bc42f946388a2d30d716ec.1795589119.git.u.kleine-koenig@baylibre.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
 References: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
@@ -101,7 +105,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=10632; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=cunnDZC1QeKcFkckLpFufJBkG6PzNl+fDk94jDCeHkg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBox/d4gQPPM7Bmww6Dd+ARj943cATNZq21BHa bIjMdpygfeJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMfwAKCRCPgPtYfRL+ TtEAB/wJ411bmnzhy82BBntZ3hliSbpk1FuTY7N0Mj29dBwKpDEOV5qOi/zlBvktRH8Kbp52Qpm B9ZThlAHLGp25mI8aKd8VGkkU5S/UeJvJVZRoIjB7dD/mJx47mGCkI1eLv3ELLLfmW5aS+Ejlgw LoW5pWpiiu2pEPzN9by1/yoNj6wT9qHXR/dalPpjUjhTfZUYy0NKa7mQcFZ49pYrp/JJseuID/f JebnmKmiwHZG46RaqH8e30d3pvEmgvm/4MF4CcaH9aNQLhrdwXoAUXrb5ASvBXXgB7+/jz+HBjT VmyEz3F++wFcFxSa3r7erfGWmaArayqQayLhutuKgSK7ej/7
+X-Developer-Signature: v=1; a=openpgp-sha256; l=994; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=1ImbJgJFVUNa/gHBfoMyngpPi9/AkALjP7WrwDilvhE=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBoyBQq1qlIgZIkeoJD3eDCodAJfVeyE13IXEw KQdxl7+RkKJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMgQAKCRCPgPtYfRL+ TnsvB/9eobm4hvIjjUe4iO+R3GgP8Bf+wC5ITS33k0GipuPkw3TF3iFRWKX540rgEDf8TCoiPF1 aEUeFgTPguEe5k9TXMOtuSpY6SPA7Md2gozn2U1SPvfWyYHhPn0axSUqtZe+WgRQ1canpiScXRU dqfVNOopJdO3dMgW9mcdH6on7cOVPimihReUavVOd1xYQGtTHiCvYLg8fAoq52QMg+bGjPKJsZF NNrKSk1bUvN8S/lltqCGKixy3Mee5V9wY3Mavm8ovTJMiv9EfcnFVgbyKsIBOFCZVAIkV5xG6Hl +PMiC0X7mUDKjA+avyw69b0j7THtoDomft16X0NURaX2hK/E
 X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 
@@ -111,230 +115,22 @@ struct hid_device_id replacing .driver_data by an anonymous union.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
 ---
- drivers/hid/hid-asus.c | 199 ++++++++++++++++++++++++-----------------
- 1 file changed, 119 insertions(+), 80 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index dcb3d50f9288..57f5bb9e829e 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1902,97 +1902,136 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- }
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 83b9bc4b02e6..c1f81154f6ab 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -419,7 +419,7 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
  
- static const struct hid_device_id asus_devices[] = {
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD), I2C_KEYBOARD_QUIRKS},
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD),
--	  I2C_KEYBOARD_QUIRKS | QUIRK_FILTER_CAMERA_COMPANION },
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), QUIRK_USE_KBD_BACKLIGHT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD},
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_XGM_2022),
-+	{
-+		HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD),
-+		.driver_data = I2C_KEYBOARD_QUIRKS
-+	}, {
-+		HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD),
-+		.driver_data = I2C_KEYBOARD_QUIRKS | QUIRK_FILTER_CAMERA_COMPANION
-+	}, {
-+		HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD),
-+		.driver_data = I2C_TOUCHPAD_QUIRKS,
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3),
-+		.driver_data = QUIRK_G752_KEYBOARD
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK
-+	}, {
-+		HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_HID_FN_LOCK
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD,
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD,
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_XGM_2022),
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_XGM_2023),
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD),
-+		.driver_data = QUIRK_ROG_CLAYMORE_II_KEYBOARD
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
-+		.driver_data = QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+			       USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
-+		.driver_data = QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D),
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110),
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112),
-+	}, {
-+		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+				     USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
-+		.driver_data = QUIRK_T100CHI,
-+	}, {
-+		HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE_MEDION_E1239T),
-+		.driver_data = QUIRK_MEDION_E1239T,
- 	},
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_XGM_2023),
--	},
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD),
--	  QUIRK_ROG_CLAYMORE_II_KEYBOARD },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
--	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
--	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
--	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD), QUIRK_T100CHI },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE_MEDION_E1239T),
--		QUIRK_MEDION_E1239T },
- 	/*
- 	 * Zenbook Duo detachable keyboards. The touchpad shows up as a
- 	 * separate HID device with the same IDs, over USB and Bluetooth:
- 	 * bind to the HID_GROUP_GENERIC group only, like the ROG Z13 Folio
- 	 * below, so that hid-multitouch keeps handling it.
- 	 */
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
--	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
--	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
--	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
--	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+			   BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD
-+	},
- 	/*
- 	 * Note bind to the HID_GROUP_GENERIC group, so that we only bind to the keyboard
- 	 * part, while letting hid-multitouch.c handle the touchpad.
- 	 */
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
--		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_Z13_FOLIO),
--	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
--		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
--		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T302CHI_KEYBOARD) },
-+	{
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+			   USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_Z13_FOLIO),
-+		.driver_data = QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD
-+	}, {
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+			   USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD)
-+	}, {
-+		HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+			   USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T302CHI_KEYBOARD)
-+	},
- 	{ }
+ static const struct hid_device_id i2c_hid_elan_flipped_quirks = {
+ 	HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_ELAN, 0x2dcd),
+-		HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT
++	.driver_data = HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT,
  };
- MODULE_DEVICE_TABLE(hid, asus_devices);
+ 
+ /*
 -- 
 2.47.3
 

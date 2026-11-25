@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795613745;
-	b=PRSE30nsFJp1qcPYAVFngqytaUdA9UCqs+zrKaZHuonqZl75WCLvf6bICN0npXVJCH1M
-	 4Sxh2uf73QXIbzrBO7FldKtssn6II1EPX/04SJyHOAmgrRF6fRzSBAOBRLOy19NDsmsvh
-	 HNAzUxcwbtsvQ7D5hdWq665Itd1wUB/h5WekdQgYWA3ARASpAxPm7wN0E4Bz/vtRs9vwL
-	 ObmjIPlknMprP9BfWaaJMWAVTIR8+Gm1q3ot8+k9a2QyWn/K0wBxC0p9x5uRKoEc7E3aJ
-	 O20A5kIyHWRoX+Z3V4Vhlx5KWCLbYTEfOrUoMaw2bTbcvRh+6hDx5y7fLxlFOknD4xg==
+	t=1795613766;
+	b=p0VXW7i/e48bv8EoILB2dAj9kf1O9AcGAzaUkmOj2fGyJU6VzA26FbJuHLf3OrVC1pvV
+	 OEJEPO0Bv8OYTamnEjQK6Hb26PgnuLo1xHUXgR21Uwkx+0YvJDPdDFrDNZ5vVsq8czDxS
+	 +JM6sbxOSTzIL+VjpwmBbAxc6CrnRADv6isase2e1125vU1TT49LsIWNxXzl/+N3r4seB
+	 msvGOIzyk8Csv01cwkjPA7FA+p/sK+gT07YGtIL1ZIxiWhZDeVgnHDCp5F2AykCH43wRr
+	 q5ZnIvuD3Spc0eqxAlaTKRuE9ADMUGn5GIxbaElSITM1he2QCSdOZsWqBUhjygy+Hig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795613745;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795613766;
 	h=Received:DKIM-Signature:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Subject:From:To:Cc:In-Reply-To:References:
 	 Date:Message-Id:X-Mailer;
-	bh=PsqVLknAUTo7NBjCEmIKFZJ9LLhWm4zNDbCBptxY/NM=;
-	b=3IdWsRG3YHnmpMbR31mFXldoNWxvJvLDWXb0T+A1CHcatKvw5FFgVCzig7wLd5ESsk9F
-	 JYTncUpG8aSoxjhSz/RUNZs9smJlNhmzBDBEx+12H3A1R5oHa0v3NnoJZvwBB5OEuLZTn
-	 y01kbx/5CW064Q0exQ2b/tBF1MLBCPIIXxGC0SR6x+HzTVBwKUSwsA5St+E9a9h8XKArh
-	 g2fT5j4qD9ZRlK2hGymNhhK3zLhkLgC/8YORCwH3XLjX7z6s7sdf/mFJFi8s3T2L9Gt3p
-	 i6VqFv3ukVhPGhRSS2h++W3D5NiJwYiJ1whVouUDRIHHfle+0f4M3TPPAX7A9ZJDT/A==
+	bh=jMC7lBuD8CSwX6fWkX03dnfYB3y+9oak/mBhvnHkgoU=;
+	b=rnFveClr0DkIrPsjJKHHoTTz01awMuaYi2xIrP84JxU9Y6ILSUEVjDLO5EFfYJc33csA
+	 8A7FlyXrb7auch8H4foTHQk7KlLvOxa2vr+Xz2DaEg6KJdC7tONp8oZfgF5/18CI+HfWE
+	 FWcdG5cgBToZs+MM9I7AF8wcgvS6uod1hec9BVBNloIwqbdfhi+p6I7npbzkmpRNW9Uv5
+	 fHuYhkbAcKbpscr8+SbdSCGYgZMRiesKTEB3IB6hpjY1C6yRJ8lokK9NOnd9x3Polszkw
+	 Y7IvBDKKPvS5MiwWdmqNJEg/zRwhPhg+KIVCe1vwSxKKlfA/DSdQsKMSEVfnmcATCqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B8G2OiY3;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hzN+ig7m;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55337606A331;
-	Wed, 25 Nov 2026 13:35:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD151606A327;
+	Wed, 25 Nov 2026 13:36:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B8G2OiY3
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6903A1F000C6;
-	Wed, 25 Nov 2026 13:35:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hzN+ig7m
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 694D41F000C0;
+	Wed, 25 Nov 2026 13:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795613745;
-	bh=PsqVLknAUTo7NBjCEmIKFZJ9LLhWm4zNDbCBptxY/NM=;
+	s=k20260515; t=1795613766;
+	bh=jMC7lBuD8CSwX6fWkX03dnfYB3y+9oak/mBhvnHkgoU=;
 	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=B8G2OiY3H0jVMx7MMO2efx1O3ji75YeG6AxuhcsVYVzgbjROo6xbVkY3AbSwYxpAi
-	 kNj1qj3jKXs4koolWipNNHKUaWmlQBSgqSIX5h9K28FD+gnpZMrsGjZIMtwYqsI74s
-	 UqL++ZWjJtnVZSwtCJVVTXSYu3NMXxge5n6JfZsy0ENZcNrkeVMXMjyrnScMfaxFjx
-	 OW4CjnNIMTE3bPJq+YExqFVCSfDVsneRlhr/SWbchiG18saSiNjf9UgqbK0rPeCjsm
-	 5C/RqLmhoRJWJMBuQ2+vPNUGOXTiat4h8x4aIPHP8jJR+40U3zneajuely0ecuJTZG
-	 v+na1MspOi3Kg==
+	b=hzN+ig7mvo+/VqHGVoRFloQ0vD1qfxCATkApPJTx017ngYNPhW8l1HgcR7hTARQIw
+	 trCMh6683hZva8ecnjW8wqT9+UTXbh5brfidvajxhxKvqNDetXc/AHf+xOj2JxxHA2
+	 VuTid6crpz2Fus4vSpmzZ3SELLkSy4znqalsAV0JnQkBAJg0x5YEvYzc0+mXHjHF1N
+	 DX+wEGP3nUJidkEDeFS19THRGDbRvkvLCHgQ4/SWti3XCjV3OFD7Tl/he1LRWVCIop
+	 5iP5YovAhCLGaDiZlmKjlbgb1d2y7oT2JBMElrzVTd9vkJD2ucnFLoNn2ADZlsz1Ig
+	 g+wP9Tfvmk2UQ==
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -51,8 +51,8 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 1/2] dt-bindings: input: touchscreen: hynitron,cst816x:
- Reference touchscreen.yaml
+Subject: Re: [PATCH 2/2] dt-bindings: input: touchscreen: hynitron,cst816x:
+ Add supply
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Gerard Marull-Paretas <gerard@teslabs.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -60,29 +60,20 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
  Conor Dooley <conor+dt@kernel.org>, Oleh Kuzhylnyi <kuzhylol@gmail.com>, 
  linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
  Krzysztof Kozlowski <krzk@kernel.org>
-In-Reply-To: <20261122093405.70406-2-gerard@teslabs.com>
+In-Reply-To: <20261122093405.70406-3-gerard@teslabs.com>
 References: <20261122093405.70406-1-gerard@teslabs.com>
- <20261122093405.70406-2-gerard@teslabs.com>
-Date: Wed, 25 Nov 2026 14:35:41 +0100
-Message-Id: <179561374192.84329.4761080114492904783.b4-reply@b4>
+ <20261122093405.70406-3-gerard@teslabs.com>
+Date: Wed, 25 Nov 2026 14:36:02 +0100
+Message-Id: <179561376276.84329.17283482689187377686.b4-reply@b4>
 X-Mailer: b4 0.17-dev
 
 On 2026-11-22 10:34 +0100, Gerard Marull-Paretas wrote:
-> The controller reports positions in the coordinate range of the panel
-> it is fitted to, and how the panel is mounted varies from one board to
-> another. Reference the common touchscreen schema, so that boards can
-> describe them with the common properties (touchscreen-size-x/y,
-> touchscreen-inverted-x/y, touchscreen-swapped-x-y, ...), as other
-> touchscreen controller bindings do.
+> The controllers run from a single 2.8 V to 3.6 V supply. Boards may
+> switch it, for example along with the display panel the touchscreen is
+> laminated to, so document it.
 > 
 > Signed-off-by: Gerard Marull-Paretas <gerard@teslabs.com>
 > ---
-> 
-> Notes:
->     Checked with dtschema 2026.9: the steps of dt_binding_check run by hand (host make too old), yamllint and dt-check-style --mode=strict.
-> 
->  .../bindings/input/touchscreen/hynitron,cst816x.yaml       | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
 
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 

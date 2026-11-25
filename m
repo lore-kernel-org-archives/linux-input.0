@@ -1,56 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795625648;
-	b=0HXLwXM9rLbzONS/RpJnJOraY5ZDOQxuAEEshUZQc9ZoI+Mg1OW+br/EZ2vYz0CLdRJu
-	 ZObhJQ3DMtpMwSTiJAVPmVBakjyJ8MJ2aXbZN20fSLVlUMAGHapdED195FpYrxO0nva1K
-	 q5+RSjtXDQEJTskz/HrCvOlbBkrmvAnQhxZtwpwa9XrVvnnOVa+xyh3kKKtMz+NL+qhzt
-	 sQpssdkaXl9jwEkAd+X+I74TPP1ZzRfyBzRE5Yei+ieomM5KeRNkqvoPKUEuDF/j1lsUe
-	 OGK93u5EmQjqtOrTxEdv4NUM4lLJnZEEAjFD2w0XF6PZiGEwx/X5kB7XOVfhiXmg0Mw==
+	t=1795626480;
+	b=hqJnKZvjHK24HJClgjADBwcqNWPeAmkzA+jX6300OpLVm5j5oqKDXYYhwkd832xWqRaZ
+	 Yl2lLluJlHifypsWWqtCwAFHERXFBCjntQCjJwgsvn4MbVcKpmxW2OrLd+c2AFDuOssnE
+	 60l+zWak0OlbDCaiYHOTtg47gj2zfE2wSD9ypOT4zeith6kAAPTP3hRb2f+5tjDqQTN/g
+	 CQbSyBTuGQJVUKRV7q98xK/FP5pCOr/MFJ1ilC9BqEWYArxhSjv17wHRNmDGti0/6/PMJ
+	 a2AzG+8pH6+o+/M+t7MvXqBM1mnBWeELcGgMsksQ+6j7hqICDpGXdeTlDXar9J0464Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795625648;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:From:To:Cc:References:Content-Language:Autocrypt:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=3xu+BiAFr4lRfW+aqsuKcISk3jrudHO7aJtuyDglNg4=;
-	b=Ew/bsVyxg9e+6POxqJS18+mnTBN6g8D3qbFooGbBIjDhsxPdDMYR3TkzEja/Yc1EHmRG
-	 JcK0VxjvSnPnaaw8BVHqdxC5uZInDmIYYJ+c8faXEUIpgTCHdVCakqSnnq6u2KcgiQ8sX
-	 l33yIiteFpb8xYeEUHXk3lXuMlN8npy4W9AhWHgpdNaSvox2s+IDGtYZX2dpuk59nbCCI
-	 Sm90pjvz3bRsEAwON+/jhmacAS+ISd8xkVNedVqn0MmKBmXVCsYoqk7hgrnbLO+87xpe1
-	 we4iY83yYfgdt56Zblgwt/+F0OrirBIhb9Rll82Nt+IWxSbp1lpbdHBllqCx/orQ9xA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795626480;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=urHFx3b6gWNWRXANUCfTDqj3yvhkqieRlYBhS4ZuTZM=;
+	b=eZKk8vGErkrfTrg3JHdQO/WFZR3w0gsDSVyzpooTaA/JXLG0KSRoBLx2nOMtMX3p/IIL
+	 CrrPoLGqcLapW06c5aAzNqjOXyHFXejwBQ2p1NXWsTnjNAPvG6YEemlabsBu466fSTBVC
+	 D5yRlcYTSGwBLnpelXYcM8Qz9nZhXEp4Bg+W3jm6V7Has8STgpazlzqZX6iaoZ6MwjOh9
+	 l07od/SD2jt0Qykr46Dka0mUba1y83ugiwWXzedJNWIIO45t/2eqcj5gmKr/0G01jwMEh
+	 uMvtimzQsc5UPvhe5XFMWfVco47IkRM8vBWOOczwbd0QGewBEqpsRRNwxVHS7VFwAqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=ixit.cz;
-	spf=pass smtp.mailfrom=ixit.cz;
-	dkim=pass header.d=ixit.cz header.i=@ixit.cz header.a=rsa-sha256 header.s=dkim header.b=Skf2D5t4;
-	arc=none smtp.remote-ip=84.42.129.46
-Received: from ixit.cz (ixit.cz [84.42.129.46])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MU0gnyYy;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEAA606A31E;
-	Wed, 25 Nov 2026 16:54:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BEAA606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9541606A31E;
+	Wed, 25 Nov 2026 17:08:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=ixit.cz header.i=@ixit.cz header.a=rsa-sha256 header.s=dkim header.b=Skf2D5t4
-Received: from [IPV6:2a02:830a:f787:8f00:f33c:cbcd:417b:d2b9] (unknown [IPv6:2a02:830a:f787:8f00:f33c:cbcd:417b:d2b9])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 5E34053403A4;
-	Wed, 25 Nov 2026 17:54:05 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1795625645;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=3xu+BiAFr4lRfW+aqsuKcISk3jrudHO7aJtuyDglNg4=;
-	b=Skf2D5t4WnehB+GYaZqgAIPIMsiKKeFRoyk2K8TI8fDX64BBDrvctQJHQ2tOnEcukC4L3p
-	0lHghznfNBr51C43kpIvRKrLAwTxfc4KxS6p1cIfpkl1T9rfun9fMNSbxJ7eZliGaLQ8FO
-	5KYPFfvfLxLCpdbRs6vQo1YTDm0WN9Q=
-Message-ID: <24dccae7-71dc-4a7a-92f9-bd5e627f8063@ixit.cz>
-Date: Wed, 25 Nov 2026 17:54:05 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MU0gnyYy
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F04C1F000C4;
+	Wed, 25 Nov 2026 17:08:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795626480;
+	bh=urHFx3b6gWNWRXANUCfTDqj3yvhkqieRlYBhS4ZuTZM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MU0gnyYyJ+IvbtkavoqG7K/VGO2N7wwWta4r2mJPkJuSzVj12EJ4UjpqOGCzKbWpP
+	 X2DWXHIEYOsxY+oqSTgUTsCNSMQ+9vI9SAcUM2biMQ6/RF54a2esbbwRa8U2A0MDjd
+	 Y5W9ca1X3Sy/mIm598DeEF1U07y+g+P9BhgVtdgW8jfR/e9Zy8oT+zl+rm1r1HnAVQ
+	 RshfIfNPWeimqJxGklNsgwElPYJs1O4JBnU5S7NT6Mn650N+hEwTZl4o7MjSH9PNtI
+	 wuaoXUlXrh5/HfL1TNZ+6iBuYUoiRLqb79WuJIUahU8sb6AdcMz2Ksdt3+urIf+W9g
+	 bywjKw6ziOqlw==
+Message-ID: <sashiko-outbox-233806@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: bpf: fix use-after-free in hid_bpf_reg()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sechang Lim" <rhkrqnwk98@gmail.com>
+Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261125164728.24914-1-rhkrqnwk98@gmail.com>
+References: <20261125164728.24914-1-rhkrqnwk98@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 25 Nov 2026 17:07:59 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,86 +58,91 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND] Input: rmi4 - Move sensor initialization into own
- function for F12
-From: David Heidelberg <david@ixit.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260731-synaptics-rmi4-fnsplit-v1-1-8175cec2ded1@ixit.cz>
- <76e9ad4b-7430-41d3-9d31-9f513beedcb5@ixit.cz>
-Content-Language: en-US, cs-CZ
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <76e9ad4b-7430-41d3-9d31-9f513beedcb5@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-On 18/09/2026 21:26, David Heidelberg wrote:
-> On 31/07/2026 20:40, David Heidelberg via B4 Relay wrote:
->> From: David Heidelberg <david@ixit.cz>
->>
->> Makes rmi_f12_probe function a bit cleaner and more structured.
->>
->> Signed-off-by: David Heidelberg <david@ixit.cz>
->> ---
->>   drivers/input/rmi4/rmi_f12.c | 58 ++++++++++++++++++++++++++------------------
->>   1 file changed, 35 insertions(+), 23 deletions(-)
->>
-> Can you please let me know if there is something I should improve or this patch 
-> is just NACK?
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Critical] HID: bpf: use-after-free on struct hid_device in
+  hid_bpf_unreg() [1]
+--
 
-Pretty please Dmitry. I'm not asking to get same usability level as with Android 
-driver, but at least small amends like making maintenance of these quirks for me 
-would be really appreciated.
+commit 8a1a1e9fd3f55ee6ffdf0b624cf6f20fd17120ed
+Author: Sechang Lim <rhkrqnwk98@gmail.com>
 
-Saying no it's also answer which would be better than silence.
+HID: bpf: fix use-after-free in hid_bpf_reg()
 
-David
+This commit holds an extra device reference across hid_bpf_reg() so that
+concurrent device destruction cannot free struct hid_device before
+hid_bpf_reconnect() runs.
 
-> 
-> Thank you
-> David
+> diff --git a/drivers/hid/bpf/hid_bpf_struct_ops.c b/drivers/hid/bpf/hid_b=
+pf_struct_ops.c
+> index c90b68956cb3b..e2512bd6e6b29 100644
+> --- a/drivers/hid/bpf/hid_bpf_struct_ops.c
+> +++ b/drivers/hid/bpf/hid_bpf_struct_ops.c
+> @@ -198,6 +198,7 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *=
+link)
+>  		return PTR_ERR(hdev);
+> =20
+>  	ops->hdev =3D hdev;
+> +	get_device(&hdev->dev);
+> =20
+>  	mutex_lock(&hdev->bpf.prog_list_lock);
+> =20
+> @@ -239,6 +240,7 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *=
+link)
+>  		hid_bpf_reconnect(hdev);
+>  	}
+> =20
+> +	put_device(&hdev->dev);
+>  	return err;
+>  }
 
+[Severity: Critical]
+This problem wasn't introduced by this patch, but can the paired
+hid_bpf_unreg() hit a similar use-after-free on struct hid_device
+[1]?
+
+drivers/hid/bpf/hid_bpf_struct_ops.c:hid_bpf_unreg() {
+	...
+	hdev =3D ops->hdev;
+
+	/* check if __hid_bpf_ops_destroy_device() has been called */
+	if (!hdev)
+		return;
+
+	mutex_lock(&hdev->bpf.prog_list_lock);
+	...
+}
+
+hid_bpf_unreg() reads ops->hdev without a lock or reference before locking
+hdev->bpf.prog_list_lock:
+
+CPU0                                    CPU1
+hid_bpf_unreg()
+  hdev =3D ops->hdev;
+                                        hid_destroy_device()
+                                          hid_bpf_destroy_device()
+                                            __hid_bpf_ops_destroy_device()
+                                              mutex_lock(&hdev->bpf.prog_li=
+st_lock)
+                                              e->hdev =3D NULL
+                                              mutex_unlock(&hdev->bpf.prog_=
+list_lock)
+                                              hid_put_device(hdev)
+                                          put_device(&hdev->dev)
+                                            kfree(hdev)
+  mutex_lock(&hdev->bpf.prog_list_lock)
+    <-- use-after-free
+
+In addition, if hid_bpf_unreg() takes prog_list_lock after
+hid_bpf_destroy_device() sets hdev->bpf.destroyed to true but before
+__hid_bpf_ops_destroy_device() clears e->hdev, hid_bpf_unreg() still sees
+a non-NULL ops->hdev and calls hid_bpf_reconnect() on a device being
+destroyed.
+
+[1] https://sashiko.dev/#/bug/linux-6599bf1d-e091-4b20-bab0-cb93dd34be79
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125164728.2491=
+4-1-rhkrqnwk98@gmail.com?part=3D1

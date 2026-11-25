@@ -1,67 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.205.221.155
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.58.69
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795602107;
-	b=yM3EQKm6eCFMzznUjHhbyq8z2CuNbUC/CVlv6vmjTenkIRizUdeS5a5t1+mZMILWI1gm
-	 huznPzXgLMAK8D/kFo0s2Qm9ZhD3rmY/QxvSIQkuuRQFpAfnqrjKSDxh8dW4sSJqNlREW
-	 GbP14gBguwb3Uz/YZ6rJ1Dw9sxME5BJLHA0+plyVL6ZLsxoZZ/pOq8DInHln4JU9V3cvS
-	 kDh55g8pfawx8+HwpS72sJAxiAkTZpIxFZ4+9qgfi1noaGc9DC/Jd02VMUD2uxDaclj3X
-	 oB7wUZyAuRtuK8hDmm8YpWNRKnIlYhMAtt4ign51ehjCFb0aZM6MGuq2Cxh2EUjPPSg==
+	t=1795602108;
+	b=JOeHE7lZf8Pzyt+TjXuOci3zdE+6SGumZfCOkr0XVIqyBJyVS3NcHWiA4zPPPKVWtWGv
+	 /FTAKSm7ZWAqNfefM4MiJNFSJphGxvSNJ0mReMvvVZO76jmBmUk5mEf0eU01aQdcDvWpg
+	 4UQre8almo0tTvx/Qsr9O3E8f+LDt23ptTW47S8/Q9c3kBXif2eDwgSQholH1EGvCACj+
+	 9CcnIP6VQ5zb70mIVjcEIa+GgAMIwMNjiaJRVwSOERTB22JDL+ur/D4Tc8N7bvfwZ2vXX
+	 wTmfogbxyjXD5OIqXqt3vk7msyRnjOFLWBEWYN3Le0LI/0MrfLcoXQAb7cyk4Gcc20w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795602107;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795602108;
 	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=IVcXtSmROoYy8ewp3anjYu9r3jyBrtQp7UnyRqwDipk=;
-	b=RJZuxIwG87/F15HQxlHhsYNA47T8s3YRU8lG7O7dKpjWXu9FXBmpEQfarVQ/FQ+gjfSn
-	 tpYyhfkGI49+ZrdpJfRUz6oTnWALW4m4tEhzdjhOd8y2NSOkkJoypm1LfFQmrqvPuGAuH
-	 jNFbNWNk5vaoyeWgBazlUt0rbEYLpejiSE2QhMLHQyvAzko1xQX+eShmJbOXn9NklPx0G
-	 RgDKRo1XIv29Foq3JJLPvsdpr7H+qFfvXXuNKdstvao4WPseZsUH9C2KhKHTVZGWWkqk/
-	 9al3SLsbyene4sNKhGgjFaYUS1kfjMqBQLrX4KF5XiwAR6yANRuKiVY7Q28edKYF2CQ==
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:X-QQ-USESPAMBG:From:To:Cc:Subject:Date:
+	 X-OQ-MSGID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=RhzwVySpil2bsJ3XRlzOZ6xss+IteEEgqAFBYLD2X84=;
+	b=P/KDwvVE4c+62FOUqH/x6+AU7nAns0126eh06LM2zEMyoqYQY1KeeIauDURbYIXmBESR
+	 zlLesAYwWIPlu6zsn+A1/eeBhUfpIGNmXloONXQgD+L+1V8ZWgTiKgneCgQI0Np7QLQG1
+	 7PwBRzhOxENdtANJBClnmHBIbRU6wTUk0S31H0aB1/vnFXWM1pX6jhkfd/bagQfl8T1NS
+	 sABYeM+fiXL1lobmrIN6yyxhRp9/UyJn/nCZro2xNK71i4qbPdgSDV/v+dhy3RwtlAc1C
+	 QrEJmN5je8usKy2toMbDRaBDzC0A1xilbWRtF5YdfqQSeOuENUlkIVLpFlt3C6nZIkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=qq.com;
 	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=Ni2qR9Z8;
-	arc=none smtp.remote-ip=203.205.221.155
-Received: from out203-205-221-155.mail.qq.com (out203-205-221-155.mail.qq.com [203.205.221.155])
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=saXLmMwc;
+	arc=none smtp.remote-ip=162.62.58.69
+Received: from out162-62-58-69.mail.qq.com (out162-62-58-69.mail.qq.com [162.62.58.69])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1F4606A331;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB5F7606A339;
 	Wed, 25 Nov 2026 10:21:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B1F4606A331
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CB5F7606A339
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=Ni2qR9Z8
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=saXLmMwc
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1795602096; bh=IVcXtSmROoYy8ewp3anjYu9r3jyBrtQp7UnyRqwDipk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Ni2qR9Z8Sip0W34bM418e8vcc29r0xPdTklrq3xdVKbn4rszEuZk6p0YrxfGHWoSF
-	 gEQLquNzZWOrvGNhsgfBVe6uOthafQnGr0H7vXtTJcxpx70hn0Rx5EUtNA9M2ntcAH
-	 QAreajyA/jF5m7Jp6gEbb8QJV6RbQKlltzDdpZO8=
+	t=1795602095; bh=RhzwVySpil2bsJ3XRlzOZ6xss+IteEEgqAFBYLD2X84=;
+	h=From:To:Cc:Subject:Date;
+	b=saXLmMwcuKkcnRwNvbcs9/jyJj83g39SdB5kuKGBfL+pxduFwyCtXhyxwydr7cd/+
+	 4wdd8tCY0JjhbU2V8v46E7Lkj5o2fsAhj3tcwlFB0xc9eCdZ1Au4jpf1hidH8x33rX
+	 SHut2iSXRU5wzt+XbgD9M80F1DGUiE0rEXqISlZs=
 Received: from HF ([240e:47e:32f9:92c3:8064:1335:aef9:f3d1])
 	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
 	id 56009AF2; Wed, 25 Nov 2026 18:21:32 +0800
-X-QQ-mid: xmsmtpt1795602095tgl4d3zfb
-Message-ID: <tencent_956F9CEBE3C22AF19B9450F6A9E1B71AD505@qq.com>
-X-QQ-XMAILINFO: NhmQchj2HcYZWNfMfMNDtljOM1PDPBuN/QeNjxDzr/po8tY82Dj3qgcYwsyG7n
-	 odr0QRS2BsMQySal7tDgkfY0umpXFyAsHOPltxNNriaeQOvHItAj/7S1RrYD0JlsNQGd3gHJ6fNW
-	 e1eCRLjK3zkX1fLuwDWFycZZHGXh8eCKbvIxV3qQCxNnwf0NIZWxP5da7QPTHWKaVPmyRNnwDIXB
-	 a2FZM1HiRmgiwqiknmuNpzl8juf408nOgXyvjSC05qDAe0aPofNSBz6BjsCWhsC4B0fWbCsLnqdY
-	 EtiBBT/DvrSAHQuPjBq1gwLBuGYrNB+0r107AifLQfvOBv2mvo3QPmVCuHtzWJNiopdYaZV6SSN6
-	 qblTcQOQGgXl43tZm0omzKseVCIozGkU1/MvUOS61PEFsV3c84R8H2nKEHj90H2ovEl2MC1rHLSU
-	 /ywRk4PdrggQH9qSU0iVHyhe8OpToWbrlDFSlMNq2xH8TrQe2e2cTciy83e1mzjiVOm91ORRgwhs
-	 Of09dyE4f3bajGUYB9Yw5Il1csHOn8j16zP6jXGCkXs32VkWV4rfcu68UkNx8BgGhf6MwYV+m+nf
-	 hcArR8mB0Ww+yoUTHuW5iz0Ess0M2WcI1YHKqKgAs/OKx+WRvggEKnJkdRL3R4ww5I4k5u+enOus
-	 WG0Znx5y7t/qScnbQegy2rZJ3OLlEU1WPBLcSl1cTX/I79XMO4ZUbBb8cpg3bvAE3SZWk+aqrgYK
-	 vpx+O83Np25vSa5yXsbK6QixH72GT/lymtiKu5IjoZlQprr23UciciAqeGH/D3Y7XGcjtqQEEKQn
-	 poYy8dSlmKrq6xK6RG0L/6onKbWH1qfGpTpsemowrsKEjk/NqrgQGqAkEIUr9v0F1TBRGwu45yHC
-	 2dWmr5mLPgHJR/mn3zjV1bx2tz9JHkfRDsWgsW89ivN1FmDqC4byuYtu3GtgPWgN5VUd+VGccJ6z
-	 zer/r0sTVBiq7Z8QL4VVx7WA/x/1CCyQOtaH+CUsxa03BnDwpGx+MWwelWjdt3evnU8tz0i03tkO
-	 JjA/omuetRjmc4wqxkCxH9tjy3mYNTPQOeHYoJRdcPFvzrgE9XNBctoWyphdaCNDH+TrzYJ6pd9e
-	 R50O9+zI7YtgjS8vQ047SbGBIMawQLiKg3olT0K7s3sWC+SOWlGh1kSyXp4QImxenoGaI5wrYes7
-	 U+PhY=
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
+X-QQ-mid: xmsmtpt1795602092t21usev7s
+Message-ID: <tencent_C93E80ACC0BEB9083D9EE87E575073C67D09@qq.com>
+X-QQ-XMAILINFO: N/WmRbclY25G7reDaoii8Bn3W7x9rG8mXONCSlI+NI0LL6ZPaZRNJnIPrX2eAD
+	 y3BLE4v0jPIw2ba0yHSwdxFjLD4kBHRYO2AI3DKUyIVBuYzwWrNLYygs1IoU5fpTX1ksLxQwJ+gg
+	 rpBpdz8e33ornRtQYWqsy1BLwo4UfbLA0X821xug2p7Hg8Cgi3NEeB3WN1+USloO/pCeuWPWWdts
+	 HwgS0GiXQuE/rFL71BpI8nu5yMN/8LGuxw/NSk7s6/q6Rss01ZlPTSnkBk/GfYPfn9bsdSTezuSq
+	 xBdUlz1Xdwht9N+K+5+8QMNd9vIGpHzC4Kimip9PGVPI527cz1oO4OQZMl+Wk/3cQ3T0v2vf1onq
+	 U6ut1z6Mr4p70apQ0AsB36rnNaaAjFS05UZl9N/krdo2rEyOIOdHHLkf0jju3KGX9jdtQC65R+x3
+	 BIz1GpZghpJpy1W5qpKCMDLOKsweF9rsbWTpFSpVnCvznnJhTwCCib3jTPiEGLDaulLDso8A7wIR
+	 qBcUE+/GEJp7ziaACmgiTN9rPveoPRIrcIoXvDSTzCPyYrjvf4kXwCHCoXd9ciz4DJ3f897U3vau
+	 Mz7WE9eFCawl0KUu2/NI0W9aOlq6tivzN/w8Q6VZhGLktsj6gnG6pkp4t5kj2dhQXZ3Z1hddoKef
+	 RSdAiWlYrZl4qo1VZx0iOvkaTr0jX6GHMrrdCc8htiZ0R6s55fJy40pXMWaW6svsAHd7IEctgmV/
+	 6jwm8tdCTSASl4YUk1++hDLHHTSlPgiyjkLTz1Zapcqwi0bQSFH+hw13Xiqx6yqVGZt/N5jxmRrb
+	 AtnE7v4xSFB51Uf8JmCH1tLawYSwamzuIBYq0V0rNYcOXh328eBMKs7sJd4VBEuKhPH/stdI7EMo
+	 6FxQEkYYdAnh8vNO+U23MDndT1OWAaYagqMtY36Cb9P24afXeQxrR6yJ8Gh7IAYld5O2haBJtwrG
+	 iZta+jhnlDebPN9IvA4IKzvGUl9IsvP5UoyE1UnmReVnbKBdF5BL119HDunuu/c22JfnzHVpn4kx
+	 EqmscuorpvJD4VUFhGbr90mc1rufRksZrWpAbMqSOr7cZqiWSBrB4ri7OON9Xe5cXHmb4/uEbOGb
+	 6gBIR5jp2NZhAy0Y9Nh0rGVs+u6Q==
+X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
+X-QQ-USESPAMBG: true
 From: Hefei <3066883572@qq.com>
 To: dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org,
@@ -72,12 +71,10 @@ Cc: linux-input@vger.kernel.org,
 	conor+dt@kernel.org,
 	dmitry.torokhov@gmail.com,
 	Hefei <3066883572@qq.com>
-Subject: [PATCH v6 2/6] dt-bindings: input: add Jadard JD9365TX touchscreen
-Date: Wed, 25 Nov 2026 18:21:26 +0800
-X-OQ-MSGID: <20261125102130.256-3-3066883572@qq.com>
+Subject: [PATCH v6 0/6] Add VIEWE 7" JD9365TX MIPI-DSI panel support
+Date: Wed, 25 Nov 2026 18:21:24 +0800
+X-OQ-MSGID: <20261125102130.256-1-3066883572@qq.com>
 X-Mailer: git-send-email 2.55.0.windows.5
-In-Reply-To: <20261125102130.256-1-3066883572@qq.com>
-References: <20261125102130.256-1-3066883572@qq.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -89,84 +86,39 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Document the in-cell I2C touch companion used on JD9365TX modules.
-Many FPCs omit the interrupt line; boards may still wire one.
+Hi,
 
-Signed-off-by: Hefei <3066883572@qq.com>
----
- .../input/touchscreen/jadard,jd9365tx.yaml    | 63 +++++++++++++++++++
- 1 file changed, 63 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx.yaml
+This series adds support for the VIEWE 7KF82 7" 720x1280 in-cell MIPI-DSI
+panel based on Jadard JD9365TX (2-lane video mode), plus the companion
+I2C touchscreen and I2C backlight MCU used on the same FPC.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx.yaml b/Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx.yaml
-new file mode 100644
-index 000000000..a49a55815
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx.yaml
-@@ -0,0 +1,63 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/jadard,jd9365tx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Jadard JD9365TX in-cell touchscreen
-+
-+maintainers:
-+  - Hefei <3066883572@qq.com>
-+
-+description: |
-+  In-cell touch integrated with Jadard JD9365TX DSI panels. Many module FPCs
-+  expose only the I2C bus; some boards also wire an interrupt GPIO. The
-+  touch controller is commonly powered from the same rails as the panel.
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    const: jadard,jd9365tx
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  poll-interval: true
-+
-+  vdd-supply:
-+    description: Analog / touch power supply
-+
-+  iovcc-supply:
-+    description: Digital I/O power supply
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchscreen@68 {
-+            compatible = "jadard,jd9365tx";
-+            reg = <0x68>;
-+            vdd-supply = <&reg_vdd>;
-+            iovcc-supply = <&reg_iovcc>;
-+            touchscreen-size-x = <720>;
-+            touchscreen-size-y = <1280>;
-+            poll-interval = <16>;
-+        };
-+    };
-+...
+This is a different programming model from the existing JD9365DA driver
+(panel-jadard-jd9365da-h3.c): page select uses 0xDE (not 0xE0), bring-up
+uses 0xDF unlock, and lane config is via 0xCC rather than 0x80.
+
+Tested on Raspberry Pi 4 and Raspberry Pi 5 with a downstream dtoverlay
+(not included here):
+  https://github.com/raspberrypi/linux/pull/7633
+
+Changes in v6:
+- Run checkpatch / checkpatch --strict; add MAINTAINERS entries
+- panel: drm_of_get_panel_orientation(); mipi_dsi_dcs_write_seq_multi()
+- touch: usleep_range for short delays
+- backlight: expand Kconfig help text
+
+Please prefer this v6 over earlier revisions.
+
+Thanks,
+Hefei
+
+Hefei (6):
+  dt-bindings: display: add VIEWE 7KF82 JD9365TX panel
+  dt-bindings: input: add Jadard JD9365TX touchscreen
+  dt-bindings: backlight: add VIEWE 7KF82 I2C backlight
+  drm/panel: add VIEWE JD9365TX 7 inch DSI panel
+  Input: add Jadard JD9365TX in-cell touchscreen driver
+  backlight: add VIEWE 7KF82 I2C backlight driver
+
 -- 
-2.55.0.windows.5
+2.55.0
 

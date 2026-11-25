@@ -1,56 +1,87 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795576038;
-	b=KpYoBcR4M5kD7iCFrX0jWn2e896iHRery5aSD7muV51kstAdTRt/8cICQ9JedIZsUBKH
-	 YrPHnzAxzwi+JHPNQ3I1crNtEHUJ1kSJ2b+TmABOiLp+63tDrRbtD+yxGnVT5CqISbO0C
-	 D8WwToXpFpyGPqU8xHKw6awc8XhINJdDFZA57+yyy5qm3dELeIQszvDwcVzOMRYXa5iEz
-	 lUYM0O1SfbTu5ta85x+pR0YSSqNTj2yTiv8iy99rEeUyI8nlXsf7yk+nO//ZhESS8111u
-	 GlFjupGC8KfUkV9qlON/OcX3ZWetHPBKQPG8dx++oWpUJJf9TEs4BfWjFAvnmwGga2A==
+	t=1795577108;
+	b=v16GOWG7WgiBdovi/VQLIH+2N4nBqTAnDFWo0vQrHP/qP2a/FK6o2xUN3Dd0qINBD29z
+	 i1peom51RKLlIZ/9rd6nVLOqLFOlzTNJBKCV32DzHVcT3KRgu71AaX90IA5UNjfdCDpc2
+	 ROADgT2oKP02FNDD5/yrCyuOPzEHDfISV0SH3mTQ/Ga7cEYxd6heTXJIOaOQeGCkd40H6
+	 cPnE1lHKK69OOgUzDHPW3lDH2kLwCDdPXZmCZeqfCBJbrl98gzG4dgeSdQTDyxooUyAUM
+	 8gtgi2hSB8lqwQBk610SXAr6t0ETPPbjV+MIv+LRV93x2V3HbqH+zWfk3X75YHYWX/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795576038;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3dIGFjM+Dqj9Ck3ijqsVlQquI5LsysNcLBZ6l2ixSOs=;
-	b=mT2ht+1NjGqcCcJOnQIzz+JvKHlMoLoyG/ZleW2nEgcUmTrg3PrFPQO8ovEAFwAswhVi
-	 dVQFcyyvdlqFcsnz06iKqsXfIyU5aSZuOs3zB+KP5mdcBGt6HCRfRfHOB3P4MeowAo1+H
-	 bjfcy97/U6Eg0tTCWDuFFIAYDO4RD1qkV6DNYEjsDkoXpYBsxwtymKDA7pAjVun/7tAUh
-	 NPcnxuj1uqC8fvw36GaeISKyXQwkOQscII48b5YtY3BC5wlmRvYT25c8zHfdD6rLhQ0Cy
-	 5l4KgRxWckj3gVPLcWxKP0Nw/1Jr2oaj2twPthRrgqqQknRuuI3bje4B/R1Xdp7yJjg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795577108;
+	h=Received:DKIM-Signature:Date:Message-ID:From:To:Cc:Subject:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
+	b=rrjW1BcU/nROFseWCk6q7Qo7TzWqkB3pNnX9HSi0VYG7k5tDQ44Mqhjh67DnGcGqTwhU
+	 yBovC1HEDZ2KwVLJToknA9iPCqzOIFV/NwfB8YHZJPRx+3iGlA6GCgDy98gYEGENx66Md
+	 uGMhpCZXZ32fWh6NMAR8SunISKW9k5xhlXGHznp4W9EiNYFXiCaNY5K5YfQY7E7H3rCld
+	 UiDAGOD2kfyh6j8MpLg2NacQQtt8dG5ahg8wZpRajOHLnjQCgQnauy9pHvziq9r1RmfMD
+	 WgheNPh033Kc+bld/QmlUJTkkEKWYDoJ93OQplN3Xp3znFUVrIxZ+qOySq11D2bmIbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H27LTma7;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F654606A32D;
-	Wed, 25 Nov 2026 03:07:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057F4606A31E;
+	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H27LTma7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF9D1F000D1;
-	Wed, 25 Nov 2026 03:07:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 722391F00A3D;
+	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795576038;
-	bh=3dIGFjM+Dqj9Ck3ijqsVlQquI5LsysNcLBZ6l2ixSOs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=H27LTma7b4nHUVEyDuOvzU8sXLgI/e/DiWKfJEoGhO4FF8Gv47XfJ8bV+PFEGKzi3
-	 4cWEGSAGLZiKqenduVg7HkaROKIhH7qlzzt1hLTWqkFShvOjtuCa5ruw4KO92Rsqx8
-	 wrdMxYn2dTfdT5+6E12XMVzeTIKq1H4j9+kkEYKRBcNMKGE8InrIg+KcxtaXgrVKiw
-	 SFv4zI/CDXi0p5BTMWlYo0NkiT7fCmPDGfQGGZiqIP8+GEn5WF/iIk4fNu+Ecw6GMR
-	 2PyXdPV6Vpt5EeK0PRZHsKEc89JMgFoJpPq30EkHUpRpzylmcl+yyN+uIPdixmqfzo
-	 xjVmikCnJi0Jw==
-Message-ID: <sashiko-outbox-232447@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_C2127E2B5045C6293E54AC20BE5908B79F09@qq.com>
-References: <20261125025638.1171-1-3066883572@qq.com>
- <tencent_C2127E2B5045C6293E54AC20BE5908B79F09@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 03:07:17 +0000
+	s=k20260515; t=1795577107;
+	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=V4AGWGfeZLmrhtquKRv6EviHYCknQ6uF6sSccjviJ4oFSvgpAICCuQyib02WKudKy
+	 WZzoevJXnvM5e8NOpUoL9Ig82rYSxXxmUF9Jr1DLDbm4EjtTfslgzFUp9UHxUlPTv9
+	 wrZwz+G0W0uX1L3CBHkaI1MEt38fA9MYeSZuWLQ37eiV+uutE2OGEeTf1isC4/809q
+	 ZNbCkMcYIXb3teD/R3X/bXjffIjQmZgy38Wakf++rKKgIEMtzE5TK9nhDC09ZhOLli
+	 riBulMJ56RdCaDMuJt8qSHKFWjz1+SQJPB/Yzgx1/6vGL5v3z03GsZeS1enRqA31wI
+	 ei8UTG7MewgQw==
+Date: Tue, 24 Nov 2026 17:25:06 -1000
+Message-ID: <8fefdabc4b1d9e0c0d0b3bae1995e784@kernel.org>
+From: Tejun Heo <tj@kernel.org>
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
+ Boqun Feng <boqun@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
+ Danilo Krummrich <dakr@kernel.org>, Philipp Stanner <phasta@kernel.org>,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?utf-8?q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>,
+ =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Boris Brezillon <boris.brezillon@collabora.com>,
+ Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>,
+ =?utf-8?q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ rust-for-linux@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ Corey Minyard <corey@minyard.net>, openipmi-developer@lists.sourceforge.net,
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+ Mikulas Patocka <mpatocka@redhat.com>,
+ Benjamin Marzinski <bmarzins@redhat.com>, dm-devel@lists.linux.dev,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, linux-arm-msm@vger.kernel.org,
+ linux-pm@vger.kernel.org,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ Oder Chiou <oder_chiou@realtek.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, linux-sound@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Subject: Re: [PATCH 2/2] workqueue: doc: clarify cancel_work_sync() cross-workqueue behavior
+In-Reply-To: <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
+References: <20261118-ordered-wq-cancel-v1-0-916e01f9affe@google.com> <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,95 +90,35 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [High] drm/panel: build failure in jd9365tx_probe() from removed
-  orientation API
-- [Low] drm/panel: jd9365tx_send_cmds() duplicates
-  mipi_dsi_dcs_write_seq_multi()
+Applied to wq/for-7.5.
+
+Note that cancel_work_sync() and friends haven't been waiting for a work
+item which is still running from a different workqueue since 606a5020b9bd
+("workqueue: gut flush[_delayed]_work_sync()") which went in in v3.7. This
+has been broken for well over a decade and the documentation now says so.
+
+The following queue the same work item on more than one workqueue and then
+sync-cancel or flush it. As cancel_work_sync() doesn't guarantee that the
+work item is quiescent in that case, they need to make sure in some other
+way, e.g. by flushing the workqueues that are involved. Note that system_wq
+and system_percpu_wq, which schedule_work() uses, are different workqueues.
+cc'ing the maintainers.
+
+- drivers/char/ipmi/ipmi_msghandler.c: smi_work
+- drivers/md/dm-mpath.c: trigger_event
+- net/smc/smc_llc.c: llc_event_work
+- sound/soc/codecs/rt5651.c: jack_detect_work
+- sound/soc/codecs/rt5682s.c: jack_detect_work
+- sound/soc/soc-jack.c: snd_soc_jack_gpio.work
+- drivers/input/misc/palmas-pwrbutton.c: input_work
+- drivers/cpufreq/qcom-cpufreq-hw.c: throttle_work
+- drivers/vdpa/vdpa_user/vduse_dev.c: vduse_virtqueue.inject
+
+Thanks.
+
 --
-
-commit 42ee7a955bd94a5de5a014d27ef8d93f0daadee3
-Author: Hefei <3066883572@qq.com>
-
-drm/panel: add VIEWE JD9365TX 7 inch DSI panel
-
-This commit adds a DRM panel driver for the VIEWE 7KF82 720x1280 Jadard
-JD9365TX 2-lane MIPI-DSI module.
-
-> diff --git a/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c b/drivers/gpu/d=
-rm/panel/panel-viewe-jd9365tx.c
-> new file mode 100644
-> index 0000000000000..7455dff834c4d
-> --- /dev/null
-> +++ b/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c
-[ ... ]
-> +struct jd9365tx_cmd {
-> +	u8 len;
-> +	u8 data[64];
-> +	u16 delay_ms;
-> +};
-> +
-> +#define JD_CMD(...) {					\
-> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
-> +	.data =3D { __VA_ARGS__ },			\
-> +	.delay_ms =3D 0,					\
-> +}
-> +
-> +#define JD_CMD_DELAY(ms, ...) {				\
-> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
-> +	.data =3D { __VA_ARGS__ },			\
-> +	.delay_ms =3D (ms),				\
-> +}
-[ ... ]
-> +static int jd9365tx_send_cmds(struct mipi_dsi_device *dsi,
-> +			      const struct jd9365tx_cmd *cmds,
-> +			      unsigned int count)
-> +{
-> +	unsigned int i;
-> +	int ret;
-> +
-> +	for (i =3D 0; i < count; i++) {
-> +		const struct jd9365tx_cmd *cmd =3D &cmds[i];
-> +
-> +		if (cmd->len) {
-> +			ret =3D mipi_dsi_dcs_write_buffer(dsi, cmd->data, cmd->len);
-> +			if (ret < 0) {
-> +				dev_err(&dsi->dev,
-> +					"DCS write 0x%02x failed: %d\n",
-> +					cmd->data[0], ret);
-> +				return ret;
-> +			}
-> +		}
-> +		if (cmd->delay_ms)
-> +			msleep(cmd->delay_ms);
-> +	}
-> +	return 0;
-> +}
-
-[Severity: Low]
-This isn't a bug, but could jd9365tx_prepare() use
-mipi_dsi_dcs_write_seq_multi() and mipi_dsi_msleep() directly on dsi_ctx
-instead of defining struct jd9365tx_cmd, JD_CMD*(), and
-jd9365tx_send_cmds()?  That would avoid duplicating the DCS sequence
-helper and padding every command entry to 64 bytes.
-
-[ ... ]
-
-> +static int jd9365tx_probe(struct mipi_dsi_device *dsi)
-> +{
-[ ... ]
-> +	ret =3D of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
-> +	if (ret < 0)
-> +		return dev_err_probe(dev, ret, "failed to get orientation\n");
-
-[Severity: High]
-Does this fail to build when CONFIG_DRM_PANEL_VIEWE_JD9365TX is enabled?
-Commit b5a8b1f2a973 ("drm/panel: Use drm_of_get_panel_orientation()")
-removed of_drm_get_panel_orientation() in favor of
-drm_of_get_panel_orientation() in <drm/drm_of.h>.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_381F4A5669D=
-F8884104F17BF29A893E3A408@qq.com?part=3D4
+tejun

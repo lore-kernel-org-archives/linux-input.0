@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795600008;
-	b=YgT3q3/sAmr/l6Bic5YY67uDzsmq1fpkGt4+LHBhDPRCS5NXKFOAJtcsf5spzyNHs8Yn
-	 MF9oF3hqoI1xNJj8lPRWsApq2XX+6I/9LvsBz4ZmlrDEcxtG2aU62Tte1hHcsdRT9E3Wu
-	 02C+ADCTG5nEttCWGfW4xFQrhz8ot2Lm1gOiymuKr4p2YsZWUMxk6DDH8s15YAasCtLoF
-	 aNcsW4i/TkXXJUnapQZ/rnh0oOEw9Ie2hT+H0dn0rzb8f7Ba/hKWGuVvkg0wGKlFou+TA
-	 FAtZwH0ycI477p8XFaIp8XuiRnIbLtcWlIfU9OhzlcInR6WW58vBAFeMZAVtiiucn0A==
+	t=1795600003;
+	b=4kB5ChJkgXCyk4ianpBcVZfIktUyGlv5LHjZ7iDJu2x/5L6S0pr2twFv4q1OFWxUvTm7
+	 kK83ZmGRJrD8UxZY78FXaKcItXFVNzVmBbVqYYQYf5eaL93NIs5e7aLgLyNfi8Ye6GShQ
+	 +ZVk9q6OD1nwWoTmMNLWE7Gna6M2u7UR3cwJALXnstS2b/Uzu/smKNqsfwYD6QQgux6W2
+	 Whc7DzmFLGJZdC+H8rsbbg0GiUd5ViDv0ieUTVEkfEDQe5bhqlUl50dI4tL3VyX4ot1aj
+	 mI/RcPYhoXDm0K16gTrzC9LzyteuHxR3vb2UgJ6SgCmMJDD1aSp3I35ZloT3iFwlRvQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795600008;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795600003;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=oFeLu7EEDvClRzVwizYa0Eo4zJlKAa12pT6RWv0WOrw=;
-	b=bDZTOMEDoQA8506YoxnY5Wvz4D0TDB2V+Umu+Ps/eJSG5mKmYiiYK66xgnA/w7pIB5J+
-	 PPQq9CqkgQLQxRjTyScSt9u8/fqFPC4IkLx0CHxTIdzkYT9IG6wUPmj1l2EwPzTfSvITa
-	 lK6b63vWzJhgwyM7tyFPbXkj/Gu/4vgTjQ/z1tGNUl/3tXv0/uEVJgrXSNrAAc+UwWQUG
-	 j1ABwroLDD65mTLzacBlSocCpf66XBCrRpL/Vbu88dt1TTYAZInUFYBlSUb+mrkKVdYZ1
-	 /udqJ6htdn7dropBBLRSCUEoyREFPa+lqZsahT1UPdcIxmWEMuoooD2N3BgVikW/R1Q==
+	bh=A/HYs9qmkoLxn9WF0VxRASDX9C3y7gHzK+NdjwM56D0=;
+	b=kX3tHkMbk1/7IM0O4YRV6cfMaGbWmq17T8/9tQvmbTR/8Y/dcLjbcj92aoxtlvAMzN9S
+	 X4OY3TIJYnV21O2wQMAf5i7CYVB/XLrzhyIRdkxYGb0qHmwFvikPzLfpUXQcqX24omTx8
+	 MyBwGKczkwTMyQ72MpPZhRa+TnLbUOQOu6gNc2Xv4zPJUV2Z6phzzbIa+WrQeatJwv3+j
+	 YJkrlmIX7NswavTC4FoBZ2gXkUlM/5n0ikbDR3L1qwobrOD88OMZAJNmdcj3JbbJbinUQ
+	 XmomFHiQHd2wJY2HKy3TCYPG70nApnm6ccy/kAwrmppC7pfxolaq51JOS5P73gnsHQw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S1lfBPOO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDMQmQjj;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91A9B606A327;
-	Wed, 25 Nov 2026 09:46:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC44B606A331;
+	Wed, 25 Nov 2026 09:46:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S1lfBPOO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE5741F000C6;
-	Wed, 25 Nov 2026 09:46:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDMQmQjj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D6971F000D0;
+	Wed, 25 Nov 2026 09:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795600008;
-	bh=oFeLu7EEDvClRzVwizYa0Eo4zJlKAa12pT6RWv0WOrw=;
+	s=k20260515; t=1795600003;
+	bh=A/HYs9qmkoLxn9WF0VxRASDX9C3y7gHzK+NdjwM56D0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=S1lfBPOOKBCeBvYW5N8RAlkDblE9Oba9fA2LSs0wOJfphi48iiQNHyviYw8BmmBG0
-	 sFK8NZScAss4nmXwEH3YQUx1q+tPJGH9Waig+ofXg6S9sj4zy6GvNbrDapK196ZMpx
-	 Ab2gPWu/DlDh2sdw/nsq/HTMzNJCKKwuJiDau0q9WDiBLnQOYNuvvgU7NpV8T0HcsG
-	 C7omolF55+acX7PAR3S1QuyqrCeRr5tZGSlZBczPLAK1QD0axSjudmNoBKNwdFr6e+
-	 FswjaFyWWXFiOcTP4t1JPaOrGUcrKoA2/3w8+89BEM6tTqE+OnUgy4VZoVQCbBjkLL
-	 9v7o3/r6ImyYg==
-Message-ID: <sashiko-outbox-233070@kernel.org>
+	b=hDMQmQjjCHdZafFawZ0dC1u7SVThldiMBNWqD4gq3grda8mlX4ZGVciOZhPhOiI2O
+	 slCixTEIFdPVOwK3BUIf78pGBd/MIDWZnCZ3948Dca+UZQ6+SWD5BDY1IUYES/b+x9
+	 tcq/0eo+HR9ucmGSB+P2ui5zWQKAq94qjTGOTX9Y6S1Qi2UHy4jrvZX+XAwJHrzeYU
+	 IaY7x4S3UBc7V8czj0kSV2fBZkkhY2/M4QtOsi1eYPZUkp3zfMk42rsXTadGVoIFEY
+	 xGbnLOFBqEdAYzSoEFAkrej7F9JTx9gpuP26dN6xTzyerxPAUQ+5GiITspqiKTm0kF
+	 eYvzAaZZYO/Qg==
+Message-ID: <sashiko-outbox-233053@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 33/33] USB: Authorize devices through device trust
+Subject: Re: [PATCH v4 16/33] driver core: Add a compatibility API for
+ manual driver attachment
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Leon Romanovsky" <leon@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261124-device-trust-core-v4-33-037eb0d17b1f@nvidia.com>
+In-Reply-To: <20261124-device-trust-core-v4-16-037eb0d17b1f@nvidia.com>
 References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
- <20261124-device-trust-core-v4-33-037eb0d17b1f@nvidia.com>
+ <20261124-device-trust-core-v4-16-037eb0d17b1f@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 09:46:47 +0000
+Date: Wed, 25 Nov 2026 09:46:42 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,87 +63,79 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] usb: stale config_error in usb_authorize_device() when no config
-  is chosen
+- [Medium] driver core: dev->p dereferenced before dev_ready_to_probe()
+  check
 --
 
-commit e933bc32d14e8dc32abb1afc1a81475eeaa3569d
+commit 5a1e46424b0dbbd5e29618593c53f6f0928c9f00
 Author: Leon Romanovsky <leon@kernel.org>
 
-USB: Authorize devices through device trust
+driver core: Add a compatibility API for manual driver attachment
 
-This commit integrates USB device authorization with the device trust
-framework so that device driver admission precedes configuration when
-device trust is enabled, and tracks configuration errors under the device
-lock to allow retries.
+This commit adds device_driver_attach_unrestricted() and a per-device
+driver_lock mutex to serialize manual driver binding with normal probing,
+removal, and device deletion.
 
-> diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-> index 372bd6368cc94..c94539b0c697c 100644
-> --- a/drivers/usb/core/hub.c
-> +++ b/drivers/usb/core/hub.c
+> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+> index 52123251965de..6ac1486b9fbb5 100644
+> --- a/drivers/base/dd.c
+> +++ b/drivers/base/dd.c
 
 [ ... ]
 
-> @@ -2787,17 +2788,41 @@ int usb_deauthorize_device(struct usb_device *usb=
-_dev)
-> =20
->  int usb_authorize_device(struct usb_device *usb_dev)
->  {
-> +	bool attach;
->  	int result =3D 0, c;
-> =20
->  	usb_lock_device(usb_dev);
-> -	if (usb_dev->authorized =3D=3D 1)
-> -		goto out_authorized;
-> +	if (device_policy_is_blocked(&usb_dev->dev)) {
-> +		result =3D device_trust_set_policy_locked(&usb_dev->dev,
-> +							DEVICE_TRUST_POLICY_UNRESTRICTED);
-> +		if (result)
-> +			goto out_unlock;
-> +	}
+> +int device_driver_attach_unrestricted(const struct device_driver *drv,
+> +				      struct device *dev)
+> +{
+> +	int ret;
 > +
-> +	attach =3D device_trust_enabled() && !usb_dev->dev.driver;
-> +	if (!attach && usb_dev->authorized =3D=3D 1 &&
-> +	    (!device_trust_enabled() || !usb_dev->config_error ||
-> +	     usb_dev->actconfig))
-> +		goto out_unlock;
-> =20
->  	result =3D usb_autoresume_device(usb_dev);
->  	if (result < 0) {
->  		dev_err(&usb_dev->dev,
->  			"can't autoresume for authorization: %d\n", result);
-> -		goto error_autoresume;
-> +		goto out_unlock;
+> +	if (!device_is_registered(dev))
+> +		return -ENODEV;
+> +	if (!mutex_trylock(&dev->p->driver_lock))
+> +		return -EBUSY;
+> +	if (dev->p->dead) {
+> +		ret =3D -ENODEV;
+> +		goto unlock;
 > +	}
-> +
-> +	if (attach) {
-> +		usb_dev->authorized =3D 1;
-> +		usb_dev->config_error =3D 0;
-> +		result =3D device_attach_locked(&usb_dev->dev);
-> +		if (result <=3D 0) {
-> +			if (result >=3D 0)
-> +				result =3D -ENODEV;
-> +		} else {
-> +			result =3D usb_dev->config_error;
-> +		}
-> +		goto out_autosuspend;
+> +	if (!dev_ready_to_probe(dev)) {
+> +		ret =3D -EAGAIN;
+> +		goto unlock;
 > +	}
-> =20
->  	usb_dev->authorized =3D 1;
 
-[Severity: Low]
-Should the non-attach path in usb_authorize_device() also clear
-usb_dev->config_error =3D 0 before calling usb_choose_configuration()?
+[Severity: Medium]
+Can this dereference dev->p after or while device_add() frees it on an
+error path?
 
-Unlike the attach branch, the non-attach path only updates
-usb_dev->config_error when usb_choose_configuration() returns c >=3D 0 and
-usb_set_configuration() runs.  If a previous configuration attempt failed
-(leaving usb_dev->config_error non-zero and usb_dev->actconfig NULL) and
-usb_choose_configuration() returns -1 because no suitable configuration
-exists, the stale error remains set and subsequent writes of 1 to the
-authorized attribute will bypass the early return and repeatedly re-run
-autoresume and configuration selection instead of returning as a no-op.
+In device_add(), kobject_add() sets dev->kobj.state_in_sysfs =3D 1, so
+device_is_registered(dev) becomes true before several fallible steps
+(such as bus_add_device() and dpm_sysfs_add()) run.
+dev_set_ready_to_probe(dev) is only called after all fallible steps have
+succeeded; if an earlier step fails, device_add() frees dev->p and clears
+it to NULL without holding device_lock(dev) or driver_lock:
+
+CPU0                              CPU1
+device_add(dev)
+  kobject_add(&dev->kobj, ...)
+    state_in_sysfs =3D 1
+                                  device_driver_attach_unrestricted()
+                                    if (!device_is_registered(dev))
+  bus_add_device(dev) -> fails
+  ...
+  kfree(dev->p);
+  dev->p =3D NULL;
+                                    mutex_trylock(&dev->p->driver_lock)
+                                      <-- use-after-free / NULL deref
+
+Unlike waiting_for_supplier_show() in this patch, which checks
+dev_ready_to_probe(dev) before touching dev->p->dead, this function
+dereferences dev->p->driver_lock and dev->p->dead before checking
+dev_ready_to_probe(dev).  Similarly, device_release_driver_internal()
+checks !dev->p without holding a lock before __device_driver_lock()
+acquires dev->p->driver_lock, and __device_attach() locks
+dev->p->driver_lock without checking dev_ready_to_probe(dev) or dev->p.
+
+Checking dev_ready_to_probe(dev) before accessing dev->p ensures
+device_add() can no longer fail and free dev->p.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-device-tru=
-st-core-v4-0-037eb0d17b1f@nvidia.com?part=3D33
+st-core-v4-0-037eb0d17b1f@nvidia.com?part=3D16

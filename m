@@ -1,80 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795623489;
-	b=CBVLZ5qEWdRE5964jiQVQrfwOpQyEbckLk85yrM/1Szci6cdMMKM5aCeoE/5HFwHAqx8
-	 Gai0W9XxK42NX2b2GAgIVsJUDWLmaIyFoopKMkwzHpiHsXRirZMfIQcIM2yQkPEEMgoeK
-	 zoNUdG6Ic2OOhGlSdZIGjvxeKx0F10qbAaXyN3E2rtNeT1xZsIGD6DoZBC0ph/0CtukJN
-	 nalT6A2CHT2fDLKX4ZnYcSZ1A+UEl/eD3e1BIanZ0PmhwoY6MN+xbhGXcFERsD0KGElbx
-	 6TwKcydA0zfK0obBcTtUI5L2l0/7+Qc/rkKBxjwf2eeBfG55x+izAczr1ULyzXUzuqA==
+	t=1795625261;
+	b=XRV9x0IzDhKLpiQc43so/8C1d+dLdwUXB5jeZgzMMyZYybctGIA4b9YsHdBWjFSfASrg
+	 2EQEFK6BD59l3STNEhzvwPe9L3fPh+aruyZB9nDRY+ga8a1XofZOuXkS1OrUKM9QsbiZo
+	 Cz6bRTw6xAx2Bv63qlDoLMxbwnLoQvm6kKjc2gWi+6akgg+2ejY1tjVZjXIOeZ2tgBohF
+	 7tZmlYoVoynS9otB0XwO9tOFT+qMwmV8r20EIT3gXfwmSmmWINkvRU6ntQAgzexijyRFI
+	 0v163nGHt0UH9gWnfY3khky92ksiFquhQnxGH38ufk9Zcj0I73EuCYAUw+YEyg+2S2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795623489;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=WwWsoSs2J5qpWhNs56AVQmBfYke5YnSSuODOR4ultkM=;
-	b=MRFYhvTFIMnQxVFY+wjgnTlCN5KOjP5EEoAc6UjzQhnmM/iftDnNBgNYfP4pMwgr4DBY
-	 WHKKqaAwPyKZrzeE0hRQdK1DC/WN1rw2kxFGfxlwOqtxkt0yxQYn3yYgeCAkzjlwJHYy4
-	 VPlaxrcW0sWcjpoCNaJtlhE43B1zYVMG2A/1sRnuRzFMK5388krk/jjvPWwUS9f2e11B0
-	 wX31fsowpENnBdsadADWvqZvHHGlTxCdiPA2w7Kbg5sCTULqxsDkhc7DtFee312Ox6X+T
-	 rJzLXo2QiQQduntFEEC3OmKlVu85LSAMmUYuXNdNhXnTw6L/nYHnkbh0+fGJ4qebcXA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795625261;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=k1C78Uc1W59p66k/nD/Zj6PrIT29VxqTwRjxHQ+aiV4=;
+	b=E3tclYCj1k4S4PaiGV9w0XipaT2Pbjzudvx9Px+dbjPyjGO/Nb/xYsFEcfax06PdwS51
+	 1RWRuh2BLY49hIJ/2mzf2I4pfi91UDBxJJkoqj65RoFNYjHpeRt1dqlIcKnLrF/Pb5r0A
+	 PLVBtemjNiWDv7hjj6sopE3GeEeaUmmR6uR/ckYmUMsdzfXryapraI/vlAeSsJXNyjpWc
+	 NR7+Ezr3HGiHTIqXrxXxgjYO7/etp26K0NLqWJrVbUez8Y3fKkxMibeVuC6UpCXULxnL8
+	 1uuvM5ncjotcooUpKCEXD71Sm/T5/2k/aRt0yRGSTw8nLUvCKRHQZ1A8bsxvRQf87fA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=c8vX9bEe;
-	arc=none smtp.remote-ip=192.198.163.17
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rB4+0FqZ;
+	arc=none smtp.remote-ip=209.85.214.170
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC17606A321;
-	Wed, 25 Nov 2026 16:18:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BC17606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E212F606A326
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 16:47:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E212F606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=c8vX9bEe
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795623489; x=1827159489;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=9+tiGBNKlGAcbgLvr/9pQGLti36ZdFJyzGzi5HXaUoE=;
-  b=c8vX9bEeLTML4tMpf8utLXlQtQCgMO3xiimgmpiezaNd8IrXXJ1P12dj
-   qFATB0OFAU+yAEQqT3mjtspPec83HnaenJPf/8RqmwPS9yHItqPqeEW3/
-   QLlYgMky46LwX+hW9ynshf32EdRRF6p4XKuvE6BPTchdmJgvTyee1thkm
-   0ngw4A+PQR/wIgPdgPvteOVlJ1lFF3vugcWhS5EQAkRQlwGaCBoxisQHr
-   exNLkDOeiNHJl2t2u58rot+8vVoPxHatRhJhmxeo79dygH0xEj1tfQOcQ
-   NCIheQ2zlnRKOclJvxGmZ90ad21ELVXcd2jLncm7RmjO6I6uT5qSL2Qb+
-   w==;
-X-CSE-ConnectionGUID: 2Ebr634hQd6ffelAiVwd6Q==
-X-CSE-MsgGUID: 3wariWPMSamUX0l4+6/p0Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11977"; a="4498982"
-X-IronPort-AV: E=Sophos;i="6.27,233,1787036400"; 
-   d="scan'208";a="4498982"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2026 08:07:03 -0800
-X-CSE-ConnectionGUID: rs80A/RtRHmkmjDfIQjjAQ==
-X-CSE-MsgGUID: DiFJ+MTDSaW9EKAtEObxag==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,233,1787036400"; 
-   d="scan'208";a="12375211"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa001.fm.intel.com with ESMTP; 25 Nov 2026 08:03:58 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xWFTP-00000001S0s-3iSt;
-	Wed, 25 Nov 2026 16:03:55 +0000
-Date: Thu, 26 Nov 2026 00:03:08 +0800
-From: kernel test robot <lkp@intel.com>
-To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, robh@kernel.org, conor@kernel.org,
-	Hefei <3066883572@qq.com>
-Subject: Re: [PATCH v3 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
-Message-ID: <20261125235231.H9Nhpv9l-lkp@intel.com>
-References: <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rB4+0FqZ
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2f04bea9a93so53039145ad.3
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 08:47:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795625260; x=1796230060; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=k1C78Uc1W59p66k/nD/Zj6PrIT29VxqTwRjxHQ+aiV4=;
+        b=rB4+0FqZ1CZz21tsa67voyk2x6NXgq81CuBWayyF4UYmvBgatYBVaNcj/3ozmZ/iiM
+         Da08/9XHKbYf1SubiB0vnwwEfpk0cUM6dbMszpNggH1KM4iTht9Y2Qycao7aHdIFLIKO
+         weAIxXq1I4sRGtOJxXW6XFU1Pw5oqUyb1tCMu+Ks6RdklZBC+nzotf/WNkFKsIIP6tuW
+         OPAGrBEDHx/2Gu/lquPrKXhMrcQ7fanP0jl1JoF0T7kOJ1o6zExCytCUu+WanrH6GsCi
+         z2AxidbqRuqhFKtm8Q1IWm3dnCt8cAQGcfSJx5r2wEdC1HmXbDPeSnpuFWgG1WWF2lCb
+         e18Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795625260; x=1796230060;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=k1C78Uc1W59p66k/nD/Zj6PrIT29VxqTwRjxHQ+aiV4=;
+        b=YYSMNOUz+xsa/TQc/u6+86K8R5NPHX8kP5MPWRPsxmTI/1TdPbKXYYlclBxnn862Dc
+         cx2Yd0lKTaRgvcB76u8JP3R+YkF7qRMqgtt0eErP7HH20At+aVAGXqCtyDBuyTKnew8D
+         PEDWICovzsGmHGlqIG7Sr+YYcQsPFBtk0lqlxf6RU2nhY2HxIWt7L3tJqmnEW01kaM/j
+         dWqFoElbpzzvkX4lVLZVSKsaI7EBvhEwHK6hXy3fWKPAZB3rJ02RQfylBuruYi2m9qVl
+         jtDQc9DIpyFZ4pLBJ7nfIo6xC/Fm+YiOBTOrWt/7lzzZbNSrP3vrDP2BHCXO/b/m/Rmn
+         rGiQ==
+X-Gm-Message-State: APuU4Z8ImpCVKGsAV547RSeLGEXq5iYf8O1KiwzTHx9G19Ng04ZaYJfN
+	xonFW3IOM+wJJAU28r4Z+9RBdpzJMsYwM2x9Y8g4vf0wgRnLXwZ7u6CO9zS/yA==
+X-Gm-Gg: AZFdTZd8AIqUdh78b7acET3wo1zllgKLI9Ge1zXBp3eNC4TenpjaleLxFr4rit57Of6
+	AFxLhrRGA58X8hYlNT7MI3aKkoSVg2a2faiY2rzXmsEN2DNCWzQRnjM705vhfaelYHfe+3oz5ep
+	mACyVLl6vRdrM1KdtF81YivZMXRvOPjbvhq3Bu1LGorK09lzTlfAaTRhqq6LDS1sfWfZZiJMZds
+	8YomL5s0ik/8xZIFLgbCT6+YY8wSB64RqFK16nOVd191X4dZw2qbepMovRmyBDYPxCEJOOSkPVl
+	wiHpZw1Ya+ILbVwQgMUdgUJQm1Rvx/GcDa9ssFEYfc/T0/BiF+HR88IkRkIRBBHnHJ1zNOWsSwA
+	9IMw21uVCLSPMKqiBgbHlT+nZGbLbGcqSh/EPSZNU2mZADHriUL6SAk/VMm5kuYhjPbxXhYSRjn
+	rp2/RufMm66g0EMwTLgns4FAK5h0b7md6O3ziu5K9tCx4IH+lA3RnfnZBg1KxaxC7AZ1q+5pMJ+
+	Dk4ytK75CVdGtG4nvyqkWv7pC00AOkSbf6IyUQHaDmoXmarCmLnlI45ZZNwc9K74HHcaiSaMiY+
+	ZoMAKe9eK6MWmiAIznWGwHlChu8a1y6crm64Eb+k+/hvGvWArmcpCoFbi8kqpd08
+X-Received: by 2002:a17:902:ce85:b0:2f0:3e44:4761 with SMTP id d9443c01a7336-2f03f25e801mr192769945ad.54.1795625260030;
+        Wed, 25 Nov 2026 08:47:40 -0800 (PST)
+Received: from cps-manycore-1 ([147.46.174.222])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f0dcbe3sm89876535ad.28.2026.11.25.08.47.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Nov 2026 08:47:39 -0800 (PST)
+From: Sechang Lim <rhkrqnwk98@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Alexei Starovoitov <ast@kernel.org>,
+	Shen Yongchao <grayhat@foxmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: bpf: fix use-after-free in hid_bpf_reg()
+Date: Wed, 25 Nov 2026 16:47:18 +0000
+Message-ID: <20261125164728.24914-1-rhkrqnwk98@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,100 +96,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Hefei,
+hid_bpf_reg() keeps the reference from hid_get_device() in ops->hdev
+and adds ops to prog_list. After prog_list_lock is dropped, a concurrent
+hid_destroy_device() can put that reference and free the device. With
+hid_rdesc_fixup set, hid_bpf_reconnect() then runs on a freed device:
 
-kernel test robot noticed the following build errors:
+  BUG: KASAN: use-after-free in device_reprobe+0x111/0x1c0
+  Call Trace:
+   device_reprobe+0x111/0x1c0
+   hid_bpf_reg+0x3ce/0x420
+   bpf_struct_ops_link_create+0x39b/0x4e0
+   __sys_bpf+0xaca/0xc30
 
-[auto build test ERROR on drm-misc/drm-misc-next]
-[also build test ERROR on dtor-input/next dtor-input/for-linus lee-backlight/for-backlight-next lee-backlight/for-backlight-fixes linus/master v7.4-rc4 next-20261124]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Hold an extra device reference until hid_bpf_reg() returns.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Hefei/dt-bindings-input-add-Jadard-JD9365TX-touchscreen-binding/20261125-101123
-base:   https://gitlab.freedesktop.org/drm/misc/kernel.git drm-misc-next
-patch link:    https://lore.kernel.org/r/tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07%40qq.com
-patch subject: [PATCH v3 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
-config: hexagon-allmodconfig (https://download.01.org/0day-ci/archive/20261125/20261125235231.H9Nhpv9l-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 2012344e5da8e03ea4b8283ecd6fad6e13f09d64)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261125/20261125235231.H9Nhpv9l-lkp@intel.com/reproduce)
+Fixes: ebc0d8093e8c ("HID: bpf: implement HID-BPF through bpf_struct_ops")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sechang Lim <rhkrqnwk98@gmail.com>
+---
+ drivers/hid/bpf/hid_bpf_struct_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/20261125235231.H9Nhpv9l-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/gpu/drm/panel/panel-viewe-jd9365tx.c:304:8: error: call to undeclared function 'of_drm_get_panel_orientation'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-     304 |         ret = of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
-         |               ^
->> drivers/gpu/drm/panel/panel-viewe-jd9365tx.c:308:2: error: call to undeclared function 'drm_panel_init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-     308 |         drm_panel_init(&ctx->panel, dev, &jd9365tx_funcs, DRM_MODE_CONNECTOR_DSI);
-         |         ^
-   2 errors generated.
-
-
-vim +/drm_panel_init +308 drivers/gpu/drm/panel/panel-viewe-jd9365tx.c
-
-   273	
-   274	static int jd9365tx_probe(struct mipi_dsi_device *dsi)
-   275	{
-   276		struct device *dev = &dsi->dev;
-   277		struct jd9365tx_panel *ctx;
-   278		int ret;
-   279	
-   280		ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
-   281		if (!ctx)
-   282			return -ENOMEM;
-   283	
-   284		ctx->dsi = dsi;
-   285		mipi_dsi_set_drvdata(dsi, ctx);
-   286	
-   287		dsi->lanes = 2;
-   288		dsi->format = MIPI_DSI_FMT_RGB888;
-   289		dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
-   290				  MIPI_DSI_MODE_LPM;
-   291	
-   292		ctx->reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
-   293		if (IS_ERR(ctx->reset))
-   294			return PTR_ERR(ctx->reset);
-   295	
-   296		ctx->vdd = devm_regulator_get(dev, "vdd");
-   297		if (IS_ERR(ctx->vdd))
-   298			return PTR_ERR(ctx->vdd);
-   299	
-   300		ctx->iovcc = devm_regulator_get(dev, "iovcc");
-   301		if (IS_ERR(ctx->iovcc))
-   302			return PTR_ERR(ctx->iovcc);
-   303	
-   304		ret = of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
-   305		if (ret)
-   306			return ret;
-   307	
- > 308		drm_panel_init(&ctx->panel, dev, &jd9365tx_funcs, DRM_MODE_CONNECTOR_DSI);
-   309		ctx->panel.prepare_prev_first = true;
-   310	
-   311		ret = drm_panel_of_backlight(&ctx->panel);
-   312		if (ret)
-   313			return ret;
-   314	
-   315		drm_panel_add(&ctx->panel);
-   316	
-   317		ret = mipi_dsi_attach(dsi);
-   318		if (ret < 0) {
-   319			drm_panel_remove(&ctx->panel);
-   320			return ret;
-   321		}
-   322	
-   323		return 0;
-   324	}
-   325	
-
+diff --git a/drivers/hid/bpf/hid_bpf_struct_ops.c b/drivers/hid/bpf/hid_bpf_struct_ops.c
+index c90b68956cb3..e2512bd6e6b2 100644
+--- a/drivers/hid/bpf/hid_bpf_struct_ops.c
++++ b/drivers/hid/bpf/hid_bpf_struct_ops.c
+@@ -198,6 +198,7 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *link)
+ 		return PTR_ERR(hdev);
+ 
+ 	ops->hdev = hdev;
++	get_device(&hdev->dev);
+ 
+ 	mutex_lock(&hdev->bpf.prog_list_lock);
+ 
+@@ -239,6 +240,7 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *link)
+ 		hid_bpf_reconnect(hdev);
+ 	}
+ 
++	put_device(&hdev->dev);
+ 	return err;
+ }
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.56.1
+

@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795574983;
-	b=LsrKxR/c/Lwqi9fSTvw5LvQAnyFo6DOgEK1zgt1gmvi/b/mvfU33jxoldDzAUqnb0ZY+
-	 jTdwV9uV8KKYVTOHw5BKSj523DB39Sa9WAEd88KtsVl20F2OROyxK8aq2/tX1g9AAthUX
-	 n8cIA1YfOkqGk26ZeT+Q4J0H7UJtD/Neu/a0yoRMXFGRPhFstbQ6sXOVjxUlWTe4ElVfF
-	 dJGHPTGFvQaBQittxum1QMioMdCiU2UZdoio6wzwVhdk6CChRJpgqaHoa4hQVt7BiQ/cx
-	 +eJkmZtW5B7VH8QNV9LHyfo2DRiYgmLoRhFMWK9M9CYzsx19XRL8rJLw+CtP75C7/mw==
+	t=1795575228;
+	b=GrvhavoBD04GC5nz656EYX2LbE+0dxu97aaWuEmTmSXYnX2/iz+uqcsrj2S4vqsJysIu
+	 hQas0qllgB77TEnMJ0csKucVagmabRNxB727rmF1Lse3vnOxfq268OZqItZQVp9VH0e94
+	 KyfducdfeXBYPDbcQpmxk3ZYXlhFvuSaz8wUdnvGto1b6GD9vR8DCDG4DQSBaBl58SpHk
+	 /4Bg3yo5Iw+furOlG2GuXI9zjMVFbSJqFDc/Ha3Ch9AsJfkYLsuDTY5M4t5ecbziXDdgT
+	 SlfAeRjfcZQJ6O31AM1j/issyUzlINje0Au5hNqutW+l9tGR9YtwLKNyLITC6ekJk9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795574983;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795575228;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=c9glRbfTcVHBbunDTcByHsHQ4ZaWeP9mFG4ZNiO80p8=;
-	b=FYO+kkxj1h2tgtgHSgjP3d1N289YovHPV06sEID50uqlpWcCqFTgJgN+yClcgDXt+lLg
-	 x2ptlS/b/0rjYY53C6jpblA/SOOHJ31XLF33OvAvSwg5bHFs6sVr8e5vp2DWKyUPzAGW0
-	 IrAqeepGxRL216RSvQt8zFs2gFtobgGSNivtUnZDIgrcKv/Qcps41vDsHDY0vkptTiMNm
-	 KDgHTWOOjL+GEE8jPVfzc3B8TjkDsnBwaTB01R91YQ1wHf86PN2jgwcscZeHfBJuoMn9I
-	 K4iglT7mA9NUtbGXEMs5HQbtWXea2SPzjX5h4Y5LgMKgmyEh9sg9oT6gXYTRUmy628Q==
+	bh=uA+u8gLrQBscfkz97StZsV/2v00EcO4O845ZNF383AY=;
+	b=Qdo/4+PXHCx5/EL+VEUTTBBcAjVXrzps3y3rqCRBL7uQvGcTkKeJt5dOxv/vZU939BOG
+	 E8hZyncQ+Jb9FZViORLa3ut57+Eb7YAbenMPNkeI9TfsFf7SUWItKBBEBoLROhE1Ari/r
+	 SfHGwNFKjHYsdfOJBQtxqPy8twrxH/4QQ4mxh+9uLwP9YCO95KB2Wj2nXpSd39/H8oiTm
+	 RIuxhzhkh3JZwD8YUlACDzUeG/6OjtuoX6gaif562paJ1stpv1K567JXwzKS9BZWbM4vI
+	 XTLJCAv12Cq+L4G0J+UtplobZ3Ma+SYq6e5B4Z1KY3x9LUukUGWrqx8IFUvSzkwtmqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVaJtRIy;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J3Bpl4KX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33C3E606A321;
-	Wed, 25 Nov 2026 02:49:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F7F4606A31E;
+	Wed, 25 Nov 2026 02:53:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fVaJtRIy
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 020C31F000C0;
-	Wed, 25 Nov 2026 02:49:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J3Bpl4KX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8D31F000C0;
+	Wed, 25 Nov 2026 02:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795574982;
-	bh=c9glRbfTcVHBbunDTcByHsHQ4ZaWeP9mFG4ZNiO80p8=;
+	s=k20260515; t=1795575227;
+	bh=uA+u8gLrQBscfkz97StZsV/2v00EcO4O845ZNF383AY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fVaJtRIy5Jh60gB2f8edRDN8SFcdWN/NrNVNKZ8CBfkA0X0hpEbo1lVRJgo6bJN8h
-	 LOnEoOphsIwc5zmZHVDQHd2FxsNTI2kjaKyRgrxXZNDRzXFn5HMya0WllE+wNWYUaM
-	 VSY5jPvrl5tnlsN33bPSQO6zZ1BJF7M7y1DgfjEq8WeCQ8BrtgRYPmY9AjaxbGIpmm
-	 eek9UtQfjav51Ufff4/upVjAV53DvZ/hEXgzWtcgiegkGa5BzqeF/20lF3tSSxyqzs
-	 xrfrS4EDwUsdl4CaBYSJF9vKiFMLiJsGgD3fI9VV5fETITZh30mTJL9G4EgpAeujze
-	 ubRrFMCx35h5w==
-Message-ID: <sashiko-outbox-232421@kernel.org>
+	b=J3Bpl4KXMxsq2cNqCclyLpelSFiokb+5C5dLxVKcbsHh90l2wsWszD34AR3x1jf33
+	 aXCMvQPqYnP4zpJhmtyu6RMOM5GDy2cZSG3IsU6pq1kUdQXGIdqgcm5d8bDNzI8bUy
+	 52q2Xy+CsB1AM+/9IPCbQawsvyZOXPT9znKrxuMOsB+PB7CUlGcs6jYDkYCB2T/nSf
+	 LHFV0WPgJDwCV3Jjq4EeCdO6hzWUlQ47c0DWSi2IJms+WM9ghRmHDsyCpKsoJdn8uv
+	 Gg3/BHZYTn9N0grQ+h1e84KKzY9ALLO5KHEDFIHe11QbnfAGs5VxKolc+hzBnHPvr7
+	 tBkEvsVtSosfg==
+Message-ID: <sashiko-outbox-232426@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/6] Input: add Jadard JD9365TX in-cell touchscreen
- driver
+Subject: Re: [PATCH v4 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_05AAFCF8CA47B5D5ED770621DB13E46F1406@qq.com>
+In-Reply-To: <tencent_C80F7DF059E17C7313CE3E35FF62A1A28D0A@qq.com>
 References: <20261125024226.1293-1-3066883572@qq.com>
- <tencent_05AAFCF8CA47B5D5ED770621DB13E46F1406@qq.com>
+ <tencent_C80F7DF059E17C7313CE3E35FF62A1A28D0A@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 02:49:41 +0000
+Date: Wed, 25 Nov 2026 02:53:46 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,110 +62,103 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [High] Input: jadard_jd9365tx: wrong supply array type in
-  jadard_tp_probe()
-- [Low] Input: jadard_jd9365tx: u32 overflow in jd_resolve_coord_addr()
-  bounds check
+- [High] drm/panel: jd9365tx_probe() calls removed
+  of_drm_get_panel_orientation()
+- [Low] drm/panel: jd9365tx_send_cmds() duplicates
+  mipi_dsi_dcs_write_seq_multi()
 --
 
-commit 57a37b18fbb37602183e66793eebea170b919dc2
+commit ca140a7fa3afff2f94a32e601392829d717fcccf
 Author: Hefei <3066883572@qq.com>
 
-Input: add Jadard JD9365TX in-cell touchscreen driver
+drm/panel: add VIEWE JD9365TX 7 inch DSI panel
 
-This commit adds a polling I2C touchscreen driver for the Jadard JD9365TX
-in-cell touch controller.
+This commit adds a DRM panel driver for the VIEWE 7KF82 720x1280 Jadard
+JD9365TX 2-lane MIPI-DSI panel module.
 
-> diff --git a/drivers/input/touchscreen/jadard_jd9365tx.c b/drivers/input/=
-touchscreen/jadard_jd9365tx.c
+> diff --git a/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c b/drivers/gpu/d=
+rm/panel/panel-viewe-jd9365tx.c
 > new file mode 100644
-> index 0000000000000..3312119d7b696
+> index 0000000000000..7455dff834c4d
 > --- /dev/null
-> +++ b/drivers/input/touchscreen/jadard_jd9365tx.c
-> @@ -0,0 +1,356 @@
+> +++ b/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c
+> @@ -0,0 +1,340 @@
 
 [ ... ]
 
-> +struct jadard_tp {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	struct touchscreen_properties prop;
-> +	struct gpio_desc *reset;
-> +	struct regulator *vdd;
-> +	struct regulator *iovcc;
-> +	u32 coord_addr;
-> +	u16 touch_data_size;
-> +	u16 max_points;
-> +	unsigned int poll_interval_ms;
+> +struct jd9365tx_cmd {
+> +	u8 len;
+> +	u8 data[64];
+> +	u16 delay_ms;
 > +};
+> +
+> +#define JD_CMD(...) {					\
+> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
+> +	.data =3D { __VA_ARGS__ },			\
+> +	.delay_ms =3D 0,					\
+> +}
+> +
+> +#define JD_CMD_DELAY(ms, ...) {				\
+> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
+> +	.data =3D { __VA_ARGS__ },			\
+> +	.delay_ms =3D (ms),				\
+> +}
 
 [ ... ]
 
-> +static int jd_resolve_coord_addr(struct jadard_tp *ts)
+> +static int jd9365tx_send_cmds(struct mipi_dsi_device *dsi,
+> +			      const struct jd9365tx_cmd *cmds,
+> +			      unsigned int count)
 > +{
-> +	u32 esram_num_addr =3D JD_ERAM_BASE + 4 + JD_MAX_DSRAM_NUM * 8;
-> +	u32 esram_sec_addr =3D esram_num_addr + 4;
-> +	u8 buf[JD_ESRAM_SECTION_NUM * 8];
-> +	u32 addr, len;
+> +	unsigned int i;
 > +	int ret;
 > +
-> +	ret =3D jd_read_reg(ts->client, esram_sec_addr, buf, sizeof(buf));
-> +	if (ret)
-> +		return ret;
+> +	for (i =3D 0; i < count; i++) {
+> +		const struct jd9365tx_cmd *cmd =3D &cmds[i];
 > +
-> +	addr =3D get_unaligned_le32(&buf[JD_ESRAM_COORD_IDX * 8]);
-> +	len =3D get_unaligned_le32(&buf[JD_ESRAM_COORD_IDX * 8 + 4]);
-> +
-> +	if (addr < JD_ERAM_BASE ||
-> +	    addr + len > JD_ERAM_BASE + 0x1000 ||
-> +	    len < JD_REPORT_MIN_SIZE || len > JD_TOUCH_DATA_SIZE)
-> +		return -EINVAL;
+> +		if (cmd->len) {
+> +			ret =3D mipi_dsi_dcs_write_buffer(dsi, cmd->data, cmd->len);
+> +			if (ret < 0) {
+> +				dev_err(&dsi->dev,
+> +					"DCS write 0x%02x failed: %d\n",
+> +					cmd->data[0], ret);
+> +				return ret;
+> +			}
+> +		}
+> +		if (cmd->delay_ms)
+> +			msleep(cmd->delay_ms);
+> +	}
+> +	return 0;
+> +}
 
 [Severity: Low]
-Can the 32-bit addition addr + len wrap around here?  If the controller
-returns a corrupted section descriptor with addr near U32_MAX and len in
-[JD_REPORT_MIN_SIZE, JD_TOUCH_DATA_SIZE], addr + len wraps to a small
-value below JD_ERAM_BASE + 0x1000 and jd_resolve_coord_addr() accepts an
-invalid coordinate address instead of falling back to
-JD_DEFAULT_COORD_ADDR.  Checking len first and testing
-addr > JD_ERAM_BASE + 0x1000 - len avoids the overflow.
+Can the init sequence use mipi_dsi_dcs_write_seq_multi() and
+mipi_dsi_msleep() with the dsi_ctx that jd9365tx_prepare() already sets
+up?  That avoids calling the deprecated mipi_dsi_dcs_write_buffer()
+helper, removes the custom jd9365tx_send_cmds() loop, and drops the fixed
+64-byte data[] padding per entry in struct jd9365tx_cmd.
 
 [ ... ]
 
-> +static int jadard_tp_probe(struct i2c_client *client)
+> +static int jd9365tx_probe(struct mipi_dsi_device *dsi)
 > +{
-> +	struct device *dev =3D &client->dev;
-> +	struct jadard_tp *ts;
-> +	struct input_dev *input;
-> +	struct regulator_bulk_data supplies[2];
-> +	u32 val;
-> +	int error;
-> +
-> +	ts =3D devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
-> +	if (!ts)
-> +		return -ENOMEM;
-> +
-> +	ts->client =3D client;
-> +	ts->max_points =3D JD_MAX_POINTS;
-> +	ts->poll_interval_ms =3D JD_DEFAULT_POLL_MS;
-> +	ts->touch_data_size =3D JD_TOUCH_DATA_SIZE;
-> +	ts->coord_addr =3D JD_DEFAULT_COORD_ADDR;
-> +
-> +	supplies[0].supply =3D "vdd";
-> +	supplies[1].supply =3D "iovcc";
-> +	error =3D devm_regulator_bulk_get_enable(dev, ARRAY_SIZE(supplies),
-> +					       supplies);
+> +	struct device *dev =3D &dsi->dev;
+> +	struct jd9365tx_panel *ctx;
+> +	int ret;
+
+[ ... ]
+
+> +	ret =3D of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
+> +	if (ret < 0)
+> +		return dev_err_probe(dev, ret, "failed to get orientation\n");
 
 [Severity: High]
-Does passing struct regulator_bulk_data * to
-devm_regulator_bulk_get_enable() fail to build with
--Werror=3Dincompatible-pointer-types?  devm_regulator_bulk_get_enable()
-takes a const char * const * array of supply names, so if built without
-that error it also reads uninitialized stack memory
-(supplies[0].consumer) as the second supply name pointer.  Using static
-const char * const supplies[] =3D { "vdd", "iovcc" } fixes this, and the
-unused vdd and iovcc fields in struct jadard_tp can be dropped as well.
+Does this fail to build when CONFIG_DRM_PANEL_VIEWE_JD9365TX is enabled?
+Commit b5a8b1f2a973 ("drm/panel: Use drm_of_get_panel_orientation()")
+removed of_drm_get_panel_orientation() in favor of
+drm_of_get_panel_orientation() declared in <drm/drm_of.h>, which also
+needs to be included here.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_7B5CDF8F847=
-44FFBBFCFA89FE3651F675608@qq.com?part=3D5
+44FFBBFCFA89FE3651F675608@qq.com?part=3D4

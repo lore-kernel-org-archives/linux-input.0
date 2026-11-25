@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795573482;
-	b=pKa8rPQGwvyrOFQncVlajBMsTrvkpcDoaqlhohoB0pFX/BXrVAt+LwdgDFZF+B96feAe
-	 hf/nrLVPknSyinfZa5Gf+wAMtBRXbVBFnuellhIOBESGyYo7xr/egapyQZDehR96ZEik/
-	 DCMLbQ3lYXHKUERcz8uKn4v7ZLuWAPrmScfaw+vVltvirUEULHnUeu4c7PNnM8d0mauIT
-	 uTozOKwFuID5to9glzXXnGMGasx/WUvGt9FgvvIMaUB47UB9xIBVtg2HwVEB1Fcn/QLLm
-	 ZmFlKQjYxzGfbJiLf4oODN9A+Z7rUD5ETRjgd30sYxc5uuAdjXRhqu6HVWU5POTBNRQ==
+	t=1795573569;
+	b=p8dHJBEnaMgyC6CvyOWHqk2hvcbxvf/3+3wEjE7kiYx3EzD8RbK4oaKnjTAqpFL/K2Jo
+	 tVRDchiq1izLcD5X7ReD88oSWTNUuR4rMIy62M/n69JPXiKQQ+DphCMgtpd5MdXgUsRAh
+	 /+UnRdZezKCheXLRDHiyFMx8SDaaJ5VMlxk9njPRIjvpQf7zuBW7DNJMo0oDzxo5u9vIL
+	 brq2Na9Ebm4KsyDxguL1HOtc3c+BnO+sodx4RwQZSwDazhiNyrc7tfHC2S3CmkTqMUaaI
+	 QXTBOsK7v2+vLb3+sxc0JZ/GtFHU1BgublXKtTSL5qvB9WS3ufMnDTCJ+DfRFqlH4mg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795573482;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795573569;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=XDipyrD8oa+BKvtLgwZus4IEY5ayteCDOYTttC5h54U=;
-	b=IXJP+M2czmlDMI+2tz46BNwMH0j41AT6mtSVVmo3wfQz7yo0TcBnkxmItP6jptJhJlIJ
-	 pgjj0rlyI8lmxaav9zzFZpwo/E9SMJzXp0w0x+DSaNg9erriNgk2XLg2y7z3SJU97wLHs
-	 gz6WM70FDc4f5yxq13XtVeIcjcqixAhphvC4tQDy7QJLLJZcD2Wzk25jVF5mT8TaG6cHf
-	 UINvGqxv3t+M1fgwDhMRW0iUXII+dAUzxbheyFqItX1fPhlUlBkBLy6n2kqkfkghzBwpH
-	 g3Fz7byQY3Ow/huOhgEqozD1Peazw0EqJYg9Ex/b0TEpEjY0tC/rymAfcThgy6MSRbA==
+	bh=YuBvNmRkTNzt2xiFLt4XMErMr+q2sxN4QP4D8r/892I=;
+	b=dQxd2z5J5Ysseo3uqcbaW4LcGjVfO7azJzBIZGF4Nd0Nif0Ck6ebY6/CsGO4meR9dEkE
+	 TLYPrccmPY5jq5tCfWnt1GVTRfViF8nEbaAlVcoiXajkJQB0lYwBYSYvm6T1G/Ni3i1Ow
+	 rXPq6BXx0/yCIMilp5tVVRBG1pw3CIiKynK8ff5DWxCifdIdIDH7ZA4vqRYwIH+l+a3H8
+	 8ZCMhxvnlu3N8ZkBMUpkNiKOa3I9uxsvArAUtQblXCxwb7aSmfI/0MQ2Uq+D/G6pengfH
+	 IHAIlYKu0z0i8vLTFMb9B7hrLGeyOtX1SPUUalVUkZlNFz/DrkyxqqDjFY65fN2I5uw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eKPeYqWZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l+KZxeD5;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F93B606A326;
-	Wed, 25 Nov 2026 02:24:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB7F2606A31E;
+	Wed, 25 Nov 2026 02:26:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eKPeYqWZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC6161F000D8;
-	Wed, 25 Nov 2026 02:24:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l+KZxeD5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD7D31F000CF;
+	Wed, 25 Nov 2026 02:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795573481;
-	bh=XDipyrD8oa+BKvtLgwZus4IEY5ayteCDOYTttC5h54U=;
+	s=k20260515; t=1795573569;
+	bh=YuBvNmRkTNzt2xiFLt4XMErMr+q2sxN4QP4D8r/892I=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eKPeYqWZN/vW7MsM9SwvNpX5qe6N/TfWKYi4RV4P+BGG+JEoF7g/uDPniaH/AgI6s
-	 vB86rS7V81mX9HTva2GfNmAE4s/pbWcGcRuUFbZqvsWam0ErYaPYmz28yyjs5Zw49g
-	 pjpXmY4Cek59WRFoknUDrjWrgTIzCyyOZokbZGUJQuKsffVbM97AVJFEvFIbcLGlm5
-	 vDk/dXwaTHA6RqPV7TCTwc3bh79ozbIZmnad2mmZbBMT8f+KdN/Q5FHriR/AmNRfJO
-	 rdv16+0Uj76198SmqlkwwyHDRUSJ5N31mPYb1YsBTVGhiuU93MIz0jE+TPPpDfjPb0
-	 ToDUT/FETcrQg==
-Message-ID: <sashiko-outbox-232407@kernel.org>
+	b=l+KZxeD5cNd3GQaU1GRqRu19/7vMnN/SNV5iQsx8SDfY13bvLB0Tm+IuuPT3ACeBf
+	 3BzgmVBBjKtcwp7h+1yXojDb9ATN6NOa8MNmxC5DKOKLjAJW6QgtRRhYtnrI4OIz9f
+	 i/t0ivGm7X9wZ70hxip16A6DiSIsXATZ32NMbjoLU7fTdG09cEasdVyOXoHkr/286X
+	 pWkZSQoMWLW6i0DjuR/kbtCi4sX5XQFPHkkOQ2yEO6F9CujB+tOAFk/ebF4qtYFNql
+	 VBnqJkB01LQQpnw/VvBCDg37q0WeZ1IXdliqYoqnmJYJ4z5YGjyEVyBE4zco4D8Miv
+	 LjhoR8F7pzLZg==
+Message-ID: <sashiko-outbox-232409@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 5/6] Input: add Jadard JD9365TX in-cell touchscreen
- driver
+Subject: Re: [PATCH v3 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_03FEA6A02E8E137CCC5AC97E6F118A3CC10A@qq.com>
+In-Reply-To: <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
 References: <20261125021127.1430-1-3066883572@qq.com>
- <tencent_03FEA6A02E8E137CCC5AC97E6F118A3CC10A@qq.com>
+ <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 02:24:40 +0000
+Date: Wed, 25 Nov 2026 02:26:08 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,337 +60,213 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 9 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issues to consider:
-- [High] Input: jadard_jd9365tx: broken slot check in
-  jd_report_touches()
-- [High] Input: jadard_jd9365tx: deferred init in jd_poll() and no reset
-  recovery
-- [Medium] Input: jadard_jd9365tx: uninitialized stack read in
-  jd_report_touches()
-- [Medium] Input: jadard_jd9365tx: missing reset-gpios handling in
-  jadard_tp_probe()
-- [Low] Input: jadard_jd9365tx: signed shift overflow in
-  jd_resolve_coord_addr()
-- [Low] Input: jadard_jd9365tx: duplicate OF-only size parsing in
-  jadard_tp_probe()
-- [Low] Input: jadard_jd9365tx: redundant capabilities, BTN_TOUCH, and
-  parent setup
-- [Low] Input: jadard_jd9365tx: positional initializer in jadard_tp_id
-  table
-- [Low] Input: jadard_jd9365tx: empty commit message body for new driver
+- [High] drm/panel: call to removed of_drm_get_panel_orientation() in
+  jd9365tx_probe()
+- [High] drm/panel: call to static drm_panel_init() in jd9365tx_probe()
+- [Low] drm/panel: undocumented compatible jadard,jd9365tx-7kf82 in
+  jd9365tx_of_match
+- [Low] drm/panel: open-coded DSI command sender and helpers in
+  panel-viewe-jd9365tx
+- [Low] drm/panel: non-alphabetical Kconfig and Makefile order for
+  VIEWE_JD9365TX
 --
 
-commit 7d4899901ebf2b5cd58796c8a16ba3f15ed92ab7
+commit 0ea4165795cc39804999640f1fa6be9c2c2143db
 Author: Hefei <3066883572@qq.com>
 
-> Input: add Jadard JD9365TX in-cell touchscreen driver
->
-> Signed-off-by: Hefei <3066883572@qq.com>
+drm/panel: add VIEWE JD9365TX 7 inch DSI panel
+
+This commit adds a DRM panel driver for the VIEWE 7" 720x1280 Jadard
+JD9365TX (7KF82) 2-lane MIPI-DSI panel.
+
+> diff --git a/drivers/gpu/drm/panel/Kconfig b/drivers/gpu/drm/panel/Kconfig
+> index 26ffa2378f55c..9a3038bf60987 100644
+> --- a/drivers/gpu/drm/panel/Kconfig
+> +++ b/drivers/gpu/drm/panel/Kconfig
+> @@ -427,6 +427,17 @@ config DRM_PANEL_INNOLUX_P079ZCA
+>  	  24 bit RGB per pixel. It provides a MIPI DSI interface to
+>  	  the host and has a built-in LED backlight.
+> =20
+> +config DRM_PANEL_VIEWE_JD9365TX
+> +	tristate "VIEWE 7\" JD9365TX DSI panel"
+> +	depends on OF
+> +	depends on DRM_MIPI_DSI
+> +	depends on BACKLIGHT_CLASS_DEVICE
+> +	help
+> +	  Say Y here to enable the VIEWE 7" 720x1280 Jadard JD9365TX
+> +	  MIPI-DSI panel.
+> +
+> +	  If unsure, say N.
+> +
+>  config DRM_PANEL_JADARD_JD9365DA_H3
+>  	tristate "Jadard JD9365DA-H3 WXGA DSI panel"
+>  	depends on OF
+> diff --git a/drivers/gpu/drm/panel/Makefile b/drivers/gpu/drm/panel/Makef=
+ile
+> index 365f2e73f6b45..84ed0891a40d1 100644
+> --- a/drivers/gpu/drm/panel/Makefile
+> +++ b/drivers/gpu/drm/panel/Makefile
+> @@ -42,6 +42,7 @@ obj-$(CONFIG_DRM_PANEL_ILITEK_ILI9881C) +=3D panel-ilit=
+ek-ili9881c.o
+>  obj-$(CONFIG_DRM_PANEL_ILITEK_ILI9882T) +=3D panel-ilitek-ili9882t.o
+>  obj-$(CONFIG_DRM_PANEL_INNOLUX_EJ030NA) +=3D panel-innolux-ej030na.o
+>  obj-$(CONFIG_DRM_PANEL_INNOLUX_P079ZCA) +=3D panel-innolux-p079zca.o
+> +obj-$(CONFIG_DRM_PANEL_VIEWE_JD9365TX) +=3D panel-viewe-jd9365tx.o
+>  obj-$(CONFIG_DRM_PANEL_JADARD_JD9365DA_H3) +=3D panel-jadard-jd9365da-h3=
+.o
+>  obj-$(CONFIG_DRM_PANEL_JDI_LT070ME05000) +=3D panel-jdi-lt070me05000.o
+>  obj-$(CONFIG_DRM_PANEL_JDI_LPM102A188A) +=3D panel-jdi-lpm102a188a.o
 
 [Severity: Low]
-This commit adds a new touchscreen driver with an empty commit message
-body.  Please add a description of the Jadard JD9365TX hardware and explain
-why the driver uses I2C polling and defers hardware initialization.
+This isn't a bug, but DRM_PANEL_VIEWE_JD9365TX is placed between the
+INNOLUX and JADARD entries instead of in alphabetical order in both
+Kconfig and Makefile.
 
-> diff --git a/drivers/input/touchscreen/jadard_jd9365tx.c b/drivers/input/=
-touchscreen/jadard_jd9365tx.c
+> diff --git a/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c b/drivers/gpu/d=
+rm/panel/panel-viewe-jd9365tx.c
 > new file mode 100644
-> index 0000000000000..2030157c3a5b8
+> index 0000000000000..b511dd6bfed96
 > --- /dev/null
-> +++ b/drivers/input/touchscreen/jadard_jd9365tx.c
-> @@ -0,0 +1,373 @@
+> +++ b/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c
 
 [ ... ]
 
-> +static int jd_resolve_coord_addr(struct jadard_tp *ts)
+> +static int jd9365tx_send_cmds(struct mipi_dsi_device *dsi,
+> +			      const struct jd9365tx_cmd *cmds,
+> +			      unsigned int count)
 > +{
-> +	u32 esram_num_addr =3D JD_ERAM_BASE + 4 + JD_MAX_DSRAM_NUM * 8;
-> +	u32 esram_sec_addr =3D esram_num_addr + 4;
-> +	u8 buf[JD_ESRAM_SECTION_NUM * 8];
-> +	u32 addr, len;
+> +	unsigned int i;
 > +	int ret;
 > +
-> +	ret =3D jd_read_reg(ts->client, esram_sec_addr, buf, sizeof(buf));
-> +	if (ret)
-> +		return ret;
+> +	for (i =3D 0; i < count; i++) {
+> +		const struct jd9365tx_cmd *cmd =3D &cmds[i];
 > +
-> +	addr =3D buf[JD_ESRAM_COORD_IDX * 8 + 0] |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 1] << 8) |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 2] << 16) |
-> +	       (buf[JD_ESRAM_COORD_IDX * 8 + 3] << 24);
-> +	len =3D buf[JD_ESRAM_COORD_IDX * 8 + 4] |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 5] << 8) |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 6] << 16) |
-> +	      (buf[JD_ESRAM_COORD_IDX * 8 + 7] << 24);
-
-[Severity: Low]
-Can shifting buf[JD_ESRAM_COORD_IDX * 8 + 3] and
-buf[JD_ESRAM_COORD_IDX * 8 + 7] left by 24 bits overflow a 32-bit signed
-int?  In C, u8 values are promoted to signed int before << 24, which
-triggers undefined behavior under UBSAN when bit 7 of the high byte is set.
-Using get_unaligned_le32() avoids this.
-
-> +
-> +	if (addr < JD_ERAM_BASE || addr >=3D JD_ERAM_BASE + 0x1000 ||
-> +	    len =3D=3D 0 || len > JD_TOUCH_DATA_SIZE)
-> +		return -EINVAL;
-> +
-> +	ts->coord_addr =3D addr;
-> +	ts->touch_data_size =3D (u16)len;
+> +		if (cmd->len) {
+> +			ret =3D mipi_dsi_dcs_write_buffer(dsi, cmd->data, cmd->len);
+> +			if (ret < 0) {
+> +				dev_err(&dsi->dev,
+> +					"DCS write 0x%02x failed: %d\n",
+> +					cmd->data[0], ret);
+> +				return ret;
+> +			}
+> +		}
+> +		if (cmd->delay_ms)
+> +			msleep(cmd->delay_ms);
+> +	}
 > +	return 0;
 > +}
 
-[Severity: Medium]
-Can jd_report_touches() read uninitialized stack memory from buf[] when
-jd_resolve_coord_addr() accepts a section length smaller than 53 bytes?
+[ ... ]
 
-jd_resolve_coord_addr() accepts any len from 1 to JD_TOUCH_DATA_SIZE (78),
-and jd_poll() declares u8 buf[JD_TOUCH_DATA_SIZE] uninitialized on the
-stack before reading ts->touch_data_size bytes into it.  However,
-jd_report_touches() unconditionally reads JD_TOUCH_COORD_INFO_ADDR +
-ts->max_points * JD_FINGER_DATA_SIZE (53) bytes from buf[], reporting
-uninitialized stack bytes as touch coordinates whenever len < 53.  The
-bounds check also does not verify that addr + len stays within
-JD_ERAM_BASE + 0x1000.
+> +static int jd9365tx_get_modes(struct drm_panel *panel,
+> +			      struct drm_connector *connector)
+> +{
+> +	struct jd9365tx_panel *ctx =3D to_jd9365tx(panel);
+> +	struct drm_display_mode *mode;
+> +
+> +	mode =3D drm_mode_duplicate(connector->dev, &jd9365tx_7kf82_mode);
+> +	if (!mode)
+> +		return -ENOMEM;
+> +
+> +	drm_mode_set_name(mode);
+> +	mode->type =3D DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
+> +	drm_mode_probed_add(connector, mode);
+> +
+> +	connector->display_info.width_mm =3D mode->width_mm;
+> +	connector->display_info.height_mm =3D mode->height_mm;
+> +	drm_connector_set_panel_orientation(connector, ctx->orientation);
+> +	return 1;
+> +}
+
+[Severity: Low]
+Can this driver use the existing DRM and MIPI-DSI helpers instead of
+open-coding them?
+
+Since jd9365tx_prepare() already sets up a struct mipi_dsi_multi_context,
+using mipi_dsi_dcs_write_seq_multi() and mipi_dsi_msleep() avoids the
+custom struct jd9365tx_cmd table and jd9365tx_send_cmds() loop.
+
+In jd9365tx_get_modes(), using drm_connector_helper_get_modes_fixed()
+avoids returning a negative errno from .get_modes on allocation failure and
+drops the redundant drm_connector_set_panel_orientation() call (which
+panel_bridge_attach() already handles via .get_orientation).  Using
+devm_drm_panel_add() and devm_mipi_dsi_attach() in jd9365tx_probe() would
+also allow dropping jd9365tx_remove(), and a brief commit message body
+describing the panel hardware would be helpful.
 
 [ ... ]
 
-> +static void jd_report_touches(struct jadard_tp *ts, const u8 *buf)
+> +static int jd9365tx_probe(struct mipi_dsi_device *dsi)
 > +{
-> +	u8 finger_num =3D buf[JD_FINGER_NUM_ADDR];
-> +	unsigned int i;
-> +	bool any =3D false;
-> +
-> +	if (finger_num > ts->max_points)
-> +		finger_num =3D ts->max_points;
-> +
-> +	for (i =3D 0; i < ts->max_points; i++) {
-> +		const u8 *c =3D buf + JD_TOUCH_COORD_INFO_ADDR +
-> +			      i * JD_FINGER_DATA_SIZE;
-> +		u16 x =3D (c[0] << 8) | c[1];
-> +		u16 y =3D (c[2] << 8) | c[3];
-> +		u8 w =3D c[4];
-> +		bool down =3D false;
-> +
-> +		if (i < finger_num &&
-> +		    x <=3D ts->abs_x_max && y <=3D ts->abs_y_max &&
-> +		    x !=3D 0xFFFF && y !=3D 0xFFFF)
-> +			down =3D true;
-
-[Severity: High]
-Does gating down on i < finger_num drop active contacts whenever a
-lower-numbered slot lifts before a higher-numbered slot?
-
-The packet uses fixed slots where inactive slots carry 0xFFFF/0xFFFF and
-finger_num is the total active contact count.  If fingers are down in slots
-0 and 1 (finger_num =3D=3D 2) and finger 0 lifts while finger 1 stays on the
-screen, finger_num becomes 1 while slot 1 retains its coordinates; on the
-next poll, slot 1 (i =3D=3D 1) fails i < finger_num and is reported as
-released.  In addition, clamping finger_num > ts->max_points to
-ts->max_points instead of discarding the packet treats an invalid 0xFF
-header byte as 10 active fingers.
-
-> +
-> +		input_mt_slot(ts->input, i);
-> +		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, down);
-> +
-> +		if (down) {
-> +			touchscreen_report_pos(ts->input, &ts->prop, x, y, true);
-> +			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, w);
-> +			any =3D true;
-> +		}
-> +	}
-> +
-> +	input_mt_sync_frame(ts->input);
-> +	input_report_key(ts->input, BTN_TOUCH, any);
-> +	input_sync(ts->input);
-> +}
-> +
-> +static void jd_poll(struct input_dev *input)
-> +{
-> +	struct jadard_tp *ts =3D input_get_drvdata(input);
-> +	u8 buf[JD_TOUCH_DATA_SIZE];
+> +	struct device *dev =3D &dsi->dev;
+> +	struct jd9365tx_panel *ctx;
 > +	int ret;
 > +
-> +	if (!ts->ready) {
-> +		ret =3D jd_hw_init(ts);
-> +		if (ret)
-> +			return;
-> +		ts->ready =3D true;
-> +	}
+> +	ctx =3D devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+> +	if (!ctx)
+> +		return -ENOMEM;
 > +
-> +	ret =3D jd_read_reg(ts->client, ts->coord_addr, buf, ts->touch_data_siz=
-e);
-> +	if (!ret)
-> +		jd_report_touches(ts, buf);
-> +}
+> +	ctx->dsi =3D dsi;
+> +	mipi_dsi_set_drvdata(dsi, ctx);
+> +
+> +	dsi->lanes =3D 2;
+> +	dsi->format =3D MIPI_DSI_FMT_RGB888;
+> +	dsi->mode_flags =3D MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+> +			  MIPI_DSI_MODE_LPM;
+> +
+> +	ctx->reset =3D devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+> +	if (IS_ERR(ctx->reset))
+> +		return PTR_ERR(ctx->reset);
+> +
+> +	ctx->vdd =3D devm_regulator_get(dev, "vdd");
+> +	if (IS_ERR(ctx->vdd))
+> +		return PTR_ERR(ctx->vdd);
+> +
+> +	ctx->iovcc =3D devm_regulator_get(dev, "iovcc");
+> +	if (IS_ERR(ctx->iovcc))
+> +		return PTR_ERR(ctx->iovcc);
+> +
+> +	ret =3D of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
+> +	if (ret)
+> +		return ret;
 
 [Severity: High]
-Does deferring jd_hw_init() to jd_poll() break probe detection, block the
-poller workqueue, and leave the touchscreen unable to recover after panel
-or system resets?
+Does calling of_drm_get_panel_orientation() fail to compile when
+CONFIG_DRM_PANEL_VIEWE_JD9365TX is enabled?
 
-Because jadard_tp_probe() registers the input device without checking
-hardware presence, an absent device or chip ID mismatch (-ENODEV) still
-binds, keeps vdd and iovcc enabled, and retries jd_hw_init() every 16 ms
-while the device is open.  Inside jd_hw_init(), jd_section_ready() loops up
-to 50 times calling msleep(2) and jd_read_reg(), blocking
-input_open_device() (under input->mutex) or system_freezable_wq for
-hundreds of milliseconds.  Once ts->ready is set to true, it is never
-cleared on read failures or across suspend/resume, so any reset or power
-cycle of the shared JD9365TX controller drops the 0xF2 I2C backdoor mode
-and causes subsequent touch reads to fail permanently.
+Commit b5a8b1f2a973 ("drm/panel: Use drm_of_get_panel_orientation()")
+removed of_drm_get_panel_orientation() in favor of
+drm_of_get_panel_orientation() declared in include/drm/drm_of.h.
 
 > +
-> +static void jadard_tp_disable_regulators(void *data)
-> +{
-> +	struct jadard_tp *ts =3D data;
-> +
-> +	regulator_disable(ts->iovcc);
-> +	regulator_disable(ts->vdd);
-> +}
-> +
-> +static int jadard_tp_probe(struct i2c_client *client)
-> +{
-> +	struct device *dev =3D &client->dev;
-> +	struct jadard_tp *ts;
-> +	struct input_dev *input;
-> +	u32 val;
-> +	int ret;
-> +
-> +	ts =3D devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
-> +	if (!ts)
-> +		return -ENOMEM;
-> +
-> +	ts->client =3D client;
-> +	ts->max_points =3D JD_MAX_POINTS;
-> +	ts->abs_x_max =3D 719;
-> +	ts->abs_y_max =3D 1279;
-> +	ts->poll_interval_ms =3D JD_DEFAULT_POLL_MS;
-> +	ts->touch_data_size =3D JD_TOUCH_DATA_SIZE;
-> +
-> +	ts->vdd =3D devm_regulator_get(dev, "vdd");
-> +	if (IS_ERR(ts->vdd))
-> +		return PTR_ERR(ts->vdd);
-> +
-> +	ts->iovcc =3D devm_regulator_get(dev, "iovcc");
-> +	if (IS_ERR(ts->iovcc))
-> +		return PTR_ERR(ts->iovcc);
-> +
-> +	ret =3D regulator_enable(ts->vdd);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D regulator_enable(ts->iovcc);
-> +	if (ret) {
-> +		regulator_disable(ts->vdd);
-> +		return ret;
-> +	}
+> +	drm_panel_init(&ctx->panel, dev, &jd9365tx_funcs, DRM_MODE_CONNECTOR_DS=
+I);
 
-[Severity: Medium]
-Does jadard_tp_probe() leave the controller held in reset on boards that
-wire reset-gpios to the touchscreen node?  The jadard,jd9365tx DT binding
-defines reset-gpios, but jadard_tp_probe() never requests or deasserts it
-after enabling vdd and iovcc.
+[Severity: High]
+Does calling drm_panel_init() here also break the build and leave
+ctx->panel.bridge uninitialized?
 
-> +
-> +	ret =3D devm_add_action_or_reset(dev, jadard_tp_disable_regulators, ts);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (!device_property_read_u32(dev, "poll-interval", &val) &&
-> +	    val >=3D 8 && val <=3D 100)
-> +		ts->poll_interval_ms =3D val;
-> +
-> +	if (!of_property_read_u32(dev->of_node, "touchscreen-size-x", &val) && =
-val)
-> +		ts->abs_x_max =3D val - 1;
-> +
-> +	if (!of_property_read_u32(dev->of_node, "touchscreen-size-y", &val) && =
-val)
-> +		ts->abs_y_max =3D val - 1;
+Commit fe417df954a9 ("drm/panel: Make drm_panel_init() static") made
+drm_panel_init() static to drivers/gpu/drm/drm_panel.c.  Allocating ctx
+with devm_kzalloc() instead of devm_drm_panel_alloc() also skips
+initializing the embedded refcounted struct drm_bridge that
+drm_panel_add() registers.
 
-[Severity: Low]
-Why parse touchscreen-size-x and touchscreen-size-y manually with
-of_property_read_u32() into ts->abs_x_max and ts->abs_y_max when
-touchscreen_parse_properties() is called right below?
-touchscreen_parse_properties() already parses these via the generic device
-property API and stores the pre-swap axis maxima in ts->prop.max_x and
-ts->prop.max_y; if properties come from non-OF firmware nodes or
-touchscreen-min-x/y is used, ts->abs_x_max and ts->abs_y_max stay at
-719x1279 and jd_report_touches() drops coordinates above those defaults.
+[ ... ]
 
-> +
-> +	input =3D devm_input_allocate_device(dev);
-> +	if (!input)
-> +		return -ENOMEM;
-> +
-> +	input->name =3D "Jadard JD9365TX Touchscreen";
-> +	input->id.bustype =3D BUS_I2C;
-> +	input->dev.parent =3D dev;
-> +
-> +	__set_bit(EV_ABS, input->evbit);
-> +	__set_bit(EV_KEY, input->evbit);
-> +	__set_bit(BTN_TOUCH, input->keybit);
-> +
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, ts->abs_x_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ts->abs_y_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-> +
-> +	touchscreen_parse_properties(input, true, &ts->prop);
-> +
-> +	ret =3D input_mt_init_slots(input, ts->max_points, INPUT_MT_DIRECT);
-> +	if (ret)
-> +		return ret;
-> +
-> +	input_set_drvdata(input, ts);
-> +	ts->input =3D input;
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	ret =3D input_setup_polling(input, jd_poll);
-> +	if (ret)
-> +		return ret;
-> +
-> +	input_set_poll_interval(input, ts->poll_interval_ms);
-> +
-> +	return input_register_device(input);
-> +}
-
-[Severity: Low]
-This isn't a bug, but several parts of jadard_tp_probe() and
-jd_report_touches() duplicate work already done by the input and regulator
-helpers:
-- devm_input_allocate_device(dev) already sets input->dev.parent =3D dev.
-- input_set_abs_params() and input_mt_init_slots(..., INPUT_MT_DIRECT)
-  already set EV_ABS, EV_KEY, and BTN_TOUCH, so the raw __set_bit() calls
-  are redundant.
-- input_mt_sync_frame() with INPUT_MT_DIRECT already reports BTN_TOUCH via
-  pointer emulation, so input_report_key(ts->input, BTN_TOUCH, any) in
-  jd_report_touches() is redundant.
-- vdd and iovcc can be managed with devm_regulator_bulk_get_enable()
-  instead of manual regulator_enable() calls and
-  jadard_tp_disable_regulators().
-- Per input subsystem style, please name the error status variable error
-  and check the return value of input_register_device() before explicitly
-  returning 0.
-
-> +
-> +static const struct of_device_id jadard_tp_of_match[] =3D {
-> +	{ .compatible =3D "jadard,jd9365tx" },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, jadard_tp_of_match);
-> +
-> +static const struct i2c_device_id jadard_tp_id[] =3D {
-> +	{ "jd9365tx", 0 },
+> +static const struct of_device_id jd9365tx_of_match[] =3D {
+> +	{ .compatible =3D "viewe,7kf82" },
+> +	{ .compatible =3D "jadard,jd9365tx-7kf82" },
 > +	{ }
 > +};
 
 [Severity: Low]
-This isn't a bug, but new struct i2c_device_id entries should use named
-initializers ({ .name =3D "jd9365tx" }).
+Is "jadard,jd9365tx-7kf82" documented in the Device Tree bindings?
+Documentation/devicetree/bindings/display/panel/viewe,jd9365tx.yaml only
+documents "viewe,7kf82".
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_A3BF23A8B6E=
-3691F0D567ADF8B84194F4408@qq.com?part=3D5
+3691F0D567ADF8B84194F4408@qq.com?part=3D4

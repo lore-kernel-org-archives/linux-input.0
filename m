@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795645088;
-	b=fgzGTJDmIhb7w8cpZSwTSo74KFq1Hhx1C15rhOkK/OtzUkXmwF49flV9I/0b4nrMxNbl
-	 POkcnFnQtEdtVPx/awt5hE8NPvAxwa/8+jawcjrVbWy5mw4ZyKLMlcV0duZQFU81BjZ/N
-	 jJ4jrkeF52niZ+lalAOPbRgfj99feyr4zIaoQDxO3yzRVoG8/crBzIHuFLZMGNoWXKIPr
-	 BNSbTgSsjOERvfiObqlXEztsGpxd/gRjEVfHBqgBuIc1/M5ClogLz5/yspK8bN6Ez0Q5B
-	 pJQChOIP0geY7iCVIJNg/x7l1D81nhnuYhHH+sP+K6s2Kx7f+E26NdmNpweaaKMbLQQ==
+	t=1795645091;
+	b=X2J47+bGTeonXy2ZKqta6OkxAdelahPydN4IYM9Zdqc1uwH6j2CZJcJhNuhPdqjk/mrP
+	 P+EHba18efWKTv261G+FpoQk1/z8cXAgF2aI6EdaWkGoA946ROHd1kucAZ4Ac3Ntn3k3c
+	 2wBsXVa3DxOWWEizg1MZrVGV4vXnB7jtZunnfPK+RIJirXPihNAcLbmT6bF2xT3wLSK31
+	 0WIizzdjrDyhnHXlIB77vr7sLoYxU8ZHn0PZ61WM4UO3368i4r4A7mxa/tivaCRCQ23yN
+	 FsS74GKvZkoSDAYG3Dmkb0HJ8iBbrRa/2d821Nc41sUVvOZ1kzhTDWLfPI7wXZF0/6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795645088;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795645091;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=kKJiwYR+cu5mrPZf9A39ckCZmDdoMlP8HFoXJiTcA30=;
-	b=kPKcXmZIGIfpk+0uFeDbEpZ2DQ6Mzf9wcNJSqX47LaUSGtiiKJlvvJf3O0VBKrW6cSin
-	 IEYqq/Z11AXBHt8zx18LtHZfFUG1arU+VGHs2Xd75JPlomMiNmi9VhzsGEyHf8lcVdKcf
-	 Z46JfZEQKdGmGGritlfpsZ0oLB5HEn6+tli/vVOXnMW3sMur9L28kV5pw21aF+ZQH3YvS
-	 NFskaUgzo/21esNXAjV7/2XKxBIvjgV7fYBcjIWT67aC2aaz5fN2Cdxve1z0Rsz6/nrkK
-	 Z1MUPKUW8rz8z93PBdubjawBce+VtCWNjmCrun0rNg1w/WJ3HLLvSPEZlcDFN1bbNkQ==
+	bh=AkD/EULkjYCTOVN6ONVEcYCDVTXRZ/wAEijqIncHQyo=;
+	b=n1GZJJAps6uBM3m5mnCL82HvY+z9AW1hHuMkcLKl0r6Gn7VoEyl8Ui3pSwvMyBYyMhQf
+	 h6CjiUgFpkRN3k7aiqn12Me2OpyqjguXbeOnAiR/xwfOXK0uFBJq8mI8AaZQv+l7fsLAz
+	 TuxXLtN8nz1pj2bUwu8h2FKmlHKtxEuewqmMQy93QhhL1CZfHfeudVeI8rF/OYYhK+ERx
+	 Ic8Zb16pjVDlJS70xDrYTmR088uxh5ycufs3WTjjfs5R4A6aHMYUu9d7tEsPMDmrNrBD6
+	 USwTQUZMOa7NI6WhjsIowknf2uHsD0nI4ehMUvwHmQ8RRw9f0Kt3drzb9Z7G9Xyll5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ZVY8mCqs;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="EtI0OK/n";
+	arc=none smtp.remote-ip=74.125.82.172
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E5E2606A33B
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 22:18:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9E5E2606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539EF606A691
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 22:18:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 539EF606A691
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ZVY8mCqs
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-38692f62b22so7636927eec.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 14:18:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EtI0OK/n
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-38692f62b22so7637003eec.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 14:18:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795645088; x=1796249888; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795645090; x=1796249890; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=kKJiwYR+cu5mrPZf9A39ckCZmDdoMlP8HFoXJiTcA30=;
-        b=ZVY8mCqsBddZObOYIXIcss49XEgjhI0oEJgatBFM7cmxjhdOEXS0El9GvbTlT0WULY
-         9i2iWLH1dX0WdE5V15u8Y4JibImKiTs2g5oByUP+osAHP7L/fWW+xEOrLbgycTHKuGYN
-         FxCzpaN8287ZRGpFtnYy51KJ7IiSKqSMTab4JYPsyAQIjBNj3BJTCIYvSWKmN1OtGz0f
-         GMaPnJELkgByGFo2IQNiPGsRHGwMAE22xqRkfijG4eMPE4GTi0lu/k4RzAqDjxeYPS98
-         +TvkzDW9yo0zD66xDNH3QS9yE1fDmz6W/TAlYCxHkAkDWzR9Z96Cv+Y6AIwSODhHt6+/
-         G00w==
+        bh=AkD/EULkjYCTOVN6ONVEcYCDVTXRZ/wAEijqIncHQyo=;
+        b=EtI0OK/n6MC4BVKd3pAxgf03MybUyrEr/pFVhAvp+iXntfUDeaRqHxKpVaXFVHcGwC
+         iLd4TDiqO9K2xRY0HvB79J3Ioam3j2ErwGhwdFBb2v2tdlUYK0Lsp7ONeo6Yf3A+GWqJ
+         yUIACEFFlbyETHReWI2yAt3TjbRHcFEKmOzAFsuiTEFWvTbeZGyBYRwxoLTCVvDyr9Ig
+         Fv7l1CLYjd03F8L3YdmLoBuXrxqbPP+hN4JnLCvOBLjxwHw2AOq5XdDsLxxA8dA2k+EM
+         RNzjz6pVDloaKsrMUUxfbNRAYTw9LYv7STFicpVJsI2EBu37+Qghxv4fAkP3gd0hXMY6
+         zNag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795645088; x=1796249888;
+        d=1e100.net; s=20260707; t=1795645090; x=1796249890;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kKJiwYR+cu5mrPZf9A39ckCZmDdoMlP8HFoXJiTcA30=;
-        b=KRv4FnLlOpldM+AfqIhmWAbbOJ6U0qejytp9Tg8dykU9Aas8dsw38DJqdJAPUrwXqN
-         I4jgOAyFuL2CXvYYOPWBgkfQSbb79awhApJ7HIM07MmQcQmyhoxY70dVMqPIMeyuC61R
-         SD0dWQDAHWJBuBvIoF/aN3LIOTk3F33FKTcB2irk/KeQ/9IhuJKKBzb3Gc8ttUpR0Uis
-         uv0GNYuOY20VJ4O9FhkGcZ7GXDRnjvYKRt0TMY2bmd5iESl8hemMFnR1uOyuy4lHhzfO
-         3jOEs7kxriKmBjJZ8ZkY3SjeVKATvirSRZ9KbbMUdEhf2L1RsgIkY8bsCHlGW6OIaZCz
-         OsKg==
-X-Forwarded-Encrypted: i=1; AL+hErEWZw9ZKB5X92Pk7iTX2nrGZ8XwXAm0YyxYGGQn5IshNj3IqThRZhvdOB7dXFaRDKDlQDE2L1p6KQssaA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/juL3HLSqWTCaR25gG0F2d0IdsLLp7RiZqZP6Ze/kEA6fuX76F
-	qL2HtmHLthoNoC81eVVO2ArRg5ZVXazKi44Tb1W+xJHdB8mdKQK4+lHi
-X-Gm-Gg: AZFdTZdBm3BjbNzvhnxdNF2Y9kdfAPZYhSzxpj8aEAWCvqjy80DoiBHYJzZi4JA2MKf
-	7hWjaQMdWXZkP1ng2ktDcJ1Bz7x5tvOpFj6xSagpUjXuRtZkTom3ELkjRwCJjOnl8YVQ/WspGZa
-	dQDKU0TaC3zRT/cm9IAZKbjuz7qZ37zJKsDly6nDUxKovWStIYnNFFdc+iKWGH/DGgJP1rDT/qX
-	qncVnUdlGfh4/DxXpKJyD/G4f8c7COHliU68fiqJ6I2jUKkwTwFwy0SKJjBbuPFJYxku5yHxNnQ
-	di0LGOVx6noK8GIVmfHHmNtm/tfn8KBY8dNUL0XJqxG/QBTetDfjBzZa8WgfsJoA7oDvliX9fIf
-	MUnCjWtuhonjgX3JsYAKdUNjsrOKWC8DqqgZxigzFi87X+Y9ASjb9DbvCK/XT8QKh6U/uu7krgn
-	VEHNXN1ap8HO4tK3olL2bh02unuHwFOpygrROZK5JPgZPkJ0f3LQLzGPY3B1ngoqU+Uw8ObJEOJ
-	1aLO3G0UCzBr/9K1hskJyW7JhWQ+P+dz82dxxRN8qZaRx6rHrMOPa+JFyay72yylxFz1pXE1PfV
-	Ef4KAImMxIeo/z6CXtNu
-X-Received: by 2002:a05:7301:3a82:b0:374:ea35:9069 with SMTP id 5a478bee46e88-3856fb67380mr18010876eec.39.1795645087464;
-        Wed, 25 Nov 2026 14:18:07 -0800 (PST)
+        bh=AkD/EULkjYCTOVN6ONVEcYCDVTXRZ/wAEijqIncHQyo=;
+        b=hdQI+yz6SCufPSmVxnmZKDByRzhT7/GIB69QRjaXTXdCqA4FWJ4v5NZY3CG+ToIdNZ
+         QKpIQ+BXzw+mPThiP60Ygpyi8nnvz1jTU4608N3uypZvflR9HCvDceXUC1H3G8a+Da4/
+         Ic/ken/iE52rrEjn2xWqKggpz7CTVx8W6vn3cb5c/nyBpDI76rrldDtVdAPUk2YhFFy2
+         eH3kdnve8JoyCwGtspje4QfnpUVuodo4zbyH2nbTNakY42Jhd22FvBRSGQsEH3BECarU
+         XewnscUeJtoVOnHUt0PtPD5gnKuy8iXH9tf5QTYu5LUxhSrDCuaaCMKN/SPKDJ853ThP
+         pmdw==
+X-Forwarded-Encrypted: i=1; AL+hErHfzlWRCjboKS/oT9i9VNck90aGS03wUI5KfMANh0ALN92w6Vqy3jRdd+aKDDlJv/LCMYi4HhRefAJj6A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/px6F1kMyfgmhPaQhPlr1X8wouavNpc2Q9XumZKpx5I0nETENy
+	fR04f66DClWv5vxlh3sCHdl5+M2tAlZUkXz+VdAOa2XF564vFIU7Hg8F
+X-Gm-Gg: AZFdTZescKUMKtmihFXq2l6tTj3m+kPY/WMShz10XmvQZooQRt3gIIKNiIISbiMMfEr
+	BJ2XixioAG+FapqQTaYWNqLY68Bgg302phW8ouxfCcAKdQVfAlySdiXAYjxCjNTioKve4wa5sDt
+	c700svrvsPduA24smFJh7SOlNkc8S/6BaYBZbpIiJuFUfyhKJWm2glzWxHSpD+jQ6hKTIjFaAuK
+	5jWBeBaPMrORyMs2FPAUkYCStlfaA2uxriiJUHEDlMs2nKoyIf/Gir3fNCsKRRItq6zkT0SnsRL
+	csn06AdS62e8zrXSEFtpSNfkNUyEeTqDJgBXP6LIpzy4E/g9A79zseydbfDhNU/r/6L78r5igvp
+	+AuIBY3hYdBO04308ZlA0WcsP3hhNVdCYh23qF927JQv/RpDIA5gL6EYjTl6kuBiFPUFvgCngLv
+	TLcvtUEgSbCdGKbI0nNRr8vgdXC5L7EyrPUL32kAArP+835ilccqngo+RfxZ2OpOcup6DWfy99W
+	X9kQ+CUWjbaTncaDkSyBHeTq/WZkBDsdBLlBQhcRKvZF6iVtxZe7WuaA9dhAXg3AZniat6iS5eZ
+	x2vBv3vTKSj/coaW+dJT
+X-Received: by 2002:a05:7301:6407:b0:386:2300:db04 with SMTP id 5a478bee46e88-38623101ee2mr19243959eec.22.1795645090140;
+        Wed, 25 Nov 2026 14:18:10 -0800 (PST)
 Received: from a1-free ([2603:c021:8021:f000:0:1865:8c38:18fc])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385666e99fdsm69581357eec.5.2026.11.25.14.18.04
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385666e99fdsm69581357eec.5.2026.11.25.14.18.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2026 14:18:06 -0800 (PST)
+        Wed, 25 Nov 2026 14:18:09 -0800 (PST)
 From: TAKANO Mitsuhiro <takano32@gmail.com>
 To: Jonathan Corbet <corbet@lwn.net>,
 	linux-doc@vger.kernel.org
@@ -93,9 +93,9 @@ Cc: Shuah Khan <skhan@linuxfoundation.org>,
 	platform-driver-x86@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	TAKANO Mitsuhiro <takano32@gmail.com>
-Subject: [PATCH v2 2/3] docs: ABI: hid-lenovo-go: Point one entry at the top-level attribute
-Date: Wed, 25 Nov 2026 22:17:57 +0000
-Message-ID: <20261125221758.2535044-3-takano32@gmail.com>
+Subject: [PATCH v2 3/3] docs: python: abi_parser: Detect a symbol repeated on one file
+Date: Wed, 25 Nov 2026 22:17:58 +0000
+Message-ID: <20261125221758.2535044-4-takano32@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261125221758.2535044-1-takano32@gmail.com>
 References: <20261125221758.2535044-1-takano32@gmail.com>
@@ -110,34 +110,23 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The protocol_version entry at line 389 describes the internal MCU, but
-its path carries a right_handle/ prefix, which is the group the
-removable right controller lives in.  The entry at line 566 already
-uses right_handle/protocol_version for that controller's own attribute,
-so two entries claim the same file and abi_parser reports the symbol as
-repeated.
+check_issues() warns when a symbol shows up on more than one file, but
+it never looks at a symbol that two entries on the same file claim:
+"if len(files) == 1: continue" skips that case.
 
-The internal MCU attribute is not under a group directory.
-LEGO_DEVICE_ATTR_RO() takes its fourth argument as the prefix of the
-_show() callback, not as a sysfs group name, and mcu_attr_group has no
-.name:
+The parser stores every entry under a key of its own, so a repeated
+symbol on one file is visible as two entries with the same file.
+Compare at that level and warn, and keep the cross-file case
+informational, because two drivers may expose an attribute with the
+same name for different devices, as sysfs-driver-hid-lenovo-go and
+sysfs-driver-hid-lenovo-go-s do.
 
-  LEGO_DEVICE_ATTR_RO(version_protocol_mcu, "protocol_version",
-                      USB_MCU, version);
-
-  static struct attribute *mcu_attrs[] = {
-          ...
-          &dev_attr_version_product_mcu.attr,
-          &dev_attr_version_protocol_mcu.attr,
-          NULL,
-  };
-
-  static const struct attribute_group mcu_attr_group = {
-          .attrs = mcu_attrs,
-  };
-
-So the attribute appears directly under the HID device, beside
-product_version, and the path loses the prefix.
+Verification: get_abi.py --dir Documentation/ABI validate used to
+print four warnings for the cross-file case and nothing for the
+repeated one.  It now prints four informational messages for the
+former and two warnings for the latter, at sysfs-driver-mlxreg-io
+lines 348 and 744 and at sysfs-driver-hid-lenovo-go lines 389 and
+566.
 
 Signed-off-by: TAKANO Mitsuhiro <takano32@gmail.com>
 ---
@@ -150,22 +139,74 @@ Changes in v2:
 - The checker keeps its warning for an entry without a file, counts
   lines rather than occurrences, and drops an unused loop key.
 
- Documentation/ABI/testing/sysfs-driver-hid-lenovo-go | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/python/abi/abi_parser.py | 48 ++++++++++++++++++++----------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-index c8221373ef76..6ba874913c1e 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-@@ -386,7 +386,7 @@ Description:	This displays the product version of the internal MCU.
+diff --git a/tools/lib/python/abi/abi_parser.py b/tools/lib/python/abi/abi_parser.py
+index d7bb20ef3acc..8b51659fb6ca 100644
+--- a/tools/lib/python/abi/abi_parser.py
++++ b/tools/lib/python/abi/abi_parser.py
+@@ -554,28 +554,44 @@ class AbiParser:
+     def check_issues(self):
+         """Warn about duplicated ABI entries."""
  
- 		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
+-        for what, v in self.what_symbols.items():
+-            files = v.get("file")
+-            if not files:
++        # Two entries on the same file that claim the same symbol are a
++        # copy-and-paste mistake.  The parser gives every entry a key of its
++        # own, so such a pair shows up as two entries here.
++        per_file = {}
++        for v in self.data.values():
++            if v.get("type") == "File":
++                continue
++
++            file_ref = v.get("file")
++            if not file_ref:
+                 # Should never happen if the parser works properly
+-                self.log.warning("%s doesn't have a file associated", what)
++                self.log.warning("%s doesn't have a file associated",
++                                 v.get("what"))
+                 continue
  
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/right_handle/protocol_version
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/protocol_version
- Date:		April 2026
- Contact:	linux-input@vger.kernel.org
- Description:	This displays the protocol version of the internal MCU.
+-            if len(files) == 1:
++            fname = file_ref[0][0]
++            for what in v.get("what", []):
++                per_file.setdefault((fname, what), set()).add(v.get("line_no"))
++
++        for (fname, what), lines in sorted(per_file.items()):
++            if len(lines) < 2:
+                 continue
+ 
+-            f = []
+-            for fname, lines in sorted(files.items()):
+-                if not lines:
+-                    f.append(f"{fname}")
+-                elif len(lines) == 1:
+-                    f.append(f"{fname}:{lines[0]}")
+-                else:
+-                    m = fname + "lines "
+-                    m += ", ".join(str(x) for x in lines)
+-                    f.append(m)
++            self.log.warning("%s is defined %d times at %s: lines %s",
++                             what, len(lines), fname,
++                             ", ".join(str(x) for x in sorted(lines)))
++
++        # The same symbol on more than one file is normal: two drivers may
++        # expose an attribute with the same name for different devices, as
++        # sysfs-driver-hid-lenovo-go and sysfs-driver-hid-lenovo-go-s do.
++        # Report it, but do not call it a problem.
++        for what, v in self.what_symbols.items():
++            files = v.get("file")
++            if not files or len(files) < 2:
++                continue
+ 
+-            self.log.warning("%s is defined %d times: %s", what, len(f), "; ".join(f))
++            self.log.info("%s is documented on %d files: %s", what,
++                          len(files), "; ".join(sorted(files)))
+ 
+     def search_symbols(self, expr):
+         """ Searches for ABI symbols."""
 -- 
 2.53.0
 

@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795573327;
-	b=k9rgMYHfs41yOoJ1g4aXxomqNgOWFxilpXa2VLUrKaruCpEscJad8B7iW5KNmLczdlXq
-	 Cn9ULurSpAu7hFkxh2oNtIvglEvP5KHxixM7vlRKApMO24n9tLEVrKBVvKGj6u4NZh6BU
-	 9F1TlLXtKD7NyLO7cELkxH+qN3ZPnZoxueJxe66nUyf5BJ2ZVw/cQD7LKVzFPoTanyz0s
-	 MVAoBZNAkXAfHJSMvl69odbwk6xH7HDrcC5ybwRhYciX9C9s3Du6/ErDfDl439xBWqhUw
-	 razLrpS0nX3yOCMyRdc3OTprH5gaURvvyY7i2RaWPz4XXsvMUTP2XtyZR8grLfJyRsg==
+	t=1795573355;
+	b=hPOHRVBOZBzT1hkdyrQW59Vngwr4GNnKI3IeK4aOWm9MiRigkLp97fWmytJA/xf/Vo03
+	 nEVynRUvzA1B5uQHl5bcg4fJMQwTMm1/2h/OvvPD3SrYftGH3331pusEVTaYJh18HfPXI
+	 /6Fgqyw67RIVeiOu7FbskYjNyOFa2GL175t9jw/2d99tQ4El8O/4vGmf4b43rLi6I/r4C
+	 LvkNNml0ULGLGd65MJVQtdGVmakiWgK0SDGKs1jF2Ch4rxqOv1etHXjLY131gtDYnZ8eK
+	 o3GIW8YgYfjVsw/rPi/+Kbop82DKodgTYuRcJcRzkrRvByOqGIghb5H5lB6Qu2p80lQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795573327;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795573355;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/XSmqqxUGa1wWcATLZ461v+9fzmTTq0bue0NNZazp7c=;
-	b=R/3XGdrxkhyjP4hi2iBml21NkVjp7nrLg35LR8UnKk3iGuaQ07O3r6Wrym65/yJuk8nJ
-	 9oRgexhxazlp+SUQsTCt26Ik63ZjNvUBK6X0t69dSbofQJikg1VQCY0H9VijrTHkBSfQB
-	 urZcpf0StMnLvqC1TybJMX2sJti/BJUdJEJ6KTJKMvl3tiQtCPwUTrXfhjZ1a8+AoNgwx
-	 6H8c6wLzBkqqFl8v/ALR6j2aPl12Q92dFVKdqIUd55r442sRjF/AM8cH54wPLnFJcDLk7
-	 QtpDHxEFDI1jTYQydD0A/E4o4v2TqeILZt+OXnbd9QXKlgcKQZOo7F2Hg8cIr+SAYQA==
+	bh=lfG5kzfz0wdgX84/eQurjgqv/6koU/i9+timkfE8dC4=;
+	b=lAI6AqSBifPoMAcEKhfNjZelk6UCWBMkGcSyKTuZ8cBO4nN5fysXnbtaI/0l+Zso+A3v
+	 fV3lA/jQ2NFco1a5mIe3jpzcld6DPWxxZ+SF29ULo/MiwqY09b6rhF82URNwZrjUhmFVK
+	 OxCutXTKpdkG4tNgyrvb0++rHFH60sP/iJKKkluhWyLHJRA34lzTCb4HOII+ETKbN/dWM
+	 WNwz8Hiz1BcD8ZV2WPFUgrgrjBYL/qYmq76heDb04GcQNvkl9yf69qXrwPDvMGJbRpi/t
+	 rxMZtGGzKP5bMBpkrcgDNaz0aQELjBbA3xRdNKzhFrCaTXGMePqQYClPvkFNSpmDLTA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OiPYahr8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BKt9jBm/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA281606A31E;
-	Wed, 25 Nov 2026 02:22:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C8F606A31E;
+	Wed, 25 Nov 2026 02:22:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OiPYahr8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8E61F000D2;
-	Wed, 25 Nov 2026 02:22:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BKt9jBm/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14531F000CA;
+	Wed, 25 Nov 2026 02:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795573326;
-	bh=/XSmqqxUGa1wWcATLZ461v+9fzmTTq0bue0NNZazp7c=;
+	s=k20260515; t=1795573354;
+	bh=lfG5kzfz0wdgX84/eQurjgqv/6koU/i9+timkfE8dC4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OiPYahr8PyjBdWvoBs6dW5ePPeSKtAOSx3NtYnUnqagMRff6YFfTD21wV+znJ1Pvi
-	 QX+1QO5vBvussr9gHCJDETvHJplt98jNh9E5iuiGRDKLNWNc0rC1lT0Hcj5sk2F4Cd
-	 V5ntSCI/Pq46zDD4IdsMP1Q8LwvYFn3o/Gs6P00osEk8FGn/ZHmtZreYtKzMWJtI66
-	 eN9lYLuFGL7ZzIK+FuZ5hsppoVtIGkNyeN+Hv26HomeRRhjebCWbmtsOOjBGJuRqU5
-	 pd3HGUcWtkUIYGqDqxtJ2HEl8N0mK9JLeLM7/9CVyj1z6fFzOwXP23lRdfKxvfbt+g
-	 ksbhsQS9K+qsw==
-Message-ID: <sashiko-outbox-232405@kernel.org>
+	b=BKt9jBm/yXF62tRIzNdwXyhkW675bOCzTUz80CL3dXj+JmsqC8UOzNfFkQEpwmGGR
+	 7SBzIe4QWjLC8OtcIFUm9453ezjWvtNnTwa3GGRwNNrmSVEYy5l9Rdw4lAaUd0tYcc
+	 XuCQoqaranzFTbXypFUb7xXDLzKXOywhJTKGgS2B065WXSNJ/TRh2z9bjWrJEBArxN
+	 o75zSz0dqGQ/3BAnBo+f/qzz5UJXIogrn9dG8iPmBddUVricu5z6kMjcT8TN18pfHn
+	 L8J69LPgesMgyELzIvQKk19l4PZ3dS/SoGjCjnKgX4IypAOWhwMHZw1WO0WvxwNHo2
+	 o6NDD8CikQ/rA==
+Message-ID: <sashiko-outbox-232406@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 6/6] backlight: add VIEWE I2C backlight driver
+Subject: Re: [PATCH v3 2/6] dt-bindings: input: add Jadard JD9365TX
+ touchscreen binding
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_5185BF35A815E3151FD856BCDF3E84F14F08@qq.com>
+In-Reply-To: <tencent_50B2DF6754BBF1EA8F2CABA66F0342A8A707@qq.com>
 References: <20261125021127.1430-1-3066883572@qq.com>
- <tencent_5185BF35A815E3151FD856BCDF3E84F14F08@qq.com>
+ <tencent_50B2DF6754BBF1EA8F2CABA66F0342A8A707@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 02:22:05 +0000
+Date: Wed, 25 Nov 2026 02:22:34 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,140 +61,101 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 5 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [Medium] backlight: viewe_bl_i2c: missing DT property parsing and
-  initial HW sync in viewe_bl_probe()
-- [Low] backlight: viewe_bl_i2c: positional initializer and mismatched
-  ID in viewe_bl_id
-- [Low] backlight: viewe_bl_i2c: open-coded byte write in
-  viewe_bl_update_status()
-- [Low] backlight: viewe_bl_i2c: hardcoded device name in
-  viewe_bl_probe() breaks multi-instance probe
-- [Low] backlight: viewe_bl_i2c: empty commit message body lacking
-  hardware and driver description
+- [Low] dt-bindings: input: redundant binding in subject and empty
+  commit message
+- [Low] dt-bindings: input: jadard,jd9365tx: inconsistent supplies and
+  missing irq
 --
 
-commit 4e7ef9a994e068f00aa52e87d93462c70437631d
+commit c7b2ac3eb48ad13c122965f49f5eb842ca510a8c
 Author: Hefei <3066883572@qq.com>
 
-> backlight: add VIEWE I2C backlight driver
->=20
+> dt-bindings: input: add Jadard JD9365TX touchscreen binding
+>
 > Signed-off-by: Hefei <3066883572@qq.com>
 
 [Severity: Low]
-The commit message has an empty body.  Could you add a description of the
-VIEWE 7KF82 I2C backlight MCU hardware and explain why a dedicated driver
-is needed?
+The dt-bindings: prefix already indicates a Device Tree binding, so the
+trailing word "binding" in the subject can be dropped:
 
-> diff --git a/drivers/video/backlight/viewe_bl_i2c.c b/drivers/video/backl=
-ight/viewe_bl_i2c.c
+  dt-bindings: input: add Jadard JD9365TX touchscreen
+
+Also, please add a commit message body describing the Jadard JD9365TX
+hardware and why the binding is being added.
+
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/jadard,j=
+d9365tx.yaml b/Documentation/devicetree/bindings/input/touchscreen/jadard,j=
+d9365tx.yaml
 > new file mode 100644
-> index 0000000000000..53dcf0834dcb2
+> index 0000000000000..aaf2a7e00ff04
 > --- /dev/null
-> +++ b/drivers/video/backlight/viewe_bl_i2c.c
-> @@ -0,0 +1,79 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright (C) 2026 VIEWE
-> + *
-> + * I2C backlight for VIEWE 7KF82 DSI modules (MCU @0x45, register 0x86, =
-0..255).
-> + */
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/jadard,jd9365tx=
+.yaml
+> @@ -0,0 +1,64 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/jadard,jd9365tx.yam=
+l#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +#include <linux/backlight.h>
-> +#include <linux/i2c.h>
-> +#include <linux/module.h>
+> +title: Jadard JD9365TX in-cell touchscreen
 > +
-> +#define VIEWE_BL_REG		0x86
-> +#define VIEWE_BL_MAX		255
-> +#define VIEWE_BL_DEFAULT	200
+> +maintainers:
+> +  - Hefei <3066883572@qq.com>
 > +
-> +static int viewe_bl_update_status(struct backlight_device *bd)
-> +{
-> +	struct i2c_client *client =3D bl_get_data(bd);
-> +	u8 buf[2] =3D { VIEWE_BL_REG, (u8)backlight_get_brightness(bd) };
-> +	struct i2c_msg msg =3D {
-> +		.addr =3D client->addr,
-> +		.flags =3D 0,
-> +		.len =3D sizeof(buf),
-> +		.buf =3D buf,
-> +	};
-> +	int ret;
+> +description: |
+> +  In-cell touch integrated with Jadard JD9365TX DSI panels. The module F=
+PC
+> +  often exposes only I2C (no interrupt GPIO); the driver polls coordinate
+> +  reports. The touch controller is commonly powered from the same rails =
+as
+> +  the panel; those supplies should still be described here when dedicated
+> +  regulators exist.
 > +
-> +	ret =3D i2c_transfer(client->adapter, &msg, 1);
-> +	return ret =3D=3D 1 ? 0 : (ret < 0 ? ret : -EIO);
-> +}
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: jadard,jd9365tx
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  poll-interval: true
+> +
+> +  vdd-supply:
+> +    description: Analog / touch power supply
+> +
+> +  iovcc-supply:
+> +    description: Digital I/O power supply
+> +
+> +  reset-gpios:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - vdd-supply
+> +  - iovcc-supply
+> +
+> +unevaluatedProperties: false
 
 [Severity: Low]
-Could viewe_bl_update_status() use i2c_smbus_write_byte_data(client,
-VIEWE_BL_REG, backlight_get_brightness(bd)) instead of open-coding a raw
-i2c_transfer()?  Using the SMBus helper preserves client->flags and works
-on SMBus-only adapters that do not implement raw I2C master_xfer.
+Does the schema match the hardware description above?
 
-> +
-> +static const struct backlight_ops viewe_bl_ops =3D {
-> +	.update_status =3D viewe_bl_update_status,
-> +};
-> +
-> +static int viewe_bl_probe(struct i2c_client *client)
-> +{
-> +	struct backlight_properties props =3D {
-> +		.type =3D BACKLIGHT_RAW,
-> +		.brightness =3D VIEWE_BL_DEFAULT,
-> +		.max_brightness =3D VIEWE_BL_MAX,
-> +	};
-> +	struct backlight_device *bd;
-> +
-> +	bd =3D devm_backlight_device_register(&client->dev, "viewe_bl",
-> +					   &client->dev, client, &viewe_bl_ops,
-> +					   &props);
-> +	if (IS_ERR(bd))
-> +		return PTR_ERR(bd);
-> +
-> +	i2c_set_clientdata(client, bd);
-
-[Severity: Low]
-Does passing the constant string "viewe_bl" to
-devm_backlight_device_register() cause probing a second panel instance to
-fail with -EEXIST when creating /sys/class/backlight/viewe_bl?  Passing
-dev_name(&client->dev) avoids the name collision, and the
-i2c_set_clientdata() call can be dropped since client data is never read.
-
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does viewe_bl_probe() ignore the default-brightness property from Device
-Tree and leave the hardware brightness uninitialized at probe?
-
-devm_backlight_device_register() neither parses default-brightness (or
-max-brightness) from device properties nor calls backlight_update_status().
-Any default-brightness configured per the viewe,7kf82-backlight binding is
-silently ignored in favor of VIEWE_BL_DEFAULT, sysfs brightness is out of
-sync with register 0x86 until userspace writes to it, and probe succeeds
-even if the MCU at 0x45 does not respond.  In addition, viewe_bl_ops omits
-.options =3D BL_CORE_SUSPENDRESUME, so the backlight is not blanked and
-restored across system suspend and resume.
-
-> +
-> +static const struct of_device_id viewe_bl_of_match[] =3D {
-> +	{ .compatible =3D "viewe,7kf82-backlight" },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, viewe_bl_of_match);
-> +
-> +static const struct i2c_device_id viewe_bl_id[] =3D {
-> +	{ "viewe_bl", 0 },
-> +	{ }
-> +};
-
-[Severity: Low]
-New struct i2c_device_id entries should use named initializers (such as
-{ .name =3D "7kf82-backlight" }), and the ID string should match the
-vendor-stripped compatible name ("7kf82-backlight" rather than "viewe_bl")
-so fallback I2C ID matching works with the OF compatible string.
+The description says that vdd-supply and iovcc-supply should be described
+when dedicated regulators exist, yet both are listed under required:.  In
+addition, the description notes that the module FPC often omits the
+interrupt GPIO (and mentions Linux driver polling, which is OS policy rather
+than hardware description), but the schema uses the chip-level compatible
+jadard,jd9365tx with unevaluatedProperties: false without allowing an
+optional interrupts property (maxItems: 1) for modules or boards that wire
+the interrupt line.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_A3BF23A8B6E=
-3691F0D567ADF8B84194F4408@qq.com?part=3D6
+3691F0D567ADF8B84194F4408@qq.com?part=3D2

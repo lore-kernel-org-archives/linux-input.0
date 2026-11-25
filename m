@@ -1,47 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795604600;
-	b=qNO5vS8BkqQbvrvh84v1bFEgWUdyOT9v2FdFfVCl2AJ9RkBf+FnCPXvkkRmhwc7e0Yv/
-	 vbw3SScNMurw219IXpAKhE5o3jn5kzQl0kShx6jq0lgEejhyxGmnC/s5YEB9REFMp9JSW
-	 PGplhYdlmHCmIniT7QHeAWMafrjYxr4qmikU1XF1O38TsjFI60zPqPX7/q5yJZ/wBjyTJ
-	 xGcbgwXVNeGJWVZZXHmD7ruWfeSYY4Gq+c+7QOSAjo0GSmISdNZJcQ38iwELLMJtpPITJ
-	 JFnKrSkDwOYhlje5Du8uTu83y7agDaTAuE633EgOHVbjfLqnZoqIQDaqsRk+4/jA29A==
+	t=1795607218;
+	b=dkxIBZbhAHsq96DCjNz1cWJ/pQaRrBxfj6ZH71TRLYeJ6Tk6Nfb+bRYUsJ9KqntlDokd
+	 biFPbmislE/HQAg/9pQClCTJydMzwiz+ow/h3j6XEJ8tcxjIqRatzcf6/oi9XW7RsK++o
+	 znnZlppBDbHHK568wO9MEpep23x6sNsf5ZOkfAPIHueJdItDBhrGZ9NuJmePlpkCQtp0P
+	 GiDOQCeLsEvdh9GR+cnyCJrSbJYiBBZOuRZQAR5kdOI3YSS/eIamcHbRhtFtTuUsqWfvo
+	 +Mlm8CTHMgV0Pdvh52GcAS43OC3qk1g8yz36PLGQUfYX1ketaw5bCy73/fbfy1FC3VQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795604600;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=EKS7sk9f4gb4t3CNvTDLtElftgrVs6sbAVW6t0B6AjQ=;
-	b=H4qmhsaWieKCRWGVjNdq8uv8OfX1lSirJ/KgIkx5ny6s6yCYC9gJhFMUoLCytiv8qR6a
-	 wj4KCv2Gas5UwT8sQe68LyNVEI2RhAWRU0aW4f49BZ3y8RWK7uJmn0oQnz+YnspnrR/Oy
-	 k4HpQhl3/PhqFGLXTtcecgjvRkXDtOZwOFVoh51u1WFHlu3LZrOtJHauZz7tRlzbHoR7L
-	 8pn98Z6UtNSPvWagcNmX2uoWxD8aN6KWtbmzI8yWWzScDHhY1m6pRCobqB00JUGrM1hji
-	 g0DOeUU7Nawa3JSqGELCPq71EjgqdRkvtSOl4fubDIJdV6Ojw0IP7zfEknMp6hWN5gA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795607218;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=8d9il6UmYnHuFTObnPSAKSL1Qx/DkpeI4Exm7zghUTA=;
+	b=S5nWJ2wv3h/yvcGfuJxksgPeiUMcL/+re/qYsXmdRozEtoBMmEebep4qEEXsNG7ukFWf
+	 UXgt1pHWn4/WOSsW1jUlxOh2ea5LV73NgQh/SVnCnzwipA/tfG4XCN16QfSHqLnoDDUGm
+	 nWzkeWhgtFv5Ks+imZJ/0Wa1suGC2d6vi2Cnw5vWJZHvvzEzSo12bTIsF3WZ0MNSbk2S2
+	 UiosadKrZH3aO9mWyrvow2hvTDDzxZLhoDy2zbB9KNNPiFV8/Y4gbr0e3BEF4ZAgtSNY8
+	 JG1u+Vh66Y/aSWdTLpL5mdH+oXIbOxRuPZUfY66cfdF96zfBqCnxUYL0Q39XdSV/6Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ehEZR/xm";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=hNedqWgh;
+	arc=none smtp.remote-ip=209.85.221.49
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13EDE606A31E;
-	Wed, 25 Nov 2026 11:03:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E58606A321
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 11:46:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28E58606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ehEZR/xm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C211F000C6;
-	Wed, 25 Nov 2026 11:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795604599;
-	bh=EKS7sk9f4gb4t3CNvTDLtElftgrVs6sbAVW6t0B6AjQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ehEZR/xmLze+jFOUHT0sSO0LL8JHwiw6F29MnFtCbS2cx4PsH7uKZ1aF0W0TOwkmf
-	 /FH/ipP83G6RGYwQJNNwjbHigOP72FPwIOj84qHtzFXMOjZpQgFS7Ij+6kExorbPzq
-	 lE1jsxGOwBk5+f08iiqI1QszM/lLej+/8cCqsBC+e35I2ZhzBH/oTXqDQdpMuYzwuj
-	 pqWpK0ujDpYmoV1IgdUiTt1kW3ddBhp3iUVUP+GWJfGGzoVT3XDbHaLtK7PzeLKWU6
-	 degKiekkTsDP8EwqEXUbo9qSv1piNHGrYaFzOuNNaXPJCorBMkWqdD3UBEvnpUfphI
-	 7fkuU8dPiM36g==
-Message-ID: <a8c3852e-2e3b-421a-81f9-643e46193ef1@kernel.org>
-Date: Wed, 25 Nov 2026 12:03:15 +0100
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=hNedqWgh
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-497614c95f0so3213519f8f.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 03:46:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1795607215; x=1796212015; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8d9il6UmYnHuFTObnPSAKSL1Qx/DkpeI4Exm7zghUTA=;
+        b=hNedqWghPyjHZriQsp3dcOrunHTPFPfoMhV22ERWbxbhUjkFmEkjB528WLQKHCygVG
+         Z8rQS3kjrb1FJYX/9dieIlb8+gXkln47TgZB274JuobrW+1qGufsQwAyPSahVq9wUp15
+         d+IxM4v2XR5vXuHUJG8iNWZAu+OM787tL5vJxNwYIDaEn//S3lJ8IqjkuueqTFjn3eSB
+         OwNiCSC7UC5TUVv/h4OEP9tKcH8a6c5+kudlNY7UVOv4eTrTw6YQ1ASZYqdJ9Cfe+l80
+         DYvcReFm/xwiKkjJ8bdkG534Wi8B8sq1ct1lDdK0e4ns7I0ZJjyCUlS9f9MDlS7TPk8g
+         +QJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795607215; x=1796212015;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8d9il6UmYnHuFTObnPSAKSL1Qx/DkpeI4Exm7zghUTA=;
+        b=ns+JB61Gn2HYH/AVNZ4BedPnVNW4P5h3mMqIk8MrCyTE5vl+eNZWS5dnX/UJFEDRgs
+         JrVEhVD63uXE610q8yGhSGgaZ8BMcw7AcYRD2Dj9OT9xIskAvIDluXOO8qpkNT2dCKcQ
+         h5lHjcjMVFxZ/qbKDi/PBcUH66pcWbUgy2Ifw+DShQNRhfd8R279oWBUHB/WB9HseZJv
+         YXpyQhsXBxb8m4n9boMgMarKMaT1KmmosSccrlsoT3KbMY6NnrfYn05yoJ+y7nmIE1Kc
+         M/WPP4yP/l/K52XPrAU9wL9UNA9fvEZppfVR4CDLintHdyyqaoOWn8tjGFPaa9Th7yCk
+         8jSg==
+X-Gm-Message-State: APuU4Z9o+7RQ7QOqmy+qwOcD2U8n56IJUxwL3ptYZbh1uXQxDGbp4qYh
+	qm17zksZWZmuZrx6IfQuT7sLH6Yg73LrgSCGP2DsEjvKfqXJVy3PKI4zPf6NagVX/Ik=
+X-Gm-Gg: AZFdTZcapDLnYkIIasdPKP5aBb6zxTIrhO7nIqpMA9alvF1+fZeeSV7ZA7g8sgGnk34
+	ZA2CqTEoeChpAUgBK8neS80jMuzfU2paYXdNtoGEWWtUnFdI5+GjK+4DFZFIgfgTT3RxyLNG7wm
+	mLqrVhoWPvwFxfJB4eeVToScaJTX4rfo/xRT0JB1ECdTVXSF4QcnE7l2NI+O6FKyCtUgRfScyBs
+	lGjvtBqYcbL6+ZrXH1XrVSIrfDdhj6ReobrPtQv/JCbfGrSWVanudPo7FFUpKew9hk3ASiu8IQ3
+	qPvx9GT6TWxaCWrnSnroNQ/lA/0Q6jMyEDDesB9ArUlAbh6uruZsqpafQg1MYfNwd59C2ycP5+0
+	CtLflinHBfLn0sl03VfPkNydku6TIqD+c0b7yVSO97qJ3QLrQ24TODGodqp/MQ7Ufaz86F41y70
+	lUXEOlcELd+ourHPsPMOHzqM6j1PtUQW4W+FZPhdZmftdywKz7qAfnbBzWU/nc4gJMq7O13LpMZ
+	+ml4h+SM8UAMwQ2J4VfOVxhu2vWrXgP0uEFr9Q1yrUPH7lg0OpjfblrqLR+RPiuOaGlUL2NPjGj
+	GzsM+nIck+wdydj3euIyczXVa4gP9OLuP7WgTMBCJ5DWdTkW8tQwZTQoonnxP9LSq6cTpxDCiv3
+	b+351YGGzJ8ooPVoY
+X-Received: by 2002:a05:6000:4382:b0:4ac:a772:6485 with SMTP id ffacd0b85a97d-4aca77265d4mr33622420f8f.31.1795607215378;
+        Wed, 25 Nov 2026 03:46:55 -0800 (PST)
+Received: from localhost (p200300f65f19a9043ef7230869dfba63.dip0.t-ipconnect.de. [2003:f6:5f19:a904:3ef7:2308:69df:ba63])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4ab6ae2dd55sm32783826f8f.30.2026.11.25.03.46.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Nov 2026 03:46:54 -0800 (PST)
+Date: Wed, 25 Nov 2026 12:46:53 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v1 8/9] HID: wacom: Benefit from pointer typed
+ driver_data in hid_device_id
+Message-ID: <awbKcWrqDeLYFIrw@monoceros>
+References: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
+ <23d19d751aea2d855bf1360fd4e84cc30d0fc8ca.1795589119.git.u.kleine-koenig@baylibre.com>
+ <sashiko-outbox-232815@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -51,72 +98,55 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 1/6] dt-bindings: display: add VIEWE 7KF82 JD9365TX
- panel
-To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org,
- dmitry.torokhov@gmail.com
-References: <20261125102130.256-1-3066883572@qq.com>
- <tencent_74A87DE3061F575671DF6384634FE4BFF908@qq.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <tencent_74A87DE3061F575671DF6384634FE4BFF908@qq.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ksyro2nhrrdsx2fd"
+Content-Disposition: inline
+In-Reply-To: <sashiko-outbox-232815@kernel.org>
 
-On 25/11/2026 11:21, Hefei wrote:
-> Add the device tree binding for the VIEWE 7KF82 720x1280 Jadard
-> JD9365TX MIPI-DSI panel, and register the viewe vendor prefix.
-> 
-> Signed-off-by: Hefei <3066883572@qq.com>
 
-You lost cover letter. Slow down and start using b4, like guides for
-beginners are asking.
+--ksyro2nhrrdsx2fd
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v1 8/9] HID: wacom: Benefit from pointer typed
+ driver_data in hid_device_id
+MIME-Version: 1.0
 
-Best regards,
-Krzysztof
+Hello,
+
+On Wed, Nov 25, 2026 at 07:34:34AM +0000, sashiko-bot@kernel.org wrote:
+> > @@ -2670,7 +2670,7 @@ static void wacom_wireless_work(struct work_struc=
+t *work)
+> >  		    (wacom_wac1->features.type >=3D INTUOSHT &&
+> >  		    wacom_wac1->features.type <=3D BAMBOO_PT)) {
+> >  			wacom_wac2->features =3D
+> > -				*((struct wacom_features *)id->driver_data);
+> > +				*(const struct wacom_features *)id->driver_data;
+>=20
+> [Severity: Low]
+> Should this touch interface assignment also use id->driver_data_ptr inste=
+ad
+> of id->driver_data, matching the stylus interface assignment above?
+
+Yes it should. Will fix in v2, but I'll wait a bit for further feedback
+first.
+
+Best regards
+Uwe
+
+--ksyro2nhrrdsx2fd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsGyqsACgkQj4D7WH0S
+/k55Vwf/RZOAJuFnrv4bBC3fA7lNgaPPekk+ddBeqjs3p/0hHMG7pfqk6org8XG5
+O/kXx3VdMYpSu64A7oENJ6E24VRYDolB1XfDfJaawGGvruR9nP7GTXMz9h8907J/
+8WnDVYNzn9IcjAjy5nn9BY7OMzWkpgzVL7A6EIxRRhUIFkTCAYONzCHYkN6JKnaO
+zU769vpcwkw5AK9P/pvSl42WBM9d5nI04ZuGnwScAiBvgXsFl64H3lD+RfQuGyxW
+HCuvaLAu14F8ovmzhex+rr93339MoQyLHogK2faINu7P5x7W798SW1ux4rmIxxuq
+30DEE0k8narZX6aQOMI/Psmf3D60HQ==
+=7dAp
+-----END PGP SIGNATURE-----
+
+--ksyro2nhrrdsx2fd--

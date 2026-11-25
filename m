@@ -1,97 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591336;
-	b=o7Z4HWW+3JhNgk7SE36prGDABZXtx3mVVtM5WwKQys+KYuN8Y6GEp9Y9ISiSq+cZwDGW
-	 E/N+B3+auWxRjUuf6wGhA9iWfl7U3qksCj3V3iSn8qlXAek2lQVz4dT0GK7UHpbAocOxk
-	 Pyx5YPvvIYYlCQxPWs+whA8r6ulWF0fhubkDkzVBBEHcwGmIO3XTbGAjAOqAEtI3fUbXO
-	 t8JOphy1NLKAGELMLWm0H3l32GQGpe0LqoU4TLi4BF+N0kF2fiKzCgKwNmwJ3iTApG+90
-	 DRAEbrrBYJXY5AGSKMXwIMXZLvow0TbknLOCtZMLFTCWP5kwy9VJ09QnywMgTGGB/wg==
+	t=1795591337;
+	b=ldZg+cPhVUxVBNNsgP4rwxWcFx2LRbkMYtDXGG831w8ZFGbp5WSNn5fcY3K1ZGVyHWKc
+	 5zyTXafqvwiO4xlVy/L4ewd7XvtYbTxaxOPw0CXpxJcio3x7GG6IiA6gQ00tZIvTZL+kc
+	 Js7NeKMHSpvMJJLJ2eTO3yEw7y5ho66M243YGP3P1gnTU/2+gDrKwjJ0DQRT64Qu1IlnI
+	 fUWzuEbUVAWp1GHtEvPiZxFl/RlkX9MiHwTGNzp/f+k9pAkXQe5CgWivkmbQAEcsPh4+A
+	 8OsCqqaLJFvXk8a/Fw5zbZn/vqIc8NkDUC2J46hH6qcBaEzbglYF9nmecF3Wdn+zQSA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591336;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591337;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Type:X-Developer-Signature:X-Developer-Key:
 	 Content-Transfer-Encoding;
-	bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
-	b=t94oudf4e8nX3F0EMmLMH4him+WAlBaxqBTYRHwiq3SkM4hx/Cw6RJdGYT5tLUAs9hG6
-	 bDgelQyR9A3ysBny7TcnNMFhIq8ohXcRfX+o8pq5RV7FWdcpgSykGEs84ZOZI9cXC0/Wy
-	 wIi9jA2q6cVH+xVuhtNh5QNwAVYQGlWjxG0urLCyL7MqQR0J+0wM9Ks9toxu7yV4cseSf
-	 svbGiTgu3p0qqMLtVpQsI30pCEnj8tlgP/JS2hiLQVXkecuG+Q63ceJQ1VdRyWvQLvKS1
-	 H5eh6raLwicaltPFALkIsRdKMrzti3Ku789DaKEKEtfoICByOw9CSQpinM2K4QuP7zg==
+	bh=LbHGa8CBMSDhFNcKDxCWCxCZ3Wso/asSCKUZeVJskNI=;
+	b=K0Yyh43JDsOhTQm7eqEcSmbO1Ja+QdHmDktaiAv8GjqKljddzQlC9OyVpSyvbv9P/yiR
+	 IP8UkVkgazG7hlFKFcIRK8oS/WQP3yAWuambcwM0mpoQQM5JGO3bLpKN2oLWxakOxe7yG
+	 UIwCW4Q2OSJrHYATj7zbXQjxNiQ2IGihtISfMGBIBWRMM7QFHv37zEq/yi7NjvWo+VUHq
+	 fut2ZWG4hN5nKzdr9V3s/tsAqgUMU4byGrYa6VaYDaoLj7sg7fwSaKJ0mh4hewf6Yv+M1
+	 cuREttBqbiSoOBWJST6I6uEFzEuI/Y2qn5r1qfn4NIVs7Vax5KlhA5de4H/pYpsvjcQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=baylibre.com;
 	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=e7ltQSeu;
-	arc=none smtp.remote-ip=209.85.128.46
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=UJ+JuWzJ;
+	arc=none smtp.remote-ip=209.85.128.41
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFB8B606A321
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DFB8B606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54155606A323
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 07:22:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 54155606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=e7ltQSeu
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4bb6ba3b244so54963535e9.3
-        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=UJ+JuWzJ
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4bb72b44a97so46274175e9.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Nov 2026 23:22:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795591334; x=1796196134; darn=vger.kernel.org;
+        d=baylibre.com; s=google; t=1795591336; x=1796196136; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
-        b=e7ltQSeuZwReH6a/+p+2G0PshsvEhE6QDFxuy6XzzdFU0m66W3NiSJ1eW8f5pF44Mi
-         YnNLhOtQpnoczgYbaecsKwlm57gnOqb7nz2/4DAKtu6wr5PGuJM58N+lsFTi9KR473pq
-         v1BOO6BepaTPAV3eYitt5h6CQdT56A1n5hzKKTTRMuzJ76tlpcDz04KgweNWYKtSRJV6
-         Xffn9KFwIwzlaW0XeP/HBQ5BopVpq/SghpRTAFSiNTyhw022pZHDPSMeEc1wXsc8yMFF
-         Dd2LHg8+Mlst3qiHUi7teZDddcdXLsmt1+g7qQdk1BwTAPLg28nK77Y9mzCpHMYkGqwu
-         Ww8w==
+        bh=LbHGa8CBMSDhFNcKDxCWCxCZ3Wso/asSCKUZeVJskNI=;
+        b=UJ+JuWzJ6WgsYYDpxssK4m5o9I4QVyYGynPtLjvWIO97VBhTcrckE49VY6jyxo3w6K
+         RMUMwRXtPyW1yemCOLroeaihwvqhXINbsXY6ddGX8DAM2qhhOObbwXZu/d5nDf5dNGgT
+         8L8kR1e/k4tjyfluA+za3Og2aR4ZVX6y1q6DwA+XtvbDWrvn8nbmd3Z15VigDKwPerdz
+         xG1wbAdnQowGDNeDmLEFtYpWbwxPstdgOkvYo3vfy36GE3sUqmcfbQsAEp/x6pHJHCah
+         hVXc4NQ+ySL1W4DuXv1YK4xxXIehVr0XptLuY0xIPg7xtp0dptq7xWOUrI8Uh2Gg2PQO
+         djlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795591334; x=1796196134;
+        d=1e100.net; s=20260707; t=1795591336; x=1796196136;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=umIzXWQdNDay57Wfnlh/2+Wjvhy6i5HPsdMezTs6JT4=;
-        b=N5ggHf82dcX/dgWpLdOyoD4UofXpYTKLRQBiLCPmdv5V9m2UiMtWtAqxV1phO/ZZWT
-         UCG0Q+kY5EdiwR1i9UzRo3WStf0zCRCpS0cuQyAwIgPWrW20++VqZ7SqXCXhwUXD1FHa
-         VvACRdtNSIq8gbMMbz16zJwHIjKiowrB7CES8sYJZYQEu9lXwEnNMCfW+YyeRQJqMCQQ
-         aYY0miOItR4R3c6d8uKC3/11pEmsKLbfaSnt6ra+O/BXncJFo32iGko8skDoHXF6otVm
-         7lndsPr7bp3NAM38HsPoy4dIQ5CEsgetPnnPipB+3An9obv1mrp2rwvQiyBRXeV/35Ke
-         uSlw==
-X-Forwarded-Encrypted: i=1; AL+hErGUdJMxls6X/eRpEVQpgPKJpr7GvJmztMuawZYfUE3/VBxpleoArV+pI9bWOsIRQ2F0TtY7OpdHM/TIDg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+Qsph2RYXGVpiBrlhGsPKXyq+bn6XY7aGb+vR0kCiMbr/xd0jU
-	sb0P6i0Y1WmCTbsgbDAiyaylGS7lQ/72Nm/Uss3QqkjOwpL/s2RgGv6szmN8eTp4t3w=
-X-Gm-Gg: AZFdTZcd6x3gyjic6BVWaw7G0pkJpP4rhE3A3tf5eTf3fnVKRxq317dMicbxlbNlY6y
-	dT42srIns61cPAXISx4ZYeVnL5BSTm60ZR6XN4qxmYsQCIJQ8ZGL8aKJE7kA+L6+laEPoBEHEdu
-	bLX2/i5OH3P9gy3f2REMkb0IkGjqyAf3eujcDaTSZAlSlipaQrzLsG+jkCytnckHVUp4FH1cqrj
-	9R4vxDlzDWZouoUnDueDAmnt9meen6HdRrKFRb5O73xzzO1QaH893X1tztPXL2enFcT4Q5GgIt6
-	xRke40vrjrjIKlBueJ+YM/axvU24ooadRUY2gdFG/BQaWrPCSgq+NjnW3RGquLYGFkjD3vL0g0y
-	r4yXXSX5LK4+SNG4Ey4oEeY5sq3Rk6EvBdwQYVqiD+9FnHOIg4pzq+qZBbtvMUD3N8zICvv/s2/
-	k1/KOHVqVmdiO1q+nsO8r44coPLh+5FS0nYhQpLCEJ/cKuCakiI4ZNOW5rqSAbW+l2ko+5ubIzF
-	D0VI6keOAxth+JckqJCTD5QU4IJGF9H4eyHwq2NV8FHD/M4UXhjTDgdlzr2MHgLWdKQsAgd/qTt
-	D3X9uNJnrwEuqXOdkcj71wuTe6icZBNE8Q==
-X-Received: by 2002:a05:600c:1115:b0:4bb:a602:6c8b with SMTP id 5b1f17b1804b1-4bba60271damr13131425e9.14.1795591334258;
-        Tue, 24 Nov 2026 23:22:14 -0800 (PST)
+        bh=LbHGa8CBMSDhFNcKDxCWCxCZ3Wso/asSCKUZeVJskNI=;
+        b=qaIDIsm9BORLbMlJlvlG2XqZa/uMAgKsmyGxC+Kjm/MfDrAmyMuWcT5i/MMKFJDcab
+         qV0Kx7+MG+r13TjPP6nIMzSmg7m3XRiEbdJbO3UefaFHgyZhMms57+c8fxAvNeBjg+u3
+         V/evbdq0GB9r6zyaQyZNR5ypLZhq+yuuKp30/I7+lrpgZQBCmhGvJBAFiaI03nQHs6bS
+         NyjhaEQtofrR0VrscBi7A/PyWWMVu5GJWLPgAJ0E6BL0m6Djyqitl7x4uI2vXG7MC8hC
+         Vw28N8PZIpL2tqpA7yI4hHeDVG9GeM8MXU3+Syhk/Cq/VnpyPMZWmc+ILib4CgTQfQHG
+         t+Xw==
+X-Gm-Message-State: APuU4Z+59kqHxPOGvi4Z8WyhTJK9tjei11ONIr/u8xVsjBdZaBoy1Kay
+	NrgXVgDO+N7fXJoWRzyIyijSpCYpe95yyPYaTsAfFaUqrFAI/9Yg1jNdQBvekATmrP8=
+X-Gm-Gg: AZFdTZdv7Oz+oco/icSlXG2yRSvIcmU+g8E+kVfWlry4DkrIRQS2U6hy8omCjTafyI9
+	g4NzPo1iWb1xxpKBzx9j4dDlUF3iiV2PlkWrdWHNecW8y8Pp1rPVyNNIxeFx415w/UT8fx3rGwg
+	Xv/UuD+/O6hNWaMwXnYfLutBWTWZ8Ob2RHJJMSGCRToYEPbZUMz3CqoPFuLNXsVyLBSp2DKxI5c
+	T4SkcEvznj1lYz5Z4d7O9uVy7tVtadZgSbLv13hGxDNTrdBKbTLF4sZtc9SJM7IUW+PrSJQ3x8n
+	SF14TbfVNatI1T18aYmCeGpeP5bn9Q/S1Nz3/bWTcuTGOFqJWp3VlKZiC/xObn7sYTG38v5YWs3
+	FfiLuRSaH6F3ewXzy3j+w5Nbb/wk/581Svl98AxRn9qLZ/00LcqUPNbye4JkdQs/Ush5cjOaeuu
+	++rDZ78oL8bpB7RK94qOSwHFi0BoprexB2rqj33WUdN0QQnah3VYql2kAbU0RXPIvBRHS5RBAUU
+	W862v2ukAC7HdV1bdkZHW+1ypJbnMG3MyiEuWOa+AUUfCXov+hwNpGW/buwjr0KdEsD9mKuNb1G
+	B9xkatl48hqY1vCEUHRZqA7Il7HOPKa000w=
+X-Received: by 2002:a05:600c:4e0b:b0:4bb:68f1:5bc0 with SMTP id 5b1f17b1804b1-4bb88920967mr341061195e9.33.1795591335675;
+        Tue, 24 Nov 2026 23:22:15 -0800 (PST)
 Received: from localhost ([2a02:8071:6e30:8500:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884b39b6sm453947725e9.12.2026.11.24.23.22.13
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4ab6a67f281sm30603434f8f.22.2026.11.24.23.22.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 23:22:13 -0800 (PST)
+        Tue, 24 Nov 2026 23:22:15 -0800 (PST)
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Danilo Krummrich <dakr@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-	linux-input@vger.kernel.org,
+Cc: linux-input@vger.kernel.org,
 	Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>,
 	"Christian A. Ehrhardt" <lk@c--e.de>
-Subject: [PATCH v1 2/9] HID: i2c-hid: Use designated initializer for hid_device_id
-Date: Wed, 25 Nov 2026 08:21:34 +0100
-Message-ID:  <52586d870a6dfb31d6bc42f946388a2d30d716ec.1795589119.git.u.kleine-koenig@baylibre.com>
+Subject: [PATCH v1 3/9] HID: input: Use designated initializer for hid_device_id
+Date: Wed, 25 Nov 2026 08:21:35 +0100
+Message-ID:  <0c3d37fd0698a6df732502400520f3d1f67b0780.1795589119.git.u.kleine-koenig@baylibre.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
 References: <cover.1795589119.git.u.kleine-koenig@baylibre.com>
@@ -105,7 +101,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=994; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=1ImbJgJFVUNa/gHBfoMyngpPi9/AkALjP7WrwDilvhE=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBoyBQq1qlIgZIkeoJD3eDCodAJfVeyE13IXEw KQdxl7+RkKJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMgQAKCRCPgPtYfRL+ TnsvB/9eobm4hvIjjUe4iO+R3GgP8Bf+wC5ITS33k0GipuPkw3TF3iFRWKX540rgEDf8TCoiPF1 aEUeFgTPguEe5k9TXMOtuSpY6SPA7Md2gozn2U1SPvfWyYHhPn0axSUqtZe+WgRQ1canpiScXRU dqfVNOopJdO3dMgW9mcdH6on7cOVPimihReUavVOd1xYQGtTHiCvYLg8fAoq52QMg+bGjPKJsZF NNrKSk1bUvN8S/lltqCGKixy3Mee5V9wY3Mavm8ovTJMiv9EfcnFVgbyKsIBOFCZVAIkV5xG6Hl +PMiC0X7mUDKjA+avyw69b0j7THtoDomft16X0NURaX2hK/E
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6039; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=WDPoAMHMGepy2iME5YW0cmcs6WVm52ZbwJsErqnUzUA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrBoyDpawRIlRSI1EV7J2eCGoRcbOKkZiC7iY4y cty7nScJOiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawaMgwAKCRCPgPtYfRL+ TrqEB/9rDBI9fXJmNY1q+JVkIG1ckcY/9OUIkmD9jJhLqDOq8okhD/lmB+w2kgvTVRRuvhzW1A/ EROa87xfi1UdnW2UyEuAWnCHDw7UNQIA9JiqxMznxWns1x13vuh33l84aEYwSaXih+/BGUXFplJ H+5tCf7Cjg5fG8ma/5m8+OlI8zryIo0j0unllIvrN6oRtD+flGSIyF8bLIVjH1vX5RIKMCBGQd3 vNDy7JsjtH9TP29wHiI1YDOEOhV91u6jqrz9PXzzJqzvhK3I/ATm7167Zo9WoXMkUot96cXDR0p xCbFx1huDasuF8Cn4BtJRthh0XcKYBFKjtpabNFFhk8A0QhG
 X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 
@@ -115,22 +111,138 @@ struct hid_device_id replacing .driver_data by an anonymous union.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 114 ++++++++++++++++++++++++----------------
+ 1 file changed, 68 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 83b9bc4b02e6..c1f81154f6ab 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -419,7 +419,7 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 80cdd2f2beff..f588195ae39b 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -358,56 +358,78 @@ static enum power_supply_property hidinput_battery_props[] = {
+ #define HID_BATTERY_QUIRK_DYNAMIC	(1 << 4) /* report present only after life signs */
  
- static const struct hid_device_id i2c_hid_elan_flipped_quirks = {
- 	HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_ELAN, 0x2dcd),
--		HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT
-+	.driver_data = HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT,
+ static const struct hid_device_id hid_battery_quirks[] = {
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-			       USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
+-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_MAGICTRACKPAD),
+-	  HID_BATTERY_QUIRK_IGNORE },
+-	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
+-		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+-		USB_DEVICE_ID_ELECOM_BM084),
+-	  HID_BATTERY_QUIRK_IGNORE },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
+-		USB_DEVICE_ID_SYMBOL_SCANNER_3),
+-	  HID_BATTERY_QUIRK_IGNORE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
+-	  HID_BATTERY_QUIRK_IGNORE },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+-		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
+-	  HID_BATTERY_QUIRK_IGNORE },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MW),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM),
+-	  HID_BATTERY_QUIRK_AVOID_QUERY },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_PRO_12IN),
+-	  HID_BATTERY_QUIRK_IGNORE },
++	{
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
++		.driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE,
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
++		.driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
++		.driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
++		.driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
++		.driver_data = HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_MAGICTRACKPAD),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	}, {
++		HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
++				     USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC),
++		.driver_data = HID_BATTERY_QUIRK_AVOID_QUERY
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
++				     USB_DEVICE_ID_ELECOM_BM084),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	}, {
++		HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
++			       USB_DEVICE_ID_SYMBOL_SCANNER_3),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
++				     USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	}, {
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
++				     USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	}, {
++		HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
++		.driver_data = HID_BATTERY_QUIRK_AVOID_QUERY
++	}, {
++		HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MW),
++		.driver_data = HID_BATTERY_QUIRK_AVOID_QUERY
++	}, {
++		HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
++		.driver_data = HID_BATTERY_QUIRK_AVOID_QUERY
++	}, {
++		HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM),
++		.driver_data = HID_BATTERY_QUIRK_AVOID_QUERY
++	}, {
++		HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_PRO_12IN),
++		.driver_data = HID_BATTERY_QUIRK_IGNORE
++	},
+ 	/*
+ 	 * Elan HID touchscreens seem to all report a non present battery,
+ 	 * set HID_BATTERY_QUIRK_IGNORE for all Elan I2C and USB HID devices.
+ 	 */
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+-	{}
++	{
++		HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID),
++		.driver_data = HID_BATTERY_QUIRK_DYNAMIC
++	}, {
++		HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID),
++		.driver_data = HID_BATTERY_QUIRK_DYNAMIC
++	},
++	{ }
  };
  
- /*
+ static unsigned find_battery_quirk(struct hid_device *hdev)
 -- 
 2.47.3
 

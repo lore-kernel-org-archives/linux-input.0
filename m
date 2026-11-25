@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795573569;
-	b=p8dHJBEnaMgyC6CvyOWHqk2hvcbxvf/3+3wEjE7kiYx3EzD8RbK4oaKnjTAqpFL/K2Jo
-	 tVRDchiq1izLcD5X7ReD88oSWTNUuR4rMIy62M/n69JPXiKQQ+DphCMgtpd5MdXgUsRAh
-	 /+UnRdZezKCheXLRDHiyFMx8SDaaJ5VMlxk9njPRIjvpQf7zuBW7DNJMo0oDzxo5u9vIL
-	 brq2Na9Ebm4KsyDxguL1HOtc3c+BnO+sodx4RwQZSwDazhiNyrc7tfHC2S3CmkTqMUaaI
-	 QXTBOsK7v2+vLb3+sxc0JZ/GtFHU1BgublXKtTSL5qvB9WS3ufMnDTCJ+DfRFqlH4mg==
+	t=1795573798;
+	b=oxGeJ93QOXFeJn8oJUDFznn8OQ8dk0tQYUimXClOXnXKisYNp9PDnqiCe6GtDuE1XO9T
+	 iHtmnfePyjfkX1MfEI4rjU3afgcuOdEdg5J/ivNW8rIHuLemrTbZB6pkDON2Cxel+WapR
+	 0fL6ZShdRZr+y0e9xaitXC1ZoBV4thEoj5+oH00TrRUDmeotstkgO0SbU1OKdc2AwdCG+
+	 yGvvgwWDBaDCARqaL7PBz/YjQAIBXJox5UVRJm6fuQRuUtj27G6tmUQgkbWOE/L2GIwQz
+	 SwUqXYqKicMb+1t4OBnkCWG0jtVw1w65+zdXsAk/WDNerpvbIgPWsnfBnTdBOo5Me3w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795573569;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795573798;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=YuBvNmRkTNzt2xiFLt4XMErMr+q2sxN4QP4D8r/892I=;
-	b=dQxd2z5J5Ysseo3uqcbaW4LcGjVfO7azJzBIZGF4Nd0Nif0Ck6ebY6/CsGO4meR9dEkE
-	 TLYPrccmPY5jq5tCfWnt1GVTRfViF8nEbaAlVcoiXajkJQB0lYwBYSYvm6T1G/Ni3i1Ow
-	 rXPq6BXx0/yCIMilp5tVVRBG1pw3CIiKynK8ff5DWxCifdIdIDH7ZA4vqRYwIH+l+a3H8
-	 8ZCMhxvnlu3N8ZkBMUpkNiKOa3I9uxsvArAUtQblXCxwb7aSmfI/0MQ2Uq+D/G6pengfH
-	 IHAIlYKu0z0i8vLTFMb9B7hrLGeyOtX1SPUUalVUkZlNFz/DrkyxqqDjFY65fN2I5uw==
+	bh=tx7LN3obOMR3uffTtadIWMs7fWe+tevA3KnqPR/IHw0=;
+	b=ZKVwyCeLG85oKFFpmAD1+lnt2I44rDnAwL+/T1CQ0XwEipZtYf3LEdB3LIGU2XHrlB0F
+	 inRkYroboQkAEizCR7wqMXOVLmjm4x62IHSIl+jdTErkrnthnwpTNgXG4QNHcouUX2CfV
+	 kvWKaYzUnF2Hu3o4+c81qEmgaLxZJNFoxr+bYAjr3jdx8JTyQsXM5SRRdA2sCIwbHGUY1
+	 woYemSyVp5Q2BqzTjKjApOudNbBVaxtOuRir9lqmqnHSqVtAxIdsE1JxdESh05OgIMweO
+	 BUbhJzobGn5nYP3lUYbtPuMSREm2dY8rPEBTNCoyCo+DphYiXEQbU9cET5rU01OrfOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l+KZxeD5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eBLeVr7s;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB7F2606A31E;
-	Wed, 25 Nov 2026 02:26:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1739606A321;
+	Wed, 25 Nov 2026 02:29:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l+KZxeD5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD7D31F000CF;
-	Wed, 25 Nov 2026 02:26:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eBLeVr7s
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083CA1F000CF;
+	Wed, 25 Nov 2026 02:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795573569;
-	bh=YuBvNmRkTNzt2xiFLt4XMErMr+q2sxN4QP4D8r/892I=;
+	s=k20260515; t=1795573798;
+	bh=tx7LN3obOMR3uffTtadIWMs7fWe+tevA3KnqPR/IHw0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l+KZxeD5cNd3GQaU1GRqRu19/7vMnN/SNV5iQsx8SDfY13bvLB0Tm+IuuPT3ACeBf
-	 3BzgmVBBjKtcwp7h+1yXojDb9ATN6NOa8MNmxC5DKOKLjAJW6QgtRRhYtnrI4OIz9f
-	 i/t0ivGm7X9wZ70hxip16A6DiSIsXATZ32NMbjoLU7fTdG09cEasdVyOXoHkr/286X
-	 pWkZSQoMWLW6i0DjuR/kbtCi4sX5XQFPHkkOQ2yEO6F9CujB+tOAFk/ebF4qtYFNql
-	 VBnqJkB01LQQpnw/VvBCDg37q0WeZ1IXdliqYoqnmJYJ4z5YGjyEVyBE4zco4D8Miv
-	 LjhoR8F7pzLZg==
-Message-ID: <sashiko-outbox-232409@kernel.org>
+	b=eBLeVr7sNtTvV0C6sT9VYRZRMRicuuV/NHus7BS2/DbKAuKw/r8olnmUc/USxG5nC
+	 xAMkUJUaDaFkb/byVnqj0hRzmz4xAzpf50YoIdko5pSLcMfSJBesXmRyNor6BnCSIJ
+	 s+Y3T0oXlV1rSi7Eneiujrb4plRrKLAkfCNIBzXlUzTaOe7uQ0Pi5FT5iCB49j4NrI
+	 aWIP3mv+R+q85GjwIGjFd9lRvaCIuyaOANMPD5QjyGK9yklpcw9PPeWsvL24lUnOhD
+	 C3XUT8odeRjuN+Wmw3KPvAJ4rbzyLJ3Rg83J8sXtQHVHeDlgJtDasPevXiDhwhLTzq
+	 J5ekwnAAaPOOA==
+Message-ID: <sashiko-outbox-232411@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
+Subject: Re: [PATCH v2 4/6] drm/panel: add VIEWE JD9365TX 7 inch DSI panel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Hefei <3066883572@qq.com>, dri-devel@lists.freedesktop.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
-References: <20261125021127.1430-1-3066883572@qq.com>
- <tencent_3D3EC29E27E9DF37D4C9F1A60F2F2BA3EF07@qq.com>
+In-Reply-To: <tencent_66628D1B7EAC58017C1F10DA3CFDFC1EA30A@qq.com>
+References: <20261125020944.137-1-3066883572@qq.com>
+ <tencent_66628D1B7EAC58017C1F10DA3CFDFC1EA30A@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 02:26:08 +0000
+Date: Wed, 25 Nov 2026 02:29:57 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,18 +62,19 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 5 potential
 issues to consider:
-- [High] drm/panel: call to removed of_drm_get_panel_orientation() in
-  jd9365tx_probe()
-- [High] drm/panel: call to static drm_panel_init() in jd9365tx_probe()
-- [Low] drm/panel: undocumented compatible jadard,jd9365tx-7kf82 in
-  jd9365tx_of_match
-- [Low] drm/panel: open-coded DSI command sender and helpers in
-  panel-viewe-jd9365tx
-- [Low] drm/panel: non-alphabetical Kconfig and Makefile order for
-  VIEWE_JD9365TX
+- [High] drm/panel: jd9365tx_probe() calls static drm_panel_init() with
+  devm_kzalloc()
+- [High] drm/panel: jd9365tx_probe() calls removed
+  of_drm_get_panel_orientation()
+- [Low] drm/panel: jd9365tx_get_modes() misuses
+  drm_connector_set_panel_orientation()
+- [Low] drm/panel: jd9365tx_send_cmds() duplicates
+  mipi_dsi_dcs_write_seq_multi()
+- [Low] drm/panel: undocumented jadard,jd9365tx-7kf82 compatible and
+  unsorted Kconfig
 --
 
-commit 0ea4165795cc39804999640f1fa6be9c2c2143db
+commit 3ecc9eb3ae7d4c1cce585568afbec867631fedbb
 Author: Hefei <3066883572@qq.com>
 
 drm/panel: add VIEWE JD9365TX 7 inch DSI panel
@@ -118,18 +119,33 @@ ek-ili9881c.o
 .o
 >  obj-$(CONFIG_DRM_PANEL_JDI_LT070ME05000) +=3D panel-jdi-lt070me05000.o
 >  obj-$(CONFIG_DRM_PANEL_JDI_LPM102A188A) +=3D panel-jdi-lpm102a188a.o
-
-[Severity: Low]
-This isn't a bug, but DRM_PANEL_VIEWE_JD9365TX is placed between the
-INNOLUX and JADARD entries instead of in alphabetical order in both
-Kconfig and Makefile.
-
 > diff --git a/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c b/drivers/gpu/d=
 rm/panel/panel-viewe-jd9365tx.c
 > new file mode 100644
 > index 0000000000000..b511dd6bfed96
 > --- /dev/null
 > +++ b/drivers/gpu/drm/panel/panel-viewe-jd9365tx.c
+> @@ -0,0 +1,353 @@
+
+[ ... ]
+
+> +struct jd9365tx_cmd {
+> +	u8 len;
+> +	u8 data[64];
+> +	u16 delay_ms;
+> +};
+> +
+> +#define JD_CMD(...) {					\
+> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
+> +	.data =3D { __VA_ARGS__ },			\
+> +	.delay_ms =3D 0,					\
+> +}
+> +
+> +#define JD_CMD_DELAY(ms, ...) {				\
+> +	.len =3D sizeof((u8[]){ __VA_ARGS__ }),		\
+> +	.data =3D { __VA_ARGS__ },			\
+> +	.delay_ms =3D (ms),				\
+> +}
 
 [ ... ]
 
@@ -158,6 +174,14 @@ rm/panel/panel-viewe-jd9365tx.c
 > +	return 0;
 > +}
 
+[Severity: Low]
+Can the init sequence use mipi_dsi_dcs_write_seq_multi() and
+mipi_dsi_msleep() instead of a custom struct jd9365tx_cmd table and
+jd9365tx_send_cmds() loop?  jd9365tx_prepare() already sets up a struct
+mipi_dsi_multi_context, and using the standard _multi() helpers avoids
+duplicating mipi_dsi_dcs_write_buffer_multi() and allocating a fixed
+64-byte buffer per command entry.
+
 [ ... ]
 
 > +static int jd9365tx_get_modes(struct drm_panel *panel,
@@ -179,25 +203,35 @@ rm/panel/panel-viewe-jd9365tx.c
 > +	drm_connector_set_panel_orientation(connector, ctx->orientation);
 > +	return 1;
 > +}
+> +
+> +static enum drm_panel_orientation
+> +jd9365tx_get_orientation(struct drm_panel *panel)
+> +{
+> +	struct jd9365tx_panel *ctx =3D to_jd9365tx(panel);
+> +
+> +	return ctx->orientation;
+> +}
+> +
+> +static const struct drm_panel_funcs jd9365tx_funcs =3D {
+> +	.prepare =3D jd9365tx_prepare,
+> +	.disable =3D jd9365tx_disable,
+> +	.unprepare =3D jd9365tx_unprepare,
+> +	.get_modes =3D jd9365tx_get_modes,
+> +	.get_orientation =3D jd9365tx_get_orientation,
+> +};
 
 [Severity: Low]
-Can this driver use the existing DRM and MIPI-DSI helpers instead of
-open-coding them?
+Should jd9365tx_get_modes() delegate to
+drm_connector_helper_get_modes_fixed(connector, &jd9365tx_7kf82_mode) and
+drop the drm_connector_set_panel_orientation() call?
 
-Since jd9365tx_prepare() already sets up a struct mipi_dsi_multi_context,
-using mipi_dsi_dcs_write_seq_multi() and mipi_dsi_msleep() avoids the
-custom struct jd9365tx_cmd table and jd9365tx_send_cmds() loop.
+jd9365tx_funcs already provides .get_orientation, so panel-bridge helpers
+configure the panel orientation property before drm_dev_register().  Calling
+drm_connector_set_panel_orientation() inside .get_modes runs after
+drm_dev_register(), which can trigger a WARN_ON in
+drm_object_attach_property() if orientation has not already been attached.
 
-In jd9365tx_get_modes(), using drm_connector_helper_get_modes_fixed()
-avoids returning a negative errno from .get_modes on allocation failure and
-drops the redundant drm_connector_set_panel_orientation() call (which
-panel_bridge_attach() already handles via .get_orientation).  Using
-devm_drm_panel_add() and devm_mipi_dsi_attach() in jd9365tx_probe() would
-also allow dropping jd9365tx_remove(), and a brief commit message body
-describing the panel hardware would be helpful.
-
-[ ... ]
-
+> +
 > +static int jd9365tx_probe(struct mipi_dsi_device *dsi)
 > +{
 > +	struct device *dev =3D &dsi->dev;
@@ -207,52 +241,34 @@ describing the panel hardware would be helpful.
 > +	ctx =3D devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
 > +	if (!ctx)
 > +		return -ENOMEM;
-> +
-> +	ctx->dsi =3D dsi;
-> +	mipi_dsi_set_drvdata(dsi, ctx);
-> +
-> +	dsi->lanes =3D 2;
-> +	dsi->format =3D MIPI_DSI_FMT_RGB888;
-> +	dsi->mode_flags =3D MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
-> +			  MIPI_DSI_MODE_LPM;
-> +
-> +	ctx->reset =3D devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
-> +	if (IS_ERR(ctx->reset))
-> +		return PTR_ERR(ctx->reset);
-> +
-> +	ctx->vdd =3D devm_regulator_get(dev, "vdd");
-> +	if (IS_ERR(ctx->vdd))
-> +		return PTR_ERR(ctx->vdd);
-> +
-> +	ctx->iovcc =3D devm_regulator_get(dev, "iovcc");
-> +	if (IS_ERR(ctx->iovcc))
-> +		return PTR_ERR(ctx->iovcc);
-> +
+
+[ ... ]
+
 > +	ret =3D of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
 > +	if (ret)
 > +		return ret;
 
 [Severity: High]
-Does calling of_drm_get_panel_orientation() fail to compile when
-CONFIG_DRM_PANEL_VIEWE_JD9365TX is enabled?
+Does calling of_drm_get_panel_orientation() break the build?
 
 Commit b5a8b1f2a973 ("drm/panel: Use drm_of_get_panel_orientation()")
 removed of_drm_get_panel_orientation() in favor of
-drm_of_get_panel_orientation() declared in include/drm/drm_of.h.
+drm_of_get_panel_orientation() from <drm/drm_of.h>, which is also not
+included here.
 
 > +
 > +	drm_panel_init(&ctx->panel, dev, &jd9365tx_funcs, DRM_MODE_CONNECTOR_DS=
 I);
 
 [Severity: High]
-Does calling drm_panel_init() here also break the build and leave
+Does calling drm_panel_init() after devm_kzalloc() break the build and leave
 ctx->panel.bridge uninitialized?
 
 Commit fe417df954a9 ("drm/panel: Make drm_panel_init() static") made
-drm_panel_init() static to drivers/gpu/drm/drm_panel.c.  Allocating ctx
-with devm_kzalloc() instead of devm_drm_panel_alloc() also skips
-initializing the embedded refcounted struct drm_bridge that
-drm_panel_add() registers.
+drm_panel_init() private to drivers/gpu/drm/drm_panel.c.  Panel drivers
+must allocate and initialize their container struct with
+devm_drm_panel_alloc(), which also initializes the embedded struct
+drm_bridge required by drm_panel_add().
 
 [ ... ]
 
@@ -261,12 +277,19 @@ drm_panel_add() registers.
 > +	{ .compatible =3D "jadard,jd9365tx-7kf82" },
 > +	{ }
 > +};
+> +MODULE_DEVICE_TABLE(of, jd9365tx_of_match);
 
 [Severity: Low]
-Is "jadard,jd9365tx-7kf82" documented in the Device Tree bindings?
-Documentation/devicetree/bindings/display/panel/viewe,jd9365tx.yaml only
-documents "viewe,7kf82".
+Is "jadard,jd9365tx-7kf82" documented in the DT binding schema?
+Documentation/devicetree/bindings/display/panel/viewe,jd9365tx.yaml in
+commit "dt-bindings: display: add VIEWE JD9365TX panel binding" only lists
+"viewe,7kf82".
+
+Also, DRM_PANEL_VIEWE_JD9365TX and panel-viewe-jd9365tx.o are inserted
+between INNOLUX and JADARD in drivers/gpu/drm/panel/Kconfig and
+drivers/gpu/drm/panel/Makefile rather than in alphabetical order, and the
+commit message has an empty body.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_A3BF23A8B6E=
-3691F0D567ADF8B84194F4408@qq.com?part=3D4
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_EE81D0ED29E=
+97716D56BDCF1A3C5AAE35B05@qq.com?part=3D4

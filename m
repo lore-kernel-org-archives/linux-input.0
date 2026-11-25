@@ -1,97 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.205.69.213
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795593986;
-	b=wSltgDbsAccVdwEGEHnb3TFBQLgkll374jz6AxmLTBR5q7/JemsgkOXX8Y/a7kz7W9Yd
-	 lvjjrdNXmAdvwL7AtvJRpLgS+fcXjRY0JzkXqTBtzVNrWecqx2Wm1fHAZST+wHGViE4Cz
-	 FaUDAJFa3R3tdi5eHHBcQXBPCGREn7Q/FJ8IDNKshhoEXWAasEUy1pYeZoDjtILRakBFA
-	 jX1QNlb4SaRSi4hzuQ/EovSBZmgEPQKuCGU1H7qTJJn9FlgYFyoedCbd8bWaut08FaZkt
-	 DOTFPJhDDOtdyEmgNBNwW2K6UENez7kfiDrBw3ECn1SXDqn9BjnfKMNVvlGv496SpJQ==
+	t=1795596295;
+	b=FnKIlCVMnAKlveEFfX5KsZJ58iugVUuI8NKd8t4NIYWSRVnnNNZjNwP7g/8lBjlGmU3P
+	 oM4XGJPTbsFtWyS6kpN0S1GTcD8ELZqte3demLob8l4KPQ0nHkrBFms0wNKP+QD/qEpPF
+	 50TxOYVBMN8P6Sdpuv0wt9zE+9iJe6rB1Kq1JFWlpVNc98vFwMCAdTyLvnwewLpoDg77A
+	 DZEIuaPM2wklPjWAxkYIWRDycNi5O9PaVUsQkTiEQd/8zWGncRRGDf9jAKH5h1JBnebVO
+	 cW50J8vSTCaDhRcBsVeasStn7VjEHjkRgtdWcSA/XCTYQOrhItfJswuYdGXJT1S7gQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795593986;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=qtWuoC5FN2MELDFAKVm54MaDOVUHKz/6gxfQ29IMYEs=;
-	b=Hsfs2nAM1xkpvXqykcjYZ3W4PurNyQKOBM0CTsfEjnr5F3yE8G1pgnJCjp/9X1TXnDud
-	 uqnQtnpXkseVBGYplG5wJkOIgUDDfAg5xi5AeAFwr3WVrn40cAY9rkRvdj4gwIeejCAQK
-	 WsErRjR8R2BUEI9Xo8z+2uLOCCR1HsTJXfz7HuFFpnLgGKiKzN3qdPuTvP9uBzkdg8t38
-	 WMtl78VLWKrtU98/ImDF29S2l53/SxAvG5I8CwZp1hQdD6UdR8Ylchy9ln97rmbA+7v5B
-	 sXxjP/9S7VkH/ZBJIXQDuPMb/YHo5t3GHMdmFZdgCKiKtXXo2eZ7A03gIVGiP8IUYaw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795596295;
+	h=DMARC-Filter:Received:DKIM-Signature:Date:From:To:Cc:Message-ID:
+	 In-Reply-To:References:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Feedback-ID;
+	bh=R96DXJsWBuRJFlPcP6o5E7C442A28/cuqXp8JkZ7KZI=;
+	b=YyrxVy1P8WnGAQZE3K8nWAcQSa/8di9tsRotBpaZEUaRFb+wIlGdoSqhOSSkRfvi2W82
+	 64EzQBuVYZCobCMpPg/aUjc2PVKOsPP3ekq5A3Z6PUJC9Xc7X6yuXVOU2ebRJxVDLRFbw
+	 aWvagW8mdYf/S1BPEX33grX27VXsGYc8aefRyLjXJZikvNkAmEfVpWI6XHf76Tu22Lvh8
+	 OBNXmoT6M65A7Gv7jscpg9CyOHYvTO2cZGOekhCZtIrZSwA5awpJ41k0BWvnzAML6QxVF
+	 zkJkW8auUKw26X5Qp2Lm6Z0/NZ2hzf00PKn0aRHsL9JPYldoKRBuv4YQQZjN90unv0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gUIFb+z3;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=tutamail.com;
+	spf=pass smtp.mailfrom=tutamail.com;
+	dkim=pass header.d=tutamail.com header.i=@tutamail.com header.a=rsa-sha256 header.s=s1 header.b="Vp//PgOr";
+	arc=none smtp.remote-ip=185.205.69.213
+Received: from mail.w13.tutanota.de (mail.w13.tutanota.de [185.205.69.213])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ED1C606A31E;
-	Wed, 25 Nov 2026 08:06:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA48606A31E
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 08:44:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FA48606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tutamail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tutamail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gUIFb+z3
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A421F000D4;
-	Wed, 25 Nov 2026 08:06:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795593985;
-	bh=qtWuoC5FN2MELDFAKVm54MaDOVUHKz/6gxfQ29IMYEs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gUIFb+z3EoGY/k5hBc/4s5BAcJqoX9NRdGz5EQ6vBgq3rKgAr7rBRsJERd4dmZigO
-	 sgMEGylJulCdyIpDhHG6/2txMVQjqrlwfpZxIzCQD9ih0XAAV5jcvSffX4lkzrl50w
-	 cDOqkERHka2UohPOATjzjz7RQTUHWII6+yvEv/39m5kvL8wGeIVNx0KY9I4eCtkGIO
-	 7CyKz2J4/slnL7IdCSuRKiy7aSog5s+20Q6CNmFwovssbysi2Rs0WtFZQmgkhVyUTp
-	 WzzU5qaaMeAJRyM1mX5Ul3b1ERZi7ZWbYDbm/BGlP2UbP3Rj7THpZilyDmxSEyIYfZ
-	 j4WqRkjdYr7Qg==
-Date: Wed, 25 Nov 2026 10:06:21 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Vasant Hegde <vasant.hegde@amd.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Johan Hovold <johan@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-	Chris Lu <chris.lu@mediatek.com>, Mans Rullgard <mans@mansr.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Cornelia Huck <cornelia.huck@de.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-	Dan Williams <djbw@kernel.org>, linux-kernel@vger.kernel.org,
-	driver-core@lists.linux.dev, linux-input@vger.kernel.org,
-	netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-acpi@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-pci@vger.kernel.org, iommu@lists.linux.dev,
-	linux-coco@lists.linux.dev, Alexey Kardashevskiy <aik@amd.com>,
-	Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>, linux-sound@vger.kernel.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v4 21/33] driver core: Introduce a generic device trust
- level
-Message-ID: <20261125080621.GW14811@unreal>
-References: <20261124-device-trust-core-v4-0-037eb0d17b1f@nvidia.com>
- <20261124-device-trust-core-v4-21-037eb0d17b1f@nvidia.com>
- <1bc8f048-4d35-484b-af60-2d13541e683f@infradead.org>
+	dkim=pass (2048-bit key, unprotected) header.d=tutamail.com header.i=@tutamail.com header.a=rsa-sha256 header.s=s1 header.b=Vp//PgOr
+Received: from tutadb.w10.tutanota.de (w10.api.tuta.com [IPv6:fd:ac::d:10])
+	by mail.w13.tutanota.de (Postfix) with ESMTP id AE9BB1ABA4115
+	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 09:44:53 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1795596293;
+	s=s1; d=tutamail.com;
+	h=From:From:To:To:Subject:Subject:Content-Description:Content-ID:Content-Type:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Cc:Cc:Date:Date:In-Reply-To:In-Reply-To:MIME-Version:MIME-Version:Message-ID:Message-ID:Reply-To:References:References:Sender;
+	bh=R96DXJsWBuRJFlPcP6o5E7C442A28/cuqXp8JkZ7KZI=;
+	b=Vp//PgOr+8t/wWcDjMCqxr9FvarZxcIG/CqTG2kJEkPi23A2S0gQIkdXFzkmEYvT
+	l5wcTcOB41n4fxy/jr2khKo1XtDVPjexsjz4ARSeQU5+1/EB7lFjtw0lIOZ5KijlxHI
+	Q/JuMZmGfDCRA8sPkKEWiJPD69Bwkuyjb40u8NOl8i5+DqJZapoUymDYXZTED1gYEal
+	RgQ76Ab/+/CIn8mPGAs5qPTEKa4eAqTvitndyArFUi156xwdsvJq0dMcCApSUSIDsL2
+	ePBhpwb9QnP0Kswpx+ojQGDfwfVjmJI5h74pRcoWcpg7UiHzviPmqKRKpJKtjRmLDXS
+	ucIcKhUrdg==
+Date: Wed, 25 Nov 2026 09:44:53 +0100 (CET)
+From: willowswaving@tutamail.com
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: Jikos <jikos@kernel.org>, Bentiss <bentiss@kernel.org>
+Message-ID: <P7GsBwf--R-9@tutamail.com>
+In-Reply-To: <P5psz0r--F-9@tutamail.com>
+References: <P46njqS--N-9@tutamail.com> <P4DHMrF--F-9@tutamail.com> <P5pmaU5--J-9@tutamail.com> <P5psz0r--F-9@tutamail.com>
+Subject: Re: FWD: [RFC] HID: uclogic: Add support for Xencelabs Pen Display
+ (28bd:520d) and request for switch-to-vendor-mode sequence
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,52 +64,136 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1bc8f048-4d35-484b-af60-2d13541e683f@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Feedback-ID: 015fe4ab774a31809b4b05b8c610ead356bcc03e5c866e6007fd3e8866c7c0a22bb5af78b76e2b2d682867fe72df3c2e2eae226386f9c0a8fc7fe2cb63b896dd32:TurnOnPrivacy!:tutamail
 
-On Tue, Nov 24, 2026 at 04:13:16PM -0800, Randy Dunlap wrote:
-> Hi Leon,
-> 
-> On 11/24/26 1:43 AM, Leon Romanovsky wrote:
-> > diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-> > index 0b3c140babd94..8a94482f0b19b 100644
-> > --- a/Documentation/admin-guide/kernel-parameters.txt
-> > +++ b/Documentation/admin-guide/kernel-parameters.txt
-> > @@ -1259,6 +1259,20 @@ Kernel parameters
-> >  	dell_smm_hwmon.fan_max=
-> >  			[HW] Maximum configurable fan speed.
-> >  
-> > +	device_trust	[KNL]
-> > +			Enable device trust with blocked as the implicit default.
-> > +
-> > +	device_trust.default=
-> > +			[KNL] Set initial trust policy for all devices, including
-> > +			hotplugged devices.
-> > +			Format: { default | blocked | adversarial | unrestricted }
-> > +			No trust options selects legacy unrestricted mode, preserving
-> 
-> By "No trust options," do you mean using
-> 	"device_trust.default="
-> or just
-> 	"device_trust", which says above means "blocked"?
-> 
-> If I want the status quo (before generic trust levels), do I need to do
-> anything? If so, what?
+Update: The manufacturer reflashed the firmware. The device PID is now chan=
+ged to=C2=A028bd:520a. The hardware is working and is sending raw HID repor=
+ts without needing any magic-byte switching (see attached hexdump). It seem=
+s we just need to add the 520a PID to hid-uclogic and provide the correct r=
+eport descriptor mapping.
 
-I mean that if you do nothing and do not write to any device_trust*
-knob, the system will continue to work exactly as it does now. That is
-what "No trust options" means.
 
-Thanks
+2026/11/7 20:03 =E6=9D=A5=E8=87=AA willowswaving@tutamail.com:
 
-> 
-> > +			bus policy and existing authorization. Otherwise blocked is the> +			implicit default. An explicit value wins regardless of option
-> > +			order. default preserves bus policy; other values replace it.
-> > +			unrestricted disables runtime policy changes.
-> > +			See Documentation/driver-api/driver-model/device-trust.rst.
-> 
-> thanks.
-> -- 
-> ~Randy
-> 
+>
+>
+>> Subject: Re: [RFC] HID: uclogic: Add support for Xencelabs Pen Display (=
+28bd:520d) and request for switch-to-vendor-mode sequence
+>>
+>> Hello,
+>>
+>>
+>> I am writing to send a friendly ping regarding the support for the Xence=
+labs Pen Display (28bd:520d). I understand you are very busy, and I just wa=
+nted to check if there is any update or if there is any additional informat=
+ion I can provide to help move this forward.
+>>
+>>
+>> The device is still available for testing. I would be happy to try any p=
+atches or collect further USB traces if needed.
+>>
+>>
+>> Thank you for your time.
+>>
+>>
+>> Best regards,
+>>
+>> Willows
+>>
+>> 2026/10/18 17:13 =E6=9D=A5=E8=87=AA willowswaving@tutamail.com:
+>>
+>>>> Hello,
+>>>>
+>>>> I would like to report a missing device support in the hid-uclogic
+>>>> driver, and ask for guidance on how to properly add it.
+>>>>
+>>>> Device information
+>>>> ------------------
+>>>> =C2=A0 Name:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Xencelabs Pen Display
+>>>> =C2=A0 Vendor ID:=C2=A0 0x28bd (Hanvon Ugee / XP-Pen)
+>>>> =C2=A0 Product ID: 0x520d
+>>>> =C2=A0 Firmware:=C2=A0=C2=A0 20250121(230322)
+>>>> =C2=A0 Model:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 UG902_LPH2412_P10
+>>>>
+>>>> Problem
+>>>> -------
+>>>> The device is not handled by hid-uclogic. With hid-generic, the device
+>>>> is registered only as a mouse and no pen events (ABS_X, ABS_Y,
+>>>> ABS_PRESSURE, ABS_TILT) are reported to userspace.
+>>>>
+>>>> When I add the device ID to hid-uclogic-core.c, the driver binds, but
+>>>> the resulting interface is still a mouse. evtest shows no pen events.
+>>>> This suggests the device is still in "firmware mode" and never gets
+>>>> switched into the vendor reporting mode that exposes the pen interface=
+.
+>>>>
+>>>> Key observations from testing
+>>>> -----------------------------
+>>>> 1. lsusb reports only one interface (bNumInterfaces =3D 1, interface 0=
+,
+>>>> =C2=A0=C2=A0 HID class, mouse). It has only two interrupt endpoints:
+>>>> =C2=A0=C2=A0=C2=A0=C2=A0 - 0x81 (IN, 64 bytes)
+>>>> =C2=A0=C2=A0=C2=A0=C2=A0 - 0x01 (OUT, 64 bytes)
+>>>> =C2=A0=C2=A0 Note: There is NO endpoint 0x03, which is the endpoint us=
+ed by
+>>>> =C2=A0=C2=A0 uclogic_ugee_v2_probe_endpoint in hid-uclogic-params.c. A=
+ny attempt
+>>>> =C2=A0=C2=A0 to send magic bytes to 0x03 fails with "Invalid endpoint =
+address".
+>>>>
+>>>> 2. Reading the string descriptor at index 0x64 under LANGID 0x0409
+>>>> =C2=A0=C2=A0 successfully returns a 14-byte binary blob (13 bytes of c=
+ontent).
+>>>> =C2=A0=C2=A0 Raw HEX: 0e03289a78e60300ff1fd8130100
+>>>> =C2=A0=C2=A0 (Other indexes return normal strings like the serial numb=
+er and
+>>>> =C2=A0=C2=A0 "hanvon ugee Tech"). Reading index 0x64 does NOT switch t=
+he device.
+>>>>
+>>>> 3. Sending the UGEE v2 magic bytes (02 b0 04 00 00 00 00 00 00 00)
+>>>> =C2=A0=C2=A0 via SET_REPORT (Feature 0x02, Output 0x02, Feature 0x03) =
+returns
+>>>> =C2=A0=C2=A0 success, but the device never re-enumerates.
+>>>>
+>>>> 4. A vendor-specific control request (bRequest 0xb0, wValue 0x0402)
+>>>> =C2=A0=C2=A0 times out.
+>>>>
+>>>> 5. Note: Sending unexpected control transfers to this device can cause
+>>>> =C2=A0=C2=A0 the USB HID interface to hang. It requires a complete pow=
+er cycle
+>>>> =C2=A0=C2=A0 (unplugging USB and power) to recover.
+>>>>
+>>>> Request
+>>>> -------
+>>>> Could someone with access to the Xencelabs USB documentation, or
+>>>> someone who has reverse-engineered the 520d, share the correct
+>>>> sequence to switch this device into vendor mode?
+>>>>
+>>>> Specifically:
+>>>> =C2=A0 - Is the 0x64 string descriptor read the right trigger, or is a
+>>>> =C2=A0=C2=A0=C2=A0 specific control transfer required?
+>>>> =C2=A0 - If a control transfer is needed, what is the correct bRequest=
+,
+>>>> =C2=A0=C2=A0=C2=A0 wValue, wIndex, and endpoint?
+>>>> =C2=A0 - Are there known quirks for this device?
+>>>>
+>>>> If a capture from the Windows driver is needed, I can provide one.
+>>>> If you have any hints, I will be happy to prepare a proper patch
+>>>> with hid-uclogic-params.c changes and re-test.
+>>>>
+>>>> I am attaching the text files with:
+>>>> =C2=A0 - lsusb -v output for 28bd:520d
+>>>> =C2=A0 - the raw HID report descriptor (usbhid-dump)
+>>>> =C2=A0 - the string descriptor enumeration (showing 0x64)
+>>>> =C2=A0 - dmesg logs showing the binding behavior.
+>>>>
+>>>> Thank you very much for your time.
+>>>>
+>>>> Best regards,
+>>>> Willows
+>>>>
+>
+>
+

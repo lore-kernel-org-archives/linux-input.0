@@ -1,63 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.137
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795671159;
-	b=fXXawX3B1MpJ2oV/6w5pnx3+Wk/XddiKr05CEqiApFhwsw5iM26/vSAlUGMn4UmXIiwY
-	 Wv3uL6XUaHWLKtRbIfzacNrAnzuehxLNpAKPIsiKOxvLie6lVFEcPbKrvN+ezZJJwqAqj
-	 UwdKh1wR7glYd20tzkMm4lsMIAgjL3YZtyHMqFHw2dBH14dGtkA6qZofryFh3xfU/VwbT
-	 ufXR/c18top0uNubBke+lu+ikgeh7PVq5AgsJ0E2oW77SKwhSYrjZLWG7aMAALguyz4KX
-	 yobIqhuv0SleR3KY2X+Ny9yDAYJepdm09aK9ZVUlKYusUJu3SWtAFOcGq5xpx58v+Eg==
+	t=1795671391;
+	b=JULBztv9fDbL6iXbylUrpEzDN53xR+wU015HbqBKWkiaQBen1YqSCn/Xs6I3XQ4juz/9
+	 D3O/PiUxz3ZmM9oW2Y7JqzBAlzKp089fDK53w9faT1wl9N3F5rK7W/GKvmrO/5o/3m7vY
+	 w0vMddMg63VPMuitCQ0Mug92irCiVvA55ES0KNNj09PZAP8bXHOspgJgRynRXtqNqLtRy
+	 ofIj4Hp21cHb06nVaEPnLK2iptfygTD7B91NKJefCPPwJepAsfMhEotwx6LJt71Oaj+tQ
+	 JG7Se4M5k4UYWOtjZ8GSkkqtOkgzlT+aeiXNiqDAD3YaE0YII/wB70uEgQA4SwrESXw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795671159;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=AK8YR/faO5Yj74bufeTDUyirWZ6wuURN4Vf8onC3ob4=;
-	b=UCCoPgwhAzj6P8lSaTFkSaQpFY3HTQ10Lwhdb0fRlC8u6AwuFKkHvookAuVfHCgjGcnv
-	 qabs0XWfV/bc23Bad6rz64E+JWHWD07bcF+8LSibxW5qz1LMeRYAsfINu7X0kF2M2Lyi3
-	 fCG1F3JK1m9OF9NVIE+XNBqaZhbUtBMwBEEvWLp8TbnTVBYG0wGBiQMoS3fp4cCZIGToZ
-	 mflGNd46caC3hc9olkRGa+v3hpXVFdUPxuI5Qo+NHhOpIX8x5s6+d2SnSuDtrIFSz328k
-	 Iza94xLCo/GzuaGMGuEFe+85S/iUxjZISKVUlCb9cNDKIxFN2mkBYof0qyd26qq9hPQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795671391;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=5dK6+Mzn5t+r55VLgXke8ayjNPvYDWOxmT2Go8+ae3s=;
+	b=KXCE1okPqpvY3kM5S2h6ldT8vdm9djoj+nBa0sQHV90093ZFUhEk2BykLB/zScNsSxQn
+	 0+5Swl7WOTkLrDc6Ni1CDCPC7Ie2NLINZ4HThuXrJqrHffg5WX+c30aejIXkQfPmAc4Vp
+	 0lt7lh60tyA7hyFATGTDyFNv2ux4L1qw0vpYWzGMZXFj6nKbbuesjKerpXCEcVLt+thGA
+	 VEL8cWag/zONwXlV/HcO2TvvRGL62WBQEC7bI2ujVm/ulFFa4fmvFa0eDVRmni34W1Dh1
+	 PAO2/LpX5611XpPtSzzRZbQieoHEHZsx2A4w1nEBhC5UElWpjgPTfifMJz8y0o/qX9w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=ggrxGOsi;
-	arc=none smtp.remote-ip=111.22.67.137
-Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 84DEF606A31C;
-	Thu, 26 Nov 2026 05:32:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84DEF606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LIg4WuE5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5728606A31E
+	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 05:36:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=ggrxGOsi
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=ggrxGOsiNtt/VGNEZ/PeulB4+nAbFypW+atC8i3w8Q904+Ku8QGx01BNRJ3j7VmGAiyHoKqcjwvIx
-	 ZDoCvzhMHw6DVursq/bgjV7d/sP/5tbGKWq9FVbLhpLYUlfZ6rI3ITYnq+7EtQhDfRt5F7FhbcbpCd
-	 yshnlvcrcGmbbhIY=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app04-12004 (RichMail) with SMTP id 2ee46b07c473ac9-f839b;
-	Thu, 26 Nov 2026 13:32:36 +0800 (CST)
-X-RM-TRANSID:2ee46b07c473ac9-f839b
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from FHD-W7400297 (unknown[10.55.1.70])
-	by rmsmtp-syy-appsvr04-12004 (RichMail) with SMTP id 2ee46b07c472e07-5e67d;
-	Thu, 26 Nov 2026 13:32:36 +0800 (CST)
-X-RM-TRANSID:2ee46b07c472e07-5e67d
-From: Aibing Chen <chenaibing@cmss.chinamobile.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: adi - use scnprintf() for the device name
-Date: Thu, 26 Nov 2026 13:32:34 +0800
-Message-ID: <20261126053234.455-1-chenaibing@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.50.1.windows.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LIg4WuE5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4DC81F000CA;
+	Thu, 26 Nov 2026 05:36:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795671391;
+	bh=5dK6+Mzn5t+r55VLgXke8ayjNPvYDWOxmT2Go8+ae3s=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=LIg4WuE5+cS+D35iEiGt/l1euOODTJetfAVKYICXiyNP76ETzjU/trEhTTqNrngtv
+	 4jxYomDA7AOPRIJiWQuTU43v+oHyvj4q4f4tigaKuzhRgzryOiwFD4+l/xkao9GwSC
+	 QqqmVWGhn+NQCoPDn9TtHsjxX0oKB5NHWc1nef6RYnv2FrmXcUSMPY34MNdAUteM7B
+	 pJt3cr9FnndbJXAq6tvk3ehvR3ZEW4xn/Yj4HERcIT4QrlhFqod3stqakGpry2+Ne/
+	 eUg6l8fG9z+xpk7fvZu2VZQTkNEqT6LSm3snCCNWk5nTI1vVC035Ogu0QW2ts0IRWL
+	 Svkthhn3zcHwA==
+Message-ID: <sashiko-outbox-234797@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: adi - use scnprintf() for the device name
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aibing Chen" <chenaibing@cmss.chinamobile.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261126053234.455-1-chenaibing@cmss.chinamobile.com>
+References: <20261126053234.455-1-chenaibing@cmss.chinamobile.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 26 Nov 2026 05:36:30 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -66,47 +58,70 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-adi_init_input() composes the device name as "Logitech %s [%s]" from the
-model string in buf[] and the controller name in adi->cname, into a 64
-byte array.  buf can hold up to 63 characters and cname up to 15, so the
-composed name can reach 90 bytes and does not fit.  The name is
-informational and truncating it is acceptable, but the call site does not
-say so.
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Critical] Input: adi - out-of-bounds access from unvalidated counts
+  in adi_id_decode() [1]
+--
 
-Building with W=1, where -Wformat-truncation is enabled, the file does not
-build today; COMPILE_TEST configurations additionally turn the warning
-into an error through CONFIG_WERROR:
+commit cf403ee49ba4ff0238dcadf0ca631e797a95d76f
+Author: Aibing Chen <chenaibing@cmss.chinamobile.com>
 
-  drivers/input/joystick/adi.c:395:60: error: '%s' directive output may be
-    truncated writing up to 63 bytes into a region of size 55
-    [-Werror=format-truncation=]
+Input: adi - use scnprintf() for the device name
 
-Use scnprintf(), the helper that expresses a bounded, truncation tolerant
-write, so that the file builds warning free and the intent is visible at
-the call site.
+This commit switches from snprintf() to scnprintf() when formatting
+adi->name in adi_init_input() to avoid -Wformat-truncation warnings.
 
-No functional change.
+> diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+> index e07b71978509b..0b60c8067faf8 100644
+> --- a/drivers/input/joystick/adi.c
+> +++ b/drivers/input/joystick/adi.c
+> @@ -392,7 +392,7 @@ static int adi_init_input(struct adi *adi, struct adi=
+_port *port, int half)
+>  	t =3D adi->id < ADI_ID_MAX ? adi->id : ADI_ID_MAX;
+> =20
+>  	snprintf(buf, ADI_MAX_PHYS_LENGTH, adi_names[t], adi->id);
+> -	snprintf(adi->name, ADI_MAX_NAME_LENGTH, "Logitech %s [%s]", buf, adi->=
+cname);
+> +	scnprintf(adi->name, ADI_MAX_NAME_LENGTH, "Logitech %s [%s]", buf, adi-=
+>cname);
+>  	snprintf(adi->phys, ADI_MAX_PHYS_LENGTH, "%s/input%d", port->gameport->=
+phys, half);
+> =20
+>  	adi->abs =3D adi_abs[t];
 
-Signed-off-by: Aibing Chen <chenaibing@cmss.chinamobile.com>
----
- drivers/input/joystick/adi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[Severity: Critical]
+This problem wasn't introduced by this patch, but can the capability loops
+further down in adi_init_input() read out of bounds on adi->abs and
+adi->key [1]?
 
-diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
-index e07b71978..0b60c8067 100644
---- a/drivers/input/joystick/adi.c
-+++ b/drivers/input/joystick/adi.c
-@@ -392,7 +392,7 @@ static int adi_init_input(struct adi *adi, struct adi_port *port, int half)
- 	t = adi->id < ADI_ID_MAX ? adi->id : ADI_ID_MAX;
- 
- 	snprintf(buf, ADI_MAX_PHYS_LENGTH, adi_names[t], adi->id);
--	snprintf(adi->name, ADI_MAX_NAME_LENGTH, "Logitech %s [%s]", buf, adi->cname);
-+	scnprintf(adi->name, ADI_MAX_NAME_LENGTH, "Logitech %s [%s]", buf, adi->cname);
- 	snprintf(adi->phys, ADI_MAX_PHYS_LENGTH, "%s/input%d", port->gameport->phys, half);
- 
- 	adi->abs = adi_abs[t];
+drivers/input/joystick/adi.c:adi_init_input() {
+	...
+	adi->abs =3D adi_abs[t];
+	adi->key =3D adi_key[t];
+	...
+	for (i =3D 0; i < adi->axes10 + adi->axes8 + (adi->hats + (adi->pad !=3D -=
+1)) * 2; i++)
+		set_bit(adi->abs[i], input_dev->absbit);
 
+	for (i =3D 0; i < adi->buttons; i++)
+		set_bit(adi->key[i], input_dev->keybit);
+}
 
+adi_id_decode() only checks the axis, hat, and button counts parsed from
+the raw gameport ID packet against the packet bit length (< 256), which
+allows up to 49 total axes and 126 buttons (or 252..255 buttons on
+unsigned char underflow when subtracting 4 for ADI_ID_TPD or ADI_ID_WGP).
+Because the per-device tables in adi_abs[] and adi_key[] hold at most 9
+axes and 11 keys, indexing them with unvalidated counts in
+adi_init_input(), adi_init_center(), and adi_decode() reads past the end
+of the arrays and passes out-of-bounds bit indices to set_bit() and the
+input reporting helpers, corrupting memory or crashing the kernel.
+
+[1] https://sashiko.dev/#/bug/linux-92046c21-e0a8-4274-a502-20ca723131b1
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261126053234.455-=
+1-chenaibing@cmss.chinamobile.com?part=3D1

@@ -1,106 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=46.247.34.138
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795681288;
-	b=tmlYnIT2c+q4XQwxxOYI7hgYcW+6P01wcF2WC6kcD+gnCBCvWC5dOOeRZwVI9m4gRhC+
-	 zp/rF8sJhoa+JcjDhC0sPLbLjviChtJTWrXovR9grsNEH/z+eEKqSStxFvzox7Y8BDYoK
-	 sBIFEGOce2T6Yj3OaLPIz4n4QH9mBh2FgSXsknuSmDL5YbMY7zkloJprkvtJHrgR+a1zt
-	 t86d+3SRUN/n8CqvLt4/9FNYTBYrKl7dgdWdzkEY0uxntKwJYrNUaBroYapSmce7Y7cCb
-	 EdqimFNsaGl8TZJXI8RhdtQAtrsafKqCD7NMfN8EK7RNLfU1PewEw7BE4SBOJP34uAw==
+	t=1795685289;
+	b=1Ao8wkYvtronyk7VFVgJx53D/WE0kET8NnO5ASBfkT+5pqnIw+c+0koV/ZvdnHrj1mp1
+	 ECepQq1272mZ7qvii9m5qwQkQT1xuVJRng9jUq3Eajse4WB+YYUQATvOI5akbM4yYVhR9
+	 wh+PLfSGeFT0kGPZcbAdxKQIcNHS/yReGMlSTqFVxiT6wJH91T9VdCQhfd5VvQI4VGroa
+	 x2SCKc7Ysn6xm3JCI75XNPQeHHKh6KDxBXCC6jCenEc7O0hOVAe4KtFdJKw2qYzLJOAFN
+	 d2PXxUln5YSueXJRAZnH8QLFwwqyPK5xar+KInumzIeVL1Mf0CDe6T1sdq0AT4qnulA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795681288;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
-	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Content-Disposition;
-	bh=wBOZvbV/Ao3pnBzrcXZtW9CD2639Ae7gzM3oEey/+58=;
-	b=asiE0gK9vXPZPOKmPYd/gG3VOeJBgvEtJO98rl7UethMuCRVH9r+Z2AS85nFz2Xa/068
-	 WIDrU/naS5JIxnAFp09Gq985UykWHth/rlCvGi/4Sqq3dHFZW3kj7mZtXvdUj82nT5c/t
-	 N0lsbCMAMnpw9AcLhMMgBG/SBcYI1UaoErBWvik4dMBwXT2nwZ6BvERXFGs0KQRyW7Ov6
-	 W1e/lw+mN3UlliNE5C6ZR5Ows8X0w7TzGmDvC0HxJW5X3JZatFbelcPB+pH+uqfexGdpd
-	 l3D0YeVCma8ixF3jzq3cJxVA5iMztTxOu91WaZiexTbbBJ9sW84W/eQGfO3q/0VRIjg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795685289;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:From:To:CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:
+	 References:In-Reply-To:Accept-Language:Content-Language:
+	 X-MS-Has-Attach:X-MS-TNEF-Correlator:x-originating-ip:Content-Type:
+	 Content-ID:Content-Transfer-Encoding:MIME-Version:X-SM-outgoing;
+	bh=svWs/aM38Vlawjp8seZdqmsqok/OpRYqNFaPL6I7pEA=;
+	b=zsQSGPLE3A77a0az3BIDjzzmDFzJijZGEcxELtbFaCpVd7dLlGUhOMVd1wFoZn3w7BN5
+	 qc0ABaouoVl9+oJqG1ZRkxMO/wA5PPsJnJKXFEpRfE8w8sQNSuGl8LYFY8HyiPYWKXpn5
+	 OMLpIoZhvrv77RmaHi3oyUS1LmhC7Sunp6pM4TqT0HhVZK6FfIPaPzQwWZzconPF3AcY+
+	 9ad9WPwhNQB7Er/TBnRlr+fWsB5Pf4YhAz9DWqU1UiyyPUKogzOYY7IqW3DXwTvhJsP3h
+	 2T1PO/RMKykga8xMdrqPxSc726t5o5VgKSx751gkXLPqhg5d+wMGy/JYH4D4jbV3I8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yTdOHobo;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=stiftung-kifa.ch;
+	spf=pass smtp.mailfrom=stiftung-kifa.ch;
+	dkim=pass header.d=stiftung-kifa.ch header.i=@stiftung-kifa.ch header.a=rsa-sha256 header.s=default header.b=qPRELP+m;
+	arc=none smtp.remote-ip=46.247.34.138
+Received: from hin.itze.ch (hin.itze.ch [46.247.34.138])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74BD6606A68B
-	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 08:21:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 74BD6606A68B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7377606A31E;
+	Thu, 26 Nov 2026 09:28:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C7377606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=stiftung-kifa.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stiftung-kifa.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yTdOHobo
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-38431138772so8758275eec.1
-        for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 00:21:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795681288; x=1796286088; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=wBOZvbV/Ao3pnBzrcXZtW9CD2639Ae7gzM3oEey/+58=;
-        b=yTdOHoboSe6gfTIhG0tnGzhdNHIQAkvIbhmz5xF0MSi0F3yzUttS9+e2B6NcNcIQDs
-         9EHGmW3RTIyx+j8cGN6BbhT/YpLjG1pT6jhRZ3JKA8qgfElDTHGasz2d3K5oUrWu0Em6
-         a6yl9NQfONiJP/AsIfiLJ4O2TyFU6nE4/lblOyl8ObcJFlqen0HDBvx/LYXPySKN2XZH
-         ncia7RMEpCsjWQHz1+MHUp9z8tPfKaDCHPQbb6ElzkfKoj/btr7J+dC9wpX0uPkPMzI/
-         mYzpIof1/CY389zEianq8zdKEJekaG0A+SmhmSJDS4+ThXSI/i+jstn5UkxKhJ3Kg05y
-         XOqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795681288; x=1796286088;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=wBOZvbV/Ao3pnBzrcXZtW9CD2639Ae7gzM3oEey/+58=;
-        b=LSRK3LDRtj7uylrse4sZYp26cxJe2MtJ0o0GrUD8ykEbPvuhHla6Y6xpmCKbE/lOPk
-         LEfZ+KMZRv9l6mpwJZ61kJA3D+VrWcs7QFSNZ0A/lGyVvaOaaXMckxYqRWDxn+ASPS+o
-         tOzF8ERe+IHJQJS6RWDZjRo8LPuHrmkG6xwZ0WHAb4LjSRAeVolgAjsGow1E9l5qq6gc
-         Rte5G61tlZwiumPOHupeD4yiSUWqPtRVBSw6yv1ZVQEdVFKljceMtnNc65Xo6HHrZoJf
-         zHg1v9JnAZr33BmC6/0kNxZPhS6RtYDd0LnKbHVhttZMU8fVziyvRz3qCrOhJmY7gZi/
-         biug==
-X-Gm-Message-State: APuU4Z/5c5qSzNHGaeERkgCFx6+dj2h32VgHU83t3swFnaJ9bXVQVzVO
-	rHNGsz7WwUmHXgR+VPq8ygWn+wWj6ITQrOjmgwCaV8jFl4fWekk6+X8m
-X-Gm-Gg: AZFdTZfQlUOTAvvpMDURstIplz9FRkS4OnABdnX7uWpdNe4hEJzTyJprr+TO3cPXEyo
-	ylszgzFGmfNLqaZLaqeHsf47GMVie0cEI9CTerPqlBh5Lk9hGYEar8fN4+nexfXYmTLh89zlqsS
-	QAoz51wzcuhTyDvL1mBEqD28BBWwKU/Ogr+Jo4p5ud9SLD2N9EvcpPyb0iQkLE3tIVwxd6CvYFU
-	Qs5iH8v0/f15+y6VsGrfk0KbRq+B38Vtmz+QTx/8cRGimULJsvs96zZEFZJ3rDwdtyum1aqb87h
-	4VgPdUvkZYRxJ3PA5RRTiLvPcutUUBzDUa7RPIzy+t21eJEjExYt1rEFOurx0qofEvEHRiW/XD0
-	9gZ32FhYZFHVfNBxh3Eow+0rd5ekDFm+PaOxO1UzfUp/RfYKEzhu1e5aAr8CJfuBDBCpVw2OlGs
-	Ge8tK4yVnJcAiOiSs3F48fVIhi80dAkqUHrg/C6rX00xxzmeOlrjuzueXfWK4844OGEp9yzrjzx
-	+oH/gaZqmP9vnvKJYIzddH+ZGyzHRka23+8QLJvY1FSc59aHuLa7xRv1y2kfYqAKQXGNQHEE2Im
-	Fo0bq0WBd6c3oroP0TaswxdgMZ07Y5ftrnx2bck+uov0M+CwlkLKsNejKunfacWax4bkcw==
-X-Received: by 2002:a05:7300:ac82:b0:385:4b9:18f2 with SMTP id 5a478bee46e88-3857093f077mr31004036eec.21.1795681287254;
-        Thu, 26 Nov 2026 00:21:27 -0800 (PST)
-Received: from localhost ([2a00:79e0:2ebe:8:f528:8797:fe51:9f7e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567cafec4sm68602910eec.26.2026.11.26.00.21.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 00:21:26 -0800 (PST)
-Date: Thu, 26 Nov 2026 00:21:25 -0800
-Message-ID: <8497d7101dc7524be91edbaa5a9face5@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Prasanth R <ragaprasanth@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	Hans de Goede <hansg@kernel.org>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Support Opensource <support.opensource@diasemi.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Len Brown <lenb@kernel.org>,
-	linux-pm@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	driver-core@lists.linux.dev
-Subject: Re: [PATCH 0/3] Input: clear the wake IRQ on unbind
-In-Reply-To: <20261125072124.2997511-1-prasanth.r@lineo.co.jp>
-References: <20261125072124.2997511-1-prasanth.r@lineo.co.jp>
+	dkim=pass (2048-bit key, unprotected) header.d=stiftung-kifa.ch header.i=@stiftung-kifa.ch header.a=rsa-sha256 header.s=default header.b=qPRELP+m
+Received: from hin (localhost [127.0.0.1])
+	by hin.itze.ch (Postfix) with SMTP id 4jZrnC5qhSz1wsv;
+	Thu, 26 Nov 2026 10:27:59 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=stiftung-kifa.ch; h=from
+	:to:cc:subject:date:message-id:references:in-reply-to
+	:content-type:content-id:content-transfer-encoding:mime-version;
+	 s=default; bh=svWs/aM38Vlawjp8seZdqmsqok/OpRYqNFaPL6I7pEA=; b=q
+	PRELP+mB9j3QpEmFCd8GgxnWJWFoj/quSythpZbhq95jIqhIT5FKS3evyuhyVit0
+	GgjElkaudUccOLrezItpS8snZ+m8d9U2TptNGZfphMjZd1We5p4HiCXgECpnkIFe
+	YOcl5hTX+PF0PHdJd7KwL6L8OIpW0LjJBSqV2nIeDWqVtZQnZSUahn0xPoVvotgu
+	SH7x2i7IF6yCzZG0p3lHPa8r1kDF1+pACjreHSjDX7Q3/bMWnx+tAmqpQ9rwlXGV
+	kLQ9yPl3RGqzyZPGOTr1SZmqGQWslY9BtlZ9QmbZEfS8g+gM+YZnxXJkQABAS20t
+	N062rg7TAh+IRMSqFyq6A==
+Received: from owa.itze.ch (unknown [10.200.0.109])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519)
+	(No client certificate requested)
+	by hin.itze.ch (Postfix) with ESMTPS;
+	Thu, 26 Nov 2026 10:27:58 +0100 (CET)
+Received: from owa.itze.ch (ITZE-EXC-42.intranet.itze.ch [10.200.0.152])
+	by itze-smtp-02.intranet.itze.ch (Postfix) with ESMTPS id 907DC380104;
+	Thu, 26 Nov 2026 10:27:58 +0100 (CET)
+Received: from ITZE-EXC-42.intranet.itze.ch (10.200.0.152) by
+ ITZE-EXC-42.intranet.itze.ch (10.200.0.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.57; Thu, 26 Nov 2026 10:27:58 +0100
+Received: from ITZE-EXC-42.intranet.itze.ch ([fe80::423d:c966:8c82:e690]) by
+ ITZE-EXC-42.intranet.itze.ch ([fe80::423d:c966:8c82:e690%9]) with mapi id
+ 15.02.2562.057; Thu, 26 Nov 2026 10:27:58 +0100
+From: Kettler Christian <christian.kettler@stiftung-kifa.ch>
+To: "michal.pecio@gmail.com" <michal.pecio@gmail.com>
+CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+	"linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+	"linux-sound@vger.kernel.org" <linux-sound@vger.kernel.org>,
+	"stern@rowland.harvard.edu" <stern@rowland.harvard.edu>
+Subject: Re: Logitech BRIO (046d:085e) stops answering control requests when
+ hot-plugged together with a USB-C hub; usbhid probe blocks hub_wq for 60 s
+Thread-Topic: Logitech BRIO (046d:085e) stops answering control requests when
+ hot-plugged together with a USB-C hub; usbhid probe blocks hub_wq for 60 s
+Thread-Index: AQHdfE3oSkrSsszgEUuTDYAdvXeAA7c+zRyAgAAHjwCAAEsGgIAA58eA
+Date: Thu, 26 Nov 2026 09:27:58 +0000
+Message-ID: <cf179ae63e1a3fabc1a1869e0bc1b158ca62d1be.camel@stiftung-kifa.ch>
+References: <3cd5f994a6260960cf7751d6383f2b9afc1baeb5.camel@stiftung-kifa.ch>
+		<6118ad01-65a0-4357-8118-3122479b554d@rowland.harvard.edu>
+		<2ced9c1fb45e08a94f56b0f569b01369044b5553.camel@stiftung-kifa.ch>
+	 <20261125203823.15fc4478.michal.pecio@gmail.com>
+In-Reply-To: <20261125203823.15fc4478.michal.pecio@gmail.com>
+Accept-Language: de-CH, de-DE, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D30050BA81E86B43B5746C58E226F464@intranet.itze.ch>
+Content-Transfer-Encoding: base64
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -110,37 +99,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SM-outgoing: yes
 
-Hi Prasanth,
-
-On Wed, Nov 25, 2026 at 04:21:21PM +0900, Prasanth R wrote:
-> These drivers set a wake IRQ with dev_pm_set_wake_irq() and never clear
-> it. After unbind and bind, dev_pm_set_wake_irq() warns "wake irq already
-> initialized" and returns -EEXIST.
->
-> Switch them to the device-managed helpers.
-
-Adding PM and driver core maintainers to the thread.
-
-I wonder why clearing the wake IRQ cannot be done automatically for all
-drivers on unbind, for example in device_unbind_cleanup() alongside
-pm_runtime_reinit() and dev_pm_set_driver_flags().
-
-The only case I see where a wake IRQ is attached at device registration
-time rather than by a bound driver (or bus probe()) is PCI OF WAKE# in
-drivers/pci/of.c:pci_configure_wake_irq(). That could be distinguished
-by checking dev->driver when attaching the wake IRQ, or via an explicit
-flag, so device_unbind_cleanup() only clears driver-bound wake IRQs.
-
-Handling this in the core would save us from having to hunt down and
-convert individual drivers to devm_pm_set_wake_irq() across the tree,
-and would also fix buses like SPI that set up wake IRQs in probe() but
-do not clear them on remove.
-
-Thanks.
-
--- 
-Dmitry
+QW0gTWl0dHdvY2gsIGRlbSAyNS4xMS4yMDI2IHVtIDIwOjM4ICswMTAwIHNjaHJpZWIgTWljaGFs
+IFBlY2lvOg0KPiBPbiBXZWQsIDI1IE5vdiAyMDI2IDE1OjA5OjUyICswMDAwLCBLZXR0bGVyIENo
+cmlzdGlhbiB3cm90ZToNCj4gPiBUaGUgdGltZW91dHMgYXJlIG5vdCBsaW1pdGVkIHRvIHRoZSBC
+UklPLCB0aG91Z2guIER1cmluZyB0aGVzZSBydW5zDQo+ID4gdGhlIGh1YiBpdHNlbGYgKFZJQSAy
+MTA5OjA4MjQpIG9uY2UgZmFpbGVkIHdpdGggImRldmljZSBkZXNjcmlwdG9yDQo+ID4gcmVhZC9h
+bGwsIGVycm9yIC0xMTAiLCB0aGUgUmVhbHRlayBMQU4gYWRhcHRlciBpbnNpZGUgdGhlIGh1YiBn
+b3QgYQ0KPiA+IC0xMTAgYW5kIHdhcyByZXNldCwgYW5kIHRoZSBodWIncyBjYXJkIHJlYWRlciB3
+YXMgcmVzZXQgYXMgd2VsbC4NCj4gPiBSZS1hdXRob3JpemluZyB0aGUgaHViIChhdXRob3JpemVk
+IDAvMSkgbmV2ZXIgdHJpZ2dlcnMgdGhlIGhhbmcsDQo+ID4gb25seQ0KPiA+IHBoeXNpY2FsbHkg
+cGx1Z2dpbmcgaXQgaW4gZG9lcy4gT24gdGhlIGxhcHRvcCdzIG93biBwb3J0cyB0aGUgQlJJTw0K
+PiA+IG5ldmVyIGh1bmcgKDE0IHBsdWdzLCA0IG9mIHRoZW0gb24gdGhlIFVTQi1DIHBvcnQgb24g
+dGhlIHNhbWUgeEhDSQ0KPiA+IGNvbnRyb2xsZXIsIHdpdGggdGhlIHNhbWUgY2FibGUgYW5kIHBs
+dWcgYWRhcHRlcikuDQo+ID4gDQo+ID4gU28gdGhpcyBsb29rcyBsaWtlIGEgcHJvYmxlbSB3aXRo
+IHRoaXMgaHViIHJhdGhlciB0aGFuIHdpdGggdGhlDQo+ID4gY2FtZXJhLiBJJ20gdXNpbmcgdGhl
+IEJSSU8gZGlyZWN0bHkgb24gdGhlIGxhcHRvcCBub3cgYW5kIGNvbnNpZGVyDQo+ID4gdGhpcyBj
+bG9zZWQgb24gbXkgc2lkZS4NCj4gDQo+IEhpLA0KPiANCj4gTXVsdGlwbGUgZGV2aWNlcyBtaXNi
+ZWhhdmluZyBjb3VsZCBiZSB0aGUgaHViIG9yIHBlcmhhcHMgdGhlIHhIQ0kNCj4gY29udHJvbGxl
+ciAobG9va3MgbGlrZSBzb21lIEludGVsIGNoaXBzZXQ/KS4gWW91IGNvdWxkIHRyeSBhDQo+IGRp
+ZmZlcmVudA0KPiBvbmUgaWYgeW91IGhhdmUgYW4gb3Bwb3J0dW5pdHkuDQo+IA0KPiBUaG91Z2gg
+SSBoYXZlIG5vIGV4cGxhbmF0aW9uIHdoeSB0aGUgY2FtZXJhIHdvcmtzIG9uIHRoZSBzYW1lIHBv
+cnQgaWYNCj4gdGhlIGh1YiBpcyByZW1vdmVkIGZyb20gdGhlIGNoYWluLiBJdCBtYXkgYmUgdGhl
+IGh1YiBhZnRlciBhbGwuDQo+IA0KPiBSZWdhcmRzLA0KPiBNaWNoYWwNCg0KSGkgTWljaGFsLA0K
+DQpUaGFua3MuIEkgZG9uJ3QgaGF2ZSBhIFVTQi1DIHBvcnQgb24gYW5vdGhlciBjb250cm9sbGVy
+LCBidXQgdGhlDQprZXJuZWwgbG9nIHNpbmNlIE9jdCAzMCBhbHJlYWR5IGhhcyBhIGNvbXBhcmlz
+b24gb24gdGhlIHNhbWUNCmNvbnRyb2xsZXIgKDAwMDA6MDA6MGQuMCwgc2FtZSBwb3J0KTogYXQg
+d29yayB0aGUgbGFwdG9wIGdvZXMgaW50bw0KYW4gSFAgVVNCLUMgRG9jayBHNSAoTWljcm9jaGlw
+IGh1YnMpLCBhdCBob21lIGludG8gdGhpcyBWSUEtYmFzZWQNCmFkYXB0ZXIuDQoNCiAgVklBIGFk
+YXB0ZXI6IDk4IGVudW1lcmF0aW9ucywgdGhlIGh1YiBpdHNlbGYgZmFpbGVkIDE0IHRpbWVzDQog
+ICAgKCJEZXZpY2Ugbm90IHJlc3BvbmRpbmcgdG8gc2V0dXAgYWRkcmVzcyIgb3IgImRldmljZSBk
+ZXNjcmlwdG9yDQogICAgcmVhZC9hbGwsIGVycm9yIC0xMTAiKSwgdGhlIHI4MTUyIGJlaGluZCBp
+dCB0aW1lZCBvdXQgMjkgdGltZXMNCiAgSFAgZG9jazogNDUgZW51bWVyYXRpb25zLCBub25lIG9m
+IHRoZXNlIGVycm9ycywgaW5jbHVkaW5nIGl0cw0KICAgIHI4MTUyIChzYW1lIFJlYWx0ZWsgMGJk
+YTo4MTUzIGNoaXApDQoNClRoZSBWSUEgZXJyb3JzIGdvIGJhY2sgd2Vla3MgYmVmb3JlIEkgZmly
+c3QgcGx1Z2dlZCB0aGUgQlJJTyBpbnRvDQppdC4gU28gSSdtIGZhaXJseSBzdXJlIGl0J3MgdGhl
+IGh1Yiwgbm90IHRoZSBjb250cm9sbGVyLiBJJ20gZ29pbmcNCnRvIHJlcGxhY2UgdGhlIGFkYXB0
+ZXIsIHNvIHRoaXMgaXMgY2xvc2VkIG9uIG15IHNpZGUuDQoNClRoYW5rcyB0byBib3RoIG9mIHlv
+dSBmb3IgeW91ciBoZWxwLg0KDQpDaHJpc3RpYW4NCg==

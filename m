@@ -1,73 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.197
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795661028;
-	b=TT9fFRRe5wyOHqBEG9hpCn8x30JYbOmDrM3bxqRGuxNh+5J04kHkSeanc+G0ZPy9DYSm
-	 0fSHdShM7qYOMjzvHdrbkYZSndIImSGr733d1iz643giqe1c86bJjH6kgBtwQMIg04AwP
-	 Njko51oOcAdLNwpstEUkaF9n7evoSJLgBvq+htS3msFf6j6hmOVbuiCjT0Ld/3spOkimK
-	 VBN1/BKyQ8V7s+bSNq+dJBkkMcacDHtqjdLWrqRRFviPdLH5xLC2aoA3EG7ySyEfs5N2P
-	 HwE6XP4lHicRMHS0IDa0udiw+XVC/ZZemANEpxzhxIVtqJe9pYdw/NnQE+Pv4h9Fu0A==
+	t=1795661033;
+	b=me+8EGGRWPNQAqpIz49ZtK9r6fGRK5Bzx/aCvk9FNxi35iUXU6X+hGS+FGW6COns1BKt
+	 pqewc5a1aOz1vVVmMCoKG2Y8iy8845QAfzcEQL34PqnAZd8XqcExxHr2YtyC1gtwj7+wr
+	 EyRWQ9PZHyYZkZdCH3JPMYul825eFFI6rzClyDO/2QLbdF68hg7q4VH4frOmKE4Xr6+y0
+	 kSaot0N8uujsRiJQBKAkeJF7QgrOeBlPu3qgfHGdgOh7xJWgrYZ8Eb61awjF9dLuPPFSy
+	 Edp4rhcxOCA5A6oolG3fyHdwlwpCjG1SIgTqGI63a6sUj6rHC5TenQFBIPfMl1zCbdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795661028;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795661033;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
 	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
 	 Content-Type;
-	bh=wlB0rbo2aRHGXw7eVLnZ6xPO6friQTpYCVcGasiGcT4=;
-	b=jRRjURz04TkESimj5a1WiSHNWMg08gv5jHAAMARqwv2bqN70468b3BCeQBbrz042KqXp
-	 UMr+hjpWenfSRmIoLYswLa8YbmnCnwVE3g5EC1YXRLLXr63+gpPGLlbiix1jIj1uqgIXg
-	 oVY7ttbs/1tighi5fSTNOndROavnSyn9GxdLKIuRR7B6pmXxTs1wBpjXI2Dzkjr2M+hYn
-	 wqrxl3DtaxWtancwnbztNuO7M7+B95aTwSidHa2VafwkINiz7TkzT74nzchtKcV7ayGCu
-	 Hv3XvAL0Bk8occEOexliM8yHu+OFUwHWpXJ2ZfBUJpbkxQDq9pnM12xka42Hbjo/CHw==
+	bh=S0zE4ZzEU1lxgtEwjpWg0ydPg9Imd6vmaVdGfev3YoM=;
+	b=1m+WhPMKwLyCyFHy4E92URnmR7+vja3Hycjg8fOdnB9E4TiLre2aBfUUsGK4S75a0gRR
+	 VZYtmhit58Ot46fTHaLViB4tHdJg+wUJSJId57XSQfQMvzSCAtolMs6YlM5LsmGA8MsC9
+	 HMCY+PI3jxuMRoRoPAP7ikjUJwUF1Ts5SkNqivOxwmUohwHt/KuRjL5jXyGZ+Qd5+lmDr
+	 nX4V30eFE1D3hYfjMhS16wzLCv+i9+qDjWy9P0AeqsnR4tOi1GnQAJVvD6+aG+BGxji0W
+	 UZ6MAFjfKCiS/n+cuQ8HwAnv9IeCkRAnrTAev5QyBxRsch4Lg+gQubZPUcZF8njqXxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--svv.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=jz4NK4DJ;
-	arc=none smtp.remote-ip=74.125.82.199
-Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=AVr+QE5d;
+	arc=none smtp.remote-ip=74.125.82.197
+Received: from mail-dy1-f197.google.com (mail-dy1-f197.google.com [74.125.82.197])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F64A606A33D
-	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 02:43:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2F64A606A33D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C7F8606A327
+	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 02:43:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C7F8606A327
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--svv.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=jz4NK4DJ
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-386a0f79047so6894180eec.1
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 18:43:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=AVr+QE5d
+Received: by mail-dy1-f197.google.com with SMTP id 5a478bee46e88-386177b0516so16377090eec.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 18:43:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1795661027; x=1796265827; darn=vger.kernel.org;
+        d=google.com; s=20260707; t=1795661032; x=1796265832; darn=vger.kernel.org;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=wlB0rbo2aRHGXw7eVLnZ6xPO6friQTpYCVcGasiGcT4=;
-        b=jz4NK4DJXBmQolbmhPdIrhh8SREy/rLdKzBNoXmGmylMmaSll/nWJb3IGnFwXe/iK0
-         UB3xgtzp0xuFPSvEnRrCE6JozFN7BgkFYG2npatues7UdMYvzr0FwLK/VqCTP69ERr6u
-         yqZOhk71A5Ed4bx3YIGbBbdrlRtZHvrQbUtn9a0Ye7f6pqFpqVhbCZrusvZKUCZT1hj4
-         jgCWoMvlDyVqYHPDbCNBEuRb8Cc5fU3/pR32Y13hbiIIXuioabI5YK7ES45UQt19RD9k
-         qIdQmzUVbIXe2DJJLSQ5tc4garDc/bMNP65QkTg5MqCxp9q3OXVIPW37lbE+LuXbazDT
-         tfNA==
+        bh=S0zE4ZzEU1lxgtEwjpWg0ydPg9Imd6vmaVdGfev3YoM=;
+        b=AVr+QE5diCNk4az/bboFovgn2EqR32kN/0ODEX6iUYX3afYwgDPYLHoZcY+XljHbnV
+         BCelDwDVdyeYMDlTRa7wsAT6f2tcjS0BeLTE/LGmRkmYzJhlStcXf5CE1h1UMd0izBTb
+         R+rXsczCYeI/RCHaELZxGSEQHMQ3sCJCjuJGQCcQvKPtpEURjohl5+tZ0w9+pI/1LPYq
+         ZYsyp9VZUb7uAu1o+HxXl0mlQiCNlB5w1rgW/2NjJoTUYdozAaXNzCylGxotfkf56NBZ
+         vKv+70sw3xkEMBp0/nslC5WA/7eArRqXut7V9kEAUqENu73szrD5wvEeYEsfHbhtwHhB
+         SoXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795661027; x=1796265827;
+        d=1e100.net; s=20260707; t=1795661032; x=1796265832;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=wlB0rbo2aRHGXw7eVLnZ6xPO6friQTpYCVcGasiGcT4=;
-        b=QV+zHYwvbdSiRSlLbHRrB9gLmEsg5gU8RWWx08/uc7KiGndDm30kb1CqtPMo3WFngE
-         Fg0QteRdSAKAIpXd2XbhZQ5Tkw4gVkC9Mj4vKCZ+TkdsgtbDvUKWeWgMeyM0h6duQwRJ
-         MaDCDR6cZhBLaYis/91QObuMZmS5ZJBZlfo+yQf+2knW9vZd7EYhBXSNptnWfqOUemBZ
-         wjwTtUG1g4Ge5fkZBA+HwPUwxqB5moEYk8JzfQLR+2N314UZi7Ov6dECwP3yWMZUQFII
-         M4Qg76SPeEpISUDxJLsiLllIamuDvjpvtDzfnpGjqySLknAAo9JcuukYwl8m9QMaV44n
-         vMSA==
-X-Forwarded-Encrypted: i=1; AL+hErEAfUT2DUhlqcrHUAY+IGuK2QZ4IW4ScBz3+0x+2k9TfoiZjr1sHCt0IYTi+a6Hd5Sj8hHRd2Mym4wBQQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9WlpiQ1dvVjKlA8998Z8jNdVvewh/sc0q5/1uSXRU4IVhQDoGO
-	CBLP/oRh4qFWgz8sh7n9hE+wCrdZsm1j1bgFLNHEMVvUP3DQCqrzr1WOZzv/4wqrdz3INA==
-X-Received: from dyrp20.prod.google.com ([2002:a05:693c:69d4:b0:386:b61f:b88e])
- (user=svv job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:6010:b0:382:105f:e7e
- with SMTP id 5a478bee46e88-3857170e441mr24867685eec.36.1795661026952; Wed, 25
- Nov 2026 18:43:46 -0800 (PST)
-Date: Wed, 25 Nov 2026 18:43:35 -0800
+        bh=S0zE4ZzEU1lxgtEwjpWg0ydPg9Imd6vmaVdGfev3YoM=;
+        b=2dDthkFHHTRmb1T/9c1edandLoxahDaOZn4na6/i0uIEgCb/yk30YNb3IEeYlVpu44
+         pjIoglOrp/2mJpMmBwYMaG4J2SUwiaiA8iAzg19Dpgqg7Zu47BHgAEitPpKUrw0HtCho
+         uXLSP8FcF8C+uG76Edj6A0W4rY084RPq3enkmm80px6dnTj200/hvNNh+kjjvqasKuVP
+         3uKl+dnCPKmq8BiugRpxz7llnTjibt+RqaGvIqd1f3nQrzWe2TjMR+RQM2IhIQMN9Kjg
+         e5UguTzecvsVNVVUsCleEz6LXBw2Qiqzn5iLZMJwXET4XUJA20iEIL5NYrX6T08sMT5n
+         qFtw==
+X-Forwarded-Encrypted: i=1; AL+hErHqdhnxNZJDiRN2ivm53aqiQciiyNV+gvzBZOVp+M8l5QbWOLBlr5kXtPyjVBsG2Sj4OhM8m/VJjw40cw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8L8U8rK79jnvbOPUR/JfGZEuyot7Bmualwh83VXT7awRrKmqDZ
+	sW//xDaUWBQJyfFxIgp3QwdU/eUPWNHzQa4wlDlqsP919uydFKXsXa0dC9eBfkJYovSL2g==
+X-Received: from dyrp2.prod.google.com ([2002:a05:693c:69c2:b0:36a:1f25:64f4])
+ (user=svv job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:e0c1:b0:380:c3d7:c263
+ with SMTP id 5a478bee46e88-3856c0d076cmr22974891eec.5.1795661031825; Wed, 25
+ Nov 2026 18:43:51 -0800 (PST)
+Date: Wed, 25 Nov 2026 18:43:36 -0800
 In-Reply-To: <20261126024337.4168845-1-svv@google.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,8 +80,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261126024337.4168845-1-svv@google.com>
 X-Mailer: git-send-email 2.56.1.911.g883d8bcb20-goog
-Message-ID: <20261126024337.4168845-2-svv@google.com>
-Subject: [PATCH v2 1/3] Input: add ABS_TWIST event code
+Message-ID: <20261126024337.4168845-3-svv@google.com>
+Subject: [PATCH v2 2/3] HID: input: map Digitizers Twist usage to ABS_TWIST
 From: Siarhei Vishniakou <svv@google.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
 	Benjamin Tissoires <bentiss@kernel.org>, Ping Cheng <ping.cheng@wacom.com>, 
@@ -93,110 +93,145 @@ Cc: Jason Gerecke <killertofu@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
 	Siarhei Vishniakou <svv@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Some styli can report the rotation along their long ("barrel") axis.
-This is typically referred to as "twist".
+The axis ABS_TWIST is used to report the "twist" (or barrel) rotation
+of a stylus.
 
-Unlike ABS_MT_ORIENTATION (which describes the 2D alignment of the
-contact ellipse on the surface, analogous to stylus azimuth/tilt
-projected onto the surface), twist captures the roll of a tool around
-its own longitudinal axis independently of tilt or azimuth.
-
-In the HID usage pages, twist is already supported as HID_DG_TWIST
-(0x000d0041). However, this usage is not reported to userspace via the
-evdev interface today, since there is no MSC_SCAN equivalent for axes.
-
-Peripheral OEMs get around this today by mapping this axis to other axes
-like ABS_Z or ABS_RZ. This is not a valid way to report twist.
-
-As a result, userspace programs that would like to support twist must
-account for the various ways specific OEMs map this, since there is no
-generic axis for this.
-
-Unify this behaviour by introducing a new axis, ABS_TWIST (0x1d). This
-axis applies to single-pointer devices (such as styli), as opposed to
-per-slot multi-touch devices (which would use an ABS_MT_* axis).
-
-Document ABS_TWIST in event-codes.rst with its value semantics:
-clockwise-increasing when viewed down the tool's major axis toward the
-surface, 0 aligned toward the top (-Y, north) of the interaction surface
-matching HID_DG_TWIST, supporting either non-negative [0, maximum] or
-signed [minimum, maximum] full-revolution ranges, and resolution in
-units/radian.
+Map the HID Digitizers Twist usage (0x000d0041) to ABS_TWIST
+in hid-input, and calculate its axis resolution in units/radian.
 
 Signed-off-by: Siarhei Vishniakou <svv@google.com>
 ---
 Changes since v1:
-- Moved ABS_TWIST directly below ABS_SND_PROFILE in event-codes.rst
-  (Dmitry).
-- Expanded event-codes.rst documentation with precise value semantics:
-  clockwise-increasing direction viewed down the barrel toward the
-  surface, 0 aligned toward the top (-Y, north) of the surface,
-  non-negative [0, 360) and signed [-180, 180) ranges, wraparound
-  behavior, and distinction from ABS_MT_ORIENTATION (Dmitry).
+- No changes (rebased cleanly onto v7.4-rc4).
 
- Documentation/input/event-codes.rst    | 23 +++++++++++++++++++++++
- drivers/hid/hid-debug.c                |  1 +
- include/uapi/linux/input-event-codes.h |  1 +
- 3 files changed, 25 insertions(+)
+ drivers/hid/hid-input-test.c | 87 ++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-input.c      |  5 +++
+ 2 files changed, 92 insertions(+)
 
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index 77a6c9b3956d..4f03dcacbd55 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -247,6 +247,29 @@ A few EV_ABS codes have special meanings:
-     An event is emitted only when the selected profile changes,
-     indicating the newly selected profile value.
+diff --git a/drivers/hid/hid-input-test.c b/drivers/hid/hid-input-test.c
+index c92008dafddf..a78a769b60f5 100644
+--- a/drivers/hid/hid-input-test.c
++++ b/drivers/hid/hid-input-test.c
+@@ -67,9 +67,96 @@ static void hid_test_input_get_battery_property(struct kunit *test)
+ 	KUNIT_EXPECT_EQ(test, val.intval, POWER_SUPPLY_STATUS_DISCHARGING);
+ }
  
-+* ABS_TWIST:
++static void hid_test_input_calc_abs_res_twist(struct kunit *test)
++{
++	struct hid_field field = {
++		.logical_minimum = 0,
++		.logical_maximum = 3599,
++		.physical_minimum = 0,
++		.physical_maximum = 3599,
++		.unit = 0x14, /* Degrees */
++		.unit_exponent = -1,
++	};
 +
-+  - Used to describe the rotation of a tool (such as a stylus) around its own
-+    major (barrel) axis. Unlike ABS_MT_ORIENTATION (which describes the 2D
-+    orientation of a contact ellipse on the surface), ABS_TWIST reports the
-+    tool's roll around its longitudinal axis independently of tilt or azimuth.
-+  - Values increase for clockwise rotation and decrease for counter-clockwise
-+    rotation when viewed looking down the tool's major axis toward the
-+    interaction surface (e.g., from the eraser end of a stylus toward the tip).
-+  - A value of 0 corresponds to the tool's neutral reference orientation (e.g.,
-+    its primary barrel button or flat edge) facing toward the top (-Y, north)
-+    of the interaction surface.
-+  - The range reported in struct input_absinfo may be either non-negative or
-+    signed. A non-negative range ([0, maximum]) covers [0, 360) degrees.
-+    A signed range ([minimum, maximum]) is centered at 0 and covers
-+    [-180, 180) degrees.
-+  - Unless the hardware only supports a restricted angular range, the
-+    [minimum, maximum] range spans one full revolution and wraps between
-+    maximum and minimum.
-+  - If the resolution is non-zero, the twist data is in units/radian. If the
-+    resolution is zero, userspace may assume the full [minimum, maximum] range
-+    represents one full revolution.
++	/* 0..3599 over 0..359.9 degrees -> ~573 units/radian */
++	KUNIT_EXPECT_EQ(test, hidinput_calc_abs_res(&field, ABS_TWIST), 573);
 +
- * ABS_MT_<name>:
++	/* 0..359 over 0..359 degrees -> ~57 units/radian */
++	field.logical_maximum = 359;
++	field.physical_maximum = 359;
++	field.unit_exponent = 0;
++	KUNIT_EXPECT_EQ(test, hidinput_calc_abs_res(&field, ABS_TWIST), 57);
++
++	/* 0..628 over 0..6.28 radians -> 100 units/radian */
++	field.logical_maximum = 628;
++	field.physical_maximum = 628;
++	field.unit = 0x12; /* Radians */
++	field.unit_exponent = -2;
++	KUNIT_EXPECT_EQ(test, hidinput_calc_abs_res(&field, ABS_TWIST), 100);
++
++	/* Linear unit (centimeters) is invalid for ABS_TWIST */
++	field.unit = 0x11;
++	KUNIT_EXPECT_EQ(test, hidinput_calc_abs_res(&field, ABS_TWIST), 0);
++}
++
++static void hid_test_input_configure_twist_usage(struct kunit *test)
++{
++	struct hid_device *dev;
++	struct hid_driver *drv;
++	struct hid_input *hidinput;
++	struct input_dev *input;
++	struct hid_field *field;
++	struct hid_usage *usage;
++
++	dev = kunit_kzalloc(test, sizeof(*dev), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, dev);
++
++	drv = kunit_kzalloc(test, sizeof(*drv), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, drv);
++	dev->driver = drv;
++
++	input = kunit_kzalloc(test, sizeof(*input), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, input);
++	input->absinfo = kunit_kcalloc(test, ABS_CNT, sizeof(*input->absinfo), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, input->absinfo);
++	input_set_drvdata(input, dev);
++
++	hidinput = kunit_kzalloc(test, sizeof(*hidinput), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, hidinput);
++	hidinput->input = input;
++
++	field = kunit_kzalloc(test, sizeof(*field), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, field);
++	field->report_count = 1;
++	field->logical_minimum = 0;
++	field->logical_maximum = 3599;
++	field->physical_minimum = 0;
++	field->physical_maximum = 3599;
++	field->unit = 0x14; /* Degrees */
++	field->unit_exponent = -1;
++	field->usages_priorities = kunit_kzalloc(test, sizeof(int), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, field->usages_priorities);
++
++	usage = kunit_kzalloc(test, sizeof(*usage), GFP_KERNEL);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, usage);
++	usage->hid = HID_DG_TWIST;
++
++	hidinput_configure_usage(hidinput, field, usage, 0);
++
++	KUNIT_EXPECT_EQ(test, usage->type, EV_ABS);
++	KUNIT_EXPECT_EQ(test, usage->code, ABS_TWIST);
++	KUNIT_EXPECT_TRUE(test, test_bit(EV_ABS, input->evbit));
++	KUNIT_EXPECT_TRUE(test, test_bit(ABS_TWIST, input->absbit));
++	KUNIT_EXPECT_EQ(test, input_abs_get_min(input, ABS_TWIST), 0);
++	KUNIT_EXPECT_EQ(test, input_abs_get_max(input, ABS_TWIST), 3599);
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input, ABS_TWIST), 573);
++}
++
+ static struct kunit_case hid_input_tests[] = {
+ 	KUNIT_CASE(hid_test_input_update_battery_charge_status),
+ 	KUNIT_CASE(hid_test_input_get_battery_property),
++	KUNIT_CASE(hid_test_input_calc_abs_res_twist),
++	KUNIT_CASE(hid_test_input_configure_twist_usage),
+ 	{ }
+ };
  
-   - Used to describe multitouch input events. Please see
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f44e6e708404..2e9ff8a3b2cf 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -3518,6 +3518,7 @@ static const char *absolutes[ABS_CNT] = {
- 	[ABS_HAT3Y] = "Hat 3Y",		[ABS_PRESSURE] = "Pressure",
- 	[ABS_DISTANCE] = "Distance",	[ABS_TILT_X] = "XTilt",
- 	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "ToolWidth",
-+	[ABS_TWIST] = "Twist",
- 	[ABS_VOLUME] = "Volume",	[ABS_PROFILE] = "Profile",
- 	[ABS_SND_PROFILE] = "SoundProfile",
- 	[ABS_MISC] = "Misc",
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 4217950e5d16..d4ed115fdeca 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -892,6 +892,7 @@
- #define ABS_TILT_X		0x1a
- #define ABS_TILT_Y		0x1b
- #define ABS_TOOL_WIDTH		0x1c
-+#define ABS_TWIST		0x1d
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index a4d3536c7af2..d216bb44b108 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -291,6 +291,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	case ABS_WHEEL:
+ 	case ABS_TILT_X:
+ 	case ABS_TILT_Y:
++	case ABS_TWIST:
+ 		if (field->unit == 0x14) {		/* If degrees */
+ 			/* Convert to radians */
+ 			prev = logical_extents;
+@@ -1064,6 +1065,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			map_abs_clear(ABS_TILT_Y);
+ 			break;
  
- #define ABS_VOLUME		0x20
- #define ABS_PROFILE		0x21
++		case 0x41: /* Twist */
++			map_abs_clear(ABS_TWIST);
++			break;
++
+ 		case 0x33: /* Touch */
+ 		case 0x42: /* TipSwitch */
+ 		case 0x43: /* TipSwitch2 */
 -- 
 2.56.1.911.g883d8bcb20-goog
 

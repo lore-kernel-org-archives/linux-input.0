@@ -1,84 +1,84 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795651634;
-	b=5JqgTVcRgNzthZhtme4bXH6M/tcsfvOQ9V4JIl3IPhpqYLuwWS7lZcFjvUkdDkOPA5VY
-	 kLq6b+3QGS4Ay/r2v1o4y1LgznmIRXsyg/NE0QIBo8KeyEYXsq+t7UTr+oT04Fdbv2QWn
-	 Rp3z5uu0CFz+QK/GjYPRE4cQV2H4tO9bpyT7aDBtXjagJdq0lrHbFurX9XOQCB6jPNCNS
-	 tKJ9uh6tgF8g840NC5/dLIMYvPB86KoXipCnuYjQhMK72dfV/sTpnYt8lPmPhE+W67Stc
-	 cvWbE6DHOTmb3M/Vpcwx8jC517mfjIlLvikVsRGMN+xkljxuAu/bR8JVGD+sFzO0Y2g==
+	t=1795651640;
+	b=qEgDL58l3fVGbGik91a667j5NfC6XIRuFd0/oNZFQ5bF21vM/vLIkzgr9n7I1FFKUEbN
+	 +t9PUmCmmln4SsOOBZ1RmHA5LcxINgwHlUkodaw4nHQ2RyLdSL03KMK6TzkWh+Z2ENZcQ
+	 peu6GlzGsR41+jyLeNvdGrjTpOuPvz1Nseo9lIpkxbAht10aZgrHf2hU+y7O3Z+euYK71
+	 5bjhWuPbO9fx0NqjPKcibqOf3OGu2PqfN3+1t8MA04n1UItlDQZ6qX9HRWiXhegkCAryC
+	 VCMMa/0X9K7dwsaRcm5YUuBV2jLXKEYEJBiyzcYSA5vhmkOMofCUP3Vno1wF0pEHlMQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795651634;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795651640;
 	h=Received:DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-Id:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=1Jm1w8UDV20OXda72KTEVGxoSWqVP6gtwcMTUrb2vPg=;
-	b=Y/vN/M0MincSlbjAj9lNdhGIUGoq71TNpuXjdxiBc+kSqj/geKawIL/eQ7TvmXpRVhmZ
-	 wC17GMuVpTHFIJVaHYFVa/2BpDzj9b79wYMerg4+X2Q/towp9Xo5jfI9ocq+jngsst0g7
-	 lmhYKiUBm+VLCIuv58o/+bmZYFR5dO0RVQLSmqAytR1RyHVzOxRPzgmqemS+1eXGw4V2O
-	 YVEA/MHkjzZwnQu2UafDiH24+S4LUVSrKOCVEiS+6XtoFkih/mhfQNUO6Cbr+wblVAQ55
-	 uGuv6i8ocKUJgVCTlrr1XBoZLvslEjLcYithCrukn/phYqcko4yB4ihnkJ3EKgIR5Vw==
+	bh=DmxVWbQtDMQqiEeIqIgo0HwoyTz8oaoNt+L9yRWyVi0=;
+	b=H3L747V6UHncxALmVQH9r8WTNvE5MrJHlWN60wfLeLXs5gqE+WpMAhWHAoAjZ0CZbT5d
+	 pZJ+Ht+C9LXvpa3SvfQPWZ1LkESVppizuv+ZxtiAZeuW1JhxmyDdXUeLxgbvQN9Pcr//g
+	 rb7wm2/1z7OuAfCWpfKUMKB1vYBUTuKj5XwiKk+mL69e04rVroMCSDsachzbj+DMH7aWV
+	 38K7UZB/HMtkV5nwlaDFpscPJ6m4Hyj2XT+K4+iM5+QR7cADcWTS/NxTWrtqPtPU65EBz
+	 013S6AY7H/ordfwt5SfcdyKTQpdqiqf/O7/+kdyEaxXxiMaWi1UrouzCcQnzWvcLWTA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BXx25cDg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z2QlICBy;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8644E606A321;
-	Thu, 26 Nov 2026 00:07:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9676B606A334;
+	Thu, 26 Nov 2026 00:07:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BXx25cDg
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z2QlICBy
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795651634;
-	b=f9tOX6oEExVQP2C9GcHGJ0F6wLoqBo5Ix6fwUlzDJdwzcv8ckzIi4xojuwjPZOmsZ2V9
-	 DvwMQdQKTO1ujpvxUXipkn0WZ6+3/zUwkRxR/HppYhQ93euutYs5BS3P1jdFYpfxl8Ljw
-	 IdYNZ6Yt+H/iJYAab2hLaIm7GKWQrHGImIXnB2SMytIhXyOxjtKj84zLatyICIr+opkcf
-	 8hZ3iABusfF5DVuelKN2LtFw+ki1YoOSCBaDWVPeZ/AJ2ROB/jIqsEaq+6ZK/2VbrEnSM
-	 rezhYi/CaH3uMd8iTYU7Cu0HNjLXNL1MguqQGmGnDsmYMVPr7Fg1kuKpd/f9pSqN/OQ==
+	t=1795651640;
+	b=SP5Fo3NU8sOE0+9YgWCsYJ4AuAHLMB0GXHZi50ZJjUXx55/QI+0ZaaGkR9Cu3mV2adbr
+	 X2qfRYETyS+WbuEE82Wb8jdO/XSsYU1xhsl105BIhIkTIJCLHZRiMIlHj9p+JbqjaTDs1
+	 6wP7gj/qW+SbanSYkkk3WxMa1E14NYzeHVi8BVpLTp+euctL9ndR6rIbtHtKKgKHLkuxj
+	 e0bGyITDpNxBuzU+PnKHZP2xurfXhQ9Rl9PiDteMe/8Y7mEE6D9Nl1hkdL6El4fhasQOs
+	 ElxUaoDxlS3PcxZIHHczVUqfvNb9YD90jDcMt1dnwBwyX1P3TK13xJFaHN6dxnZ9wyg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795651634;
+	c=relaxed/relaxed; t=1795651640;
 	h=DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-Id:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=1Jm1w8UDV20OXda72KTEVGxoSWqVP6gtwcMTUrb2vPg=;
-	b=SghH7qBEv0GX4a9zM7akcW4EZl2GE9VCx9Myt+3jZRR2XMhpwp7Hc+mrIllxjbwIdQ2y
-	 3ORBzA9POrzx6zK5PSfVNoE2hRk2CHUf75js+bklxSgXxiBEXZ57ygEWMbjDWP9R5EfWU
-	 QxqjlV7T0k1NouIXNzjkx9Mr7CNT2QQ8luONbGBRSI8k179ii3jjfYHVFCiGPubdw5LXv
-	 bDLyok/DVlZLaIYsqM6VVjVQgzqE+JSReSEooz8lQX9EFlYLiqJViLi6o0MkuWj05jiWw
-	 fNsUayqcgjUMrnbLIMXTi7X8QWo8YzscA2AScMVPfwmDSJs3B0gAwK1R24+TN+9EGiA==
+	bh=DmxVWbQtDMQqiEeIqIgo0HwoyTz8oaoNt+L9yRWyVi0=;
+	b=n7it3IMU267k17a8aao9OZGqt0NlmD9Rj1YhNZtY1fSHlFGu4KDtJJHtuPqscCjFeqwD
+	 B3MjKgg62Op91qjcvf68ZdpldiQg6uZ2Dgzi8Pd4N3ML4EY9hNwjevzGdjjGZTMhbVDwj
+	 4+I91MP7bDlLtyz5r+NDlSMHBgZtg9XyKwyRxXZ9dGNtCcnya0kJu6g11FkaWPAhcBs+v
+	 7qHr7rwD6bGHOoDjqayd89EyPui7jFzNbHfCsm4MfyC7pOQyiF2Erv1vYzH951bHs3iYL
+	 2smoj5UXlaCBdC17VUPjbXpEq8x6Tj/vtxfr6A5Dswlq34evgq3MR6Pbxfyg34mXPiQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id D5DC61F000CA;
-	Thu, 26 Nov 2026 00:07:07 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 02DEA1F000C0;
+	Thu, 26 Nov 2026 00:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795651634;
-	bh=1Jm1w8UDV20OXda72KTEVGxoSWqVP6gtwcMTUrb2vPg=;
+	s=k20260515; t=1795651640;
+	bh=DmxVWbQtDMQqiEeIqIgo0HwoyTz8oaoNt+L9yRWyVi0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:Reply-To;
-	b=BXx25cDgUD2Figfsn72R9ZW3Aoin+/utyGmJjEmT9GT60p9hFna3oFqACZc5DI+0o
-	 vpJJBY80obwQrSvAP6Jr7E26ljYTjJw/hR3F23gPFRDumLpf9l9krW0Hhd+U5vSXJF
-	 E4aUdzwL2JnfWYgoSXbfNnT0cazTZbJ8g91JgmXJNuC5NyqivfNix4nkZG3Bswzc70
-	 oP4gX2EywWqhTnzNxZxTaHwuPkvDytQROsnDi8Nh03eTTvp8ULGuMDU2I2J4jBlJ0I
-	 BhBra1FTNtZM2KZiNPTYlL/62XWngeMdC582r19o0ETIYRHkwqv4p+gCRm528/Z3ut
-	 GlIG9y0Y29hBg==
+	b=Z2QlICBy/rfJfsn1uRKNM1sAXv0f44D+5QzwZyK4hRYU+cCHjPtdmhqIVqe5ccjuH
+	 IiNH4ymRRgDTXzrAd8L/NY6UFW05RBLDwrZh9UvXpteHSATLjrfPgjyvHE4+enZ0Oq
+	 S5vDsHb2bdCh03ENooNyJxmVTzITiFcG9D4Ge6eH1avGMbVqOr3rqZFU8IPTvH97I0
+	 i0GdgFUge6TSkL+86VU5kbTBoMkHtCzdJziOxWmvJjfTiOWjHp53y6gpcX+af7oxhS
+	 7c2aD7IQfGgcToHCAZeIVn5g+Rzmd8wHYG2rCZdaf0oxfkbZCBFhnjcXOBR/SsqVoi
+	 fvn0K21JvGmag==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 615514D0D3;
+	by lkml.kernel.org (Postfix) with ESMTP id 81F254D0D8;
 	Thu, 26 Nov 2026 00:07:07 +0000 (UTC)
 From: Ilia Snezhkov via B4 Relay <devnull+iasnezhkov.gmail.com@kernel.org>
 To: dmitry.torokhov@gmail.com
 Cc: matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com, 
  linux-input@vger.kernel.org, linux-mediatek@lists.infradead.org, 
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] Input: mtk-pmic-keys - fix MT6358 long-press reset
+Subject: [PATCH 2/2] Input: mtk-pmic-keys - fix MT6357 long-press reset
  bits
-Date: Thu, 26 Nov 2026 00:07:07 +0000
-Message-Id: <20261126000706.15649-2-iasnezhkov@gmail.com>
+Date: Thu, 26 Nov 2026 00:07:08 +0000
+Message-Id: <20261126000706.15649-3-iasnezhkov@gmail.com>
 In-Reply-To: <20261126000706.15649-1-iasnezhkov@gmail.com>
 References: <20261126000706.15649-1-iasnezhkov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -92,11 +92,11 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795651626; l=3562;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795651626; l=2249;
  i=iasnezhkov@gmail.com; s=mindone2026; h=from:subject:message-id;
- bh=8Ps8xDSOLQnt6t9Mmu3NbmTDcsWme4WN7eNETt0rZx4=;
- b=AJVBhriT9ut+JHiqczAXuXI9TjkJQ/GIfCqGAZjc8xS3cMU3/83FthCHrGxSlrCqz4NIHZPRF
- LLBUBAI4UcGBlH4n6LyaXsIaoKQH1NnGck6Z5spgzFC5EehMJRAfVWP
+ bh=yS1/exCajzsB+ZjgzM6lYxa7Xj5JiEYFeRxg/8WGWXY=;
+ b=diOxS1vAsQ/Ar98FTN3N06GgLgjkeb67CkWLvI1iKnQ9PpMbiXhpSkE2OW6CSiMILCaaZTS97
+ ZIXdX5QiDtRAX9VjAbu7HnH15VzFlgcCZcw6/HVMN5w//Zp8zXfLNPa
 X-Developer-Key: i=iasnezhkov@gmail.com; a=ed25519;
  pk=hQgXfiWi4ukk2jh4BHu1vRVhg9BUivo//AFp50AKMag=
 X-Endpoint-Received: by B4 Relay for iasnezhkov@gmail.com/mindone2026 with
@@ -107,88 +107,57 @@ Content-Transfer-Encoding: 7bit
 
 From: Ilia Snezhkov <iasnezhkov@gmail.com>
 
-mt6358_regs reuses the MT6397 layout of TOP_RST_MISC: BIT(6) for the
-power key reset, BIT(5) for the home key reset and GENMASK(9, 8) for
-the long-press time. MT6358 and MT6366, which uses the
-"mediatek,mt6358-keys" compatible, lay this register out differently:
+The home key entry of mt6357_regs passes MTK_PMIC_HOMEKEY_INDEX, the
+array index 1, as its reset enable mask, so the driver writes BIT(0) of
+TOP_RST_MISC for the home key. The other two bits come from the MT6397
+layout: BIT(6) for the power key and GENMASK(9, 8) for the long-press
+time.
 
-  bit 0      RG_WDTRSTB_EN    (PMIC watchdog reset enable)
-  bit 1      RG_WDTRSTB_MODE
-  bit 5      RG_WDTRSTB_DEB   (PMIC watchdog reset debounce)
-  bit 8      home key takes part in the long-press reset
-  bit 9      RG_PWRKEY_RST_EN
-  bits 13:12 long-press reset time
+MT6357 shares TOP_RST_MISC at 0x14c with MT6358, and MediaTek's
+downstream mtk-pmic-keys driver programs it with the same layout as
+MT6358: power key reset enable at bit 9, home key at bit 8 and a two-bit
+long-press time at bits 13:12. On MT6358 and MT6366, bit 0 of this
+register is RG_WDTRSTB_EN, the PMIC watchdog reset enable (coreboot
+pmic_wdt_set()), so with the default mediatek,long-press-mode = <0>
+the probe very likely disables the PMIC watchdog reset on MT6357 too.
 
-The watchdog bits are set by the boot firmware in coreboot's
-pmic_wdt_set() for MT6358 (mt8183) and MT6366 (mt8186). MediaTek's LK2
-names bit 8 RG_PWRKEY_KEY_MODE and bit 9 RG_PWRKEY_RST_EN of
-MT6358_TOP_RST_MISC, and MediaTek's downstream mtk-pmic-keys driver
-uses reset shifts 9 (power), 8 (home) and 12 (two-bit time) for MT6358
-and MT6366.
-
-With the default mediatek,long-press-mode = <0> the probe clears
-bits 9:8, 6 and 5. That clears the long-press reset enable as intended,
-but only by accident, and also clears RG_WDTRSTB_DEB. With modes 1
-and 2, power-off-time-sec is written into the reset enable and key
-mode bits, while the enable bits land on bit 6 and on bit 5
-(RG_WDTRSTB_DEB).
-
-On an MT6366 board (an MT6789 phone) TOP_RST_MISC reads 0x0225 after
-the boot firmware: bits 0 and 5 (watchdog reset enable and debounce)
-and bit 9 (power key reset enable). Under the MT6397 layout this would
-decode as a home key reset without a power key reset, which the driver
-itself can never configure.
-
-Use the MT6358 layout. Its values equal the MT6331 ones, but the
-fields are defined separately for this PMIC family.
+Use the MT6358 layout for MT6357.
 
 Found and drafted with an AI coding assistant while bringing up MT6789.
 
-Fixes: 994673dc6657 ("Input: mtk-pmic-keys - add support for MT6358")
+Fixes: 297770ec5c93 ("Input: mtk-pmic-keys: add MT6357 support")
 Signed-off-by: Ilia Snezhkov <iasnezhkov@gmail.com>
 ---
 
 Notes:
-    Tested: TOP_RST_MISC read back on an MT6366 board (MT6789 phone) running
-    MediaTek's downstream driver, which programs the MT6358 layout: 0x0225.
-    The mainline driver with this change has not been run on hardware and
-    was not compile-tested in this form; the change only swaps constants.
+    Not tested on MT6357 hardware: the layout comes from MediaTek's
+    downstream driver and from the MT6358/MT6366 sources cited in 1/2.
+    Not compile-tested in this form; the change only swaps constants.
 
- drivers/input/keyboard/mtk-pmic-keys.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/mtk-pmic-keys.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 6f14318..422a1f4 100644
+index 422a1f4..39cdb50 100644
 --- a/drivers/input/keyboard/mtk-pmic-keys.c
 +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -29,6 +29,10 @@
- #define MTK_PMIC_MT6331_PWRKEY_RST	BIT(9)
- #define MTK_PMIC_MT6331_HOMEKEY_RST	BIT(8)
- 
-+#define MTK_PMIC_MT6358_RST_DU_MASK	GENMASK(13, 12)
-+#define MTK_PMIC_MT6358_PWRKEY_RST	BIT(9)
-+#define MTK_PMIC_MT6358_HOMEKEY_RST	BIT(8)
-+
- #define MTK_PMIC_PWRKEY_INDEX	0
- #define MTK_PMIC_HOMEKEY_INDEX	1
- #define MTK_PMIC_MAX_KEY_COUNT	2
-@@ -110,13 +114,13 @@ static const struct mtk_pmic_regs mt6358_regs = {
+@@ -101,13 +101,13 @@ static const struct mtk_pmic_regs mt6357_regs = {
  	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
- 				   0x2, MT6358_PSC_TOP_INT_CON0, 0x5,
+ 		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
+ 				   0x2, MT6357_PSC_TOP_INT_CON0, 0x5,
 -				   MTK_PMIC_PWRKEY_RST),
 +				   MTK_PMIC_MT6358_PWRKEY_RST),
  	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
- 				   0x8, MT6358_PSC_TOP_INT_CON0, 0xa,
--				   MTK_PMIC_HOMEKEY_RST),
+ 		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
+ 				   0x8, MT6357_PSC_TOP_INT_CON0, 0xa,
+-				   MTK_PMIC_HOMEKEY_INDEX),
 +				   MTK_PMIC_MT6358_HOMEKEY_RST),
- 	.pmic_rst_reg = MT6358_TOP_RST_MISC,
+ 	.pmic_rst_reg = MT6357_TOP_RST_MISC,
 -	.rst_lprst_mask = MTK_PMIC_RST_DU_MASK,
 +	.rst_lprst_mask = MTK_PMIC_MT6358_RST_DU_MASK,
- 	.key_release_irq = true,
  };
  
+ static const struct mtk_pmic_regs mt6358_regs = {
 -- 
 2.54.0 (Apple Git-157)
 

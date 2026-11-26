@@ -1,100 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.51
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795661405;
-	b=N6nWrPcf9Aj5uet5gSNMXnC2Nxnc3MV25IyDosCSlE9yiOx+PP5RV99XuQYT3kZSHzx7
-	 CQ2yXh3+vCJgHs9hMDuEw47XepyINF8S17NpyojDLAzfapE5eJVarhKDv52zNxbkyRQ24
-	 Vj0wqrA0/nlj7ny3nNg881yZu5/8/aQ0fLe07jcT0VHdg9iLjPy7mGWB2rodTJ4Q+pC8K
-	 TNvpB6gG8DrO2hUoxG2r1rdGKEII/p5fayZlKsBAYXcgYSo7ZV7N6qx/F6y0FZ6wMlkB0
-	 MLb+hbpCijCzIuM5gDSx1sERj8CSOLEYWn1IItUNqWcXz4OZ9kNcm3d9izMsDo+b0GA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795661405;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=BmeVPwr9SKwxZECZZ/qpqnmowyCWmqTyCjMYX/8OCrk=;
-	b=o5Jm2Y2p9aUcALIq/4N/tB+w9uS+ePXdYgLLlWQfUT+/TAmdNJWsUFYaFAJGoJ1kc590
-	 7wuqrccrsLbfLvYTxYG7Nbzzey4SO7jerEz7HZxUPETml0bxsL9Bb/KMdyFnNp0RXD/C0
-	 0YBsnq4Fr+fF9jzRfGv0d8FCUL8+ley0YCzlyiBHFoTr6m3+fDuDfZdK71RRC4AUiqNG9
-	 HAKAlxb6a2XSHuY2/Hp+sBeNf+GRfYmUurA3l3vOHgWJaeSYh3uL5O0uPorebdiLNwJdW
-	 hVOJv+o7sS4PcUdpKfXOfy5ZZ1WyIwUXMtjare3ieSTzDu//+yHUGQE90ygIKzWqrbA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=epBmNt2L;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.51
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558C0606A323
-	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 02:50:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 558C0606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.137
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795665132;
+	b=mAYHLtTpQ/w0dgq+CDZJhsKJp+P9bvpOq/20wAKMJbRcXA/Y0DT8IBcqIdE3L1ApGyBw
+	 jUir1vEDPs/Mzj/65iZhV5oLsWeRbbNfUxmR+aximcjAsqufBVH9+6tjHxpnaao6SCUmB
+	 vBQHJXGmGT++aKZJqEkQKorK2AJjwIv+jXEyN42B5PE6M0anIUivq4gt0AbITi8NUcNA/
+	 4G1VtTz9I2+VLW6cb4nXb4CZ5nbVQjMiYxeO0nW+R6xrbX648eh+G85q4A1eZA0NAJ777
+	 j4W6dvxOMXfoC4i8spPYFUbpHQKRu8MS9/aAXM9NqMmp9Fu9ibdiFWxq5cglUupFfYQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795665132;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=C43d4cAYRrWesFZvMlHucUphYTNYi2rj92+Xt/2XUlk=;
+	b=WQ8R9U5hEXr6Xi73jAfwKiZVMYcpoBWkx5VvJMS8AEHAsDG7DT00E3+Vm8OhGuixEEHf
+	 L8WzD8NL5Tp/I2mJS/iqDanihAu42HqPd/imhgGmvxujWMYTBTf2OPSvuAxcjPp4nrak5
+	 UAZjhrELG9Dufea5idjMiiraVvg49cJ8Op/J9B/cgJpraWf5xDJfJ6SdAqaLbBOXl54WD
+	 OdNaom+psr9l21kc76ILrkyq1tDcGsfkPyFLZlhU6QXDpeFxJ3GVdnlQvRX4eYVTJfZzy
+	 6QKVF//kpfoLbzwidfDjkFpMt7ksFNb4jg7egIjH2B2EGuwpGzdUXNpkZzssEtuAeuQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=gSy7rGcW;
+	arc=none smtp.remote-ip=111.22.67.137
+Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 219E8606A31C;
+	Thu, 26 Nov 2026 03:52:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 219E8606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=epBmNt2L
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5c0a520df2eso6557235e87.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 18:50:05 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795661403; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BUZQvaG1P2WaO8KPVN5Y8m8Akc3z44TW9DMkWUSLwoQABJyoEfxRDnSAZAkmxc1+hf
-         /NUw2udVJWALO1P3M3fmKgMe07AJZKO9h0CWjMcmaA0dWKo4VBft0/WajjSh9Rer4aH4
-         sHPtSHBJXFj2zk7Uhzl5b00kh18wrSTAvSXIk7Slvee1TnrGX13KXkB83wqHLilWwlIM
-         rOSbkxicTFejB1miAoOSUxEXk1EVbqrDEAOyCuq8jtzdAj/E/PBSnbGrUZ4lPF0WxZ8N
-         2il+n2gjvTce8h7wCOgWdivc2rLvb3R9WCtLi8ylM3sms8Sw1BeZj0xe4TVb28/hhmqh
-         RaNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BmeVPwr9SKwxZECZZ/qpqnmowyCWmqTyCjMYX/8OCrk=;
-        fh=Z5Msa1409krvrU7Hx/IaBDM56oKu1cKfg8rUDUYCsU0=;
-        b=lL/SoagK2+QGW/dWNFiXCwUXbTyGkaqTNg8+8mKFEPZwGYOJxmKtjLGFznMEvlhdWq
-         quM9B8Vp/FN33AavyxswVEyHEpa3ZhoqSyzeflpey0yy+2eBgqM6PB6OQZ6EUG+af6J6
-         tREOh2qdy3WyzAXMBT+GFZUGhhoaCD3qyF0LUDORF0+y/2JW8iEu//e5KT84D1CRFBLW
-         RvPZIRDcNyIEzgByQ9An+AKndocwtVXb47UWArz1WwUCXXUrnGS5y+jXtdM30PGdFsLF
-         oSKDol1fU+xE4pb7DOzUhd+Xu76oyIRclQTiIxEhhISuG+oXsOUPs7NAGKEf+5X+NECa
-         xHVw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=gSy7rGcW
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1795661403; x=1796266203; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BmeVPwr9SKwxZECZZ/qpqnmowyCWmqTyCjMYX/8OCrk=;
-        b=epBmNt2Lv7Dcu8bzZ4iBr1H6rQ82whFFTrCChG8DCgR1ptCnX78/BbmIpTwF8a7L3T
-         eIPXH3FwV2Ahe+Ar796UlHkbFTMIfk6SUNGp7L68LZ4MBNU0clJ1pPuiegK5QlB44jdi
-         XeuaJXP4HWpl033aBhoIISlJlOjGvc2OAxZoVeXxAxvPW9IW2PHJc3iil1phHrn3Qmow
-         tp5LPWh7gceHx8x8+yaJbZCAaRS+Z/AXpVEVZ6ed8qMJh0n9XCgavhUR49jhSJi6wUd0
-         91dLuVfikSCiKeUStFiicmpr8uIEOM1nUNOS25HxhleNe5g1sSWCjIUv8bha7OoZrHM8
-         yDSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795661403; x=1796266203;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BmeVPwr9SKwxZECZZ/qpqnmowyCWmqTyCjMYX/8OCrk=;
-        b=svxxDhw1Q0r/LVBH5nFnExopgT9X2i02+0bqL6KQxDhnW9MpcRCPVf+vRi0pc9QAkG
-         hAjZY6hb3nwex5tXUbijrcRWrEwLbMe7OwgCFI6xPdVKztT8Oo2/yxJ5HdkeMDSxb5ee
-         fjrIWr4jokqw3yc82RPco+R8jcjdlBGEk0y4E5ab9RwZQRnJTJaBln2XtlWMC7acF7T+
-         T7DkCR8t3FshLmn64kyKRe+xpfU28wCYzhcwoi/IxthjSHzmwKVtYHGMmCFRSkQNwh2X
-         WVpsP+m82LhbwFzueIaqC69gCFLYSWM16AkJbDA4Go/Ax18zE3fUk94emNnOcIKP6Xzu
-         mvXQ==
-X-Forwarded-Encrypted: i=1; AL+hErE5oDKwY7dayaAVY5IchLRNxW1azdu5CfhioKYDprMWNnYQEvsvi4O7nkHrG1Zxsw6sIDwMFc3eHlSKfg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/8lkiQzPoryb8hJDIPf493l0dJADwt4vFobH+oQB82AZpFoNF3
-	BSU7fuWGW6kEkn3PqpUwV6wmIIDXhwLNLuYCeLGVTWUnxhYJl+VHmkG8+330+qnZpTdf4UHp8q7
-	pDpRIaAk53vZNDqhQEv6HIHidUR7P/jTkGNp4iJcb
-X-Gm-Gg: AZFdTZcdi8SVOac0am/sFOkwi/E0Btaw5xg6HvRpM5cKT3Fjv2RWin6W2/oqhnerKKm
-	50NpllXa65sHBuF4K2LAAs3v6V8gd0mZBanLJweeagqLnoN9hqPZLKGfzYBcFVKjzJA496EMPW4
-	YVR23vyxuSTTAHMpchbjxa+VVkZtatpWkGV0Ss0n561z2Ajxe3BDZlS+kHN24ahFEbClDiJAK1u
-	0aC8EzOxZPhCnehyYCePPQMGZdHfn+TAHekoSBm3L1IH6gPDOkl2yhhQOc1Q5P9YWVIa6X8cO/2
-	pej4VRWjHejEU40SdvRnR3o7Q26Bg4+L6ajuYtJne7cwN211sbqi+TXX523tVRLcqVw4tQ2Kp1a
-	o9RQkTg7tvo/e57CVwgWEeH6SujgjM4moxSz5hN5/567KwS55GPxZO++Rl5etAOUzuJs=
-X-Received: by 2002:a05:6512:1318:b0:5bf:b8f1:80cd with SMTP id
- 2adb3069b0e04-5c1bc8c2613mr5298026e87.49.1795661403093; Wed, 25 Nov 2026
- 18:50:03 -0800 (PST)
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=gSy7rGcW8w+YL8LM69PlBGlt7QCEAWfHoM5g34zos6FEAkRPw1/C80zy1Ii8NYOaI8xFNb08HDqOv
+	 ZH03jEkBep6wtJbmAvIdXv9UmUI+b/Ak2f5VQh6rVxWjglNFj1DrWAG2ci6QaQWLDCvn3iqJv0pFoi
+	 aEwNoULWHjikS6kk=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app04-12004 (RichMail) with SMTP id 2ee46b07ace7236-f7b03;
+	Thu, 26 Nov 2026 11:52:08 +0800 (CST)
+X-RM-TRANSID:2ee46b07ace7236-f7b03
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from FHD-W7400297 (unknown[10.55.1.70])
+	by rmsmtp-syy-appsvr09-12009 (RichMail) with SMTP id 2ee96b07ace6580-5be3e;
+	Thu, 26 Nov 2026 11:52:08 +0800 (CST)
+X-RM-TRANSID:2ee96b07ace6580-5be3e
+From: Aibing Chen <chenaibing@cmss.chinamobile.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: cobra - use scnprintf() for the device physical path
+Date: Thu, 26 Nov 2026 11:52:06 +0800
+Message-ID: <20261126035206.1062-1-chenaibing@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.50.1.windows.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,98 +67,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110020632.4003499-1-svv@google.com> <avKAaJxlxE8gOYVV@google.com>
- <CAKF84v00nJ_+2Tf8m66LhGEKvqnHb26YD6p+FRUXK5juYEPQZA@mail.gmail.com> <awNosbiWPFdsbUN5@google.com>
-In-Reply-To: <awNosbiWPFdsbUN5@google.com>
-From: Siarhei Vishniakou <svv@google.com>
-Date: Wed, 25 Nov 2026 18:49:45 -0800
-X-Gm-Features: Aa3M54r6fq9UxV6r7ZXlZATug1kAneGhSH_0CFFee4KvRhKktEz0ou5Sv9ToIW8
-Message-ID: <CAKF84v1B6bu_YAAcdKkOxC-BKY8f72tWQMz2s5D3Mg-pMnEH5A@mail.gmail.com>
-Subject: Re: [PATCH 0/3] Input: add ABS_TWIST and support it in HID and Wacom
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-=D0=B2=D1=81, 22 =D0=BD=D0=BE=D1=8F=D0=B1. 2026=E2=80=AF=D0=B3. =D0=B2 14:1=
-3, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->
-> On Tue, Nov 10, 2026 at 10:57:31AM -0800, Siarhei Vishniakou wrote:
-> > =D0=BF=D0=BD, 9 =D0=BD=D0=BE=D1=8F=D0=B1. 2026=E2=80=AF=D0=B3. =D0=B2 1=
-8:25, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > >
-> > > Hi Siarhei,
-> > >
-> > > On Mon, Nov 09, 2026 at 06:06:29PM -0800, Siarhei Vishniakou wrote:
-> > > > Some styli can report rotation along their long ("barrel") axis,
-> > > > commonly referred to as "twist". While the HID specification define=
-s
-> > > > this usage as HID_DG_TWIST (0x000d0041) in the Digitizers page, the=
-re is
-> > > > currently no corresponding evdev axis code to expose it to userspac=
-e.
-> > > >
-> > > > Because evdev has no MSC_SCAN equivalent for axes, drivers and OEMs
-> > > > currently work around this by mapping stylus twist onto unrelated a=
-xes
-> > > > such as ABS_Z or ABS_RZ. As a result, userspace input stacks must
-> > > > maintain device-specific workarounds to know which axis carries twi=
-st.
-> > >
-> > > How is it different from orientation?
-> > >
-> > > Thanks.
-> > >
-> > > --
-> > > Dmitry
-> >
-> > ABS_MT_ORIENTATION describes the 2D angle of the contact ellipse (or
-> > tool projection) on the surface of the touchscreen. Looking strictly at=
- that
-> > initial sentence in multi-touch-protocol.rst, it sounds promising:
-> >
-> > > ABS_MT_ORIENTATION ... The value should describe a signed quarter of =
-a
-> > > revolution clockwise around the touch center.
-> >
-> > However, the rest of the section clarifies that this is the alignment o=
-f
-> > the contact ellipse with the X/Y axes, not the "twist" of the finger
-> > itself. In fact, the docs note that orientation can be omitted if the
-> > contact area is circular - even though a circular finger or stylus tip
-> > could still spin in place, and that rotation would not be conveyed.
-> >
-> > For a stylus, orientation is equivalent to the tilt
-> > projected onto the touchscreen plane (which single-tool stylus drivers =
-already
-> > capture via ABS_TILT_X / ABS_TILT_Y).
-> > By contrast, the proposed ABS_TWIST can be thought of as keeping the
-> > stylus at a fixed position and tilt angle, and using two fingers to rol=
-l
-> > it in place like a pencil.
-> >
-> > This also matches the HID Digitizers specification, which defines
-> > Azimuth (0x3f, rotation of the tool projection around the surface Z
-> > axis) separately from Twist (0x41, clockwise rotation of the tool aroun=
-d
-> > its own major axis), and hid-multitouch already maps HID_DG_AZIMUTH to
-> > ABS_MT_ORIENTATION. Since styli can report tilt/azimuth and twist at th=
-e
-> > same time (and single-tool pen devices don't use ABS_MT_* events), twis=
-t
-> > needs a dedicated axis.
->
-> OK, let's add it then. But we need a more precise definition of what the
-> values mean (i.e. is rotation clock- or counterclockwise, only positive
-> or negative, what 0 means).
->
-> Can we also move it below ABS_SND_PROFILE in the doc?
->
+cobra_connect() composes the physical path of each port as "%s/input%d"
+from gameport->phys into a 32 byte array.  gameport->phys can hold up to
+31 characters, so the composed string reaches 39 bytes and does not fit.
+The path is informational only and truncating it is acceptable, but the
+call site does not say so.
 
-Great! I've now expanded the docs and defined 0 to be in the North
-direction. I re-sent a v2 series with these changes.
+Building with W=1, where -Wformat-truncation is enabled, the file does not
+build at all today; COMPILE_TEST configurations additionally turn the
+warning into an error through CONFIG_WERROR:
 
-Cheers!
+  drivers/input/joystick/cobra.c:184:29: error: '/input' directive output
+    may be truncated writing 6 bytes into a region of size between 1 and
+    32 [-Werror=format-truncation=]
+  note: 'snprintf' output between 8 and 39 bytes into a destination of
+    size 32
+
+Use scnprintf(), the helper that expresses a bounded, truncation tolerant
+write, so that the file builds warning free and the intent is visible at
+the call site.
+
+No functional change.
+
+Signed-off-by: Aibing Chen <chenaibing@cmss.chinamobile.com>
+---
+ drivers/input/joystick/cobra.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/joystick/cobra.c b/drivers/input/joystick/cobra.c
+index ffa6d49c8..52331a947 100644
+--- a/drivers/input/joystick/cobra.c
++++ b/drivers/input/joystick/cobra.c
+@@ -180,8 +180,8 @@ static int cobra_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 			goto fail3;
+ 		}
+ 
+-		snprintf(cobra->phys[i], sizeof(cobra->phys[i]),
+-			 "%s/input%d", gameport->phys, i);
++		scnprintf(cobra->phys[i], sizeof(cobra->phys[i]),
++			  "%s/input%d", gameport->phys, i);
+ 
+ 		input_dev->name = "Creative Labs Blaster GamePad Cobra";
+ 		input_dev->phys = cobra->phys[i];
+
+

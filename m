@@ -1,100 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795650252;
-	b=Z8uYEc8a9zX6BSit5+NNvWri88wDGJ5Ybn6FTUo/L6CM04/PAAaG1b5ScgEccEtaRFRA
-	 +M/LB6rfGJTL8kG3tONbEHU7FQPu/0MVoyDTWrsU9MyRUtwh8fUmQSYgkPfR2M36q8E7z
-	 29Pz1AKe0uAaa1KZh2RgSz/ct6w41zLeE09/PMeTVRYE4ILzxO8lUgrOc7m3Fs9+c9e/2
-	 rh9G52smpt7XznOU6JodhoODahTWGkqhpCTWM83FTILpVNlp7CGD0YChCynzyARq7UITn
-	 sH/eXd0lBFuktKof/qIfNv5UpozJhHNTKBEGfHa0i8A1qx6f+dnMgnB+u6QS4cM64DQ==
+	t=1795651631;
+	b=Qj0/nZ0tksItMpQhdHNWoJYQ0rzGNtmUWCotMWRsB9+I4Yq2FG3TCIqI8frnV0I1RYwQ
+	 5mmOXEoOCDmxVDr+ZtrhgIoJeTyAXMFmmLiWCyPKa+9LmChzq31vVfUwfZ2nAM3zsLZt+
+	 r4erDuGfq58cgQHDcj9ew+AAQA7WM5M85QpXIH37aT6JojP1gDtQasfQTRv6GwT90h63b
+	 mlqHIoW798W5jR04s26SByvo6RCcUhzQWopxoN6tCByH4AONmPZNEUIjwWyMUPw1Y0fsa
+	 w2EJXZUOWShZiaPLH9oCA4mBHzggCQrd7/+ICA0JnmuyIed7zc9aGXnGKrUsq00Sfow==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795650252;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=3fKVuvxJiitltgDu0Bbbp5nZdcLodGhOo/Sf+vkWL2A=;
-	b=jH5/Hr3A+Gh3JOsVDTF19ZNmm/dX6rB9yiDv404M1po8RwU5MzyDYjpth6yB5v3QsPXe
-	 5isg//teO8bxBzXbGwafF67m4fO/LKPMIgBs3+PONqDFuQsbChPbFL5r9PQV6KEt0OPLH
-	 RbQwVmIySa41hJy3/wkbtyd2z7H5KmmWLbkYHs/MJXp6bCcKOz8fz/dgzSOyStRFFnPWj
-	 t6pkzFSpSgBAYHhO9Kj/8KTO5KcPaerxlR5klDpfmRPdviZ4qV2WYUYPefqe/UybSn/Cy
-	 RfK/fCUfXLHnlit+piTu6ZuTqu9jjRpZcTIDm3mP7PKSmxhx6NeGNhtedV9tt/Twu6A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795651631;
+	h=Received:DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=3NwSdSme6Q9C8WEEF82AMp4+lb92FDUaST62RhvwOWU=;
+	b=JbvrJdkELbrNR/dUCMBjwztPvKxQcrfAC41CcFjnjBOOzAC7nSQ6QWtbwHpXAgMqCmoR
+	 tsUNeqlz5EPA8hzJyPBVEhRoCexrjcp+fZyGHLmf00o0u8R7NDN3EOFcOIAAvXpcsxSIm
+	 KOj9xujrhr33PQKXuCU/bvHmKULCCF+1O7o4Rj2NmqcMgZ5YhI93elKOV9cFpR8ewUpHa
+	 3bYmqZMTF3Sf4A17A0Wbt9LjTOyLBH7sxlIqwS7ujIVM2y7xadDmfAamEtxWfOA7IdHGr
+	 XDga7xOJhUtzZ4p84Pum3Wo8S6f+ENDetpvT0bpproaXZn4G086PQJU/hszC7l9E5/A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bmJuD6RO;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.219.48
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hvGHINAf;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D23B606A321;
+	Thu, 26 Nov 2026 00:07:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hvGHINAf
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795651630;
+	b=uXcsWqKiay3t0C5G40OcfBZ6XnZaFNUN9VrlpewWXdV/6i+MZ/8rfivTfRmWWhyl2uOt
+	 PYPIraSiQaihBEW2GiOm3y/SeevmACrQ9StK9/SEJC01XVeP29x4lJs2JcoWkS70YDpHe
+	 x/8Lh2o3bxgIA2Ww7xvfXQbMz5cUAT3WDRNfIW6R23BlortLAObRL2D+Iq39RAN/R34MY
+	 DitXl3OAhWR8mF8RcrayVDp3T3RIJ4Jd2ktucManya04x9aWTZSAe8ezu4ywe2d/rID5z
+	 SGpQoxmX3HG6Z3txWmhlQtOfDs/6Q42ZctWDoB6+2Wh76WFy4YW/MgaaP96HCRCoweQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795651630;
+	h=DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=3NwSdSme6Q9C8WEEF82AMp4+lb92FDUaST62RhvwOWU=;
+	b=q6TybPd8MwEqlcDRbnPNl2ZX8xQTM1R3tPare4Ld+fK8Tdw4V32+BvkBGcz6IM6E/hfY
+	 SDGY+ztOj4TUEiANrgkyiV4fmeZ4KWifmCmiyg2Ty3CWWxXTZu4cQXoJBdijgfbhgKUBi
+	 khEOCyTjp54N2TRunRpq6iqY/gyb0qg+oPJvvmOwzjTubm4zidGnt2Tj3SrAJRWq2T7ze
+	 l7t3dznZNEjGwGNXA/wq1L81rypB6hhm0PYJkplU8ut4HzauhkuvKAapLEyoueJacscbj
+	 U1Yahy8uCYpkLpMIv2aFgedMXcl7Y7g7x1sW7o97gTHAti0CEKgGoSEWdRJ0KeKt0Sw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EF3C606A31E
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 23:44:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4EF3C606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bmJuD6RO
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-921342fae7eso66999846d6.3
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2026 15:44:12 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795650251; cv=none;
-        d=google.com; s=arc-20260327;
-        b=kUJAwZ22OGW7Pc0mmkicSMkw5jX67hInM8qUNQ82NqbJGL6/kf4lUSTzUArtr6OwRO
-         gj43ioaPiqMhgOHsSZcbB147XWwDuiG+D0v1tdpnhFufvPpsncnFHQ7X+cyYzBDRvcBH
-         ko9MCLA+g8Pz/zotUGYkMSOU48cvyF+j8DEkTcQjLByFAo+lBDuht3/z/sq4LoQg0riB
-         9lFbK7lUuYSbU3VyPtyWFlXr4x/65TrjJ4g0f2ox9fO33GxYX8zQc0qEw4b7EN6JMCjR
-         h/w0tV7cEIWRAaVA7Ucc3XcGtTbGWFTKKhucxdSxiQobceoj/DTrw/Jk76X1kIooGWDb
-         61Lg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=3fKVuvxJiitltgDu0Bbbp5nZdcLodGhOo/Sf+vkWL2A=;
-        fh=YYH+6bKgf4oMEhJ7o5GJph7EZAz+IvxznIMAoHDvxKc=;
-        b=Q+TLTlpI29JXIgmSufeZoTcjdq6pL6o9a2cgAsKaEj+2XdTQMAkYkv8kngjOf6veAU
-         d4xR7hh3Jo8TN5bXZqPfDAPAnyjVcYfVeIjveJi3Td8QDf4JVI6FLKnVFxlc1wLr4Nnz
-         KHY1uWqBLiJ0ApHiIBiebr60KkYfuM5rZYayxoQsFWPg1HlR3aIznDgSwTBG+l08wje6
-         P4PTuDgpKKVxvfugxkFZTdJU+xyifIERqsvnOWwq2ko5QZykvp3j85O3ei0BA0rIhoJa
-         E0uBW74/LOt1qie/Wnuhdo3lJtLYQ3CcH9+JkRxpTHorMLW5yLgnMVDPPwdFKPdvMn2r
-         bd4Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795650251; x=1796255051; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=3fKVuvxJiitltgDu0Bbbp5nZdcLodGhOo/Sf+vkWL2A=;
-        b=bmJuD6ROued+2PTNWeWOaIyCpqiQnHn3HWgucB/55qQF38Yijq3MpLKSKbxwUprY/2
-         YpYe1CnFRMCA2a79ZnafGiv3RjAat38tRKLc6zQuOW6JMbPvi73VO207I69YWc+9paEV
-         WdB3/pZcfAmsgBcqUGtD4245mB50hMJVj/IzYvUxDDmkLe8DDztPSFx11Uf1rqgLOY5M
-         jBBlO3XnVhyIFbaYLH7iRGdLzSoywxx+agXjhcLL5cORna9uQ9INbA9ZCaheGJTVRcvb
-         wqZ//Ta/IqLOaqIPCYPJ0S6mRo2YyntVWCxvXSkftKD/fHVkEk3iwzoNoLYN5mewiQPV
-         HhYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795650251; x=1796255051;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3fKVuvxJiitltgDu0Bbbp5nZdcLodGhOo/Sf+vkWL2A=;
-        b=tVBi0MKG8o8mA3wWrmKqoxIKON9ORJTYUyVjlRr51H8+/JQqCe1fHTGoUF7+fM7lVc
-         L1Jhk5TzPtSC17YylSVYXpyt87LrNwWn5yz7FqpNFr7H5F2QnlLJc5nqkcGqdhSj3hI/
-         PgTclXo64RY25Z7fREz+OdLrD1vHVqW0NSq36L1Rv/h8k6CGp8dlD+JSfxDz+H8KuJFw
-         axENlAdbAyrtbiwF8lCwI8BXZf9iZboPlKERS2Wkw+aPG2qrJoSntMW4zoLnxM2pICw2
-         mrIHflreLxCvy+8QqxFPPu6/mVHchxARAT9yse+NpzOgu+tJVvb3cPHxh5DkOrX0bKvy
-         9+Ig==
-X-Forwarded-Encrypted: i=1; AL+hErFYcI/00huTzaH85XHaQjWKdyXpStz8sr92LCyZM0pNZy1JUE7bx17w3i3Y5UN6FWlKBqO+og3e1m37EQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+GctvanJetp6Lny1Y+4iQZ8HkrQXm1BoeMoiKW8ovIRB5Gg8Dn
-	OdkgvNvjMfUFzAmi6SSg4EoXqsXro+afz5aNMTpAoxobeLJHJz7Nci6unXzKKFUP5YUBZaDRXlU
-	75X7MZ+T25zQ+AeuSSfYDY7u+rscDQUs=
-X-Gm-Gg: AZFdTZeyell7h6ZzB7OE8EG7Nd3Xdhy9HsQBjCRVBOkrsHXksgwXBLvj9EOHUCR3qCf
-	QXSn+ceBz/w5ftzCnV61jCE8ltke/4Lh0Ag0plWm1ZaGTsPV2FiNB/JDHeptqVgmy+NDhBhGs24
-	hR8MuCIeyS6YGDs5S8+X0Cu/oq1xe4Giz9kaUgwh6K0I7k9cFnNq+ohRh+VYdqV2EzQAiQuY5ee
-	0+e3jZvi3aPqjs1Q4nCLPZ4FcSouauyndp7ohNFbvjP56h8RS/1MM0s7BMUi9gFXsUl1BSabS86
-	NTt75fQZM7wO1X5IsKSMHwcJd256TvjMcnQI/003NmiWYY2363FhYBluUVpVyoFVwtOKig/X9bo
-	2rTQgF4gxsCnLF6CSiIk+svwrZhHox7K8QjDk
-X-Received: by 2002:a05:6214:dc7:b0:921:38d7:3aee with SMTP id
- 6a1803df08f44-92138d73c1cmr355955956d6.28.1795650251100; Wed, 25 Nov 2026
- 15:44:11 -0800 (PST)
+	by smtp.kernel.org (Postfix) with ESMTPS id AA8E41F000C6;
+	Thu, 26 Nov 2026 00:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795651630;
+	bh=3NwSdSme6Q9C8WEEF82AMp4+lb92FDUaST62RhvwOWU=;
+	h=From:To:Cc:Subject:Date:Reply-To;
+	b=hvGHINAfU44W7RxZaEDcB3NhyGopdFa6Uumu7KoNR+zVvB/Zv+wRdFYKxj/wLZ+Zb
+	 B2iMWV4FWF81Zx7Tyut1fEFdBjjYZHMdw8P7xB8LtApt8y/XNnG6ULFXBEtkv7k00u
+	 YhdioL7S7apTHjouC8+3+heiASy+gXc0f6jpOraQLmuqp4Ko2ugXo8E3o0rQ1dsoNO
+	 JS+NShmSqj3+0S6y/sRVhMz8qicchV154UDNldYAcHakh46zUFxIjiLOntEscVedYD
+	 pX3+PrZw4+alVGT+Dw0fQZbimjHrdHI62qDaTkwbWeWxVaLQh0qh46u01fAFyInMjK
+	 A0dxqabSMOZNw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 3AE704D0D4;
+	Thu, 26 Nov 2026 00:07:07 +0000 (UTC)
+From: Ilia Snezhkov via B4 Relay <devnull+iasnezhkov.gmail.com@kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com, 
+ linux-input@vger.kernel.org, linux-mediatek@lists.infradead.org, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Input: mtk-pmic-keys - fix TOP_RST_MISC layout on
+ MT6357/MT6358
+Date: Thu, 26 Nov 2026 00:07:06 +0000
+Message-Id: <20261126000706.15649-1-iasnezhkov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,80 +88,62 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <PAXP251MB001050EFD88752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM>
- <0291r4so-4p5q-61n5-59qq-761s5s45o2s9@xreary.bet>
-In-Reply-To: <0291r4so-4p5q-61n5-59qq-761s5s45o2s9@xreary.bet>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Wed, 25 Nov 2026 15:43:59 -0800
-X-Gm-Features: Aa3M54qop82j0BkkAyG8OqBuWQazFLUjeeuZGk8YRliw8mF8W_6Holy85ZPTGA8
-Message-ID: <CANRwn3S0hViGQw_X2sw-MG5FtPXqwLWABOTaE5JNUgaDOw73jA@mail.gmail.com>
-Subject: Re: [PATCH] HID: wacom: Cancel init_work when probe fails after
- scheduling it
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Aamir Ahmed <elb12345@hotmail.co.uk>, Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>, Benjamin Tissoires <bentiss@kernel.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Myeonghun Pak <mhun512@gmail.com>, Sashiko AI <sashiko-bot@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795651626; l=1940;
+ i=iasnezhkov@gmail.com; s=mindone2026; h=from:subject:message-id;
+ bh=k1ugJTSw2S1SmQnBcJkuN/0L5JelnI96Np8GylaWwEg=;
+ b=7SVA7OjauVY4HUbsHh+BzYiDcDFH40ql4CQvLKg25dYuU3dLacPfs2TR2s3jU9z2rAT4wwHZ9
+ wVpLJezUCU0BpDQF1BNYq+V5kZQ+YsrRA4l3ZUidEqFzxjhhqPkc7IJ
+X-Developer-Key: i=iasnezhkov@gmail.com; a=ed25519;
+ pk=hQgXfiWi4ukk2jh4BHu1vRVhg9BUivo//AFp50AKMag=
+X-Endpoint-Received: by B4 Relay for iasnezhkov@gmail.com/mindone2026 with
+ auth_id=1643
+X-Original-From: Ilia Snezhkov <iasnezhkov@gmail.com>
+Reply-To: iasnezhkov@gmail.com
 
-On Thu, Nov 19, 2026 at 12:29=E2=80=AFPM Jiri Kosina <jikos@kernel.org> wro=
-te:
->
-> On Sat, 5 Sep 2026, Aamir Ahmed wrote:
->
-> > wacom_parse_and_register() schedules wacom->init_work with a one second
-> > delay from wacom_query_tablet_data(), and only then opens the hardware
-> > for devices with WACOM_DEVICETYPE_WL_MONITOR, that is the wireless
-> > receiver's monitor interface and the ExpressKey Remote. If that
-> > hid_hw_open() fails, the error path stops the hardware and releases the
-> > driver's resources but leaves init_work pending.
-> >
-> > wacom_probe() then returns the error and the HID core releases the
-> > devres group it opened around probe(), which frees the wacom structure
-> > allocated with devm_kzalloc(). When init_work runs a second later,
-> > wacom_init_work() derives the wacom pointer from the work item, so
-> > _wacom_query_tablet_data() and wacom_led_control() read and write freed
-> > memory.
-> >
-> > This is the only work item that can be pending at that point. The
-> > others are scheduled from incoming reports, and the HID core drops
-> > reports for the whole of probe() by holding driver_input_lock, which
-> > this driver never releases early. The neighbouring BAMBOO_TOUCH error
-> > path already cancels init_work before failing for the same reason.
-> >
-> > Cancel init_work on the shared error path, after hid_hw_stop() as
-> > wacom_remove() does. The cancel is harmless where the work was never
-> > scheduled or was already cancelled.
-> >
-> > Fixes: a544c619a54b ("HID: wacom: do not attempt to switch mode while i=
-n probe")
-> > Reported-by: Sashiko AI <sashiko-bot@kernel.org>
-> > Closes: https://lore.kernel.org/linux-input/20260905102908.ADE1F1F00A3D=
-@smtp.kernel.org/
-> > Assisted-by: LLM
-> > Signed-off-by: Aamir Ahmed <elb12345@hotmail.co.uk>
->
-> Ping, Jason, your review of this one would be appreciated as well. Thanks=
-,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+The long-press reset setup of mtk-pmic-keys programs TOP_RST_MISC of
+MT6357 and MT6358/MT6366 with the MT6397 bit layout. On these PMICs the
+reset enable is bit 9, the home key mode bit 8 and the time bits 13:12,
+while bits 0, 1 and 5 hold the PMIC watchdog reset setup done by the
+boot firmware. MT6357 additionally passes the array index
+MTK_PMIC_HOMEKEY_INDEX as its home key mask.
 
-Hey Jiri,
+Patch 1 fixes MT6358 (also used by MT6366), with a register read from an
+MT6366 board as evidence. Patch 2 fixes MT6357 from public sources only.
 
-It looks like the line added by this patch has already been accepted
-as part of another commit at the tip of for-7.4/wacom:
+Sources (all public):
+ - coreboot: src/soc/mediatek/mt8183/mt6358.c, src/soc/mediatek/mt8186/mt6366.c
+   and src/soc/mediatek/common/mt6359p.c, pmic_wdt_set()
+ - MediaTek LK2 as published by Gigaset (github.com/Gigaset-dev/lk2):
+   platform/mediatek/common/pmic/mt6358/mt6358_psc.c
+ - MediaTek's downstream drivers/input/keyboard/mtk-pmic-keys.c as
+   published in vendor GPL releases (e.g. OnePlusOSS
+   android_kernel_oneplus_mt6789, MotorolaMobilityLLC
+   kernel-kernel_device_modules-6.6)
 
-ba16e5ffbaa1 ("HID: wacom: Advertise SW_MUTE_DEVICE capability prior
-to registration")
+Not addressed here: MT6359. MediaTek's downstream driver uses the same
+layout for it, but MediaTek's MT6359P header and coreboot place
+TOP_RST_MISC at 0x14a with 0x14c being its _SET alias, while
+include/linux/mfd/mt6359/registers.h has 0x14c. Someone with MT6359
+hardware should check mt6359_regs separately.
 
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+Found and drafted with an AI coding assistant by comparing the driver
+against the sources above. Not compile-tested in this form
+(both patches only change constants); not run on MT6357 or MT6358
+hardware with the mainline driver.
+
+Ilia Snezhkov (2):
+  Input: mtk-pmic-keys - fix MT6358 long-press reset bits
+  Input: mtk-pmic-keys - fix MT6357 long-press reset bits
+
+ drivers/input/keyboard/mtk-pmic-keys.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+base-commit: 2800868f63227c8237d70c41e70d441c919620d6
+-- 
+2.54.0 (Apple Git-157)
+
+
+

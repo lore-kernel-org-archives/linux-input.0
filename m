@@ -1,57 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795742427;
-	b=mjOqjgbVXk/mTifVEPi0f2yBuj6zb4M3Zd4Wd4jVC14ed1o7CKwLHf67QSoqzSDz4gAU
-	 GMG7f13qvoRzGedj6K0BKPZmNfBq0OZfZYQyuMOrT3kWNKDIWo/Q2dvwQbTy05EmDnI/V
-	 DvanHdS1oRb2kk8zHGjoTnX9YC8k3Py+CKEUD2OyW9Ci6thOcxUXHQ9jsqPD/IfJtPqZQ
-	 tnpRs1lu3rrATJe4HkwLE79GkMjWcv2X3eIZ1YIiVpouzFQIYBCl4e9ohxYPj2/8Za1z7
-	 Rl6aC0YZTq+ziE/esMIY6Zp8GepM0522a/VGc05xhlVpbc4XVnp/4cQKDXAT2f3e3GA==
+	t=1795747802;
+	b=CZ4mIn9esiGy65ObA9A4Z1Vpy17jKz92UZL2Q9Tkem+rK71dYTfuAkqGtUoj4lQpRPFH
+	 pu0SdKvbLnhhf2BkRk7/wBdLvFYX73dKohCQuoBYtqww9Hb70JoccPj6lkKOCBkCVo/Vl
+	 4mMWdqx5v4oaQRYNPqER04vR/wL2DH+DR2YQTw7GhdfzjZlj8CYTGwtMM1LEvK3j3KNqY
+	 pRhnFbZ0dQzMV4udGn7fXJ4/M8EWXJK5n/eRHwAdBf9JHWhxYJE1/I9rIKVu/72EevGBH
+	 YX724FjrxD4WXOMLE2nBYaMgwxIIBCzEh+kfVvqgcJuWcMXZ+yqXLECGDX2jMy2mytw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795742427;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=zUOs8f+RIHOAC15KeTPxhEwBVRhNzp3OUEnBu6zFoaQ=;
-	b=2dg0gQ2WygQyoFfoLJVXCpIjspFrSPEZ8cXxEtEA+TaeDdkq53dNm5tEFiq8T8c62Hwi
-	 2Eq+/cZYipuJCy3ruK9SDOs0Jkg2MV41byvN5KonK//tD64kmeks/eXhJW84Z1Z9QoGrt
-	 4FGfIFU6sRByhQuHnqcxl6M9tb5xyNUEmTIDSwPifeSlFZV+h2R/Guz+Rbh/CjQj23VQC
-	 z+MXGUS9iRxxQb/2Cr+1BHUBPFNZDiIr3eeF56ISKChtRhSHh9+wVll7S/kPIcMqCqBnp
-	 g/eq4lWHFnwCFO+d0nEYNBTBkLVOCLa25O1l5el4l0+VNK+4j8rpy7JTTeQXihiPZoA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795747802;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=t+eUij82/QC/n+c9lQwrVzk3PSO0L0NTj3bs3PqbZcM=;
+	b=eGqJD5UMoHkBU0cYSfOSp3Bw7Mt6v/KERIBK8+J698ui0lT318XaF8N8U1dI3Xnne+eR
+	 hwLU0tIRAZG+0NMbK740dJ0dG+4wIuaGWJc4YooufWqX7KLJIiIJN5ByNZBcvKxISvu7S
+	 yLuvd9oA0UuZf3mHLi9s+7nXe1t9JZucRBNN0uwFxHNckR2v8JymVMQFFXj+jxdyMVTsi
+	 +0AZ5qYxJh6Y9M12pAguZ8MDR49BVI7Z4xFxIvWV97gVK8l+LKgFnTu6MT7yQnrNGs3hQ
+	 r+j/5sake2nQ8OZiMrpBtrcrYHufRZ99e5xXChAj+F6QF3DARW8qKLsP5H31Vj4GSUg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5CHPkG5;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=bB7Cp19Q;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4D67606A31E
-	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 01:20:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28308606A31C;
+	Fri, 27 Nov 2026 02:50:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28308606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5CHPkG5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0E81F00897;
-	Fri, 27 Nov 2026 01:20:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795742426;
-	bh=zUOs8f+RIHOAC15KeTPxhEwBVRhNzp3OUEnBu6zFoaQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=G5CHPkG55wwdC3fo90UlSqoElsuBva5XQe/SUe3smx6MBoJqZ6M3/i/6WMPzyfKOT
-	 BwUQLedkGy6oJtvkGk+I/Xz78Ps1CUgn0LqPQV/zJ9E3B82mEycINMGvUS4qUdM6sE
-	 uHKZfg0q2bEB5jednvAN8/OGpqWrlicGm6zUPHMuV6yELkyBdU4QdlXW3PXuhZ0/DE
-	 FS4BBhRuXcrmetE/mWDllpL4oS7eBC3bY4AXTsEpisDAszQ/ghOGqxFk1dg0nSpc79
-	 RroXK/+jQz7yLwvhpkuGdxbdtaHkM8rstlRZAzTOKJK5JRIKNlovgI11TKjE8BTs+E
-	 uUWpt9O0lgkew==
-Message-ID: <sashiko-outbox-236394@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] HID: lenovo-legion: Add keyboard backlight
- driver for Legion Gen 10
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ciro Pedrini" <ciro.pedrini@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261127-legion-lighting-rfc-v3-2-15c55d9f15b7@gmail.com>
-References: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
- <20261127-legion-lighting-rfc-v3-2-15c55d9f15b7@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 27 Nov 2026 01:20:25 +0000
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=bB7Cp19Q
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=t+eUij82/QC/n+c9lQwrVzk3PSO0L0NTj3bs3PqbZcM=; b=bB7Cp19QQYGBmc2YEYKhqLVQoe
+	AXQ9m420RBaP6JCLSVCoydmPkaabONkrdrM3aT0k7VeKiLa7j/SouUZhgtFavoQ6HXOCyD9Vbffsq
+	ic7tRgSW4NfnW+yPyZMqqWXekuCC0WPwFI5maaSfHQGl1wuvkYBLiLAMrPBfuR6BraTImMukY29W9
+	RUkHDEQiRgWg/+guSbWBwkhBG1qMhYOxnGgawp47iW6gVZ6tLg7a2V0jhdEeZSn8lTlee9jfeGc4A
+	8Hmq9y21dQzOPbHQOLpD3/EiDAhrqTcjVVBU9DqAmjp8KWMZY12FFON84jdyD2nzq9iHzmrgRpygx
+	eHtDjTMg==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xWm2D-0000000EnwC-1iaC;
+	Fri, 27 Nov 2026 02:50:01 +0000
+Message-ID: <e201bf76-fda3-4fd0-95af-8d8f0f2a74f9@infradead.org>
+Date: Thu, 26 Nov 2026 18:50:00 -0800
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,117 +57,149 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] HID: Merge duplicated documentation for Lenovo Legion
+To: Ricardo Ribalda <ribalda@chromium.org>,
+ "Derek J. Clark" <derekjohn.clark@gmail.com>,
+ Mark Pearson <mpearson-lenovo@squebb.ca>, Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20261126-lenovo-go-v2-1-99db2904513e@chromium.org>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20261126-lenovo-go-v2-1-99db2904513e@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] HID: lenovo-legion: race on kbd->level in
-  legion_brightness_set() and get()
---
 
-commit 1968b7a56dc85b8ec700640dbc936c464e699f4b
-Author: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-HID: lenovo-legion: Add keyboard backlight driver for Legion Gen 10
+On 11/26/26 6:36 AM, Ricardo Ribalda wrote:
+> Lenovo Legion Go and Lenovo Legion Go S share some definitions. Merge them in
+> sysfs-driver-hid-lenovo-go to avoid this warning:
+> 
+> WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:364; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:234
+> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:373; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:243
+> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:636; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:252
+> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:645; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:261
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 168c91839139 ("HID: Add documentation for Lenovo Legion Go drivers")
+> Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 
-This commit adds a HID driver exposing the keyboard backlight brightness of
-Lenovo Legion Gen 10 laptops as an LED class device with hardware brightness
-change notifications.
+LGTM. Thanks.
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
 
-> diff --git a/drivers/hid/hid-lenovo-legion.c b/drivers/hid/hid-lenovo-leg=
-ion.c
-> new file mode 100644
-> index 0000000000000..cfd42c52500f1
-> --- /dev/null
-> +++ b/drivers/hid/hid-lenovo-legion.c
-> @@ -0,0 +1,293 @@
+> ---
+> Changes in v2:
+> - Revert unrelated "built in" -> "built-in" typo change in os_mode description (Mark Pearson)
+> - Pick up Reviewed-by from Mark Pearson
+> - Add Jonathan Corbet and linux-doc@vger.kernel.org to Cc (Mark Pearson)
+> - Link to v1: https://lore.kernel.org/r/20260831-lenovo-go-v1-1-e9526e88ee09@chromium.org
+> ---
+>  .../ABI/testing/sysfs-driver-hid-lenovo-go         |  9 +++---
+>  .../ABI/testing/sysfs-driver-hid-lenovo-go-s       | 35 ----------------------
+>  2 files changed, 5 insertions(+), 39 deletions(-)
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+> index c8221373ef76..07f3ea054383 100644
+> --- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+> +++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+> @@ -365,10 +365,11 @@ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-
+>  Date:		April 2026
+>  Contact:	linux-input@vger.kernel.org
+>  Description:	This controls the behavior of built in chord combinations.
+> +		For the Legion Go S, this controls the touchpad's operating mode.
+>  
+>  		Values are windows or linux.
+>  
+> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
+> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
+>  Date:		April 2026
+> @@ -377,7 +378,7 @@ Description:	This displays the available options for the os_mode attribute.
+>  
+>  		Values are windows or linux.
+>  
+> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
+> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/product_version
+>  Date:		April 2026
+> @@ -640,7 +641,7 @@ Description:	This controls enabling or disabling the touchpad.
+>  
+>  		Values are true, false.
+>  
+> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
+> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
+>  Date:		April 2026
+> @@ -649,7 +650,7 @@ Description:	This displays the available options for the touchpad/enabled attrib
+>  
+>  		Values are true, false.
+>  
+> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
+> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/vibration_enabled
+>  Date:		April 2026
+> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+> index 4d317074bb7e..218164cfe544 100644
+> --- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+> +++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+> @@ -231,41 +231,6 @@ Description:	This displays the available options for the mouse/step attribute.
+>  
+>  		Applies to Lenovo Legion Go S line of handheld devices.
+>  
+> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode
+> -Date:		April 2026
+> -Contact:	linux-input@vger.kernel.org
+> -Description:	This controls which value is used for the touchpads operating mode.
+> -
+> -		Values are windows or linux.
+> -
+> -		Applies to Lenovo Legion Go S line of handheld devices.
+> -
+> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
+> -Date:		April 2026
+> -Contact:	linux-input@vger.kernel.org
+> -Description:	This displays the available options for the os_mode attribute.
+> -
+> -		Values are windows or linux.
+> -
+> -		Applies to Lenovo Legion Go S line of handheld devices.
+> -
+> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled
+> -Date:		April 2026
+> -Contact:	linux-input@vger.kernel.org
+> -Description:	This controls enabling or disabling the built-in touchpad.
+> -
+> -		Values are true or false.
+> -
+> -		Applies to Lenovo Legion Go S line of handheld devices.
+> -
+> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
+> -Date:		April 2026
+> -Contact:	linux-input@vger.kernel.org
+> -Description:	This displays the available options for the touchpad/enabled attribute.
+> -
+> -		Values are true or false.
+> -
+> -		Applies to Lenovo Legion Go S line of handheld devices.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/linux_mode
+>  Date:		April 2026
+> 
+> ---
+> base-commit: 25faec9ce61c01fb45abf812a222c5b43c3cd5c5
+> change-id: 20260831-lenovo-go-7b4ec4bf0cd5
+> 
+> Best regards,
 
-[ ... ]
-
-> +static int legion_brightness_set(struct led_classdev *led,
-> +				 enum led_brightness value)
-> +{
-> +	struct legion_kbd *kbd =3D container_of(led, struct legion_kbd, led);
-> +	u8 old =3D READ_ONCE(kbd->level);
-> +	int ret;
-> +
-> +	if (value > led->max_brightness)
-> +		return -EINVAL;
-> +
-> +	/* Before sending: the report of this set may come before we return. */
-> +	WRITE_ONCE(kbd->level, value);
-> +	ret =3D legion_simple_command(kbd, LEGION_OP_SET_BRIGHTNESS, value, NUL=
-L);
-> +	if (ret)
-> +		WRITE_ONCE(kbd->level, old);
-> +
-> +	return ret;
-> +}
-> +
-> +static enum led_brightness legion_brightness_get(struct led_classdev *le=
-d)
-> +{
-> +	struct legion_kbd *kbd =3D container_of(led, struct legion_kbd, led);
-> +	u8 value;
-> +	int ret;
-> +
-> +	ret =3D legion_simple_command(kbd, LEGION_OP_GET_BRIGHTNESS, 0, &value);
-> +	if (ret) {
-> +		hid_dbg(kbd->hdev, "reading the brightness failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	if (value > led->max_brightness) {
-> +		hid_dbg(kbd->hdev, "brightness out of range: %u\n", value);
-> +		return -EIO;
-> +	}
-> +
-> +	WRITE_ONCE(kbd->level, value);
-> +	return value;
-> +}
-
-[Severity: Medium]
-Can concurrent legion_brightness_set() and legion_brightness_get() calls ra=
-ce
-on kbd->level?
-
-In drivers/leds/led-class.c, brightness_store() releases led_cdev->led_acce=
-ss
-after queuing set_brightness_work, so set_brightness_delayed() invokes
-legion_brightness_set() without holding led_access while brightness_show()
-can run legion_brightness_get() concurrently.  Because kbd->level is updated
-outside kbd->lock in both functions, a get can overwrite the new level with
-the old hardware value before the set command is sent:
-
-CPU0 (set_brightness_work)        CPU1 (brightness_show)
-legion_brightness_set(led, new)
-  WRITE_ONCE(kbd->level, new)
-  legion_simple_command(...)
-    kzalloc_flex(...)
-                                  legion_brightness_get(led)
-                                    legion_simple_command(...)
-                                      lock(&kbd->lock)
-                                      /* reads old level */
-                                      unlock(&kbd->lock)
-                                    WRITE_ONCE(kbd->level, old)
-    lock(&kbd->lock)
-    /* sends SET_BRIGHTNESS(new) */
-    unlock(&kbd->lock)
-                                  legion_raw_event()
-                                    /* ev->level (new) !=3D kbd->level (old=
-) */
-                                    led_classdev_notify_brightness_hw_chang=
-ed()
-                                      <-- spurious hw_changed event
-
-Similarly, if legion_brightness_set() or legion_raw_event() updates
-kbd->level after legion_brightness_get() drops kbd->lock, the trailing
-WRITE_ONCE(kbd->level, value) in legion_brightness_get() clobbers the newer
-level with a stale value, which can also cause a subsequent hotkey event to
-that stale level to be ignored.
-
-Updating kbd->level under kbd->lock would avoid the race between set and
-get.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261127-legion-lig=
-hting-rfc-v3-0-15c55d9f15b7@gmail.com?part=3D2
+-- 
+~Randy

@@ -1,79 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795775670;
-	b=x/mnIybgWx2YrJ2d+uaOQCrEEbmKc407rsNYNYVvacdoMBh2q17Gzliq/YgSJ9vwHhtT
-	 qdFKLKJ6IEsSlrQOdU1tAPYQrIIroak5C2Ka7UCLhZ5sx+D86cB6BezTSdxgMUqGMfXxY
-	 bbsOHgTH+SmbizOHmvQdAocGgQzrxxRrHiF9DuFvwIzs7WlU6wQrLpm57pPNiLLH3Yt7t
-	 VZNEIpYd6cQ7+HSYNb5jcnP3eVGM/QYKpzqC1SPChoiLwj6boFg8eoQPhqOxYGDeeX+Rj
-	 9pBvCCg1mo1X82DaPqSgUOKBc4ygSTmocnobxQAOLeEHu14Qpi4GrD/Lnk+/8GJMiiQ==
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
+	t=1795775677;
+	b=W3p7aS/wHtnRA2JYyM5MnSq+VBM1tua7t6f+PFkHe52ZZ0jHgWuNJ4ZtpmHzy9wmav2w
+	 cZUvgSemvvYV6GQ66cC+f+GKxxVszAFp7XybeJRBt847GZgRUQqNw2bN9VA7yFRbcM37y
+	 zB+S15i6Yp7ZtXKqXAYBTI86o4wxO8C4b1fgDFwgva2z4TXkHJZg5MfBdOrb2MKVCjy8z
+	 XRaIw6RcxKNLm97v24yCOL92M5f/nSymfuu2yfh/qJdQHrXOvUGMs5nCcXVr4+lxWl+Ds
+	 QS2SbVx+5VP1A5KEpqolijzO8/FSh1wgSvpC+gYmcOtD7a+Gn185HG17YEzXz3Vc6CQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795775670;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795775677;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=z1e/VCW5oZKKzLUH0EadYkbC3hnbO+DYJJn9zI+5GTA=;
-	b=LXQxzIcw2bGrptl0hHRxddf0OkzjMVbEozt+j35o9mwxy7j8pjOOX6drQCQ5AQ0dVHyf
-	 Yx/W+6QPKOnO02aNRqYfnCTkf2r6betnC1wKprrU00No3zT405sLd74dao+gy49ulIfnI
-	 FFWujkowQIA7ButH8JayJ0PaOHjw2YGh6lROOmhI/xC3LMHia+Qr2K7l5Rqzuh3Jzp6nJ
-	 wPOvGEttaB63JcCoc1GSdxn7nPbC+T4T0HQoA0ZoYbexE2lfHpCEYG2km8f3v3PL3efgO
-	 R9LgQ2dMbngdRpCzah+waoHn7XMwHkXfz7hkLnJ2eeUacXW8A4HLJIqvfZlZyyxznEw==
+	bh=eLLMNywQ9EBe+pJtj99GVcSllXP5YQ0J+bgKpqOqpmM=;
+	b=Y4Nx2uXCnes3kf6ndRXUlTCKR6ToCARlU9znmc8QY96y/HKFS0Y9P+yxeWtAoCvGYqps
+	 rDqyfLg97uh7FhMvfJzq5ZxF73AQkpEg4pKDPwBam2EJpZ6E5Bg7c+4OojuRktic3sEyW
+	 0L+kyepnL5GltGKkJm7WvnpIyV9/pHdJAUesSY8S+HmzEM/QpaCS2nltXiKMdtVmYJm88
+	 IwV35VK20Y44ecMOmBv+TMvSzCl+XXAbmAV1EdCqMj4K/DfAtROKD41B+RHBiFQXbfd7j
+	 GJ/L0BgorMW5Rmd0anfj+ewJTnBVHgUDhj6HVcfTmsTBbc3RueNHYosBPAtOk2wMRKg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PvC923EC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mqYVFjDk;
+	arc=fail smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2180606A32C;
-	Fri, 27 Nov 2026 10:34:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B767606A333;
+	Fri, 27 Nov 2026 10:34:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PvC923EC
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mqYVFjDk
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795775670;
-	b=l9k8vCE5UUsrGKRqQRC/IO8CwOjOGiVPOchMEw5N8q6B1jkQn0dcFMAkTNLXiDrSGkfD
-	 R/iIwPLViHFZdfXWCzTLaSwBHDDA4xwcvMKREgDhb/YkcXXEa8q3uOmnJVgbGEowpFJOM
-	 RaUWEt6LIxhLXP5VunG6lYs03vNzL/2muoDTFlWom//oGe1eRjL2Sn0MmmBf+LI+ikmiA
-	 GLGJehSMQxx/0k3Qo38v7r09zUAMYgfi595WyBARdcVHpJBdLh0Is1oCOwJxJdWbaf8Cn
-	 sXGF1pP0U6fW1aoXrzm2lCGjC2aacPTFrllzjNEefs24AXf7DhVjQsb9BxIM3n1xVsw==
+	t=1795775676;
+	b=ToVORhjJO4EtKcpJZahNQD6/Oq8q2BjuNzmQ5Tlje1LqAUUikps9evnelDJ3e6R5Dyze
+	 FKXyM+ylGkiPwR8cWhfUrjQzrWPO1tKqdagZnlZY0EMSq7szmcL9zPsE/qZmwhRHdluSe
+	 r1Ug7aBMFHri5rgGK+X379XH+zZKiJnKFRFun3c2e471yGJ0QyX7abpSLmW7MEjYVBy0u
+	 kge54Svd6kje3R1EvVQoGHHH0zs8ERMgKChIZ5jI3nLoXtfwv73T4NQGQya0qFZLSUttr
+	 piQeMs7F6H/D9PCk6uXpVsQiZibrtnDfuV+EOMiFOjsYJx/F25GazYVa3puA+tk5QrA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795775670;
+	c=relaxed/relaxed; t=1795775676;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=z1e/VCW5oZKKzLUH0EadYkbC3hnbO+DYJJn9zI+5GTA=;
-	b=fK4u+MqLorYbQbBDO4aMb2yiDNxL8LpNWNW7yyNT8RyI76IeaLL2b/pWU44D4NjJZVVj
-	 IPbVXqTF1D0wjDecoQpncxmCJJ0pEPFj0tEFp0XWnp4f0d4PzymUM4MvY/ctG5qo74Sgo
-	 Dd7JobBYgyup0cixxj9HcogbSfbnfKxBbWIGaCwwD7uKjH5eyx0zDBw4BFbOMywtHCO08
-	 pm2TsGRI8g4Tg2FO+9DBFCqBLSduCJ7OBGmTdQWe7MffvGx1d+3X+OpKyjZp7rGWWYV2o
-	 owVWq5vdhP8uHDphAfWeCb0At5YWv71flrVxXyeVjbYkDpBpLBfLo5vz7fdifS71JUQ==
+	bh=eLLMNywQ9EBe+pJtj99GVcSllXP5YQ0J+bgKpqOqpmM=;
+	b=q4i3WnzrEDqVYqmUb+mH7xk6JT5dvTuCfmQ6SEYVm4pWUsUGjFwX2MeP4//BPmik1/1o
+	 A1FtsvrJI7L5NmCIv94FSbe+NgX9xlDsJWVOJAUYDXNJgOFESK1iR1eTx0rl6qJlB1fin
+	 A309Ej+hbQdfHgEmgmuOfsvG4llu4EWq3WPCjtxh+PaKBl5cp5/1cZtJlGgZ5/0s8BYNB
+	 m3P1RP19bZTcXP8F5W8R79SMhYL064lV16uutuKuYVmPAUm2Bg1vj7GT4b2uSr5bz2ku0
+	 wKS+0bbs8oM5FCovxFPdvkp+YIY19k6ww8UrfxaT12FkqM0wIBUlQ2P8S0vYrNWf/bQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id A88331F00893;
-	Fri, 27 Nov 2026 10:34:17 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id DB6331F0089A;
+	Fri, 27 Nov 2026 10:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795775670;
-	bh=z1e/VCW5oZKKzLUH0EadYkbC3hnbO+DYJJn9zI+5GTA=;
+	s=k20260515; t=1795775676;
+	bh=eLLMNywQ9EBe+pJtj99GVcSllXP5YQ0J+bgKpqOqpmM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=PvC923ECbu90ViDLdLvGOoAn3+VYn564473Ms+1VToEeJ/N/vn2pfCXEwtPLBz6WT
-	 nuUIrY1Xz8hOf9wSB/Kif22Op4fvmr8bRS9sjp7a/7XZRE7Q0aUb6IbxpJEeElAuXt
-	 qfAhemdyQJZ21i4DXouWpwOm3eBDbrVnPgtGFi9c3esF0KC7Kp7vNIsv9kdshnk5c4
-	 EQUOVmYG7Pcz8HA72HCmQ7KByal+JcVkKRZAUZ+LY5Gva6pku39w+ErU2CrDDOUt0+
-	 XKfDE4Hu3B4tkiwWKuZa7tWwehTEKT1h+9QzHiy9oWbFmnW0iGRtgLqxJECupXw+DG
-	 GspHK8D17e+eQ==
+	b=mqYVFjDkQ83KhoNIlTSH0IF98u798EscKc7hYikGTHoyJj8xKcIXub1LwXYV5bqtT
+	 LxGDB/GP+9URYCTaSVy7tljN9j4ZAJqLpMW2QI7SC+oN4w+/oN3bQOB359Jxs45GHp
+	 PGxlDSWcbdMijkYuep85+X6iDxibfC70sbG7CrgcHIiVVnVjdxphExMWHBhbcSUm0G
+	 73Udd4qBb5ysvsXCXDY9PgaKSZk4TzGMjhQrEO/cMakGqe+/428x2F2VI0myS3vjoA
+	 4XHfsjL5cxLF+IoELaYzXhs1NADa3BqhsbYbf1+CJi0mKNnpoHWc0wA7/0a2PfYY95
+	 0RiF/KdqhquEw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 3B67E4B733;
+	by lkml.kernel.org (Postfix) with ESMTP id BE2E14B743;
 	Fri, 27 Nov 2026 10:34:17 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Fri, 27 Nov 2026 16:03:58 +0530
-Subject: [PATCH v2 3/7] iio: magnetometer: hid-sensor-magn-3d: drop
- redundant probe error messages
+Date: Fri, 27 Nov 2026 16:04:02 +0530
+Subject: [PATCH v2 7/7] iio: Simplify callback registration error checks
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261127-19-oct-hid-iio-unified-print-framework-v2-3-3f476fe1a940@gmail.com>
+Message-Id: <20261127-19-oct-hid-iio-unified-print-framework-v2-7-3f476fe1a940@gmail.com>
 References: <20261127-19-oct-hid-iio-unified-print-framework-v2-0-3f476fe1a940@gmail.com>
 In-Reply-To: <20261127-19-oct-hid-iio-unified-print-framework-v2-0-3f476fe1a940@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
@@ -95,11 +94,11 @@ To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795775655; l=2280;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795775655; l=4750;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=El48voEBnfgib51qLeTAjfSBpWFdJf3qwG7hOZtaFtk=;
- b=xD2nk7BDs1A3niyi6NtpqHyofScXb7w2FjUfKtp1rB+jZ/iTmIFIdW0NiE+spVkZwGlMwdgal
- JTD2LZuIbxqBJFQs73v1Wgb2pqs5mlx/TeXjVxZ8d9AQ55PERTiabDG
+ bh=mGLaKUDpq2xrxFyO4D1gwOJXhOtVXrnf8YKu9o1By3I=;
+ b=JGK1JRUAMSKl0bz8dFdCKS6CwY6mNPNXmb74SMesd85P+fEuWcfvj3IYiSOyNOqfjC5HxJXMC
+ 4JVCEj+0rzZB1Y8ixrUjx+VrAUBnY1WNz2MnTSfGzulUyra3BQtsGsF
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -110,71 +109,119 @@ Content-Transfer-Encoding: 7bit
 
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-The probe path emits error messages for conditions where the failure is
-either already conveyed by the returned error code or can be identified
-from the existing debug messages in the magn_3d_parse_report().
+devm_sensor_hub_register_callback() returns 0 on success and a
+negative error code on failure. Replace open-coded error checks
+using:
+	if (ret < 0)
+with:
+	if (ret)
+across HID sensor drivers using the helper.
 
-Remove the redundant error messages to reduce log noise and simplify the
-error handling code.
+This simplifies the code and aligns it with common kernel
+error-handling style without changing behavior.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 ++++----------------
- 1 file changed, 4 insertions(+), 16 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c              | 2 +-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c                | 2 +-
+ drivers/iio/light/hid-sensor-als.c                   | 2 +-
+ drivers/iio/light/hid-sensor-prox.c                  | 2 +-
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c        | 2 +-
+ drivers/iio/position/hid-sensor-custom-intel-hinge.c | 2 +-
+ drivers/iio/pressure/hid-sensor-press.c              | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index d75ee16b8f45..386dbbda57d4 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -380,7 +380,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+ 	accel_state->callbacks.pdev = pdev;
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
+ 						&accel_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 
+ 	return devm_iio_device_register(dev, indio_dev);
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index d5acb38268af..c89e5a7a3222 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -317,7 +317,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev,
+ 						HID_USAGE_SENSOR_GYRO_3D,
+ 						&gyro_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 
+ 	return devm_iio_device_register(dev, indio_dev);
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index 9b3c8d8345b9..a7783b947564 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -417,7 +417,7 @@ static int hid_als_probe(struct platform_device *pdev)
+ 	als_state->callbacks.pdev = pdev;
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
+ 						&als_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 
+ 	return devm_iio_device_register(dev, indio_dev);
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 4d0c7dffc252..b793d7abc0f5 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -306,7 +306,7 @@ static int hid_prox_probe(struct platform_device *pdev)
+ 	prox_state->callbacks.pdev = pdev;
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
+ 						&prox_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 
+ 	return devm_iio_device_register(dev, indio_dev);
 diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index 5dd36cfd0ca7..04e2569d7ea8 100644
+index c179fcd364b9..742dc4130e66 100644
 --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
 +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-@@ -356,11 +356,8 @@ static int magn_3d_parse_report(struct platform_device *pdev,
- 			attr_count++;
- 	}
+@@ -493,7 +493,7 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev,
+ 						HID_USAGE_SENSOR_COMPASS_3D,
+ 						&magn_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
  
--	if (attr_count <= 0) {
--		dev_err(&pdev->dev,
--			"failed to find any supported usage attributes in report\n");
-+	if (attr_count <= 0)
- 		return  -EINVAL;
--	}
+ 	return devm_iio_device_register(dev, indio_dev);
+diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
+index 9bc0262b27c4..4773577dcd57 100644
+--- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
++++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
+@@ -316,7 +316,7 @@ static int hid_hinge_probe(struct platform_device *pdev)
+ 	st->callbacks.capture_sample = hinge_capture_sample;
+ 	st->callbacks.pdev = pdev;
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage, &st->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
  
- 	dev_dbg(&pdev->dev, "magn_3d Found %d usage attributes\n", attr_count);
- 	dev_dbg(&pdev->dev, "magn_3d X: %x:%x Y: %x:%x Z: %x:%x\n",
-@@ -372,20 +369,14 @@ static int magn_3d_parse_report(struct platform_device *pdev,
- 	/* Setup IIO channel array */
- 	_channels = devm_kzalloc_objs(&pdev->dev, struct iio_chan_spec,
- 				      attr_count);
--	if (!_channels) {
--		dev_err(&pdev->dev,
--			"failed to allocate space for iio channels\n");
-+	if (!_channels)
- 		return -ENOMEM;
--	}
+ 	return devm_iio_device_register(dev, indio_dev);
+diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+index 2d098ed35ff6..8b41e1461993 100644
+--- a/drivers/iio/pressure/hid-sensor-press.c
++++ b/drivers/iio/pressure/hid-sensor-press.c
+@@ -284,7 +284,7 @@ static int hid_press_probe(struct platform_device *pdev)
+ 	ret = devm_sensor_hub_register_callback(dev, hsdev,
+ 						HID_USAGE_SENSOR_PRESSURE,
+ 						&press_state->callbacks);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
  
- 	/* attr_count include timestamp channel, and the iio_vals should be aligned to 8byte */
- 	st->iio_vals = devm_kzalloc_objs(&pdev->dev, u32,
- 					 ((attr_count + 1) % 2 + (attr_count + 1) / 2) * 2);
--	if (!st->iio_vals) {
--		dev_err(&pdev->dev,
--			"failed to allocate space for iio values array\n");
-+	if (!st->iio_vals)
- 		return -ENOMEM;
--	}
- 
- 	for (i = 0, *chan_count = 0;
- 	i < MAGN_3D_CHANNEL_MAX && *chan_count < attr_count;
-@@ -409,11 +400,8 @@ static int magn_3d_parse_report(struct platform_device *pdev,
- 		}
- 	}
- 
--	if (*chan_count <= 0) {
--		dev_err(&pdev->dev,
--			"failed to find any magnetic channels setup\n");
-+	if (*chan_count <= 0)
- 		return -EINVAL;
--	}
- 
- 	*channels = _channels;
- 
+ 	return devm_iio_device_register(dev, indio_dev);
 
 -- 
 2.34.1

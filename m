@@ -1,51 +1,122 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.255.86.93
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.159
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795779829;
-	b=xj8JFGqtGLEzWybAmbCVOfFiTmwvtRvXMzEKfWCQC7WaR07UCReG01zzY9UmjWzp3K8j
-	 YHrb6gZraa2yShJQYcNZ2o0837OV7udWVoAddv5i0sahJe5/HtRPahDPu22gRPb3xTj53
-	 X367zAxLQCFIBJvmkFzI71Q+8uEtYld+ZrA77NouzhnJZXWqxtg9O+oqi4hn6+hyZBuKi
-	 QylIQjctlMyWeJZWXXKWNbm8+O9H6/oZG57JL/e5zFy0h2wRYK1ewm6JP8TnreWYrUP9x
-	 79ACvYD54Kp6GNTyMP9Z8pDuU5nZudo3mu5T6au1A7fjQqRlwH9UXA8GCGT0L9k6dQw==
+	t=1795783575;
+	b=CirEnS1lWVjjvqE4fVVpVdcoaCkcR2EMTmqcQHoIYRaJ8Pq0S3fOEHLv89WUDj6BYfmX
+	 9mtsyEehvZSY32RZqM5FpJyKJIOb8WieDFpXGvoelJnr0h6ko8K+rHSB8Sh0A07Ae/MTx
+	 xjwmFGMPciEqzVQtOpRhs5964RGf49FHk3mb/U3inL9mnxGDq7iOwJMHtQi4IOHj9JOpx
+	 SY2finaKwSYdc6+6kyBxe4fdJDWHZ4Gd9eRzD1WI/7LDCQB7WL1BcCvFHXDYL90OVevy4
+	 hrHytMVozyo4MCGzLcKuIEIIh01Q4t+ErWA5+mSoQQTDGBR28I7NuAT7jgcw4MboJaA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795779829;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Date:MIME-Version:
-	 User-Agent:Content-Language:To:From:Subject:Content-Type:
-	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=9BDNIK/cbt3ruWqxqJxIqM0/1T2yTZ8ddMmR8eSfwuA=;
-	b=wmKMA3JDI6CUmSo0gDv/0/1T+hD/Q6I2nOS9K938wqthTQQ9/kR27L2veqbD1qnNCfV/
-	 qYvyl5GxklNzp1zYi2qXmdoyltZ4Xz2Qt58J5OnPshNsCztShNkoJBEJFykQW3tDlB6ug
-	 zo0j6lzPVsXdGh06ce41wNeyquxklHAYc5hqtdsHLyzFZvqqZlhwym1z/e6RCR2Pw2LUP
-	 KMbASw2yUCLa+a6aA6iYfaFomFhYghvAnZcE1nU6Hr1ztvu7ERBrtH3S3LDoul4kMAw+G
-	 BIJmR+zxUdZ8smmfIrGBX1jpg4ci/XghBTtYGr/0G7B4fd+0XTRpm3NgarUcPpL8waA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795783575;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Received:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:
+	 Received:Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:User-Agent:MIME-Version;
+	bh=Tccfpf3qqlZdBx+ZX8QyDCcTglwgYFd/jXCzKtywApg=;
+	b=RZF+Id0xscmtzQNP8i8znEwUwpUk1g8mIA3sGPFK8xEjlncc921X66z5LDuzWNqpXjNY
+	 uNbt7yS5v0z6thc5qNXuLMdcPl6Y4yEzTOme1UAi/+ERejkpuPEWTbr+zwCAF+8YlkT/9
+	 OLk68jtNBNn5U2T7v3332C2ZV6tMqGOIMzDBC0Vfmk8XuC2LlTAb5APk/zUcrCiEX+jYx
+	 /gV+MfNQIGLt5CLRfMxxWcsDZ9vx1pbh075HQGT4n7yXfactN+JRAGYKoKi9Yrw74dGxk
+	 4QmwUy5RTGtqbrnFckH+qIy0AUZJ3s/Shk2E34VaQ3RL+Yo74e0AExtN5OxoIiTzPBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldred.fr;
-	spf=pass smtp.mailfrom=eldred.fr;
-	dkim=pass header.d=eldred.fr header.i=@eldred.fr header.a=rsa-sha256 header.s=dkim header.b="j0/62fNi";
-	arc=none smtp.remote-ip=51.255.86.93
-Received: from mail.celforyon.fr (mail.celforyon.fr [51.255.86.93])
+	dmarc=pass header.from=codeweavers.com;
+	spf=pass smtp.mailfrom=codeweavers.com;
+	dkim=pass header.d=codeweavers.com header.i=@codeweavers.com header.a=rsa-sha256 header.s=fm2 header.b=QcuCvbyo;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=C5U3XJkm;
+	arc=none smtp.remote-ip=202.12.124.159
+Received: from fhigh-b8-smtp.messagingengine.com (fhigh-b8-smtp.messagingengine.com [202.12.124.159])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BF9C606A31C
-	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 11:43:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BF9C606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=eldred.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldred.fr
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CD00606A31F
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 12:46:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4CD00606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=codeweavers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeweavers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=eldred.fr header.i=@eldred.fr header.a=rsa-sha256 header.s=dkim header.b=j0/62fNi
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9F6011783D7E
-	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 12:43:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldred.fr; s=dkim;
-	t=1795779818; h=from:subject:date:message-id:to:mime-version:content-type:
-	 content-transfer-encoding:content-language;
-	bh=9BDNIK/cbt3ruWqxqJxIqM0/1T2yTZ8ddMmR8eSfwuA=;
-	b=j0/62fNiyA5miq7qDsZYpcmLV0Km6xYh7yon5XlabJmcNhMXIQchZdyT4k7lo8zzQyQ48D
-	MFWCH0ZsnbQYIF5QM0FS4l9nOzMdG0cusLs7wr/6JTAQ7FONcvUqWiSZm7fce5zom3xLKf
-	fwgtN2qwFbHTt48ytQwPk08lWsJ6QLGgT8ija1hL2DMNZUfDFHnHBCiD5GSMHL2acI6hF+
-	VVeSKZYX7+RxfI4eR3SOVsuWvaKFMuClTtEc9W3X+c7uawqPq0eSQkIDF9saEtXddhWD18
-	h9Vcwaw1aVJl53rSWHl1pi4lNXTqy32LIZ8G2aEmcJs+YYDzKHPAxSQ+S2NFXQ==
-Message-ID: <82edbae6-1338-43d8-8239-de80f098426c@eldred.fr>
-Date: Fri, 27 Nov 2026 12:43:37 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=codeweavers.com header.i=@codeweavers.com header.a=rsa-sha256 header.s=fm2 header.b=QcuCvbyo;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=C5U3XJkm
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 8C2E37A02EE
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 07:46:13 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Fri, 27 Nov 2026 07:46:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codeweavers.com;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1795783573; x=
+	1795869973; bh=Tccfpf3qqlZdBx+ZX8QyDCcTglwgYFd/jXCzKtywApg=; b=Q
+	cuCvbyovY1DAPjrMlB1dzE2nU++4VyaU55ySTjp4eha1050FG6NSDBf5YCVIOkxS
+	lufwYyaRFJ3tj6lJ+TN5DzGx2+4HvSarNzlJ4fKG2qFzHpzVy40Sn4GSjHK5Bt7e
+	lWlM4Swz48A/Sxgrc1WnWKVL+eg+s+g41d+t2p2qDWGoBdRxYMFVvOmRX4OMJuk0
+	RhmAwIU3DvW1pHOt51igliNHAyiK7Mvn3rRp5mccypOtisHCfF7l5R/AXVqKXr1S
+	bJIeRfWxp40d3JycnlJ+fuRiXINgrqwEk3XoiTJMC7lJH4wkIMdSsBuQnAvWrTsW
+	ujhY3umCArQoPBSbZgsGQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1795783573; x=1795869973; bh=Tccfpf3qqlZdBx+ZX8QyDCcTglwgYFd/jXC
+	zKtywApg=; b=C5U3XJkm80R1TYJvXqOVIiOeGNOYdbEXZee7iyDbGvtgTnsnkiB
+	MYPCSKL131t1XyZIjZNrCarBasJ9KUlFtW2on3dRm/D6GeyBL6tRlFau4DRdl/U1
+	DMhpkVtm8Ho4hHSjhYX4vriLoaokQXLNq3i5LI6Q2DjhRMGKpEbWVeGEhf1U1IhY
+	bKTCCJzT0ivr5xWS5ZkBAP5YvbAKPVhxmhjmPjN3oMI4B02jV/+3mhJ/3QsEpOwE
+	KHGg6icQPDaFugz95n3E8bKTqLWu3O7w5k8XLCWVwVifhR2X6gsjv2RVJ8aQzgJE
+	frMWlSA6odfneVeqw08Ng527gICXRCuhJqg==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=codeweavers.com a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1795783573; d=codeweavers.com;
+	mf=PG1icnVuaUBjb2Rld2VhdmVycy5jb20+;
+	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:c/kSyFP3we0h5p/yc/eAJmRfAYQPfg5WEC+jwVmRc1CKC4J
+	O8NLnyYodQcbkwTVcGg2QxQPFdTXgA5YwbmkHrCSrAaNZMgY/zTwRCqwV4QassFK
+	yoMZATNeUf7/I0F6tandTubLAQ35ehDQh2irAgtpfbimjmJC5Z8mMUScCjseA+cK
+	Ri5dVQOiaN7CzHwgQKWcku3iwjxqbIawtbpGYMywz87U3nmrv6MaPrn9Z7kgFWqv
+	lFlVtv3VLR4t1JgbSg2Ack5j/oy8vteF/sI0K04Q2E5BXAh2QbgexRZQTIAZodPM
+	4zAxY69mY0vIhqoHpyusGuvSTA+miKoNfqNU5xA==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-type,date,feedback-id,from,in-reply-to,message-id,
+	mime-version,references,subject,to,user-agent;
+Message-Instance: m=1; h=sha256:qpRz6hqu6KkowndsF+/qdcLkT0TVVnXwtix8Qn8PA8E=:spdkKAzFwzOK/TvwkNGG5SqH/r1Xruft7e3Y8C6WDbs=;
+X-ME-Sender: <xms:lXsJa0W1O40TSgAcigpy2qQYTPn_p1NJcvGCPZzQLebkrcAY90vmVQ>
+    <xme:lXsJawAktmqUzP6UPqvBdOSXjl760kL-3wMCSdUEAzp2j4N6HfmkXi-1U2s2bHgmW
+    zlrTZAoVfOIewTVeJ7W2pk6L3F3uVUv3PDjv7b7HsTU2bGR07ZqrEgw>
+X-ME-Received: <xmr:lXsJa1xcY3icjK7yEOO9TszLQ5N2wdfNEfHNUz47it5lGLiGAfE4y7wuBzVBqYQdY32W>
+X-ME-Proxy-Cause: dmFkZTGE9lPQuD0qbXPd39Y5sMe7XIB+b0Vf63jmYvDtiqBzCqqi4Q+C/msONGnPRIYE5W
+    c5XIHV/UCHOWWSvFTJTPeV9tTSq00ljpBgn1+Uia1+HlMH2zvW9zJ7xZG3JcNkSkrT0bO4
+    wWAQT1CRNcnb3d2tFc/Gaxh42Hxp9pMkwr4NG4x+f+Ollghe01GjUUXpBa4KVfkTDbWgc/
+    6XoyU+0T/P5QkjgDInlZeNdA+gOVk7O4YrAPaYKpsU8bS8g5pGkRrJmjCeVKoQhChA/Foe
+    gzSoXR+hOHJrnqTtsXHa/4M/si+Ja9o/0y3QbBYrf0JIbRxViSAkTi7qQLSqj8NCEOeCly
+    v1LVvadvpy6AlyYFOX3yUhYpAFCxMAEQXdyuzLSRgW4WwRkZU5pydw5mqTLH2xgtOR8L8E
+    xrz5EF/b6lfAFlFPIlStr5LNrJNYAGUmank4v0TFqZ7QVDOrkgdXHf4O3pQvMfKhnHr9Ru
+    mHlw+C/LV//pEMfhZzK+HPwm5IgwTt4ZxYMz3okSZKyvTsl5Tg0R0PcrAGdbsIqtjBYxrO
+    7Dda5xt3IQc/TCML45DHCzF3QIPh2z1aAXbztzQJea5qbFN80hdfHfWAZYn1hilxIjWRDh
+    /4g98waSHRc26OjJWd0v3+IXi9i8gyrizgl02TP6AnZnZ5hiRDnj6ixG23vA
+X-ME-Proxy: <xmx:lXsJa9B-41xue-0RIepMDzl364XovRrY_SHsQLYPz6I8Kxs7iPUsbA>
+    <xmx:lXsJayZa7aKWO9p5DNbr0XoPosnzevekqv_wbV56Q0RKul00DKqGCg>
+    <xmx:lXsJa1gHp7cDbFwyR8_jvP7fVZImunM3MASUHcqn8gR_jxMyR981jw>
+    <xmx:lXsJa046qsVojwjEFVViddxLduVDVoMRYjxVPQ0iGZhrJzFe33LhpQ>
+    <xmx:lXsJa1UIG8Qwppr-YNuxxDyuroWREeMKj-wnOOhyr0V3FM4cePcbwfHf>
+Feedback-ID: i09464b71:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 27 Nov 2026 07:46:12 -0500 (EST)
+Message-ID: <388d3d6e5a4f988f4a4be2c436cdd2ee652336f8.camel@codeweavers.com>
+Subject: Re: [PATCH 1/2] HID: core: include product version in the uevent
+From: Matteo Bruni <mbruni@codeweavers.com>
+To: sashiko-bot@kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Date: Fri, 27 Nov 2026 13:46:03 +0100
+In-Reply-To: <sashiko-outbox-235847@kernel.org>
+References: <20261126153925.9488-1-mbruni@codeweavers.com>
+	 <sashiko-outbox-235847@kernel.org>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-m1E9NV9TU3eL0vfsPiFi"
+User-Agent: Evolution 3.60.2 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -55,45 +126,89 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: linux-input@vger.kernel.org
-From: Eldred HABERT <me@eldred.fr>
-Subject: Wacom Graphire2 4x5 unreliable(?) init
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-Hello!
 
-I have this (admittedly old-ass) tablet that I occasionally use on my 
-laptop, and I've recently tried again only to be met with failure.
+--=-m1E9NV9TU3eL0vfsPiFi
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I'm running 7.3.6-zen1-1-zen, but I've done a bit of troubleshooting on 
-7.4.0-rc4 as well, with the same symptoms.
+On Thu, 2026-11-26 at 15:50 +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Medium] HID: core: redundant unprefixed PRODUCT uevent in
+>   hid_uevent()
+> --
+>=20
+> commit f1a7bbe068e7bfcbcd219202f30241d7b9e0e8bc
+> Author: Matteo Bruni <mbruni@codeweavers.com>
+>=20
+> HID: core: include product version in the uevent
+>=20
+> This commit adds a PRODUCT variable containing the bus, vendor, product,
+> and version fields to the HID device uevent environment.
+>=20
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index 64ac7606927ca..6b71104aa3319 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -3003,6 +3003,10 @@ static int hid_uevent(const struct device *dev, =
+struct kobj_uevent_env *env)
+> >  			return -ENOMEM;
+> >  	}
+> > =20
+> > +	if (add_uevent_var(env, "PRODUCT=3D%x/%x/%x/%x",
+> > +			   hdev->bus, hdev->vendor, hdev->product, hdev->version))
+> > +		return -ENOMEM;
+>=20
+> [Severity: Medium]
+> Does adding an unprefixed four-field PRODUCT variable to hid_uevent()
+> conflict with the parent USB device's PRODUCT uevent while duplicating
+> existing HID sysfs and uevent attributes?
+>=20
+> For USB HID devices, usb_uevent() on the parent USB node emits a
+> three-field PRODUCT=3D%x/%x/%x (idVendor/idProduct/bcdDevice), whereas
+> usbhid_parse() sets hid->version to hdesc->bcdHID (the HID specification
+> version) before the HID device uevent is emitted.  Consumers or udev rule=
+s
+> walking up parent devices from hidraw looking for USB's three-field
+> PRODUCT variable will hit this four-field bus/vendor/product/bcdHID value
+> on the child HID device first and misparse the fields.
 
-Sometimes the tablet works just fine, but most of the time I get these 
-errors from Sway:
+I suspect this might be a fair concern. FWIW, I picked the four-field
+PRODUCT=3D line "schema" from input devices, which is what is used by
+Wine for non-hidraw devices. Using the same format for hidraw
+(including UHID) devices seemed pretty natural and makes the required
+Wine change very small.
 
- > [wlr] [libseat] [libseat/backend/logind.c:121] Could not take device: 
-No such device
- > [wlr] [backend/session/session.c:340] Failed to open device: 
-'/dev/input/event14': No such device
+> In addition, other variables in hid_uevent() use the HID_ prefix (with
+> HID_ID already exporting bus, vendor, and product), and commit
+> cdf826a94e0f ("HID: core: Expose id attributes in sysfs") already exposes
+> hdev->version for all HID and UHID devices via the id/version sysfs
+> attribute.
 
-I've checked and it's not a permission issue, and I can `cat 
-/dev/input/event14` just fine, however nothing comes out of it neither 
-as my user nor `root`.
+That's a relatively recent addition to the kernel and one I wasn't
+aware of. I have a WIP Wine patch to directly read
+<sys_path>/id/version to get to the version info. It's quite a bit
+unfortunate that this is effectively the only case in that component
+where we can't use the udev API to retrieve the information we want.
+I'm not entirely sure if it's going to be considered acceptable
+upstream.
 
-No kernel messages hint at anything either, I just get
+--=-m1E9NV9TU3eL0vfsPiFi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
- > wacom 0003:056A:0011.0009: hidraw4: USB HID v1.00 Mouse [WACOM 
-ET-0405A-UV2.0-3] on usb-0000:c1:00.3-1/input0
- > input: Wacom Graphire2 4x5 Pen as 
-/devices/pci0000:00/0000:00:08.1/0000:c1:00.3/usb1/1-1/1-1:1.0/0003:056A:0011.0009/input/input40
+-----BEGIN PGP SIGNATURE-----
 
-As far as I can tell, thus, this looks like a driver bug, hence me being 
-here. Please let me know if there's anything I can do to help!
+iQFnBAABCABRFiEEOG64GdkEb/jz3VACyR3CIymyYlMFAmsJe4sbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyFxxtYnJ1bmlAY29kZXdlYXZlcnMuY29tAAoJEMkd
+wiMpsmJTm/UH/2eM9hSFjRdQtd3ZsBiFfktzkbLrSGH1qAXGorQK+mqQuxW0w7Ei
+eUTYxGoIZXo4+qGKvdK4cUsl24SpWJ8P6L/A148f+4uYm5aWzSmr0iJy4FAz910R
+xQofK1GizeHRwY0l20vW46ndpGMhM4X2RQDhB1q6x2dbBmlMuJozpvflgSVoosFo
+w1o50NlNOsKRbzLgL49KdHByaT717gfrdOt3a9FvbzosjIdASAXNlrZdFtWXYOLY
+OTM4sMtvBsXh9ILQ7QjAN0iWOZ/czrZEB2OTrVu4IR7I8jBFPIjFT5tff67YftvE
+HszU/3rCsIFfagAWj3m051A4z2XNSjVBEFk=
+=eTHe
+-----END PGP SIGNATURE-----
 
-Cheers,
-~ Eldred
-
+--=-m1E9NV9TU3eL0vfsPiFi--

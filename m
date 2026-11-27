@@ -1,99 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.46
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795742188;
-	b=dfLufYQMnRZx+nTa6Y1Zcz5yoyR+jUie2iOQHr3eo3+1grmLt5S5fkwndsk7C2OeZeS1
-	 EKMzKHXjdaCLwhbHzDw8OlmXNQ3Byq02v2n31B2034hy6EO8soiaQjzgVd0d2I0S2ZJxI
-	 DjGO1ze45erb1fhITelNekDfcsk6Apbwzv0lOnKT65VWeTKoy//5b60lStT/7h4q04+qS
-	 Oydc98WNwregr69cl5AVjcsEWefuYcUZCtjhZPXkfdGazFdQZcXLV5a8mkZFP4xGQ7Nu9
-	 TaxxRk+SW1ceKYyhYJLxF5f5YWgRE74hhlkol0BnLUxvYScarOhvC7/KbkVod+PAqcQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795742188;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=oPod1KuFvBWGJsle2l5lTHqLGq3m5KHrsHkxQ2HP+ns=;
-	b=Jfs5SmEcT5xV9dGGmlbE2fJS41nH7xfrmnsLw7Sah4Dr0WaytiPEn++iYSYr/IqG44/R
-	 3amIOpUAbsfdxKY2rDRQ+Kf46eFWWd4LWSsnvbJY5klwahTj2JLLYnNpbkEHrq9Vo1zyH
-	 Pbnajc2NGwnKJtBeYIUdtZlTk13FCby00KyQuLGREwizZ6VYwsHg6a2dYcRmR66Hyulm/
-	 cdznpjiN64Y8QlLU/elSuFHIxRQb6iIL8WNW18tZtAlnNAaWOFicjLy0n1w1NMUq49Rsa
-	 mGRpRnv+E5M8c3x7DxzdQ4FyW/1f0OOCijYtOd2eUmkGuMcrWJfhtWR1Ui5yMfUsn3g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yjACiQmb;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795742427;
+	b=mjOqjgbVXk/mTifVEPi0f2yBuj6zb4M3Zd4Wd4jVC14ed1o7CKwLHf67QSoqzSDz4gAU
+	 GMG7f13qvoRzGedj6K0BKPZmNfBq0OZfZYQyuMOrT3kWNKDIWo/Q2dvwQbTy05EmDnI/V
+	 DvanHdS1oRb2kk8zHGjoTnX9YC8k3Py+CKEUD2OyW9Ci6thOcxUXHQ9jsqPD/IfJtPqZQ
+	 tnpRs1lu3rrATJe4HkwLE79GkMjWcv2X3eIZ1YIiVpouzFQIYBCl4e9ohxYPj2/8Za1z7
+	 Rl6aC0YZTq+ziE/esMIY6Zp8GepM0522a/VGc05xhlVpbc4XVnp/4cQKDXAT2f3e3GA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795742427;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=zUOs8f+RIHOAC15KeTPxhEwBVRhNzp3OUEnBu6zFoaQ=;
+	b=2dg0gQ2WygQyoFfoLJVXCpIjspFrSPEZ8cXxEtEA+TaeDdkq53dNm5tEFiq8T8c62Hwi
+	 2Eq+/cZYipuJCy3ruK9SDOs0Jkg2MV41byvN5KonK//tD64kmeks/eXhJW84Z1Z9QoGrt
+	 4FGfIFU6sRByhQuHnqcxl6M9tb5xyNUEmTIDSwPifeSlFZV+h2R/Guz+Rbh/CjQj23VQC
+	 z+MXGUS9iRxxQb/2Cr+1BHUBPFNZDiIr3eeF56ISKChtRhSHh9+wVll7S/kPIcMqCqBnp
+	 g/eq4lWHFnwCFO+d0nEYNBTBkLVOCLa25O1l5el4l0+VNK+4j8rpy7JTTeQXihiPZoA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5CHPkG5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33AAA606A324
-	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 01:16:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33AAA606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4D67606A31E
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 01:20:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yjACiQmb
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-15dd124bbe7so10960723c88.1
-        for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 17:16:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795742187; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VmuYTVzgA6SIT0Ab+/+lXDB38VVnGTxQwXRyEARNdMnu7Yxl2SVPWkyslAd+erHuvY
-         e5pVMYUt1q2vErEVMT8/Rxp1jTU/2+/LvhAqQYYFKCJVCgfcYYpKEUtCQbLPUrkS4E7B
-         cbwsoYXA3c8bsbuD4/bIy2fpCeqTDK5jOkvmcM4OzjYSb7GoNr4Voja1DdApL0Gp448S
-         mObPu9xDyblNRmvlkwGUuULZYvxiGAwEez+SXAGXFrQS9JrFpzTUgV7E5ban+S2qfNFZ
-         NSfZ/HzZcDTJdq0Ikoe5ww3EZbvlEiKlQY8gdavDoGZ3QouTg+ngngGdrIjGcNhmOzjc
-         yVoQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=oPod1KuFvBWGJsle2l5lTHqLGq3m5KHrsHkxQ2HP+ns=;
-        fh=o/CBTUTGocWRap2NhQ3438tsNg0CizBNzmuGU/pzvhI=;
-        b=ezA2AdWiSdUdWuCCHtqKpiwnviUFhRuVoSbTBF1/nMysMEkhg1sH6qyslgUqYgLl6U
-         6kUMhn502mglwZ47O3H13dbRugR4r3WBo0aLyfTQIcXcjFYet8EPyUm+TbOMkOvxs426
-         81NAXeoE3lNpyNZMflRfpj9fHkAMEK1gvY12GB+pwSBUlNUoMrvKVmZaae6+NCh+h+R6
-         jk5CME/1g10ocOURkKo1ypeGLSwj6oRjF0qXlJfMBiEUKBRKzOsyxxd5itxmvCjl7zfr
-         CRegfiGc0P3nYOrFdJMxF7ievUNsnh6chQXeIvZ0cHTsQuyUWmXYXp1dWhLAGid7/SuA
-         iuXA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795742187; x=1796346987; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=oPod1KuFvBWGJsle2l5lTHqLGq3m5KHrsHkxQ2HP+ns=;
-        b=yjACiQmb/PKrdFqXS/mutr6kBPsP1vGmCYqLSE97eXboBzbviACN/BujKGlE7x1Ndf
-         mQOozTdjoXimTbRYLMcxVD47jQiA8hZkiQOi0P4Eb6fZCfLIVHeyY9KUC9NeI8Mxk1zU
-         bSQihymHqpiucthKPUf75/FDSQ83Ex6n3rizJzs4qNkLXnDjly0FppZsFGLfjU6pMT87
-         nqIa24UonGOBw/vVYYr3lRkdUvgjx8FegLKMaPkb0KpNwHPqCtP9pgPmMrkfA+MTFHnq
-         6mvNBZcWpKrM/ropu7l4jcZ3beMOaA7D1bMhEfU5kCfi8ics0H2RAp1I6fWJJZAi0b6g
-         WqFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795742187; x=1796346987;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=oPod1KuFvBWGJsle2l5lTHqLGq3m5KHrsHkxQ2HP+ns=;
-        b=lJBLEJiqzTa2SnwitrGGq9vgLT1nCe5Po6UDgDfZw7MXrHGFfUZiAYX+ZkE2x/VfAP
-         ZJMpuAXQNhSvaHZ8JmMhoRdK6dOPEkfaGbiG7SyuVM1/nLrbG/EDNAQKTLaFrlKMSUS2
-         vu1gUkYv7haz3OiGtjPoEXrLMezIW7t179O/VzMuEEk3jj/JaBY11VRcu9cHIgciSpmN
-         E3sRccI1/0yzS3Yb62/NoL+0FcO9BAmD2Kt16L9+3G84o+lrvYDEwCIPgtkknUB9+cYP
-         v/EDhqlRIh4X1RIbZ3fZ4lurT8kKgfP/LbblWBDiEmZvTWFy+Bzkmyx178UkD4K8ZW3s
-         AzNA==
-X-Forwarded-Encrypted: i=1; AL+hErECnsUO7BL0KjOPiBzb1ganvg4Hc21DJjUM4a9xjTzzv7232DfbeIugl1+up8nGj8bK1jbrLCzanqVoNw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+4fQ4AT4YiFd0CBWGXNEUVFK5S6qlGcVGeyu5+skxJvanJa+CR
-	R0+1gMbZpvqLMCsJ9f8j6YBbhiCsu6prVsY9wA5Tq1hyQd0iW/CWFRF9tQlulklm3tetshFnibC
-	JEwuFR7iom27D35yLSXtU3MzlVz01wJ4=
-X-Gm-Gg: AZFdTZfmpWcQNPMqi0yz8xCTm7qE1GjbJgb+LvQXLRbaBGHAZbgTZZz1qSHg4d5z8nq
-	CuQ+bdklTkSCHBMDrWKT8rpOZ/+M8am6Wxl7SREYZd6fwAHGVnrbC/kxUOdPlGfmjdvDCBwawQg
-	ayA2jUpCILegaq9QRKZybQRY+EOnkqfiUJXBQtMaEYnh3AvtC6R1UHP+Q9MSCMd+p4i8jmCDH9r
-	POBW42uFH7bwzqYXMRsmz6d0Fq07PFc56AHFjlaip4RdUM4MVMt+7f78iHagTj9iTcMRhmKlwSp
-	pdSMf/UxNrby26+KmZHYTmIXEOxtm833zypDFIdjbOKb3z1eIIfxInPjQrfkUlUXlNiR4TA2km0
-	dTHUTYggxu/UMQWkamYoyngSw9o0EgYa1qz1d
-X-Received: by 2002:a05:7022:1715:b0:144:f089:b189 with SMTP id
- a92af1059eb24-1b55691a623mr20952158c88.36.1795742187259; Thu, 26 Nov 2026
- 17:16:27 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5CHPkG5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0E81F00897;
+	Fri, 27 Nov 2026 01:20:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795742426;
+	bh=zUOs8f+RIHOAC15KeTPxhEwBVRhNzp3OUEnBu6zFoaQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=G5CHPkG55wwdC3fo90UlSqoElsuBva5XQe/SUe3smx6MBoJqZ6M3/i/6WMPzyfKOT
+	 BwUQLedkGy6oJtvkGk+I/Xz78Ps1CUgn0LqPQV/zJ9E3B82mEycINMGvUS4qUdM6sE
+	 uHKZfg0q2bEB5jednvAN8/OGpqWrlicGm6zUPHMuV6yELkyBdU4QdlXW3PXuhZ0/DE
+	 FS4BBhRuXcrmetE/mWDllpL4oS7eBC3bY4AXTsEpisDAszQ/ghOGqxFk1dg0nSpc79
+	 RroXK/+jQz7yLwvhpkuGdxbdtaHkM8rstlRZAzTOKJK5JRIKNlovgI11TKjE8BTs+E
+	 uUWpt9O0lgkew==
+Message-ID: <sashiko-outbox-236394@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/2] HID: lenovo-legion: Add keyboard backlight
+ driver for Legion Gen 10
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ciro Pedrini" <ciro.pedrini@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261127-legion-lighting-rfc-v3-2-15c55d9f15b7@gmail.com>
+References: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
+ <20261127-legion-lighting-rfc-v3-2-15c55d9f15b7@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 27 Nov 2026 01:20:25 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,55 +60,117 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com>
- <20261110-legion-lighting-rfc-v2-2-845726afb71c@gmail.com>
- <9002537db845b7a0a900612fe3a4a3638f06cd37.camel@rong.moe> <CAPKD0HfHuv4vKWeff_uhGxXosuU279qB+kkmXNPXJYL2kxFR2w@mail.gmail.com>
- <47e0364e0de6b9c22b21019d3d7e506defe58964.camel@rong.moe>
-In-Reply-To: <47e0364e0de6b9c22b21019d3d7e506defe58964.camel@rong.moe>
-From: Ciro Pedrini <ciro.pedrini@gmail.com>
-Date: Thu, 26 Nov 2026 22:16:15 -0300
-X-Gm-Features: Aa3M54om4nbMxSWNQWs_ctJIhvW8looc3McNT0nMJFNk8E5-YxztbEXgt1ad9pI
-Message-ID: <CAPKD0HdL19j1CuTKJT2E0mQbYxkwPzX6=m7kmVx0ZLKp-mJ1og@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] HID: lenovo-legion: Add keyboard backlight driver
- for Legion Gen 10
-To: Rong Zhang <i@rong.moe>
-Cc: Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark" <derekjohn.clark@gmail.com>, 
-	Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Werner Sembach <wse@tuxedocomputers.com>, Aaron Erhardt <aer@tuxedocomputers.com>, 
-	platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-Hi Rong,
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] HID: lenovo-legion: race on kbd->level in
+  legion_brightness_set() and get()
+--
 
-On Thu, 2026-11-12 at 01:36 +0800, Rong Zhang wrote:
-> ...though I won't insist if you still prefer kbd_backlight, as long as
-> others are not opposed to it.
+commit 1968b7a56dc85b8ec700640dbc936c464e699f4b
+Author: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-Thanks. I kept kbd_backlight in v3, mostly so UPower and the desktops
-pick it up:
-https://lore.kernel.org/r/20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com
+HID: lenovo-legion: Add keyboard backlight driver for Legion Gen 10
 
-> In this case you don't need the pre-allocated buffer, too. Let's allocate
-> a tiny buffer on stack.
+This commit adds a HID driver exposing the keyboard backlight brightness of
+Lenovo Legion Gen 10 laptops as an LED class device with hardware brightness
+change notifications.
 
-The pre-allocated buffer is gone, but I allocate it per exchange instead
-of putting it on the stack: usbhid passes the buffer to usb_control_msg(),
-and the USB core refuses stack buffers for DMA (with VMAP_STACK they
-aren't DMA-able). Other HID drivers do the same for hid_hw_raw_request().
+> diff --git a/drivers/hid/hid-lenovo-legion.c b/drivers/hid/hid-lenovo-leg=
+ion.c
+> new file mode 100644
+> index 0000000000000..cfd42c52500f1
+> --- /dev/null
+> +++ b/drivers/hid/hid-lenovo-legion.c
+> @@ -0,0 +1,293 @@
 
-The short reports are in v3 as well, without the msleep(). The rest of
-your v2 comments are done too (raw_command/simple_command, the
-static_assert, errors instead of clamping, devm, comments, Kconfig).
+[ ... ]
 
-One more thing I found while testing: the controller sends 05 02 B after
-every brightness set, the host's own ones too, and also when the level
-doesn't change (Fn+Space sends it the same way). v2 passed all of those
-to brightness_hw_changed, so v3 only reports a level that differs from
-the last one the driver knows.
+> +static int legion_brightness_set(struct led_classdev *led,
+> +				 enum led_brightness value)
+> +{
+> +	struct legion_kbd *kbd =3D container_of(led, struct legion_kbd, led);
+> +	u8 old =3D READ_ONCE(kbd->level);
+> +	int ret;
+> +
+> +	if (value > led->max_brightness)
+> +		return -EINVAL;
+> +
+> +	/* Before sending: the report of this set may come before we return. */
+> +	WRITE_ONCE(kbd->level, value);
+> +	ret =3D legion_simple_command(kbd, LEGION_OP_SET_BRIGHTNESS, value, NUL=
+L);
+> +	if (ret)
+> +		WRITE_ONCE(kbd->level, old);
+> +
+> +	return ret;
+> +}
+> +
+> +static enum led_brightness legion_brightness_get(struct led_classdev *le=
+d)
+> +{
+> +	struct legion_kbd *kbd =3D container_of(led, struct legion_kbd, led);
+> +	u8 value;
+> +	int ret;
+> +
+> +	ret =3D legion_simple_command(kbd, LEGION_OP_GET_BRIGHTNESS, 0, &value);
+> +	if (ret) {
+> +		hid_dbg(kbd->hdev, "reading the brightness failed: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	if (value > led->max_brightness) {
+> +		hid_dbg(kbd->hdev, "brightness out of range: %u\n", value);
+> +		return -EIO;
+> +	}
+> +
+> +	WRITE_ONCE(kbd->level, value);
+> +	return value;
+> +}
 
-Thanks,
-Ciro
+[Severity: Medium]
+Can concurrent legion_brightness_set() and legion_brightness_get() calls ra=
+ce
+on kbd->level?
+
+In drivers/leds/led-class.c, brightness_store() releases led_cdev->led_acce=
+ss
+after queuing set_brightness_work, so set_brightness_delayed() invokes
+legion_brightness_set() without holding led_access while brightness_show()
+can run legion_brightness_get() concurrently.  Because kbd->level is updated
+outside kbd->lock in both functions, a get can overwrite the new level with
+the old hardware value before the set command is sent:
+
+CPU0 (set_brightness_work)        CPU1 (brightness_show)
+legion_brightness_set(led, new)
+  WRITE_ONCE(kbd->level, new)
+  legion_simple_command(...)
+    kzalloc_flex(...)
+                                  legion_brightness_get(led)
+                                    legion_simple_command(...)
+                                      lock(&kbd->lock)
+                                      /* reads old level */
+                                      unlock(&kbd->lock)
+                                    WRITE_ONCE(kbd->level, old)
+    lock(&kbd->lock)
+    /* sends SET_BRIGHTNESS(new) */
+    unlock(&kbd->lock)
+                                  legion_raw_event()
+                                    /* ev->level (new) !=3D kbd->level (old=
+) */
+                                    led_classdev_notify_brightness_hw_chang=
+ed()
+                                      <-- spurious hw_changed event
+
+Similarly, if legion_brightness_set() or legion_raw_event() updates
+kbd->level after legion_brightness_get() drops kbd->lock, the trailing
+WRITE_ONCE(kbd->level, value) in legion_brightness_get() clobbers the newer
+level with a stale value, which can also cause a subsequent hotkey event to
+that stale level to be ignored.
+
+Updating kbd->level under kbd->lock would avoid the race between set and
+get.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261127-legion-lig=
+hting-rfc-v3-0-15c55d9f15b7@gmail.com?part=3D2

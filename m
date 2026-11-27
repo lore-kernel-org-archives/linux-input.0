@@ -1,60 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795791153;
-	b=c5XrFSysA6lk2N7bIgf3xknOk4Qdp8JQqgUDqN0T8sL31sbWy8DCjsIOc/FRu6a/DulP
-	 zxJZF318ZSCGWHnO9CsI5qxHLmNsSOe+XGVsF4Lhi459nXAq89ubWS2ShoqqJ/RSW055p
-	 V7CKoVjzV+07m3apnCDHK7rUzSfigt002TyQvhie33pEpnrjUGbcrpZm7r/eBDzHM1PVI
-	 shugHK0xailW7z+5ZXz7kJKfdctT/p0OYKvHyp5lqSZ/Ot/g39I3mLkC5P7/YwSQW06MX
-	 QN+UaTDjmyyOqVOItZBznpXnj9oo113QViMKToJ+fQ4gRLoj5jZMDOVvkkQfaNqIukA==
+	t=1795791581;
+	b=HqWTTA3x6PIC9rr9+1RCZY6R3mu55QULY5k01HamcC4NbgVWWFP3bqs4xYP7dFa4hKIa
+	 Kc56/DPDJS57x1612jtmajAWIcjNyo4oidLFXzLwSqsJrTCCQLg741XeI1JkO1spmzZET
+	 XAtNjPUZZYAbpkXZRjTtFsy9j3q876htdxk02HTSVGeBt97r6nodTP9ZUMYQWnKYTx4Gh
+	 mm7PBEVlWKwVClcWbA4Wqgrl1uKVaUnXk31+dQ+0fMvmrSeZ8nvgF7vV8020Lud0PGTpB
+	 G8fro2rioP3IPv84K1b1XdDnob1G93Xoxtid0c753ZFisyewrY5UFqKANEYW6Dkc4fQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795791153;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=TI+JLkq35PD/7jmEqoWqvfXhE2Ug1oyIciBP2hglf3I=;
-	b=ziyefp5wWw3mIgRmVB16fY0K7HJr3W2EspAmVbOb641h+RjWQhZCZiy+iMmDc8hL8i5u
-	 e62wzrMHQ0CddVT5c6VqQPujYYxGCHMmCjC28lEP41AVmlDjX/DTFjZg3fkSuOQN38h/Q
-	 NYvyWDAXva8TwgdtJR6bV8RVns9GQUbUbN1+U2cRefsXgMdi/0SczU8RyfQu4LC3rjMHP
-	 KGdnAX05iocBvU/BRP1qtjW5y5WxRoQgk4y3Ecewa6KD4FZ663nRnGlLaXsMG1SDetZ7u
-	 FaK8JLg+ykf5tWD5cUSSzQRGxPnhhqRVznfk9w8ZY4hWkmCn3O1uga9dQYh47qV+0Cw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795791581;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=aqgEGVY8i1oDSbWio1gHAr1fehWt8x39GITP8SJlzSE=;
+	b=lbFJe2MawbXZ0Rn/ukM6BcXYk+9VBPZDiD8gjhUmbTi7eRAQLEyUg57gX/pLWnGi1qd9
+	 h6boruh+pHGNlZSfFdJUmH57jywnsEhWVmHZviY2/Vi4CHK/Mz9GtBCTdtz3lNIN2Mrdl
+	 Y3P3g40YSr4ybWZEjQTqMSoKHSCPNqUUZZqnmH+4qycFSuFX4CmzZYxmBdNjaYLrm27Ro
+	 4RUR0oF3QFJhphWRxoXvsf8y4geb63F+wWdMsMHGU8qGWBdtNk2rxVyL4Y8y/gpCo61IO
+	 siV1FiwsTwdkknmZH4KN6t2e0FzGpnC2IxvROsJ7MywaZpfewa7fSwtuoukmDLP2ung==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IELTKO+K;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aguh6ksT;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE3B7606A31E;
-	Fri, 27 Nov 2026 14:52:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56AC606A31F;
+	Fri, 27 Nov 2026 14:59:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IELTKO+K
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5821F0089B;
-	Fri, 27 Nov 2026 14:52:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aguh6ksT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137691F000C1;
+	Fri, 27 Nov 2026 14:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795791153;
-	bh=TI+JLkq35PD/7jmEqoWqvfXhE2Ug1oyIciBP2hglf3I=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=IELTKO+KhBDgZw83AHHGNyEvCPJ5W+mSxiEtQ0AE7IWHeQje/3sptqGrtItjJVKjB
-	 6HVTL+0zoRLvCmHB7lGRCJDpdYQ8KpfarakL7VWVpMy3LThyTci/JsEMRjJ7sNxofr
-	 zLW1Gfr9saiwlQ+R69Wq0+p/M5GKg39BRuh2CqbjVF7peu4f9Obss3p1uicUQtcmm8
-	 7MDeACAn/R7cRlPDf1w2mwWbGAHPxtKeSYqySas4sAeP3JqjhtOhbSq5kBXC1b6UTx
-	 ZyhfXseA7QttGmP69zopTPkIs8ePkEDoWNFm6pNetRl7qqUZuie5PrCRlKdOK9OoWP
-	 ROAgB7FPoCSWw==
+	s=k20260515; t=1795791581;
+	bh=aqgEGVY8i1oDSbWio1gHAr1fehWt8x39GITP8SJlzSE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=aguh6ksTBJes23HlW0mRkr8BD+U+1xIH7wndcu89stk2csFJmiTMzGpT1ePMSXRhM
+	 j0HliDhmcVEChZhVvTbkUCvQObMjnG9SksBitd37Yvc5XQaMmPNUIQZdBupp2k8Bdt
+	 eX/2A6Y1Sf1j1WXQHGrFWCcrL+qokQY+34EKMn2Y+yeX2MH2Tpdq9RyUFz9LDPpcje
+	 2prFAH0d630Km7x2kPsaFjDAOWH0ZxIrV8vDtQ6/1uLLEQdZVHGDgPc+GKyFoZx84B
+	 duo69t0q0pHV9QgTzwLeMfNISIdDVqxrOczbBFIFOVbCEzDf5bC+hb96SVoragMNt2
+	 p+eMWlOBrmXMQ==
+Date: Fri, 27 Nov 2026 14:59:34 +0000
 From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Russell King <linux@arm.linux.org.uk>,
-	Uli Luckas <u.luckas@road.de>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Subject: [PATCH v2 3/3] Input: matrix_keypad - only stop and start active device across sleep
-Date: Fri, 27 Nov 2026 14:51:56 +0000
-Message-ID: <20261127145209.2884170-4-lee@kernel.org>
-X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
-In-Reply-To: <20261127145209.2884170-1-lee@kernel.org>
-References: <20261127145209.2884170-1-lee@kernel.org>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: maz@kernel.org, andy@kernel.org, jic23@kernel.org,
+	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+	mfd@lists.linux.dev, linux-iio@vger.kernel.org, robh@kernel.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, crofts@kernel.org,
+	devicetree@vger.kernel.org, imx@lists.linux.dev,
+	stable@vger.kernel.org,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Subject: Re: [PATCH v5 3/4] mfd: mxs-lradc: Pass parent IRQs to child drivers
+Message-ID: <20261127145934.GW38590@joneslee-macbookpro.roam.internal>
+References: <20261119134041.16611-1-festevam@gmail.com>
+ <20261119134041.16611-3-festevam@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,65 +63,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261119134041.16611-3-festevam@gmail.com>
 
-matrix_keypad_suspend() and matrix_keypad_resume() unconditionally call
-matrix_keypad_stop() and matrix_keypad_start() without holding
-input_dev->mutex or checking whether the input device is active.
+On Thu, 19 Nov 2026, Fabio Estevam wrote:
 
-When the keypad has no open users (or is inhibited), row interrupts are
-already disabled and keypad->stopped is true.  Suspending calls
-disable_row_irqs() a second time, unbalancing the IRQ disable depth, and
-resuming clears keypad->stopped and schedules keypad->work.  If the
-device is subsequently unbound while still unopened, Input core skips
-the close callback (matrix_keypad_stop()) during unregistration, leaving
-keypad->work pending or running after devres frees struct matrix_keypad.
+> The MFD driver stores raw DT interrupt indices in IRQ resources but
+> registers its child devices without an IRQ domain or IRQ base. The child
+> drivers consequently receive the indices as if they were mapped Linux
+> IRQ numbers. IRQ index 0 triggers the platform_get_irq_byname() warning:
+> 
+>   0 is an invalid IRQ number
+> 
+> The children then try to recover the indices from their resources and
+> map them against the parent OF node. Besides duplicating IRQ names in
+> the parent and children, this relies on invalid platform IRQ resources
+> and fails when IRQ 0 is rejected.
+> 
+> Resolve the interrupts with platform_get_irq() in the MFD parent and
+> store the mapped IRQs in the shared LRADC data. Drop the child IRQ
+> resources and duplicated name arrays, and have both child drivers
+> request the mapped IRQs directly. Map the MMIO region once in the
+> parent and share the mapping with both child drivers through
+> struct mxs_lradc, removing the child memory resources.
+> 
+> Tested on an i.MX28 EVK. The mxs-lradc-ts driver probes successfully,
+> touch events are reported, and the touch-detect and LRADC channel 7
+> interrupt counters increase as expected.
 
-Acquire input_dev->mutex in both sleep callbacks and only stop or start
-scanning when input_device_enabled() is true.
+Doesn't apply to my tree.
 
-Fixes: bab7614d6d1b ("Input: add support for generic GPIO-based matrix keypad")
-Closes: https://sashiko.dev/#/bug/linux-340f2a74-becb-415d-b1c2-6da8f05a8bd8
-Cc: stable@vger.kernel.org
-Signed-off-by: Lee Jones <lee@kernel.org>
----
-v1 => v2:
- - Update the Fixes tag to commit bab7614d6d1b ("Input: add support for generic GPIO-based matrix keypad").
-
- drivers/input/keyboard/matrix_keypad.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 21c7df4e2e7b..370c08e6e264 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -268,7 +268,10 @@ static int matrix_keypad_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
- 
--	matrix_keypad_stop(keypad->input_dev);
-+	guard(mutex)(&keypad->input_dev->mutex);
-+
-+	if (input_device_enabled(keypad->input_dev))
-+		matrix_keypad_stop(keypad->input_dev);
- 
- 	if (device_may_wakeup(&pdev->dev))
- 		matrix_keypad_enable_wakeup(keypad);
-@@ -281,10 +284,13 @@ static int matrix_keypad_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
- 
-+	guard(mutex)(&keypad->input_dev->mutex);
-+
- 	if (device_may_wakeup(&pdev->dev))
- 		matrix_keypad_disable_wakeup(keypad);
- 
--	matrix_keypad_start(keypad->input_dev);
-+	if (input_device_enabled(keypad->input_dev))
-+		matrix_keypad_start(keypad->input_dev);
- 
- 	return 0;
- }
 -- 
-2.56.1.839.g22a8290db9-goog
-
+Lee Jones

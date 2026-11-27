@@ -1,80 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795741898;
-	b=ZT2ZVBsgBFHkSi3Cg4LGdQoAT/2HyZsNuICFj52LzHHQpRYfCDjVXSDyei/+i38nCz9F
-	 /IwEifZJ3v9etDypOzr4ZWXa5hToT5tiTrOSbbKj6wybwGnXSWAL5u/8rx7Z4zr1gBHwf
-	 jAT7kuQ7WomSrNR5e+zmOY7bS31OGX1jJQ+YQxT2NjJ8sjd0PJbHJutbrBNi5UPDugvSl
-	 VpOSfo4MxhJu/lqREbh7y2zOmE5m8GocgTgYHxAEFV/JDoBCL0Nav41V5WjZuA4NWit++
-	 7eKgc3jTgFkaUAShT8jI+9c5Bglq2bUTTF5X6CYqem/0tC4AmxTofmeDUoM9/DTuPmQ==
+	t=1795741904;
+	b=3wRf2M195Cyok2uwpobnIFGDIFgI2fwmTRaL9lTXJ8nmZUURFZb84z2mNT/+OSN+jGCk
+	 K0bPQyuv7Lb9kLiRb2FlNM89rEo3XrvjaqrZiSdWFK+UjLRlahIXbJBqtpjVTqTq5ULL9
+	 WD4B6Gz+RiRqPBesJP4C5NNNZVWK/z0osEq36xKUPwzmTlHTPRSor8Tt1IP1oBLh9XuHt
+	 mZ/HzO2k1VmxSg7tjn4Mw0yNcEhXDAeWInlMXN479nTvRewf8WtZgNY8e4aPiJOkxVTN5
+	 4E9ai1XiJtlexN8Q/1hJwcfSm0KZg8b/hVFdEyJxuFLhOd+y+at8uRqJVSdEinQsWPA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795741898;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
-	b=33BDY/1sllM/pNM0Cao8elv119S7Q/qvc+Oof+r23zCUv6aXVaBRnljJjPD2eJo3Epbh
-	 i8EIWdyBulnXMiR4UhRs1kVK5htw5Ybi8zwXSic8peRIONTCV5GEdxuAtCrvX8RUKQyxc
-	 7/zcPWwLa3EF5d5pS5DbD2IarPDOiuseKnQId0UAz2rn5Kkx0JF3WxqYQd3O59vfUeO2J
-	 kmKg9mRJP7FsT8vCHimjMevYrMCmolefnHlTfTrH1t51yKf4BokDQ/Tw+nzsZCJ0zHflA
-	 7HRqLodEPbQJv8EbfwU88mTSQCkVPDaT2rIZ2xYOGAzE82IAHXQ87tkdyTOa0Cu0ZLQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795741904;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=vr+IKIgcHoyzaKRmi2ffykyqJqG45AcIS5gpPOomRY4=;
+	b=V81wMHRajqvsRZiz1th4RnIHrxiFkXwQqjITGcnHnq5v3aWXsA38gLbKpov+RJP+Gx+K
+	 L9NyVFvsyVh3lrloyh63yvueXDmdl77K+wtM1WLWok3hXIhEny85f+7mCMMXteCV5N6ik
+	 wFRh8tx/P9ngmg6AIj7C/rblbJ9ciffYovHR5vS53iNM9bBw/qWzC6jRdtgMQdHorTyP9
+	 tNfl1u59rBatbNDLucLrEp27yvJsdFRWDPAp+j/Yf8+bclac5XwRvSUMsDzkYdKxUyxUp
+	 QHROrBUyRNJy5oDgq8pdf12DFYSGz1yQoXlCEv+trp1AItBchVV2SASxIs7oKMfg+Jw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDk+kIQW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CxKRI9zM;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D026606A31C;
-	Fri, 27 Nov 2026 01:11:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E494E606A329;
+	Fri, 27 Nov 2026 01:11:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDk+kIQW
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CxKRI9zM
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795741897;
-	b=UTvkWFvHa/NuhrpGw2g69euX2GDwK/oDw9Z3Ssf2Qtl2nwgR7J0TSBomTcIt1YacIsMr
-	 fMZaDALZibY06ay5QzICuvWi9tQT3gU/StOiwgahI1pew/IL1QD+PI92ECNVSM9iRx8C4
-	 Ttk0tM7lPIUbHcgS/lJGORZMk7Okfj+hmrahqReo+KEPnKMRuqr04ZrRR8is+dZuhSRIq
-	 qTWnApUM/oRqG1IzBD7UPUS8sswA06OH1zf2IhTV4nT+/WCkGI5jpIwagKZT05lQkFPaF
-	 8366zz5OolU3su/mlyUJZV6bTob2iyrkclJ1ukZbFpU8NMjZS+1XLqiHD1HQ6HHvWPg==
+	t=1795741903;
+	b=tIQPJEncQ7/8KpYSM3RvSUdDXuEhk/s0EfkKb4Ux2vvoJ1onHFRHrT9cPJx2EaPZF/nu
+	 NiUetmGN3tk9d+2DmW8JK6QXPP5crrV9+gUXaw4UducqyYmv/SXetcmY45iMDDgfEYYfO
+	 oEd+S0NUSPN/9pUgSwxHb3+5Lj8ZiiKemJpQws1yC32ap31Vw1ViAWGy/RMHhVK1pU1mG
+	 XozFq5ieaIhnmZROhSc1cDHReRFGkK87MquhIqw+3wbwPSTbliuHRf2eOS9XsXTnDCdSL
+	 I+Wpr/7NqY3GAArV3J0c5aCk82UbsKN6C9jjxToUpcYX4qQV71kVfvpT0K5HYIeFjAg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795741897;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
-	b=Cr1L8gV90HDxAom2gTOI+iJtfAG+oDUczTlppBptv3FfwPiNnX6fdVlOhRMJFMZTqei7
-	 eHZ0sQ81DaBsB9R7ObmfrK5BLd5pjEW1UgC5c8Ozpt6ZZngFWRHKrCNGrzIjjAIfSNQqc
-	 OZQts3S/oFjQe6slQgxummAXbIXFCEFUXCwjZmMkvcYnutvjkzrdD345YrJdIKZuWPScE
-	 /iisY1tJ4pgBoF8MbnLgyHl2wwnqxUONZdCJSuwmredgSmY6Fa31TDcNs9ReV+EnklKiw
-	 HJsCq08pY5JpdmkDzrKwrZkQ513cyv+mQJOrVhNehb9SZIJwJay2ARuVhwfCX6L5O2A==
+	c=relaxed/relaxed; t=1795741903;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=vr+IKIgcHoyzaKRmi2ffykyqJqG45AcIS5gpPOomRY4=;
+	b=qLEqT/fE9eeXbhE4f4NwwGFuTDhpA7kKGtoqGlWY8vLtBK1mKFpD2Wm/58ztOulrlbCI
+	 bfOhGNswj5ontaRdKqp5uaHo31zfRMCcxB02VxUYJwq8dNgx35+cQov4Ph5rA3I79eSPJ
+	 Et9957J/IbQ7eVY9bs/Bc/FZ25D9AlpWnYO/31pV1Fny/+NwIHtiNkd69lh+u1ybQojLa
+	 y/apg2F1/QroNX/LSDOdPa1dA2ak01t7U4Xwi48ufC6to8RMUBkAUQvNsExRiXH1UYSva
+	 zdshyAlUSZC7w5oMZWV/kcYBIwgwlhDrHzYOQ8A8l8Bw/OflIg8WPJwXWwUchBOUPKw==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 3F79B1F00893;
+	by smtp.kernel.org (Postfix) with ESMTPS id 7D06B1F00899;
 	Fri, 27 Nov 2026 01:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795741897;
-	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=GDk+kIQWCvjnlX3jPrJgaCTz/koNoGNgHqR1WAXSZ5WRk+yZO+lsgSDAUGWZJEgHd
-	 BeNkADDJXjUnn7ob8VfEjG9zUKVHWGZdINGALJ/wgXwpWeaMgMPKBI25D2rhAvc4OI
-	 2J9hF9z+50BEpAZrlvwLHQpNxiB76/cmaVZ75Ew5d9KI9iWJbqOvYw2wKUcSSTZqho
-	 NzFPLGFMOh0838lfXREs89+gAAXDU5Pc9Hr2Ws7hq1wS/UJu/FJR+PVFttt1V/8M0O
-	 J3yp77luvuJbXsoeolXVEqT2Aaw1W6RYHdPHtwventStaTQzAAH8FckCUedAnzttE8
-	 gbjQArgv0lQfw==
+	s=k20260515; t=1795741903;
+	bh=vr+IKIgcHoyzaKRmi2ffykyqJqG45AcIS5gpPOomRY4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=CxKRI9zMebPmUgN/VA0LDmyjud5frIQUAolV4P91Pu8S+otJa+DNo9btrJk4ovMfx
+	 wseuQEY9JBXy8ElaAyMZiZvR3mlE+xerONxoruHyHxSt4p+GoIJ5vkFiulk2GVrX6n
+	 aI5+fT5k7n4UWcCBfSYfGuzI/zeUN3sSSJnCu+GI9dUHNBswUSCzIyQNEf/i8bXQCH
+	 GOmdEQrT885B9UIEPRca03CtfySbTIHhPNtc3fNMACmFoc/4EpiDQZ5rvGc4l8j4Gh
+	 GSw/3vtQXW/i6uVSma+kwiO6OnHuwOFEDXC5gfz3BEvOqKaMh4B3Mo+oWzJptrqmon
+	 HnN4qD+BRtw1A==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id B2EB34B4CE;
-	Fri, 27 Nov 2026 01:11:31 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 090244B4D2;
+	Fri, 27 Nov 2026 01:11:32 +0000 (UTC)
 From: Ciro Pedrini via B4 Relay <devnull+ciro.pedrini.gmail.com@kernel.org>
-Subject: [PATCH v3 0/2] Keyboard backlight for the Lenovo Legion Pro 7 Gen
- 10
-Date: Fri, 27 Nov 2026 01:11:10 +0000
-Message-Id: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
+Date: Fri, 27 Nov 2026 01:11:12 +0000
+Subject: [PATCH v3 2/2] HID: lenovo-legion: Add keyboard backlight driver
+ for Legion Gen 10
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -85,12 +84,9 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32Nyw6CMBBFf8V07Rha5KEr/8O46GNaJoFiWkIwh
- H+3ZcXCuDzJveesLGIgjOx+WlnAmSKNPkF5PjHdSe8QyCRmohA158UNenRpAj25biLvIFgNRpe
- C15WxlTAsPd8BLS279flKrGREUEF63WWXHQN4XKY87ShOY/js/Znnw//UzKEA2TbIjWp1heXDD
- ZL6ix4HllOzODh48dshkqO9Vo2opVUN10fHtm1fdWPvVRUBAAA=
-X-Change-ID: 20261109-legion-lighting-rfc-dc32165df52d
+Message-Id: <20261127-legion-lighting-rfc-v3-2-15c55d9f15b7@gmail.com>
+References: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
+In-Reply-To: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
 To: Mark Pearson <mpearson-lenovo@squebb.ca>, 
  "Derek J. Clark" <derekjohn.clark@gmail.com>, Rong Zhang <i@rong.moe>, 
  Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
@@ -102,109 +98,422 @@ Cc: David Cemin <dcemin@nvidia.com>,
  platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Ciro Pedrini <ciro.pedrini@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795741890; l=4542;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795741890; l=13307;
  i=ciro.pedrini@gmail.com; h=from:subject:message-id;
- bh=n6ZZHbFpHE2QvKDfMUFjU+60/18Xn8WyvZbla0npvuc=;
- b=vxhfV237oYB+dNCIQjpJPLLNEofcL2OcjPFdsTSxVwtr5bEb9ROmcQ35OLLikzcK7R9bx3Kw+
- bAYIFaVYljZAaL+FI/buQs6OOvsAJP7UAb+boBng+SQXXummh+Du7fP
+ bh=W24347WUhh3KnuosYb9K5qSGQzRmkfTvojZCbONxWfk=;
+ b=m2R8a6PGHNZfVMfuXkjPmmZXhONMGqW2D8HgjgS6x9Cp2ndGeK02t4mtIMG8se3ahV5eWjjO1
+ 21E5MwOBI5aDfrNXkq1iNOh5oFMiIjX1IkWg23syOtcyUlUBkCjsKFN
 X-Developer-Key: i=ciro.pedrini@gmail.com; a=ed25519;
  pk=TOSFlPBon1xBHfTrhODxatabgwEJdgKEzG3jMoMQcbc=
 X-Endpoint-Received: by B4 Relay for ciro.pedrini@gmail.com/default with
  auth_id=1468
 X-Original-From: Ciro Pedrini <ciro.pedrini@gmail.com>
 Reply-To: ciro.pedrini@gmail.com
+Content-Transfer-Encoding: 7bit
 
-Hi,
+From: Ciro Pedrini <ciro.pedrini@gmail.com>
 
-This is v3 of the Legion keyboard backlight series. It has the changes
-Ilpo and Rong asked for on v2, and one fix I found while testing them.
+The keyboard backlight of the Lenovo Legion Pro 7 16IAX10H (2025) has no
+Linux support: on the test unit nothing ever lit, because the keyboard
+controller's brightness was 0 from the factory and nothing exposes it.
 
-Short background: on my laptop the keyboard backlight never turned on
-under Linux. The keyboard controller (048d:c197) stores a brightness from
-0 to 9 behind a vendor feature report (0x07), it was 0 from the factory,
-and nothing on Linux could change it. That brightness dims every LED of
-the machine. Fn+Up/Down/Space are handled by the firmware, which sends
-the new level on a vendor input report.
+The ITE 8258 keyboard controller (048d:c197) is the built-in keyboard and
+carries a vendor protocol on feature report 0x07 (up to 960 bytes): a
+request, answered by reading the report back. Its hardware brightness,
+0..9, is stored in the controller and applies to every LED of the machine
+(keys, front strip, rear vents, lid logo). The firmware handles Fn+Up and
+Fn+Down itself and reports the new level on vendor input report 5; it
+reports every other set there too, the host's and unchanged ones
+included.
 
-Patch 1 stops ideapad-laptop from sending KEY_UNKNOWN for those three
-keys. Patch 2 is the driver: the brightness as a kbd_backlight LED, plus
-brightness_hw_changed for the hotkeys so the desktop OSD works.
+Expose the brightness as a kbd_backlight LED, legion::kbd_backlight, with
+brightness_hw_changed for the hotkeys so that desktops show their OSD.
+Only a change of the level is reported there, so the host's own sets and
+Fn+Space, which come back with the level already known, are not.
+Unregistering keeps the level (LED_RETAIN_AT_SHUTDOWN): switching it off
+would be stored by the controller.
 
-The fix: while testing v3 I found that the controller sends the same
-"brightness is now B" report after every brightness set, the host's
-own ones too, and also when the level doesn't change (Fn+Space sends
-it as well). v2 passed all of those to brightness_hw_changed, so the
-host's writes looked like hardware changes. v3 only reports a level
-that differs from the last one the driver knows.
+The colours stay the controller's own effects, which Fn+Space cycles. The
+machine's HID LampArray (048d:c193) is left to hid-generic, or to a
+generic LampArray driver.
 
-David: patch 1 adds three KE_IGNORE entries to the ideapad WMI keymap,
-which your "architecture independent home for the Lenovo WMI drivers"
-series moves to wmi-fn-keys.c. Whichever goes first, I'm happy to
-rebase mine on yours; it's the same three lines in the new file.
+Tested on the 16IAX10H (83F5) with 7.3 as a module: brightness from sysfs
+and KDE, the hotkeys with KDE's OSD, suspend/resume, unbinding and
+rebinding.
 
-I tested it on my 16IAX10H (83F5, BIOS Q7CN77WW) with 7.3 as a module:
-brightness from sysfs and KDE, the hotkeys and the OSD, Fn+Space,
-suspend/resume, unbind and rebind, and the vendor report on the wire
-while doing that. It's based on pdx86 for-next and builds with W=1.
-
-About how this was made: I found the protocol with usbmon captures and
-by looking at Lenovo's Windows software. I wrote the code with help from
-Claude Code (Claude Opus 5.5). I went through all of it and tested it
-myself, and each patch has a short note about it below the ---.
-
-Thanks,
-Ciro
-
+Signed-off-by: Ciro Pedrini <ciro.pedrini@gmail.com>
 ---
-Changes in v3:
-- Short reports: send only the request bytes and read only the answer
-  bytes, right after the request; no more 100 ms wait (Rong).
-- The buffer is allocated per exchange. Not on the stack as Rong
-  suggested: usbhid hands it to the USB core for DMA.
-- legion_raw_command() and legion_simple_command(), and the request
-  length checked against the 960-byte report with a static_assert
-  (Rong).
-- Out-of-range values and failed reads return errors instead of being
-  clamped or replaced; dbg messages, no hex dump (Ilpo, Rong).
-- devm for hid_hw_start()/hid_hw_open() and the LED; .remove stays,
-  empty, so hid-core doesn't stop the device twice (Ilpo, Rong).
-- Dropped the (int) casts and the "(2025)"; comments trimmed, the one
-  about HID_QUIRK_INPUT_PER_APP now says why; Kconfig help about what
-  the driver does (Ilpo, Rong).
-- New: only report a level change to brightness_hw_changed (see above).
-- Rebased on current pdx86 for-next; Rong's Acked-by on patch 1.
-- Link to v2: https://lore.kernel.org/r/20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com
-
-Changes in v2:
-- Only the keyboard controller (c197) now, as Rong suggested. No
-  LampArray, no colours, no lighting_mode, just a kbd_backlight LED.
-- Ilpo's comments: struct with __le16 for the request, guard(),
-  devm_mutex_init(), no magic numbers, includes.
-- Removed the "ready" flag, its spinlock and the work item. raw_event
-  can't run during probe/remove, so it notifies the LED directly.
-- Keep led_cdev.brightness in sync with the hotkeys (from the Sashiko
-  review).
-- Moved the note about the AI tool out of the changelogs, below the ---.
-- Link to v1: https://lore.kernel.org/r/20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com
-
+Prepared with Claude Code (Claude Opus 5.5) from measurements on the
+laptop (usbmon captures) and analysis of the vendor's Windows software
+for interoperability; I reviewed and tested it.
 ---
-Ciro Pedrini (2):
-      platform/x86: ideapad-laptop: Ignore keyboard backlight hotkeys
-      HID: lenovo-legion: Add keyboard backlight driver for Legion Gen 10
+ MAINTAINERS                     |   1 +
+ drivers/hid/Kconfig             |  12 ++
+ drivers/hid/Makefile            |   1 +
+ drivers/hid/hid-ids.h           |   1 +
+ drivers/hid/hid-lenovo-legion.c | 293 ++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 308 insertions(+)
 
- MAINTAINERS                                  |   1 +
- drivers/hid/Kconfig                          |  12 ++
- drivers/hid/Makefile                         |   1 +
- drivers/hid/hid-ids.h                        |   1 +
- drivers/hid/hid-lenovo-legion.c              | 293 +++++++++++++++++++++++++++
- drivers/platform/x86/lenovo/ideapad-laptop.c |   4 +
- 6 files changed, 312 insertions(+)
----
-base-commit: 61c0dac952b9308884936d05cce97565a5c89af4
-change-id: 20261109-legion-lighting-rfc-dc32165df52d
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ba7650cb86b0..6c622b50ac9b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15187,6 +15187,7 @@ F:	Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+ F:	Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+ F:	drivers/hid/hid-lenovo-go-s.c
+ F:	drivers/hid/hid-lenovo-go.c
++F:	drivers/hid/hid-lenovo-legion.c
+ F:	drivers/hid/hid-lenovo.c
+ 
+ LENOVO YOGA BOOK 9 KEYBOARD DOCK DRIVER
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2481bc01c435..336be96dcd66 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -652,6 +652,18 @@ config HID_LENOVO_GO_S
+ 	S. Say M here to compile this driver as a module. The module will be called
+ 	hid-lenovo-go-s.
+ 
++config HID_LENOVO_LEGION
++	tristate "Lenovo Legion laptop keyboard backlight"
++	depends on USB_HID
++	depends on LEDS_CLASS
++	help
++	Support for the LEDs of some Lenovo Legion laptops since 2025, with
++	the brightness changes initiated by predefined shortcuts (e.g.,
++	Fn+Up/Down) reported via brightness_hw_changed.
++
++	Say M here to compile this driver as a module. The module will be called
++	hid-lenovo-legion.
++
+ config HID_LETSKETCH
+ 	tristate "Letsketch WP9620N tablets"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 43a8eb0f389b..713bb1c89861 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -78,6 +78,7 @@ obj-$(CONFIG_HID_LCPOWER)	+= hid-lcpower.o
+ obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
+ obj-$(CONFIG_HID_LENOVO_GO)	+= hid-lenovo-go.o
+ obj-$(CONFIG_HID_LENOVO_GO_S)	+= hid-lenovo-go-s.o
++obj-$(CONFIG_HID_LENOVO_LEGION)	+= hid-lenovo-legion.o
+ obj-$(CONFIG_HID_LETSKETCH)	+= hid-letsketch.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-lg-g15.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa6516d..992b9b147e95 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -773,6 +773,7 @@
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
+ #define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
++#define USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD	0xc197
+ #define I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD	0x8987
+ #define I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD	0x83db
+ #define USB_DEVICE_ID_ITE8595		0x8595
+diff --git a/drivers/hid/hid-lenovo-legion.c b/drivers/hid/hid-lenovo-legion.c
+new file mode 100644
+index 000000000000..cfd42c52500f
+--- /dev/null
++++ b/drivers/hid/hid-lenovo-legion.c
+@@ -0,0 +1,293 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * HID driver for the keyboard backlight of Lenovo Legion laptops.
++ *
++ * The ITE 8258 keyboard controller (048d:c197) is the built-in keyboard and
++ * carries Lenovo's vendor lighting protocol on feature report 0x07 (up to
++ * 960 bytes): a request (struct legion_msg), answered by reading the report
++ * back with a GET_FEATURE. Requests and answers may be shorter than the
++ * report; the answer is ready as soon as the request has been sent.
++ *
++ * The backlight brightness is op 0xCE (set) / 0xCD (get), 0..9, stored in the
++ * controller; it applies to every LED of the machine (keys, front strip, rear
++ * vents, lid logo). The firmware handles Fn+Up / Fn+Down itself and reports
++ * the new level on vendor input report 5 (struct legion_event). It reports
++ * every other set the same way, also the host's and unchanged levels.
++ *
++ * The colours are the controller's own effects. The LEDs can also be handed
++ * to the HID LampArray of the "Lenovo Lighting" device (048d:c193), which
++ * this driver leaves to others.
++ */
++
++#include <linux/build_bug.h>
++#include <linux/cleanup.h>
++#include <linux/container_of.h>
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/leds.h>
++#include <linux/minmax.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/overflow.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/types.h>
++
++#include <asm/byteorder.h>
++#include <asm/rwonce.h>
++
++#include "hid-ids.h"
++
++#define LEGION_REPORT_ID		0x07
++
++#define LEGION_OP_GET_BRIGHTNESS	0xcd
++#define LEGION_OP_SET_BRIGHTNESS	0xce
++#define LEGION_MAX_BRIGHTNESS		9
++
++#define LEGION_EVENT_REPORT_ID		0x05
++#define LEGION_EVENT_BRIGHTNESS		0x02	/* set by the host, Fn+Up, Fn+Space */
++#define LEGION_EVENT_BRIGHTNESS_DOWN	0x03	/* Fn+Down */
++
++/* Request, and its answer: the value is params[0]. */
++struct legion_msg {
++	u8 report_id;
++	u8 op;
++	__le16 len;			/* of params */
++	u8 params[];
++} __packed;
++
++#define LEGION_REPORT_PARAM_SIZE	956
++#define LEGION_REPORT_SIZE		960
++static_assert(struct_size_t(struct legion_msg, params, LEGION_REPORT_PARAM_SIZE) ==
++	      LEGION_REPORT_SIZE);
++
++struct legion_event {
++	u8 report_id;
++	u8 event;
++	u8 level;			/* brightness after the change */
++} __packed;
++
++struct legion_kbd {
++	struct hid_device *hdev;
++	struct mutex lock;		/* one request/answer exchange at a time */
++	struct led_classdev led;
++	u8 level;			/* last level set, read or reported */
++};
++
++/*
++ * Send one request. When @answer is non-NULL, read the controller's answer
++ * and return its value there.
++ */
++static int legion_raw_command(struct legion_kbd *kbd, u8 op, const u8 *params,
++			      size_t len, u8 *answer)
++{
++	size_t get_size = struct_size_t(struct legion_msg, params, 1);
++	size_t set_size = struct_size_t(struct legion_msg, params, len);
++	struct hid_device *hdev = kbd->hdev;
++	int ret;
++
++	if (len > LEGION_REPORT_PARAM_SIZE)
++		return -EINVAL;
++
++	/* Not on the stack: usbhid passes the buffer to the USB core for DMA. */
++	struct legion_msg *msg __free(kfree) =
++		kzalloc_flex(*msg, params, max(len, 1));
++	if (!msg)
++		return -ENOMEM;
++
++	msg->report_id = LEGION_REPORT_ID;
++	msg->op = op;
++	msg->len = cpu_to_le16(len);
++	memcpy(msg->params, params, len);
++
++	guard(mutex)(&kbd->lock);
++
++	ret = hid_hw_raw_request(hdev, LEGION_REPORT_ID, (u8 *)msg, set_size,
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	if (ret < 0)
++		return ret;
++	if (!answer)
++		return 0;
++
++	memset(msg, 0, get_size);
++	ret = hid_hw_raw_request(hdev, LEGION_REPORT_ID, (u8 *)msg, get_size,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0)
++		return ret;
++	if (ret < get_size || msg->report_id != LEGION_REPORT_ID ||
++	    msg->op != op) {
++		hid_dbg(hdev, "unexpected answer to 0x%02x\n", op);
++		return -EIO;
++	}
++
++	*answer = msg->params[0];
++	return 0;
++}
++
++static int legion_simple_command(struct legion_kbd *kbd, u8 op, u8 param,
++				 u8 *answer)
++{
++	return legion_raw_command(kbd, op, &param, sizeof(param), answer);
++}
++
++static int legion_brightness_set(struct led_classdev *led,
++				 enum led_brightness value)
++{
++	struct legion_kbd *kbd = container_of(led, struct legion_kbd, led);
++	u8 old = READ_ONCE(kbd->level);
++	int ret;
++
++	if (value > led->max_brightness)
++		return -EINVAL;
++
++	/* Before sending: the report of this set may come before we return. */
++	WRITE_ONCE(kbd->level, value);
++	ret = legion_simple_command(kbd, LEGION_OP_SET_BRIGHTNESS, value, NULL);
++	if (ret)
++		WRITE_ONCE(kbd->level, old);
++
++	return ret;
++}
++
++static enum led_brightness legion_brightness_get(struct led_classdev *led)
++{
++	struct legion_kbd *kbd = container_of(led, struct legion_kbd, led);
++	u8 value;
++	int ret;
++
++	ret = legion_simple_command(kbd, LEGION_OP_GET_BRIGHTNESS, 0, &value);
++	if (ret) {
++		hid_dbg(kbd->hdev, "reading the brightness failed: %d\n", ret);
++		return ret;
++	}
++
++	if (value > led->max_brightness) {
++		hid_dbg(kbd->hdev, "brightness out of range: %u\n", value);
++		return -EIO;
++	}
++
++	WRITE_ONCE(kbd->level, value);
++	return value;
++}
++
++static int legion_raw_event(struct hid_device *hdev, struct hid_report *report,
++			    u8 *data, int size)
++{
++	const struct legion_event *ev = (const struct legion_event *)data;
++	struct legion_kbd *kbd = hid_get_drvdata(hdev);
++
++	if (size < sizeof(*ev) || ev->report_id != LEGION_EVENT_REPORT_ID)
++		return 0;
++
++	if (ev->event != LEGION_EVENT_BRIGHTNESS &&
++	    ev->event != LEGION_EVENT_BRIGHTNESS_DOWN)
++		return 0;
++
++	if (ev->level > kbd->led.max_brightness) {
++		hid_dbg(hdev, "brightness event out of range: %u\n", ev->level);
++		return 0;
++	}
++
++	/*
++	 * Only a change of the level is the hardware's own: the host's sets
++	 * and Fn+Space are reported too, with the level already known.
++	 */
++	if (ev->level == READ_ONCE(kbd->level))
++		return 0;
++	WRITE_ONCE(kbd->level, ev->level);
++
++	/*
++	 * hid-core calls this only after probe() has returned and not once
++	 * remove() has started, so the LED is registered.
++	 */
++	led_classdev_notify_brightness_hw_changed(&kbd->led, ev->level);
++
++	return 0;	/* let hid-core handle the report as usual */
++}
++
++static void legion_stop(void *data)
++{
++	struct hid_device *hdev = data;
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static int legion_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	struct legion_kbd *kbd;
++	int ret;
++
++	/*
++	 * Keep the input devices hid-generic creates for this keyboard (which
++	 * sets the same quirk): without it the keyboard, its consumer keys and
++	 * its radio button would become one input device.
++	 */
++	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
++
++	ret = hid_parse(hdev);
++	if (ret)
++		return ret;
++
++	kbd = devm_kzalloc_obj(&hdev->dev, *kbd);
++	if (!kbd)
++		return -ENOMEM;
++
++	ret = devm_mutex_init(&hdev->dev, &kbd->lock);
++	if (ret)
++		return ret;
++
++	kbd->hdev = hdev;
++	hid_set_drvdata(hdev, kbd);
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		return ret;
++
++	/* Keep the interrupt endpoint polled so hotkey reports always arrive. */
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_hw_stop(hdev);
++		return ret;
++	}
++
++	ret = devm_add_action_or_reset(&hdev->dev, legion_stop, hdev);
++	if (ret)
++		return ret;
++
++	kbd->led.name = "legion::kbd_backlight";
++	kbd->led.max_brightness = LEGION_MAX_BRIGHTNESS;
++	kbd->led.brightness_set_blocking = legion_brightness_set;
++	kbd->led.brightness_get = legion_brightness_get;
++	kbd->led.flags = LED_RETAIN_AT_SHUTDOWN | LED_BRIGHT_HW_CHANGED;
++
++	return devm_led_classdev_register(&hdev->dev, &kbd->led);
++}
++
++static void legion_remove(struct hid_device *hdev)
++{
++	/*
++	 * Done via devm, the LED first. Without .remove, hid-core would stop
++	 * the device before releasing devm resources: before the LED is gone,
++	 * and twice.
++	 */
++}
++
++static const struct hid_device_id legion_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE_LENOVO_LEGION_GEN10_KBD) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, legion_devices);
++
++static struct hid_driver legion_driver = {
++	.name = "hid-lenovo-legion",
++	.id_table = legion_devices,
++	.probe = legion_probe,
++	.remove = legion_remove,
++	.raw_event = legion_raw_event,
++};
++module_hid_driver(legion_driver);
++
++MODULE_AUTHOR("Ciro Pedrini <ciro.pedrini@gmail.com>");
++MODULE_DESCRIPTION("Keyboard backlight of Lenovo Legion laptops");
++MODULE_LICENSE("GPL");
 
-Best regards,
 -- 
-Ciro Pedrini <ciro.pedrini@gmail.com>
+2.56.0
 
 

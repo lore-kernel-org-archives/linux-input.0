@@ -1,79 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.255.86.93
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795777928;
-	b=UTqEa1Mv9HjgsVMoC7gQ14CFuMQAIbEtu8JiJQ0cLYOAhv74Yojv2bWnTWmR8m4SO+fn
-	 IA/P9N5L/Rx9lU9S+BgHDBqGZgPHYFJBqvWpxCPBqD5sH5HXSHqUQqQjUh6m5L5a1Bn0i
-	 2p6bSNb0QWQYx+0u3PDTwnm95bkFj6zLbBgWkCyCvwglmq0UjUUGSqsyTz19LQ5XoTAV/
-	 3KyP7V+pHGsZA/kBjDRtD4LMohfrl5egnDdnLEegqbLQMIGVTP4Wr0HmfWr8D+XimtLdO
-	 B8+7Poxu/Fx7fcF6w33T26VXRL3LetTtLf/Y0INmLnn/6UGCvThiiwD5+69JL3Mc9uA==
+	t=1795779829;
+	b=xj8JFGqtGLEzWybAmbCVOfFiTmwvtRvXMzEKfWCQC7WaR07UCReG01zzY9UmjWzp3K8j
+	 YHrb6gZraa2yShJQYcNZ2o0837OV7udWVoAddv5i0sahJe5/HtRPahDPu22gRPb3xTj53
+	 X367zAxLQCFIBJvmkFzI71Q+8uEtYld+ZrA77NouzhnJZXWqxtg9O+oqi4hn6+hyZBuKi
+	 QylIQjctlMyWeJZWXXKWNbm8+O9H6/oZG57JL/e5zFy0h2wRYK1ewm6JP8TnreWYrUP9x
+	 79ACvYD54Kp6GNTyMP9Z8pDuU5nZudo3mu5T6au1A7fjQqRlwH9UXA8GCGT0L9k6dQw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795777928;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=y5YJi1sJrMPuqmdeCSGcwMhOZSaaMEqVhLWjWg1y5DQ=;
-	b=r+p8+o0xz0eLY6IkJ9sxVA8v73SoVZH6OBpWlkcEqcmEVx+3xoMagVUVNK8rjPry6jGM
-	 7SPaKkcvFzY3hpowU8/pgteV9oGZ85aPhTm6FwaBrsu+0yC1bZeoh7OPNHuf8Ri6tSfiN
-	 y/wkDK6pJX2cjrGC3IAhYTW0QRG+Zn6+Vpci4NdJbI4GH8FM/QnbvHELYGQ2sIpBIJ94s
-	 NgTUNEF9HbBwRpN2XLji3MXqgx6uJ1rSIiHyl6G4stGt34F+82vepcvxwhKzODYSKh99h
-	 gFof+ZalUTSbS6Bdm3nXqgZ0Lr3Yi90v+3e8RHk0pT78+HFL6ddZKuGZhEuEnILKWmw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795779829;
+	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Date:MIME-Version:
+	 User-Agent:Content-Language:To:From:Subject:Content-Type:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=9BDNIK/cbt3ruWqxqJxIqM0/1T2yTZ8ddMmR8eSfwuA=;
+	b=wmKMA3JDI6CUmSo0gDv/0/1T+hD/Q6I2nOS9K938wqthTQQ9/kR27L2veqbD1qnNCfV/
+	 qYvyl5GxklNzp1zYi2qXmdoyltZ4Xz2Qt58J5OnPshNsCztShNkoJBEJFykQW3tDlB6ug
+	 zo0j6lzPVsXdGh06ce41wNeyquxklHAYc5hqtdsHLyzFZvqqZlhwym1z/e6RCR2Pw2LUP
+	 KMbASw2yUCLa+a6aA6iYfaFomFhYghvAnZcE1nU6Hr1ztvu7ERBrtH3S3LDoul4kMAw+G
+	 BIJmR+zxUdZ8smmfIrGBX1jpg4ci/XghBTtYGr/0G7B4fd+0XTRpm3NgarUcPpL8waA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bIUvy44G;
-	arc=none smtp.remote-ip=192.198.163.9
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=eldred.fr;
+	spf=pass smtp.mailfrom=eldred.fr;
+	dkim=pass header.d=eldred.fr header.i=@eldred.fr header.a=rsa-sha256 header.s=dkim header.b="j0/62fNi";
+	arc=none smtp.remote-ip=51.255.86.93
+Received: from mail.celforyon.fr (mail.celforyon.fr [51.255.86.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 714E1606A338;
-	Fri, 27 Nov 2026 11:12:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 714E1606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BF9C606A31C
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 11:43:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BF9C606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=eldred.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldred.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bIUvy44G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795777927; x=1827313927;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=KqHOKykbe5ZyFYsaUPcERJBTPAJ7CBqMo8obDfHE8bI=;
-  b=bIUvy44GmFFezPVnol0g6umloag550GEG6UIi0MIXMA3ZUv1spVT1BG8
-   GWbeRY/YP2bZMDNSrpUyX1jRtp+NHtYmPnJiFd0eGWnxDlmzk6bVEnF5m
-   ODeQU3U4UqtR/eSgR+Z4VvjM/FDGOnjjBBXrC25n4yBDwhPN2FqYf0rfQ
-   2c+YPaILoScCo8dLK3jiAzk4tBQ2J3iB/8Rw+uNmKcGKtseCyD7qUOnXI
-   HhA6V1oiwtrSTEIrb2fghutLt6dhja7DBPvsf2Llerh6RKJUWF56i2KKD
-   vU0oiFHPDyijr7Uk6OpOE4Hid47OUWT5UbNf0UzCR6MwoG9MZgB8yUrsc
-   g==;
-X-CSE-ConnectionGUID: GEuW5iV9RCSYc/al0XbTgw==
-X-CSE-MsgGUID: qEqFXznBSPmEnGQgn/dxVA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11978"; a="4544764"
-X-IronPort-AV: E=Sophos;i="6.27,236,1787036400"; 
-   d="scan'208";a="4544764"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Nov 2026 03:12:07 -0800
-X-CSE-ConnectionGUID: Y/NDu+7dRgyXEKj6eGNtkA==
-X-CSE-MsgGUID: N4ac5XDcS4avPB+40bfN1g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,236,1787036400"; 
-   d="scan'208";a="14051309"
-Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.115])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Nov 2026 03:12:04 -0800
-Date: Fri, 27 Nov 2026 13:11:58 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: sanjayembeddedse@gmail.com
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Joshua Crofts <crofts@kernel.org>
-Subject: Re: [PATCH v2 0/7] HID: iio: Unify probe-path logging
-Message-ID: <awllftF3xR6Arvua@ashevche-desk.local>
-References: <20261127-19-oct-hid-iio-unified-print-framework-v2-0-3f476fe1a940@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=eldred.fr header.i=@eldred.fr header.a=rsa-sha256 header.s=dkim header.b=j0/62fNi
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9F6011783D7E
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 12:43:38 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldred.fr; s=dkim;
+	t=1795779818; h=from:subject:date:message-id:to:mime-version:content-type:
+	 content-transfer-encoding:content-language;
+	bh=9BDNIK/cbt3ruWqxqJxIqM0/1T2yTZ8ddMmR8eSfwuA=;
+	b=j0/62fNiyA5miq7qDsZYpcmLV0Km6xYh7yon5XlabJmcNhMXIQchZdyT4k7lo8zzQyQ48D
+	MFWCH0ZsnbQYIF5QM0FS4l9nOzMdG0cusLs7wr/6JTAQ7FONcvUqWiSZm7fce5zom3xLKf
+	fwgtN2qwFbHTt48ytQwPk08lWsJ6QLGgT8ija1hL2DMNZUfDFHnHBCiD5GSMHL2acI6hF+
+	VVeSKZYX7+RxfI4eR3SOVsuWvaKFMuClTtEc9W3X+c7uawqPq0eSQkIDF9saEtXddhWD18
+	h9Vcwaw1aVJl53rSWHl1pi4lNXTqy32LIZ8G2aEmcJs+YYDzKHPAxSQ+S2NFXQ==
+Message-ID: <82edbae6-1338-43d8-8239-de80f098426c@eldred.fr>
+Date: Fri, 27 Nov 2026 12:43:37 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,32 +55,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261127-19-oct-hid-iio-unified-print-framework-v2-0-3f476fe1a940@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: linux-input@vger.kernel.org
+From: Eldred HABERT <me@eldred.fr>
+Subject: Wacom Graphire2 4x5 unreliable(?) init
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Fri, Nov 27, 2026 at 04:03:55PM +0530, Sanjay Chitroda via B4 Relay wrote:
-> This series provides consistent support for logs in probe() path for
-> HID IIO drivers with suggestion and input from Jonathan.
-> 
-> This is followup series on top of multiple sub-series submitted for HID
-> IIO device drivers which included fixes, devm support, cleanup and using
-> preferred kernel coding style. This series adopts a common logging
-> approach throughout the HID IIO device drivers in probe path.
+Hello!
 
-> ---
-> Changes in v2:
-> - Following suggestion of Joshua, remove the comparison and change the
->   checks to `if (ret)` as respective devm_*() API `return 0` on success.
-> - Link to v1: https://patch.msgid.link/20261105-19-oct-hid-iio-unified-print-framework-v1-0-0b360d9552d9@gmail.com
+I have this (admittedly old-ass) tablet that I occasionally use on my 
+laptop, and I've recently tried again only to be met with failure.
 
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
-for the not commented patches (the one is depends on the answer).
+I'm running 7.3.6-zen1-1-zen, but I've done a bit of troubleshooting on 
+7.4.0-rc4 as well, with the same symptoms.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Sometimes the tablet works just fine, but most of the time I get these 
+errors from Sway:
 
+ > [wlr] [libseat] [libseat/backend/logind.c:121] Could not take device: 
+No such device
+ > [wlr] [backend/session/session.c:340] Failed to open device: 
+'/dev/input/event14': No such device
+
+I've checked and it's not a permission issue, and I can `cat 
+/dev/input/event14` just fine, however nothing comes out of it neither 
+as my user nor `root`.
+
+No kernel messages hint at anything either, I just get
+
+ > wacom 0003:056A:0011.0009: hidraw4: USB HID v1.00 Mouse [WACOM 
+ET-0405A-UV2.0-3] on usb-0000:c1:00.3-1/input0
+ > input: Wacom Graphire2 4x5 Pen as 
+/devices/pci0000:00/0000:00:08.1/0000:c1:00.3/usb1/1-1/1-1:1.0/0003:056A:0011.0009/input/input40
+
+As far as I can tell, thus, this looks like a driver bug, hence me being 
+here. Please let me know if there's anything I can do to help!
+
+Cheers,
+~ Eldred
 

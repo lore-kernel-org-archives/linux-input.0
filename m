@@ -1,91 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.54
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795723691;
-	b=4AvJiYDbMkhuoPduC57iMVnwJeSBa5PTds4mDabT2OrO62d8xFhrKcuVrxrzNOi5eVtf
-	 3sy61hY63Q7Gjf/gd33xZBlAwVpfQ/gOFLzebi97/hS1/7jf7PZ7BnvvEhMErmcEYei5g
-	 HFq4iQiB18xQYB5qzkd0hGMFyOPn4nHTgTu2hJVDskj+Z7PXouiqIxtkevhES0UA8vmSj
-	 DzMSqqgxdCvr/YBhkabZzzUqsrj5PMH+4xpvZk29LUquqpMcORL06NMxwYKUfOr9wZzjO
-	 24ySDo44o8LyP9IW6rPbm0jVlGG5C5zGf/5GQKnVGjRnVmL5oq/37URYsuLN63gC0jw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795723691;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=uLqWBBlD9sWHuj/q7x3/6dvATP1P6dXJhD0nvFViC8c=;
-	b=hHvH1PBJklzUYgVLr8unm9CCi8IxWig1RXCsCU3xxRmiEQt3XiD/6qtsCKgD6rYrUiVo
-	 S9pP2ZBaLmi7m6FzznN964VADvSrXkZd+1QKYAl57L98U4N1mgcQKKdW4nSRHia9hQyBC
-	 efU5uOOgXc40nyo2fNYHFvWgqEb6F42K2mCuMsjZf6UCVoZVhwGvHnryajrhgY9tt5ZZD
-	 7FSD7spx21x01ckfniuC49bT9Nz8R5h0v6eg3/4px7Wzm33/ZUdXg31jWWksFr7ZCYAtf
-	 piWGo9wU6GbH6XP5q1kRgmo5WrT8Gj7NlUhtaK5OwYdd40WgVzXW89YNCNjfkU4TGSQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=et9UYc6I;
-	arc=none smtp.remote-ip=209.85.218.54
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795741898;
+	b=ZT2ZVBsgBFHkSi3Cg4LGdQoAT/2HyZsNuICFj52LzHHQpRYfCDjVXSDyei/+i38nCz9F
+	 /IwEifZJ3v9etDypOzr4ZWXa5hToT5tiTrOSbbKj6wybwGnXSWAL5u/8rx7Z4zr1gBHwf
+	 jAT7kuQ7WomSrNR5e+zmOY7bS31OGX1jJQ+YQxT2NjJ8sjd0PJbHJutbrBNi5UPDugvSl
+	 VpOSfo4MxhJu/lqREbh7y2zOmE5m8GocgTgYHxAEFV/JDoBCL0Nav41V5WjZuA4NWit++
+	 7eKgc3jTgFkaUAShT8jI+9c5Bglq2bUTTF5X6CYqem/0tC4AmxTofmeDUoM9/DTuPmQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795741898;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
+	b=33BDY/1sllM/pNM0Cao8elv119S7Q/qvc+Oof+r23zCUv6aXVaBRnljJjPD2eJo3Epbh
+	 i8EIWdyBulnXMiR4UhRs1kVK5htw5Ybi8zwXSic8peRIONTCV5GEdxuAtCrvX8RUKQyxc
+	 7/zcPWwLa3EF5d5pS5DbD2IarPDOiuseKnQId0UAz2rn5Kkx0JF3WxqYQd3O59vfUeO2J
+	 kmKg9mRJP7FsT8vCHimjMevYrMCmolefnHlTfTrH1t51yKf4BokDQ/Tw+nzsZCJ0zHflA
+	 7HRqLodEPbQJv8EbfwU88mTSQCkVPDaT2rIZ2xYOGAzE82IAHXQ87tkdyTOa0Cu0ZLQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDk+kIQW;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D026606A31C;
+	Fri, 27 Nov 2026 01:11:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDk+kIQW
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795741897;
+	b=UTvkWFvHa/NuhrpGw2g69euX2GDwK/oDw9Z3Ssf2Qtl2nwgR7J0TSBomTcIt1YacIsMr
+	 fMZaDALZibY06ay5QzICuvWi9tQT3gU/StOiwgahI1pew/IL1QD+PI92ECNVSM9iRx8C4
+	 Ttk0tM7lPIUbHcgS/lJGORZMk7Okfj+hmrahqReo+KEPnKMRuqr04ZrRR8is+dZuhSRIq
+	 qTWnApUM/oRqG1IzBD7UPUS8sswA06OH1zf2IhTV4nT+/WCkGI5jpIwagKZT05lQkFPaF
+	 8366zz5OolU3su/mlyUJZV6bTob2iyrkclJ1ukZbFpU8NMjZS+1XLqiHD1HQ6HHvWPg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795741897;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
+	b=Cr1L8gV90HDxAom2gTOI+iJtfAG+oDUczTlppBptv3FfwPiNnX6fdVlOhRMJFMZTqei7
+	 eHZ0sQ81DaBsB9R7ObmfrK5BLd5pjEW1UgC5c8Ozpt6ZZngFWRHKrCNGrzIjjAIfSNQqc
+	 OZQts3S/oFjQe6slQgxummAXbIXFCEFUXCwjZmMkvcYnutvjkzrdD345YrJdIKZuWPScE
+	 /iisY1tJ4pgBoF8MbnLgyHl2wwnqxUONZdCJSuwmredgSmY6Fa31TDcNs9ReV+EnklKiw
+	 HJsCq08pY5JpdmkDzrKwrZkQ513cyv+mQJOrVhNehb9SZIJwJay2ARuVhwfCX6L5O2A==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA3F606A31E
-	for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 20:08:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2CA3F606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=et9UYc6I
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c4cac7a7d3cso1098446566b.3
-        for <linux-input@vger.kernel.org>; Thu, 26 Nov 2026 12:08:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795723689; x=1796328489; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uLqWBBlD9sWHuj/q7x3/6dvATP1P6dXJhD0nvFViC8c=;
-        b=et9UYc6IVKul1QaHts9/mT2CQvZn3tQGTzj1HjxfgWwTOJIrSjdX2YJL59556Ifezs
-         2fAD2qSc2MlAj9Q0I1+pTO9vg2Jlwubyv9KPUwJ/Ar85nkF+g57UvhO0Z/LOaUP2Qee8
-         twfZlesxAybyrG3koc5BuyOuwYsjjDNoMwCH+UI3zzmeOjXpVJVs7pXcVk1amwQG96dP
-         DJqoRsVAX7tyWdLJexvsIyeTbyL0FR5WDUfF7klz4qLf0G55GjxH1XjYverzz/XymrtQ
-         NH8g8+zWyQs9w1NrefAjAeBZrttGmUtmqZaR4Lhv5ZxGtoZgBfxfAezcrcpm4YJn6hWD
-         EfbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795723689; x=1796328489;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uLqWBBlD9sWHuj/q7x3/6dvATP1P6dXJhD0nvFViC8c=;
-        b=Qgic93Qh+DH1wjwJBoXOINwtp1Kb4NSJGkJFPKyabdhbQPObXv+S73ErYON6Z5oBJH
-         kw6HCUJO9xYw4ASwFxBKXCJy5zURXAEoFyQiKWulkPdgJZQh3NH8bIQXh1VmjrGGxBWN
-         ZsGtoMf0PoRxg/6LJP3M9PFTWp+krvLH+HReE02AxRmtrhu15XOZnpV+K6Wpifn2EOOY
-         nR0r88LtH8YIALKK/a/VG+aRVEdq+LkCGjvNUhFfi5OxIvlxvTjar2LrAp09OHJdPn2n
-         +WPClYajy5dpkm52H8E1MCUQFVK7dZ8EJ025CNm+IABPj3IbuZZMRg3GLwrwcQZXTpmj
-         SCrA==
-X-Gm-Message-State: APuU4Z/mpwtIe/2Fbl398Gfak/RiynChd4ZmttIyrBR4PmkxbtpBXHMj
-	4LIt6hzmj+2GOdZViyT9lQ12mWNnLBhsrm7XcD5+JRAAZ5Aq9p5Kh0Ly
-X-Gm-Gg: AZFdTZe0RXv5ARB3ajjwgVBxSo5r4CGmF5qt6wcS85WSc1crbUKSW68azNgfZyf/YaW
-	Ukg0sqEi7vNYukyEPmPhrUhys1mRoGjir3oPP/icfz6VkG0mr0EPrdju558KcOixUKv2DlfObp0
-	fy0Kbc0iq4tABPkixFLuwgtB826FQnhPTO56QKI4iCnKg50OXDMWBAkN3GhjVKB3E9JQx/nqDg8
-	yjF2T4zxi9AAzMyoHndnAdrQPiElDX9dvhDvPmYHCfUWOIasKh6Tpp4tU7B61usXO4LIQqFXUgT
-	PlCk4gUBfDXB3uyEqFmX+J8oaeevE1rP/pobFhcbHKWxQ9HnhDv65sYLatCbP3FBN/RzuDwiCVW
-	NRmCyBYQ9gZIKV9NGL250+MOvIexLTUvl5xHhA8VRYSR654UKnNwFoeX8nE+YFdBmXMs4vuis0R
-	jCcLwpgJbrc+k6IeorX3ieKmWr0AhUS5QkurUCJEJDl5tvgc6+4UY+ewokbATmBO0u60I2opl57
-	P5KS1eo78zaInZfaN6BrDJtqLc18+UhCWZ4yFhhsjJ4e+voKHEPPTzW4jzXmvkhJdxFdIHPVGq1
-	ojdGWvCx3cxmX/Ix5FgDf8CQT2EMDjzjt6LPuVKunrQg40PHjhn1X2erxrRyGWiHFHOFSMdQrgz
-	BerRrzfU8nVEZ/u2CcIfo8noBAWN5owx8+RgWf3937pEaa9+PFCmE1j045hGME0XBOcYir0igYi
-	BH
-X-Received: by 2002:a17:906:7ac6:b0:c40:4965:72bd with SMTP id a640c23a62f3a-c513a9ae10cmr1297992966b.19.1795723689407;
-        Thu, 26 Nov 2026 12:08:09 -0800 (PST)
-Received: from desktop.home.arpa (2a02-1810-1e16-ac80-898e-1938-27eb-b890.ip6.access.telenet.be. [2a02:1810:1e16:ac80:898e:1938:27eb:b890])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513afe85fdsm799348766b.69.2026.11.26.12.08.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 12:08:09 -0800 (PST)
-From: Stijn Cleynhens <stijncleynhens@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: quirks: add ALWAYS_POLL quirk for Ajazz AK820 Pro 2.4G dongle
-Date: Thu, 26 Nov 2026 21:08:02 +0100
-Message-ID: <20261126200802.3717356-1-stijncleynhens@gmail.com>
-X-Mailer: git-send-email 2.56.1
+	by smtp.kernel.org (Postfix) with ESMTPS id 3F79B1F00893;
+	Fri, 27 Nov 2026 01:11:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795741897;
+	bh=I7wd8YBab4NQRi8qk+9Nq5Hm+sqxsp5LHKtCHvf0z00=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=GDk+kIQWCvjnlX3jPrJgaCTz/koNoGNgHqR1WAXSZ5WRk+yZO+lsgSDAUGWZJEgHd
+	 BeNkADDJXjUnn7ob8VfEjG9zUKVHWGZdINGALJ/wgXwpWeaMgMPKBI25D2rhAvc4OI
+	 2J9hF9z+50BEpAZrlvwLHQpNxiB76/cmaVZ75Ew5d9KI9iWJbqOvYw2wKUcSSTZqho
+	 NzFPLGFMOh0838lfXREs89+gAAXDU5Pc9Hr2Ws7hq1wS/UJu/FJR+PVFttt1V/8M0O
+	 J3yp77luvuJbXsoeolXVEqT2Aaw1W6RYHdPHtwventStaTQzAAH8FckCUedAnzttE8
+	 gbjQArgv0lQfw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id B2EB34B4CE;
+	Fri, 27 Nov 2026 01:11:31 +0000 (UTC)
+From: Ciro Pedrini via B4 Relay <devnull+ciro.pedrini.gmail.com@kernel.org>
+Subject: [PATCH v3 0/2] Keyboard backlight for the Lenovo Legion Pro 7 Gen
+ 10
+Date: Fri, 27 Nov 2026 01:11:10 +0000
+Message-Id: <20261127-legion-lighting-rfc-v3-0-15c55d9f15b7@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,59 +84,127 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32Nyw6CMBBFf8V07Rha5KEr/8O46GNaJoFiWkIwh
+ H+3ZcXCuDzJveesLGIgjOx+WlnAmSKNPkF5PjHdSe8QyCRmohA158UNenRpAj25biLvIFgNRpe
+ C15WxlTAsPd8BLS279flKrGREUEF63WWXHQN4XKY87ShOY/js/Znnw//UzKEA2TbIjWp1heXDD
+ ZL6ix4HllOzODh48dshkqO9Vo2opVUN10fHtm1fdWPvVRUBAAA=
+X-Change-ID: 20261109-legion-lighting-rfc-dc32165df52d
+To: Mark Pearson <mpearson-lenovo@squebb.ca>, 
+ "Derek J. Clark" <derekjohn.clark@gmail.com>, Rong Zhang <i@rong.moe>, 
+ Ike Panhc <ikepanhc@gmail.com>, Hans de Goede <hansg@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: David Cemin <dcemin@nvidia.com>, 
+ Werner Sembach <wse@tuxedocomputers.com>, 
+ Aaron Erhardt <aer@tuxedocomputers.com>, 
+ platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, Ciro Pedrini <ciro.pedrini@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795741890; l=4542;
+ i=ciro.pedrini@gmail.com; h=from:subject:message-id;
+ bh=n6ZZHbFpHE2QvKDfMUFjU+60/18Xn8WyvZbla0npvuc=;
+ b=vxhfV237oYB+dNCIQjpJPLLNEofcL2OcjPFdsTSxVwtr5bEb9ROmcQ35OLLikzcK7R9bx3Kw+
+ bAYIFaVYljZAaL+FI/buQs6OOvsAJP7UAb+boBng+SQXXummh+Du7fP
+X-Developer-Key: i=ciro.pedrini@gmail.com; a=ed25519;
+ pk=TOSFlPBon1xBHfTrhODxatabgwEJdgKEzG3jMoMQcbc=
+X-Endpoint-Received: by B4 Relay for ciro.pedrini@gmail.com/default with
+ auth_id=1468
+X-Original-From: Ciro Pedrini <ciro.pedrini@gmail.com>
+Reply-To: ciro.pedrini@gmail.com
 
-The 2.4 GHz dongle of the Ajazz AK820 Pro keyboard (0c45:fdfd) exposes
-five HID interfaces: keyboard, mouse, a consumer/system control
-collection, and two vendor-defined interfaces (usage pages 0xff60 and
-0xff59) used by the vendor's configuration software.
+Hi,
 
-Nothing opens the vendor interfaces during normal use, so usbhid does
-not poll them. After a while of use the dongle stops delivering any
-keyboard input, while it stays enumerated, until it is unplugged and
-plugged in again. This happens behind several different USB hubs and
-docks, and not on Windows, which polls every HID interface.
+This is v3 of the Legion keyboard backlight series. It has the changes
+Ilpo and Rong asked for on v2, and one fix I found while testing them.
 
-The AULA F75 Max ships the same dongle hardware and firmware (bcdDevice
-1.38, byte-identical report descriptors) but enumerates as 05ac:024f.
-That ID already has HID_QUIRK_ALWAYS_POLL, and that dongle never stops
-working on the same machine.
+Short background: on my laptop the keyboard backlight never turned on
+under Linux. The keyboard controller (048d:c197) stores a brightness from
+0 to 9 behind a vendor feature report (0x07), it was 0 from the factory,
+and nothing on Linux could change it. That brightness dims every LED of
+the machine. Fn+Up/Down/Space are handled by the firmware, which sends
+the new level on a vendor input report.
 
-Booting with usbhid.quirks=0x0c45:0xfdfd:0x00000400 avoids the problem:
-the dongle has kept working for several days, where it used to stop
-after about an hour and a half.
+Patch 1 stops ideapad-laptop from sending KEY_UNKNOWN for those three
+keys. Patch 2 is the driver: the brightness as a kbd_backlight LED, plus
+brightness_hw_changed for the hotkeys so the desktop OSD works.
 
-Signed-off-by: Stijn Cleynhens <stijncleynhens@gmail.com>
+The fix: while testing v3 I found that the controller sends the same
+"brightness is now B" report after every brightness set, the host's
+own ones too, and also when the level doesn't change (Fn+Space sends
+it as well). v2 passed all of those to brightness_hw_changed, so the
+host's writes looked like hardware changes. v3 only reports a level
+that differs from the last one the driver knows.
+
+David: patch 1 adds three KE_IGNORE entries to the ideapad WMI keymap,
+which your "architecture independent home for the Lenovo WMI drivers"
+series moves to wmi-fn-keys.c. Whichever goes first, I'm happy to
+rebase mine on yours; it's the same three lines in the new file.
+
+I tested it on my 16IAX10H (83F5, BIOS Q7CN77WW) with 7.3 as a module:
+brightness from sysfs and KDE, the hotkeys and the OSD, Fn+Space,
+suspend/resume, unbind and rebind, and the vendor report on the wire
+while doing that. It's based on pdx86 for-next and builds with W=1.
+
+About how this was made: I found the protocol with usbmon captures and
+by looking at Lenovo's Windows software. I wrote the code with help from
+Claude Code (Claude Opus 5.5). I went through all of it and tested it
+myself, and each patch has a short note about it below the ---.
+
+Thanks,
+Ciro
+
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 3 insertions(+)
+Changes in v3:
+- Short reports: send only the request bytes and read only the answer
+  bytes, right after the request; no more 100 ms wait (Rong).
+- The buffer is allocated per exchange. Not on the stack as Rong
+  suggested: usbhid hands it to the USB core for DMA.
+- legion_raw_command() and legion_simple_command(), and the request
+  length checked against the 960-byte report with a static_assert
+  (Rong).
+- Out-of-range values and failed reads return errors instead of being
+  clamped or replaced; dbg messages, no hex dump (Ilpo, Rong).
+- devm for hid_hw_start()/hid_hw_open() and the LED; .remove stays,
+  empty, so hid-core doesn't stop the device twice (Ilpo, Rong).
+- Dropped the (int) casts and the "(2025)"; comments trimmed, the one
+  about HID_QUIRK_INPUT_PER_APP now says why; Kconfig help about what
+  the driver does (Ilpo, Rong).
+- New: only report a level change to brightness_hw_changed (see above).
+- Rebased on current pdx86 for-next; Rong's Acked-by on patch 1.
+- Link to v2: https://lore.kernel.org/r/20261110-legion-lighting-rfc-v2-0-845726afb71c@gmail.com
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c40d818417a2..cab0b3fc21e5 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -799,6 +799,7 @@
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
- #define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
-+#define USB_DEVICE_ID_AJAZZ_AK820_PRO_DONGLE 0xfdfd
- #define USB_DEVICE_ID_AULA_MINI_60_HE_PRO 0xfefe
- 
- #define USB_VENDOR_ID_JESS2		0x0f30
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 39e93b1383b1..e7773c946bcc 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -116,6 +116,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_AJAZZ_AK820_PRO_DONGLE),
-+		HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_AULA_MINI_60_HE_PRO),
- 		HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYCHRON, USB_DEVICE_ID_KEYCHRON_LINK),
+Changes in v2:
+- Only the keyboard controller (c197) now, as Rong suggested. No
+  LampArray, no colours, no lighting_mode, just a kbd_backlight LED.
+- Ilpo's comments: struct with __le16 for the request, guard(),
+  devm_mutex_init(), no magic numbers, includes.
+- Removed the "ready" flag, its spinlock and the work item. raw_event
+  can't run during probe/remove, so it notifies the LED directly.
+- Keep led_cdev.brightness in sync with the hotkeys (from the Sashiko
+  review).
+- Moved the note about the AI tool out of the changelogs, below the ---.
+- Link to v1: https://lore.kernel.org/r/20261109-legion-lighting-rfc-v1-0-a87e1db8c5e3@gmail.com
+
+---
+Ciro Pedrini (2):
+      platform/x86: ideapad-laptop: Ignore keyboard backlight hotkeys
+      HID: lenovo-legion: Add keyboard backlight driver for Legion Gen 10
+
+ MAINTAINERS                                  |   1 +
+ drivers/hid/Kconfig                          |  12 ++
+ drivers/hid/Makefile                         |   1 +
+ drivers/hid/hid-ids.h                        |   1 +
+ drivers/hid/hid-lenovo-legion.c              | 293 +++++++++++++++++++++++++++
+ drivers/platform/x86/lenovo/ideapad-laptop.c |   4 +
+ 6 files changed, 312 insertions(+)
+---
+base-commit: 61c0dac952b9308884936d05cce97565a5c89af4
+change-id: 20261109-legion-lighting-rfc-dc32165df52d
+
+Best regards,
 -- 
-2.56.1
+Ciro Pedrini <ciro.pedrini@gmail.com>
+
 

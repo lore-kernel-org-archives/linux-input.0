@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795791583;
-	b=Fdk7VBxFJpuzwxYwDcObDg09Rk8Dv2C1Iurf3PQTvmYNuoDXDDa31vNA4K0c8JC5jTmr
-	 h3fvdmL9T579Mag2AVp1n0uEJpIoDvX28N20836K3zrknqR+p8GcdZlti2ZBFwTbKbLDt
-	 ZhP9e46Xipn5mvvtQHim/UlVufwo6MGswuIpYF5mTg0ArJ27eznOT77MhpZmMbkU8Gx1K
-	 Hi//ySxw9oP+fc7gwnsnCtfXtfWqWBqDCZm9jrjSvgMukeANstzQvX6Rqyc2ZnSGtot0d
-	 KqnmaNfSog2wflXak7sAGMSKvbo3ar5XcTDFQ/xO7YCwypn0TveXWQwaTfYdF8ZAG5w==
+	t=1795791584;
+	b=RVwWgcTlO0UgWP2+ULxh8Um24Gv98/I7oEZaEGEKk1ERZ8DzynkOqggEwKgGoW676sAl
+	 373csr7JJ3P2nob9rOBLhxhq1owQ/waTh48NYwrAFxYtjRm+4WDpXtu60iCYcSgTByPVy
+	 VyvBkk8CsjOGWThPV+rbNbEbDdhHvbzLfO2xMO053yCnwSrqcVKtsC3suGIyZyRgIlXIP
+	 vs9K11LhWsnT2LVM537EyRbZMbXh3A868UWgdPfcgzfNlaTKqAE5E/k/p9kKTbDDBD3YR
+	 o39+GZq3lEvJgqb3C+Nolf5kzKYz3NZMalaVXm4Wr560Y2Y3tYSLxkVRJOkRIRoCetw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795791583;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795791584;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Debian-User;
-	bh=zn37mbZD3c3SxXYmLD8l2IwYS7yfb1wo7nxAh3Xr9ig=;
-	b=VM2JSjKenLrXPHYzt3sX+uW+Dm5T4HhDMZxUEFA2u82g9+ZVUDncq3yJCyPwPw6Npa+c
-	 n0bYPE0T/NyTvo3VwTb9sTFrsZidVjPGX3pxSgk+O+SBRQhXH/IFg/licq7e5sK/yRWmU
-	 qr0ZPzAVQedP0WUwycYK8q7eB8ytkWcWTfK4WkOR7K9ARy5CvCpRqL6l6dwwexHbx4CKb
-	 f9T/eovZy2DQzq/rEh7C+HA82oRqyy+PF095CS7WJ+0RLwGu8OzVeXxWUT6erxmNqN+Gu
-	 AWvVvoBsMtcDH9T+hG8pyTa1314Jk7ItMDCAbrgYsHWXdLHuRNQDKbfUpiS0BJM0+pw==
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-Debian-User;
+	bh=G6nmI1esn6WqAJSqK9nbEywrguUGUjxMuFO6eoPSY8M=;
+	b=wGqpj+jch03XrtST/pNN6qTUQQJN3pkCYyKEREtOdKSXdAPFG8Q++NaGKTwIN+5bLLG/
+	 uZ+lFKjsjM2BKuPuii+ELdlfpBKxOSu+/Gdfp/eYOaMT3HcPSPsy7ffjlGg2/L2bvtS6x
+	 5+F8EdgYGXQSNOUINsjWZxUWBL5nPNxXJWIs72fNAaFl2FJ7cLoLyEhO4QC5qDlmYKxvq
+	 7h+vtIzG+IH671syD+M/Y2Yh5/QBnxguH0yItNaSi0PWCMM3SH8S2N9Yw//a2n9Rc9xAr
+	 OAiFoyVnCptW3MO69ETOp01XE+xoDTjwSZDZRUdw4IK+BxW+fxNc9nJRs9nA9K22bRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=debian.org;
 	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=nlwAT6iF;
+	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=gkpHhWs0;
 	arc=none smtp.remote-ip=82.195.75.108
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53F1C606A31E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2A81606A324;
 	Fri, 27 Nov 2026 14:59:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53F1C606A31E
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2A81606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=nlwAT6iF
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=gkpHhWs0
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
-	:Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=zn37mbZD3c3SxXYmLD8l2IwYS7yfb1wo7nxAh3Xr9ig=; b=nlwAT6iF9JBm0YKZMEqlsenYFZ
-	QWRT4+k/otBsZ7yKOt9IoqbtCkNekFoqlnlyN2pcok3f/UxYyh//NvlNWhzi16ICLW4YpZaapOwGw
-	IG+nBaPX5gz9uuVHmxvPn/rEvarklkvuXal6LzgUFLT4ZHF3qu0pn4dBpWNhOcjuQr1pL9xqpb0wp
-	JLWJZwxrIH+b6RXKkXebGtsBGj/kmBkTrexd8uLqfDYwkUU6i6C7Cd51VT93nPsNYJlF+Bwc5MVRM
-	5oVY92o3SXsESVH7jR7iMHIAq2SkcO8Eq0SoZB5h+ftV2HjHV1zSRNVz4uP7tESSx/HYW/N+ww5yd
-	O9KaSAYA==;
+	:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To:
+	Content-Type:Content-ID:Content-Description;
+	bh=G6nmI1esn6WqAJSqK9nbEywrguUGUjxMuFO6eoPSY8M=; b=gkpHhWs0345lL9cnCvsvh+NGhr
+	+cYhoS8w4c1fny47+tRChotXt1hKWA5laRsE5vhmPBTT0qdCRcpzUXnUbt7muV454CzWFxCzEQ2nr
+	lGRBNTD4d4ywianWEl2dQvmJm45Swyo7RNu1CGv5rtaec6JGdf3wc0xCn1kFyt7moHQ9mPZ/wRL6T
+	k7A+7dPqOq783BcVrNCWfsb7vzniUt7cTcvZLGCC+5/8la/wNY/aNx5ZUShBPp0Iglmxyw+PrJ/7c
+	28wsvq7ZxOx+KwdIRzMcQuDXkqco4B6pVkl2gQqG8MsS/n9geyakhW4jXJkotyJXZo3JypHqBTbKR
+	IMrAqo/w==;
 Received: from authenticated-user
 	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.96)
 	(envelope-from <emfox@debian.org>)
-	id 1xWxQ9-008Q04-2B;
-	Fri, 27 Nov 2026 14:59:30 +0000
+	id 1xWxQI-008Q0A-2Z;
+	Fri, 27 Nov 2026 14:59:39 +0000
 From: Emfox Zhou <emfox@debian.org>
 To: Even Xu <even.xu@intel.com>,
 	Xinpeng Sun <xinpeng.sun@intel.com>,
@@ -56,10 +56,12 @@ To: Even Xu <even.xu@intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/5] HID: intel-thc-hid: intel-thc: DMA lifetime fixes
-Date: Fri, 27 Nov 2026 22:59:16 +0800
-Message-ID: <cover.1795791500.git.emfox@debian.org>
+Subject: [PATCH v3 1/5] HID: intel-thc-hid: intel-thc: keep TxDMA write errors
+Date: Fri, 27 Nov 2026 22:59:17 +0800
+Message-ID: <a988216047e315de2d3550ff112c8458091e8402.1795791500.git.emfox@debian.org>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <cover.1795791500.git.emfox@debian.org>
+References: <cover.1795791500.git.emfox@debian.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -72,39 +74,65 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Debian-User: emfox
 
-The THC DMA engines have no defined lifetime: a failed write reports
-success, the channel that failed to allocate keeps the tables and
-scatter-gather lists it did manage to allocate, the engines are not all
-stopped before their tables go away, the SPI gear table has no entry for
-the slow clocks some controllers ask for, and the drain that follows a
-stop is a fixed 10 ms even when a receive engine is draining a whole
-frame.
+thc_dma_write() reports success after a timeout: the cleanup at the end
+overwrites the error with the result of thc_interrupt_quiesce(), so a
+frame that never left the device is taken as sent.
 
-This series gives them one. It is a prerequisite for the IPTS backend
-series that follows: the recovery path there relies on the engines being
-stopped in order and on the drain being long enough.
+That wait also ends on a signal, and the no-completion branch folds the
+result into -ETIMEDOUT. There is nothing to restart here: the frame is
+already in the engine, so a restarted write() would hand the same report
+to the controller twice. Wait without interruption, the window is one
+second, and report a failing interrupt restore instead of dropping it.
 
- 1/5 keep TxDMA write errors
- 2/5 free the failed channel
- 3/5 stop all engines first
- 4/5 add the slow SPI gears
- 5/5 budget the receive drain
+The completion interrupt wakes the queue with wake_up_interruptible(),
+whose mask does not intersect TASK_UNINTERRUPTIBLE: a completion that
+arrives after the task sleeps is dropped, and the write waits out its
+timer with the bus lock held. Wake all waiters instead.
 
-Changes in v3:
- - Rebased onto for-7.5/intel-thc (4f048c56c), which carries Even Xu's
-   safe DMA read series; no functional change.
+Fixes: a688404b2e20 ("HID: intel-thc-hid: intel-thc: Add THC DMA interfaces")
+Signed-off-by: Emfox Zhou <emfox@debian.org>
+---
+ drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c | 2 +-
+ drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c | 9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-Emfox Zhou (5):
-  HID: intel-thc-hid: intel-thc: keep TxDMA write errors
-  HID: intel-thc-hid: intel-thc: free the failed channel
-  HID: intel-thc-hid: intel-thc: stop all engines first
-  HID: intel-thc-hid: intel-thc: add the slow SPI gears
-  HID: intel-thc-hid: intel-thc: budget the receive drain
-
- .../intel-thc-hid/intel-thc/intel-thc-dev.c   | 45 ++++++++---
- .../intel-thc-hid/intel-thc/intel-thc-dma.c   | 77 +++++++++++--------
- .../intel-thc-hid/intel-thc/intel-thc-dma.h   |  5 ++
- 3 files changed, 86 insertions(+), 41 deletions(-)
-
-
-base-commit: 4f048c56c2697000105a75c28b918ae76f11fcef
+diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
+index 7b4a58e14..75b63a3b9 100644
+--- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
++++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
+@@ -990,7 +990,7 @@ int thc_interrupt_handler(struct thc_device *dev)
+ 			     THC_M_PRT_WRITE_INT_STS_OFFSET, write_sts);
+ 
+ 		dev->write_done = true;
+-		wake_up_interruptible(&dev->write_complete_wait);
++		wake_up(&dev->write_complete_wait);
+ 
+ 		interrupt_type |= BIT(THC_TXDMA_INT);
+ 	}
+diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+index ff5d145b4..3093524f3 100644
+--- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
++++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+@@ -1110,8 +1110,9 @@ int thc_dma_write(struct thc_device *dev, void *buffer, size_t buf_len)
+ 
+ 	dma_set_start_bit(dev, &dev->dma_ctx->dma_config[THC_TXDMA]);
+ 
+-	ret = wait_event_interruptible_timeout(dev->write_complete_wait, dev->write_done, 1 * HZ);
+-	if (ret <= 0 || !dev->write_done) {
++	ret = wait_event_timeout(dev->write_complete_wait,
++				 dev->write_done, 1 * HZ);
++	if (!ret || !dev->write_done) {
+ 		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
+ 		ret = -ETIMEDOUT;
+ 		goto end;
+@@ -1124,8 +1125,8 @@ int thc_dma_write(struct thc_device *dev, void *buffer, size_t buf_len)
+ end:
+ 	mutex_unlock(&dev->thc_bus_lock);
+ 
+-	if (restore_interrupts)
+-		ret = thc_interrupt_quiesce(dev, false);
++	if (restore_interrupts && thc_interrupt_quiesce(dev, false))
++		dev_err(dev->dev, "failed to restore interrupts after TxDMA write\n");
+ 
+ 	return ret;
+ }

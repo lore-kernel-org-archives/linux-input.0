@@ -1,76 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795793926;
-	b=eM1tnM/PmB+jmivDHaGsRCMCrIybXT60EdtAw0XWeUayk2VO6fENH7Kk9q2q0bd1EMk8
-	 loxFN4EvlVknM9ALsJem6UWA/DZt02sQqkNu+asQOzxZRfRPoElkIvxFEaJefBZxYym95
-	 Uqog7OMtxPWupJQxo/TB+TNpOJJMSLtp9VvrE5rQoG7F1QO9TDejo+acq1vy6TIOZJdie
-	 KmCtr+LJ1bEn2ACCzw9p45uXnuspr0w6bjPEhFigVryJWydC49bm0Qc3ioTJ+LO6CWNbE
-	 XAIKqRoNxgAHBrYbR5ug1xU5/HnEzVWobnWYEfKoqWkXjeTsjkDibnckXW4oRLkAi6w==
+	t=1795794587;
+	b=O8XRQ33z9n6JRQ1vPyP7HX0tHbCMyMl1aN6C/7BzAcOaD4pAr6lZt1UWO6NVmH9CK7Rk
+	 J4jw1/IadGNjn/Rm777V1DaFu6HVzCrwrbcmLJp/auxmsPPVIuc3rYFbr88Hkz7CRznns
+	 2sqt6069Uhflcq+Z8l8n/6fGWAKMPf+gsyIETlmJXKKxijidQ/DXu+WqktOBnB+Emy/f/
+	 To5GZ/2s429v/WjRDt/WNKtYiNu7TB7j+h5UmBiGWiZyje+QmyrF9pVn+I59VyxppHG30
+	 dkbHbObBNqJHaMCwNxQw9yVZumWOQqHwOGDKWAkcKo6Ma6NxC8TD/eAmWcFkhLfMErg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795793926;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:User-Agent;
-	bh=97dOnkvrxTJDDGXI2bjgoOzNNjW4n2O1mDB2f7Uxeuk=;
-	b=wrjcbrkYAeh2AnU48mN4jP5O7/jaBXd6dUOrP0zEzvajnvIcmx0bRumO8RzeZZbMsPhy
-	 QKvhNnD5CX/pfo8ASXsReZ4+ZD3NWMRTaRgTuy96esHoi0FvuZmMgq116q8Lwi9SusbWR
-	 Qv7mnAEiX3beku55fnwKr7hl3zJ2SstKsHyINHZs6/aBxR5hHE9WMna7oCVL81BfrYt2y
-	 jI9z6ZbZlPPz3f91A3bP7ygkg2S8IPaEOxwIBB+n9+4s/bcZALeKv0dnraRuHouwMJ5QJ
-	 muQ0F13UHcjBHl5RAYjwfvpCUSZFGKSRcgeNWb8NH4S+GquegM41bMzwyZManmhyj7Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795794587;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=6mKJ6yo54h/M/lvQ25pTtcfNrAPq9qSKcBrrZr8IETM=;
+	b=5hihqQI3ewxcFkQSNg6sDbLbljkScSaPkHELixUSit597aVkyRxbH3MLZfj5QgAcxkq6
+	 607TxB3l9eZ0DBycMor/xWrt7Ojlh3LScJ3a997BwP99W87qk4EKMKkiiY5OqZejJvjbT
+	 EZjNFc2r2I1/iO2lGIrKhtyex+7Q17uTMI1ln0xjQIs+fH9KGLj2B5vf7al3Wp5V41CBK
+	 kXd4MKwc6ex60omhypFA4scxAtMgXcwQWR0QBtjvy40ZRNX7lY8R2PoEAFGdpwLJcpUtt
+	 5qxFHZc5e/WxY6EaK1M4WJuhqnvW1Fk0bOWQeb8GLgZ+yYekLwa/kWk96bVHsDYqApQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="d/Dbrn4Y";
-	arc=none smtp.remote-ip=192.198.163.19
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wqkzcfme;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D652606A31C
-	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 15:38:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D652606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2FE7606A323
+	for <linux-input@vger.kernel.org>; Fri, 27 Nov 2026 15:49:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=d/Dbrn4Y
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795793925; x=1827329925;
-  h=date:from:to:cc:subject:message-id;
-  bh=KDceSHnlCggfVrA+3Mag/JdEOCQiWzHt9ajWa1aSCaA=;
-  b=d/Dbrn4YIFdqjdRWj9bdX8jczNGZhJm6F4Mj+eaPpm6c8uTXJC1vQWap
-   KZ2Fuhn7n2KoiqndhEduRyIvZWjpPz9u+rwm0cApwomu3U6I2pmyPqUj9
-   etu3CflpnKR+4HBSNuMsAi6vce945zqNG/jQHdTm/soLHNtc39GHG3byn
-   0tdkp99RIRnAcuyTUuORpEdgAa243iCAaLtxwDdkzykceNRbwS1FPAKtK
-   VDUUqYry7XK2HUOxDalaH5DoS/FFzrFxJOzdCPLqL8Xivb4siPVYv70WS
-   Ruo4ARWjhDAFCH5oYC0nt8kdSfWHMWQRtDPlWTrP21ZD0rSJ8Du1JFxil
-   A==;
-X-CSE-ConnectionGUID: J62hlEySSW+9Cl5KARqFLA==
-X-CSE-MsgGUID: qtNinah9RfmKFVs527Vqrg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11979"; a="4727052"
-X-IronPort-AV: E=Sophos;i="6.27,237,1787036400"; 
-   d="scan'208";a="4727052"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Nov 2026 07:38:45 -0800
-X-CSE-ConnectionGUID: DrFdi+LcRt+qFXBWhHhYMg==
-X-CSE-MsgGUID: DaqYa6c8SWmlYInyHqHhMw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,237,1787036400"; 
-   d="scan'208";a="12711930"
-Received: from igk-lkp-server01.igk.intel.com (HELO 146cf1e082f1) ([10.211.93.152])
-  by fmviesa008.fm.intel.com with ESMTP; 27 Nov 2026 07:38:39 -0800
-Received: from kbuild by 146cf1e082f1 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xWy21-000000000DT-1I98;
-	Fri, 27 Nov 2026 15:38:37 +0000
-Date: Fri, 27 Nov 2026 16:38:30 +0100
-From: kernel test robot <lkp@intel.com>
-To: Jiri Kosina <jkosina@suse.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org
-Subject: [hid:for-next 4/10] drivers/hid/hidraw.c:34:8: error:
- redefinition of 'hidraw'
-Message-ID: <20261127163239.RGvemhVL-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wqkzcfme
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0474B1F00893;
+	Fri, 27 Nov 2026 15:49:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795794587;
+	bh=6mKJ6yo54h/M/lvQ25pTtcfNrAPq9qSKcBrrZr8IETM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WqkzcfmeK6vB1qZ3XbNgccpic22yhOP6l631v5RQVfqd7Ah5bgduYm+v7hKspfhJ7
+	 GtuyAFozQZgdX0+fIqgUwADXQK0+aUvzcDvdqi0LZVbg4bqMKnu4hTXKAY/rtgh0Vg
+	 IAHiGz0HQmtepK4xS7ZzYUY13b12NHO86GAYMUO02SuKyFdsSefNSYDZ4vEJ8BXJbG
+	 Z7PI0IpCnXX99jFkIm16N0tzXcuTS9BR5VBI/kTIZssU4n0HpwY/9h/4xBCTag4RRh
+	 c5mnaXWxxa7cUOx3MStQx0NExVmZRiBEgv39n6uXxV/GwbZ5BN/3d9jCfryVqCIp/l
+	 x/UoHu+rpwteQ==
+Message-ID: <sashiko-outbox-237786@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8] HID: intel-thc-hid: intel-thc: restore PRD table
+ capacity
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Emfox Zhou" <emfox@debian.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261127234500.424242-1-emfox@debian.org>
+References: <20261127234500.424242-1-emfox@debian.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 27 Nov 2026 15:49:46 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -80,79 +60,81 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-head:   e61d3737e144924bc27c536a31da8147f1b55554
-commit: 3203bc9bc0795c44c25ce7b7762eeb35f73e82c4 [4/10] Merge branch 'for-7.4/upstream-fixes' into for-next
-config: hexagon-randconfig-2200-20261127 (https://download.01.org/0day-ci/archive/20261127/20261127163239.RGvemhVL-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 578b1f2d6a9776b63cbb6b86f4cca6208d429f48)
-smatch: v0.5.0-9187-g5189e3fb
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261127/20261127163239.RGvemhVL-lkp@intel.com/reproduce)
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] HID: intel-thc-hid: stale buffer use on stopped-engine
+  thc_dma_read()
+--
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/20261127163239.RGvemhVL-lkp@intel.com/
+commit 0cc3c55388fa9f5be9c9821cafb9f0a08de39647
+Author: Emfox Zhou <emfox@debian.org>
 
-All errors (new ones prefixed by >>):
+HID: intel-thc-hid: intel-thc: restore PRD table capacity
 
->> drivers/hid/hidraw.c:34:8: error: redefinition of 'hidraw'
-      34 | struct hidraw {
-         |        ^
-   drivers/hid/hidraw.h:12:8: note: previous definition is here
-      12 | struct hidraw {
-         |        ^
->> drivers/hid/hidraw.c:45:8: error: redefinition of 'hidraw_report'
-      45 | struct hidraw_report {
-         |        ^
-   drivers/hid/hidraw.h:24:8: note: previous definition is here
-      24 | struct hidraw_report {
-         |        ^
->> drivers/hid/hidraw.c:50:8: error: redefinition of 'hidraw_list'
-      50 | struct hidraw_list {
-         |        ^
-   drivers/hid/hidraw.h:29:8: note: previous definition is here
-      29 | struct hidraw_list {
-         |        ^
-   3 errors generated.
+This commit rebuilds PRD tables before restarting DMA engines, adds a
+prd_lock mutex to serialize PRD table operations with the DMA read path,
+and skips reading from stopped DMA engines via an is_started flag.
 
+> diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c b/driver=
+s/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> index 01b96c00d5da7..8bff8d5b36051 100644
+> --- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+> +++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c
+[ ... ]
+> @@ -703,6 +762,18 @@ static int thc_dma_read(struct thc_device *dev,
+> =20
+>  	*read_len =3D 0;
+> =20
+> +	guard(mutex)(&dev->dma_ctx->prd_lock);
+> +
+> +	/*
+> +	 * Nothing in the ring is ours until the engine is started: after a
+> +	 * reset the pointers alone say nothing about what was written.
+> +	 */
+> +	if (!READ_ONCE(read_config->is_started)) {
+> +		if (read_finished)
+> +			*read_finished =3D 1;
+> +		return 0;
+> +	}
 
-vim +/hidraw +34 drivers/hid/hidraw.c
+[Severity: Medium]
+Can returning 0 here with *read_len =3D 0 and read_buff untouched cause the
+RxDMA callers to re-process stale or concurrently modified buffers?
 
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  33  
-bed04b3b8a67df Dmitry Torokhov 2026-10-16 @34  struct hidraw {
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  35  	unsigned int minor;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  36  	int exist;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  37  	int open;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  38  	wait_queue_head_t wait;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  39  	struct hid_device *hid;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  40  	struct device *dev;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  41  	spinlock_t list_lock;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  42  	struct list_head list;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  43  };
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  44  
-bed04b3b8a67df Dmitry Torokhov 2026-10-16 @45  struct hidraw_report {
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  46  	__u8 *value;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  47  	int len;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  48  };
-86166b7bcda0bc Jiri Kosina     2007-05-14  49  
-bed04b3b8a67df Dmitry Torokhov 2026-10-16 @50  struct hidraw_list {
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  51  	struct hidraw_report buffer[HIDRAW_BUFFER_SIZE];
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  52  	int head;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  53  	int tail;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  54  	struct fasync_struct *fasync;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  55  	struct hidraw *hidraw;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  56  	struct list_head node;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  57  	struct mutex read_mutex;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  58  	bool revoked;
-bed04b3b8a67df Dmitry Torokhov 2026-10-16  59  };
-86166b7bcda0bc Jiri Kosina     2007-05-14  60  
+Neither handle_input_report() in pci-quicki2c.c nor
+quickspi_irq_thread_handler() in pci-quickspi.c checks whether the
+returned length is 0 when thc_rxdma_read_safe() returns 0:
 
-:::::: The code at line 34 was first introduced by commit
-:::::: bed04b3b8a67dff3fb9157bb92f1ae45343492f7 HID: hidraw: Make hidraw.h private to HID subsystem
+drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:handle_input_report=
+() {
+    ...
+		ret =3D thc_rxdma_read_safe(qcdev->thc_hw, THC_RXDMA2, (u8 *)pkt,
+					  HIDI2C_PACKET_LEN(qcdev->input_len), &report_len,
+					  &rx_dma_finished);
+		if (ret =3D=3D -EMSGSIZE)
+			continue;
 
-:::::: TO: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-:::::: CC: Jiri Kosina <jkosina@suse.com>
+		if (ret)
+			return ret;
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+		if (!pkt->len) {
+    ...
+}
+
+When a threaded IRQ drain in handle_input_report() races with
+quicki2c_get_report() -> thc_swdma_read_safe() pausing THC_RXDMA2 (or with
+thc_rxdma_reset()), thc_dma_read() returns 0 without writing to
+qcdev->input_buf.  handle_input_report() then either replays the previous
+frame in qcdev->input_buf via quicki2c_hid_send_report(), races on
+qcdev->input_buf while quicki2c_get_report() writes the SWDMA response
+into that same buffer, or treats a zero pkt->len as a Device-Initiated
+Reset.
+
+On the SPI side, quickspi_irq_thread_handler() passes input_len =3D 0 to
+quickspi_handle_input_data(), where HIDSPI_INPUT_BODY_SIZE(input_len) >
+buf_len is always true for buf_len =3D=3D 0 and logs a spurious "Wrong input
+report length" error.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261127234500.4242=
+42-1-emfox@debian.org?part=3D1

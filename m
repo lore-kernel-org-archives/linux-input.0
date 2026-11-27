@@ -1,55 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795766336;
-	b=Wg6RH/DotcFnnP7+9NIiJu7fqD0olMC9UANokCVerZYKfuI59eAV5GHq/40SDqZdmb5S
-	 /gnXhxsG8kSR7BLiNELWvDjmxgHzSTwjWecfDtRjAEOFHND0zFoQSzf45aAgwY4kAzT5J
-	 MhJWlaxj3btGKVtJf8ympDQC3yKelVaUU6R69j8zHIYi2oBuR4wVFOyUGXxJKmR8yiyAj
-	 7exgesezPQ5o05T46cqs5FZExqfHoELUEIxYc3Js2DW2FXGamY190tX81p9LOipeBdD/i
-	 8MisyvcH6Rm4bI+KZk4S7V7pIODkmKCAv4dbXVzzcAyrCQ88LCOfIvAlupVdb3OIQnA==
+	t=1795766648;
+	b=oQvIVpHNDuzKGtII7FZtKqaNnmY2EIZCUR8ZCptOIHBLfShVvbMt4mK6FaGlsnWUw9fk
+	 j+mb5soDXRfcdq12535VWnnzt1uYxh8XSNptegIGkS6okkVHmOhUHizEZ1BkGogkqa7HF
+	 vTO3NOQP5qkm98xHYCSppgCJocP7+XCSIITRM5+DKgXQQQr7zaB9LdUKm8My3VdvA3ysZ
+	 yOguLrGHcchBxFGjpVcJ5yxIXWm9PSngfsTtzmzReTTGh6igfTqTD/TGodaJ4qyT8afpb
+	 Ecof4tnyAbWGaEMYxOvkNN5KZDG1t/rBU01ta/EI24OhmFHaimY5WZZZ4aNKXdGQABw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795766336;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795766648;
 	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
 	 Message-ID:References:MIME-Version:Content-Type;
-	bh=gHnLEQHu2leN9nlV676AZlfBW6kuXZiQterBkWYyIHo=;
-	b=4fjvFB/XhvTsGSp2RLuuW/EmoLe9SAooK4zLNrleQk/HX37EPuba5ET7mN4uf/3/c61B
-	 X6QILO7WzXRCNSUJB3BLLFqR0BDTHaxFdYUMN4GU7+w+kSJA1ZZpQCI9vam4eU05ELFcJ
-	 hX/QEA4WRrejt3Lu74AdktVxNkRSKDayLWeg8KSjCYFrGFNZ0RU8D37AGeF0X71OU7Pb2
-	 uwrd3zMOMQjgcabxtS3CQByxIx+Qq9pbWy0x1OYLT5P54D+JbfYGjxCFPmX97droBLXRO
-	 EXK2iQJCoy8wk4stGPbtbN1wGL5bbSWDq0x03yzFa6bQ33DlXMjYpflzm1skH4dtI3w==
+	bh=0Uk3DM1hXGgSbrinOlWbLYwmZse9Fx0OnZPuwT8c5hU=;
+	b=5gjVr1sNmmWCRyHXNXvJqCKd9iANnc4HZgSNRIO8J6lHLOgMc5PKZQdKSiMPnEwKr9/J
+	 8LqFg6nwjGEV6ehiVm1exKJ4vo9p+pTG187q/9F0YYl8zp4U23QSdax5+2JtQcHNxuTB/
+	 w57BJOviee10hC01VnFCErpgDVLe+Ui0pMLsTQ3vN0494EHa82jPcsDK3qZ+RZwZb+LCA
+	 cZqNWwIsYpPLEXC7dEEt+2XrYmIAHwyepJS/ZMxj5b2uE0kX72dGqJ2YcsrQdS7wah2m0
+	 dEwEpiBZG9rZLIx+9lNjritIvqFs78q5zPNdp0nRy/8XitA9ab3odqJmUWw0eRcbA5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PUfBmVvJ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BJqHBrz7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B57606A31E;
-	Fri, 27 Nov 2026 07:58:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B30A9606A31C;
+	Fri, 27 Nov 2026 08:04:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PUfBmVvJ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77DB71F00893;
-	Fri, 27 Nov 2026 07:58:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BJqHBrz7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81201F00893;
+	Fri, 27 Nov 2026 08:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795766336;
-	bh=gHnLEQHu2leN9nlV676AZlfBW6kuXZiQterBkWYyIHo=;
+	s=k20260515; t=1795766648;
+	bh=0Uk3DM1hXGgSbrinOlWbLYwmZse9Fx0OnZPuwT8c5hU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=PUfBmVvJZlnF2m5nrUpKknrjhRJu+o6TqhC89SLKO3l6uJeOXWmRSfsqNp2SZoWXE
-	 C2MJhlVsawJOMKdXz7/AVSEUGH5dTwlpEHdEod9edBV6PfRktdPhxFZW43KwF19DIN
-	 ykZkcMc2iZUTaf9Lp0c9b+Rw37kdTbhiDzHJWOwhf/PyVT4Jk9zj2Ajg8gD8AwOvLE
-	 bD89zDZT9+itCyqk7s1rrylNOGjwjNfdEO02JtEtt6sRQvnmFp1lzQ4AKICPkZMKaJ
-	 0X1NZxxYlWCcWIVE/f4xJdiypxJo+Hsw/roh2i6ZYnQ4AnphZ3dT5NRu89c9MapP45
-	 eoZ/hjFJT9W4w==
-Date: Fri, 27 Nov 2026 08:58:53 +0100 (CET)
+	b=BJqHBrz7xUFzaqVDmL3SijzD55Zcd5YsaMstEcRThSbMMIKevkXW4C6PHOA9DzoxL
+	 7fm4EGUBUcaKf1cAJ2oJMl3vLLeF3M5se59x1elshj5v+Zl+AhpZz6w9stOFxcCHnX
+	 fOCinu5JfsJN06iwIN3NIIPbRnrm0cNLfDojp2m+LLrE8ddaJnX8tSv3tAo4osJlqW
+	 e72WA+NRKLzjI8pNagJe+r5MRazbvq/dD4L5AU14FbTpdiBwclOqAjDpN6IDvw/5sc
+	 ncdTo4NKsqd8lh4qVOO8Oka+pvIS3OVgL+2hCzHPBHkTi++/FUpNcnPyXZs6d4bmxM
+	 WkzFvRShL6TOQ==
+Date: Fri, 27 Nov 2026 09:04:05 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, kernel-dev@igalia.com, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: playstation: ratelimit input CRC check failed
- messages
-In-Reply-To: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
-Message-ID: <s4s98ss7-2796-0n8r-ps46-794s5o713104@xreary.bet>
-References: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
+To: Tawheed Makhdoomi <_@tawheed.cc>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Jingyuan Liang <jingyliang@chromium.org>, 
+    Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+    Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+    Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
+    devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 1/3] dt-bindings: input: hid-over-spi: add the Surface
+ Pro X touch digitizer
+In-Reply-To: <20261112172641.407-2-_@tawheed.cc>
+Message-ID: <2r51n495-9r07-po31-r450-20320713697n@xreary.bet>
+References: <20261112172641.407-1-_@tawheed.cc> <20261112172641.407-2-_@tawheed.cc>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,63 +64,24 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 27 Oct 2026, Mauricio Faria de Oliveira wrote:
+On Thu, 12 Nov 2026, Tawheed Makhdoomi wrote:
 
-> The kernel log of a Steam Deck was mostly filled with CRC check errors
-> from what is apparently a bogus controller, with 8174 messages in <200
-> seconds, averaging ~43 messages/second:
+> The touch and pen digitizer of the Microsoft Surface Pro X (vendor 0x045e,
+> product 0x0996) is a HID over SPI device, but its firmware implements a
+> pre-release revision of the protocol (input header version 2, device
+> descriptor bcdVersion 0x0100) rather than HID over SPI 1.0, so the driver
+> cannot treat it as a "microsoft,g6-touch-digitizer".
 > 
->     $ cat dmesg-pstore.202610250608-0 \
->       | grep -c "input CRC's check failed"
->     8174
+> Microsoft does not publish a part number or generation for this
+> digitizer, so name it after the product it ships in, like the
+> "microsoft,surface-sam" embedded controller.
 > 
->     $ cat dmesg-pstore.202610250608-0 \
->       | grep -m1 "input CRC's check failed"
->     <3>[    8.715455] playstation 0005:054C:05C4.0006:
->                       DualShock4 input CRC's check failed
-> 
->     $ tac dmesg-pstore.202610250608-0 \
->       | grep -m1 "input CRC's check failed"
->     <3>[  196.187459] playstation 0005:054C:05C4.0006:
->                       DualShock4 input CRC's check failed
-> 
->     $ echo $((8174 / (196-8)))
->     43
-> 
-> Let's ratelimit the input CRC check failed messages for the exceptional,
-> high-frequency error case, which doesn't impact the occasional, low-freq
-> error case (as ratelimiting does not trigger) or the non-error case.
-> 
-> CRC check failed messages for driver-initiated requests are kept as is.
-> 
-> Testing with a UHID driver to synthetically reproduce input CRC check
-> errors (generated by an LLM) shows that it reduces the duplicate lines
-> and still provides useful information (number of errors/same message).
-> 
-> For example, triggering such error every 25ms (40 times/second), prints
-> 10 messages and silently counts another 187 in 5 seconds, ie, 197 / 5 =
-> 39.4 times/second (aligned with the synthetic reproducer's rate):
-> 
->     [    9.554184] playstation ...: Registered DualShock4 controller ...
->     [   10.053936] playstation ...: DualShock4 input CRC's check failed
->     [   10.078162] playstation ...: DualShock4 input CRC's check failed
->     [   10.103447] playstation ...: DualShock4 input CRC's check failed
->     [   10.128739] playstation ...: DualShock4 input CRC's check failed
->     [   10.154016] playstation ...: DualShock4 input CRC's check failed
->     [   10.179198] playstation ...: DualShock4 input CRC's check failed
->     [   10.204474] playstation ...: DualShock4 input CRC's check failed
->     [   10.229762] playstation ...: DualShock4 input CRC's check failed
->     [   10.254904] playstation ...: DualShock4 input CRC's check failed
->     [   10.280441] playstation ...: DualShock4 input CRC's check failed
->     [   15.070695] dualshock4_parse_report: 187 callbacks suppressed
->     ...
-> 
-> This reduces the space consumed in the kernel log during 5 seconds from
-> ~200 lines to only 11 lines (5.5%).
-> 
-> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
+> Signed-off-by: Tawheed Makhdoomi <_@tawheed.cc>
+> ---
+>  Documentation/devicetree/bindings/input/hid-over-spi.yaml | 1 +
 
-Applied, thanks.
+Which tree is this patch based on, please? I don't have this file in my 
+tree.
 
 -- 
 Jiri Kosina

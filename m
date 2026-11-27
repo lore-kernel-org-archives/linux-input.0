@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795763734;
-	b=OHWV5C0U2D5OzVfMpX1w8DdsGQ5W395+mXVnq6xRqnO9P604RnAHXIVneAUGwbXnTi4k
-	 USjtRGMCTl+t3kwu+RVdRci3RoyCmAI3Km+4ujCgsJcMJCl6zbogvlD8URJ6dvoPZ56JO
-	 j0Y5rrD3fbObIr9tyW6zXWI22rLBpfy/JYGi4hU1TvnIoFa9aPbUambgXzhQRpmcb4OPi
-	 aDZhc2TndoQMRUu3iUZGa9J0XeuthG0alWkHvGgvvePlXQqX0JhIE13nKWzddmX2MlMcq
-	 acNiZGxne167xkk8j8sXqmUp4galuVM0cZl0fP/wAXJXEb3pLObtyi6u1pB20wgpSMw==
+	t=1795763737;
+	b=ZVRmsH50B8LyDWBlyGy/Qbpz2WqOgSBV+G0bCH34djcZ27LnMkfrY6EjiV514pk2yY0h
+	 zvgu/aTnalVC48KcRoMibQFnaaLlVepibbIYra0efEaDLv+Q7BILjfBhuooEWwNF7CxBL
+	 AdqOCRpiRlCUZnh6j6+FjJPbaL95bgFFtupT9m1RboZlaoSFEpaqtjq20qroqoRHKuvEn
+	 p3ZLVVLJpEOlCYNprLOzs1zK1qoZyygAmzAClh1oZQbmcXQJEkl5GjTbsI8R2ZB6ZJrei
+	 GP47dsaUF8exSjkbnsR/gjtDkDXg2PbRM0ErhBYMHY2ayBazgDZHB8FS+lRO/gIHI5g==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795763734;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795763737;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=rhQFdQ+oi/b3c8j9952ipo2OkcFSwx08hrJ+fzoarrM=;
-	b=lSVjqRXYGyP4hqQmppkHD9CsuX5xFenjGwz4SN4dNiWB/swQJhx10NdsQrgRuWE5nPPj
-	 ZZqVHP9iiXVCGIgq7B9coJh+pOGR6n0QbwMdb7HLVnEnjcBz3sJ1YCHn8ZIAKPFLWOLnA
-	 qkoiFf65TEyQp3R8b5jN5QNM+sRdrAF6xJn1zwapvmc8ztlFQGCgCpgun0MMFf/w6nkQg
-	 r9VScdDWCloh/QgF82tzpPcmyQyPQE5bOvPiK3EK7nkveKsQBCE+KLm4mqqEktWNgZp+k
-	 YY+0Y6js5yp5AtCcsuV7iQ7gzgJDFMFZJXWUpDxXTI2h5Mnd4KJekwdIWLeEqaiuZLg==
+	bh=9nz1WqrN2ABk99WkBt2ErL/hIYbUCDGwhw6AzT5Z8uM=;
+	b=fKbkhsc5vbDzuO+CCV1jcScXY/qM3SQnYWtlxkRVSsc1EnDXc/VME2lGn7ZYpYrVlIXO
+	 1ps6Hhq4d0RwGTiY1ubfVX5a39lC//7bpuqJt1e3g45otBttp+T/dISFp3OCNYBGtxTw4
+	 QAyjwH1ouZAzeOFc4XGU7hm9bb5WIBfWp74cJA0LmcMYpF4nn/vWL4gi9Hu32tIxNWUyn
+	 WSXqCYE+Mq2zOR5DiCeliVw2SgeRZUSo+Fo50doo3Bss+3gEpisHuUrZS5zpSddywgLat
+	 pX7Irtw8xxyPzmukqskSyJTaGFgNY6jj67uctr88e39hNVR71qVFeSKczsbDoXd74vA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Lphd1IL2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="c/gGgBEw";
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8909606A329;
-	Fri, 27 Nov 2026 07:15:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F24D606A324;
+	Fri, 27 Nov 2026 07:15:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Lphd1IL2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c/gGgBEw
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795763734;
-	b=GsrSQEeq8s6Esslh4i2wuWZ2nQh81DXNI+7X1wxiGVDW9XosJHNvpsQ6Ny1BBlePRSwx
-	 tDMYiSeJblZZLuPjqWDd7AJgjwiIbGEUgfbSdqwoBzuyelxI2+YOFMk0uWH4Z6vwjur6Q
-	 4wtlEhI9flbZDwkJp6dsRiQBgaDaqCzpfyZmRqU96vuN3HILf2CmIyVnsUBg9NS3fnkH7
-	 qA35M9v7csHCWUnfCSPwYgD9kjp+SiEgYMdm11ktWIrcMbAH6Cyp7myPeERQLLAGrHUJH
-	 OF2bmw/uO/sXGYj8i/48t0jUg4IWouxiReql3DMLQ8EC2X1v9+IxeHjA6Qp18Up/rgw==
+	t=1795763737;
+	b=NT36IL+Txm/tQrM0kTq21DH3JHAjby3eyn2A0jiMbkB5qw7M2UxK0bi+2yCFYfCHLNv9
+	 w5itEg75hxbCUakXqZs/JcNTeeTh1J1tft/AGgiighC+saqiigNKARNRhSb0PxUY/NGoE
+	 ku9JKb8JmQg3uIDuACeh51EvKaufYlqe1ibYQmKL7jLFBim6I5LqV/eAKxxRAKaOhjoaU
+	 m5aw9br0jAMaZtxPJbyK7l5PvM4EUCWzNdlkHPRBsrCfcJ21uh2PO6AycA2ylDARMXiCF
+	 o8fxl7Ei4kVyHMTRTW1eCQx79fOP4Aemh4lp3uLTgkEeQhurm1hCEBUzGn80/tyGFrw==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795763734;
+	c=relaxed/relaxed; t=1795763737;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=rhQFdQ+oi/b3c8j9952ipo2OkcFSwx08hrJ+fzoarrM=;
-	b=Zm0eXfXZhr1PAzY50VQFCBMogzd4e3wDI5GZtSd7L2IPzMTmJg+eM95+1F6RadZisnot
-	 Z836s3jjXMuu6g6naJOQyPEGlaR9simaB/JAiehkpKsLK0K13BD9TPRRKbi9ZLf2Ent+a
-	 uEuL8erRFQ7rtCy7ISFJNkcRju3+/eFA2Go78YGBzO78Fim0OYVcNnkofaAYvWhpTHEE1
-	 nWrmM9AQD15eQGVgorwjHh+8Q0MAQazMH2j1phLakH5Hg5737CvRiGqlqrIKquuFDsiNc
-	 dbVascvuZpfAdlWgaFJ/w9NWrrxTYKCixG9K/96D0T7IOpLjK1KnKl2eIgINCHRFQNQ==
+	bh=9nz1WqrN2ABk99WkBt2ErL/hIYbUCDGwhw6AzT5Z8uM=;
+	b=j44M0OTRDbPKyiSX6FyfBV/e/Q+PAoy+e6KUA1YnkovPWJw1o9G/An9zVGvpF0BHGUx9
+	 p+ZzGGFVOw7ncqct6v2sU/OTrLDEbPwtS10NY9rMK8igjYxJBNpZQTuA1RwA5CDbfdYIs
+	 R1FQZrvuWKPgi97A8gPVZ1KG3Tpve3uk6Gu+hrwPR7U0EDptnWgBOg1F2D8tSny3iCt+n
+	 LlX2aZu5o6vaBSEElXa3l92imlvSPD5L3hc/Ma+CwRx+S3Uz88Y9a3qM6TJeDEgH7pWyC
+	 cTqwLZXF834ZXgNZQGrj1y39Ws+nfe6rh7uSaRrPM7nzW6Cp0N7Ub/Mz7+eK7QtGHNQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 4841D1F00923;
+	by smtp.kernel.org (Postfix) with ESMTPS id 690F41F0092B;
 	Fri, 27 Nov 2026 07:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795763734;
-	bh=rhQFdQ+oi/b3c8j9952ipo2OkcFSwx08hrJ+fzoarrM=;
+	s=k20260515; t=1795763736;
+	bh=9nz1WqrN2ABk99WkBt2ErL/hIYbUCDGwhw6AzT5Z8uM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=Lphd1IL2oISOcUX+v/O2mEJDzL7Mcbff0oOe0LPstu/5u7f9bXbFOfOUDYroY/kf/
-	 WH6bWcegtEBZetwyhCOqlFpqi6Im5MJI/li0WeCwTMSoVTHu60A3ZRfG/LLR2zXrrx
-	 oX7riEOEYLGw1bfe4f5OQZw9VFkij6jcf+0FPFP+daaokhYb1T3xqkOwh1DdnRa4AL
-	 D90yXcE1d7lTUFchJgwGshI3cHE0hmKnolwLFcl3G5j+3flZGaBcNiKDjwe3SmH/E8
-	 eNtrGol39kezKp2EsubDKjCoueTpUIZ4p8wPyEiTu4L62nAvNeTAd7ngd+tQfoSqKO
-	 0lkXDSldrWJwQ==
+	b=c/gGgBEw27gYBZWqQuZk8H/z0MA7wND3VHhFe1oRLLcfIpGtknBDRdOUR0MRkNWnz
+	 V3hRyifqcNZGCh0F9X++8EGJfy6UpajO9pUk/os1cE2Tj80xZTu5uBwZ9GuWn1xGgp
+	 TLJDuJTcO154gUeFmtyhk9VsIhV45ce2T8U+FY2G8vxjhkfscbbArQY9MFQUu+T36a
+	 53rqZVDgOZMKv4VW7eqKFJ1ejzQLOCv3NOWHj6Ayy4Cd9j11tb23/hendrUMeeHeZl
+	 TBn2HVScyTjymGoLgfzThe8cS9h23H9Jtu151Hi1JimnNR71+gIYBl3f4LnLBJYskU
+	 BJT5DFppzAxKg==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id C9B1C4B603;
+	by lkml.kernel.org (Postfix) with ESMTP id EB1D24B607;
 	Fri, 27 Nov 2026 07:15:21 +0000 (UTC)
 From: Andrei Aleksandrov via B4 Relay <devnull+aladex.gmail.com@kernel.org>
-Date: Fri, 27 Nov 2026 08:15:21 +0100
-Subject: [PATCH RFC 1/2] ALSA: usb-audio: Add Windows volume scale quirk
- for EPOS GSX 1000 v2
+Date: Fri, 27 Nov 2026 08:15:22 +0100
+Subject: [PATCH RFC 2/2] ALSA: usb-audio: Handle the EPOS GSX 1000 v2
+ volume ring in the driver
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,18 +84,18 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261127-gsx1000-v1-1-833554c37b82@gmail.com>
+Message-Id: <20261127-gsx1000-v1-2-833554c37b82@gmail.com>
 References: <20261127-gsx1000-v1-0-833554c37b82@gmail.com>
 In-Reply-To: <20261127-gsx1000-v1-0-833554c37b82@gmail.com>
 To: Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
 Cc: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Andrei Aleksandrov <aladex@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795763720; l=9431;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795763720; l=7660;
  i=aladex@gmail.com; s=20261127; h=from:subject:message-id;
- bh=M1bNH+VrHBiPs8XX+iZZQarsoTF3kHnz6t6wAtEYxj0=;
- b=FpuBs+9ql73x0CYlWPOHCDkhf5u3ua/Gi5hFWx1mr3aOjB5KyvT532WrISgOVG+4V7BmWXSdh
- OgrEuLKzad4CDq2YEvQS6wIZEqEfkoKAcow9ghhFmS8FFEcfezFnRmm
+ bh=QKnifHR+kHoir3i33Gcno4lNkMpcJZdKXwkR4yRONoI=;
+ b=k5Ks+0GQH7yXH99sYblm5H3LRbPCa5gdpLNOits/d7TJzUpkIrhhxSI05IalyHGpAxFOKcR9O
+ JnanlldpikbAZLnmFNVJTYD2+Rw0BVWvkCE9Hxr+Y8TrSyWqXcn7eaW
 X-Developer-Key: i=aladex@gmail.com; a=ed25519;
  pk=BRFQEVGQ1X027TItMW+SIsAtbYscopzlk1EJT8Girkg=
 X-Endpoint-Received: by B4 Relay for aladex@gmail.com/20261127 with
@@ -106,279 +106,228 @@ Content-Transfer-Encoding: 7bit
 
 From: Andrei Aleksandrov <aladex@gmail.com>
 
-The EPOS / Sennheiser GSX 1000 v2 (1395:00b1) is a UAC1 device whose game
-output volume lives in Feature Unit 12 on interface 3. The descriptor
-claims -74..0 dB with 1 dB resolution, but the device expects the volume
-in the finer steps that the Windows inbox driver writes: Windows maps its
-0..100 % scale to fractional dB values (raw = trunc(dB * 256)) and writes
-them to channels 1 and 2, leaving the master channel alone. The number on
-the device display is derived from that value and shows the Windows
-percent.
+The volume ring of the GSX 1000 v2 is an encoder that does not report
+its direction. The device sends HID Vol+/Vol- (consumer usages 0xe9 and
+0xea, report 2 on interface 5) until the volume the host writes to FU 12
+matches the ring position, one event per detent. Windows answers every
+event with a 2 % step on its volume scale; the device compares the
+written value with 1/256 dB precision and stops asking once it matches.
 
-With the stock 1 dB control the device never sees the value it expects.
-The display drifts from the desktop volume, and the volume ring (which
-sends HID Vol+/Vol- until the host volume matches the ring position, see
-the next patch) keeps correcting forever.
+On Linux these events reach the desktop as global KEY_VOLUMEUP and
+KEY_VOLUMEDOWN, the desktop applies its own step size (5 % by default in
+KDE), the result does not match the ring, and the device keeps
+correcting: the volume oscillates or runs away. Existing workarounds
+remap the keys to "reserved" in hwdb, which disables the ring.
 
-Replace the FU 12 volume with a single 0..100 control that writes the
-exact Windows value to channels 1 and 2. The table was measured with
-USBPcap from a 0 -> 100 -> 0 sweep on Windows; up and down produced the
-same 101 values. The control has no dB TLV on purpose, so user space maps
-its volume linearly onto the steps and the device shows the same number as
-the desktop. The value is written again on probe and on resume, because
-the device falls back to -1 dB on reconnect.
+Register an input handler that filters KEY_VOLUMEUP/KEY_VOLUMEDOWN only
+from input devices whose parent is this USB device, so another keyboard
+or another GSX is not affected. Each press steps the control added in the
+previous patch by 2, as Windows does, and notifies user space; the
+device then sees the expected value and the ring, the desktop volume and
+the display stay in sync. The step runs in a work item because the
+filter is called in atomic context and the USB write sleeps.
 
-Captures and the decoded protocol:
+Tested with a GSX 1000 v2 (firmware 2.13) on PipeWire/KDE: slow and fast
+turns in both directions, 0 -> 100 % by the ring, slider changes,
+unplug/replug and suspend/resume (the desktop volume is restored on the
+device).
+usbmon shows one SET_CUR pair per detent and no reversals, as in the
+Windows captures.
+
 Link: https://github.com/Aladex/epos-gsx
-
 Signed-off-by: Andrei Aleksandrov <aladex@gmail.com>
 ---
- sound/usb/mixer_maps.c   |  11 +++
- sound/usb/mixer_quirks.c | 195 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 206 insertions(+)
+ sound/usb/mixer_quirks.c | 148 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 148 insertions(+)
 
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index 9218ca6314ad..7db0de3e55b1 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -566,6 +566,12 @@ static const struct usbmix_name_map avermedia_gc553pro_map[] = {
-  * Control map entries
-  */
- 
-+/* EPOS GSX 1000 v2: FU 12 volume is provided by a mixer quirk */
-+static const struct usbmix_name_map epos_gsx1000_map[] = {
-+	{ 12, NULL, UAC_FU_VOLUME },
-+	{ 0 }
-+};
-+
- static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 	{
- 		.id = USB_ID(0x041e, 0x3000),
-@@ -799,6 +805,11 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.id = USB_ID(0x1532, 0x0552),
- 		.map = razer_barracuda_x_2_4_map,
- 	},
-+	{
-+		/* EPOS GSX 1000 v2 */
-+		.id = USB_ID(0x1395, 0x00b1),
-+		.map = epos_gsx1000_map,
-+	},
- 	{
- 		/* Sennheiser Communications Headset [PC 8] */
- 		.id = USB_ID(0x1395, 0x0025),
 diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 4c7d68311f20..6e96e8020855 100644
+index 6e96e8020855..d16d548a5b45 100644
 --- a/sound/usb/mixer_quirks.c
 +++ b/sound/usb/mixer_quirks.c
-@@ -4656,6 +4656,198 @@ static int snd_xiisound_init_fu_pins(struct usb_mixer_interface *mixer)
+@@ -4689,10 +4689,17 @@ static const s16 snd_gsx1000_vol_table[SND_GSX1000_VOL_STEPS + 1] = {
+ 	0,
+ };
+ 
++#define SND_GSX1000_RING_STEP	2	/* one ring detent, as on Windows */
++
+ struct snd_gsx1000_vol {
+ 	struct usb_mixer_elem_list list;	/* kctl private data */
+ 	struct mutex lock;			/* serializes value and USB writes */
+ 	unsigned int value;			/* 0..SND_GSX1000_VOL_STEPS */
++	struct work_struct ring_work;
++	atomic_t ring_delta;
++	struct input_handler ih;
++	struct input_device_id id_table[2];
++	bool ih_registered;
+ };
+ 
+ #define to_gsx1000_vol(l)	container_of(l, struct snd_gsx1000_vol, list)
+@@ -4798,10 +4805,147 @@ static const struct snd_kcontrol_new snd_gsx1000_vol_control = {
+ 	.put = snd_gsx1000_vol_put,
+ };
+ 
++/*
++ * The ring keeps sending Vol+/Vol- until the host volume matches the ring
++ * position, one detent per event.  Answer these requests here instead of
++ * passing them on as global volume keys, so the desktop does not apply its
++ * own step size to them and only this card is affected.
++ */
++static void snd_gsx1000_ring_work(struct work_struct *work)
++{
++	struct snd_gsx1000_vol *vol =
++		container_of(work, struct snd_gsx1000_vol, ring_work);
++	int delta = atomic_xchg(&vol->ring_delta, 0);
++	int value, changed;
++
++	if (!delta)
++		return;
++
++	scoped_guard(mutex, &vol->lock) {
++		value = clamp_t(int, vol->value + delta * SND_GSX1000_RING_STEP,
++				0, SND_GSX1000_VOL_STEPS);
++		changed = __snd_gsx1000_vol_set(vol, value);
++	}
++	if (changed > 0)
++		snd_ctl_notify(vol->list.mixer->chip->card,
++			       SNDRV_CTL_EVENT_MASK_VALUE, &vol->list.kctl->id);
++}
++
++#if IS_REACHABLE(CONFIG_INPUT)
++static bool snd_gsx1000_ih_filter(struct input_handle *handle,
++				  unsigned int type, unsigned int code,
++				  int value)
++{
++	struct snd_gsx1000_vol *vol =
++		container_of(handle->handler, struct snd_gsx1000_vol, ih);
++
++	if (type != EV_KEY ||
++	    (code != KEY_VOLUMEUP && code != KEY_VOLUMEDOWN))
++		return false;
++
++	/* Act on presses only; swallow releases and repeats as well */
++	if (value == 1) {
++		atomic_add(code == KEY_VOLUMEUP ? 1 : -1, &vol->ring_delta);
++		schedule_work(&vol->ring_work);
++	}
++	return true;
++}
++
++static bool snd_gsx1000_ih_match(struct input_handler *handler,
++				 struct input_dev *dev)
++{
++	struct snd_gsx1000_vol *vol =
++		container_of(handler, struct snd_gsx1000_vol, ih);
++	struct usb_device *snd_dev = vol->list.mixer->chip->dev;
++	struct device *parent;
++
++	/* Only the HID interface of this very card, not an identical one */
++	for (parent = dev->dev.parent; parent; parent = parent->parent) {
++		if (parent == &snd_dev->dev)
++			return true;
++	}
++	return false;
++}
++
++static int snd_gsx1000_ih_connect(struct input_handler *handler,
++				  struct input_dev *dev,
++				  const struct input_device_id *id)
++{
++	struct input_handle *handle;
++	int err;
++
++	handle = kzalloc_obj(*handle);
++	if (!handle)
++		return -ENOMEM;
++
++	handle->dev = dev;
++	handle->handler = handler;
++	handle->name = handler->name;
++
++	err = input_register_handle(handle);
++	if (err)
++		goto err_free;
++
++	err = input_open_device(handle);
++	if (err)
++		goto err_unregister;
++
++	return 0;
++
++err_unregister:
++	input_unregister_handle(handle);
++err_free:
++	kfree(handle);
++	return err;
++}
++
++static void snd_gsx1000_ih_disconnect(struct input_handle *handle)
++{
++	input_close_device(handle);
++	input_unregister_handle(handle);
++	kfree(handle);
++}
++
++static void snd_gsx1000_ih_register(struct snd_gsx1000_vol *vol)
++{
++	struct usb_mixer_interface *mixer = vol->list.mixer;
++	struct input_device_id *id = &vol->id_table[0];
++	int err;
++
++	id->flags = INPUT_DEVICE_ID_MATCH_VENDOR | INPUT_DEVICE_ID_MATCH_PRODUCT |
++		    INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT;
++	id->vendor = USB_ID_VENDOR(mixer->chip->usb_id);
++	id->product = USB_ID_PRODUCT(mixer->chip->usb_id);
++	id->evbit[BIT_WORD(EV_KEY)] = BIT_MASK(EV_KEY);
++	id->keybit[BIT_WORD(KEY_VOLUMEUP)] = BIT_MASK(KEY_VOLUMEUP);
++
++	vol->ih.filter = snd_gsx1000_ih_filter;
++	vol->ih.match = snd_gsx1000_ih_match;
++	vol->ih.connect = snd_gsx1000_ih_connect;
++	vol->ih.disconnect = snd_gsx1000_ih_disconnect;
++	vol->ih.name = "snd-usb-gsx1000-ring";
++	vol->ih.id_table = vol->id_table;
++
++	err = input_register_handler(&vol->ih);
++	if (err)
++		usb_audio_warn(mixer->chip,
++			       "GSX 1000: cannot register ring handler: %d\n", err);
++	else
++		vol->ih_registered = true;
++}
++#else
++static void snd_gsx1000_ih_register(struct snd_gsx1000_vol *vol) {}
++#endif /* IS_REACHABLE(CONFIG_INPUT) */
++
+ static void snd_gsx1000_vol_free(struct snd_kcontrol *kctl)
+ {
+ 	struct snd_gsx1000_vol *vol = to_gsx1000_vol(snd_kcontrol_chip(kctl));
+ 
++#if IS_REACHABLE(CONFIG_INPUT)
++	if (vol->ih_registered)
++		input_unregister_handler(&vol->ih);
++#endif
++	cancel_work_sync(&vol->ring_work);
+ 	mutex_destroy(&vol->lock);
+ 	kfree(vol);
+ 	kctl->private_data = NULL;
+@@ -4825,6 +4969,8 @@ static int snd_gsx1000_controls_create(struct usb_mixer_interface *mixer)
+ 	vol->list.resume = snd_gsx1000_vol_resume;
+ 	vol->value = SND_GSX1000_VOL_DEFAULT;
+ 	mutex_init(&vol->lock);
++	INIT_WORK(&vol->ring_work, snd_gsx1000_ring_work);
++	atomic_set(&vol->ring_delta, 0);
+ 
+ 	kctl = snd_ctl_new1(&snd_gsx1000_vol_control, &vol->list);
+ 	if (!kctl) {
+@@ -4845,6 +4991,8 @@ static int snd_gsx1000_controls_create(struct usb_mixer_interface *mixer)
+ 	if (err < 0)
+ 		usb_audio_warn(mixer->chip,
+ 			       "GSX 1000: cannot set initial volume: %d\n", err);
++
++	snd_gsx1000_ih_register(vol);
  	return 0;
  }
  
-+/*
-+ * EPOS / Sennheiser GSX 1000 v2
-+ *
-+ * The volume ring does not report its direction: it sends HID Vol+/Vol-
-+ * until the host volume written to FU 12 matches the ring position, and the
-+ * display shows the host volume on the Windows audio-taper scale.  The
-+ * descriptor claims 1 dB resolution, but Windows writes fractional dB values,
-+ * so a 1 dB grid never lands on the value the device expects.
-+ *
-+ * Replace the FU 12 volume with a 0..100 control on the Windows scale.  The
-+ * control has no dB TLV, so user space maps its volume linearly to these
-+ * steps and the number on the device matches the desktop volume percent.
-+ */
-+#define SND_GSX1000_CTRL_IFNUM	3
-+#define SND_GSX1000_FU_ID	12
-+#define SND_GSX1000_VOL_STEPS	100
-+#define SND_GSX1000_VOL_DEFAULT	60
-+
-+/* Volume per percent in 1/256 dB, as written by the Windows inbox driver */
-+static const s16 snd_gsx1000_vol_table[SND_GSX1000_VOL_STEPS + 1] = {
-+	-18944, -15718, -13978, -12781, -11866, -11126, -10505, -9969, -9498, -9078,
-+	-8699, -8354, -8037, -7743, -7471, -7216, -6977, -6751, -6538, -6336,
-+	-6144, -5961, -5787, -5620, -5459, -5305, -5157, -5014, -4877, -4744,
-+	-4615, -4491, -4370, -4253, -4140, -4029, -3922, -3818, -3716, -3617,
-+	-3520, -3426, -3334, -3244, -3156, -3070, -2986, -2904, -2823, -2744,
-+	-2667, -2591, -2517, -2444, -2372, -2301, -2232, -2164, -2098, -2032,
-+	-1967, -1904, -1841, -1780, -1719, -1660, -1601, -1543, -1486, -1430,
-+	-1375, -1320, -1266, -1213, -1161, -1109, -1058, -1008, -958, -909,
-+	-860, -812, -765, -718, -672, -627, -582, -537, -493, -449,
-+	-406, -364, -321, -280, -238, -198, -157, -117, -78, -38,
-+	0,
-+};
-+
-+struct snd_gsx1000_vol {
-+	struct usb_mixer_elem_list list;	/* kctl private data */
-+	struct mutex lock;			/* serializes value and USB writes */
-+	unsigned int value;			/* 0..SND_GSX1000_VOL_STEPS */
-+};
-+
-+#define to_gsx1000_vol(l)	container_of(l, struct snd_gsx1000_vol, list)
-+
-+/* Caller holds vol->lock */
-+static int snd_gsx1000_vol_write(struct snd_gsx1000_vol *vol)
-+{
-+	struct snd_usb_audio *chip = vol->list.mixer->chip;
-+	__le16 buf;
-+	int ch, err;
-+
-+	CLASS(snd_usb_lock, pm)(chip);
-+	if (pm.err < 0)
-+		return pm.err;
-+
-+	/*
-+	 * Windows writes the same value to channels 1 and 2 and leaves the
-+	 * master channel alone, so expose a single value and do the same.
-+	 */
-+	buf = cpu_to_le16((u16)snd_gsx1000_vol_table[vol->value]);
-+	for (ch = 0; ch < 2; ch++) {
-+		err = snd_usb_ctl_msg(chip->dev, usb_sndctrlpipe(chip->dev, 0),
-+				      UAC_SET_CUR,
-+				      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT,
-+				      (UAC_FU_VOLUME << 8) | (ch + 1),
-+				      (SND_GSX1000_FU_ID << 8) | SND_GSX1000_CTRL_IFNUM,
-+				      &buf, sizeof(buf));
-+		if (err < 0)
-+			return err;
-+	}
-+	return 0;
-+}
-+
-+/* Returns 1 if the value changed, 0 if not, or a negative error */
-+static int __snd_gsx1000_vol_set(struct snd_gsx1000_vol *vol, unsigned int value)
-+{
-+	unsigned int old;
-+	int err;
-+
-+	lockdep_assert_held(&vol->lock);
-+	if (value == vol->value)
-+		return 0;
-+	old = vol->value;
-+	vol->value = value;
-+	err = snd_gsx1000_vol_write(vol);
-+	if (err < 0) {
-+		vol->value = old;
-+		return err;
-+	}
-+	return 1;
-+}
-+
-+static int snd_gsx1000_vol_set(struct snd_gsx1000_vol *vol, unsigned int value)
-+{
-+	guard(mutex)(&vol->lock);
-+	return __snd_gsx1000_vol_set(vol, value);
-+}
-+
-+static int snd_gsx1000_vol_info(struct snd_kcontrol *kcontrol,
-+				struct snd_ctl_elem_info *uinfo)
-+{
-+	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
-+	uinfo->count = 1;
-+	uinfo->value.integer.min = 0;
-+	uinfo->value.integer.max = SND_GSX1000_VOL_STEPS;
-+	uinfo->value.integer.step = 1;
-+	return 0;
-+}
-+
-+static int snd_gsx1000_vol_get(struct snd_kcontrol *kcontrol,
-+			       struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_gsx1000_vol *vol = to_gsx1000_vol(snd_kcontrol_chip(kcontrol));
-+
-+	ucontrol->value.integer.value[0] = READ_ONCE(vol->value);
-+	return 0;
-+}
-+
-+static int snd_gsx1000_vol_put(struct snd_kcontrol *kcontrol,
-+			       struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_gsx1000_vol *vol = to_gsx1000_vol(snd_kcontrol_chip(kcontrol));
-+	long value = ucontrol->value.integer.value[0];
-+
-+	if (value < 0 || value > SND_GSX1000_VOL_STEPS)
-+		return -EINVAL;
-+	return snd_gsx1000_vol_set(vol, value);
-+}
-+
-+static int snd_gsx1000_vol_resume(struct usb_mixer_elem_list *list)
-+{
-+	struct snd_gsx1000_vol *vol = to_gsx1000_vol(list);
-+
-+	guard(mutex)(&vol->lock);
-+	return snd_gsx1000_vol_write(vol);
-+}
-+
-+static const struct snd_kcontrol_new snd_gsx1000_vol_control = {
-+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
-+	.name = "PCM Playback Volume",
-+	.info = snd_gsx1000_vol_info,
-+	.get = snd_gsx1000_vol_get,
-+	.put = snd_gsx1000_vol_put,
-+};
-+
-+static void snd_gsx1000_vol_free(struct snd_kcontrol *kctl)
-+{
-+	struct snd_gsx1000_vol *vol = to_gsx1000_vol(snd_kcontrol_chip(kctl));
-+
-+	mutex_destroy(&vol->lock);
-+	kfree(vol);
-+	kctl->private_data = NULL;
-+}
-+
-+static int snd_gsx1000_controls_create(struct usb_mixer_interface *mixer)
-+{
-+	struct snd_gsx1000_vol *vol;
-+	struct snd_kcontrol *kctl;
-+	int err;
-+
-+	if (mixer->hostif->desc.bInterfaceNumber != SND_GSX1000_CTRL_IFNUM)
-+		return 0;
-+
-+	vol = kzalloc_obj(*vol);
-+	if (!vol)
-+		return -ENOMEM;
-+
-+	vol->list.mixer = mixer;
-+	vol->list.id = SND_GSX1000_FU_ID;
-+	vol->list.resume = snd_gsx1000_vol_resume;
-+	vol->value = SND_GSX1000_VOL_DEFAULT;
-+	mutex_init(&vol->lock);
-+
-+	kctl = snd_ctl_new1(&snd_gsx1000_vol_control, &vol->list);
-+	if (!kctl) {
-+		mutex_destroy(&vol->lock);
-+		kfree(vol);
-+		return -ENOMEM;
-+	}
-+	kctl->private_free = snd_gsx1000_vol_free;
-+
-+	/* On failure the control is freed together with vol */
-+	err = snd_usb_mixer_add_list(&vol->list, kctl, false, true);
-+	if (err < 0)
-+		return err;
-+
-+	/* The device falls back to -1 dB on reconnect; make it match the control */
-+	scoped_guard(mutex, &vol->lock)
-+		err = snd_gsx1000_vol_write(vol);
-+	if (err < 0)
-+		usb_audio_warn(mixer->chip,
-+			       "GSX 1000: cannot set initial volume: %d\n", err);
-+	return 0;
-+}
-+
- int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
- {
- 	int err = 0;
-@@ -4852,6 +5044,9 @@ int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
- 	case USB_ID(0x1c75, 0xaf02): /* Arturia AudioFuse */
- 		err = snd_audiofuse_controls_create(mixer);
- 		break;
-+	case USB_ID(0x1395, 0x00b1): /* EPOS GSX 1000 v2 */
-+		err = snd_gsx1000_controls_create(mixer);
-+		break;
- 	}
- 
- 	return err;
 
 -- 
 2.56.1

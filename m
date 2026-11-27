@@ -1,54 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795810287;
-	b=5H6ljc+J8idey7rxKzSrpNW92mwJoKi0JDC8mqb/03pk20QhZpN6mCYsvxBs2LMtxwvQ
-	 xj/LlI+VzYqT4zbQAqPLsRilWU+ascsk6AIpoWKLWNF1c1qbcemMlhcLsdAfK4k5+fXQv
-	 JVCWT8yXFcxrpBxxHYjYSppTeUcv5RDVASR1EeGe3txZItTFiRnh5Q6ONHSV5PY10DPqG
-	 +4GD/KQqtSohxQPS3xJJXVdWAGKTbBUzseJDjLh39pFDBrn+w2eOK6nGS8+d346oRFtGD
-	 rxcQAXlI1xWo+8aBz0yCrSUry9XgmZJ1AVFzneRJuoj3Jy60iKehhu89ceiu/SjMgyg==
+	t=1795810300;
+	b=iXozx/2a4iAZIYd4PIlZlo0PHD412hAP46KIEEE+OLiT4zsj5ksSjsEToUQmiHsO0aaS
+	 4L4zpJl8Sj1j7P1t/2a3uNYTUuwgxneJe2iD4+5u7YqNmnR7mwVUGiIvv6hvSaRNqy/zF
+	 XgSSRHVcefnEfsJHUwQnTHqJFEFNdNi76q/frX3DCdPnDI9uUGzy/HpPeEl1OORk4JEvv
+	 8QcY0gtqZ7pG2OAnM7MtGA3KUsHG06FdPUEE26Lsx4zLjXQ5qivQyGbmuS362dZA/u3Fs
+	 5FIECeY+1LxCQEzNj12FCww5xRNogEoAurYT3gjlI3OjOhWM1AJR8nsIQ1ehmmANSzQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795810287;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795810300;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=Mo4WhXD7sJwoAbEmIqpXQBkgqGcghx9tZqnuJBnC6Ao=;
-	b=HiDsHdLUBgShuGBnpLd0irzHZcLK3TbsElzKvHgW6eYZiSp4v/HkG+NGv2FfNucRjbqr
-	 u6ylyxHEGNnWfRa1K9kwD3Ip/uzp8j4a4WsvjH1aUnA8+PZGo5wXvi76+xSrV+Bvla2Oa
-	 lK5pZGLRSEfvbWjDBz3P4XhQul0f7vM4X/h2Ozwd9JLnauMiaX6rEkcITXXaQgKYUJftV
-	 UsUONZlm2qArxg7KXXnYuah1Pdsm+pJiZz+QIBdZXPx5SaGsL12K5q3yHENLvjeKmcMpP
-	 wki0yifYi5wvBbcJPK4x+adJjxpJmGHAObVOXMNk6BjpRZMpvO4F+lQIbLui6lh00YA==
+	bh=6i3qlWtr8ju8uMonL9duKT6B53tyoPmH9qmKQuiPpdw=;
+	b=kMNWkB7dEiF3vhkpJ80IifbHDR/bLz479xiFpQ4M4DyHKtC7wCYki64XVfjQGnmUiaqW
+	 xzT15iz6Qeil0wcwCnxCJdJcPuT9luxWqBYLkZmC8OL32QME+TP+B1/RrxPiXIVZIAEvD
+	 azWUJfsLN0CkFDP4zPA5cjDXZcQTGvDIwJhVw0v1LqRHaxiUXii2yNazkN1SCPkYlPdDx
+	 bxEEs+XtpEbyOp+C6DNeWqsabNRz4AcYTY5uhhgqT5ciisTZmDZqb2/yu1yrSKnQ229zk
+	 1R9cLZr7U1X6VGa55tx/89SMat+HEsf1YVPi9Ix2NMyuT6cCTjwbDT+gQeavmwleX2Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojvD6shL;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KVU7asea;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 672EC606A321;
-	Fri, 27 Nov 2026 20:11:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FADE606A33A;
+	Fri, 27 Nov 2026 20:11:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojvD6shL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 318131F0089B;
-	Fri, 27 Nov 2026 20:11:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KVU7asea
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A4081F00893;
+	Fri, 27 Nov 2026 20:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795810286;
-	bh=Mo4WhXD7sJwoAbEmIqpXQBkgqGcghx9tZqnuJBnC6Ao=;
+	s=k20260515; t=1795810299;
+	bh=6i3qlWtr8ju8uMonL9duKT6B53tyoPmH9qmKQuiPpdw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=ojvD6shLMJRjsEp8CVwUxJlykpzzeKV+xPxxJiKFFx4ljuXqZ3N1XTgI9nbM3T0B6
-	 BavDcbocZ9Qvj+uMIzQ+SeE4SreCW88EvzGMP8lyeHpIpRhzqNIkg//T1+rratwrdr
-	 X+f2tR43jiPzQ+N5J+dsbtZDZ9fbHIAgY1O9d0VJG7TvrzQZIknbECh8JK0SNyQG6N
-	 hIY2IwKk6oP69bP4+WvYEbUFrXadIUElt4jG8Kou3hXaNniAEiK/NZDlRxrs3E/2fO
-	 3C3a/GyixrJOo67Q2f7xayFN8qjvpRbN6UBivkBSgzx2EK7JzBBOgnWLtB70tCmRjv
-	 tf68rxB1K1PgA==
+	b=KVU7asea4oI6mTwJM5m8ug00A4yrB0YvJ+Dxu3sy9jHmJJ0feqkRwlhzghaxY2X48
+	 k9nxSgQ/WjbY/cKom+BgDDFGEz0lM5GRx4pWJ4EMnVQRq98kKxrIkgMZ+tnfPYfynn
+	 RLuqCy7pXIYlnd1pqni3VLpAfJtGs+yuG4GYIWghd6cxzfHERUlBPQ6nMDeNShnmH9
+	 XvjBMnM7xKMPDqb4tTqO04/Pcj2qJUBS1vb5+PGBtSDMwmAe0EBRN8Bwds/28yeL8g
+	 LVHy1vVz/Axv3LvLQAHUQwphXOp01Au9+VBovQuKqZeVf6k6pn6+5dpEm9T4wfLUAQ
+	 2svdNTUEclABw==
 From: Lee Jones <lee@kernel.org>
 To: lee@kernel.org,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
+	Anthony Liguori <aliguori@us.ibm.com>,
+	Markus Armbruster <armbru@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org
-Subject: [PATCH 04/10] Input: aw86927 - use devm_work_autocancel() for haptics play work
-Date: Fri, 27 Nov 2026 20:09:58 +0000
-Message-ID: <20261127201050.3532488-5-lee@kernel.org>
+Subject: [PATCH 06/10] Input: xen-kbdfront - check info->ptr and info->kbd before dereferencing
+Date: Fri, 27 Nov 2026 20:10:00 +0000
+Message-ID: <20261127201050.3532488-7-lee@kernel.org>
 X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
 In-Reply-To: <20261127201050.3532488-1-lee@kernel.org>
 References: <20261127201050.3532488-1-lee@kernel.org>
@@ -63,48 +66,49 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-aw86927_probe() initialises haptics->play_work with INIT_WORK() and
-relies solely on aw86927_close() to cancel it.  When the input device is
-inhibited at unbind time, input_unregister_device() skips
-aw86927_close() while evdev flush can still schedule play_work, allowing
-aw86927_haptics_play_work() to run after devres frees haptics.
+When XenStore disables either the pointer or keyboard device,
+xenkbd_probe() leaves info->ptr or info->kbd as NULL.
+xenkbd_handle_key_event() dereferences info->ptr->keybit and
+info->kbd->keybit before checking whether those pointers are valid,
+causing a NULL pointer dereference in interrupt context on key events.
 
-Use devm_work_autocancel() before registering the input device so devres
-cancels play_work after input_unregister_device() and before freeing
-driver resources.
+Check info->ptr and info->kbd before testing their keybit masks and
+remove the unreachable NULL check below.
 
-Fixes: 52e06d564ce6 ("Input: aw86927 - add driver for Awinic AW86927")
-Closes: https://sashiko.dev/#/bug/linux-819bee30-4290-430a-b9a3-7dbb99d73505
+Fixes: 3ef8a2eeb6dc ("Input: xen-kbdfront - allow better run-time configuration")
+Closes: https://sashiko.dev/#/bug/linux-9e0f9c2c-45ab-4045-80b4-47629154e917
 Cc: stable@vger.kernel.org
 Signed-off-by: Lee Jones <lee@kernel.org>
 ---
- drivers/input/misc/aw86927.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/input/misc/xen-kbdfront.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-index 0657c52b4c79..2d6bfb57afe1 100644
---- a/drivers/input/misc/aw86927.c
-+++ b/drivers/input/misc/aw86927.c
-@@ -10,6 +10,7 @@
- #include <linux/bitfield.h>
- #include <linux/bits.h>
- #include <linux/delay.h>
-+#include <linux/devm-helpers.h>
- #include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
-@@ -826,7 +827,10 @@ static int aw86927_probe(struct i2c_client *client)
- 	if (err)
- 		return dev_err_probe(haptics->dev, err, "Failed to request threaded irq\n");
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 6471d836f6fe..4e0bd4480f83 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -92,9 +92,9 @@ static void xenkbd_handle_key_event(struct xenkbd_info *info,
+ 	struct input_dev *dev;
+ 	int value = key->pressed;
  
--	INIT_WORK(&haptics->play_work, aw86927_haptics_play_work);
-+	err = devm_work_autocancel(haptics->dev, &haptics->play_work,
-+				   aw86927_haptics_play_work);
-+	if (err)
-+		return err;
+-	if (test_bit(key->keycode, info->ptr->keybit)) {
++	if (info->ptr && test_bit(key->keycode, info->ptr->keybit)) {
+ 		dev = info->ptr;
+-	} else if (test_bit(key->keycode, info->kbd->keybit)) {
++	} else if (info->kbd && test_bit(key->keycode, info->kbd->keybit)) {
+ 		dev = info->kbd;
+ 		if (key->pressed && test_bit(key->keycode, info->kbd->key))
+ 			value = 2; /* Mark as autorepeat */
+@@ -103,9 +103,6 @@ static void xenkbd_handle_key_event(struct xenkbd_info *info,
+ 		return;
+ 	}
  
- 	haptics->input_dev->name = "aw86927-haptics";
- 	haptics->input_dev->close = aw86927_close;
+-	if (unlikely(!dev))
+-		return;
+-
+ 	input_event(dev, EV_KEY, key->keycode, value);
+ 	input_sync(dev);
+ }
 -- 
 2.56.1.839.g22a8290db9-goog
 

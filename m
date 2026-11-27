@@ -1,54 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795747802;
-	b=CZ4mIn9esiGy65ObA9A4Z1Vpy17jKz92UZL2Q9Tkem+rK71dYTfuAkqGtUoj4lQpRPFH
-	 pu0SdKvbLnhhf2BkRk7/wBdLvFYX73dKohCQuoBYtqww9Hb70JoccPj6lkKOCBkCVo/Vl
-	 4mMWdqx5v4oaQRYNPqER04vR/wL2DH+DR2YQTw7GhdfzjZlj8CYTGwtMM1LEvK3j3KNqY
-	 pRhnFbZ0dQzMV4udGn7fXJ4/M8EWXJK5n/eRHwAdBf9JHWhxYJE1/I9rIKVu/72EevGBH
-	 YX724FjrxD4WXOMLE2nBYaMgwxIIBCzEh+kfVvqgcJuWcMXZ+yqXLECGDX2jMy2mytw==
+	t=1795751358;
+	b=tJJZDcAi+Vbgccujuy1zZcbuxqBFObZhy8weK27l8aMA5saufWLrbKu7AYdVTT9SySxs
+	 dk6imqqUJ13qp97I8YGoxYdjbCsvOHGwK6vcrmjhOTZZA+QJH+SDEOKNu8/5Kn2CiEnSV
+	 +hTSXuEj/PMW+ZZw6s3Z/SepGrtZa6iQ7FJX1mwsNy5OLtElKLa+BaVP9MGrvtPhRtRGo
+	 90mQAGnHCHmLg5rjGCs3cCLzBb7VoVaeYJnQkCS9tvvSq52F1K2UtEbKMlFCKxhHb0L6u
+	 nz0A3n01DTAGElWHubocd0UcfrA1m0QfGXVhqeM7ozBs3Fku8ZhbF6DAScP4GOPuzjw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795747802;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=t+eUij82/QC/n+c9lQwrVzk3PSO0L0NTj3bs3PqbZcM=;
-	b=eGqJD5UMoHkBU0cYSfOSp3Bw7Mt6v/KERIBK8+J698ui0lT318XaF8N8U1dI3Xnne+eR
-	 hwLU0tIRAZG+0NMbK740dJ0dG+4wIuaGWJc4YooufWqX7KLJIiIJN5ByNZBcvKxISvu7S
-	 yLuvd9oA0UuZf3mHLi9s+7nXe1t9JZucRBNN0uwFxHNckR2v8JymVMQFFXj+jxdyMVTsi
-	 +0AZ5qYxJh6Y9M12pAguZ8MDR49BVI7Z4xFxIvWV97gVK8l+LKgFnTu6MT7yQnrNGs3hQ
-	 r+j/5sake2nQ8OZiMrpBtrcrYHufRZ99e5xXChAj+F6QF3DARW8qKLsP5H31Vj4GSUg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795751358;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=xT6pD/hv9oqc/Rzgrbiwofpup13QY7DlN78228L1ofk=;
+	b=GgGQIf0pnr7X/0s8vD0RFNQ0QCkVSmDbkhXimLTl0T0xh69j4Ey80TAfHzPmUlX0JvfD
+	 B3Qd2Tlp+2Ct22D9ccLUJ/QBe1OPPQqak28RSHvtV/bxj+tPhKzK8c6pL0v3XllNIXsfw
+	 ynMLTwRPuSNUxOAb1d831iwMlbgnt5bSXu7/1DJnFOAL85xCzB/2SO6hPE1d1/KFXP9AG
+	 zdxuQ5t/xir/TxXCt1YfKWwpiuiIxExlbhhfT9Y+7088JYmf1Gz6vivhaytZ7xOuxEBp7
+	 H/mt0TJASMuHi+pkBTZo6ywsjR83AAH5Iir4Cp1FPRCL6SGT0xgS7/DxGjsHqgUUvIA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=bB7Cp19Q;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28308606A31C;
-	Fri, 27 Nov 2026 02:50:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28308606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=swyT18N2;
+	arc=none smtp.remote-ip=111.22.67.139
+Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id AB03F606A323;
+	Fri, 27 Nov 2026 03:49:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB03F606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=bB7Cp19Q
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=t+eUij82/QC/n+c9lQwrVzk3PSO0L0NTj3bs3PqbZcM=; b=bB7Cp19QQYGBmc2YEYKhqLVQoe
-	AXQ9m420RBaP6JCLSVCoydmPkaabONkrdrM3aT0k7VeKiLa7j/SouUZhgtFavoQ6HXOCyD9Vbffsq
-	ic7tRgSW4NfnW+yPyZMqqWXekuCC0WPwFI5maaSfHQGl1wuvkYBLiLAMrPBfuR6BraTImMukY29W9
-	RUkHDEQiRgWg/+guSbWBwkhBG1qMhYOxnGgawp47iW6gVZ6tLg7a2V0jhdEeZSn8lTlee9jfeGc4A
-	8Hmq9y21dQzOPbHQOLpD3/EiDAhrqTcjVVBU9DqAmjp8KWMZY12FFON84jdyD2nzq9iHzmrgRpygx
-	eHtDjTMg==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xWm2D-0000000EnwC-1iaC;
-	Fri, 27 Nov 2026 02:50:01 +0000
-Message-ID: <e201bf76-fda3-4fd0-95af-8d8f0f2a74f9@infradead.org>
-Date: Thu, 26 Nov 2026 18:50:00 -0800
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=swyT18N2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=swyT18N2sbLPo0/OI6CBHn3b40kC2mXpl6kHaYpM2gqbX5SLpP1guDMEerc1NIPCWlIGsBmjH+D0U
+	 ja2Z0yboLSybLF66wKJSNlhdrN1ceHAdd0cnEWEu+VcxfZ4uPrYYD/44upvcAvKw5Q1IeVYGTSdAS6
+	 0aD7ze1NE6Q6TY6Y=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app05-12005 (RichMail) with SMTP id 2ee56b08fdb4c64-5eb75;
+	Fri, 27 Nov 2026 11:49:08 +0800 (CST)
+X-RM-TRANSID:2ee56b08fdb4c64-5eb75
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from  (unknown[10.55.1.70])
+	by rmsmtp-syy-appsvr01-12001 (RichMail) with SMTP id 2ee16b08fdb1330-84e32;
+	Fri, 27 Nov 2026 11:49:08 +0800 (CST)
+X-RM-TRANSID:2ee16b08fdb1330-84e32
+From: Aibing Chen <chenaibing@cmss.chinamobile.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] Input: sidewinder: use scnprintf() for the comment and physical path
+Date: Fri, 27 Nov 2026 11:49:04 +0800
+Message-ID: <20261127034904.288-2-chenaibing@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.50.1.windows.1
+In-Reply-To: <20261127034904.288-1-chenaibing@cmss.chinamobile.com>
+References: <20261127034904.288-1-chenaibing@cmss.chinamobile.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,148 +69,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] HID: Merge duplicated documentation for Lenovo Legion
-To: Ricardo Ribalda <ribalda@chromium.org>,
- "Derek J. Clark" <derekjohn.clark@gmail.com>,
- Mark Pearson <mpearson-lenovo@squebb.ca>, Jiri Kosina <jikos@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20261126-lenovo-go-v2-1-99db2904513e@chromium.org>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20261126-lenovo-go-v2-1-99db2904513e@chromium.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+
+sw_3dp_id() appends the PnP information to the caller's comment buffer
+with snprintf(), and sw_connect() composes the physical path of each
+device as "%s/input%d" from gameport->phys, which is a 32 byte string.
+Both strings can be truncated, which is acceptable for informational
+text, but with W=1 the file does not build:
+
+  drivers/input/joystick/sidewinder.c:538:58: error: '%s' directive
+    output may be truncated writing up to 8 bytes into a region of size
+    between 5 and 21 [-Werror=format-truncation=]
+  drivers/input/joystick/sidewinder.c:727:29: error: '/input' directive
+    output may be truncated writing 6 bytes into a region of size between
+    1 and 32 [-Werror=format-truncation=]
+
+Use scnprintf() so that the writes are explicitly bounded and the file
+builds warning free.
+
+No functional change.
+
+Signed-off-by: Aibing Chen <chenaibing@cmss.chinamobile.com>
+---
+ drivers/input/joystick/sidewinder.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+index 7f37d18c8..f6f76108d 100644
+--- a/drivers/input/joystick/sidewinder.c
++++ b/drivers/input/joystick/sidewinder.c
+@@ -535,7 +535,7 @@ static void sw_3dp_id(unsigned char *buf, char *comment, size_t size)
+ 
+ 	pnp[7] = rev[8] = 0;
+ 
+-	snprintf(comment, size, " [PnP %d.%02d id %s rev %s]",
++	scnprintf(comment, size, " [PnP %d.%02d id %s rev %s]",
+ 		(int) ((sw_get_bits(buf, 8, 6, 1) << 6) |		/* Two 6-bit values */
+ 			sw_get_bits(buf, 16, 6, 1)) / 100,
+ 		(int) ((sw_get_bits(buf, 8, 6, 1) << 6) |
+@@ -723,7 +723,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 
+ 		snprintf(sw->name, sizeof(sw->name),
+ 			 "Microsoft SideWinder %s", sw_name[sw->type]);
+-		snprintf(sw->phys[i], sizeof(sw->phys[i]),
++		scnprintf(sw->phys[i], sizeof(sw->phys[i]),
+ 			 "%s/input%d", gameport->phys, i);
+ 
+ 		sw->dev[i] = input_dev = input_allocate_device();
 
 
-
-On 11/26/26 6:36 AM, Ricardo Ribalda wrote:
-> Lenovo Legion Go and Lenovo Legion Go S share some definitions. Merge them in
-> sysfs-driver-hid-lenovo-go to avoid this warning:
-> 
-> WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:364; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:234
-> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:373; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:243
-> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:636; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:252
-> [WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:645; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:261
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 168c91839139 ("HID: Add documentation for Lenovo Legion Go drivers")
-> Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-
-LGTM. Thanks.
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-
-> ---
-> Changes in v2:
-> - Revert unrelated "built in" -> "built-in" typo change in os_mode description (Mark Pearson)
-> - Pick up Reviewed-by from Mark Pearson
-> - Add Jonathan Corbet and linux-doc@vger.kernel.org to Cc (Mark Pearson)
-> - Link to v1: https://lore.kernel.org/r/20260831-lenovo-go-v1-1-e9526e88ee09@chromium.org
-> ---
->  .../ABI/testing/sysfs-driver-hid-lenovo-go         |  9 +++---
->  .../ABI/testing/sysfs-driver-hid-lenovo-go-s       | 35 ----------------------
->  2 files changed, 5 insertions(+), 39 deletions(-)
-> 
-> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-> index c8221373ef76..07f3ea054383 100644
-> --- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-> +++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
-> @@ -365,10 +365,11 @@ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-
->  Date:		April 2026
->  Contact:	linux-input@vger.kernel.org
->  Description:	This controls the behavior of built in chord combinations.
-> +		For the Legion Go S, this controls the touchpad's operating mode.
->  
->  		Values are windows or linux.
->  
-> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
-> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
->  
->  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
->  Date:		April 2026
-> @@ -377,7 +378,7 @@ Description:	This displays the available options for the os_mode attribute.
->  
->  		Values are windows or linux.
->  
-> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
-> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
->  
->  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/product_version
->  Date:		April 2026
-> @@ -640,7 +641,7 @@ Description:	This controls enabling or disabling the touchpad.
->  
->  		Values are true, false.
->  
-> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
-> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
->  
->  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
->  Date:		April 2026
-> @@ -649,7 +650,7 @@ Description:	This displays the available options for the touchpad/enabled attrib
->  
->  		Values are true, false.
->  
-> -		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
-> +		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
->  
->  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/vibration_enabled
->  Date:		April 2026
-> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
-> index 4d317074bb7e..218164cfe544 100644
-> --- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
-> +++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
-> @@ -231,41 +231,6 @@ Description:	This displays the available options for the mouse/step attribute.
->  
->  		Applies to Lenovo Legion Go S line of handheld devices.
->  
-> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode
-> -Date:		April 2026
-> -Contact:	linux-input@vger.kernel.org
-> -Description:	This controls which value is used for the touchpads operating mode.
-> -
-> -		Values are windows or linux.
-> -
-> -		Applies to Lenovo Legion Go S line of handheld devices.
-> -
-> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
-> -Date:		April 2026
-> -Contact:	linux-input@vger.kernel.org
-> -Description:	This displays the available options for the os_mode attribute.
-> -
-> -		Values are windows or linux.
-> -
-> -		Applies to Lenovo Legion Go S line of handheld devices.
-> -
-> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled
-> -Date:		April 2026
-> -Contact:	linux-input@vger.kernel.org
-> -Description:	This controls enabling or disabling the built-in touchpad.
-> -
-> -		Values are true or false.
-> -
-> -		Applies to Lenovo Legion Go S line of handheld devices.
-> -
-> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
-> -Date:		April 2026
-> -Contact:	linux-input@vger.kernel.org
-> -Description:	This displays the available options for the touchpad/enabled attribute.
-> -
-> -		Values are true or false.
-> -
-> -		Applies to Lenovo Legion Go S line of handheld devices.
->  
->  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/linux_mode
->  Date:		April 2026
-> 
-> ---
-> base-commit: 25faec9ce61c01fb45abf812a222c5b43c3cd5c5
-> change-id: 20260831-lenovo-go-7b4ec4bf0cd5
-> 
-> Best regards,
-
--- 
-~Randy

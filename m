@@ -1,93 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795863981;
-	b=IhLQxBea9OXwYoDl0vJZsV3ARi14bpH2bvaWbOSxr7Vmg6lE7X7Q1K2GwAFNPDzZ96vN
-	 HXeUvg54aqTTZxNVbiSH+OIz0lwHOsQsIsP654/Tq9ZqZv/7CsiByvP32pNZCroQFkJkN
-	 lJNUQvIoTitRcMrGz4o9zfLnMv/S+EjYS724FAZnu7mqwY5JXGYJPp0vW1joO36z45eXw
-	 Fth3wkaOkBgQkBdO6H2Tk47yDyiZy0xaqamGeYUOcqmpRMPkGSf0EqhunnKSXzYueLEH7
-	 t01G+DhTfg781HYyNSujiUZFUgP60LsFkzcd3Q/vfy0XbbUvyBRWfA64cY2eS5ZFxng==
+	t=1795863984;
+	b=qJvy1wFfcEM9Td3zqSO5w+W0upAatu+JLBxvMqyvxTRTVlpBI0j1wPFNYYIAnkEWRSPY
+	 sJJyqQKHgZjQ8AwHCc2GTTdjcvrV9m3Azoj2lU0gXo/LBrIsVMPR0x5TLmb7oht57l8Lu
+	 q6po3Ee33p0zVYBSHY9HmseJVh4prUUvxAY8q26ehTATZX0whn7d0Rnf9+ev+nN6NUVMk
+	 fM5Zp2vGuoMGYqDMKuQmDv8ike513T/5uC9qEgftfkiWSuz2jQuOgRhPL9ihfbxQc7fm3
+	 BQz6/heEGMYrak1NTkbxf2aSK1tEqO1BtzuiLqM1ZYSBS45MRrZrQB+X0/ouoTqEZUA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795863981;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795863984;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=hBmsLpccqSYtfeFqDArwX/Cjh8UQaY86qSPYDgJAT6I=;
-	b=jaXECqd6FRl1irkjMBb3X0MQXPhXn8ufzZzx4ttsfMBj9mp7BsUtxmIXNwJPs29zMkzn
-	 QSwY9LkN2tMfWzDaR770cgplyNIpQX1zG1LW+x18/tKWn5aDpSGi0pWX18swsp0h64yH8
-	 UArQzZFpz9j0x3DQ43kiml6cqXMQDVD252GPMkdGTngM8UaUnVpUtpWBjjeERgkBcyRam
-	 Yu1vf4ZszkvmiTip8G/cD8/OhLnH9Xe1WU8QKBlQ0EyDbc0Agm2JPc3YcnkgrRi9duVep
-	 B7FGUUIVJzqduuKuIWM3OKJ/pTBo/8t5Mclcveya9l8Tkd8bP0RVobb5HRgFfXumRSQ==
+	bh=vuzWgEZTt/vmNk3O06RvjcsX2Xv/+otg2TVx6cWLcEg=;
+	b=xHfvNQYoRb7E5FG6jvaA4ldLOtckSDhAdiah7WT8UNVYQskQjDeNUbngSjY1L/hi0h/f
+	 Bl17R3HGFcJkc+J7jOn0OP5Rr8VohdEhrclGpvYQisDZK/scwCWAPm1y+qmsLeDnmKFPp
+	 RFmsM3yny0d18fIUk+jWqkghZire9YHjvWWvsBbKg8S2CbdUXB9yIchluIhie/nWh2LqX
+	 K3IgJnvX1AnU6J0WWfQIBFzSlnm5HGPWJBvkjmgIce5j0g3RQ48tri0CCD6m7tH3a+l/Y
+	 nLkvlfAkiHVStTAxMkpseSbsHrEBMGSM+5FVytuTis6DnKC+YllEN4BArqBrpSOuZRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B0ajgfau;
-	arc=none smtp.remote-ip=74.125.82.182
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="R0Cy/C4J";
+	arc=none smtp.remote-ip=74.125.82.180
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E6BF606A337
-	for <linux-input@vger.kernel.org>; Sat, 28 Nov 2026 11:06:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6E6BF606A337
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A249606A333
+	for <linux-input@vger.kernel.org>; Sat, 28 Nov 2026 11:06:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4A249606A333
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=B0ajgfau
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-386c4d2e2ccso7279460eec.0
-        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2026 03:06:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R0Cy/C4J
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-385d8a00598so14228435eec.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2026 03:06:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795863981; x=1796468781; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795863983; x=1796468783; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hBmsLpccqSYtfeFqDArwX/Cjh8UQaY86qSPYDgJAT6I=;
-        b=B0ajgfauXmNsKGAfCGeuV0oWYZhmecn9WdJJRKopeJnSAKBDGwBCvz17dNHqXuAiWu
-         5ryQffGo7gIURs/1WMuZcDMpUYKHoyOk+3hPhp4h0ODWbLaKt3O9Bx73lf6HDsM/ODWd
-         FGOIeI+pKYtYQunF3ECJq0OEf/49igS9Bmpl8V+PPseRFoHSlrHnfPpgif8eTz5WKKxl
-         STsGOxGxJKq7neUXshXAfC9fby2dsUECpW67VcRKR0DchIOT4NgeRsq7I/N6FiUo4yAI
-         Nqr8RD24fHOo/dItBTTplpEOiorQ4VLYuhgi8ebHHPh9JryV3ZpU8zlOXVAwVD300LbE
-         z9qA==
+        bh=vuzWgEZTt/vmNk3O06RvjcsX2Xv/+otg2TVx6cWLcEg=;
+        b=R0Cy/C4J+RnRpAmOs/2fep2ZWq42rV/Oqwxx4XB7c892508px5ck8ev3P1mgyCa7P+
+         bndsTrIt1ntW1pY3SFqYsF/4D/eCoHMo0ZLk9m8xrJgJDx9YMUhka74k7vods6mwCxYj
+         c2JXpg3+ReoAlwsC+XZQfTjZx68fwf4RlmLGovn3cxUQU58YPDPt73WbWwT3o6AKSS+E
+         8adoI2anZBAMVbvmlnW2a5OmJh1mLT2pEzqLcyqiUnZ+cbRqBcyQdWB7ceEJG/tBOcfG
+         QmxPPMF0aBiV4Swooa0PMBE9w+J8obPs+O9HCiRX9MNvMDzLQk0VCU6DolAfhoThhceE
+         QnTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795863981; x=1796468781;
+        d=1e100.net; s=20260707; t=1795863983; x=1796468783;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hBmsLpccqSYtfeFqDArwX/Cjh8UQaY86qSPYDgJAT6I=;
-        b=1ad9JutBxV45hvvE5EXWuRNAQnvkyk5oM6PWm5U0ppUyTZ7RjnLq33mQL2J1OKRykX
-         QD1DX5OPdzhH4YKlLdy/HkyAJKgQ3gEsZI1qgyBfWIf2+2q1jnynamMwW1gOyTMWaDMN
-         Ds7O5kYvwfiRCvSnfF66u6gSsWb7+L6/ZSe0fcghACz5We1v2s8P1KcISMyNqE1mI015
-         pEWWpxm06d1BpP5eDG8c//GxE+yZanwRpT5HMOnBka9IYmclfGooANgwe05/1qHyI8Zb
-         R4BDziqUJEMKz1W+cwUM3ZvqqTqjAhrBO0QXNV9nJ6jEdaxOK39MaFohfpF4za5nBLd0
-         Ujmg==
-X-Forwarded-Encrypted: i=1; AL+hErFL3JFFEkzKNVo9oYZyJRpYatpP1re4l4KSvwbfotqWHpiSDvJxiaurfHVLTwbgh5xQxYwtOppj0iOxPg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z91fLvrfMCpDm1X0MFoGYiJsNxWQRDIHVKyxQgYz92yo2IfTSyH
-	Y/fed0sqVyoWZ5INKWfky3F5jYM1yrtJ9CW9Lir0d9Hk/N7jlMNIiC04
-X-Gm-Gg: AZFdTZd0K/BsmSE/ytTl6jzZXn0GBwIIkukFg7YqPEzX7DUA6guPftfC//c/vYOEU92
-	Fidal9NTzDRNF4UDd0Y54Z7nSZD+9xJAcXNeKV5jw8vVWv/+frOh0ZsdXmQ030lGbi+NvqF8N7G
-	8E54DKDNT9iRpb2IqwQ6xuxN7aZQZ0eojOdEnLC3EO2GwEvMBlnZOm63GUqZyLR88qdaTgrW7fI
-	hYH5mQAEd/He/QcozDAUz1W5iX/RUPyS2i0NJ/K6FUpSXljiGtaOqiKvCryqf5AXmOV1LIz50HZ
-	ndzsd164ydWthXbKucVV4T0RowIgKiJG5gK3dJ5yHXlOi5RTq8tqTLUU33nMkNnGDPGEdT/Tna/
-	jdbQcz4dEy0aG/DQ1rngi4nHrYOecw2Xy+Jioj4Z9EYjBMpqDdNckDycDS0iyWaGbg6KQ+7GT8W
-	Hydzl+2tsVH2mIXWdifQ/QLhJVlvAF4maPYtQLI85oNlGFSNFh6MR2p7bqQkt6T6uYshqisRoDe
-	izjlPlRj5zGvvbZH95bM8e3YbFs1cfi0zeFF3nuqA7tHOrYNOYKdQKaTWyT5xjswJAB5nVKlrgW
-	q42t1bvkGun8sgB07qPW49tyaPARlqKSiNmH61uCqjGdB5ZK+2NnI+9yUItyLbkIV4k3DFVnzEs
-	seLyxjlqlFLpoi8CWMqKFG6GsnedenWvKKJtBQne/occfxW/1C03qFVkt4V1LdrmPMjK9cR7A4I
-	YD6+JpnIacaWN4izACtDQmgf2wtf5RlcFoA4L3OF2r/vJJ/RYPe2kfUXBfaek8QtIwQvg=
-X-Received: by 2002:a05:7300:2301:b0:385:4c54:3c8c with SMTP id 5a478bee46e88-3856c0c9403mr38890998eec.1.1795863980420;
-        Sat, 28 Nov 2026 03:06:20 -0800 (PST)
+        bh=vuzWgEZTt/vmNk3O06RvjcsX2Xv/+otg2TVx6cWLcEg=;
+        b=LAV6oD5madY0GdK8lj9TsHYJ87zjG+KtljQvTTHtZWYzho1SgVYdLUnWpo985ajfdK
+         RuZXdf9PDToe5Q+4s39ZBSv/7Zv22IauwI+aFCJeq9CR1uqwczghZ9dljO07b37QJamU
+         vqTnE9As0ejqyNhUpAPhXiAlag5xO26gwAVDrQW+19lNUR8vFnnSy5/TRd1zQmrPVtwi
+         OLJIpjD9FJ0bmvfpwMMQcrwF2FqZw8fCFSfZ46dPLqb9cqkL66baEhTwt8x/4DIe2RzR
+         HN01VEEks+Sfgt37ar3CTaXtgmKbL2VBjYTGVjKcj9L4KFSn4eTkDy5WhrIpETyI2pS2
+         OqeA==
+X-Forwarded-Encrypted: i=1; AL+hErGn3IoEj5eZgzWBUdWECKtKvuqGJxq0v1j5HdaBx6KhkZlWJPpFb+7SfUGm/Iho2q3AOGH97W6dH2x3Dg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/CHUq6aPTcsvKCzUc0zaqVZ91SMmUk0oUgj9MydTnuJmbRtpgX
+	roGS9UBZ8ldeNkpU3v0srQaZtSUOcJD8T4u1CIDQCg50CVR1gumvJEy2
+X-Gm-Gg: AZFdTZeRJpVUoOP9cr2WPILtjc1GFHzmjowUe2VxAMxblb6E8U6UdXWiofrBDhePzxJ
+	95cZxlYhUwOI/3qyPZtSXMIxwf75kolsv9uaaElCWMBWrIY51+hmiIzBkiomFOyOV0gOTatzMSZ
+	uybvxAGMqNmXRHT3U6xDZLRMZqrudGxvrJDYzCYYaz+9DB6hL40xKq1qis2TO+McCAmasN/TR31
+	OSeuLMoxBHySwMinmBGX4M4e4+S+iaUSupit1NHVoYXE5YWrs8J5aCsHMJIvGkBC2DP2U37xtBp
+	li+VC7MBD+kDu6VNAhUSr8y48eVQG/wgQoHe2wiliTSNWfXqzLfVfjG3hOBiH2adLDKyzy7huGw
+	/ZBCuvnixZOXnyFS2ltB9Y9KXrlPwYqBf5bbcsCK1FzHsBYMPzkyx9B2F+hMd6Kq3s+XbP2mXmH
+	LhFvIMdWWu9AsrW57JkLQqz86pOR42BJbrtmBGWSdgv4wyjNRbLD3fchGTU8p7EwwR90jfr6gBj
+	5Nni4JoVT2PE9FUMR/3PXlzjlBVWQY53GVTwzzwYSm4+jH3yolO0joAnGbiLuIby5XSQ09X4kB2
+	/l1R5SKY4wmIYsE+w93nn4AEnLDxnOf04Y9XsWGYxup1r/OyEIaTweAghGDqkT/05LL8uoTFZuU
+	3gyzhCF9J3f0L1gZ6nnMS8eB2m86ZIAQg8KX8+2Kph6h+uoVY+NqKuoyj5R1bWOLk3GSz7thP7s
+	dAey5oOFiKwL9oPlSu2gySAUdaS+px58VAwA7c6IVDtCxK1w==
+X-Received: by 2002:a05:7301:4704:b0:383:729:cabe with SMTP id 5a478bee46e88-3856f8519ecmr28552530eec.19.1795863983358;
+        Sat, 28 Nov 2026 03:06:23 -0800 (PST)
 Received: from spark-da2e.tail8e743c.ts.net ([211.105.22.106])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386c7c62a91sm40958970eec.17.2026.11.28.03.06.18
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386c7c62a91sm40958970eec.17.2026.11.28.03.06.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2026 03:06:19 -0800 (PST)
+        Sat, 28 Nov 2026 03:06:22 -0800 (PST)
 From: Jinmo Yang <jinmo44.yang@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
+To: Filipe Lains <lains@riseup.net>,
+	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: Jinmo Yang <jinmo44.yang@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: HID: magicmouse: battery timer makes a sleeping HID request
-Date: Sat, 28 Nov 2026 11:04:06 +0000
-Message-ID: <20261128110415.772810-4-jinmo44.yang@gmail.com>
+Subject: HID: logitech-dj: shared receiver keeps unreferenced HID devices
+Date: Sat, 28 Nov 2026 11:04:07 +0000
+Message-ID: <20261128110415.772810-5-jinmo44.yang@gmail.com>
 X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -101,56 +102,56 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 Found by coverage-guided fuzzing of the HID subsystem through /dev/uhid.
-No patch is attached; I am reporting the context bug first and can test
+No patch is attached; I am reporting the lifetime issue first and can test
 candidate fixes with the standalone reproducer.
 
 Kernel: mainline 7.2.0-ge46c86b19f4b (arm64, KASAN)
-File:   drivers/hid/hid-magicmouse.c
-Impact: scheduling while atomic and subsequent scheduler corruption; DoS
-Repro:  standalone C, approximately 62 seconds
+File:   drivers/hid/hid-logitech-dj.c
+Impact: use-after-free read and NULL/wild pointer dereferences
+Repro:  standalone C, approximately 57 seconds
 
 ## Report
 
-  BUG: scheduling while atomic: swapper/1/0/0x00000102
-   schedule_timeout
-   __uhid_report_queue_and_wait
-   uhid_hid_get_report
-   uhid_hid_raw_request
-   hid_hw_raw_request
-   hid_hw_request
-   magicmouse_fetch_battery
-   magicmouse_battery_timer_tick
-   call_timer_fn
-   run_timer_softirq
+  BUG: KASAN: slab-use-after-free in __dev_printk
+  Read of size 8
+   dev_driver_string
+   __dev_printk
+   hid_err
+   logi_dj_recv_switch_to_dj_mode
+   logi_dj_probe
+   hid_device_probe
+   uhid_device_add_worker
 
-The preempt count 0x102 and PID 0 show that the request slept while a timer
-softirq was running in the idle task.
+The freed object was a struct hid_device allocated by uhid_dev_create2() and
+released through hid_device_release() by a different task.
 
 ## Analysis
 
-magicmouse_battery_timer_tick() is a timer callback and therefore runs in
-atomic context.  It directly calls magicmouse_fetch_battery(), which issues:
+dj_receiver_dev is shared by interfaces whose phys paths have the same
+prefix.  It stores raw mouse, keyboard and hidpp hid_device pointers without
+taking references.  During concurrent probes, one interface can overwrite a
+shared pointer that another interface later latches.
 
-  hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
+The reproduced order is:
 
-Whether this sleeps depends on the transport.  With uhid,
-uhid_hid_raw_request() waits for a userspace UHID_GET_REPORT_REPLY through
-__uhid_report_queue_and_wait(), which uses schedule_timeout().  hid_hw_request
-therefore cannot be assumed atomic-safe.
+  1. receiver A begins probing;
+  2. receiver B overwrites the shared hidpp pointer;
+  3. A latches B's hdev and enters switch_to_dj_mode();
+  4. A's hid_hw_raw_request blocks waiting for uhid userspace;
+  5. B is destroyed and its hid_device is freed;
+  6. A's request returns and hid_err() dereferences B's freed hdev.
 
-The standalone reproducer creates a USB Magic Trackpad 2 uhid device with a
-battery feature report, permits the probe-time request to finish, then keeps
-the fd open without replying to the request made by the 60-second battery
-timer.  It reproduced the warning at about 62 seconds.  Subsequent reports in
-the same runs showed failures in __schedule and unrelated task stacks, so I
-classify the impact as denial of service rather than a harmless warning.
+cancel_work_sync() in B's destruction does not help because the stale pointer
+is held by A's worker.  The existing remove path clears current back-pointers
+under dj_hdev_list_lock, but that does not protect a pointer already latched
+by another probe and held across the blocking raw request.
 
-The usual shape of a fix would be to have the timer schedule work and perform
-the HID request in process context, with teardown synchronously cancelling
-both timer and work.
+The shared pointer needs an object reference or exclusion that remains valid
+for the complete operation, not only while finding or clearing the receiver
+entry.
 
 ## Upstream status
 
-Rechecked against mainline, linux-next, HID maintainer branches, including
-the magicmouse branch, and lore through 2026-11-28.  The defect remains
-unpatched and I found no matching submission.
+Rechecked against mainline, linux-next, HID maintainer branches, and lore
+through 2026-11-28.  The defect remains unpatched and I found no matching
+submission.
